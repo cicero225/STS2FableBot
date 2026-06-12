@@ -70,6 +70,7 @@ class CardRewardWeights(_Section):
 
 class RestWeights(_Section):
     rest_below_hp_pct: float = 0.60
+    rest_before_boss_below_hp_pct: float = 0.90
 
 
 class PotionWeights(_Section):

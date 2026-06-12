@@ -63,6 +63,9 @@ bonus_energy = 4.0
 
 [rest]
 rest_below_hp_pct = 0.60     # rest when below this fraction of max HP
+# the node before the act boss: rest unless nearly full (entered Ceremonial Beast
+# at 46/91 and lost with the boss at 32 HP — that fight was won by routing, lost by HP)
+rest_before_boss_below_hp_pct = 0.90
 # otherwise smith (upgrade); upgrade priority = highest reward-score card unupgraded
 
 [potions]

@@ -189,6 +189,11 @@ class StandardRouter:
             if score > best_score:
                 best_score, best = score, opt
         assert best is not None
+        boss_row = state.map.boss.row if state.map.boss else None
+        if boss_row is not None and best.row == boss_row - 1:
+            ctx.screen_mem["pre_boss"] = True  # arriving on the last row before the boss
+        else:
+            ctx.screen_mem.pop("pre_boss", None)
         return Decision(
             action=act.ChooseMapNode(index=best.index),
             rationale=f"route to {best.type} at ({best.col},{best.row}) "
@@ -312,10 +317,13 @@ class StandardRouter:
         enabled = {o.id or (o.name or "").lower(): o for o in rs.options if o.is_enabled}
         player = state.player
         hp_pct = player.hp / max(1, player.max_hp) if player else 1.0
-        if hp_pct < w.rest_below_hp_pct and "rest" in enabled:
+        pre_boss = bool(ctx.screen_mem.get("pre_boss"))
+        threshold = w.rest_before_boss_below_hp_pct if pre_boss else w.rest_below_hp_pct
+        if hp_pct < threshold and "rest" in enabled:
             return Decision(
                 action=act.ChooseRestOption(index=enabled["rest"].index),
-                rationale=f"rest at {hp_pct:.0%} HP",
+                rationale=f"rest at {hp_pct:.0%} HP"
+                + (" (boss next — top up)" if pre_boss else ""),
             )
         if "smith" in enabled:
             return Decision(

@@ -400,6 +400,25 @@ def test_rest_threshold() -> None:
     assert decision.action.payload()["index"] == 1  # smith
 
 
+def test_rest_tops_up_before_boss() -> None:
+    """Entered Ceremonial Beast at 46/91 and lost with the boss at 32 HP. On the
+    last row before the boss, rest unless nearly full."""
+    payload = json.loads(json.dumps(FIXTURES["rest_site"]))
+    payload["player"]["hp"] = 64  # 80% of 80 — would normally smith
+    state = parse_state(payload)
+
+    ctx = LoopContext()
+    decision = router().decide(state, ctx)
+    assert isinstance(decision, Decision)
+    assert decision.action.payload()["index"] == 1  # smith normally
+
+    ctx.screen_mem["pre_boss"] = True
+    decision = router().decide(state, ctx)
+    assert isinstance(decision, Decision)
+    assert decision.action.payload()["index"] == 0  # rest before the boss
+    assert "boss next" in decision.rationale
+
+
 def test_full_belt_discards_for_potion_reward() -> None:
     payload = json.loads(json.dumps(FIXTURES["rewards"]))
     payload["player"]["potions"] = [
