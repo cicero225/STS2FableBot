@@ -214,7 +214,7 @@ class AgentLoop:
             from sts2bot.client.actions import SetTimeScale
 
             self.client.act(SetTimeScale(scale=self.config.time_scale))
-        except Exception:  # noqa: BLE001 - speed is best-effort, never fatal
+        except Exception:
             pass
 
     def _track_progress(self, state: GameState, ctx: LoopContext, outcome: RunOutcome) -> None:
