@@ -5,6 +5,9 @@
 # one-turn planner scoring weights
 w_damage = 1.0              # per point of enemy HP removed
 w_kill = 25.0               # per enemy killed this turn
+w_focus = 9.0               # × Σ (missing-hp fraction)² — rewards concentrating damage
+                            # on one enemy (learned: run 13 spread damage across a
+                            # 4-Nibbit pack and lost from full HP)
 w_overkill = -0.3           # per point of damage wasted past a kill
 w_block_useful = 1.2        # per point of incoming damage actually blocked
 w_block_excess = -0.15      # per point of block past incoming

@@ -148,6 +148,26 @@ def test_combat_potion_when_dire() -> None:
     assert decision.action.payload()["action"] == "use_potion"
 
 
+def test_pack_fight_focuses_fire() -> None:
+    """Run 13 spread damage across a 4-Nibbit pack and died from full HP. With the
+    focus term, follow-up hits go to the already-wounded enemy."""
+
+    def pack(first_hp: int):
+        enemies = [enemy(f"NIBBIT_{i}", 20, intent_label="10") for i in range(4)]
+        enemies[2]["hp"] = first_hp  # NIBBIT_2 took the first hit
+        return make_combat(
+            hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+            enemies=enemies,
+            energy=1,
+        )
+
+    decision = router().decide(pack(first_hp=14), LoopContext())
+    assert isinstance(decision, Decision)
+    payload = decision.action.payload()
+    assert payload["action"] == "play_card"
+    assert payload["target"] == "NIBBIT_2"  # finish what you started
+
+
 def test_heal_potion_when_dire() -> None:
     state = make_combat(
         hand=[card(0, "Strike", 1, "Deal 6 damage.")],

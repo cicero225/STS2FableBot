@@ -19,6 +19,7 @@ class _Section(BaseModel):
 class CombatWeights(_Section):
     w_damage: float = 1.0
     w_kill: float = 25.0
+    w_focus: float = 9.0
     w_overkill: float = -0.3
     w_block_useful: float = 1.2
     w_block_excess: float = -0.15

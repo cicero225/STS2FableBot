@@ -38,6 +38,7 @@ class PlannedCard:
 class EnemySim:
     entity_id: str
     hp: int
+    max_hp: int
     block: int
     vulnerable: int
     incoming: int  # this enemy's attack damage this turn (0 if not attacking)
@@ -97,6 +98,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
             EnemySim(
                 entity_id=e.entity_id,
                 hp=e.hp,
+                max_hp=max(e.max_hp, 1),
                 block=e.block,
                 vulnerable=vuln,
                 incoming=incoming,
@@ -188,8 +190,12 @@ def _score(state: SimState, w: CombatWeights) -> float:
     incoming = sum(e.incoming for e in state.enemies if e.hp > 0)
     blocked = min(state.my_block, incoming)
     hp_loss = incoming - blocked + state.self_damage
+    # quadratic focus-fire reward: concentrated damage beats spread damage, because
+    # a finished enemy stops attacking (run 13: spread vs a 4-Nibbit pack = death)
+    focus = sum(((e.max_hp - e.hp) / e.max_hp) ** 2 for e in state.enemies)
     return (
-        w.w_damage * state.damage_dealt
+        w.w_focus * focus
+        + w.w_damage * state.damage_dealt
         + w.w_kill * state.kills
         + w.w_overkill * state.overkill
         + w.w_block_useful * blocked
