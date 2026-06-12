@@ -14,6 +14,7 @@ external/
 # Runtime artifacts
 logs/
 runs/
+backups/
 *.log
 *.sqlite
 *.sqlite3
