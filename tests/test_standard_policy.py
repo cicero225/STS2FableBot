@@ -475,6 +475,70 @@ def test_card_reward_takes_good_skips_bad() -> None:
     assert decision.action.payload() == {"action": "skip_card_reward"}
 
 
+def test_priors_loaded_and_shaped() -> None:
+    from sts2bot.kb.priors import CardPriors
+
+    priors = CardPriors.load()
+    assert priors is not None, "data/priors_cards.json should be committed"
+    # accepts both display names and ids; ADRENALINE is the community's top pick
+    adrenaline = priors.score("ADRENALINE", "The Ironclad")
+    assert adrenaline is not None and adrenaline > 4.0
+    assert priors.score("ADRENALINE", "IRONCLAD") == adrenaline
+    assert priors.score("NO_SUCH_CARD", "IRONCLAD") is None
+
+
+def test_card_reward_prior_overrides_heuristics() -> None:
+    """A community-loved card must beat a heuristically-flashy but bad card."""
+    from sts2bot.kb.priors import CardPriors
+
+    priors = CardPriors(by_character={"IRONCLAD": {"COMMUNITY_GEM": 6.0, "TRAP_CARD": -6.0}})
+    r = StandardRouter(priors=priors)
+    payload = {
+        "state_type": "card_reward",
+        "card_reward": {
+            "cards": [
+                {
+                    "index": 0,
+                    "id": "TRAP_CARD",
+                    "name": "Trap Card",
+                    "type": "Power",
+                    "cost": "1",
+                    "rarity": "Rare",
+                    "description": "Gain 1 Energy. Draw 2 cards. Gain 8 Block.",
+                    "is_upgraded": False,
+                    "keywords": [],
+                },
+                {
+                    "index": 1,
+                    "id": "COMMUNITY_GEM",
+                    "name": "Community Gem",
+                    "type": "Skill",
+                    "cost": "1",
+                    "rarity": "Common",
+                    "description": "Does something subtle the regex cannot price.",
+                    "is_upgraded": False,
+                    "keywords": [],
+                },
+            ],
+            "can_skip": True,
+        },
+        "run": {"act": 1, "floor": 4, "ascension": 0},
+        "player": {
+            "character": "The Ironclad",
+            "hp": 70,
+            "max_hp": 80,
+            "status": [],
+            "relics": [],
+            "potions": [],
+            "max_potion_slots": 3,
+        },
+    }
+    decision = r.decide(parse_state(payload), LoopContext())
+    assert isinstance(decision, Decision)
+    assert decision.action.payload() == {"action": "select_card_reward", "card_index": 1}
+    assert decision.scores["Community Gem"] > decision.scores["Trap Card"]
+
+
 def test_rest_threshold() -> None:
     payload = json.loads(json.dumps(FIXTURES["rest_site"]))
     payload["player"]["hp"] = 30  # 37.5% of 80

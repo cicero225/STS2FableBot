@@ -50,6 +50,8 @@ path_step_discount = 0.80
 [card_rewards]
 # pick the best-scoring card if it clears the threshold, else skip
 take_threshold = 4.0
+# community prior (Spirebird Elo delta, ~±8) weight; heuristics fill the gaps
+prior_weight = 1.8
 w_rarity_common = 2.0
 w_rarity_uncommon = 5.0
 w_rarity_rare = 8.0

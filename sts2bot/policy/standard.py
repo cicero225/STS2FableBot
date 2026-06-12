@@ -21,6 +21,7 @@ from sts2bot.client.models import (
     ShopState,
 )
 from sts2bot.kb.config import PolicyConfig, load_policy_config
+from sts2bot.kb.priors import CardPriors
 from sts2bot.policy.base import Decision, LoopContext, Wait
 from sts2bot.policy.combat import plan_combat_turn
 from sts2bot.policy.textparse import parse_card_description, parse_hp_cost, parse_intent_damage
@@ -28,8 +29,13 @@ from sts2bot.policy.trivial import TrivialRouter
 
 
 class StandardRouter:
-    def __init__(self, config: PolicyConfig | None = None):
+    def __init__(
+        self,
+        config: PolicyConfig | None = None,
+        priors: CardPriors | None = None,
+    ):
         self.config = config or load_policy_config()
+        self.priors = priors if priors is not None else CardPriors.load()
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
@@ -296,7 +302,7 @@ class StandardRouter:
 
     # ------------------------------------------------------------------ card rewards
 
-    def _card_score(self, card, deck_size: int) -> float:
+    def _card_score(self, card, deck_size: int, character: str | None = None) -> float:
         w = self.config.card_rewards
         fx = parse_card_description(card.description)
         score = {
@@ -304,6 +310,10 @@ class StandardRouter:
             "Uncommon": w.w_rarity_uncommon,
             "Rare": w.w_rarity_rare,
         }.get(card.rarity or "", w.w_rarity_common)
+        if self.priors is not None:
+            prior = self.priors.score(card.id, character)
+            if prior is not None:
+                score += w.prior_weight * prior
         score += {
             "Attack": w.w_attack,
             "Skill": w.w_skill,
@@ -334,7 +344,8 @@ class StandardRouter:
                 return Decision(action=act.SkipCardReward(), rationale="no cards offered; skip")
             return Wait(reason="card reward with no cards and no skip")
         deck_size = len(state.player.deck) if (state.player and state.player.deck) else 15
-        scored = [(self._card_score(c, deck_size), c) for c in cr.cards]
+        character = state.player.character if state.player else None
+        scored = [(self._card_score(c, deck_size, character), c) for c in cr.cards]
         scored.sort(key=lambda sc: -sc[0])
         best_score, best = scored[0]
         score_map = {c.name: round(s, 2) for s, c in scored}

@@ -33,3 +33,6 @@ obj/
 # OS noise
 Thumbs.db
 desktop.ini
+
+# Raw Spirebird export (58MB; owner-downloaded; distilled into data/priors_cards.json)
+data/spirebird/
