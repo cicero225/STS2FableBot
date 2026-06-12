@@ -177,3 +177,4 @@ possibly streaming. Direction set by what the data says is losing us runs.
 | Spirebird export shape & licence/courtesy ask | P1.2 | jorbs Discord if unclear (C4) |
 | Game patch cadence on release branch | P1+ | informs KB diff automation priority |
 | StS2 ascension cap (10 vs 20) | P2 | owner reports 10 currently; verify in-game |
+| Safe automation of Timeline epoch *reveals* | P2 fork candidate | mod automates timeline advance/back + queued unlock screens, but deliberately refuses to force-reveal "Obtained" epochs ("invalid unlock path"); decompile the reveal flow to see if a safe replication exists, else it stays a rare owner click |
