@@ -2,7 +2,25 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
-## 2026-06-11 (later) — M0 closed; character-select bug found; dialogue intel
+## 2026-06-11 (final) — Shakeout series done: 3 clean runs, 3 characters, all fixes tested
+
+**Run 5** (Regent, resumed) stalled at a rewards screen: potion reward + full belt
+no-ops with status "ok" forever; stall rail killed the run as designed. Fixed:
+rewards policy abandons items after two claim attempts. **Run 6** (same Regent run
+resumed) completed: died floor 11 Act 1 to ENCOUNTER.BYGONE_EFFIGY_ELITE, seed
+MVPTHFRUWN — deepest run yet; exercised multi-card select overlay ("Choose 2 Common
+Cards"), Regent star costs, Unknown map nodes.
+
+**Session tally (modded profile, all A0, trivial policy):** 6 runs — 3 completed
+clean (Ironclad fl.9 / Silent fl.5 / Regent fl.11), 3 errored (each found a real
+bug/gap, each fixed with a regression test: transitional battle-less combat state,
+epoch-reveal menu gate, full-belt reward no-op). Owner interventions: 1 epoch
+reveal + 1 accidental dialogue click-through. Everything else autonomous.
+
+**Next session:** C# mod fork (character-select commit fix is the gateway to M1
+character control; ascension selector + speed control + master deck ride along),
+then P1 knowledge base + real policies. Open owner decision: GitHub fork of STS2MCP
+under owner's account vs vendoring into this repo.
 
 **Run 3** stalled by design: after the profile's first death the game gates the main
 menu behind a Timeline epoch reveal (NEOW_EPOCH) which the mod refuses to automate
