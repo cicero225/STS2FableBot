@@ -28,7 +28,13 @@ CREATE TABLE IF NOT EXISTS runs (
 """
 
 # columns added after the first release; applied idempotently to old DBs
-_MIGRATION_COLUMNS = {"seed": "TEXT", "build_id": "TEXT", "killed_by": "TEXT"}
+_MIGRATION_COLUMNS = {
+    "seed": "TEXT",
+    "build_id": "TEXT",
+    "killed_by": "TEXT",
+    "policy": "TEXT",
+    "config_hash": "TEXT",
+}
 
 
 class RunIndex:
@@ -46,10 +52,16 @@ class RunIndex:
     def close(self) -> None:
         self._conn.close()
 
-    def start_run(self, run_dir: str, started_at: str) -> int:
+    def start_run(
+        self,
+        run_dir: str,
+        started_at: str,
+        policy: str | None = None,
+        config_hash: str | None = None,
+    ) -> int:
         cur = self._conn.execute(
-            "INSERT INTO runs (run_dir, started_at) VALUES (?, ?)",
-            (run_dir, started_at),
+            "INSERT INTO runs (run_dir, started_at, policy, config_hash) VALUES (?, ?, ?, ?)",
+            (run_dir, started_at, policy, config_hash),
         )
         self._conn.commit()
         assert cur.lastrowid is not None

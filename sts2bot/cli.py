@@ -41,9 +41,43 @@ def doctor(base_url: str = DEFAULT_BASE_URL) -> None:
             typer.echo("  profiles:    (endpoint unavailable)")
 
 
+def _build_router(policy: str):
+    if policy == "trivial":
+        from sts2bot.policy.trivial import TrivialRouter
+
+        return TrivialRouter(), None
+    if policy == "standard":
+        from sts2bot.kb.config import load_policy_config
+        from sts2bot.policy.standard import StandardRouter
+
+        config = load_policy_config()
+        return StandardRouter(config), config.config_hash
+    raise typer.BadParameter(f"unknown policy '{policy}' (trivial|standard)")
+
+
+@app.command()
+def replay(
+    policy: str = typer.Option("standard", help="Policy to replay: trivial|standard."),
+    log_root: str = typer.Option("logs", help="Directory holding runs/ to replay against."),
+) -> None:
+    """Run a policy over every logged state (no game needed) and report sanity."""
+    from sts2bot.replay.smoke import replay_smoke
+
+    router, _ = _build_router(policy)
+    report = replay_smoke(router, log_root)
+    typer.echo(
+        f"states={report.states} decisions={report.decisions} waits={report.waits} "
+        f"skipped={report.skipped} errors={len(report.errors)}"
+    )
+    for error in report.errors[:20]:
+        typer.echo(f"  ERROR {error}")
+    raise typer.Exit(code=0 if report.ok else 1)
+
+
 @app.command()
 def play(
     runs: int = typer.Option(1, help="How many runs to play before stopping."),
+    policy: str = typer.Option("standard", help="Policy: trivial|standard."),
     character: str = typer.Option("IRONCLAD", help="Character ID to select."),
     ascension: int = typer.Option(0, help="Ascension level (must be unlocked)."),
     speed: float = typer.Option(
@@ -60,13 +94,13 @@ def play(
     for now — keep an eye on it (REQUIREMENTS FR-4.4)."""
     from sts2bot.client.actions import SetTimeScale
     from sts2bot.orchestrator.loop import AgentLoop, LoopConfig
-    from sts2bot.policy.trivial import TrivialRouter
     from sts2bot.runlog.runfile import discover_history_dirs
 
     if poll_interval is None:
         # faster game -> poll faster, else the loop becomes the bottleneck
         poll_interval = 0.5 if speed is None else max(0.15, 0.5 / speed)
 
+    router, config_hash = _build_router(policy)
     history_dirs = discover_history_dirs()
     config = LoopConfig(
         poll_interval=poll_interval,
@@ -74,14 +108,16 @@ def play(
         ascension=ascension,
         profile_id=profile,
         history_dirs=history_dirs,
+        policy_name=policy,
+        config_hash=config_hash,
     )
     with Sts2Client(base_url=base_url) as client:
         if speed is not None:
             result = client.act(SetTimeScale(scale=speed))
             typer.echo(f"time scale {speed}x: {result.detail}")
         for i in range(runs):
-            typer.echo(f"--- run {i + 1}/{runs} (character={character}) ---")
-            loop = AgentLoop(client, TrivialRouter(), log_root=log_root, config=config)
+            typer.echo(f"--- run {i + 1}/{runs} (policy={policy} character={character}) ---")
+            loop = AgentLoop(client, router, log_root=log_root, config=config)
             outcome = loop.play_one_run()
             typer.echo(
                 f"  status={outcome.status} victory={outcome.victory} "

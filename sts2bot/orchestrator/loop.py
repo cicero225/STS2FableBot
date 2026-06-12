@@ -47,6 +47,9 @@ class LoopConfig(BaseModel):
     profile_id: int | None = None
     # game save history dirs for authoritative outcome records ([] = skip)
     history_dirs: list[Path] = []
+    # attribution (FR-3.4): which policy + config produced this run
+    policy_name: str = "trivial"
+    config_hash: str | None = None
 
 
 class BotStalled(Exception):
@@ -77,9 +80,18 @@ class AgentLoop:
         ctx = LoopContext(
             character=cfg.character, ascension=cfg.ascension, profile_id=cfg.profile_id
         )
-        logger = RunLogger(self.log_root, character_hint=cfg.character)
+        logger = RunLogger(
+            self.log_root,
+            character_hint=cfg.character,
+            header={"policy": cfg.policy_name, "config_hash": cfg.config_hash},
+        )
         index = RunIndex(self.log_root / "index.sqlite")
-        run_id = index.start_run(str(logger.run_dir), logger.started_at)
+        run_id = index.start_run(
+            str(logger.run_dir),
+            logger.started_at,
+            policy=cfg.policy_name,
+            config_hash=cfg.config_hash,
+        )
         outcome = RunOutcome(ascension=None)
         loop_start_epoch = time.time()
 

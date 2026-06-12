@@ -42,7 +42,12 @@ class RunOutcome(BaseModel):
 class RunLogger:
     """Writes one run's decision stream and metadata. Not thread-safe; one per run."""
 
-    def __init__(self, log_root: Path, character_hint: str = "unknown"):
+    def __init__(
+        self,
+        log_root: Path,
+        character_hint: str = "unknown",
+        header: dict[str, Any] | None = None,
+    ):
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         self.run_dir = Path(log_root) / "runs" / f"{stamp}_{character_hint.lower()}"
         self.run_dir.mkdir(parents=True, exist_ok=True)
@@ -51,8 +56,9 @@ class RunLogger:
         self._fh = self._decisions_path.open("a", encoding="utf-8")
         self.seq = 0
         self.started_at = _now_iso()
+        self.header = header or {}
         self._t0 = time.monotonic()
-        self._write_meta({"started_at": self.started_at, "outcome": None})
+        self._write_meta({"started_at": self.started_at, **self.header, "outcome": None})
 
     def _write_meta(self, meta: dict[str, Any]) -> None:
         self._meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
@@ -85,6 +91,7 @@ class RunLogger:
         self._write_meta(
             {
                 "started_at": self.started_at,
+                **self.header,
                 "ended_at": _now_iso(),
                 "outcome": outcome.model_dump(),
             }
