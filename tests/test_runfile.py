@@ -59,6 +59,33 @@ def test_latest_run_summary_respects_since_epoch(tmp_path: Path) -> None:
     assert found is not None and found.seed == "NEWSEED"
 
 
+def test_event_death_survives_none_none_padding(tmp_path: Path) -> None:
+    """Observed live: event deaths pad killed_by_encounter with 'NONE.NONE' (truthy),
+    which must not mask the real event killer in the index."""
+    import sqlite3
+
+    history = tmp_path / "history"
+    write_run_file(
+        history,
+        "record",
+        killed_by_encounter="NONE.NONE",
+        killed_by_event="EVENT.DENSE_VEGETATION",
+    )
+    game = build_doc_script()
+    loop = AgentLoop(
+        client=FakeClient(game),
+        router=TrivialRouter(),
+        log_root=tmp_path / "logs",
+        config=LoopConfig(poll_interval=0, history_dirs=[history]),
+    )
+    outcome = loop.play_one_run()
+    assert outcome.killed_by_event == "EVENT.DENSE_VEGETATION"
+    conn = sqlite3.connect(tmp_path / "logs" / "index.sqlite")
+    killed_by = conn.execute("SELECT killed_by FROM runs").fetchone()[0]
+    conn.close()
+    assert killed_by == "EVENT.DENSE_VEGETATION"
+
+
 def test_loop_enriches_outcome_from_run_record(tmp_path: Path) -> None:
     history = tmp_path / "history"
     write_run_file(history, "record", win=True, seed="WINSEED")

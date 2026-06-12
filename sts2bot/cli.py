@@ -52,7 +52,9 @@ def play(
     profile: int = typer.Option(None, help="Bot profile slot (1-3); never the owner's."),
     log_root: str = typer.Option("logs", help="Directory for run logs + index."),
     base_url: str = DEFAULT_BASE_URL,
-    poll_interval: float = typer.Option(0.5, help="Seconds between state polls."),
+    poll_interval: float = typer.Option(
+        None, help="Seconds between state polls (default 0.5, scaled down with --speed)."
+    ),
 ) -> None:
     """Play run(s) with the current policy (P0: trivial policy). Attended use only
     for now — keep an eye on it (REQUIREMENTS FR-4.4)."""
@@ -60,6 +62,10 @@ def play(
     from sts2bot.orchestrator.loop import AgentLoop, LoopConfig
     from sts2bot.policy.trivial import TrivialRouter
     from sts2bot.runlog.runfile import discover_history_dirs
+
+    if poll_interval is None:
+        # faster game -> poll faster, else the loop becomes the bottleneck
+        poll_interval = 0.5 if speed is None else max(0.15, 0.5 / speed)
 
     history_dirs = discover_history_dirs()
     config = LoopConfig(
@@ -82,9 +88,14 @@ def play(
                 f"act={outcome.act} floor={outcome.floor} decisions={outcome.decisions}"
             )
             if outcome.seed:
+                killers = [
+                    k
+                    for k in (outcome.killed_by_encounter, outcome.killed_by_event)
+                    if k and k != "NONE.NONE"
+                ]
                 typer.echo(
                     f"  seed={outcome.seed} build={outcome.build_id} "
-                    f"killed_by={outcome.killed_by_encounter}"
+                    f"killed_by={killers[0] if killers else None}"
                 )
             if outcome.error:
                 typer.echo(f"  error: {outcome.error}")

@@ -120,10 +120,10 @@ entire loop is built and tested against fixtures before ever touching the live g
 
 ### P2 — Climb machinery (→ M2: A0→A10 with one character)
 1. C# fork (live at github.com/cicero225/STS2MCP, builds via build.ps1 + .NET 9):
-   ✅ character-select commit fix (root-caused & live-verified 2026-06-11; PR
-   upstream is a TODO). Remaining: ascension selector (SP — `NAscensionPanel`
-   spotted in decompile); speed/timescale control; master deck in state;
-   epoch-reveal investigation.
+   ✅ **feature-complete 2026-06-11** — character-select commit fix, ascension
+   selector, set_time_scale (3x ≈ 1.5–2x effective decision rate), master deck in
+   state; all live-verified (see LOG.md). Remaining: epoch-reveal investigation
+   (parked); upstream PR (owner's call).
 2. Climb manager: pick character/ascension per policy (FR-4.2), unlock-chain handling,
    stop conditions, crash/hang watchdog + game relaunch, resume-from-save.
 3. Unattended mode behind explicit flag (FR-4.4) + status report (NFR-3).

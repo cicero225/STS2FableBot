@@ -2,6 +2,29 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-06-11 (session 2) — Fork feature-complete: deck, speed, ascension; all verified live
+
+Fork.2 (cicero225/STS2MCP@a84c9e1) adds the remaining planned mod features, all
+live-verified same session:
+- **Master deck in player state** (`deck`: id/name/type/cost/star_cost/rarity/
+  is_upgraded) — verified mid-combat on Necrobinder (10-card starter), fixture
+  captured. Unblocks P1 deck policies.
+- **`set_time_scale`** (0.25–10x, engine-level) — set/clamp/reset verified. 3x run
+  measured **61.5 dec/min vs ~30–40 at 1x**; CLI now also scales the poll interval
+  with `--speed` (the loop was becoming the bottleneck).
+- **`set_ascension`** at character select via NAscensionPanel (panel signal → screen
+  syncs lobby; per-character max enforced) — state fields + refusal-at-locked
+  verified; embark-at-A1 self-tests after first win. CLI: `--ascension`.
+
+Run 9 (Necrobinder, 3x, fl.11): first **death by event** — EVENT.DENSE_VEGETATION
+("Trudge On" HP loss at low HP; trivial policy picks first option blindly). Exposed
+an index bug: the game pads the unused killer slot with truthy "NONE.NONE", which
+masked the event killer — fixed + regression test. P1 event policy note: HP-cost
+options need gating on current HP.
+
+Fork status: all planned P2 mod features done early. Parked: epoch-reveal
+automation investigation. PR upstream still pending owner's go-ahead.
+
 ## 2026-06-11 (fork session 1) — Character-select bug root-caused, fixed, verified live
 
 **Setup:** owner forked STS2MCP → github.com/cicero225/STS2MCP, cloned to `fork/`

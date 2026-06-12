@@ -56,9 +56,12 @@ class RunIndex:
         return cur.lastrowid
 
     def finish_run(self, run_id: int, ended_at: str, outcome: RunOutcome) -> None:
-        killed_by = outcome.killed_by_encounter or outcome.killed_by_event
-        if killed_by in (None, "NONE.NONE"):
-            killed_by = None
+        def clean(value: str | None) -> str | None:
+            return None if value in (None, "NONE.NONE") else value
+
+        # the game pads the unused killer slot with "NONE.NONE" (truthy!), so clean
+        # each field before coalescing or an event death gets discarded
+        killed_by = clean(outcome.killed_by_encounter) or clean(outcome.killed_by_event)
         self._conn.execute(
             """UPDATE runs SET ended_at=?, character=?, ascension=?, act=?, floor=?,
                victory=?, decisions=?, status=?, error=?, seed=?, build_id=?, killed_by=?
