@@ -31,6 +31,12 @@ class RunOutcome(BaseModel):
     decisions: int = 0
     error: str | None = None
     game_over_message: str | None = None
+    # enriched from the game's saves/history/*.run record when available:
+    seed: str | None = None
+    build_id: str | None = None
+    killed_by_encounter: str | None = None
+    killed_by_event: str | None = None
+    was_abandoned: bool | None = None
 
 
 class RunLogger:

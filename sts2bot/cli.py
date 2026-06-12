@@ -54,8 +54,15 @@ def play(
     for now — keep an eye on it (REQUIREMENTS FR-4.4)."""
     from sts2bot.orchestrator.loop import AgentLoop, LoopConfig
     from sts2bot.policy.trivial import TrivialRouter
+    from sts2bot.runlog.runfile import discover_history_dirs
 
-    config = LoopConfig(poll_interval=poll_interval, character=character, profile_id=profile)
+    history_dirs = discover_history_dirs()
+    config = LoopConfig(
+        poll_interval=poll_interval,
+        character=character,
+        profile_id=profile,
+        history_dirs=history_dirs,
+    )
     with Sts2Client(base_url=base_url) as client:
         for i in range(runs):
             typer.echo(f"--- run {i + 1}/{runs} (character={character}) ---")
@@ -65,6 +72,11 @@ def play(
                 f"  status={outcome.status} victory={outcome.victory} "
                 f"act={outcome.act} floor={outcome.floor} decisions={outcome.decisions}"
             )
+            if outcome.seed:
+                typer.echo(
+                    f"  seed={outcome.seed} build={outcome.build_id} "
+                    f"killed_by={outcome.killed_by_encounter}"
+                )
             if outcome.error:
                 typer.echo(f"  error: {outcome.error}")
             if outcome.status != "completed":

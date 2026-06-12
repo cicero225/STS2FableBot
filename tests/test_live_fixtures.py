@@ -48,6 +48,18 @@ def test_combat_without_battle_block_waits() -> None:
     assert isinstance(decision, Wait)
 
 
+def test_blocked_epoch_menu_waits_for_owner() -> None:
+    """Observed live: after first death, main menu loses 'singleplayer' until the
+    owner manually reveals a Timeline epoch (mod refuses to automate it)."""
+    state = parse_state(
+        json.loads((LIVE_DIR / "menu_blocked_epoch.json").read_text(encoding="utf-8"))
+    )
+    decision = TrivialRouter().decide(state, LoopContext())
+    assert isinstance(decision, Wait)
+    assert decision.reason.startswith("MANUAL:")
+    assert "NEOW_EPOCH" in decision.reason
+
+
 def test_embark_is_sent_only_once() -> None:
     """Observed live: character_select lingers after embark; re-confirming errors."""
     router = TrivialRouter()

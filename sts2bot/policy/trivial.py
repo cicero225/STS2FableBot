@@ -77,6 +77,19 @@ class TrivialRouter:
                 return pick("continue", "resume saved run")
             if "singleplayer" in options:
                 return pick("singleplayer", "start a new singleplayer run")
+            blocked = state.blocked_options or []
+            reveal = [
+                b
+                for b in blocked
+                if isinstance(b, dict) and b.get("reason") == "manual_epoch_reveal_required"
+            ]
+            if reveal:
+                epochs = [e for b in reveal for e in b.get("pending_epoch_ids", [])]
+                return Wait(
+                    reason="MANUAL: Timeline epoch reveal required "
+                    f"({', '.join(epochs) or 'unknown epoch'}) — owner must open "
+                    "Timeline in-game once (mod refuses to automate this safely)"
+                )
             return Wait(reason="main menu without singleplayer/continue")
 
         if screen == "singleplayer":

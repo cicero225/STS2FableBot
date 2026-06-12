@@ -39,10 +39,13 @@ class GameClient(Protocol):
 class LoopConfig(BaseModel):
     poll_interval: float = 0.5
     stall_threshold: int = 60  # consecutive unchanged-state ticks before giving up
+    manual_stall_threshold: int = 600  # generous rail while waiting on owner (MANUAL waits)
     error_streak_limit: int = 8  # consecutive rejected actions before giving up
     max_decisions: int = 3000  # hard safety cap per run
     character: str = "IRONCLAD"
     profile_id: int | None = None
+    # game save history dirs for authoritative outcome records ([] = skip)
+    history_dirs: list[Path] = []
 
 
 class BotStalled(Exception):
@@ -75,11 +78,14 @@ class AgentLoop:
         index = RunIndex(self.log_root / "index.sqlite")
         run_id = index.start_run(str(logger.run_dir), logger.started_at)
         outcome = RunOutcome(ascension=None)
+        loop_start_epoch = time.time()
 
         last_fp: str | None = None
         stall = 0
         error_streak = 0
         phase = "to_run"  # -> "post_over" -> done
+        last_wait_reason: str | None = None
+        manual_announced = False
 
         try:
             while True:
@@ -89,10 +95,15 @@ class AgentLoop:
                 fp = _fingerprint(raw)
                 stall = stall + 1 if fp == last_fp else 0
                 last_fp = fp
-                if stall >= cfg.stall_threshold:
+                waiting_on_owner = bool(last_wait_reason) and str(last_wait_reason).startswith(
+                    "MANUAL:"
+                )
+                limit = cfg.manual_stall_threshold if waiting_on_owner else cfg.stall_threshold
+                if stall >= limit:
+                    detail = f"; last wait reason: {last_wait_reason}" if last_wait_reason else ""
                     raise BotStalled(
                         f"state unchanged for {stall} ticks (state_type="
-                        f"{state.state_type}, phase={phase})"
+                        f"{state.state_type}, phase={phase}){detail}"
                     )
 
                 self._track_progress(state, ctx, outcome)
@@ -110,6 +121,10 @@ class AgentLoop:
 
                 decision = self.router.decide(state, ctx)
                 if isinstance(decision, Wait):
+                    last_wait_reason = decision.reason
+                    if decision.reason.startswith("MANUAL:") and not manual_announced:
+                        manual_announced = True
+                        print(f"\n*** ATTENTION NEEDED *** {decision.reason}\n", flush=True)
                     if stall % 10 == 0:  # don't spam the log during animations
                         logger.log_decision(
                             {"state_type": state.state_type},
@@ -157,8 +172,10 @@ class AgentLoop:
             outcome.error = f"{type(e).__name__}: {e}"
         finally:
             outcome.decisions = ctx.decisions
-            if outcome.status == "completed" and outcome.victory is None:
-                outcome.victory = self._resolve_victory(outcome)
+            if outcome.status == "completed":
+                self._enrich_from_run_record(outcome, loop_start_epoch)
+                if outcome.victory is None:
+                    outcome.victory = self._resolve_victory(outcome)
             logger.finalize(outcome)
             index.finish_run(run_id, _now_iso(), outcome)
             index.close()
@@ -176,12 +193,28 @@ class AgentLoop:
         if state.player is not None:
             outcome.character = state.player.character
 
-    def _resolve_victory(self, outcome: RunOutcome) -> bool | None:
-        """Best-effort win detection.
+    def _enrich_from_run_record(self, outcome: RunOutcome, since_epoch: float) -> None:
+        """Pull the authoritative outcome from the game's own .run history record
+        (win flag, seed, build_id, killed_by) — verified live in P0.7."""
+        if not self.config.history_dirs:
+            return
+        from sts2bot.runlog.runfile import latest_run_summary
 
-        Prefers the profile's run history (authoritative); falls back to scanning the
-        game-over message. Both verified against the live game in P0.7.
-        """
+        record = latest_run_summary(self.config.history_dirs, since_epoch=since_epoch)
+        if record is None:
+            return
+        outcome.victory = record.win
+        outcome.seed = record.seed
+        outcome.build_id = record.build_id
+        outcome.killed_by_encounter = record.killed_by_encounter
+        outcome.killed_by_event = record.killed_by_event
+        outcome.was_abandoned = record.was_abandoned
+        if record.ascension is not None:
+            outcome.ascension = record.ascension
+
+    def _resolve_victory(self, outcome: RunOutcome) -> bool | None:
+        """Fallback win detection when no .run record was found: profile run history
+        via the API, then scanning the game-over message."""
         get_compendium = getattr(self.client, "get_compendium", None)
         if get_compendium is not None:
             try:

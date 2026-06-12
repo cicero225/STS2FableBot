@@ -92,13 +92,17 @@ entire loop is built and tested against fixtures before ever touching the live g
 5. ✅ Run logger v1: JSONL decisions + run header/outcome rows in SQLite.
 6. ✅ Scripted mock game replaying doc fixtures; full synthetic run (menus → Neow →
    map → combat → rewards → rest → game over → menu) passes E2E in tests.
-7. **Live setup (attended, with owner) — NEXT:** install STS2MCP release into game `mods/`,
-   save-folder backup + Steam Cloud check (C1), bot profile in empty slot,
-   first live runs; fix the doc-vs-reality gaps this shakes out.
-8. Investigation items: how "Play with Mods" launches non-interactively (CLI arg?);
-   actual save path; locked-character representation at character select.
+7. ✅ Live setup done 2026-06-11 (see LOG.md): mod installed, isolation confirmed
+   (modded save scope is a separate tree — bot uses modded `profile1`), three
+   doc-vs-live gaps fixed, **first complete live run** (Ironclad A0, died floor 9,
+   159 decisions, ~5 min). Outcomes now enriched from the game's `saves/history/*.run`
+   records (win/seed/build_id/killed_by — authoritative).
+8. Remaining investigation items: how "Play with Mods" launches non-interactively
+   (CLI arg? needed for P2 crash-relaunch); locked-character representation at
+   character select (matters when unlock chain starts).
 
 **Exit:** bot finishes real runs end-to-end at A0 unattended-while-watched, logs complete.
+*Status: behavior demonstrated live; a few more shakeout runs before calling M0 closed.*
 
 ### P1 — Competence (→ M1: ≥40% win rate at A0, one character, n≥20)
 1. KB build: compendium endpoint + game-version stamp; diff tooling for patches.

@@ -1,0 +1,19 @@
+{
+  "state_type": "menu",
+  "menu_screen": "main",
+  "message": "Main menu.",
+  "options": [
+    "settings",
+    "quit"
+  ],
+  "blocked_options": [
+    {
+      "name": "timeline",
+      "enabled": false,
+      "reason": "manual_epoch_reveal_required",
+      "pending_epoch_ids": [
+        "NEOW_EPOCH"
+      ]
+    }
+  ]
+}

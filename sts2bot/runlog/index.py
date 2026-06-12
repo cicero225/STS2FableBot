@@ -20,9 +20,15 @@ CREATE TABLE IF NOT EXISTS runs (
     victory     INTEGER,            -- 1/0/NULL(unknown)
     decisions   INTEGER DEFAULT 0,
     status      TEXT DEFAULT 'running',
-    error       TEXT
+    error       TEXT,
+    seed        TEXT,
+    build_id    TEXT,
+    killed_by   TEXT
 );
 """
+
+# columns added after the first release; applied idempotently to old DBs
+_MIGRATION_COLUMNS = {"seed": "TEXT", "build_id": "TEXT", "killed_by": "TEXT"}
 
 
 class RunIndex:
@@ -31,6 +37,10 @@ class RunIndex:
         db_path.parent.mkdir(parents=True, exist_ok=True)
         self._conn = sqlite3.connect(db_path)
         self._conn.execute(_SCHEMA)
+        existing = {row[1] for row in self._conn.execute("PRAGMA table_info(runs)")}
+        for column, sql_type in _MIGRATION_COLUMNS.items():
+            if column not in existing:
+                self._conn.execute(f"ALTER TABLE runs ADD COLUMN {column} {sql_type}")
         self._conn.commit()
 
     def close(self) -> None:
@@ -46,9 +56,13 @@ class RunIndex:
         return cur.lastrowid
 
     def finish_run(self, run_id: int, ended_at: str, outcome: RunOutcome) -> None:
+        killed_by = outcome.killed_by_encounter or outcome.killed_by_event
+        if killed_by in (None, "NONE.NONE"):
+            killed_by = None
         self._conn.execute(
             """UPDATE runs SET ended_at=?, character=?, ascension=?, act=?, floor=?,
-               victory=?, decisions=?, status=?, error=? WHERE id=?""",
+               victory=?, decisions=?, status=?, error=?, seed=?, build_id=?, killed_by=?
+               WHERE id=?""",
             (
                 ended_at,
                 outcome.character,
@@ -59,6 +73,9 @@ class RunIndex:
                 outcome.decisions,
                 outcome.status,
                 outcome.error,
+                outcome.seed,
+                outcome.build_id,
+                killed_by,
                 run_id,
             ),
         )
