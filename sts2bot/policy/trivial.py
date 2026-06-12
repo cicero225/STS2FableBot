@@ -60,6 +60,14 @@ class TrivialRouter:
         if screen == "tutorial_prompt":
             return pick("no", "decline tutorial (bot does not need FTUE)")
 
+        if screen == "timeline":
+            # The mod refuses to open Timeline, so if it's open the OWNER opened it
+            # (epoch reveal). Backing out would kick them off the screen (happened
+            # live 2026-06-11) — hands off until they finish.
+            return Wait(
+                reason="MANUAL: Timeline is open — waiting for owner to finish the reveal"
+            )
+
         if screen == "profile_select":
             if ctx.profile_id is not None:
                 return pick(f"profile_{ctx.profile_id}", f"select bot profile {ctx.profile_id}")

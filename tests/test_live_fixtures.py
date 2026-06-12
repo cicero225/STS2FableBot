@@ -48,6 +48,22 @@ def test_combat_without_battle_block_waits() -> None:
     assert isinstance(decision, Wait)
 
 
+def test_open_timeline_screen_is_hands_off() -> None:
+    """Found live: the bot's back-out reflex kicked the owner off the Timeline screen
+    mid-epoch-reveal. Any open Timeline belongs to the owner."""
+    state = parse_state(
+        {
+            "state_type": "menu",
+            "menu_screen": "timeline",
+            "message": "Timeline.",
+            "options": ["advance", "back"],
+        }
+    )
+    decision = TrivialRouter().decide(state, LoopContext())
+    assert isinstance(decision, Wait)
+    assert decision.reason.startswith("MANUAL:")
+
+
 def test_blocked_epoch_menu_waits_for_owner() -> None:
     """Observed live: after first death, main menu loses 'singleplayer' until the
     owner manually reveals a Timeline epoch (mod refuses to automate it)."""
