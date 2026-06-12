@@ -2,6 +2,35 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-06-12 (session 4) — Spirebird priors + the great pilot-skill tuning night
+
+**Spirebird priors shipped:** owner exported cohort_stats.json (440,240 community
+runs); scripts/build_priors.py distills to committed 53KB (picked-weighted Elo,
+shrunk, per character). 100% coverage of every card ever offered. Verdict of the
+priors-only batch (17/7/14/7/17): good cards alone didn't move the needle —
+**owner's diagnosis: community Elo prices cards for skilled pilots.**
+
+**Seven owner-observed fixes in one night** (watch stream → log post-mortem → fix
+→ test → replay → redeploy, cycle time ~15 min each):
+1. Pilotability-discounted priors (Evil Eye/Dark Embrace/Cascade upside ×0.7/×0.45).
+2. Max-HP drain = heavy cost (the 'vampire' event killed 3 runs while parsing free).
+3. Play friction (Production → pointless Defends vs non-attackers).
+4. Barricade-aware block scoring (the nuance exception to #3).
+5. Offering trio: w_draw 1.5→3.0, HP-cost scarcity curve (×0.5 full → ×2.5 empty),
+   desperation draw before lethal.
+6. One potion per round + 'already queued' transient (rail at Ceremonial Beast);
+   strict .run watermark (errored run had inherited the previous run's seed/killer —
+   which also mislabeled the stuck fight as The Kin in the narration, fittingly).
+7. Rescue plays target properly (desperation fired Pommel Strike untargeted ×8).
+
+**State:** 30 runs, 0 wins. The bot now reliably reaches Act 1 bosses (floor 17
+five times tonight) and has beaten them ~3 times historically; boss fights are the
+ceiling. Three different Act 1 bosses catalogued (Vantom, Ceremonial Beast ×3
+losses, The Kin) + 2 Act 2 trips + 1 Act 2 boss encounter (The Insatiable, now
+counter-armed). **Next:** boss-fight analysis (multi-turn setups? deck archetype
+focus?), FR-6.1 automated debriefs — tonight WAS the debrief loop, human-powered
+at remarkable bandwidth.
+
 ## 2026-06-12 (session 3 encore) — Act 2 routine; Act 2 boss reached; 4 upgrades
 
 **Shipped** (each from a logged death or owner observation, each tested + replayed):
