@@ -10,6 +10,8 @@ venv/
 
 # Third-party repos cloned for reference (not vendored)
 external/
+# Our STS2MCP fork lives in its own repo (github.com/cicero225/STS2MCP), cloned here
+fork/
 
 # Runtime artifacts
 logs/
