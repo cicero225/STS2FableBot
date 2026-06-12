@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Third-party repos cloned for reference (not vendored)
+external/
+
+# Runtime artifacts
+logs/
+runs/
+*.log
+*.sqlite
+*.sqlite3
+
+# Local secrets / machine-specific config
+.env
+*.local.json
+secrets/
+
+# C# / mod build outputs (mod fork lives in its own repo later if needed)
+bin/
+obj/
+
+# OS noise
+Thumbs.db
+desktop.ini
