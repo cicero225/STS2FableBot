@@ -65,15 +65,19 @@ def test_event_death_survives_none_none_padding(tmp_path: Path) -> None:
     import sqlite3
 
     history = tmp_path / "history"
-    write_run_file(
-        history,
-        "record",
-        killed_by_encounter="NONE.NONE",
-        killed_by_event="EVENT.DENSE_VEGETATION",
-    )
     game = build_doc_script()
+    # the game writes its .run record when the run ends, not before (watermark!)
+    client = FakeClient(
+        game,
+        on_game_over=lambda: write_run_file(
+            history,
+            "record",
+            killed_by_encounter="NONE.NONE",
+            killed_by_event="EVENT.DENSE_VEGETATION",
+        ),
+    )
     loop = AgentLoop(
-        client=FakeClient(game),
+        client=client,
         router=TrivialRouter(),
         log_root=tmp_path / "logs",
         config=LoopConfig(poll_interval=0, history_dirs=[history]),
@@ -88,17 +92,42 @@ def test_event_death_survives_none_none_padding(tmp_path: Path) -> None:
 
 def test_loop_enriches_outcome_from_run_record(tmp_path: Path) -> None:
     history = tmp_path / "history"
-    write_run_file(history, "record", win=True, seed="WINSEED")
+    # a STALE record from a previous run must NOT be attributed (watermark check)
+    write_run_file(history, "previous", win=False, seed="OLDSEED")
 
     game = build_doc_script()
+    client = FakeClient(
+        game,
+        on_game_over=lambda: write_run_file(history, "record", win=True, seed="WINSEED"),
+    )
     loop = AgentLoop(
-        client=FakeClient(game),
+        client=client,
         router=TrivialRouter(),
         log_root=tmp_path / "logs",
         config=LoopConfig(poll_interval=0, history_dirs=[history]),
     )
     outcome = loop.play_one_run()
     assert outcome.status == "completed"
-    assert outcome.victory is True  # from the .run record, not the API
+    assert outcome.victory is True  # from the fresh .run record, not the stale one
     assert outcome.seed == "WINSEED"
     assert outcome.build_id == "v0.103.3"
+
+
+def test_stale_record_not_attributed_to_unfinished_run(tmp_path: Path) -> None:
+    """Run 28 (errored mid-boss) got run 27's seed/killer through the old grace
+    window. With the watermark, an unfinished run stays unenriched."""
+    history = tmp_path / "history"
+    write_run_file(history, "previous", win=False, seed="OLDSEED")
+
+    game = build_doc_script()
+    game.transitions["rest"] = []  # sabotage: loop errors mid-run, no record written
+    loop = AgentLoop(
+        client=FakeClient(game),
+        router=TrivialRouter(),
+        log_root=tmp_path / "logs",
+        config=LoopConfig(poll_interval=0, error_streak_limit=3, history_dirs=[history]),
+    )
+    outcome = loop.play_one_run()
+    assert outcome.status == "error"
+    assert outcome.seed is None  # not OLDSEED
+    assert outcome.victory is None

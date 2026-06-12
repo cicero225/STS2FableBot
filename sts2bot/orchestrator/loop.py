@@ -97,7 +97,11 @@ class AgentLoop:
             config_hash=cfg.config_hash,
         )
         outcome = RunOutcome(ascension=None)
-        loop_start_epoch = time.time()
+        record_watermark = 0.0
+        if cfg.history_dirs:
+            from sts2bot.runlog.runfile import newest_record_mtime
+
+            record_watermark = newest_record_mtime(cfg.history_dirs)
 
         last_fp: str | None = None
         stall = 0
@@ -168,9 +172,12 @@ class AgentLoop:
                 )
                 if result.ok:
                     error_streak = 0
-                elif "actions are currently disabled" in result.detail:
-                    # transient scripted-combat lockout (run 16 died to hammering this
-                    # on the unforked mod); wait it out, don't count toward the streak
+                elif (
+                    "actions are currently disabled" in result.detail
+                    or "already queued" in result.detail
+                ):
+                    # transient in-game queuing/lockout states (scripted moments,
+                    # potion effects resolving); wait them out, not streak-worthy
                     time.sleep(cfg.poll_interval)
                 else:
                     error_streak += 1
@@ -204,7 +211,7 @@ class AgentLoop:
             # Enrich even on errored loops: the run may have genuinely ended (e.g.
             # run 16 died to the Ovicopter, then the loop railed on its death
             # sequence) and the game's .run record is still authoritative.
-            self._enrich_from_run_record(outcome, loop_start_epoch)
+            self._enrich_from_run_record(outcome, record_watermark)
             if outcome.status == "completed" and outcome.victory is None:
                 outcome.victory = self._resolve_victory(outcome)
             logger.finalize(outcome)
@@ -235,14 +242,15 @@ class AgentLoop:
         if state.player is not None:
             outcome.character = state.player.character
 
-    def _enrich_from_run_record(self, outcome: RunOutcome, since_epoch: float) -> None:
+    def _enrich_from_run_record(self, outcome: RunOutcome, record_watermark: float) -> None:
         """Pull the authoritative outcome from the game's own .run history record
-        (win flag, seed, build_id, killed_by) — verified live in P0.7."""
+        (win flag, seed, build_id, killed_by) — only records written AFTER this
+        loop started (strict watermark; grace matching once cross-attributed)."""
         if not self.config.history_dirs:
             return
         from sts2bot.runlog.runfile import latest_run_summary
 
-        record = latest_run_summary(self.config.history_dirs, since_epoch=since_epoch)
+        record = latest_run_summary(self.config.history_dirs, newer_than_mtime=record_watermark)
         if record is None:
             return
         outcome.victory = record.win

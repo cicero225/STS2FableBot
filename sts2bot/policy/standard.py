@@ -57,7 +57,7 @@ class StandardRouter:
         survival = self._survival_card(state)
         if survival is not None:
             return survival
-        potion_play = self._combat_potion(state)
+        potion_play = self._combat_potion(state, ctx)
         if potion_play is not None:
             return potion_play
         desperation = self._desperation_draw(state, plan)
@@ -133,7 +133,7 @@ class StandardRouter:
     _elite = _combat
     _boss = _combat
 
-    def _combat_potion(self, state: CombatState) -> Decision | None:
+    def _combat_potion(self, state: CombatState, ctx: LoopContext) -> Decision | None:
         """Drink a useful potion when the fight is dangerous (elite/boss) or HP is dire."""
         w = self.config.potions
         player = state.player
@@ -143,6 +143,16 @@ class StandardRouter:
             return None
         if state.battle.actions_disabled:
             return None
+        # A used potion stays visibly in the belt while its effect is queued
+        # (run 28 railed on "already queued" x8 at The Kin); one drink per round.
+        round_ = state.battle.round if state.battle.round is not None else -1
+        if ctx.screen_mem.get("potion_drunk_round") == round_:
+            return None
+
+        def drink(potion: Potion, target: str | None, why: str) -> Decision:
+            ctx.screen_mem["potion_drunk_round"] = round_
+            return Decision(action=act.UsePotion(slot=potion.slot, target=target), rationale=why)
+
         hp_pct = player.hp / max(1, player.max_hp)
         dangerous = state.state_type in ("elite", "boss") and w.drink_in_elite_or_boss
         dire = hp_pct < w.drink_when_hp_pct_below
@@ -164,22 +174,15 @@ class StandardRouter:
                     continue
                 target = max(alive, key=lambda e: e.hp)
                 needs_target = (potion.target_type or "").lower() not in ("none", "self")
-                return Decision(
-                    action=act.UsePotion(
-                        slot=potion.slot, target=target.entity_id if needs_target else None
-                    ),
-                    rationale=f"drink {potion.name} ({'dire HP' if dire else 'hard fight'})",
+                return drink(
+                    potion,
+                    target.entity_id if needs_target else None,
+                    f"drink {potion.name} ({'dire HP' if dire else 'hard fight'})",
                 )
             if fx.block > 0 and incoming > player.block:
-                return Decision(
-                    action=act.UsePotion(slot=potion.slot),
-                    rationale=f"drink {potion.name} to block {incoming} incoming",
-                )
+                return drink(potion, None, f"drink {potion.name} to block {incoming} incoming")
             if fx.heal > 0 and dire:
-                return Decision(
-                    action=act.UsePotion(slot=potion.slot),
-                    rationale=f"drink {potion.name} to heal at {hp_pct:.0%} HP",
-                )
+                return drink(potion, None, f"drink {potion.name} to heal at {hp_pct:.0%} HP")
         # Hail mary (learned from run 10: died at 3 HP holding two buff potions):
         # if this turn's unblocked incoming can kill us, drink anything usable.
         if w.hail_mary and dire and usable and incoming - player.block >= player.hp:
@@ -190,10 +193,10 @@ class StandardRouter:
                 alive = [e for e in state.battle.enemies if e.hp > 0]
                 if alive:
                     target = max(alive, key=lambda e: e.hp).entity_id
-            return Decision(
-                action=act.UsePotion(slot=potion.slot, target=target),
-                rationale=f"hail mary: drink {potion.name} (incoming {incoming} >= "
-                f"{player.hp} HP)",
+            return drink(
+                potion,
+                target,
+                f"hail mary: drink {potion.name} (incoming {incoming} >= {player.hp} HP)",
             )
         return None
 

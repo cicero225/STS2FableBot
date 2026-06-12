@@ -51,16 +51,28 @@ def discover_history_dirs(save_root: Path | None = None) -> list[Path]:
     return sorted(root.glob("*/modded/profile*/saves/history"))
 
 
-def latest_run_summary(
-    history_dirs: list[Path], since_epoch: float | None = None
-) -> RunFileSummary | None:
-    """Newest .run record, optionally only those written after `since_epoch`.
+def newest_record_mtime(history_dirs: list[Path]) -> float:
+    """Snapshot the newest .run mtime (loop start uses this as a strict watermark)."""
+    mtimes = [f.stat().st_mtime for d in history_dirs for f in d.glob("*.run")]
+    return max(mtimes, default=0.0)
 
-    Matching by file mtime (write time = run end), not the record's start_time:
-    a resumed run starts long before the loop that finishes it.
+
+def latest_run_summary(
+    history_dirs: list[Path],
+    since_epoch: float | None = None,
+    newer_than_mtime: float | None = None,
+) -> RunFileSummary | None:
+    """Newest .run record, filtered by write time.
+
+    `newer_than_mtime` is the strict watermark (snapshot taken at loop start) —
+    preferred, because grace-window matching once attributed the previous run's
+    record to an errored run that never finished. `since_epoch` (with grace)
+    remains for callers without a watermark.
     """
     candidates = [f for d in history_dirs for f in d.glob("*.run")]
-    if since_epoch is not None:
+    if newer_than_mtime is not None:
+        candidates = [f for f in candidates if f.stat().st_mtime > newer_than_mtime]
+    elif since_epoch is not None:
         candidates = [f for f in candidates if f.stat().st_mtime >= since_epoch - 5]
     if not candidates:
         return None

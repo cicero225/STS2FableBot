@@ -52,15 +52,30 @@ class ScriptedGame:
 
 
 class FakeClient:
-    def __init__(self, game: ScriptedGame, compendium: dict[str, Any] | None = None):
+    def __init__(
+        self,
+        game: ScriptedGame,
+        compendium: dict[str, Any] | None = None,
+        on_game_over=None,
+    ):
         self.game = game
         self.compendium = compendium or {}
+        self.on_game_over = on_game_over  # mirrors the game writing .run at death
+        self._game_over_fired = False
 
     def get_state_raw(self) -> dict[str, Any]:
         return self.game.state()
 
     def act(self, action: Action) -> ActionResult:
-        return self.game.apply(action.payload())
+        result = self.game.apply(action.payload())
+        if (
+            self.on_game_over is not None
+            and not self._game_over_fired
+            and self.game.states[self.game.current].get("state_type") == "game_over"
+        ):
+            self._game_over_fired = True
+            self.on_game_over()
+        return result
 
     def get_compendium(self) -> dict[str, Any]:
         return copy.deepcopy(self.compendium)
