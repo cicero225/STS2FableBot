@@ -2,6 +2,41 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-06-11 (session 3) — P1 lands: standard policy reaches Act 2; tuning loop proven
+
+**Built:** config-driven policy layer (policy.toml, hash per run in meta+index);
+textparse (rules text → numbers); one-turn combat planner (sequence DFS with target
+branching, vuln/weak/strength/block sim); StandardRouter (elite-avoiding HP-aware
+map routing, HP-gated events, scored card rewards, rest/smith threshold, potion
+management); replay harness v1 (`sts2bot replay`) — every policy change validated
+against all logged states (1600+) before going live. CLI `--policy/--ascension/
+--speed` (speed now self-healing: cinematics reset Engine.TimeScale, loop
+re-asserts; observed at Act 1 boss).
+
+**Live tuning loop, three iterations (batch → log post-mortem → fix → test →
+replay → batch):**
+1. Run 10 died at 3 HP holding two unusable-by-rules potions → heal-when-dire +
+   hail-mary drinking.
+2. Run 13 lost to a 4-Nibbit pack from full HP (event-spawned fight; flat damage
+   scoring spread hits) → quadratic focus-fire term.
+3. Run 16 made history (first Act 1 boss kill → Act 2 floor 23, died to Ovicopter)
+   then rail-erred hammering its own death sequence ("Player actions are currently
+   disabled") → fork.3 exposes battle.actions_disabled, policies wait; loop treats
+   the error as transient; outcomes now enrich from .run records even on errored
+   loops. Post-death flow is richer than early deaths (death screen → EXP bar →
+   unlock reveals) — navigator handled it unaided in batch 3.
+
+**Scoreboard (Ironclad A0):** trivial floors 5-11, 0 boss fights. Standard floors
+3-29: two Act 1 boss fights, two Act 2 trips (23, 29), zero wins yet. Distinct
+loss causes now measurable in the index (killed_by per run).
+
+**Misc:** owner-found bug: bot's back-out reflex kicked owner off the Timeline
+screen mid-reveal → open Timeline is now always hands-off (MANUAL wait).
+
+**Next:** Spirebird priors import + KB-from-observation; act-level map path
+planning (forced-elite lanes); boss-fight analysis (2 losses); FR-6.1 automated
+debriefs — the manual post-mortems above are the template.
+
 ## 2026-06-11 (session 2) — Fork feature-complete: deck, speed, ascension; all verified live
 
 Fork.2 (cicero225/STS2MCP@a84c9e1) adds the remaining planned mod features, all
