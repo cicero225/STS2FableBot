@@ -72,8 +72,18 @@ computable from logs at any time.
   game state + actions over a localhost REST API (`localhost:15526`), including menu/lobby
   control, profile switching, popup/tutorial handling, and an optional MCP wrapper.
   **Plan-of-record: build on a fork of this mod** (extend endpoints as needed) rather than
-  writing a mod from scratch. Exact action-endpoint coverage ❓ (docs incomplete; audit the
-  source early — this is the first technical task).
+  writing a mod from scratch.
+  **Source audit (2026-06-11, repo cloned to `external/`): coverage is near-complete.** ✅
+  All decision types in FR-1.2 have semantic actions (combat incl. targeting/potions,
+  map, events+dialogue, shop, rest, treasure, card/bundle/relic select overlays, rewards,
+  menus/popups/FTUE, game-over) and state is high-fidelity (enemy intents; full
+  draw/discard/exhaust pile contents *as visible in-game*, satisfying C3; orbs/pets/stars
+  for character mechanics; 3 profile slots with switch/delete — "empty slots can be used
+  for fresh-profile testing"). Identified fork additions, all small:
+  1. ascension selector at singleplayer character select (MP lobby has it; SP doesn't),
+  2. speed/timescale control for fast mode (FR-1.5),
+  3. master deck list in out-of-combat state (only combat piles + selection overlays
+     expose card lists today).
 - **Anti-automation risk:** none identified — single-player game, officially moddable, no
   known anti-cheat ✅. (Achievements/leaderboards: don't care / don't manipulate.)
 - **Data sources:**
@@ -199,7 +209,7 @@ computable from logs at any time.
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| STS2MCP action coverage incomplete for full unattended runs | High | Audit source first; we fork and extend (MIT). Worst case: write our own mod using its patterns. |
+| STS2MCP action coverage incomplete for full unattended runs | ~~High~~ **Retired** | Source audited 2026-06-11: coverage near-complete; three small fork additions identified (§4). Residual risk: docs vs. behavior mismatches, found in M0 testing. |
 | Game patches break mod/state schema | High | Release branch chosen (§8.1); C5 halting behavior; record game+mod version per run; budget time for repair after each patch. |
 | Combat too complex for chosen search depth → low win rate ceiling | Medium | Tunable eval + replay regression harness (FR-5.3) enables iterating; Spirebird priors reduce deck-building error; accept "competent ≠ optimal". |
 | Throughput too low for the climb (≥55 wins + losses; runs are 30–60 min at human speed) | Medium | FR-1.5 acceleration; unattended overnight operation (open decision #3). |
