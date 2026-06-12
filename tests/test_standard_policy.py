@@ -227,6 +227,25 @@ def test_desperation_draw_before_lethal_hit() -> None:
     assert decision.action.payload()["card_index"] == 0
 
 
+def test_desperation_draw_targets_attack_cards() -> None:
+    """Run 29: desperation fired on Pommel Strike (attack that draws) with no
+    target — 8 errors at The Kin. Targeted draw cards must get a target."""
+    state = make_combat(
+        hand=[
+            card(0, "Pommel Strike", 1, "Deal 9 damage. Draw 1 card.")  # AnyEnemy
+        ],
+        enemies=[enemy("THE_KIN_0", 90, intent_label="30")],
+        hp=10,
+        max_hp=80,
+        energy=1,
+    )
+    decision = router().decide(state, LoopContext())
+    assert isinstance(decision, Decision)
+    payload = decision.action.payload()
+    assert payload["action"] == "play_card"
+    assert payload.get("target") == "THE_KIN_0"
+
+
 def test_no_pointless_plays_against_non_attacker() -> None:
     """Owner observation: Production into Defends vs a non-attacking enemy is pure
     waste. Play friction should leave only the useful play (Strike)."""

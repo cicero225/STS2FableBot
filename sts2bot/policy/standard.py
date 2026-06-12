@@ -90,12 +90,24 @@ class StandardRouter:
                 continue
             fx = parse_card_description(card_.description)
             if fx.draw > 0 and fx.self_hp_cost < player.hp:
+                target = self._target_for(card_, state)
                 return Decision(
-                    action=act.PlayCard(card_index=card_.index, target=None),
+                    action=act.PlayCard(card_index=card_.index, target=target),
                     rationale=f"desperation draw: {card_.name} (incoming {incoming} vs "
                     f"{player.hp} HP — dig for answers)",
                 )
         return None
+
+    @staticmethod
+    def _target_for(card_, state: CombatState) -> str | None:
+        """Highest-HP living enemy for cards that need a target (Pommel Strike is
+        an attack that draws — desperation once played it untargeted, 8 errors)."""
+        if (card_.target_type or "").lower() != "anyenemy" or state.battle is None:
+            return None
+        alive = [e for e in state.battle.enemies if e.hp > 0]
+        if not alive:
+            return None
+        return max(alive, key=lambda e: e.hp).entity_id
 
     def _survival_card(self, state: CombatState) -> Decision | None:
         """Death-countdown mechanics (The Insatiable's Sandpit): an enemy status
@@ -123,7 +135,10 @@ class StandardRouter:
                 for card_ in hand:
                     if card_.can_play and name in (card_.description or "").lower():
                         return Decision(
-                            action=act.PlayCard(card_index=card_.index, target=None),
+                            action=act.PlayCard(
+                                card_index=card_.index,
+                                target=self._target_for(card_, state),
+                            ),
                             rationale=f"survival: play {card_.name} ({power.name} at "
                             f"{amount} — '{power.description}')",
                         )
