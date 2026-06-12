@@ -201,10 +201,12 @@ class AgentLoop:
             outcome.error = f"{type(e).__name__}: {e}"
         finally:
             outcome.decisions = ctx.decisions
-            if outcome.status == "completed":
-                self._enrich_from_run_record(outcome, loop_start_epoch)
-                if outcome.victory is None:
-                    outcome.victory = self._resolve_victory(outcome)
+            # Enrich even on errored loops: the run may have genuinely ended (e.g.
+            # run 16 died to the Ovicopter, then the loop railed on its death
+            # sequence) and the game's .run record is still authoritative.
+            self._enrich_from_run_record(outcome, loop_start_epoch)
+            if outcome.status == "completed" and outcome.victory is None:
+                outcome.victory = self._resolve_victory(outcome)
             logger.finalize(outcome)
             index.finish_run(run_id, _now_iso(), outcome)
             index.close()
