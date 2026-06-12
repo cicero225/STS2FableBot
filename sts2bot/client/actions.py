@@ -147,6 +147,22 @@ class SkipRelicSelection(_ActionBase):
     action: Literal["skip_relic_selection"] = "skip_relic_selection"
 
 
+# fork utilities (mod >= 0.4.0-fork.2)
+class SetTimeScale(_ActionBase):
+    """Engine animation/game speed. Valid any time; persists until game restart."""
+
+    action: Literal["set_time_scale"] = "set_time_scale"
+    scale: float
+
+
+class SetAscension(_ActionBase):
+    """Set run ascension on the open character-select screen (after selecting a
+    character — the unlocked cap is per-character)."""
+
+    action: Literal["set_ascension"] = "set_ascension"
+    level: int
+
+
 # crystal sphere minigame
 class CrystalSphereSetTool(_ActionBase):
     action: Literal["crystal_sphere_set_tool"] = "crystal_sphere_set_tool"
@@ -189,6 +205,8 @@ Action = (
     | CancelBundleSelection
     | SelectRelic
     | SkipRelicSelection
+    | SetTimeScale
+    | SetAscension
     | CrystalSphereSetTool
     | CrystalSphereClickCell
     | CrystalSphereProceed

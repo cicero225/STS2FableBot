@@ -148,6 +148,34 @@ def test_extra_fields_tolerated() -> None:
     assert state.state_type == "menu"
 
 
+def test_deck_field_parses() -> None:
+    payload = dict(STATES["map"])
+    payload["player"] = dict(payload["player"])
+    payload["player"]["deck"] = [
+        {
+            "index": 0,
+            "id": "STRIKE_R",
+            "name": "Strike",
+            "type": "Attack",
+            "cost": "1",
+            "star_cost": None,
+            "rarity": "Common",
+            "is_upgraded": False,
+        }
+    ]
+    state = parse_state(payload)
+    assert state.player is not None and state.player.deck is not None
+    assert state.player.deck[0].name == "Strike"
+    assert state.player.deck[0].rarity == "Common"
+
+
+def test_fork_utility_action_payloads() -> None:
+    from sts2bot.client.actions import SetAscension, SetTimeScale
+
+    assert SetTimeScale(scale=3.0).payload() == {"action": "set_time_scale", "scale": 3.0}
+    assert SetAscension(level=4).payload() == {"action": "set_ascension", "level": 4}
+
+
 def test_action_payloads() -> None:
     assert PlayCard(card_index=2, target="JAW_WORM_0").payload() == {
         "action": "play_card",

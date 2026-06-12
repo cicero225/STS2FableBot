@@ -43,6 +43,7 @@ class LoopConfig(BaseModel):
     error_streak_limit: int = 8  # consecutive rejected actions before giving up
     max_decisions: int = 3000  # hard safety cap per run
     character: str = "IRONCLAD"
+    ascension: int = 0
     profile_id: int | None = None
     # game save history dirs for authoritative outcome records ([] = skip)
     history_dirs: list[Path] = []
@@ -73,7 +74,9 @@ class AgentLoop:
 
     def play_one_run(self) -> RunOutcome:
         cfg = self.config
-        ctx = LoopContext(character=cfg.character, profile_id=cfg.profile_id)
+        ctx = LoopContext(
+            character=cfg.character, ascension=cfg.ascension, profile_id=cfg.profile_id
+        )
         logger = RunLogger(self.log_root, character_hint=cfg.character)
         index = RunIndex(self.log_root / "index.sqlite")
         run_id = index.start_run(str(logger.run_dir), logger.started_at)

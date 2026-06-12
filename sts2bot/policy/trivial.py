@@ -125,12 +125,28 @@ class TrivialRouter:
                     reason=f"MANUAL: requested character {ctx.character} is not selectable "
                     f"(locked or absent); screen has {state.selected_character}"
                 )
+            if (
+                ctx.ascension
+                and state.ascension is not None
+                and state.ascension != ctx.ascension
+                and not ctx.screen_mem.get("embark_sent")
+            ):
+                if state.max_ascension is not None and ctx.ascension > state.max_ascension:
+                    return Wait(
+                        reason=f"MANUAL: ascension {ctx.ascension} not unlocked for "
+                        f"{ctx.character} (max {state.max_ascension})"
+                    )
+                return Decision(
+                    action=act.SetAscension(level=ctx.ascension),
+                    rationale=f"set ascension {state.ascension} -> {ctx.ascension}",
+                )
             if ctx.screen_mem.get("embark_sent"):
                 return Wait(reason="embarked; waiting for run to start")
             for confirm in ("confirm", "embark"):
                 if enabled.get(confirm):
                     ctx.screen_mem["embark_sent"] = True
-                    return pick(confirm, f"selection verified ({ctx.character}); embark")
+                    asc = f" A{ctx.ascension}" if ctx.ascension else ""
+                    return pick(confirm, f"selection verified ({ctx.character}{asc}); embark")
             return Wait(reason="selection verified; waiting for confirm to enable")
 
         # Legacy mod without selected_character: select once, confirm once, hope.

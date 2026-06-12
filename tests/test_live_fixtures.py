@@ -104,23 +104,32 @@ def test_unclaimable_reward_is_abandoned_after_two_attempts() -> None:
     assert third.action.payload() == {"action": "proceed"}
 
 
-def _charselect_state(selected: str | None, busy: bool = False, confirm: bool = True):
-    return parse_state(
-        {
-            "state_type": "menu",
-            "menu_screen": "character_select",
-            "selected_character": selected,
-            "selection_busy": busy,
-            "options": [
-                {"name": "IRONCLAD", "enabled": True},
-                {"name": "SILENT", "enabled": True},
-                {"name": "REGENT", "enabled": False},
-                {"name": "confirm", "enabled": confirm},
-                {"name": "embark", "enabled": confirm},
-                {"name": "back", "enabled": True},
-            ],
-        }
-    )
+def _charselect_state(
+    selected: str | None,
+    busy: bool = False,
+    confirm: bool = True,
+    ascension: int | None = None,
+    max_ascension: int | None = None,
+):
+    payload = {
+        "state_type": "menu",
+        "menu_screen": "character_select",
+        "selected_character": selected,
+        "selection_busy": busy,
+        "options": [
+            {"name": "IRONCLAD", "enabled": True},
+            {"name": "SILENT", "enabled": True},
+            {"name": "REGENT", "enabled": False},
+            {"name": "confirm", "enabled": confirm},
+            {"name": "embark", "enabled": confirm},
+            {"name": "back", "enabled": True},
+        ],
+    }
+    if ascension is not None:
+        payload["ascension"] = ascension
+    if max_ascension is not None:
+        payload["max_ascension"] = max_ascension
+    return parse_state(payload)
 
 
 def test_charselect_waits_during_unlock_animation() -> None:
@@ -155,6 +164,36 @@ def test_charselect_verified_but_confirm_disabled_waits() -> None:
 def test_charselect_locked_request_surfaces_manual() -> None:
     d = TrivialRouter().decide(_charselect_state("IRONCLAD"), LoopContext(character="REGENT"))
     assert isinstance(d, Wait) and d.reason.startswith("MANUAL:")
+
+
+def test_charselect_sets_ascension_before_embark() -> None:
+    router = TrivialRouter()
+    ctx = LoopContext(character="IRONCLAD", ascension=2)
+    # verified character, wrong ascension -> set_ascension
+    d = router.decide(_charselect_state("IRONCLAD", ascension=0, max_ascension=5), ctx)
+    assert not isinstance(d, Wait)
+    assert d.action.payload() == {"action": "set_ascension", "level": 2}
+    # ascension now matches -> embark
+    d = router.decide(_charselect_state("IRONCLAD", ascension=2, max_ascension=5), ctx)
+    assert not isinstance(d, Wait)
+    assert d.action.payload()["option"] == "confirm"
+
+
+def test_charselect_locked_ascension_surfaces_manual() -> None:
+    d = TrivialRouter().decide(
+        _charselect_state("IRONCLAD", ascension=0, max_ascension=1),
+        LoopContext(character="IRONCLAD", ascension=5),
+    )
+    assert isinstance(d, Wait) and d.reason.startswith("MANUAL:")
+
+
+def test_ascension_zero_skips_set_ascension() -> None:
+    d = TrivialRouter().decide(
+        _charselect_state("IRONCLAD", ascension=0, max_ascension=5),
+        LoopContext(character="IRONCLAD", ascension=0),
+    )
+    assert not isinstance(d, Wait)
+    assert d.action.payload()["option"] == "confirm"
 
 
 def test_embark_is_sent_only_once() -> None:

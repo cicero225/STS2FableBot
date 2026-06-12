@@ -107,12 +107,26 @@ class Potion(ApiModel):
     keywords: list[Keyword] = Field(default_factory=list)
 
 
+class DeckCard(ApiModel):
+    """Master-deck entry (fork field; run deck, not combat piles)."""
+
+    index: int
+    id: str | None = None
+    name: str
+    type: str | None = None
+    cost: str | None = None
+    star_cost: str | None = None
+    rarity: str | None = None
+    is_upgraded: bool | None = None
+
+
 class Player(ApiModel):
     character: str
     hp: int
     max_hp: int
     block: int = 0
     gold: int = 0
+    deck: list[DeckCard] | None = None  # fork (mod >= 0.4.0-fork.2)
     # combat-only:
     energy: int | None = None
     max_energy: int | None = None
@@ -202,6 +216,9 @@ class MenuState(BaseState):
     # embark with, and whether the unlock animation may still overwrite selections
     selected_character: str | None = None
     selection_busy: bool | None = None
+    # fork additions (mod >= 0.4.0-fork.2): ascension picker state on character_select
+    ascension: int | None = None
+    max_ascension: int | None = None
     lobby: dict[str, Any] | None = None  # MP only — out of scope
 
     def option_names(self) -> list[str]:

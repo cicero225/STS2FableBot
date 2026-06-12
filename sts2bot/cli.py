@@ -45,6 +45,10 @@ def doctor(base_url: str = DEFAULT_BASE_URL) -> None:
 def play(
     runs: int = typer.Option(1, help="How many runs to play before stopping."),
     character: str = typer.Option("IRONCLAD", help="Character ID to select."),
+    ascension: int = typer.Option(0, help="Ascension level (must be unlocked)."),
+    speed: float = typer.Option(
+        None, help="Engine time scale (e.g. 3.0 for fast mode; persists until game restart)."
+    ),
     profile: int = typer.Option(None, help="Bot profile slot (1-3); never the owner's."),
     log_root: str = typer.Option("logs", help="Directory for run logs + index."),
     base_url: str = DEFAULT_BASE_URL,
@@ -52,6 +56,7 @@ def play(
 ) -> None:
     """Play run(s) with the current policy (P0: trivial policy). Attended use only
     for now — keep an eye on it (REQUIREMENTS FR-4.4)."""
+    from sts2bot.client.actions import SetTimeScale
     from sts2bot.orchestrator.loop import AgentLoop, LoopConfig
     from sts2bot.policy.trivial import TrivialRouter
     from sts2bot.runlog.runfile import discover_history_dirs
@@ -60,10 +65,14 @@ def play(
     config = LoopConfig(
         poll_interval=poll_interval,
         character=character,
+        ascension=ascension,
         profile_id=profile,
         history_dirs=history_dirs,
     )
     with Sts2Client(base_url=base_url) as client:
+        if speed is not None:
+            result = client.act(SetTimeScale(scale=speed))
+            typer.echo(f"time scale {speed}x: {result.detail}")
         for i in range(runs):
             typer.echo(f"--- run {i + 1}/{runs} (character={character}) ---")
             loop = AgentLoop(client, TrivialRouter(), log_root=log_root, config=config)

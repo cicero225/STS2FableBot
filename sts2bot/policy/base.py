@@ -35,6 +35,7 @@ class LoopContext(BaseModel):
 
     goal: str = "start_run"
     character: str = "IRONCLAD"
+    ascension: int = 0
     profile_id: int | None = None
     screen_mem: dict[str, Any] = Field(default_factory=dict)
     run_started: bool = False
