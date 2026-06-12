@@ -172,14 +172,28 @@ class TrivialRouter:
 
     def _rewards(self, state: RewardsState, ctx: LoopContext) -> Decision | Wait:
         r = state.rewards
-        if r.items:
-            item = r.items[0]
-            return Decision(
-                action=act.ClaimReward(index=item.index),
-                rationale=f"claim reward {item.type}",
-            )
+        # Some claims no-op with status "ok" (observed live: potion reward with a full
+        # belt). Track attempts per item and abandon any that won't claim, else the
+        # loop spins until the stall rail kills the run.
+        floor = state.run.floor if state.run else -1
+        attempts: dict[str, int] = ctx.screen_mem.setdefault("reward_attempts", {})
+        for item in r.items:
+            marker = item.potion_id or item.gold_amount or item.description or ""
+            key = f"{floor}:{item.index}:{item.type}:{marker}"
+            if attempts.get(key, 0) < 2:
+                attempts[key] = attempts.get(key, 0) + 1
+                label = item.potion_name or item.type
+                return Decision(
+                    action=act.ClaimReward(index=item.index),
+                    rationale=f"claim reward {label} (attempt {attempts[key]})",
+                )
         if r.can_proceed:
-            return Decision(action=act.Proceed(), rationale="rewards exhausted; proceed")
+            why = (
+                "leaving unclaimable rewards behind; proceed"
+                if r.items
+                else "rewards exhausted; proceed"
+            )
+            return Decision(action=act.Proceed(), rationale=why)
         return Wait(reason="rewards not claimable and cannot proceed")
 
     def _card_reward(self, state: CardRewardState, ctx: LoopContext) -> Decision | Wait:

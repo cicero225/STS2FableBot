@@ -60,6 +60,50 @@ def test_blocked_epoch_menu_waits_for_owner() -> None:
     assert "NEOW_EPOCH" in decision.reason
 
 
+def test_unclaimable_reward_is_abandoned_after_two_attempts() -> None:
+    """Observed live: potion reward with a full belt claims 'ok' but no-ops forever."""
+    router = TrivialRouter()
+    ctx = LoopContext()
+    stuck = {
+        "state_type": "rewards",
+        "run": {"act": 1, "floor": 6, "ascension": 0},
+        "player": {
+            "character": "The Regent",
+            "hp": 50,
+            "max_hp": 75,
+            "status": [],
+            "relics": [],
+            "potions": [
+                {"id": "BLOCK_POTION", "name": "Block Potion", "slot": 0},
+                {"id": "DEX_POTION", "name": "Dexterity Potion", "slot": 1},
+                {"id": "FLEX_POTION", "name": "Flex Potion", "slot": 2},
+            ],
+            "max_potion_slots": 3,
+        },
+        "rewards": {
+            "items": [
+                {
+                    "index": 0,
+                    "type": "potion",
+                    "description": "Energy Potion",
+                    "potion_id": "ENERGY_POTION",
+                    "potion_name": "Energy Potion",
+                }
+            ],
+            "can_proceed": True,
+        },
+    }
+    state = parse_state(stuck)
+    first = router.decide(state, ctx)
+    second = router.decide(state, ctx)
+    for d in (first, second):
+        assert not isinstance(d, Wait)
+        assert d.action.payload() == {"action": "claim_reward", "index": 0}
+    third = router.decide(state, ctx)
+    assert not isinstance(third, Wait)
+    assert third.action.payload() == {"action": "proceed"}
+
+
 def test_embark_is_sent_only_once() -> None:
     """Observed live: character_select lingers after embark; re-confirming errors."""
     router = TrivialRouter()
