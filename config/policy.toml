@@ -52,6 +52,12 @@ path_step_discount = 0.80
 take_threshold = 4.0
 # community prior (Spirebird Elo delta, ~±8) weight; heuristics fill the gaps
 prior_weight = 1.8
+# pilotability (owner insight 2026-06-12): community Elo prices cards for skilled
+# pilots. Discount POSITIVE priors the planner can't cash in: conditional/synergy
+# text (Evil Eye, Dark Embrace) partially, unparseable text (Cascade) heavily.
+# Negative priors stay full strength — bad cards are bad in anyone's hands.
+conditional_prior_mult = 0.7
+unparsed_prior_mult = 0.45
 w_rarity_common = 2.0
 w_rarity_uncommon = 5.0
 w_rarity_rare = 8.0

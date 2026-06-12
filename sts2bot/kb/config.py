@@ -56,6 +56,8 @@ class MapWeights(_Section):
 class CardRewardWeights(_Section):
     take_threshold: float = 4.0
     prior_weight: float = 1.8
+    conditional_prior_mult: float = 0.7
+    unparsed_prior_mult: float = 0.45
     w_rarity_common: float = 2.0
     w_rarity_uncommon: float = 5.0
     w_rarity_rare: float = 8.0

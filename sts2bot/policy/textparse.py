@@ -20,8 +20,15 @@ _VULN = re.compile(r"\bApply (\d+) Vulnerable", re.IGNORECASE)
 _WEAK = re.compile(r"\bApply (\d+) Weak", re.IGNORECASE)
 _STRENGTH = re.compile(r"\bGain (\d+) Strength", re.IGNORECASE)
 _LOSE_HP = re.compile(r"\bLose (\d+) HP", re.IGNORECASE)
+_LOSE_MAX_HP = re.compile(r"\bLose (\d+) Max(?:imum)? HP", re.IGNORECASE)
 _TAKE_DAMAGE = re.compile(r"\b[Tt]ake (\d+) damage")
 _HEAL = re.compile(r"\bHeal (\d+) HP", re.IGNORECASE)
+# conditional/synergy language the one-turn planner cannot evaluate yet
+_CONDITIONAL = re.compile(
+    r"\b(if |when |whenever |after you|for each|next turn|at the start|at the end"
+    r"|exhaust|top card|draw pile|discard pile)",
+    re.IGNORECASE,
+)
 _INTENT_MULTI = re.compile(r"^(\d+)\s*[x×]\s*(\d+)$")
 _INTENT_SINGLE = re.compile(r"^(\d+)$")
 
@@ -38,7 +45,9 @@ class CardEffects:
     weak: int = 0
     strength: int = 0
     self_hp_cost: int = 0
+    max_hp_cost: int = 0
     heal: int = 0
+    conditional: bool = False  # has synergy/conditional language the planner can't price
     recognized: list[str] = field(default_factory=list)
 
     @property
@@ -80,12 +89,16 @@ def parse_card_description(text: str | None) -> CardEffects:
     if m := _STRENGTH.search(text):
         fx.strength = int(m.group(1))
         fx.recognized.append("strength")
-    if m := _LOSE_HP.search(text):
+    if m := _LOSE_MAX_HP.search(text):
+        fx.max_hp_cost = int(m.group(1))
+        fx.recognized.append("max_hp_cost")
+    elif m := _LOSE_HP.search(text):
         fx.self_hp_cost = int(m.group(1))
         fx.recognized.append("hp_cost")
     if m := _HEAL.search(text):
         fx.heal = int(m.group(1))
         fx.recognized.append("heal")
+    fx.conditional = bool(_CONDITIONAL.search(text))
     return fx
 
 
@@ -102,7 +115,9 @@ def parse_intent_damage(label: str | None) -> int:
 
 
 def parse_hp_cost(text: str | None) -> int:
-    """HP cost mentioned in an event option / card ('Lose N HP' / 'take N damage')."""
+    """HP cost mentioned in an event option / card ('Lose N HP' / 'take N damage').
+    Max-HP loss is permanent, so it counts several times over (the 'max HP vampire'
+    event killed three runs while reading as free)."""
     if not text:
         return 0
     cost = 0
@@ -110,4 +125,6 @@ def parse_hp_cost(text: str | None) -> int:
         cost = max(cost, int(m.group(1)))
     if m := _TAKE_DAMAGE.search(text):
         cost = max(cost, int(m.group(1)))
+    if m := _LOSE_MAX_HP.search(text):
+        cost = max(cost, int(m.group(1)) * 8)
     return cost

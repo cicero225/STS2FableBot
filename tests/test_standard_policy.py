@@ -539,6 +539,100 @@ def test_card_reward_prior_overrides_heuristics() -> None:
     assert decision.scores["Community Gem"] > decision.scores["Trap Card"]
 
 
+def test_pilotability_discounts_unplayable_upside() -> None:
+    """Owner insight: priors price cards for skilled pilots. A simple solid card
+    must beat an equal-prior card whose value lives in text we can't evaluate."""
+    from sts2bot.kb.priors import CardPriors
+
+    priors = CardPriors(by_character={"IRONCLAD": {"SIMPLE": 5.0, "ENGINE": 5.0}})
+    r = StandardRouter(priors=priors)
+
+    def offer(idx, cid, name, desc, ctype="Skill", rarity="Uncommon"):
+        return {
+            "index": idx,
+            "id": cid,
+            "name": name,
+            "type": ctype,
+            "cost": "1",
+            "rarity": rarity,
+            "description": desc,
+            "is_upgraded": False,
+            "keywords": [],
+        }
+
+    payload = {
+        "state_type": "card_reward",
+        "card_reward": {
+            "cards": [
+                offer(0, "ENGINE", "Engine", "Whenever a card is Exhausted, draw 1 card."),
+                offer(1, "SIMPLE", "Simple", "Gain 8 Block."),
+            ],
+            "can_skip": True,
+        },
+        "run": {"act": 1, "floor": 4, "ascension": 0},
+        "player": {
+            "character": "The Ironclad",
+            "hp": 70,
+            "max_hp": 80,
+            "status": [],
+            "relics": [],
+            "potions": [],
+            "max_potion_slots": 3,
+        },
+    }
+    decision = r.decide(parse_state(payload), LoopContext())
+    assert isinstance(decision, Decision)
+    assert decision.action.payload()["card_index"] == 1
+    assert decision.scores["Simple"] > decision.scores["Engine"]
+
+
+def test_event_refuses_max_hp_drain() -> None:
+    """The vampire event: default option drains 1 Max HP per click; leave instead."""
+    payload = {
+        "state_type": "event",
+        "event": {
+            "event_id": "VAMPIRE_THING",
+            "event_name": "Hungry Shrine",
+            "is_ancient": False,
+            "in_dialogue": False,
+            "body": "It asks for more.",
+            "options": [
+                {
+                    "index": 0,
+                    "title": "Continue",
+                    "description": "Lose 1 Max HP.",
+                    "is_locked": False,
+                    "is_proceed": False,
+                    "was_chosen": False,
+                    "keywords": [],
+                },
+                {
+                    "index": 1,
+                    "title": "Leave",
+                    "description": "",
+                    "is_locked": False,
+                    "is_proceed": True,
+                    "was_chosen": False,
+                    "keywords": [],
+                },
+            ],
+        },
+        "run": {"act": 1, "floor": 5, "ascension": 0},
+        "player": {
+            "character": "The Ironclad",
+            "hp": 80,
+            "max_hp": 80,
+            "status": [],
+            "relics": [],
+            "potions": [],
+            "max_potion_slots": 3,
+        },
+    }
+    decision = router().decide(parse_state(payload), LoopContext())
+    assert isinstance(decision, Decision)
+    assert decision.action.payload() == {"action": "choose_event_option", "index": 1}
+
+
 def test_rest_threshold() -> None:
     payload = json.loads(json.dumps(FIXTURES["rest_site"]))
     payload["player"]["hp"] = 30  # 37.5% of 80

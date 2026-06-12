@@ -48,3 +48,23 @@ def test_hp_cost_phrases() -> None:
     assert parse_hp_cost("Trudge on. Take 8 damage.") == 8
     assert parse_hp_cost("Lose 6 HP. Gain 2 Energy.") == 6
     assert parse_hp_cost("Obtain 100 gold.") == 0
+
+
+def test_max_hp_loss_is_a_heavy_cost() -> None:
+    """The 'max HP vampire' event killed three runs while parsing as free."""
+    assert parse_hp_cost("Keep digging. Lose 1 Max HP.") == 8
+    fx = parse_card_description("Lose 2 Max HP. Obtain a relic.")
+    assert fx.max_hp_cost == 2 and fx.self_hp_cost == 0
+
+
+def test_conditional_language_detected() -> None:
+    evil_eye = parse_card_description(
+        "Gain 4 Block. If a card was Exhausted this turn, gain 8 Block instead."
+    )
+    assert evil_eye.block == 4 and evil_eye.conditional
+    dark_embrace = parse_card_description("Whenever a card is Exhausted, draw 1 card.")
+    assert dark_embrace.conditional
+    cascade = parse_card_description("Play the top X cards of your draw pile.")
+    assert cascade.conditional and not cascade.has_any_effect
+    strike = parse_card_description("Deal 6 damage.")
+    assert not strike.conditional

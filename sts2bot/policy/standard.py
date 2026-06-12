@@ -313,6 +313,13 @@ class StandardRouter:
         if self.priors is not None:
             prior = self.priors.score(card.id, character)
             if prior is not None:
+                if prior > 0:
+                    # discount upside the planner can't cash in (owner insight:
+                    # Evil Eye / Dark Embrace / Cascade need a pilot we aren't yet)
+                    if not fx.has_any_effect:
+                        prior *= w.unparsed_prior_mult
+                    elif fx.conditional:
+                        prior *= w.conditional_prior_mult
                 score += w.prior_weight * prior
         score += {
             "Attack": w.w_attack,
