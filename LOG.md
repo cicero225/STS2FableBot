@@ -2,6 +2,39 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-06-11 (fork session 1) — Character-select bug root-caused, fixed, verified live
+
+**Setup:** owner forked STS2MCP → github.com/cicero225/STS2MCP, cloned to `fork/`
+(gitignored, upstream remote wired). .NET 9 SDK installed via winget; `build.ps1
+-GameDir I:\SteamLibrary\...` builds clean. ilspycmd (pinned 9.1.0.7988) used to
+decompile game classes into `external/decompiled/` for reference.
+
+**Root cause (from decompiled NCharacterSelectScreen/Button):** when a character
+unlock is pending, `PlayUnlockCharacterAnimation` runs async after screen open and
+`Select()`s the newly unlocked character ~1s later — overwriting any API-made pick;
+embark reads `_lobby.LocalPlayer.character`, hence wrong-character runs. Worse,
+`NCharacterSelectButton.Select()` is guarded by `_isSelected`, and the animation
+never deselects other buttons, so retrying the pick silently no-ops (why the
+double-click experiment failed).
+
+**Fix (fork commit 7e4977a):** action side — `Deselect()` then `Select()` to force
+the full commit path; retryable refusal while `Progress.PendingCharacterUnlock !=
+none`. State side — `selected_character` + `selection_busy` on character_select.
+Bot side — navigator waits while busy, re-selects until verified, then embarks
+(fire-and-hope fallback for unforked mod).
+
+**Live verification — the race actually fired:** owner's earlier click-through
+hadn't consumed the pending Necrobinder unlock; entering charselect started the
+animation. Log: `wait: unlock animation playing` → `select IRONCLAD (screen has
+NECROBINDER)` → `selection verified (IRONCLAD); embark` → run started as The
+Ironclad (died fl.5, seed 26WPYS0Y57). Second run requesting SILENT started as The
+Silent. Character control proven with two deliberate distinct picks.
+
+**Roster:** Ironclad, Silent, Regent, Necrobinder unlocked; Defect is the last lock.
+**TODO:** offer the fix upstream as a PR from the owner's fork; remaining fork
+items — ascension selector, speed control, master deck state, epoch-reveal
+investigation.
+
 ## 2026-06-11 (final) — Shakeout series done: 3 clean runs, 3 characters, all fixes tested
 
 **Run 5** (Regent, resumed) stalled at a rewards screen: potion reward + full belt
