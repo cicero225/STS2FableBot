@@ -148,21 +148,51 @@ class StandardRouter:
                 base += w.shop_bonus_per_100_gold * (gold / 100.0)
             return base
 
+        # Act-level path value: DP over the full map DAG so options are judged by
+        # the best complete route to the boss, not just their own node type
+        # (1-ply lookahead committed us to forced-elite lanes floors in advance).
+        node_by_pos = {(n.col, n.row): n for n in state.map.nodes}
+        memo: dict[tuple[int, int], float] = {}
+
+        def path_value(col: int, row: int) -> float:
+            key = (col, row)
+            if key in memo:
+                return memo[key]
+            node = node_by_pos.get(key)
+            if node is None:
+                memo[key] = 0.0
+                return 0.0
+            memo[key] = 0.0  # cycle guard (map is a DAG, but be safe)
+            future = max(
+                (path_value(c_col, c_row) for c_col, c_row in node.children),
+                default=0.0,
+            )
+            value = type_score(node.type) + w.path_step_discount * future
+            memo[key] = value
+            return value
+
         scored: dict[str, float] = {}
         best = None
         best_score = float("-inf")
         for opt in opts:
-            score = type_score(opt.type)
-            score += w.lookahead_discount * (
-                max((type_score(child.type) for child in opt.leads_to), default=0.0)
+            future = max(
+                (path_value(c.col, c.row) for c in opt.leads_to),
+                default=0.0,
             )
+            if not opt.leads_to and (node := node_by_pos.get((opt.col, opt.row))):
+                future = max(
+                    (path_value(c_col, c_row) for c_col, c_row in node.children),
+                    default=0.0,
+                )
+            score = type_score(opt.type) + w.path_step_discount * future
             scored[f"{opt.index}:{opt.type}"] = round(score, 2)
             if score > best_score:
                 best_score, best = score, opt
         assert best is not None
         return Decision(
             action=act.ChooseMapNode(index=best.index),
-            rationale=f"route to {best.type} at ({best.col},{best.row})",
+            rationale=f"route to {best.type} at ({best.col},{best.row}) "
+            f"(best path value {best_score:.1f})",
             scores=scored,
         )
 

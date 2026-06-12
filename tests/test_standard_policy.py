@@ -304,6 +304,59 @@ def test_map_avoids_elites_and_rests_when_hurt() -> None:
     assert decision.action.payload()["index"] == 1  # healthy: fight the monster
 
 
+def test_map_path_planning_avoids_forced_elite_lane() -> None:
+    """Runs 10/15 died in lanes whose elite was committed floors earlier. Two lanes
+    with identical immediate nodes: the one whose future forces an elite must lose."""
+    payload = {
+        "state_type": "map",
+        "map": {
+            "current_position": {"col": 2, "row": 0, "type": "Start"},
+            "visited": [],
+            "next_options": [
+                {
+                    "index": 0,
+                    "col": 1,
+                    "row": 1,
+                    "type": "Monster",
+                    "leads_to": [{"col": 1, "row": 2, "type": "Elite"}],
+                },
+                {
+                    "index": 1,
+                    "col": 3,
+                    "row": 1,
+                    "type": "Monster",
+                    "leads_to": [{"col": 3, "row": 2, "type": "Event"}],
+                },
+            ],
+            "nodes": [
+                {"col": 2, "row": 0, "type": "Start", "children": [[1, 1], [3, 1]]},
+                {"col": 1, "row": 1, "type": "Monster", "children": [[1, 2]]},
+                {"col": 3, "row": 1, "type": "Monster", "children": [[3, 2]]},
+                {"col": 1, "row": 2, "type": "Elite", "children": [[2, 3]]},
+                {"col": 3, "row": 2, "type": "Event", "children": [[2, 3]]},
+                {"col": 2, "row": 3, "type": "Monster", "children": []},
+            ],
+            "boss": {"col": 2, "row": 4, "id": "B", "name": "Boss"},
+            "bosses": [],
+        },
+        "run": {"act": 1, "floor": 1, "ascension": 0},
+        "player": {
+            "character": "The Ironclad",
+            "hp": 70,
+            "max_hp": 80,
+            "gold": 50,
+            "status": [],
+            "relics": [],
+            "potions": [],
+            "max_potion_slots": 3,
+        },
+    }
+    decision = router().decide(parse_state(payload), LoopContext())
+    assert isinstance(decision, Decision)
+    assert decision.action.payload()["index"] == 1  # the lane without the forced elite
+    assert decision.scores["1:Monster"] > decision.scores["0:Monster"]
+
+
 def test_card_reward_takes_good_skips_bad() -> None:
     payload = json.loads(json.dumps(FIXTURES["card_reward"]))
     state = parse_state(payload)

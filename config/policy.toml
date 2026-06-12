@@ -38,7 +38,11 @@ score_boss = 0.0
 # state modifiers
 rest_bonus_per_missing_hp_pct = 0.45   # rest sites get more attractive when hurt
 shop_bonus_per_100_gold = 6.0
-lookahead_discount = 0.35              # children contribute this fraction of their score
+lookahead_discount = 0.35              # (legacy 1-ply; kept for config compat)
+# act-level path planning: each option is valued by the best full path to the act
+# boss through the map DAG, discounting each future step (learned: 1-ply lookahead
+# walked into forced-elite lanes committed floors earlier — runs 10, 15)
+path_step_discount = 0.80
 
 [card_rewards]
 # pick the best-scoring card if it clears the threshold, else skip

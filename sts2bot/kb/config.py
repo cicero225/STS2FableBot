@@ -49,6 +49,7 @@ class MapWeights(_Section):
     rest_bonus_per_missing_hp_pct: float = 0.45
     shop_bonus_per_100_gold: float = 6.0
     lookahead_discount: float = 0.35
+    path_step_discount: float = 0.80
 
 
 class CardRewardWeights(_Section):
