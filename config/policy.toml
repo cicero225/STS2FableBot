@@ -12,10 +12,15 @@ w_overkill = -0.3           # per point of damage wasted past a kill
 w_block_useful = 1.2        # per point of incoming damage actually blocked
 w_block_excess = -0.15      # per point of block past incoming
 w_hp_loss = -2.0            # per point of own HP lost to unblocked intents
+# HP-cost scarcity curve (owner insight: Offering should be played freely when
+# healthy, shelved when hurt): effective hp weight = w_hp_loss * (base + slope*(1-hp%))
+hp_scarcity_base = 0.5
+hp_scarcity_slope = 2.0
 w_vulnerable = 6.0          # per stack applied to a surviving enemy
 w_weak = 5.0                # per stack applied to a surviving enemy
 w_strength = 7.0            # per stack of own Strength gained
-w_draw = 1.5                # per card drawn
+w_draw = 3.0                # per card drawn (~a playable card's worth; Offering's
+                            # value is mostly here and was invisible at 1.5)
 w_energy_waste = -0.5       # per energy left unspent (gentle)
 w_play_friction = -0.35     # per card played: animation time + on-play risks; stops
                             # 'Production into pointless Defends vs a non-attacker'

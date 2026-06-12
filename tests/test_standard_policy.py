@@ -184,6 +184,49 @@ def test_pack_fight_focuses_fire() -> None:
     assert payload["target"] == "NIBBIT_2"  # finish what you started
 
 
+OFFERING_DESC = "Lose 6 HP. Gain 2 Energy. Draw 3 cards."
+
+
+def test_offering_played_when_healthy_shelved_when_hurt() -> None:
+    """Owner: Offering went almost unplayed — HP cost visible, draw value not.
+    With draw revalued and HP scarcity-scaled it plays at high HP, not at low."""
+
+    def offering_state(hp):
+        return make_combat(
+            hand=[
+                card(0, "Offering", 0, OFFERING_DESC, target="Self", ctype="Skill"),
+                card(1, "Strike", 1, "Deal 6 damage."),
+            ],
+            enemies=[enemy("GUARD_0", 60, intent_label="10")],
+            hp=hp,
+            max_hp=80,
+            energy=3,
+        )
+
+    healthy = router().decide(offering_state(hp=78), LoopContext())
+    assert isinstance(healthy, Decision)
+    assert "Offering" in healthy.rationale
+
+    hurt = router().decide(offering_state(hp=20), LoopContext())
+    assert isinstance(hurt, Decision)
+    assert "Offering" not in hurt.rationale
+
+
+def test_desperation_draw_before_lethal_hit() -> None:
+    """Owner bonus case: lethal hit the face while Offering sat in hand."""
+    state = make_combat(
+        hand=[card(0, "Offering", 0, OFFERING_DESC, target="Self", ctype="Skill")],
+        enemies=[enemy("BRUTE_0", 90, intent_label="25")],
+        hp=12,
+        max_hp=80,
+        energy=0,  # nothing else affordable; normally Offering would be shelved at 15% HP
+    )
+    decision = router().decide(state, LoopContext())
+    assert isinstance(decision, Decision)
+    assert "desperation draw" in decision.rationale
+    assert decision.action.payload()["card_index"] == 0
+
+
 def test_no_pointless_plays_against_non_attacker() -> None:
     """Owner observation: Production into Defends vs a non-attacking enemy is pure
     waste. Play friction should leave only the useful play (Strike)."""

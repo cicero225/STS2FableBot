@@ -187,7 +187,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     )
 
 
-def _score(state: SimState, w: CombatWeights) -> float:
+def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
     incoming = sum(e.incoming for e in state.enemies if e.hp > 0)
     if state.barricade:
         blocked = state.my_block  # persistent block is all future-useful
@@ -196,6 +196,9 @@ def _score(state: SimState, w: CombatWeights) -> float:
         blocked = min(state.my_block, incoming)
         excess = max(0, state.my_block - incoming)
     hp_loss = incoming - min(state.my_block, incoming) + state.self_damage
+    # HP is cheap when full, precious when low (owner: Offering should be played
+    # freely when healthy, shelved when hurt)
+    hp_weight = w.w_hp_loss * (w.hp_scarcity_base + w.hp_scarcity_slope * (1.0 - hp_pct))
     # quadratic focus-fire reward: concentrated damage beats spread damage, because
     # a finished enemy stops attacking (run 13: spread vs a 4-Nibbit pack = death)
     focus = sum(((e.max_hp - e.hp) / e.max_hp) ** 2 for e in state.enemies)
@@ -206,7 +209,7 @@ def _score(state: SimState, w: CombatWeights) -> float:
         + w.w_overkill * state.overkill
         + w.w_block_useful * blocked
         + w.w_block_excess * excess
-        + w.w_hp_loss * hp_loss
+        + hp_weight * hp_loss
         + w.w_vulnerable * state.vuln_applied
         + w.w_weak * state.weak_applied
         + w.w_strength * state.strength_gained
@@ -252,8 +255,9 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")
 
+    hp_pct = player.hp / max(1, player.max_hp)
     best_state = start
-    best_score = _score(start, weights)
+    best_score = _score(start, weights, hp_pct)
     visited = 0
 
     def dfs(sim: SimState, remaining: list[PlannedCard]) -> None:
@@ -271,14 +275,14 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
                 for ti in target_idx[:3]:
                     visited += 1
                     nxt = _apply_card(sim, card, ti)
-                    score = _score(nxt, weights)
+                    score = _score(nxt, weights, hp_pct)
                     if score > best_score:
                         best_score, best_state = score, nxt
                     dfs(nxt, rest)
             else:
                 visited += 1
                 nxt = _apply_card(sim, card, None)
-                score = _score(nxt, weights)
+                score = _score(nxt, weights, hp_pct)
                 if score > best_score:
                     best_score, best_state = score, nxt
                 dfs(nxt, rest)

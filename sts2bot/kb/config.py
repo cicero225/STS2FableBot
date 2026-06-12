@@ -24,10 +24,12 @@ class CombatWeights(_Section):
     w_block_useful: float = 1.2
     w_block_excess: float = -0.15
     w_hp_loss: float = -2.0
+    hp_scarcity_base: float = 0.5
+    hp_scarcity_slope: float = 2.0
     w_vulnerable: float = 6.0
     w_weak: float = 5.0
     w_strength: float = 7.0
-    w_draw: float = 1.5
+    w_draw: float = 3.0
     w_energy_waste: float = -0.5
     w_play_friction: float = -0.35
     max_sequences: int = 4000

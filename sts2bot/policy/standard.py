@@ -60,7 +60,42 @@ class StandardRouter:
         potion_play = self._combat_potion(state)
         if potion_play is not None:
             return potion_play
+        desperation = self._desperation_draw(state, plan)
+        if desperation is not None:
+            return desperation
         return plan
+
+    def _desperation_draw(self, state: CombatState, plan: Decision | Wait) -> Decision | None:
+        """Owner case: lethal hit the bot's face with Offering in hand. If this
+        turn's incoming kills us and the plan doesn't save us, a survivable draw
+        card is worth trying — the draw might find blocks or answers."""
+        player = state.player
+        if player is None or not player.in_combat or state.battle is None:
+            return None
+        if state.battle.turn != "player" or state.battle.is_play_phase is False:
+            return None
+        if isinstance(plan, Decision) and plan.scores and plan.scores.get("lethal"):
+            return None
+        incoming = sum(
+            parse_intent_damage(i.label)
+            for e in state.battle.enemies
+            if e.hp > 0
+            for i in e.intents
+            if i.type.lower() == "attack"
+        )
+        if incoming - player.block < player.hp:
+            return None  # not facing death this turn
+        for card_ in player.hand or []:
+            if not card_.can_play:
+                continue
+            fx = parse_card_description(card_.description)
+            if fx.draw > 0 and fx.self_hp_cost < player.hp:
+                return Decision(
+                    action=act.PlayCard(card_index=card_.index, target=None),
+                    rationale=f"desperation draw: {card_.name} (incoming {incoming} vs "
+                    f"{player.hp} HP — dig for answers)",
+                )
+        return None
 
     def _survival_card(self, state: CombatState) -> Decision | None:
         """Death-countdown mechanics (The Insatiable's Sandpit): an enemy status
