@@ -18,6 +18,9 @@ w_strength = 7.0            # per stack of own Strength gained
 w_draw = 1.5                # per card drawn
 w_energy_waste = -0.5       # per energy left unspent (gentle)
 max_sequences = 4000        # planner search cap per decision
+# death-countdown statuses (e.g. The Insatiable's Sandpit: "you will be eaten and
+# die"): play the card that pushes the counter back when it falls to this level
+survival_status_threshold = 2
 
 [events]
 # fraction of max HP below which damage-costing options are refused

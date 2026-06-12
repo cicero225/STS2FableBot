@@ -30,6 +30,7 @@ class CombatWeights(_Section):
     w_draw: float = 1.5
     w_energy_waste: float = -0.5
     max_sequences: int = 4000
+    survival_status_threshold: int = 2
 
 
 class EventWeights(_Section):

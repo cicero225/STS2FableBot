@@ -208,6 +208,67 @@ def test_heal_potion_when_dire() -> None:
     assert "heal" in decision.rationale
 
 
+def _insatiable_state(sandpit: int, escape_playable: bool = True):
+    """Mirrors the logged Insatiable fight (run 2026-06-11-235641)."""
+    enemies = [
+        {
+            "entity_id": "THE_INSATIABLE_0",
+            "combat_id": 9,
+            "name": "The Insatiable",
+            "hp": 180,
+            "max_hp": 300,
+            "block": 0,
+            "status": [
+                {
+                    "id": "SANDPIT",
+                    "name": "Sandpit",
+                    "amount": sandpit,
+                    "type": "Buff",
+                    "description": "When The Insatiable takes its turn, you will be "
+                    "eaten and die.",
+                    "keywords": [],
+                }
+            ],
+            "intents": [{"type": "Attack", "label": "14", "title": "Attack", "description": ""}],
+        }
+    ]
+    hand = [
+        card(0, "Strike", 1, "Deal 6 damage."),
+        {
+            "index": 1,
+            "id": "FRANTIC_ESCAPE",
+            "name": "Frantic Escape",
+            "type": "Status",
+            "cost": "1",
+            "star_cost": None,
+            "description": "Get farther away. Increase Sandpit by 1. Increase the "
+            "cost of this card by 1.",
+            "target_type": "Self",
+            "can_play": escape_playable,
+            "unplayable_reason": None,
+            "is_upgraded": False,
+            "keywords": [],
+        },
+    ]
+    return make_combat(hand=hand, enemies=enemies, energy=3, hp=50, state_type="boss")
+
+
+def test_survival_card_played_when_countdown_low() -> None:
+    """The Insatiable ate the bot at Sandpit 1 while Frantic Escape sat in hand."""
+    decision = router().decide(_insatiable_state(sandpit=1), LoopContext())
+    assert isinstance(decision, Decision)
+    assert decision.action.payload()["card_index"] == 1
+    assert "survival" in decision.rationale
+
+
+def test_survival_card_ignored_when_countdown_safe() -> None:
+    decision = router().decide(_insatiable_state(sandpit=5), LoopContext())
+    assert isinstance(decision, Decision)
+    payload = decision.action.payload()
+    # normal planning: hit the boss instead of wasting energy on escape
+    assert payload["action"] == "play_card" and payload["card_index"] == 0
+
+
 def test_lethal_in_hand_skips_hail_mary() -> None:
     """Owner observation: hail-mary fired alongside lethal vs the Act 1 boss.
     If the planned line clears the board, don't waste potions surviving a turn

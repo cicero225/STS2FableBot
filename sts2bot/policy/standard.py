@@ -42,16 +42,51 @@ class StandardRouter:
 
     def _combat(self, state: CombatState, ctx: LoopContext) -> Decision | Wait:
         plan = plan_combat_turn(state, self.config.combat)
-        # If the planned line clears the board this turn, survival potions are a
+        # If the planned line clears the board this turn, survival measures are a
         # waste (owner watched a hail-mary fire alongside lethal-in-hand vs the
         # Act 1 boss). Sim-lethal can be optimistic, but the wasted-potion case
         # is far more common than a misread lethal.
         if isinstance(plan, Decision) and plan.scores and plan.scores.get("lethal"):
             return plan
+        survival = self._survival_card(state)
+        if survival is not None:
+            return survival
         potion_play = self._combat_potion(state)
         if potion_play is not None:
             return potion_play
         return plan
+
+    def _survival_card(self, state: CombatState) -> Decision | None:
+        """Death-countdown mechanics (The Insatiable's Sandpit): an enemy status
+        whose text promises death, mitigated by playing an injected card whose
+        text names that status. Generic over the text pattern, not the boss."""
+        if state.battle is None or state.player is None:
+            return None
+        if state.battle.turn != "player" or state.battle.is_play_phase is False:
+            return None
+        if state.battle.actions_disabled:
+            return None
+        threshold = self.config.combat.survival_status_threshold
+        hand = state.player.hand or []
+        for enemy_ in state.battle.enemies:
+            if enemy_.hp <= 0:
+                continue
+            for power in enemy_.status:
+                desc = (power.description or "").lower()
+                if "you" not in desc or not ("die" in desc or "eaten" in desc):
+                    continue
+                amount = power.amount if power.amount is not None else 0
+                if amount > threshold:
+                    continue
+                name = power.name.lower()
+                for card_ in hand:
+                    if card_.can_play and name in (card_.description or "").lower():
+                        return Decision(
+                            action=act.PlayCard(card_index=card_.index, target=None),
+                            rationale=f"survival: play {card_.name} ({power.name} at "
+                            f"{amount} — '{power.description}')",
+                        )
+        return None
 
     _monster = _combat
     _elite = _combat
