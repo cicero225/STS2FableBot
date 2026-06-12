@@ -50,6 +50,10 @@ class LoopConfig(BaseModel):
     # attribution (FR-3.4): which policy + config produced this run
     policy_name: str = "trivial"
     config_hash: str | None = None
+    # engine speed: re-asserted periodically because game cinematics reset
+    # Engine.TimeScale to 1.0 (observed live at the Act 1 boss)
+    time_scale: float | None = None
+    time_scale_reassert_every: int = 25  # decisions
 
 
 class BotStalled(Exception):
@@ -101,6 +105,7 @@ class AgentLoop:
         phase = "to_run"  # -> "post_over" -> done
         last_wait_reason: str | None = None
         manual_announced = False
+        self._assert_time_scale()
 
         try:
             while True:
@@ -152,6 +157,8 @@ class AgentLoop:
 
                 result = self.client.act(decision.action)
                 ctx.decisions += 1
+                if ctx.decisions % self.config.time_scale_reassert_every == 0:
+                    self._assert_time_scale()
                 logger.log_decision(
                     raw,
                     decision.action.payload(),
@@ -198,6 +205,17 @@ class AgentLoop:
         return outcome
 
     # ------------------------------------------------------------------ helpers
+
+    def _assert_time_scale(self) -> None:
+        """Re-apply the configured engine speed; cinematics reset it to 1.0."""
+        if self.config.time_scale is None:
+            return
+        try:
+            from sts2bot.client.actions import SetTimeScale
+
+            self.client.act(SetTimeScale(scale=self.config.time_scale))
+        except Exception:  # noqa: BLE001 - speed is best-effort, never fatal
+            pass
 
     def _track_progress(self, state: GameState, ctx: LoopContext, outcome: RunOutcome) -> None:
         if state.run is not None:

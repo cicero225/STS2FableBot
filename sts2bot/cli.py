@@ -110,11 +110,12 @@ def play(
         history_dirs=history_dirs,
         policy_name=policy,
         config_hash=config_hash,
+        time_scale=speed,
     )
     with Sts2Client(base_url=base_url) as client:
         if speed is not None:
             result = client.act(SetTimeScale(scale=speed))
-            typer.echo(f"time scale {speed}x: {result.detail}")
+            typer.echo(f"time scale {speed}x: {result.detail} (re-asserted during runs)")
         for i in range(runs):
             typer.echo(f"--- run {i + 1}/{runs} (policy={policy} character={character}) ---")
             loop = AgentLoop(client, router, log_root=log_root, config=config)
