@@ -41,10 +41,17 @@ class StandardRouter:
     # ------------------------------------------------------------------ combat
 
     def _combat(self, state: CombatState, ctx: LoopContext) -> Decision | Wait:
+        plan = plan_combat_turn(state, self.config.combat)
+        # If the planned line clears the board this turn, survival potions are a
+        # waste (owner watched a hail-mary fire alongside lethal-in-hand vs the
+        # Act 1 boss). Sim-lethal can be optimistic, but the wasted-potion case
+        # is far more common than a misread lethal.
+        if isinstance(plan, Decision) and plan.scores and plan.scores.get("lethal"):
+            return plan
         potion_play = self._combat_potion(state)
         if potion_play is not None:
             return potion_play
-        return plan_combat_turn(state, self.config.combat)
+        return plan
 
     _monster = _combat
     _elite = _combat

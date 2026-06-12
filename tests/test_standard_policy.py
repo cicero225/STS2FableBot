@@ -208,6 +208,35 @@ def test_heal_potion_when_dire() -> None:
     assert "heal" in decision.rationale
 
 
+def test_lethal_in_hand_skips_hail_mary() -> None:
+    """Owner observation: hail-mary fired alongside lethal vs the Act 1 boss.
+    If the planned line clears the board, don't waste potions surviving a turn
+    that will never come."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage."), card(1, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BOSS_0", 10, intent_label="20")],  # 12 damage available, 10 hp
+        hp=3,
+        max_hp=80,
+        energy=2,
+        state_type="boss",
+        potions=[
+            {
+                "id": "FYSH_OIL",
+                "name": "Fysh Oil",
+                "description": "Gain 1 Strength and 1 Dexterity.",
+                "slot": 0,
+                "can_use_in_combat": True,
+                "target_type": "None",
+                "keywords": [],
+            }
+        ],
+    )
+    decision = router().decide(state, LoopContext())
+    assert isinstance(decision, Decision)
+    assert decision.action.payload()["action"] == "play_card"
+    assert "LETHAL" in decision.rationale
+
+
 def test_hail_mary_drinks_unparseable_potion() -> None:
     """Run 10 died at 3 HP holding Fysh Oil + Radiant Tincture (buff/icon-markup
     descriptions the parser can't read). Lethal incoming -> drink anything."""

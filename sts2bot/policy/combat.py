@@ -288,9 +288,15 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     for idx, _tgt in best_state.played:
         match = next((c for c in playable if c.index == idx), None)
         plan_names.append(match.name if match else f"#{idx}")
+    lethal = all(e.hp <= 0 for e in best_state.enemies)
     return Decision(
         action=act.PlayCard(card_index=chosen.index, target=target),
         rationale=f"plan [{' > '.join(plan_names)}] score {best_score:.1f}"
+        + (" LETHAL" if lethal else "")
         + (f"; first: {chosen.name} -> {target}" if target else f"; first: {chosen.name}"),
-        scores={"plan_score": round(best_score, 2), "explored": float(visited)},
+        scores={
+            "plan_score": round(best_score, 2),
+            "explored": float(visited),
+            "lethal": 1.0 if lethal else 0.0,
+        },
     )
