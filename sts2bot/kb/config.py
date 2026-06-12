@@ -29,6 +29,7 @@ class CombatWeights(_Section):
     w_strength: float = 7.0
     w_draw: float = 1.5
     w_energy_waste: float = -0.5
+    w_play_friction: float = -0.35
     max_sequences: int = 4000
     survival_status_threshold: int = 2
 

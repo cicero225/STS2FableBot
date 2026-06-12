@@ -184,6 +184,75 @@ def test_pack_fight_focuses_fire() -> None:
     assert payload["target"] == "NIBBIT_2"  # finish what you started
 
 
+def test_no_pointless_plays_against_non_attacker() -> None:
+    """Owner observation: Production into Defends vs a non-attacking enemy is pure
+    waste. Play friction should leave only the useful play (Strike)."""
+    enemies = [
+        {
+            "entity_id": "IDLER_0",
+            "combat_id": 1,
+            "name": "Idler",
+            "hp": 40,
+            "max_hp": 40,
+            "block": 0,
+            "status": [],
+            "intents": [{"type": "Buff", "label": "Buff", "title": "Buff", "description": ""}],
+        }
+    ]
+    state = make_combat(
+        hand=[
+            card(0, "Production", 0, "Gain 2 Energy.", target="Self", ctype="Skill"),
+            card(1, "Defend", 1, "Gain 5 Block.", target="Self", ctype="Skill"),
+            card(2, "Strike", 1, "Deal 6 damage."),
+        ],
+        enemies=enemies,
+        energy=3,
+    )
+    decision = router().decide(state, LoopContext())
+    assert isinstance(decision, Decision)
+    assert "Defend" not in decision.rationale  # no block vs zero incoming
+    assert decision.action.payload()["card_index"] == 2  # just hit it
+
+
+def test_barricade_makes_block_stacking_worthwhile() -> None:
+    """The nuance the owner flagged: with Barricade, block persists — stack away."""
+    enemies = [
+        {
+            "entity_id": "IDLER_0",
+            "combat_id": 1,
+            "name": "Idler",
+            "hp": 40,
+            "max_hp": 40,
+            "block": 0,
+            "status": [],
+            "intents": [{"type": "Buff", "label": "Buff", "title": "Buff", "description": ""}],
+        }
+    ]
+    raw = make_combat(
+        hand=[
+            card(0, "Defend", 1, "Gain 5 Block.", target="Self", ctype="Skill"),
+            card(1, "Strike", 1, "Deal 6 damage."),
+        ],
+        enemies=enemies,
+        energy=3,
+    ).model_dump(by_alias=True)
+    raw["player"]["status"] = [
+        {
+            "id": "BARRICADE",
+            "name": "Barricade",
+            "amount": None,
+            "type": "Buff",
+            "description": "Block is not removed at the start of your turn.",
+            "keywords": [],
+        }
+    ]
+    from sts2bot.client.models import parse_state as ps
+
+    decision = router().decide(ps(raw), LoopContext())
+    assert isinstance(decision, Decision)
+    assert "Defend" in decision.rationale  # block has future value now
+
+
 def test_heal_potion_when_dire() -> None:
     state = make_combat(
         hand=[card(0, "Strike", 1, "Deal 6 damage.")],

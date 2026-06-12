@@ -50,6 +50,7 @@ class SimState:
     enemies: tuple[EnemySim, ...]
     my_block: int
     my_strength: int
+    barricade: bool = False  # block persists -> stacking it is never waste
     draws: int = 0
     weak_applied: int = 0
     vuln_applied: int = 0
@@ -188,8 +189,13 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
 
 def _score(state: SimState, w: CombatWeights) -> float:
     incoming = sum(e.incoming for e in state.enemies if e.hp > 0)
-    blocked = min(state.my_block, incoming)
-    hp_loss = incoming - blocked + state.self_damage
+    if state.barricade:
+        blocked = state.my_block  # persistent block is all future-useful
+        excess = 0
+    else:
+        blocked = min(state.my_block, incoming)
+        excess = max(0, state.my_block - incoming)
+    hp_loss = incoming - min(state.my_block, incoming) + state.self_damage
     # quadratic focus-fire reward: concentrated damage beats spread damage, because
     # a finished enemy stops attacking (run 13: spread vs a 4-Nibbit pack = death)
     focus = sum(((e.max_hp - e.hp) / e.max_hp) ** 2 for e in state.enemies)
@@ -199,13 +205,14 @@ def _score(state: SimState, w: CombatWeights) -> float:
         + w.w_kill * state.kills
         + w.w_overkill * state.overkill
         + w.w_block_useful * blocked
-        + w.w_block_excess * max(0, state.my_block - incoming)
+        + w.w_block_excess * excess
         + w.w_hp_loss * hp_loss
         + w.w_vulnerable * state.vuln_applied
         + w.w_weak * state.weak_applied
         + w.w_strength * state.strength_gained
         + w.w_draw * state.draws
         + w.w_energy_waste * max(0, state.energy)
+        + w.w_play_friction * len(state.played)
     )
 
 
@@ -224,9 +231,12 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     hand = player.hand or []
     energy = player.energy or 0
     my_strength = 0
+    barricade = False
     for p in player.status:
         if p.id.upper() == "STRENGTH" and p.amount:
             my_strength = p.amount
+        if p.id.upper() == "BARRICADE":
+            barricade = True
 
     playable = [c for c in (_to_planned(card, energy) for card in hand) if c is not None]
     if not playable:
@@ -237,6 +247,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         enemies=_enemy_sims(state.battle.enemies),
         my_block=player.block,
         my_strength=my_strength,
+        barricade=barricade,
     )
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")
