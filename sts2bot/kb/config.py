@@ -73,6 +73,7 @@ class RestWeights(_Section):
 class PotionWeights(_Section):
     drink_in_elite_or_boss: bool = True
     drink_when_hp_pct_below: float = 0.35
+    hail_mary: bool = True
     discard_priority: list[str] = []
 
 

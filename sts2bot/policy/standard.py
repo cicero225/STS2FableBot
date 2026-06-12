@@ -70,9 +70,8 @@ class StandardRouter:
             for i in e.intents
             if i.type.lower() == "attack"
         )
-        for potion in player.potions:
-            if potion.can_use_in_combat is False:
-                continue
+        usable = [p for p in player.potions if p.can_use_in_combat is not False]
+        for potion in usable:
             fx = parse_card_description(potion.description)
             if fx.total_damage > 0:
                 alive = [e for e in state.battle.enemies if e.hp > 0]
@@ -91,6 +90,26 @@ class StandardRouter:
                     action=act.UsePotion(slot=potion.slot),
                     rationale=f"drink {potion.name} to block {incoming} incoming",
                 )
+            if fx.heal > 0 and dire:
+                return Decision(
+                    action=act.UsePotion(slot=potion.slot),
+                    rationale=f"drink {potion.name} to heal at {hp_pct:.0%} HP",
+                )
+        # Hail mary (learned from run 10: died at 3 HP holding two buff potions):
+        # if this turn's unblocked incoming can kill us, drink anything usable.
+        if w.hail_mary and dire and usable and incoming - player.block >= player.hp:
+            potion = usable[0]
+            needs_target = (potion.target_type or "").lower() not in ("none", "self")
+            target = None
+            if needs_target:
+                alive = [e for e in state.battle.enemies if e.hp > 0]
+                if alive:
+                    target = max(alive, key=lambda e: e.hp).entity_id
+            return Decision(
+                action=act.UsePotion(slot=potion.slot, target=target),
+                rationale=f"hail mary: drink {potion.name} (incoming {incoming} >= "
+                f"{player.hp} HP)",
+            )
         return None
 
     # ------------------------------------------------------------------ map

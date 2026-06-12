@@ -148,6 +148,56 @@ def test_combat_potion_when_dire() -> None:
     assert decision.action.payload()["action"] == "use_potion"
 
 
+def test_heal_potion_when_dire() -> None:
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("WURM_0", 40, intent_label="10")],
+        hp=15,
+        max_hp=80,
+        potions=[
+            {
+                "id": "RADIANT",
+                "name": "Healing Salve",
+                "description": "Heal 20 HP.",
+                "slot": 0,
+                "can_use_in_combat": True,
+                "target_type": "None",
+                "keywords": [],
+            }
+        ],
+    )
+    decision = router().decide(state, LoopContext())
+    assert isinstance(decision, Decision)
+    assert decision.action.payload()["action"] == "use_potion"
+    assert "heal" in decision.rationale
+
+
+def test_hail_mary_drinks_unparseable_potion() -> None:
+    """Run 10 died at 3 HP holding Fysh Oil + Radiant Tincture (buff/icon-markup
+    descriptions the parser can't read). Lethal incoming -> drink anything."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BYGONE_EFFIGY_0", 60, intent_label="13")],
+        hp=3,
+        max_hp=80,
+        potions=[
+            {
+                "id": "FYSH_OIL",
+                "name": "Fysh Oil",
+                "description": "Gain 1 Strength and 1 Dexterity.",
+                "slot": 0,
+                "can_use_in_combat": True,
+                "target_type": "None",
+                "keywords": [],
+            }
+        ],
+    )
+    decision = router().decide(state, LoopContext())
+    assert isinstance(decision, Decision)
+    assert decision.action.payload()["action"] == "use_potion"
+    assert "hail mary" in decision.rationale
+
+
 def test_event_refuses_hp_cost_when_low() -> None:
     state = parse_state(
         {

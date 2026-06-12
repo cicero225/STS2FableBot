@@ -64,9 +64,7 @@ class TrivialRouter:
             # The mod refuses to open Timeline, so if it's open the OWNER opened it
             # (epoch reveal). Backing out would kick them off the screen (happened
             # live 2026-06-11) — hands off until they finish.
-            return Wait(
-                reason="MANUAL: Timeline is open — waiting for owner to finish the reveal"
-            )
+            return Wait(reason="MANUAL: Timeline is open — waiting for owner to finish the reveal")
 
         if screen == "profile_select":
             if ctx.profile_id is not None:
