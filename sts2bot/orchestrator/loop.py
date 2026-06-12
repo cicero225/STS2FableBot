@@ -166,7 +166,14 @@ class AgentLoop:
                     result.model_dump(exclude_none=True),
                     decision.scores,
                 )
-                error_streak = 0 if result.ok else error_streak + 1
+                if result.ok:
+                    error_streak = 0
+                elif "actions are currently disabled" in result.detail:
+                    # transient scripted-combat lockout (run 16 died to hammering this
+                    # on the unforked mod); wait it out, don't count toward the streak
+                    time.sleep(cfg.poll_interval)
+                else:
+                    error_streak += 1
                 if error_streak >= cfg.error_streak_limit:
                     raise BotStalled(
                         f"{error_streak} consecutive action errors; last: {result.detail}"

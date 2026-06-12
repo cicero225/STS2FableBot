@@ -184,6 +184,8 @@ class TrivialRouter:
             return Wait(reason="combat state without combat player block")
         if state.battle.turn != "player" or state.battle.is_play_phase is False:
             return Wait(reason="not the player's play phase")
+        if state.battle.actions_disabled:
+            return Wait(reason="player actions disabled (scripted combat moment)")
         hand = player.hand or []
         playable = [c for c in hand if c.can_play]
         if not playable:

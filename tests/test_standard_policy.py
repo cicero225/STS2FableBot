@@ -148,6 +148,22 @@ def test_combat_potion_when_dire() -> None:
     assert decision.action.payload()["action"] == "use_potion"
 
 
+def test_actions_disabled_waits() -> None:
+    """Run 16 (Act 2!) died to hammering plays into a scripted lockout; the fork
+    exposes battle.actions_disabled and combat must wait on it."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("SCRIPTED_0", 50)],
+    )
+    raw = state.model_dump(by_alias=True)
+    raw["battle"]["actions_disabled"] = True
+    from sts2bot.client.models import parse_state as ps
+
+    decision = router().decide(ps(raw), LoopContext())
+    assert isinstance(decision, Wait)
+    assert "disabled" in decision.reason
+
+
 def test_pack_fight_focuses_fire() -> None:
     """Run 13 spread damage across a 4-Nibbit pack and died from full HP. With the
     focus term, follow-up hits go to the already-wounded enemy."""

@@ -58,6 +58,8 @@ class StandardRouter:
             return None
         if state.battle.turn != "player" or state.battle.is_play_phase is False:
             return None
+        if state.battle.actions_disabled:
+            return None
         hp_pct = player.hp / max(1, player.max_hp)
         dangerous = state.state_type in ("elite", "boss") and w.drink_in_elite_or_boss
         dire = hp_pct < w.drink_when_hp_pct_below

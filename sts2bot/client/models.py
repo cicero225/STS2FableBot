@@ -181,6 +181,7 @@ class Battle(ApiModel):
     round: int | None = None
     turn: Literal["player", "enemy"] | str | None = None
     is_play_phase: bool | None = None
+    actions_disabled: bool | None = None  # fork: scripted moments block input
     enemies: list[Enemy] = Field(default_factory=list)
 
 
