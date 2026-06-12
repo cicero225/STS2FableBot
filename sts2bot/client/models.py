@@ -211,7 +211,9 @@ class UnknownState(BaseState):
 
 class CombatState(BaseState):
     state_type: Literal["monster", "elite", "boss"]
-    battle: Battle
+    # battle is briefly absent while the combat room is still loading (observed live;
+    # not in the API docs) — treat None as "wait for combat to finish loading".
+    battle: Battle | None = None
 
 
 class HandSelect(ApiModel):

@@ -72,6 +72,7 @@ class TrivialRouter:
 
         if screen == "main":
             ctx.screen_mem.pop("character_sent", None)
+            ctx.screen_mem.pop("embark_sent", None)
             if "continue" in options:
                 return pick("continue", "resume saved run")
             if "singleplayer" in options:
@@ -86,8 +87,13 @@ class TrivialRouter:
             if not ctx.screen_mem.get("character_sent") and wanted in options:
                 ctx.screen_mem["character_sent"] = True
                 return pick(ctx.character, f"select configured character {ctx.character}")
+            if ctx.screen_mem.get("embark_sent"):
+                # Screen lingers while the run loads; re-confirming just errors (observed
+                # live). Wait it out — the stall rail catches a genuine soft-lock.
+                return Wait(reason="embarked; waiting for run to start")
             for confirm in ("confirm", "embark"):
                 if confirm in options:
+                    ctx.screen_mem["embark_sent"] = True
                     return pick(confirm, "confirm character and embark")
             return Wait(reason="character select without confirm option")
 
@@ -104,6 +110,8 @@ class TrivialRouter:
     # ------------------------------------------------------------------ combat
 
     def _combat(self, state: CombatState, ctx: LoopContext) -> Decision | Wait:
+        if state.battle is None:
+            return Wait(reason="combat still loading (no battle block yet)")
         player = state.player
         if player is None or not player.in_combat:
             return Wait(reason="combat state without combat player block")

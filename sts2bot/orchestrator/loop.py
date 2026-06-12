@@ -147,6 +147,11 @@ class AgentLoop:
         except (BotStalled, StateParseError) as e:
             outcome.status = "error"
             outcome.error = str(e)
+            if isinstance(e, StateParseError) and e.raw is not None:
+                # Keep the offending payload for diagnosis/fixtures (C5: clear report).
+                (logger.run_dir / "parse_error.json").write_text(
+                    json.dumps(e.raw, indent=2, ensure_ascii=False), encoding="utf-8"
+                )
         except Exception as e:  # connection loss, unexpected bugs: fail safe, keep logs
             outcome.status = "error"
             outcome.error = f"{type(e).__name__}: {e}"

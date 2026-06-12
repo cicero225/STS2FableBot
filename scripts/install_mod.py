@@ -81,7 +81,7 @@ def main() -> int:
     game_dir = args.game_dir or find_game_dir()
     if game_dir is None or not game_dir.is_dir():
         print("Could not locate the Slay the Spire 2 install directory.")
-        print("Pass it explicitly: --game-dir \"C:\\...\\Slay the Spire 2\"")
+        print('Pass it explicitly: --game-dir "C:\\...\\Slay the Spire 2"')
         return 1
     mods_dir = game_dir / "mods"
     print(f"Game dir: {game_dir}")
