@@ -104,6 +104,59 @@ def test_unclaimable_reward_is_abandoned_after_two_attempts() -> None:
     assert third.action.payload() == {"action": "proceed"}
 
 
+def _charselect_state(selected: str | None, busy: bool = False, confirm: bool = True):
+    return parse_state(
+        {
+            "state_type": "menu",
+            "menu_screen": "character_select",
+            "selected_character": selected,
+            "selection_busy": busy,
+            "options": [
+                {"name": "IRONCLAD", "enabled": True},
+                {"name": "SILENT", "enabled": True},
+                {"name": "REGENT", "enabled": False},
+                {"name": "confirm", "enabled": confirm},
+                {"name": "embark", "enabled": confirm},
+                {"name": "back", "enabled": True},
+            ],
+        }
+    )
+
+
+def test_charselect_waits_during_unlock_animation() -> None:
+    """Found live: the unlock animation Select()s the new character ~1s after the
+    screen opens, overwriting earlier picks. Fork exposes selection_busy."""
+    decision = TrivialRouter().decide(_charselect_state(None, busy=True), LoopContext())
+    assert isinstance(decision, Wait) and "unlock animation" in decision.reason
+
+
+def test_charselect_reselects_until_verified_then_embarks() -> None:
+    router = TrivialRouter()
+    ctx = LoopContext(character="IRONCLAD")
+    # screen holds the wrong character -> re-select, repeatedly if needed
+    for _ in range(2):
+        d = router.decide(_charselect_state("SILENT"), ctx)
+        assert not isinstance(d, Wait)
+        assert d.action.payload()["option"] == "IRONCLAD"
+    # verified -> embark exactly once, then wait
+    d = router.decide(_charselect_state("IRONCLAD"), ctx)
+    assert not isinstance(d, Wait) and d.action.payload()["option"] == "confirm"
+    d = router.decide(_charselect_state("IRONCLAD"), ctx)
+    assert isinstance(d, Wait)
+
+
+def test_charselect_verified_but_confirm_disabled_waits() -> None:
+    d = TrivialRouter().decide(
+        _charselect_state("IRONCLAD", confirm=False), LoopContext(character="IRONCLAD")
+    )
+    assert isinstance(d, Wait) and "confirm" in d.reason
+
+
+def test_charselect_locked_request_surfaces_manual() -> None:
+    d = TrivialRouter().decide(_charselect_state("IRONCLAD"), LoopContext(character="REGENT"))
+    assert isinstance(d, Wait) and d.reason.startswith("MANUAL:")
+
+
 def test_embark_is_sent_only_once() -> None:
     """Observed live: character_select lingers after embark; re-confirming errors."""
     router = TrivialRouter()

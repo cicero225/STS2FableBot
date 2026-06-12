@@ -96,23 +96,55 @@ class TrivialRouter:
             return pick("standard", "standard run mode")
 
         if screen == "character_select":
-            wanted = ctx.character.lower()
-            if not ctx.screen_mem.get("character_sent") and wanted in options:
-                ctx.screen_mem["character_sent"] = True
-                return pick(ctx.character, f"select configured character {ctx.character}")
-            if ctx.screen_mem.get("embark_sent"):
-                # Screen lingers while the run loads; re-confirming just errors (observed
-                # live). Wait it out — the stall rail catches a genuine soft-lock.
-                return Wait(reason="embarked; waiting for run to start")
-            for confirm in ("confirm", "embark"):
-                if confirm in options:
-                    ctx.screen_mem["embark_sent"] = True
-                    return pick(confirm, "confirm character and embark")
-            return Wait(reason="character select without confirm option")
+            return self._character_select(state, ctx, pick)
 
         if "back" in options:
             return pick("back", f"unhandled menu screen {screen}; retreating")
         return Wait(reason=f"unhandled menu screen {screen} with no back option")
+
+    def _character_select(self, state: MenuState, ctx: LoopContext, pick) -> Decision | Wait:
+        """Verify-before-confirm: the screen's unlock animation can overwrite picks
+        (found live 2026-06-11), so with a forked mod we re-select until the state's
+        selected_character matches, and only then embark. Falls back to fire-and-hope
+        on the unforked mod (no selected_character field)."""
+        wanted = ctx.character.lower()
+        enabled = state.enabled_options()
+        if state.selection_busy:
+            return Wait(reason="character unlock animation playing; selection would be lost")
+
+        if state.selected_character is not None:
+            selected = state.selected_character.lower()
+            if selected != wanted:
+                ctx.screen_mem.pop("embark_sent", None)
+                if enabled.get(wanted):
+                    return pick(
+                        ctx.character,
+                        f"select {ctx.character} (screen has {state.selected_character})",
+                    )
+                return Wait(
+                    reason=f"MANUAL: requested character {ctx.character} is not selectable "
+                    f"(locked or absent); screen has {state.selected_character}"
+                )
+            if ctx.screen_mem.get("embark_sent"):
+                return Wait(reason="embarked; waiting for run to start")
+            for confirm in ("confirm", "embark"):
+                if enabled.get(confirm):
+                    ctx.screen_mem["embark_sent"] = True
+                    return pick(confirm, f"selection verified ({ctx.character}); embark")
+            return Wait(reason="selection verified; waiting for confirm to enable")
+
+        # Legacy mod without selected_character: select once, confirm once, hope.
+        options = [o.lower() for o in state.option_names()]
+        if not ctx.screen_mem.get("character_sent") and wanted in options:
+            ctx.screen_mem["character_sent"] = True
+            return pick(ctx.character, f"select configured character {ctx.character}")
+        if ctx.screen_mem.get("embark_sent"):
+            return Wait(reason="embarked; waiting for run to start")
+        for confirm in ("confirm", "embark"):
+            if confirm in options:
+                ctx.screen_mem["embark_sent"] = True
+                return pick(confirm, "confirm character and embark")
+        return Wait(reason="character select without confirm option")
 
     def _game_over(self, state: GameOverState, ctx: LoopContext) -> Decision | Wait:
         return Decision(

@@ -31,6 +31,8 @@ include = ["sts2bot*"]
 [tool.ruff]
 line-length = 99
 target-version = "py312"
+# external/ and fork/ hold third-party clones (upstream style is not ours to lint)
+extend-exclude = ["external", "fork"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]

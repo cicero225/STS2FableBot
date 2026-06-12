@@ -198,10 +198,22 @@ class MenuState(BaseState):
     options: list[str | MenuOption] = Field(default_factory=list)
     blocked_options: list[Any] | None = None
     characters: list[Any] | None = None  # character_select screen
+    # fork additions (mod >= 0.4.0-fork.1): which character the lobby will actually
+    # embark with, and whether the unlock animation may still overwrite selections
+    selected_character: str | None = None
+    selection_busy: bool | None = None
     lobby: dict[str, Any] | None = None  # MP only — out of scope
 
     def option_names(self) -> list[str]:
         return [o if isinstance(o, str) else o.name for o in self.options]
+
+    def enabled_options(self) -> dict[str, bool]:
+        return {
+            (o if isinstance(o, str) else o.name).lower(): (
+                True if isinstance(o, str) else o.enabled
+            )
+            for o in self.options
+        }
 
 
 class UnknownState(BaseState):
