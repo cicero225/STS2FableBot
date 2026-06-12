@@ -84,13 +84,15 @@ external/                 gitignored clones for reference (STS2MCP)
 Build **mock-first**: STS2MCP's `docs/raw-full.md` documents exact response shapes, so the
 entire loop is built and tested against fixtures before ever touching the live game.
 
-1. ✅ *(this session)* Scaffold package, venv, pyproject, ruff/pytest config.
-2. State models for every `state_type` + action senders (from API docs).
-3. Agent loop: poll → parse → route → act → log; popup/menu/game-over recovery reflexes.
-4. Trivial policies (first-legal-choice) for every state_type.
-5. Run logger v1: JSONL decisions + run header/outcome rows in SQLite.
-6. Mock server replaying doc fixtures; loop survives a synthetic full run in CI-style test.
-7. **Live setup (attended, with owner):** install STS2MCP release into game `mods/`,
+1. ✅ Scaffold package, venv, pyproject, ruff/pytest config.
+2. ✅ State models for every `state_type` + action senders (from API docs).
+3. ✅ Agent loop: poll → parse → route → act → log; popup/menu/game-over recovery
+   reflexes; stall + error-streak safety rails; `sts2bot doctor` / `sts2bot play` CLI.
+4. ✅ Trivial policies (first-legal-choice) for every state_type.
+5. ✅ Run logger v1: JSONL decisions + run header/outcome rows in SQLite.
+6. ✅ Scripted mock game replaying doc fixtures; full synthetic run (menus → Neow →
+   map → combat → rewards → rest → game over → menu) passes E2E in tests.
+7. **Live setup (attended, with owner) — NEXT:** install STS2MCP release into game `mods/`,
    save-folder backup + Steam Cloud check (C1), bot profile in empty slot,
    first live runs; fix the doc-vs-reality gaps this shakes out.
 8. Investigation items: how "Play with Mods" launches non-interactively (CLI arg?);
