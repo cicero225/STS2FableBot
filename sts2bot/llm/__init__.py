@@ -1,1 +1,1 @@
-﻿"""Budget-capped LLM advisor calls and optional narrator."""
+"""Budget-capped LLM advisor calls and optional narrator."""

@@ -1,0 +1,909 @@
+{
+  "_comment": "State payloads derived from external/STS2MCP/docs/raw-full.md (mod v0.4.0, game v0.103.2). Placeholders from the docs filled with spec-consistent values. Replace/augment with live captures during P0.7.",
+  "menu_main": {
+    "state_type": "menu",
+    "message": "No run in progress. Player is in the main menu.",
+    "menu_screen": "main",
+    "options": ["continue", "singleplayer", "multiplayer", "compendium", "timeline", "settings", "quit"]
+  },
+  "menu_profile_select": {
+    "state_type": "menu",
+    "message": "Profile selection.",
+    "menu_screen": "profile_select",
+    "options": ["profile_1", "profile_2", "profile_3", "back"]
+  },
+  "menu_character_select": {
+    "state_type": "menu",
+    "message": "Select a character.",
+    "menu_screen": "character_select",
+    "characters": [
+      {"id": "IRONCLAD", "name": "The Ironclad"},
+      {"id": "SILENT", "name": "The Silent"}
+    ],
+    "options": [
+      {"name": "IRONCLAD", "enabled": true},
+      {"name": "SILENT", "enabled": true},
+      {"name": "confirm", "enabled": true},
+      {"name": "embark", "enabled": true},
+      {"name": "back", "enabled": true}
+    ]
+  },
+  "menu_popup": {
+    "state_type": "menu",
+    "message": "A popup is blocking the screen.",
+    "menu_screen": "popup",
+    "options": ["ignore", "back"]
+  },
+  "menu_tutorial_prompt": {
+    "state_type": "menu",
+    "message": "Enable tutorials?",
+    "menu_screen": "tutorial_prompt",
+    "options": ["no", "yes"]
+  },
+  "unknown": {
+    "state_type": "unknown",
+    "room_type": "SomeUnknownRoom"
+  },
+  "combat_monster": {
+    "state_type": "monster",
+    "battle": {
+      "round": 1,
+      "turn": "player",
+      "is_play_phase": true,
+      "enemies": [
+        {
+          "entity_id": "JAW_WORM_0",
+          "combat_id": 42,
+          "name": "Jaw Worm",
+          "hp": 44,
+          "max_hp": 44,
+          "block": 0,
+          "status": [],
+          "intents": [
+            {
+              "type": "Attack",
+              "label": "11",
+              "title": "Attack",
+              "description": "Deals 11 damage."
+            }
+          ]
+        }
+      ]
+    },
+    "run": {"act": 1, "floor": 3, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 72,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 99,
+      "energy": 3,
+      "max_energy": 3,
+      "hand": [
+        {
+          "index": 0,
+          "id": "STRIKE_R",
+          "name": "Strike",
+          "type": "Attack",
+          "cost": "1",
+          "star_cost": null,
+          "description": "Deal 6 damage.",
+          "target_type": "AnyEnemy",
+          "can_play": true,
+          "unplayable_reason": null,
+          "is_upgraded": false,
+          "keywords": []
+        },
+        {
+          "index": 1,
+          "id": "DEFEND_R",
+          "name": "Defend",
+          "type": "Skill",
+          "cost": "1",
+          "star_cost": null,
+          "description": "Gain 5 Block.",
+          "target_type": "Self",
+          "can_play": true,
+          "unplayable_reason": null,
+          "is_upgraded": false,
+          "keywords": [{"name": "Block", "description": "Prevents damage."}]
+        },
+        {
+          "index": 2,
+          "id": "BASH",
+          "name": "Bash",
+          "type": "Attack",
+          "cost": "2",
+          "star_cost": null,
+          "description": "Deal 8 damage. Apply 2 Vulnerable.",
+          "target_type": "AnyEnemy",
+          "can_play": false,
+          "unplayable_reason": "NotEnoughEnergy",
+          "is_upgraded": false,
+          "keywords": [{"name": "Vulnerable", "description": "Takes 50% more damage from attacks."}]
+        }
+      ],
+      "draw_pile_count": 5,
+      "discard_pile_count": 2,
+      "exhaust_pile_count": 0,
+      "draw_pile": [
+        {"name": "Strike", "cost": "1", "star_cost": null, "description": "Deal 6 damage."},
+        {"name": "Defend", "cost": "1", "star_cost": null, "description": "Gain 5 Block."}
+      ],
+      "discard_pile": [
+        {"name": "Strike", "cost": "1", "star_cost": null, "description": "Deal 6 damage."}
+      ],
+      "exhaust_pile": [],
+      "status": [
+        {
+          "id": "STRENGTH",
+          "name": "Strength",
+          "amount": 3,
+          "type": "Buff",
+          "description": "Increases attack damage by 3.",
+          "keywords": []
+        }
+      ],
+      "relics": [
+        {
+          "id": "BURNING_BLOOD",
+          "name": "Burning Blood",
+          "description": "At the end of combat, heal 6 HP.",
+          "counter": null,
+          "keywords": []
+        }
+      ],
+      "potions": [
+        {
+          "id": "SWIFT_POTION",
+          "name": "Swift Potion",
+          "description": "Draw 3 cards.",
+          "slot": 0,
+          "can_use_in_combat": true,
+          "target_type": "None",
+          "keywords": []
+        }
+      ],
+      "max_potion_slots": 3
+    }
+  },
+  "combat_defect_orbs": {
+    "state_type": "elite",
+    "battle": {
+      "round": 2,
+      "turn": "player",
+      "is_play_phase": true,
+      "enemies": [
+        {
+          "entity_id": "GREMLIN_NOB_0",
+          "combat_id": 7,
+          "name": "Gremlin Nob",
+          "hp": 85,
+          "max_hp": 85,
+          "block": 0,
+          "status": [
+            {"id": "ENRAGE", "name": "Enrage", "amount": 2, "type": "Buff", "description": "Gains 2 Strength whenever you play a Skill.", "keywords": []}
+          ],
+          "intents": [
+            {"type": "Attack", "label": "16", "title": "Attack", "description": "Deals 16 damage."}
+          ]
+        }
+      ]
+    },
+    "run": {"act": 1, "floor": 6, "ascension": 0},
+    "player": {
+      "character": "The Defect",
+      "hp": 60,
+      "max_hp": 75,
+      "block": 0,
+      "gold": 150,
+      "energy": 3,
+      "max_energy": 3,
+      "hand": [
+        {
+          "index": 0,
+          "id": "ZAP",
+          "name": "Zap",
+          "type": "Skill",
+          "cost": "1",
+          "star_cost": null,
+          "description": "Channel 1 Lightning.",
+          "target_type": "None",
+          "can_play": true,
+          "unplayable_reason": null,
+          "is_upgraded": false,
+          "keywords": [{"name": "Channel", "description": "Triggers the orb's passive."}]
+        }
+      ],
+      "draw_pile_count": 4,
+      "discard_pile_count": 0,
+      "exhaust_pile_count": 0,
+      "draw_pile": [],
+      "discard_pile": [],
+      "exhaust_pile": [],
+      "orbs": [
+        {
+          "id": "LIGHTNING",
+          "name": "Lightning",
+          "description": "Passive: Deal 3 damage to a random enemy. Evoke: Deal 8 damage.",
+          "passive_val": 3,
+          "evoke_val": 8,
+          "keywords": []
+        }
+      ],
+      "orb_slots": 3,
+      "orb_empty_slots": 2,
+      "status": [],
+      "relics": [{"id": "CRACKED_CORE", "name": "Cracked Core", "description": "At the start of each combat, Channel 1 Lightning.", "counter": null, "keywords": []}],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "combat_necrobinder_pet": {
+    "state_type": "boss",
+    "battle": {
+      "round": 4,
+      "turn": "player",
+      "is_play_phase": true,
+      "enemies": [
+        {
+          "entity_id": "VANTOM_BOSS_0",
+          "combat_id": 99,
+          "name": "Vantom",
+          "hp": 210,
+          "max_hp": 260,
+          "block": 10,
+          "status": [],
+          "intents": [
+            {"type": "Buff", "label": "Buff", "title": "Buff", "description": "Gaining strength."}
+          ]
+        }
+      ]
+    },
+    "run": {"act": 1, "floor": 16, "ascension": 0},
+    "player": {
+      "character": "The Necrobinder",
+      "hp": 55,
+      "max_hp": 70,
+      "block": 6,
+      "gold": 210,
+      "energy": 2,
+      "max_energy": 3,
+      "hand": [
+        {
+          "index": 0,
+          "id": "DOOM_TOUCH",
+          "name": "Doom Touch",
+          "type": "Skill",
+          "cost": "1",
+          "star_cost": null,
+          "description": "Apply 4 Doom.",
+          "target_type": "AnyEnemy",
+          "can_play": true,
+          "unplayable_reason": null,
+          "is_upgraded": false,
+          "keywords": [{"name": "Doom", "description": "Enemies whose HP is at or below their Doom stacks die."}]
+        }
+      ],
+      "draw_pile_count": 8,
+      "discard_pile_count": 3,
+      "exhaust_pile_count": 1,
+      "draw_pile": [],
+      "discard_pile": [],
+      "exhaust_pile": [],
+      "pets": [
+        {
+          "id": "OSTY",
+          "name": "Osty",
+          "alive": true,
+          "hp": 12,
+          "max_hp": 12,
+          "block": 0,
+          "status": []
+        }
+      ],
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "hand_select": {
+    "state_type": "hand_select",
+    "hand_select": {
+      "mode": "simple_select",
+      "prompt": "Select a card to Exhaust.",
+      "cards": [
+        {
+          "index": 0,
+          "id": "STRIKE_R",
+          "name": "Strike",
+          "type": "Attack",
+          "cost": "1",
+          "star_cost": null,
+          "description": "Deal 6 damage.",
+          "is_upgraded": false,
+          "keywords": []
+        }
+      ],
+      "selected_cards": [{"index": 0, "name": "Defend"}],
+      "can_confirm": false
+    },
+    "battle": {
+      "round": 1,
+      "turn": "player",
+      "is_play_phase": true,
+      "enemies": [
+        {"entity_id": "JAW_WORM_0", "combat_id": 42, "name": "Jaw Worm", "hp": 30, "max_hp": 44, "block": 0, "status": [], "intents": [{"type": "Attack", "label": "11", "title": "Attack", "description": "Deals 11 damage."}]}
+      ]
+    },
+    "run": {"act": 1, "floor": 3, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 72,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 99,
+      "energy": 1,
+      "max_energy": 3,
+      "hand": [],
+      "draw_pile_count": 5,
+      "discard_pile_count": 2,
+      "exhaust_pile_count": 0,
+      "draw_pile": [],
+      "discard_pile": [],
+      "exhaust_pile": [],
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "rewards": {
+    "state_type": "rewards",
+    "rewards": {
+      "items": [
+        {"index": 0, "type": "gold", "description": "Obtain 25 gold.", "gold_amount": 25},
+        {"index": 1, "type": "potion", "description": "Obtain a potion.", "potion_id": "SWIFT_POTION", "potion_name": "Swift Potion"},
+        {"index": 2, "type": "card", "description": "Add a card to your deck."}
+      ],
+      "can_proceed": true
+    },
+    "run": {"act": 1, "floor": 3, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 65,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 99,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "card_reward": {
+    "state_type": "card_reward",
+    "card_reward": {
+      "cards": [
+        {
+          "index": 0,
+          "id": "UPPERCUT",
+          "name": "Uppercut",
+          "type": "Attack",
+          "cost": "2",
+          "star_cost": null,
+          "description": "Deal 13 damage. Apply 1 Weak. Apply 1 Vulnerable.",
+          "rarity": "Uncommon",
+          "is_upgraded": false,
+          "keywords": []
+        },
+        {
+          "index": 1,
+          "id": "SHRUG_IT_OFF",
+          "name": "Shrug It Off",
+          "type": "Skill",
+          "cost": "1",
+          "star_cost": null,
+          "description": "Gain 8 Block. Draw 1 card.",
+          "rarity": "Common",
+          "is_upgraded": false,
+          "keywords": []
+        }
+      ],
+      "can_skip": true
+    },
+    "run": {"act": 1, "floor": 3, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 65,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 124,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "map": {
+    "state_type": "map",
+    "map": {
+      "current_position": {"col": 3, "row": 2, "type": "Monster"},
+      "visited": [
+        {"col": 3, "row": 0, "type": "Start"},
+        {"col": 3, "row": 1, "type": "Monster"},
+        {"col": 3, "row": 2, "type": "Monster"}
+      ],
+      "next_options": [
+        {
+          "index": 0,
+          "col": 2,
+          "row": 3,
+          "type": "RestSite",
+          "leads_to": [
+            {"col": 1, "row": 4, "type": "Elite"},
+            {"col": 3, "row": 4, "type": "Shop"}
+          ]
+        },
+        {
+          "index": 1,
+          "col": 4,
+          "row": 3,
+          "type": "Event",
+          "leads_to": [
+            {"col": 3, "row": 4, "type": "Shop"}
+          ]
+        }
+      ],
+      "nodes": [
+        {"col": 3, "row": 0, "type": "Start", "children": [[2, 1], [3, 1], [4, 1]]},
+        {"col": 3, "row": 1, "type": "Monster", "children": [[3, 2]]},
+        {"col": 3, "row": 2, "type": "Monster", "children": [[2, 3], [4, 3]]}
+      ],
+      "boss": {"col": 3, "row": 15, "id": "ENCOUNTER.VANTOM_BOSS", "name": "Vantom"},
+      "bosses": [
+        {"col": 3, "row": 15, "id": "ENCOUNTER.VANTOM_BOSS", "name": "Vantom"}
+      ]
+    },
+    "run": {"act": 1, "floor": 3, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 65,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 124,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "event_neow": {
+    "state_type": "event",
+    "event": {
+      "event_id": "NEOW",
+      "event_name": "Neow",
+      "is_ancient": true,
+      "in_dialogue": false,
+      "body": "A strange creature offers you a boon before your climb.",
+      "options": [
+        {
+          "index": 0,
+          "title": "Draft",
+          "description": "Choose 10 card rewards to replace your starting deck.",
+          "is_locked": false,
+          "is_proceed": false,
+          "was_chosen": false,
+          "keywords": []
+        },
+        {
+          "index": 1,
+          "title": "Max HP",
+          "description": "Gain 8 Max HP.",
+          "is_locked": false,
+          "is_proceed": false,
+          "was_chosen": false,
+          "keywords": []
+        },
+        {
+          "index": 2,
+          "title": "Boss Relic Swap",
+          "description": "Lose your starter relic. Obtain a random Boss relic.",
+          "is_locked": false,
+          "is_proceed": false,
+          "was_chosen": false,
+          "relic_name": "Black Star",
+          "relic_description": "Elites drop an additional relic.",
+          "keywords": []
+        }
+      ]
+    },
+    "run": {"act": 1, "floor": 0, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 80,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 99,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "event_dialogue": {
+    "state_type": "event",
+    "event": {
+      "event_id": "ANCIENT_ONE",
+      "event_name": "The Ancient",
+      "is_ancient": true,
+      "in_dialogue": true,
+      "body": "The Ancient speaks...",
+      "options": []
+    },
+    "run": {"act": 1, "floor": 5, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 65,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 124,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "rest_site": {
+    "state_type": "rest_site",
+    "rest_site": {
+      "options": [
+        {"index": 0, "id": "rest", "name": "Rest", "description": "Heal 30% of max HP.", "is_enabled": true},
+        {"index": 1, "id": "smith", "name": "Smith", "description": "Upgrade a card.", "is_enabled": true}
+      ],
+      "can_proceed": false
+    },
+    "run": {"act": 1, "floor": 7, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 50,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 150,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "shop": {
+    "state_type": "shop",
+    "shop": {
+      "items": [
+        {
+          "index": 0,
+          "category": "card",
+          "price": 75,
+          "is_stocked": true,
+          "can_afford": true,
+          "on_sale": false,
+          "card_id": "OFFERING",
+          "card_name": "Offering",
+          "card_type": "Skill",
+          "card_cost": "1",
+          "card_star_cost": null,
+          "card_rarity": "Rare",
+          "card_description": "Lose 6 HP. Gain 2 Energy. Draw 3 cards.",
+          "keywords": []
+        },
+        {
+          "index": 5,
+          "category": "relic",
+          "price": 150,
+          "is_stocked": true,
+          "can_afford": false,
+          "relic_id": "VAJRA",
+          "relic_name": "Vajra",
+          "relic_description": "At the start of each combat, gain 1 Strength.",
+          "keywords": []
+        },
+        {
+          "index": 8,
+          "category": "potion",
+          "price": 50,
+          "is_stocked": true,
+          "can_afford": true,
+          "potion_id": "FIRE_POTION",
+          "potion_name": "Fire Potion",
+          "potion_description": "Deal 20 damage to target enemy.",
+          "keywords": []
+        },
+        {
+          "index": 10,
+          "category": "card_removal",
+          "price": 75,
+          "is_stocked": true,
+          "can_afford": true
+        }
+      ],
+      "can_proceed": true
+    },
+    "run": {"act": 1, "floor": 8, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 50,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 120,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "fake_merchant": {
+    "state_type": "fake_merchant",
+    "fake_merchant": {
+      "event_id": "FAKE_MERCHANT",
+      "event_name": "Fake Merchant",
+      "started_fight": false,
+      "shop": {
+        "items": [
+          {
+            "index": 0,
+            "category": "relic",
+            "cost": 150,
+            "is_stocked": true,
+            "can_afford": true,
+            "relic_id": "VAJRA",
+            "relic_name": "Vajra",
+            "relic_description": "At the start of each combat, gain 1 Strength.",
+            "keywords": []
+          }
+        ],
+        "can_proceed": true
+      }
+    },
+    "run": {"act": 2, "floor": 20, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 50,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 200,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "treasure": {
+    "state_type": "treasure",
+    "treasure": {
+      "relics": [
+        {
+          "index": 0,
+          "id": "LANTERN",
+          "name": "Lantern",
+          "description": "Gain 1 Energy on the first turn of each combat.",
+          "rarity": "Uncommon",
+          "keywords": []
+        }
+      ],
+      "can_proceed": true
+    },
+    "run": {"act": 1, "floor": 9, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 50,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 120,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "card_select_transform": {
+    "state_type": "card_select",
+    "card_select": {
+      "screen_type": "transform",
+      "prompt": "Choose 2 cards to Transform.",
+      "cards": [
+        {
+          "index": 0,
+          "id": "STRIKE_R",
+          "name": "Strike",
+          "type": "Attack",
+          "cost": "1",
+          "star_cost": null,
+          "description": "Deal 6 damage.",
+          "rarity": "Common",
+          "is_upgraded": false,
+          "keywords": []
+        },
+        {
+          "index": 1,
+          "id": "DEFEND_R",
+          "name": "Defend",
+          "type": "Skill",
+          "cost": "1",
+          "star_cost": null,
+          "description": "Gain 5 Block.",
+          "rarity": "Common",
+          "is_upgraded": false,
+          "keywords": []
+        }
+      ],
+      "preview_showing": false,
+      "can_confirm": false,
+      "can_cancel": true
+    },
+    "run": {"act": 1, "floor": 5, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 65,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 124,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "bundle_select": {
+    "state_type": "bundle_select",
+    "bundle_select": {
+      "screen_type": "bundle",
+      "prompt": "Choose a bundle.",
+      "bundles": [
+        {
+          "index": 0,
+          "card_count": 3,
+          "cards": [
+            {
+              "index": 0,
+              "id": "UPPERCUT",
+              "name": "Uppercut",
+              "type": "Attack",
+              "cost": "2",
+              "star_cost": null,
+              "description": "Deal 13 damage. Apply 1 Weak. Apply 1 Vulnerable.",
+              "rarity": "Uncommon",
+              "is_upgraded": false,
+              "keywords": []
+            }
+          ]
+        }
+      ],
+      "preview_showing": false,
+      "preview_cards": [],
+      "can_cancel": false,
+      "can_confirm": false
+    },
+    "run": {"act": 1, "floor": 10, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 60,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 130,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "relic_select": {
+    "state_type": "relic_select",
+    "relic_select": {
+      "prompt": "Choose a relic.",
+      "relics": [
+        {
+          "index": 0,
+          "id": "BLACK_STAR",
+          "name": "Black Star",
+          "description": "Elites drop an additional relic.",
+          "rarity": "Rare",
+          "keywords": []
+        },
+        {
+          "index": 1,
+          "id": "RUNIC_DOME",
+          "name": "Runic Dome",
+          "description": "Gain 1 Energy each turn. You can no longer see enemy intents.",
+          "rarity": "Boss",
+          "keywords": []
+        }
+      ],
+      "can_skip": true
+    },
+    "run": {"act": 1, "floor": 17, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 55,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 230,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "crystal_sphere": {
+    "state_type": "crystal_sphere",
+    "crystal_sphere": {
+      "instructions_title": "Crystal Sphere",
+      "instructions_description": "Use divination tools to reveal cells...",
+      "grid_width": 9,
+      "grid_height": 11,
+      "cells": [
+        {"x": 0, "y": 0, "is_hidden": true, "is_clickable": true, "is_highlighted": false, "is_hovered": false},
+        {"x": 2, "y": 3, "is_hidden": false, "is_clickable": false, "is_highlighted": false, "is_hovered": false, "item_type": "CrystalSphereGold", "is_good": true}
+      ],
+      "clickable_cells": [{"x": 4, "y": 7}, {"x": 0, "y": 0}],
+      "revealed_items": [
+        {"item_type": "CrystalSphereGold", "x": 2, "y": 3, "width": 1, "height": 1, "is_good": true}
+      ],
+      "tool": "big",
+      "can_use_big_tool": true,
+      "can_use_small_tool": true,
+      "divinations_left_text": "3 divinations remaining",
+      "can_proceed": false
+    },
+    "run": {"act": 1, "floor": 11, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 60,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 140,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "game_over": {
+    "state_type": "game_over",
+    "game_over": {
+      "message": "Run ended.",
+      "options": ["main_menu"]
+    },
+    "run": {"act": 2, "floor": 24, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 0,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 245,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  },
+  "overlay": {
+    "state_type": "overlay",
+    "overlay": {
+      "screen_type": "NSomeUnknownScreen",
+      "message": "An overlay (NSomeUnknownScreen) is active. It may require manual interaction in-game."
+    },
+    "run": {"act": 1, "floor": 4, "ascension": 0},
+    "player": {
+      "character": "The Ironclad",
+      "hp": 65,
+      "max_hp": 80,
+      "block": 0,
+      "gold": 124,
+      "status": [],
+      "relics": [],
+      "potions": [],
+      "max_potion_slots": 3
+    }
+  }
+}

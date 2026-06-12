@@ -1,1 +1,1 @@
-﻿"""JSONL decision logs, SQLite run index, LLM usage ledger."""
+"""JSONL decision logs, SQLite run index, LLM usage ledger."""

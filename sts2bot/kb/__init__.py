@@ -1,1 +1,1 @@
-﻿"""Knowledge base: content DB per game version, Spirebird priors."""
+"""Knowledge base: content DB per game version, Spirebird priors."""
