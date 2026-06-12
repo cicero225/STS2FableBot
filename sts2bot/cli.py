@@ -113,6 +113,12 @@ def play(
         time_scale=speed,
     )
     with Sts2Client(base_url=base_url) as client:
+        try:
+            client.get_state_raw()
+        except Sts2ConnectionError as e:
+            typer.echo(f"NOT CONNECTED: {e}")
+            typer.echo("Is the game running with mods enabled? (sts2bot doctor to check)")
+            raise typer.Exit(code=1) from None
         if speed is not None:
             result = client.act(SetTimeScale(scale=speed))
             typer.echo(f"time scale {speed}x: {result.detail} (re-asserted during runs)")
