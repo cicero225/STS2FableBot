@@ -22,7 +22,7 @@ _STRENGTH = re.compile(r"\bGain (\d+) Strength", re.IGNORECASE)
 _LOSE_HP = re.compile(r"\bLose (\d+) HP", re.IGNORECASE)
 _TAKE_DAMAGE = re.compile(r"\b[Tt]ake (\d+) damage")
 _HEAL = re.compile(r"\bHeal (\d+) HP", re.IGNORECASE)
-_INTENT_MULTI = re.compile(r"^(\d+)\s*[x×]\s*(\d+)$")  # noqa: RUF001 - real × appears in labels
+_INTENT_MULTI = re.compile(r"^(\d+)\s*[x×]\s*(\d+)$")
 _INTENT_SINGLE = re.compile(r"^(\d+)$")
 
 
