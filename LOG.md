@@ -2,6 +2,35 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-06-11 (later) — M0 closed; character-select bug found; dialogue intel
+
+**Run 3** stalled by design: after the profile's first death the game gates the main
+menu behind a Timeline epoch reveal (NEOW_EPOCH) which the mod refuses to automate
+(can corrupt unlock state). Bot now surfaces `MANUAL:` waits loudly and waits ~5 min.
+Owner revealed; recurrence is per-epoch (meta milestones), front-loaded then rare.
+Fork investigation item filed.
+
+**Run 4** (first fully-instrumented run): completed; victory=False from the game's
+.run record, seed K4AQ5JS9JD, build v0.103.3, killed_by ENCOUNTER.SLIMES_WEAK, floor
+5. Start event ("Nutritious Oyster" = relic boon) handled by the generic event
+policy. **M0 exit criterion met.**
+
+**BUG (top fork priority): character select does not commit.** Requested IRONCLAD
+(mod clicked it; confirm became enabled) but the run started as The Silent; a
+double-select experiment then started The Regent — who had just been unlocked by the
+Silent run, supporting the theory that embark commits the screen's *focused*
+character (the "NEW!"-badged newest unlock when present) and the mod's
+`NCharacterSelectButton.Select()` doesn't update the embark payload on v0.103.3.
+Roster snapshot from run 4's logs: Ironclad+Silent unlocked at profile start;
+Regent/Necrobinder/Defect locked. Until the fork lands, the bot records the *actual*
+character truthfully (player block + .run record) and stats split accordingly.
+
+**Owner intel on dialogue screens:** click-through dialogue appears (a) on a
+character's first arrival at Neow, (b) at Ancients, (c) at run end reaching the
+Architect. Unknown yet whether (a)/(c) present as `event.in_dialogue` (handled) or
+as opaque `overlay` (manual). Watch on next occurrences; (c) matters for win-path
+game-over detection.
+
 ## 2026-06-11 — First live session: M0 plumbing verified
 
 **Game:** v0.103.3, Steam release branch · **Mod:** STS2MCP 0.4.0 · **Bot profile:**

@@ -119,8 +119,10 @@ entire loop is built and tested against fixtures before ever touching the live g
 **Exit:** M1 stats from the run index; Ironclad (or best character) ≥40% over 20+ runs.
 
 ### P2 — Climb machinery (→ M2: A0→A10 with one character)
-1. C# fork: ascension selector (SP), speed/timescale control, master deck in state;
-   build/install script; pin to game build, upstream-sync procedure.
+1. C# fork: **fix character-select commit (bug found live 2026-06-11, see LOG.md —
+   may need to land earlier for M1 character control)**; ascension selector (SP);
+   speed/timescale control; master deck in state; build/install script; pin to game
+   build, upstream-sync procedure; investigate safe epoch reveal + report upstream.
 2. Climb manager: pick character/ascension per policy (FR-4.2), unlock-chain handling,
    stop conditions, crash/hang watchdog + game relaunch, resume-from-save.
 3. Unattended mode behind explicit flag (FR-4.4) + status report (NFR-3).
