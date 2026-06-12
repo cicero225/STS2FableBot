@@ -2,6 +2,30 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-06-12 (session 3 encore) — Act 2 routine; Act 2 boss reached; 4 upgrades
+
+**Shipped** (each from a logged death or owner observation, each tested + replayed):
+1. **Act-level map path planning** — DP over the full map DAG; forced-elite lanes
+   lose to clean lanes (1-ply lookahead retired).
+2. **Rest-before-boss** — boss autopsy showed Ceremonial Beast loss was HP, not
+   deck (entered 46/91, boss died-not at 32/252): rest below 90% on the boss row.
+3. **Lethal-skips-potions** — owner watched a hail-mary fire alongside lethal in
+   hand; planner now stamps LETHAL lines and survival measures stand down.
+4. **Generic death-countdown survival rule** — The Insatiable's Sandpit ("you will
+   be eaten and die") + injected Frantic Escape ("Increase Sandpit by 1"): play the
+   card naming the death-status when the counter ≤ 2. Pattern-generic, fight
+   reconstructed in tests entirely from logs.
+
+**Validation batch (path planning + rest-before-boss active; countdown rule landed
+mid-batch):** floors 33 (Act 2 boss — The Insatiable), 13, 29. Two of three runs
+fully cleared Act 1; floor 33 = new record. Trivial-era ceiling was 11.
+
+**State of play:** Ironclad A0, 0 wins, frontier = The Insatiable (countdown rule
+untested live). Deck quality is now the limiting factor everywhere → Spirebird
+priors are next session's headline, then FR-6.1 automated debriefs (the manual
+post-mortem workflow is fully proven — five fixes traced to specific logged deaths
+today).
+
 ## 2026-06-11 (session 3) — P1 lands: standard policy reaches Act 2; tuning loop proven
 
 **Built:** config-driven policy layer (policy.toml, hash per run in meta+index);
