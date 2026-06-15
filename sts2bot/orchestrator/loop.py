@@ -28,6 +28,16 @@ from sts2bot.policy.base import LoopContext, PolicyRouter, Wait
 from sts2bot.runlog.index import RunIndex
 from sts2bot.runlog.logger import RunLogger, RunOutcome, _now_iso
 
+# Screens where the player is actively fighting. In-combat modals (e.g.
+# `card_select` from potions / Discovery effects) are deliberately NOT here:
+# the policy resolves them, and treating them as "fight over" hard-hung the
+# pause-after-fight loop (observed live 2026-06-15 on a Skill/colorless potion).
+_COMBAT_STATES = ("monster", "elite", "boss", "hand_select")
+# Screens that mark a fight as genuinely finished (loot). Across 47 logged runs,
+# a won fight transitions combat -> `rewards`; `card_select` also follows combat
+# but is an in-fight modal, so it must never count as a fight end.
+_POST_FIGHT_STATES = ("rewards", "card_reward")
+
 
 class GameClient(Protocol):
     """What the loop needs from a client (real Sts2Client or a test fake)."""
@@ -116,7 +126,7 @@ class AgentLoop:
         phase = "to_run"  # -> "post_over" -> done
         last_wait_reason: str | None = None
         manual_announced = False
-        was_in_combat = False
+        fight_in_progress = False
         if cfg.pause_after_fight and cfg.resume_signal_path:
             Path(cfg.resume_signal_path).unlink(missing_ok=True)  # clear stale
         self._assert_time_scale()
@@ -142,12 +152,16 @@ class AgentLoop:
 
                 self._track_progress(state, ctx, outcome)
 
-                # Pause-after-fight (observation mode): when a fight resolves to a
-                # non-combat screen, hold until the owner signals resume.
-                in_combat = state.state_type in ("monster", "elite", "boss", "hand_select")
-                if cfg.pause_after_fight and was_in_combat and not in_combat:
+                # Pause-after-fight (observation mode): hold only when a fight
+                # genuinely ends at its reward screen. In-combat modals like
+                # `card_select` (potion / Discovery card offers) briefly leave the
+                # combat states; pausing on those falsely read as "fight over" and
+                # hung the loop here (live 2026-06-15, Skill/colorless potions).
+                should_pause, fight_in_progress = self._fight_end_pause(
+                    state.state_type, fight_in_progress
+                )
+                if cfg.pause_after_fight and should_pause:
                     self._pause_for_resume(outcome.floor)
-                was_in_combat = in_combat
 
                 if isinstance(state, GameOverState) and phase != "post_over":
                     phase = "post_over"
@@ -244,6 +258,24 @@ class AgentLoop:
         return outcome
 
     # ------------------------------------------------------------------ helpers
+
+    @staticmethod
+    def _fight_end_pause(state_type: str, fight_in_progress: bool) -> tuple[bool, bool]:
+        """Detect a genuine end-of-fight for observation-mode pausing.
+
+        Returns ``(should_pause, fight_in_progress_next)``. A fight is "in
+        progress" from its first combat screen until it resolves to a reward
+        screen. In-combat modals (`card_select` from potions / Discovery, etc.)
+        leave the combat state_type briefly but keep the fight in progress, so
+        they never trip the pause — which previously hard-hung the loop in
+        ``_pause_for_resume`` (observed live 2026-06-15 on a Skill/colorless
+        potion's card offer).
+        """
+        if state_type in _COMBAT_STATES:
+            return False, True
+        if fight_in_progress and state_type in _POST_FIGHT_STATES:
+            return True, False
+        return False, fight_in_progress
 
     def _pause_for_resume(self, floor: int | None) -> None:
         """Block until the resume signal file appears (owner says 'go'), then clear it."""

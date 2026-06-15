@@ -120,3 +120,27 @@ def test_pause_for_resume_returns_when_signal_present(tmp_path: Path) -> None:
     )
     loop._pause_for_resume(5)  # returns at once (signal present)
     assert not sig.exists()  # consumed
+
+
+def test_fight_end_pause_ignores_in_combat_card_select() -> None:
+    """Regression (live 2026-06-15): a potion's `card_select` modal mid-fight must
+    NOT count as a fight end, or the loop hard-hangs in _pause_for_resume. The
+    pause fires once, only when the fight reaches its `rewards` screen."""
+    fight_end = AgentLoop._fight_end_pause
+    fight_in_progress = False
+    pauses = 0
+    # one fight that pops a potion card-select mid-combat, then resolves to loot
+    sequence = ["monster", "card_select", "monster", "rewards", "card_reward", "map"]
+    for state_type in sequence:
+        should_pause, fight_in_progress = fight_end(state_type, fight_in_progress)
+        pauses += should_pause
+    assert pauses == 1  # only at `rewards`, never at the mid-fight `card_select`
+
+
+def test_fight_end_pause_state_transitions() -> None:
+    fight_end = AgentLoop._fight_end_pause
+    assert fight_end("monster", False) == (False, True)  # enter combat -> armed
+    assert fight_end("card_select", True) == (False, True)  # in-fight modal: no pause
+    assert fight_end("rewards", True) == (True, False)  # fight over -> pause once
+    assert fight_end("card_reward", False) == (False, False)  # already paused: no repeat
+    assert fight_end("map", False) == (False, False)  # between fights: nothing
