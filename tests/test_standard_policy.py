@@ -302,6 +302,30 @@ def test_ignores_low_impact_minion_and_hits_leader() -> None:
     assert d.action.payload().get("target") == "BEAST_0"  # leader, not the easy minion
 
 
+def test_races_strength_gaining_enemy() -> None:
+    """Owner (Run-3 Fight 6): vs strength-gaining (ramping) enemies the bot turtled and bled
+    out. It should trade more — attack to end the fight before the ramp compounds, where vs a
+    calm enemy facing the same hit it would block."""
+
+    def fight(ramping: bool):
+        e = enemy("RAMPER_0", 40, intent_label="8")
+        if ramping:
+            e["status"] = [{"id": "STRENGTH_POWER", "name": "Strength", "amount": 3,
+                            "description": "Increases attack damage."}]
+        return make_combat(
+            hand=[
+                card(0, "Strike", 1, "Deal 6 damage."),
+                card(1, "Defend", 1, "Gain 5 Block.", target="Self", ctype="Skill"),
+            ],
+            enemies=[e], energy=1, hp=70, max_hp=80,
+        )
+
+    calm = router().decide(fight(False), LoopContext())
+    ramp = router().decide(fight(True), LoopContext())
+    assert calm.action.payload().get("card_index") == 1  # vs a calm enemy: block the hit
+    assert ramp.action.payload().get("card_index") == 0  # vs a ramping enemy: race (Strike)
+
+
 OFFERING_DESC = "Lose 6 HP. Gain 2 Energy. Draw 3 cards."
 
 

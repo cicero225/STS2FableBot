@@ -34,6 +34,7 @@ class CombatWeights(_Section):
     w_play_friction: float = -0.35
     w_power_played: float = 8.0  # play Power cards (permanent buffs); esp. free ones (Pyre)
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
+    w_ramp_damage: float = 1.5  # extra value for damaging strength-gaining enemies (race them)
     max_sequences: int = 4000
     survival_status_threshold: int = 2
     # transient 'BlockedByHook' hands (engine mid-resolution) report every card

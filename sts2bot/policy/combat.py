@@ -52,6 +52,7 @@ class EnemySim:
     vulnerable: int
     incoming: int  # this enemy's attack damage this turn (0 if not attacking)
     is_minion: bool = False  # "Minion" status: flees when its leader dies, so ignorable
+    gains_strength: bool = False  # ramping (Strength buff / Empower intent): race to kill it
 
 
 @dataclass(frozen=True)
@@ -73,6 +74,7 @@ class SimState:
     rage_block_active: int = 0  # Rage in play: each later Attack grants this much Block
     rage_block_granted: int = 0  # total Block Rage has granted to attacks (sequencing nudge)
     powers_played: int = 0  # Power cards played this turn (banked permanent buffs)
+    ramp_damage: int = 0  # damage dealt to strength-gaining enemies (rewarded: race them)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
 
@@ -126,11 +128,19 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
             continue
         vuln = 0
         is_minion = False
+        gains_strength = False
         for p in e.status:
             if p.id.upper() == "VULNERABLE" and p.amount:
                 vuln = p.amount
             if "MINION" in p.id.upper() or "abandon combat" in (p.description or "").lower():
                 is_minion = True
+            if "STRENGTH" in p.id.upper() and (p.amount or 0) > 0:
+                gains_strength = True
+        for i in e.intents:
+            if (i.type or "").lower() == "buff" and (
+                "empower" in (i.title or "").lower() or "strength" in (i.description or "").lower()
+            ):
+                gains_strength = True
         incoming = sum(
             parse_intent_damage(i.label) for i in e.intents if i.type.lower() == "attack"
         )
@@ -143,6 +153,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 vulnerable=vuln,
                 incoming=incoming,
                 is_minion=is_minion,
+                gains_strength=gains_strength,
             )
         )
     return tuple(sims)
@@ -182,6 +193,7 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
         kills=state.kills + (1 if killed else 0),
         overkill=state.overkill + overkill_amt,
         vuln_applied=state.vuln_applied + (card.fx.vulnerable if hp > 0 else 0),
+        ramp_damage=state.ramp_damage + (dealt_total if e.gains_strength else 0),
     )
 
 
@@ -268,6 +280,7 @@ def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
         + w.w_play_friction * len(state.played)
         + w.w_power_played * state.powers_played
         + w.w_rage_sequence * state.rage_block_granted
+        + w.w_ramp_damage * state.ramp_damage
     )
 
 
