@@ -2,6 +2,38 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-06-14 (session 5, Opus) — Handover; boss-fight analysis; BlockedByHook fix
+
+Fable 5 was disabled mid-project (it had been the builder through session 4); **Opus
+4.8 takes over on `main`.** Per owner request, froze Fable 5's endpoint on branch
+`fable5-handoff` (+ a detailed `HANDOFF.md`) so its timeline can be resumed if it
+returns. Filed the owner's drafting/strategy backlog notes into PLAN.md §8 with
+data-feasibility verdicts (by-act WAR present in the Spirebird export; synergy and
+deck-size are gaps; relic/event priors + skill-band cohorts available).
+
+**Boss-fight analysis (the greenlit work).** Reconstructed all 6 boss losses from the
+decision logs. Two findings:
+- **Strategic (the real ceiling): deck power, not the combat planner.** Decks at the
+  boss are small (15–21) and basic-heavy (6–9 of the 10 starter Strikes/Defends still
+  in). The one run that thinned hard (The Insatiable run, only 2 basics left) reached
+  the deepest (floor 33). Two losses came at *full HP* — so it's not just HP
+  management. The planner's sequencing looked sound (vuln-first, focus-fire, Fight Me!
+  usage). **Conclusion: prioritize deck-building sophistication (removal cadence,
+  upgrades, the owner's by-act/archetype drafting notes) over deepening combat
+  lookahead.** This redirects PLAN.md's phase-C question — multi-turn search is not the
+  bottleneck yet.
+- **Tactical bug (fixed): transient `BlockedByHook` hands.** Run 33 (Ceremonial Beast):
+  a planned triple-Defend collapsed to one, 14 HP → 3. Right after a play the engine
+  briefly reports every card unplayable (reason `BlockedByHook`); the planner trusted
+  it and ended the turn, dumping 10 block at 14 HP. Now re-polls (bounded) instead.
+  Replay confirms it catches 4 such states in the historical logs. 104 tests green.
+
+Rest-before-boss is working (it rested 16→46 pre-boss) but a single 30% rest can't
+undo arriving that low — another symptom of weak decks taking too much Act-1 chip.
+
+**Next:** deck-building sophistication (the strategic finding above), starting likely
+with by-act priors (8.1b, data confirmed present) + smarter card removal/upgrades.
+
 ## 2026-06-12 (session 4) — Spirebird priors + the great pilot-skill tuning night
 
 **Spirebird priors shipped:** owner exported cohort_stats.json (440,240 community
