@@ -487,47 +487,88 @@ class StandardRouter:
         m = re.search(r"choose (\d+)", prompt)
         return int(m.group(1)) if m else 1
 
+    def _pick_target(self, cs, prefer_worst: bool, character, exclude=()):
+        candidates = [c for c in cs.cards if c.index not in exclude]
+        if "upgrade" in (cs.prompt or "").lower() or "enchant" in (cs.prompt or "").lower():
+            unupgraded = [c for c in candidates if not c.is_upgraded]
+            if unupgraded:
+                candidates = unupgraded
+        if not candidates:
+            return None
+        chooser = min if prefer_worst else max
+        return chooser(candidates, key=lambda c: self._card_quality(c, character))
+
+    # Bounds so a non-progressing screen can never rail a run (run 2: a 'choose'
+    # screen returned 'ok' but never resolved; the old await-confirm Wait stalled).
+    _CHOOSE_RETRIES = 3
+    _AWAIT_CONFIRM_POLLS = 8
+
     def _card_select(self, state: CardSelectState, ctx: LoopContext) -> Decision | Wait:
-        """Target removal/transform at the WORST cards (basics, curses) and
-        upgrade/enchant/add at the BEST — the first-legal fallback removed arbitrary
-        cards, so thinning never improved the deck (boss-analysis ceiling)."""
+        """Target removal/transform at the WORST cards (basics, curses), upgrade/
+        enchant at the BEST un-upgraded, add/choose at the BEST. Every path is
+        bounded — on a stuck screen we skip/cancel rather than wait forever."""
         cs = state.card_select
-        mem_key = f"cardsel:{cs.screen_type}:{cs.prompt}"
+        # fingerprint the offered cards so a later same-prompt screen gets fresh
+        # mem (retry counts / picks don't leak across distinct selection events).
+        fp = ",".join(f"{c.index}:{c.id or c.name}" for c in cs.cards)
+        mem_key = f"cardsel:{cs.screen_type}:{cs.prompt}:{fp}"
         if cs.can_confirm:
             ctx.screen_mem.pop(mem_key, None)
             return Decision(action=act.ConfirmSelection(), rationale="confirm card selection")
         if not cs.cards:
             ctx.screen_mem.pop(mem_key, None)
-            if cs.can_cancel:
-                return Decision(
-                    action=act.CancelSelection(), rationale="nothing selectable; cancel"
-                )
+            if cs.can_skip or cs.can_cancel:
+                return Decision(action=act.CancelSelection(), rationale="nothing selectable; skip")
             return Wait(reason="card select with no cards, confirm, or cancel")
 
         prompt = (cs.prompt or "").lower()
-        needed = self._select_count(prompt)
-        picked: list[int] = ctx.screen_mem.setdefault(mem_key, [])
-        if len(picked) >= needed:
-            return Wait(reason=f"selected {len(picked)}/{needed}; awaiting confirm")
-
-        prefer_worst = any(v in prompt for v in ("remove", "transform", "exhaust", "destroy"))
-        candidates = [c for c in cs.cards if c.index not in picked]
-        if "upgrade" in prompt or "enchant" in prompt:
-            unupgraded = [c for c in candidates if not c.is_upgraded]
-            if unupgraded:
-                candidates = unupgraded
-        if not candidates:
-            return Wait(reason="card select: no remaining candidates")
-
-        character = state.player.character if state.player else None
-        chooser = min if prefer_worst else max
-        target = chooser(candidates, key=lambda c: self._card_quality(c, character))
-        picked.append(target.index)
-        kind = "worst" if prefer_worst else "best"
-        return Decision(
-            action=act.SelectCard(index=target.index),
-            rationale=f"select {kind} {target.name} for: {cs.prompt}",
+        prefer_worst = any(
+            v in prompt for v in ("remove", "transform", "exhaust", "destroy", "discard")
         )
+        character = state.player.character if state.player else None
+        mem: dict = ctx.screen_mem.setdefault(mem_key, {"picked": [], "tries": 0})
+
+        # choose-a-card: select_card picks immediately (no confirm). Re-press a few
+        # times if it doesn't resolve, then skip rather than stall.
+        if (cs.screen_type or "") == "choose":
+            target = self._pick_target(cs, prefer_worst, character)
+            if mem["tries"] < self._CHOOSE_RETRIES and target is not None:
+                mem["tries"] += 1
+                return Decision(
+                    action=act.SelectCard(index=target.index),
+                    rationale=f"choose {target.name} for: {cs.prompt}",
+                )
+            ctx.screen_mem.pop(mem_key, None)
+            if cs.can_skip or cs.can_cancel:
+                return Decision(
+                    action=act.CancelSelection(), rationale="choose not resolving; skip"
+                )
+            return Wait(reason="choose-a-card stuck")
+
+        # grid: select the right N distinct cards, then confirm when offered.
+        needed = self._select_count(prompt)
+        picked: list[int] = mem["picked"]
+        if len(picked) < needed:
+            target = self._pick_target(cs, prefer_worst, character, exclude=picked)
+            if target is None:
+                ctx.screen_mem.pop(mem_key, None)
+                if cs.can_skip or cs.can_cancel:
+                    return Decision(action=act.CancelSelection(), rationale="no target; skip")
+                return Wait(reason="card select: no remaining candidates")
+            picked.append(target.index)
+            kind = "worst" if prefer_worst else "best"
+            return Decision(
+                action=act.SelectCard(index=target.index),
+                rationale=f"select {kind} {target.name} for: {cs.prompt}",
+            )
+        # enough chosen — wait briefly for confirm to enable, then bail safely.
+        mem["tries"] += 1
+        if mem["tries"] > self._AWAIT_CONFIRM_POLLS and (cs.can_skip or cs.can_cancel):
+            ctx.screen_mem.pop(mem_key, None)
+            return Decision(
+                action=act.CancelSelection(), rationale="selection not confirming; skip"
+            )
+        return Wait(reason=f"selected {len(picked)}/{needed}; awaiting confirm")
 
     # ------------------------------------------------------------------ rest sites
 

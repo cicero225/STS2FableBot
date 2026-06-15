@@ -994,6 +994,25 @@ def test_multi_remove_picks_two_worst_then_confirms() -> None:
     assert confirm.action.payload()["action"] == "confirm_selection"
 
 
+def test_choose_screen_skips_when_stuck() -> None:
+    """Run 2 stalled: a 'choose' screen returned ok but never resolved and the
+    handler waited forever. Bounded retries, then skip — never an indefinite wait."""
+    cards = [
+        _sc_card(0, "Panic Button", "Skill"),
+        _sc_card(1, "The Gambit", "Skill", rarity="Uncommon"),
+        _sc_card(2, "Bolas", "Skill"),
+    ]
+    state = _card_select_state("choose", "Choose a card.", cards)
+    r = router()
+    ctx = LoopContext()
+    for _ in range(3):  # re-presses the pick a few times
+        d = r.decide(state, ctx)
+        assert isinstance(d, Decision) and d.action.payload()["action"] == "select_card"
+    final = r.decide(state, ctx)  # gives up -> skip, not a Wait
+    assert isinstance(final, Decision)
+    assert final.action.payload()["action"] == "cancel_selection"
+
+
 def _shop_with_removal(price, gold=400, deck=None, full_belt=True):
     payload = json.loads(json.dumps(FIXTURES["shop"]))
     payload["player"]["gold"] = gold
