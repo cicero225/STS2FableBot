@@ -250,8 +250,9 @@ block-awareness** (panic-drank at 13 HP vs 14 when a Defend survives) · **minio
 lethal + focus-fire** (leader-kill ends the fight; stop dumping damage on ignorable
 minions; Illusion folded in) · **potion taxonomy** (per-potion classifier + categorised
 use: hail-mary → Fruit Juice → heal → proactive buffs at elite/boss start → reactive
-block + finisher at end of turn; downside held). The Fiend-Fire / hail-mary / minion /
-potion bullets below are now implemented + tested. Potion deferrals: full-belt proactive
+block + finisher at end of turn; downside held) · **early-damage bias** (Act 1 nudge toward
+attacks). The Fiend-Fire / hail-mary / minion / potion / early-damage bullets below are now
+implemented + tested. Potion deferrals: full-belt proactive
 *deploy* is reward-screen logic (only discard exists); the finisher fires on board-clear
 or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
 
@@ -274,10 +275,10 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   - *Illusion minion* (status "Illusion"): revives at the start of its turn after dying, without
     acting — so killing it on **your** turn is wasted (only worth it to deny that turn's action,
     or kill on its turn via poison/doom). Don't target it for damage.
-- **Run-2 draft refinements** (owner): early-damage picks (Infernal Blade D1; Hemokinesis over
-  Shrug It Off — overlaps the early-damage bias below); **Vicious** was ambitious with only Bash
-  to enable it → raise priority on Vulnerable-appliers, and note *draft-affects-draft* (a pick
-  reshapes the value of later picks). Pommel Strike / Fiend Fire picks were right.
+- **Run-2 draft notes** (owner; reference): early-damage picks (Infernal Blade D1; Hemokinesis
+  over Shrug It Off) → covered by the early-damage bias. The **Vicious** / Vulnerable-applier and
+  *draft-affects-draft* observations fold into the deferred deck-aware drafting below. Pommel
+  Strike / Fiend Fire picks were right.
 - **Potion taxonomy** (owner; StS2 effects verified). A per-potion handler keyed by
   id/name. Categories:
   - *Reactive, end-of-turn* (drink after the plan plays its cards, vs known remaining
@@ -296,12 +297,13 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
 - **Demon Form** (owner; "at start of turn gain 2 Strength" — hard to value). Heuristic:
   play it only if the damage taken THIS turn would be ≤ X, where X scales up with current
   enemy HP and for elite/boss (you can afford the tempo loss in a long fight). Else hold.
-- **Conditional-card draft list** (owner; **Rupture** needs HP-loss enablers like
-  Bloodletting/Decay; class of "does nothing without preconditions"). Build a list of such
-  cards with an "enabler present in deck?" gate in card-reward scoring. Owner will review
-  uncertain cases — **pass them by owner before committing.**
-- **Early-draft damage bias** (owner; would take Hemokinesis over Shrug It Off early):
-  weight damage higher in Act 1 drafts (overlaps by-act tilt; may just be a small early
-  attack bonus).
+- **Deck-aware drafting** (owner; deferred to a later project — "adjust drafting based on the
+  current deck"). Two pieces, both needing deck state at draft time: (a) **conditional-card
+  list** — **Rupture** / cards that do nothing without enablers (Bloodletting/Decay), gated on
+  "enabler present in deck?"; (b) **Vulnerable-applier priority** once a payoff (e.g. **Vicious**)
+  is already drafted, and *draft-affects-draft* generally. Owner will review the conditional-card
+  list before it ships — **pass uncertain cases by owner.**
+- **Early-draft damage bias** — ✅ done (`early_damage_bonus`): any Act-1 card that deals damage
+  gets a tunable nudge (Hemokinesis over Shrug It Off); priors still do the heavy lifting.
 - **Transform event: transform a Strike, not a curse** (events not yet policy-driven;
   noted for the eventual event work — transforming a curse is far worse value).
