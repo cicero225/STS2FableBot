@@ -181,3 +181,43 @@ possibly streaming. Direction set by what the data says is losing us runs.
 | Game patch cadence on release branch | P1+ | informs KB diff automation priority |
 | StS2 ascension cap (10 vs 20) | P2 | owner reports 10 currently; verify in-game |
 | Safe automation of Timeline epoch *reveals* | P2 fork candidate | mod automates timeline advance/back + queued unlock screens, but deliberately refuses to force-reveal "Obtained" epochs ("invalid unlock path"); decompile the reveal flow to see if a safe replication exists, else it stays a rare owner click |
+
+## 8. Backlog: drafting sophistication & strategy (owner notes 2026-06-14)
+
+Owner-raised future topics. Data-feasibility checked against the committed Spirebird
+cohort export (`data/spirebird/cohort_stats.json` — 57-field per-card entries; cohorts
+`all / a10 / midA10 / strongA10 / a10Sub50 / a10Sub75`; per-cohort sections
+`summary / cards / relics / events`).
+
+### 8.1 Card drafting beyond single-card Elo
+Current: card rewards scored by one pooled Elo prior ([data/priors_cards.json](data/priors_cards.json)),
+discounted for pilotability, plus a few heuristics. Three proposed refinements:
+
+- **(a) Multi-card synergy** — value of a card *given another is already in the deck*.
+  **Data gap:** the cohort export is per-card aggregates only; no co-occurrence /
+  conditional fields. Realistic paths: (i) hand-curated synergy/archetype tags (overlaps
+  the existing "deck-archetype awareness" item), or (ii) a different source exposing
+  pairs (raw run files, or ask via jorbs' Discord whether such a product exists). Highest
+  strategic value, highest effort — table until archetype work begins.
+- **(b) Elo/WAR by act** — **data present:** every card entry carries `warA1/warA2/warA3`
+  and `pwarA1/pwarA2/pwarA3` (WAR and pick-WAR split by act). We currently ignore act.
+  Feasible near-term: have `priors.py` expose per-act value and the card-reward scorer
+  weight by the run's current act. **Lowest effort of the three; promising.**
+- **(c) Elo by deck size** — **data gap:** cohorts slice by ascension/skill band, not deck
+  size. Not data-driven here. A small `deck>25` penalty already exists heuristically;
+  could extend it, but it stays hand-tuned rather than community-derived. Lowest priority.
+
+  *Bonus findings, same export:* per-cohort **`relics` and `events`** sections exist →
+  relic/event priors are available for the shop/event work below. **Skill-band cohorts**
+  (`strongA10`, `a10Sub75`…) exist → as piloting improves we could shift the prior cohort
+  upward (ties to the pilotability discount).
+
+### 8.2 Strategy notes
+- **Elite-rushing for relics.** Surviving early elites to bank relics for late-run power
+  is a known StS pattern. Likely unnecessary at A0 (the map policy currently *avoids*
+  elites — correct for a weak pilot). Revisit when climbing ascensions / once deck power
+  supports it; would surface as act/HP/deck-strength-aware elite appetite in the map scorer.
+- **Shops & events depth.** Note: basic deterministic shop/event policies *already exist*
+  (StandardRouter, session 3) — conservative buying, HP-gated choices. The real backlog
+  item is *priors-driven depth* (relic/event value from the export above, per-shop
+  budgeting, known-event tables), not greenfield work.
