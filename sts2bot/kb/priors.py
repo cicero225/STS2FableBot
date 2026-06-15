@@ -61,3 +61,11 @@ class CardPriors:
         if not tilts:
             return 0.0
         return float(tilts[max(1, min(3, act)) - 1])
+
+    def upgrade_value(self, card_id: str | None, character: str | None) -> float | None:
+        """Elo gained from upgrading this card (Spirebird upgraded vs base), /100.
+        None when there isn't enough data on both variants."""
+        entry = self._entry(card_id, character)
+        if not isinstance(entry, dict):
+            return None
+        return entry.get("u")

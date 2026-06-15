@@ -1083,6 +1083,28 @@ def test_upgrade_targets_best_unupgraded() -> None:
     assert isinstance(d, Decision) and d.action.payload()["index"] == 1  # unupgraded Inflame
 
 
+def test_upgrade_targets_highest_upgrade_value() -> None:
+    """Owner tip: upgrade by upgraded-vs-base value, not base card quality. The card
+    that GAINS the most from upgrading wins even if another card is better overall."""
+    from sts2bot.kb.priors import CardPriors
+
+    priors = CardPriors(
+        by_character={
+            "IRONCLAD": {
+                "BIGGAIN": {"s": 3.0, "u": 4.5},
+                "SMALLGAIN": {"s": 6.0, "u": 0.3},  # better card, barely improves
+            }
+        }
+    )
+    r = StandardRouter(priors=priors)
+    cards = [
+        _sc_card(0, "Small Gain", "Skill", cid="SMALLGAIN"),
+        _sc_card(1, "Big Gain", "Attack", cid="BIGGAIN"),
+    ]
+    d = r.decide(_card_select_state("upgrade", "Choose a card to Upgrade.", cards), LoopContext())
+    assert isinstance(d, Decision) and d.action.payload()["index"] == 1
+
+
 def test_add_screen_targets_best() -> None:
     cards = [_sc_card(0, "Strike"), _sc_card(1, "Offering", "Skill", rarity="Rare")]
     d = router().decide(_card_select_state("choose", "Choose a card.", cards), LoopContext())

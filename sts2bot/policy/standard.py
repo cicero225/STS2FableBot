@@ -509,13 +509,23 @@ class StandardRouter:
         return int(m.group(1)) if m else 1
 
     def _pick_target(self, cs, prefer_worst: bool, character, exclude=()):
+        prompt = (cs.prompt or "").lower()
         candidates = [c for c in cs.cards if c.index not in exclude]
-        if "upgrade" in (cs.prompt or "").lower() or "enchant" in (cs.prompt or "").lower():
+        is_upgrade = "upgrade" in prompt or "enchant" in prompt
+        if is_upgrade:
             unupgraded = [c for c in candidates if not c.is_upgraded]
             if unupgraded:
                 candidates = unupgraded
         if not candidates:
             return None
+        if is_upgrade:
+            # Upgrade the card that GAINS the most (Spirebird upgraded-vs-base delta),
+            # tie-broken by base quality; missing deltas default to a typical gain.
+            def upgrade_key(c):
+                uv = self.priors.upgrade_value(c.id, character) if self.priors else None
+                return (uv if uv is not None else 1.5, self._card_quality(c, character))
+
+            return max(candidates, key=upgrade_key)
         chooser = min if prefer_worst else max
         return chooser(candidates, key=lambda c: self._card_quality(c, character))
 

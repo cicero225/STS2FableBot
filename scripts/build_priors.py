@@ -37,6 +37,7 @@ COHORT = "all"
 # winning decks — card-level survivorship); require solid sampling before tilting.
 MIN_ACT_PICKS = 300
 TILT_CAP = 1.0  # clamp per-act tilts; keeps the term a bounded secondary nudge
+MIN_UPGRADE_PICKS = 100  # need both base and upgraded variants well-sampled for a delta
 
 
 def parse_key(key: str) -> tuple[str, str] | None:
@@ -61,7 +62,16 @@ def main() -> int:
     cards = data["cohorts"][COHORT]["cards"]
 
     def new_acc() -> dict:
-        return {"elo_w": 0.0, "picked": 0.0, "warA": [0.0, 0.0, 0.0], "pickedA": [0.0, 0.0, 0.0]}
+        return {
+            "elo_w": 0.0,
+            "picked": 0.0,
+            "warA": [0.0, 0.0, 0.0],
+            "pickedA": [0.0, 0.0, 0.0],
+            "base_w": 0.0,  # Elo of the un-upgraded variant (flag 0), picked-weighted
+            "base_p": 0.0,
+            "upg_w": 0.0,  # Elo of the upgraded variant (flag 1)
+            "upg_p": 0.0,
+        }
 
     pooled: dict[tuple[str, str], dict] = defaultdict(new_acc)
     skipped = 0
@@ -80,6 +90,13 @@ def main() -> int:
         for i in range(3):
             acc["warA"][i] += float(entry.get(f"warA{i + 1}") or 0)
             acc["pickedA"][i] += float(entry.get(f"picked{i + 1}") or 0)
+        # first flag after the card id is the upgrade flag (0=base, 1=upgraded)
+        if entry["key"].split("_")[-4] == "1":
+            acc["upg_w"] += picked * float(elo)
+            acc["upg_p"] += picked
+        else:
+            acc["base_w"] += picked * float(elo)
+            acc["base_p"] += picked
 
     # population per-act per-pick WAR (picked-weighted over acts with enough data)
     tot_w = [0.0, 0.0, 0.0]
@@ -116,6 +133,11 @@ def main() -> int:
         tilts = act_tilts(acc)
         if any(t != 0.0 for t in tilts):
             entry_out["a"] = tilts
+        # upgrade value: Elo gained from upgrading (both variants well-sampled)
+        if acc["base_p"] >= MIN_UPGRADE_PICKS and acc["upg_p"] >= MIN_UPGRADE_PICKS:
+            delta = (acc["upg_w"] / acc["upg_p"] - acc["base_w"] / acc["base_p"]) / 100.0
+            if abs(delta) >= 0.01:
+                entry_out["u"] = round(delta, 3)
         out[character][card_id] = entry_out
 
     payload = {
@@ -127,7 +149,8 @@ def main() -> int:
             "distilled_at": datetime.now(UTC).isoformat(timespec="seconds"),
             "metric": f"s = picked-weighted mean Elo shrunk k={SHRINK_K:.0f}, "
             f"(elo-{NEUTRAL_ELO:.0f})/100; a = de-biased per-act tilt, "
-            f"cap +-{TILT_CAP}, min {MIN_ACT_PICKS} picks/act",
+            f"cap +-{TILT_CAP}, min {MIN_ACT_PICKS} picks/act; "
+            f"u = upgrade Elo delta /100, min {MIN_UPGRADE_PICKS} picks/variant",
         },
         "cards": {ch: dict(sorted(cards_.items())) for ch, cards_ in sorted(out.items())},
     }
