@@ -695,6 +695,85 @@ def test_hail_mary_drinks_unparseable_potion() -> None:
     assert "hail mary" in decision.rationale
 
 
+def _potion(pid, name, desc, slot=0, target="None"):
+    return {"id": pid, "name": name, "description": desc, "slot": slot,
+            "can_use_in_combat": True, "target_type": target, "keywords": []}
+
+
+def test_fruit_juice_drunk_on_sight() -> None:
+    """Owner taxonomy: Fruit Juice (+max HP) is pure upside — drink on sight, even at
+    healthy HP in a plain fight."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("CRAWLER_0", 40, intent_label="6")],
+        hp=70, max_hp=80,
+        potions=[_potion("FRUIT_JUICE", "Fruit Juice", "Gain 5 Max HP.")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] == "use_potion"
+    assert "Fruit Juice" in d.rationale
+
+
+def test_block_potion_reactive_at_end_of_turn() -> None:
+    """Owner taxonomy: a Block Potion is drunk at end of turn vs incoming our own cards
+    couldn't cover. With nothing left to play and 12 incoming, drink it."""
+    state = make_combat(
+        hand=[],
+        enemies=[enemy("OGRE_0", 50, intent_label="12")],
+        hp=60, max_hp=80,
+        potions=[_potion("BLOCK_POTION", "Block Potion", "Gain 12 Block.")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] == "use_potion"
+    assert "end-of-turn" in d.rationale
+
+
+def test_buff_potion_deployed_at_boss_start() -> None:
+    """Owner taxonomy: long-term buffs are deployed at an elite/boss start (the bot
+    struggles with those fights), not hoarded."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BOSS_0", 200, intent_label="10")],
+        hp=70, max_hp=80, state_type="boss",
+        potions=[_potion("STRENGTH_POTION", "Strength Potion", "Gain 2 Strength.")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] == "use_potion"
+    assert "deploy at boss" in d.rationale
+
+
+def test_finisher_potion_kills_last_enemy_at_end_of_turn() -> None:
+    """Owner taxonomy: a damage potion is held until end of turn, then drunk to secure a
+    kill — here it clears the last enemy on the board."""
+    state = make_combat(
+        hand=[],
+        enemies=[enemy("WISP_0", 15, intent_label="14")],
+        hp=60, max_hp=80,
+        potions=[_potion("FIRE_POTION", "Fire Potion", "Deal 20 damage.", target="AnyEnemy")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] == "use_potion"
+    assert d.action.payload().get("target") == "WISP_0"
+
+
+def test_downside_potion_held_outside_hail_mary() -> None:
+    """Owner taxonomy: Foul Potion hits everyone including you, so it's held for hail-mary
+    / full-belt only — not drunk in normal reactive use, even to finish a low-HP enemy."""
+    state = make_combat(
+        hand=[],
+        enemies=[enemy("SLUG_0", 10, intent_label="14")],
+        hp=60, max_hp=80,
+        potions=[_potion("FOUL_POTION", "Foul Potion", "Deal 12 damage to ALL characters.")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] == "end_turn"  # Foul held, not drunk
+
+
 def test_event_refuses_hp_cost_when_low() -> None:
     state = parse_state(
         {

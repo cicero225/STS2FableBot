@@ -214,11 +214,12 @@ class StandardRouter:
                 used_slots.append(potion.slot)
             return Decision(action=act.UsePotion(slot=potion.slot, target=target), rationale=why)
 
+        def biggest_threat() -> str | None:
+            alive = [e for e in state.battle.enemies if e.hp > 0]
+            return max(alive, key=lambda e: e.hp).entity_id if alive else None
+
         hp_pct = player.hp / max(1, player.max_hp)
         dangerous = state.state_type in ("elite", "boss") and w.drink_in_elite_or_boss
-        dire = hp_pct < w.drink_when_hp_pct_below
-        if not (dangerous or dire):
-            return None
         incoming = sum(
             parse_intent_damage(i.label)
             for e in state.battle.enemies
@@ -226,55 +227,119 @@ class StandardRouter:
             for i in e.intents
             if i.type.lower() == "attack"
         )
+        # projected HP loss after the planned line plays its cards (block/kills) — not
+        # raw incoming, so we don't panic-drink a turn our own cards survive.
+        proj_loss = incoming - player.block
+        if isinstance(plan, Decision) and plan.scores and "hp_loss" in plan.scores:
+            proj_loss = plan.scores["hp_loss"]
+        plan_ends_turn = isinstance(plan, Decision) and isinstance(plan.action, act.EndTurn)
         available = [
             p
             for p in player.potions
             if p.can_use_in_combat is not False and p.slot not in used_slots
         ]
+        if not available:
+            return None
+        cat = {p.slot: self._potion_category(p) for p in available}
 
-        # Regular use: at most one survival/utility potion per round (pacing).
-        if not used_slots:
-            for potion in available:
-                fx = parse_card_description(potion.description)
-                if fx.total_damage > 0:
-                    alive = [e for e in state.battle.enemies if e.hp > 0]
-                    if not alive:
-                        continue
-                    target = max(alive, key=lambda e: e.hp)
-                    needs_target = (potion.target_type or "").lower() not in ("none", "self")
-                    return drink(
-                        potion,
-                        target.entity_id if needs_target else None,
-                        f"drink {potion.name} ({'dire HP' if dire else 'hard fight'})",
-                    )
-                if fx.block > 0 and incoming > player.block:
-                    return drink(potion, None, f"drink {potion.name} to block {incoming} incoming")
-                if fx.heal > 0 and dire:
-                    return drink(potion, None, f"drink {potion.name} to heal at {hp_pct:.0%} HP")
+        def first(*want: str) -> Potion | None:
+            return next((p for p in available if cat[p.slot] in want), None)
 
-        # Hail mary (run 10: died holding buff potions): if this turn's incoming can
-        # kill us *even after the planned line plays its blocks*, throw everything — one
-        # un-used potion per poll until a block/heal stops it or the belt is empty. Use
-        # the plan's projected post-block loss, not raw incoming: at 13 HP vs 14 a single
-        # Defend (5 block) survives, so panic-drinking there wastes a potion (live
-        # 2026-06-15).
-        proj_loss = incoming - player.block
-        if isinstance(plan, Decision) and plan.scores and "hp_loss" in plan.scores:
-            proj_loss = plan.scores["hp_loss"]
-        if w.hail_mary and dire and available and proj_loss >= player.hp:
-            potion = available[0]
-            needs_target = (potion.target_type or "").lower() not in ("none", "self")
-            target = None
-            if needs_target:
-                alive = [e for e in state.battle.enemies if e.hp > 0]
-                if alive:
-                    target = max(alive, key=lambda e: e.hp).entity_id
+        # 1. Hail-mary (run 10: died holding buff potions): dying even after our cards
+        #    block — throw a potion, preferring one that can actually save us.
+        if w.hail_mary and hp_pct < w.drink_when_hp_pct_below and proj_loss >= player.hp:
+            potion = first("block", "heal", "aoe_damage", "damage") or available[0]
+            tgt = biggest_threat() if cat[potion.slot] in ("damage", "aoe_damage") else None
             return drink(
-                potion,
-                target,
+                potion, tgt,
                 f"hail mary: drink {potion.name} (proj loss {proj_loss:.0f} >= {player.hp} HP)",
             )
+
+        # 2. Fruit Juice (+max HP): pure upside, drink on sight.
+        if juice := first("fruit_juice"):
+            return drink(juice, None, f"drink {juice.name} (+max HP, free value)")
+
+        # 3. Heal / Blood Potion when hurt.
+        if hp_pct < w.heal_below_pct and (healp := first("heal")):
+            return drink(healp, None, f"drink {healp.name} to heal at {hp_pct:.0%} HP")
+
+        # 4. Proactive at an elite/boss start: deploy long-term buffs/debuffs early (the
+        #    bot struggles with these fights, so bank the value rather than hoard it).
+        if dangerous and round_ <= 1 and (buff := first("buff", "debuff")):
+            tgt = biggest_threat() if cat[buff.slot] == "debuff" else None
+            return drink(buff, tgt, f"drink {buff.name} (deploy at {state.state_type} start)")
+
+        # 5. Reactive, once the planned line has spent its cards (end of turn):
+        if plan_ends_turn:
+            if proj_loss >= w.block_reactive_min and (blockp := first("block")):
+                return drink(
+                    blockp, None, f"drink {blockp.name} end-of-turn (unblocked {proj_loss:.0f})"
+                )
+            dmgp = first("damage", "aoe_damage")
+            if dmgp:
+                tgt = self._finisher_potion_target(dmgp, state, cat[dmgp.slot], w)
+                if tgt is not False:
+                    return drink(dmgp, tgt, f"drink {dmgp.name} (secure a kill)")
         return None
+
+    @staticmethod
+    def _potion_category(potion: Potion) -> str:
+        """Bucket a potion for the owner's taxonomy (id/name first, then parsed text)."""
+        nid = f"{potion.id or ''} {potion.name or ''}".upper()
+        if "FRUIT" in nid:  # Fruit Juice: +max HP, pure upside
+            return "fruit_juice"
+        if "FOUL" in nid or "GLOWWATER" in nid:  # self-damage / hand-loss downside
+            return "downside"
+        if "BLOOD" in nid:  # Blood Potion: % heal (markup the text parser can't read)
+            return "heal"
+        fx = parse_card_description(potion.description)
+        if fx.heal > 0:
+            return "heal"
+        if fx.block > 0:
+            return "block"
+        if fx.total_damage > 0:
+            return "aoe_damage" if fx.aoe else "damage"
+        if fx.vulnerable > 0 or fx.weak > 0 or any(
+            k in nid for k in ("VULNER", "WEAK", "BINDING", "SHACKL")
+        ):
+            return "debuff"
+        if fx.strength > 0 or any(
+            k in nid for k in ("STRENGTH", "DEXTER", "FOCUS", "POWER", "BLESSING", "FYSH", "FORGE")
+        ):
+            return "buff"
+        return "other"
+
+    @staticmethod
+    def _finisher_potion_target(potion: Potion, state: CombatState, cat: str, w):
+        """End-of-turn damage potion: returns the entity_id to hit, None for AoE/self, or
+        False when not worth it. Worth it when it clears the board (lethal) or kills an
+        attacker doing >= prevents_min (owner: 'kills an enemy AND prevents >10 damage')."""
+        dmg = parse_card_description(potion.description).total_damage
+        if dmg <= 0:
+            return False
+        alive = [e for e in state.battle.enemies if e.hp > 0]
+        kills = [e for e in alive if dmg >= e.hp + e.block]
+        if not kills:
+            return False
+
+        def threat(e) -> int:
+            return sum(
+                parse_intent_damage(i.label) for i in e.intents if i.type.lower() == "attack"
+            )
+
+        if cat == "aoe_damage":
+            prevented = sum(threat(e) for e in kills)
+            worth = len(kills) == len(alive) or prevented >= w.damage_potion_prevents_min
+            return None if worth else False
+        if len(alive) == 1:
+            worth = kills  # killing the last enemy on the board ends the fight
+        else:
+            worth = [e for e in kills if threat(e) >= w.damage_potion_prevents_min]
+        if not worth:
+            return False
+        best = max(worth, key=threat)
+        no_target = (potion.target_type or "").lower() in ("none", "self")
+        return None if no_target else best.entity_id
 
     # ------------------------------------------------------------------ map
 

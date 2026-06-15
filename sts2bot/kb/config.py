@@ -90,8 +90,11 @@ class RestWeights(_Section):
 
 class PotionWeights(_Section):
     drink_in_elite_or_boss: bool = True
-    drink_when_hp_pct_below: float = 0.35
+    drink_when_hp_pct_below: float = 0.35  # hail-mary HP gate
     hail_mary: bool = True
+    heal_below_pct: float = 0.80  # drink a heal/Blood potion below this HP fraction
+    block_reactive_min: int = 10  # end-of-turn: drink a Block potion to stop >= this unblocked
+    damage_potion_prevents_min: int = 10  # finisher: kill an attacker doing >= this much
     discard_priority: list[str] = []
 
 
