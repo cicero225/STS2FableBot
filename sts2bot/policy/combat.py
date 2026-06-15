@@ -29,6 +29,7 @@ _RAGE_BLOCK = re.compile(r"gain (\d+) block", re.IGNORECASE)
 # scales with hand size, so the flat per-hit the text parser sees underprices it.
 _HAND_EXHAUST_DMG = re.compile(r"(\d+) damage for each card", re.IGNORECASE)
 _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 damage, 1 cost)
+_DANGEROUS_MINION_INCOMING = 6  # a Minion hitting this hard is worth killing despite the tag
 
 
 @dataclass(frozen=True)
@@ -164,6 +165,14 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
     return tuple(sims)
 
 
+def _ignorable_minion(e: EnemySim) -> bool:
+    """A Minion not worth attacking: low threat and not ramping, so killing it is wasted effort
+    (it flees when the leader dies anyway). Dangerous minions — high incoming or gaining strength,
+    like the Kin's followers — are fought like normal enemies to manage damage. Minions never
+    gate lethal regardless (killing them doesn't end the fight)."""
+    return e.is_minion and not (e.gains_strength or e.incoming >= _DANGEROUS_MINION_INCOMING)
+
+
 def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState:
     enemies = list(state.enemies)
     e = enemies[target_i]
@@ -189,10 +198,10 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
     enemies[target_i] = replace(
         e, hp=hp, block=block, vulnerable=e.vulnerable + card.fx.vulnerable
     )
-    # Minions don't end the fight (it ends on the leader) and Illusion ones revive, so
-    # damage/kills on them aren't progress — value them only for the incoming their death
-    # removes (the score sees that via hp_loss). Offensive reward is for leaders only.
-    if e.is_minion:
+    # Ignorable minions (weak, non-ramping) aren't progress — they flee with the leader and
+    # Illusion ones revive — so deny offensive reward; their death's incoming drop is still
+    # seen via hp_loss. Dangerous minions (Kin followers etc.) fall through to normal reward.
+    if _ignorable_minion(e):
         return replace(state, enemies=tuple(enemies))
     return replace(
         state,
@@ -272,7 +281,9 @@ def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
     hp_weight = w.w_hp_loss * (w.hp_scarcity_base + w.hp_scarcity_slope * (1.0 - hp_pct))
     # quadratic focus-fire reward: concentrated damage beats spread damage, because
     # a finished enemy stops attacking (run 13: spread vs a 4-Nibbit pack = death)
-    focus = sum(((e.max_hp - e.hp) / e.max_hp) ** 2 for e in state.enemies if not e.is_minion)
+    focus = sum(
+        ((e.max_hp - e.hp) / e.max_hp) ** 2 for e in state.enemies if not _ignorable_minion(e)
+    )
     return (
         w.w_focus * focus
         + w.w_damage * state.damage_dealt

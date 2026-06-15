@@ -323,6 +323,24 @@ def test_ignores_low_impact_minion_and_hits_leader() -> None:
     assert d.action.payload().get("target") == "BEAST_0"  # leader, not the easy minion
 
 
+def test_attacks_dangerous_ramping_minion() -> None:
+    """Owner (The Kin, live 2026-06-15): the followers are Minions but high-HP, high-damage and
+    strength-gaining — worth grinding down to manage damage, not ignoring like a weak minion."""
+    leader = enemy("OGRE_0", 100, intent_label="5")
+    wasp = enemy("WASP_0", 40, intent_label="12")
+    wasp["status"] = [
+        {"id": "MINION_POWER", "name": "Minion",
+         "description": "Minions abandon combat without their leader."},
+        {"id": "STRENGTH_POWER", "name": "Strength", "amount": 2, "description": "Stronger."},
+    ]
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")], enemies=[leader, wasp], energy=1
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("target") == "WASP_0"  # grind the dangerous minion down
+
+
 def test_races_strength_gaining_enemy() -> None:
     """Owner (Run-3 Fight 6): vs strength-gaining (ramping) enemies the bot turtled and bled
     out. It should trade more — attack to end the fight before the ramp compounds, where vs a
