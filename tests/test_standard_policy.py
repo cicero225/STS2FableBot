@@ -886,6 +886,58 @@ def test_infernal_blade_gets_early_damage_bias_as_attack_generator() -> None:
     assert abs(s(plain, 1) - s(plain, 3)) < 1e-6  # a plain block skill does not
 
 
+def _ev_opt(index, title, desc, is_proceed=False, relic_name=None):
+    return {"index": index, "title": title, "description": desc, "is_locked": False,
+            "is_proceed": is_proceed, "was_chosen": False, "relic_name": relic_name,
+            "keywords": []}
+
+
+def _ev_state(event_id, options, hp=70, max_hp=80):
+    return parse_state({
+        "state_type": "event",
+        "event": {"event_id": event_id, "event_name": "x", "is_ancient": False,
+                  "in_dialogue": False, "body": "", "options": options},
+        "run": {"act": 1, "floor": 6, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": hp, "max_hp": max_hp, "gold": 50,
+                   "status": [], "relics": [], "potions": [], "max_potion_slots": 3},
+    })
+
+
+def test_event_takes_free_gain_and_trusts_spirebird_rank() -> None:
+    """Owner (Run-2/3): the bot declined every event, missing free upgrades. Byrdonis Nest's
+    options are both gains, so it must NOT proceed; and since Spirebird rates both, it should
+    take the better-rated one (Take the Egg, vs 14.5 > Eat the Egg, vs 8.7)."""
+    state = _ev_state("BYRDONIS_NEST", [
+        _ev_opt(0, "Eat the Egg", "Gain 7 Max HP."),
+        _ev_opt(1, "Take the Egg", "Add Byrdonis Egg to your Deck."),
+        _ev_opt(2, "Proceed", "", is_proceed=True),
+    ])
+    idx = router().decide(state, LoopContext()).action.payload()["index"]
+    assert idx == 1  # Take the Egg (Spirebird's higher-rated option), not Proceed
+
+
+def test_event_heuristic_when_unrated_takes_heal_upgrade() -> None:
+    """Sapphire Seed's 'Consume' can't be matched to Spirebird's internal key, so the heuristic
+    governs — and it must recognize Heal + Upgrade as a gain (the old code would not)."""
+    state = _ev_state("SAPPHIRE_SEED", [
+        _ev_opt(0, "Consume", "Heal 9 HP. Upgrade a card in your Deck."),
+        _ev_opt(1, "Plant and Nourish", "Enchant a card with Sown."),
+        _ev_opt(2, "Proceed", "", is_proceed=True),
+    ], hp=50)
+    idx = router().decide(state, LoopContext()).action.payload()["index"]
+    assert idx == 0  # Consume (heal + upgrade), not Proceed
+
+
+def test_event_declines_pure_cost() -> None:
+    """An unknown event whose only choice is a net loss (Lose Max HP for nothing) is declined."""
+    state = _ev_state("ZZZ_FAKE_EVENT", [
+        _ev_opt(0, "Sacrifice", "Lose 8 Max HP."),
+        _ev_opt(1, "Leave", "", is_proceed=True),
+    ])
+    d = router().decide(state, LoopContext())
+    assert d.action.payload()["index"] == 1  # proceed, don't pay Max HP for nothing
+
+
 def test_event_refuses_hp_cost_when_low() -> None:
     state = parse_state(
         {

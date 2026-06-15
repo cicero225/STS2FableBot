@@ -1,0 +1,1064 @@
+{
+ "meta": {
+  "source": "spirebird cohort 'all' events",
+  "generated": "2026-06-15T15:15:52.022965+00:00",
+  "events": 62
+ },
+ "events": {
+  "SELF_HELP_BOOK": {
+   "overall_vs": 10.6,
+   "picked": 81252,
+   "options": {
+    "READ_ENTIRE_BOOK": {
+     "vs": 15.1,
+     "picked": 26804
+    },
+    "READ_THE_BACK": {
+     "vs": 8.2,
+     "picked": 30073
+    },
+    "READ_PASSAGE": {
+     "vs": 8.5,
+     "picked": 24372
+    }
+   }
+  },
+  "THIS_OR_THAT": {
+   "overall_vs": 8.2,
+   "picked": 81337,
+   "options": {
+    "PLAIN": {
+     "vs": 10.9,
+     "picked": 33684
+    },
+    "ORNATE": {
+     "vs": 6.3,
+     "picked": 47642
+    }
+   }
+  },
+  "ROOM_FULL_OF_CHEESE": {
+   "overall_vs": 8.8,
+   "picked": 65570,
+   "options": {
+    "SEARCH": {
+     "vs": 12.9,
+     "picked": 27729
+    },
+    "GORGE": {
+     "vs": 5.8,
+     "picked": 37816
+    },
+    "UNCOVER_FUTURE": {
+     "vs": 60.7,
+     "picked": 1
+    }
+   }
+  },
+  "BRAIN_LEECH": {
+   "overall_vs": 8.2,
+   "picked": 65514,
+   "options": {
+    "RIP": {
+     "vs": 9.9,
+     "picked": 27976
+    },
+    "SHARE_KNOWLEDGE": {
+     "vs": 7.1,
+     "picked": 37528
+    }
+   }
+  },
+  "THE_FUTURE_OF_POTIONS": {
+   "overall_vs": 13.2,
+   "picked": 38846,
+   "options": {
+    "POTION": {
+     "vs": 13.2,
+     "picked": 38844
+    }
+   }
+  },
+  "SLIPPERY_BRIDGE": {
+   "overall_vs": 8.8,
+   "picked": 53569,
+   "options": {
+    "OVERCOME": {
+     "vs": 8.9,
+     "picked": 53399
+    },
+    "HOLD_ON_0": {
+     "vs": 10,
+     "picked": 41520
+    },
+    "HOLD_ON_1": {
+     "vs": 9.8,
+     "picked": 21496
+    },
+    "HOLD_ON_2": {
+     "vs": 8.9,
+     "picked": 10460
+    },
+    "HOLD_ON_3": {
+     "vs": 8.1,
+     "picked": 4706
+    },
+    "HOLD_ON_4": {
+     "vs": 6.5,
+     "picked": 2089
+    },
+    "HOLD_ON_5": {
+     "vs": 5.1,
+     "picked": 828
+    },
+    "HOLD_ON_6": {
+     "vs": 1,
+     "picked": 341
+    },
+    "HOLD_ON_LOOP": {
+     "vs": -4,
+     "picked": 114
+    }
+   }
+  },
+  "SYMBIOTE": {
+   "overall_vs": 11.4,
+   "picked": 40178,
+   "options": {
+    "KILL_WITH_FIRE": {
+     "vs": 12,
+     "picked": 26325
+    },
+    "APPROACH": {
+     "vs": 10.3,
+     "picked": 13853
+    },
+    "SHARE_KNOWLEDGE": {
+     "vs": 69.5,
+     "picked": 1
+    }
+   }
+  },
+  "POTION_COURIER": {
+   "overall_vs": 10.4,
+   "picked": 40130,
+   "options": {
+    "RANSACK": {
+     "vs": 10.1,
+     "picked": 24345
+    },
+    "GRAB_POTIONS": {
+     "vs": 10.9,
+     "picked": 15785
+    }
+   }
+  },
+  "RANWID_THE_ELDER": {
+   "overall_vs": 14.6,
+   "picked": 27238,
+   "options": {
+    "POTION": {
+     "vs": 14.9,
+     "picked": 11024
+    },
+    "RELIC": {
+     "vs": 15.6,
+     "picked": 10152
+    },
+    "GOLD": {
+     "vs": 12.3,
+     "picked": 6062
+    }
+   }
+  },
+  "RELIC_TRADER": {
+   "overall_vs": 13.4,
+   "picked": 27135,
+   "options": {
+    "BOTTOM": {
+     "vs": 13.7,
+     "picked": 9301
+    },
+    "MIDDLE": {
+     "vs": 13.6,
+     "picked": 8835
+    },
+    "TOP": {
+     "vs": 12.9,
+     "picked": 8999
+    }
+   }
+  },
+  "FAKE_MERCHANT": {
+   "overall_vs": 12.2,
+   "picked": 29641,
+   "options": {}
+  },
+  "SUNKEN_STATUE": {
+   "overall_vs": 7.7,
+   "picked": 46711,
+   "options": {
+    "GRAB_SWORD": {
+     "vs": 8.1,
+     "picked": 28484
+    },
+    "DIVE_INTO_WATER": {
+     "vs": 7.2,
+     "picked": 18215
+    }
+   }
+  },
+  "THE_LEGENDS_WERE_TRUE": {
+   "overall_vs": 7.9,
+   "picked": 45384,
+   "options": {
+    "NAB_THE_MAP": {
+     "vs": 9.6,
+     "picked": 31679
+    },
+    "SLOWLY_FIND_AN_EXIT": {
+     "vs": 3.9,
+     "picked": 13704
+    }
+   }
+  },
+  "CRYSTAL_SPHERE": {
+   "overall_vs": 11,
+   "picked": 29912,
+   "options": {
+    "UNCOVER_FUTURE": {
+     "vs": 11.4,
+     "picked": 17526
+    },
+    "PAYMENT_PLAN": {
+     "vs": 10.5,
+     "picked": 12386
+    }
+   }
+  },
+  "SPIRALING_WHIRLPOOL": {
+   "overall_vs": 12.7,
+   "picked": 25156,
+   "options": {
+    "OBSERVE": {
+     "vs": 15.3,
+     "picked": 16985
+    },
+    "DRINK": {
+     "vs": 7.2,
+     "picked": 8171
+    }
+   }
+  },
+  "DOORS_OF_LIGHT_AND_DARK": {
+   "overall_vs": 11.6,
+   "picked": 25319,
+   "options": {
+    "DARK": {
+     "vs": 12.1,
+     "picked": 12685
+    },
+    "LIGHT": {
+     "vs": 11,
+     "picked": 12633
+    }
+   }
+  },
+  "DOLL_ROOM": {
+   "overall_vs": 13,
+   "picked": 21687,
+   "options": {
+    "TAKE_SOME_TIME": {
+     "vs": 14.3,
+     "picked": 12129
+    },
+    "DAUGHTER_OF_THE_WIND": {
+     "vs": 19,
+     "picked": 6013
+    },
+    "MR_STRUGGLES": {
+     "vs": 16.9,
+     "picked": 4681
+    },
+    "EXAMINE": {
+     "vs": 22.5,
+     "picked": 3221
+    },
+    "BING_BONG": {
+     "vs": 11.5,
+     "picked": 4656
+    },
+    "RANDOM": {
+     "vs": 5.8,
+     "picked": 6336
+    }
+   }
+  },
+  "STONE_OF_ALL_TIME": {
+   "overall_vs": 14.2,
+   "picked": 19739,
+   "options": {
+    "LIFT": {
+     "vs": 13.8,
+     "picked": 11420
+    },
+    "PUSH": {
+     "vs": 14.9,
+     "picked": 8319
+    }
+   }
+  },
+  "TINKER_TIME": {
+   "overall_vs": 13.7,
+   "picked": 20524,
+   "options": {
+    "CHOOSE_CARD_TYPE": {
+     "vs": 13.7,
+     "picked": 20524
+    },
+    "POWER": {
+     "vs": 13.8,
+     "picked": 9190
+    },
+    "SKILL": {
+     "vs": 14,
+     "picked": 8928
+    },
+    "ENERGIZED": {
+     "vs": 13.5,
+     "picked": 4380
+    },
+    "EXPERTISE": {
+     "vs": 13.6,
+     "picked": 4067
+    },
+    "WISDOM": {
+     "vs": 16.1,
+     "picked": 3385
+    },
+    "CURIOUS": {
+     "vs": 14.8,
+     "picked": 3418
+    },
+    "ATTACK": {
+     "vs": 12,
+     "picked": 2406
+    },
+    "IMPROVEMENT": {
+     "vs": 12.2,
+     "picked": 1705
+    },
+    "SAPPING": {
+     "vs": 12.2,
+     "picked": 1157
+    },
+    "CHAOS": {
+     "vs": 9.4,
+     "picked": 1163
+    },
+    "VIOLENCE": {
+     "vs": 11.8,
+     "picked": 872
+    },
+    "CHOKING": {
+     "vs": 11.6,
+     "picked": 377
+    }
+   }
+  },
+  "SAPPHIRE_SEED": {
+   "overall_vs": 12.3,
+   "picked": 22527,
+   "options": {
+    "PLANT": {
+     "vs": 13.9,
+     "picked": 12076
+    },
+    "EAT": {
+     "vs": 10.6,
+     "picked": 10451
+    }
+   }
+  },
+  "ROUND_TEA_PARTY": {
+   "overall_vs": 12.4,
+   "picked": 20482,
+   "options": {
+    "PICK_FIGHT": {
+     "vs": 14.1,
+     "picked": 17459
+    },
+    "ENJOY_TEA": {
+     "vs": 2.8,
+     "picked": 3023
+    }
+   }
+  },
+  "AMALGAMATOR": {
+   "overall_vs": 14,
+   "picked": 17782,
+   "options": {
+    "COMBINE_STRIKES": {
+     "vs": 12.8,
+     "picked": 11216
+    },
+    "COMBINE_DEFENDS": {
+     "vs": 16.2,
+     "picked": 6566
+    }
+   }
+  },
+  "BYRDONIS_NEST": {
+   "overall_vs": 10.8,
+   "picked": 22501,
+   "options": {
+    "EAT": {
+     "vs": 8.7,
+     "picked": 14530
+    },
+    "TAKE": {
+     "vs": 14.5,
+     "picked": 7971
+    }
+   }
+  },
+  "COLOSSAL_FLOWER": {
+   "overall_vs": 11.5,
+   "picked": 20723,
+   "options": {
+    "REACH_DEEPER_1": {
+     "vs": 17.4,
+     "picked": 11479
+    },
+    "REACH_DEEPER_2": {
+     "vs": 18.6,
+     "picked": 10089
+    },
+    "POLLINOUS_CORE": {
+     "vs": 20.7,
+     "picked": 7543
+    },
+    "EXTRACT_CURRENT_PRIZE_1": {
+     "vs": 4.2,
+     "picked": 9244
+    },
+    "EXTRACT_INSTEAD": {
+     "vs": 12.2,
+     "picked": 2546
+    },
+    "EXTRACT_CURRENT_PRIZE_2": {
+     "vs": 8.7,
+     "picked": 1390
+    }
+   }
+  },
+  "HUNGRY_FOR_MUSHROOMS": {
+   "overall_vs": 11.6,
+   "picked": 20520,
+   "options": {
+    "FRAGRANT_MUSHROOM": {
+     "vs": 14.7,
+     "picked": 15369
+    },
+    "BIG_MUSHROOM": {
+     "vs": 2.4,
+     "picked": 5147
+    }
+   }
+  },
+  "AROMA_OF_CHAOS": {
+   "overall_vs": 10.5,
+   "picked": 21454,
+   "options": {
+    "LET_GO": {
+     "vs": 10.7,
+     "picked": 14402
+    },
+    "MAINTAIN_CONTROL": {
+     "vs": 10.1,
+     "picked": 7052
+    }
+   }
+  },
+  "LOST_WISP": {
+   "overall_vs": 9.9,
+   "picked": 21744,
+   "options": {
+    "SEARCH": {
+     "vs": 9,
+     "picked": 16073
+    },
+    "CLAIM": {
+     "vs": 12.7,
+     "picked": 5671
+    }
+   }
+  },
+  "GRAVE_OF_THE_FORGOTTEN": {
+   "overall_vs": 11.1,
+   "picked": 19354,
+   "options": {
+    "ACCEPT": {
+     "vs": 12.4,
+     "picked": 9656
+    },
+    "CONFRONT": {
+     "vs": 9.8,
+     "picked": 9698
+    }
+   }
+  },
+  "SPIRIT_GRAFTER": {
+   "overall_vs": 9.4,
+   "picked": 21783,
+   "options": {
+    "REJECTION": {
+     "vs": 14.4,
+     "picked": 14775
+    },
+    "LET_IT_IN": {
+     "vs": -1.1,
+     "picked": 7008
+    }
+   }
+  },
+  "TRIAL": {
+   "overall_vs": 10.1,
+   "picked": 20712,
+   "options": {
+    "ACCEPT": {
+     "vs": 19.7,
+     "picked": 1213
+    },
+    "GUILTY": {
+     "vs": 8.6,
+     "picked": 2509
+    },
+    "INNOCENT": {
+     "vs": 9,
+     "picked": 2672
+    },
+    "REJECT": {
+     "vs": 19.7,
+     "picked": 1213
+    }
+   }
+  },
+  "MORPHIC_GROVE": {
+   "overall_vs": 12.7,
+   "picked": 16498,
+   "options": {
+    "GROUP": {
+     "vs": 16.2,
+     "picked": 11042
+    },
+    "LONER": {
+     "vs": 5.6,
+     "picked": 5456
+    }
+   }
+  },
+  "FIELD_OF_MAN_SIZED_HOLES": {
+   "overall_vs": 9.5,
+   "picked": 21542,
+   "options": {
+    "ENTER_YOUR_HOLE": {
+     "vs": 9.2,
+     "picked": 15704
+    },
+    "RESIST": {
+     "vs": 10.6,
+     "picked": 5837
+    }
+   }
+  },
+  "WAR_HISTORIAN_REPY": {
+   "overall_vs": 30,
+   "picked": 6380,
+   "options": {
+    "UNLOCK_CAGE": {
+     "vs": 30.2,
+     "picked": 6029
+    },
+    "UNLOCK_CHEST": {
+     "vs": 26.7,
+     "picked": 366
+    }
+   }
+  },
+  "WOOD_CARVINGS": {
+   "overall_vs": 8.9,
+   "picked": 21213,
+   "options": {
+    "SNAKE": {
+     "vs": 11.9,
+     "picked": 7123
+    },
+    "TORUS": {
+     "vs": 9.5,
+     "picked": 7564
+    },
+    "BIRD": {
+     "vs": 5,
+     "picked": 6526
+    }
+   }
+  },
+  "SUNKEN_TREASURY": {
+   "overall_vs": 7.4,
+   "picked": 25209,
+   "options": {
+    "FIRST_CHEST": {
+     "vs": 7.4,
+     "picked": 17923
+    },
+    "SECOND_CHEST": {
+     "vs": 7.5,
+     "picked": 7286
+    }
+   }
+  },
+  "ENDLESS_CONVEYOR": {
+   "overall_vs": 14.1,
+   "picked": 13308,
+   "options": {
+    "LEAVE": {
+     "vs": 14.7,
+     "picked": 9744
+    },
+    "CAVIAR": {
+     "vs": 14.6,
+     "picked": 7635
+    },
+    "CLAM_ROLL": {
+     "vs": 14.2,
+     "picked": 5816
+    },
+    "JELLY_LIVER": {
+     "vs": 17,
+     "picked": 4816
+    },
+    "SPICY_SNAPPY": {
+     "vs": 14.6,
+     "picked": 4968
+    },
+    "OBSERVE_CHEF": {
+     "vs": 12.4,
+     "picked": 3563
+    },
+    "FRIED_EEL": {
+     "vs": 13.6,
+     "picked": 3245
+    },
+    "SEAPUNK_SALAD": {
+     "vs": 15.3,
+     "picked": 2378
+    },
+    "SUSPICIOUS_CONDIMENT": {
+     "vs": 14,
+     "picked": 2425
+    },
+    "GOLDEN_FYSH": {
+     "vs": 18.2,
+     "picked": 1267
+    }
+   }
+  },
+  "TEA_MASTER": {
+   "overall_vs": 8.2,
+   "picked": 22222,
+   "options": {
+    "BONE_TEA": {
+     "vs": 8,
+     "picked": 11022
+    },
+    "TEA_OF_DISCOURTESY": {
+     "vs": 9.2,
+     "picked": 6431
+    },
+    "EMBER_TEA": {
+     "vs": 7.4,
+     "picked": 4769
+    }
+   }
+  },
+  "ABYSSAL_BATHS": {
+   "overall_vs": 7.1,
+   "picked": 25321,
+   "options": {
+    "EXIT_BATHS": {
+     "vs": 11,
+     "picked": 10544
+    },
+    "IMMERSE": {
+     "vs": 10.8,
+     "picked": 10617
+    },
+    "LINGER": {
+     "vs": 10.8,
+     "picked": 10373
+    },
+    "ABSTAIN": {
+     "vs": 4.5,
+     "picked": 14704
+    }
+   }
+  },
+  "WELCOME_TO_WONGOS": {
+   "overall_vs": 11.4,
+   "picked": 15812,
+   "options": {
+    "BARGAIN_BIN": {
+     "vs": 9.8,
+     "picked": 10181
+    },
+    "FEATURED_ITEM": {
+     "vs": 13.1,
+     "picked": 3249
+    },
+    "MYSTERY_BOX": {
+     "vs": 17.8,
+     "picked": 2091
+    },
+    "LEAVE": {
+     "vs": 5.1,
+     "picked": 291
+    }
+   }
+  },
+  "WATERLOGGED_SCRIPTORIUM": {
+   "overall_vs": 8.9,
+   "picked": 19715,
+   "options": {
+    "TENTACLE_QUILL": {
+     "vs": 10.9,
+     "picked": 5996
+    },
+    "BLOODY_INK": {
+     "vs": 8.6,
+     "picked": 7293
+    },
+    "PRICKLY_SPONGE": {
+     "vs": 7.4,
+     "picked": 6426
+    }
+   }
+  },
+  "BUGSLAYER": {
+   "overall_vs": 7.5,
+   "picked": 21643,
+   "options": {
+    "EXTERMINATION": {
+     "vs": 7.8,
+     "picked": 10547
+    },
+    "SQUASH": {
+     "vs": 7.1,
+     "picked": 11094
+    }
+   }
+  },
+  "COLORFUL_PHILOSOPHERS": {
+   "overall_vs": 8.5,
+   "picked": 18714,
+   "options": {
+    "SILENT": {
+     "vs": 8.1,
+     "picked": 6918
+    },
+    "IRONCLAD": {
+     "vs": 7.9,
+     "picked": 4391
+    },
+    "NECROBINDER": {
+     "vs": 8.8,
+     "picked": 3714
+    },
+    "DEFECT": {
+     "vs": 9.9,
+     "picked": 2537
+    },
+    "REGENT": {
+     "vs": 9.1,
+     "picked": 1152
+    },
+    "CARD_POOL\u2234WATCHER-WATCHER_CARD_POOL": {
+     "vs": -40.7,
+     "picked": 1
+    }
+   }
+  },
+  "WHISPERING_HOLLOW": {
+   "overall_vs": 8.5,
+   "picked": 18277,
+   "options": {
+    "HUG": {
+     "vs": 9.5,
+     "picked": 15019
+    },
+    "GOLD": {
+     "vs": 4.1,
+     "picked": 3258
+    }
+   }
+  },
+  "DROWNING_BEACON": {
+   "overall_vs": 6,
+   "picked": 25544,
+   "options": {
+    "CLIMB": {
+     "vs": 5.6,
+     "picked": 20420
+    },
+    "BOTTLE": {
+     "vs": 7.7,
+     "picked": 5124
+    }
+   }
+  },
+  "INFESTED_AUTOMATON": {
+   "overall_vs": 7,
+   "picked": 21610,
+   "options": {
+    "STUDY": {
+     "vs": 5.9,
+     "picked": 13424
+    },
+    "TOUCH_CORE": {
+     "vs": 8.8,
+     "picked": 8185
+    }
+   }
+  },
+  "ZEN_WEAVER": {
+   "overall_vs": 10.6,
+   "picked": 14105,
+   "options": {
+    "EMOTIONAL_AWARENESS": {
+     "vs": 10.3,
+     "picked": 8423
+    },
+    "ARACHNID_ACUPUNCTURE": {
+     "vs": 16.9,
+     "picked": 3832
+    },
+    "BREATHING_TECHNIQUES": {
+     "vs": -1.2,
+     "picked": 1850
+    }
+   }
+  },
+  "WELLSPRING": {
+   "overall_vs": 6.8,
+   "picked": 21273,
+   "options": {
+    "BATHE": {
+     "vs": 6.9,
+     "picked": 15636
+    },
+    "BOTTLE": {
+     "vs": 6.7,
+     "picked": 5637
+    }
+   }
+  },
+  "REFLECTIONS": {
+   "overall_vs": 7.4,
+   "picked": 17365,
+   "options": {
+    "TOUCH_A_MIRROR": {
+     "vs": 11.3,
+     "picked": 12354
+    },
+    "SHATTER": {
+     "vs": -2.3,
+     "picked": 5011
+    }
+   }
+  },
+  "TABLET_OF_TRUTH": {
+   "overall_vs": 5.9,
+   "picked": 21248,
+   "options": {
+    "GIVE_UP": {
+     "vs": 8.7,
+     "picked": 9709
+    },
+    "SMASH": {
+     "vs": 6.6,
+     "picked": 10038
+    },
+    "DECIPHER_1": {
+     "vs": 5.4,
+     "picked": 11209
+    },
+    "DECIPHER": {
+     "vs": -15.9,
+     "picked": 1605
+    }
+   }
+  },
+  "JUNGLE_MAZE_ADVENTURE": {
+   "overall_vs": 5.5,
+   "picked": 21532,
+   "options": {
+    "SOLO_QUEST": {
+     "vs": 7.9,
+     "picked": 8002
+    },
+    "JOIN_FORCES": {
+     "vs": 4,
+     "picked": 13530
+    }
+   }
+  },
+  "TRASH_HEAP": {
+   "overall_vs": 5.2,
+   "picked": 22615,
+   "options": {
+    "DIVE_IN": {
+     "vs": 6.8,
+     "picked": 12330
+    },
+    "GRAB": {
+     "vs": 3.2,
+     "picked": 10282
+    }
+   }
+  },
+  "DENSE_VEGETATION": {
+   "overall_vs": 6.8,
+   "picked": 12316,
+   "options": {
+    "TRUDGE_ON": {
+     "vs": 6.8,
+     "picked": 12316
+    }
+   }
+  },
+  "UNREST_SITE": {
+   "overall_vs": 5.1,
+   "picked": 9811,
+   "options": {
+    "KILL": {
+     "vs": 5.6,
+     "picked": 7289
+    },
+    "REST": {
+     "vs": 3.7,
+     "picked": 2522
+    }
+   }
+  },
+  "LUMINOUS_CHOIR": {
+   "overall_vs": 9.3,
+   "picked": 4965,
+   "options": {
+    "REACH_INTO_THE_FLESH": {
+     "vs": 10.2,
+     "picked": 2975
+    },
+    "OFFER_TRIBUTE": {
+     "vs": 7.9,
+     "picked": 1990
+    }
+   }
+  },
+  "THE_LANTERN_KEY": {
+   "overall_vs": 3.3,
+   "picked": 10961,
+   "options": {
+    "RETURN_THE_KEY": {
+     "vs": 3.3,
+     "picked": 10960
+    }
+   }
+  },
+  "BLIGHTMOD-BLIGHT_DEMON_BLACKSMITH": {
+   "overall_vs": 4.9,
+   "picked": 8,
+   "options": {
+    "STITCH": {
+     "vs": 79.4,
+     "picked": 1
+    },
+    "APPROACH": {
+     "vs": 4.9,
+     "picked": 8
+    },
+    "FORGE": {
+     "vs": -5.8,
+     "picked": 7
+    }
+   }
+  },
+  "ACTSFROMTHEPAST-DUPLICATOR": {
+   "overall_vs": 78,
+   "picked": 1,
+   "options": {
+    "KNEEL": {
+     "vs": 78,
+     "picked": 1
+    }
+   }
+  },
+  "BLIGHTMOD-BLIGHT_GOLDEN_LOOP": {
+   "overall_vs": 18.9,
+   "picked": 4,
+   "options": {
+    "SELL_BLOOD": {
+     "vs": 18.9,
+     "picked": 4
+    },
+    "BUY_BLOOD": {
+     "vs": 18.9,
+     "picked": 4
+    }
+   }
+  },
+  "ACTSFROMTHEPAST-LAB": {
+   "overall_vs": 66.4,
+   "picked": 1,
+   "options": {
+    "SEARCH": {
+     "vs": 66.4,
+     "picked": 1
+    }
+   }
+  },
+  "BLIGHTMOD-BLIGHT_NEED_POWER": {
+   "overall_vs": 38.9,
+   "picked": 1,
+   "options": {
+    "GIVE_UP": {
+     "vs": 38.9,
+     "picked": 1
+    }
+   }
+  },
+  "BLIGHTMOD-BLIGHT_PRIMITIVE_TRIBE": {
+   "overall_vs": -0.1,
+   "picked": 5,
+   "options": {
+    "APPROACH": {
+     "vs": -0.1,
+     "picked": 5
+    },
+    "COURAGE": {
+     "vs": -0.1,
+     "picked": 5
+    }
+   }
+  },
+  "PUNCH_OFF": {
+   "overall_vs": -1.3,
+   "picked": 3371,
+   "options": {
+    "NAB": {
+     "vs": -1.3,
+     "picked": 3371
+    }
+   }
+  }
+ }
+}

@@ -46,6 +46,8 @@ class CombatWeights(_Section):
 class EventWeights(_Section):
     hp_cost_refuse_below: float = 0.45
     unknown_take_first_above: float = 0.70
+    take_min: float = 0.5  # heuristic net-value floor to engage an option vs proceeding
+    spirebird_take_floor: float = -2.0  # take Spirebird's top option unless heuristically harmful
 
 
 class MapWeights(_Section):

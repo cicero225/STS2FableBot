@@ -26,12 +26,18 @@ from sts2bot.client.models import (
 )
 from sts2bot.kb.combat_stats import CombatStats
 from sts2bot.kb.config import PolicyConfig, load_policy_config
+from sts2bot.kb.event_stats import EventStats
 from sts2bot.kb.priors import CardPriors
 from sts2bot.kb.shop_stats import ShopStats
 from sts2bot.policy.base import Decision, LoopContext, Wait
 from sts2bot.policy.combat import plan_combat_turn
 from sts2bot.policy.textparse import parse_card_description, parse_hp_cost, parse_intent_damage
 from sts2bot.policy.trivial import TrivialRouter
+
+# Event-option value cues the card-text parser doesn't cover (gains the bot was blind to).
+_EV_MAXHP_GAIN = re.compile(r"Gain (\d+) Max(?:imum)? HP", re.IGNORECASE)
+_EV_GOLD_GAIN = re.compile(r"Gain (\d+) Gold", re.IGNORECASE)
+_EV_GOLD_LOSS = re.compile(r"Lose (\d+) Gold", re.IGNORECASE)
 
 
 class StandardRouter:
@@ -41,11 +47,13 @@ class StandardRouter:
         priors: CardPriors | None = None,
         combat_stats: CombatStats | None = None,
         shop_stats: ShopStats | None = None,
+        event_stats: EventStats | None = None,
     ):
         self.config = config or load_policy_config()
         self.priors = priors if priors is not None else CardPriors.load()
         self.combat_stats = combat_stats if combat_stats is not None else CombatStats.load()
         self.shop_stats = shop_stats if shop_stats is not None else ShopStats.load()
+        self.event_stats = event_stats if event_stats is not None else EventStats.load()
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
@@ -445,42 +453,88 @@ class StandardRouter:
         player = state.player
         hp, max_hp = (player.hp, player.max_hp) if player else (1, 1)
         hp_pct = hp / max(1, max_hp)
+        eid = ev.event_id
 
-        choices = []
-        for option in unlocked:
-            text = f"{option.title or ''} {option.description or ''}"
+        # Score affordable, non-proceed options: a gain/cost heuristic plus Spirebird's
+        # per-option vsBaseline where it matches. The heuristic alone fixes the real bug (the
+        # old code only saw relic/"card" as gain and declined free Max-HP / heal / upgrade
+        # picks); when Spirebird confidently rates >=2 options we trust its ranking over the
+        # heuristic, vetoing only clearly-harmful picks.
+        scored = []  # (option, heuristic_value, spirebird_vs)
+        for o in unlocked:
+            if o.is_proceed:
+                continue
+            text = f"{o.title or ''} {o.description or ''}"
             hp_cost = parse_hp_cost(text)
-            affordable = hp_cost == 0 or (hp - hp_cost > 0 and hp_pct >= w.hp_cost_refuse_below)
-            gain = 1.0 if (option.relic_name or "card" in text.lower()) else 0.0
-            choices.append((option, hp_cost, affordable, gain))
+            if hp_cost and not (hp - hp_cost > 0 and hp_pct >= w.hp_cost_refuse_below):
+                continue  # can't afford the HP cost safely
+            heur = self._event_option_value(o, hp, max_hp)
+            vs = self.event_stats.option_vs(eid, o.title) if self.event_stats else None
+            scored.append((o, heur, vs))
 
-        # prefer affordable gainful options, then affordable non-proceed, then proceed
-        affordable_gain = [c for c in choices if c[2] and c[3] > 0 and not c[0].is_proceed]
-        if affordable_gain:
-            option = min(affordable_gain, key=lambda c: c[1])[0]
-            return Decision(
-                action=act.ChooseEventOption(index=option.index),
-                rationale=f"event gain option: {option.title}",
-            )
-        affordable_other = [c for c in choices if c[2] and not c[0].is_proceed and c[1] == 0]
-        if affordable_other and hp_pct >= w.unknown_take_first_above:
-            option = affordable_other[0][0]
-            return Decision(
-                action=act.ChooseEventOption(index=option.index),
-                rationale=f"event option (HP comfortable): {option.title}",
-            )
+        rated = [s for s in scored if s[2] is not None]
+        if len(rated) >= 2:
+            o, heur, vs = max(rated, key=lambda s: s[2])
+            if heur > w.spirebird_take_floor:
+                return Decision(
+                    action=act.ChooseEventOption(index=o.index),
+                    rationale=f"event: take '{o.title}' (Spirebird vs {vs:.1f})",
+                )
+        if scored:
+            o, heur, vs = max(scored, key=lambda s: s[1])
+            if heur >= w.take_min:
+                return Decision(
+                    action=act.ChooseEventOption(index=o.index),
+                    rationale=f"event: take '{o.title}' (value {heur:.1f})",
+                )
+
         proceed = next((o for o in unlocked if o.is_proceed), None)
         if proceed is not None:
             return Decision(
                 action=act.ChooseEventOption(index=proceed.index),
-                rationale="decline event (HP-risk or nothing worth taking)",
+                rationale="decline event (nothing worth the cost)",
             )
-        # no explicit proceed: take the cheapest affordable option
-        fallback = min(choices, key=lambda c: (not c[2], c[1]))[0]
-        return Decision(
-            action=act.ChooseEventOption(index=fallback.index),
-            rationale=f"least-cost event option: {fallback.title}",
+        if scored:  # no proceed option: take the best heuristic option
+            o = max(scored, key=lambda s: s[1])[0]
+            return Decision(
+                action=act.ChooseEventOption(index=o.index), rationale=f"event: '{o.title}'"
+            )
+        cheapest = min(
+            unlocked, key=lambda o: parse_hp_cost(f"{o.title or ''} {o.description or ''}")
         )
+        return Decision(
+            action=act.ChooseEventOption(index=cheapest.index),
+            rationale=f"event: least-cost '{cheapest.title}'",
+        )
+
+    def _event_option_value(self, option, hp: int, max_hp: int) -> float:
+        """Net value of an event option (gains - costs), recognizing the gains the card-text
+        parser misses: Max HP, heal, upgrade, remove, relic, gold."""
+        text = f"{option.title or ''} {option.description or ''}"
+        low = text.lower()
+        fx = parse_card_description(text)
+        val = 0.0
+        if m := _EV_MAXHP_GAIN.search(text):
+            val += int(m.group(1)) * 1.5
+        if fx.heal:
+            val += min(fx.heal, max(0, max_hp - hp)) * 0.4
+        if "upgrade" in low:
+            val += 5.0
+        if "remove" in low:
+            val += 5.0
+        if option.relic_name:
+            val += 6.0
+        if m := _EV_GOLD_GAIN.search(text):
+            val += int(m.group(1)) * 0.03
+        if "add " in low and "curse" not in low:
+            val += 1.0  # a card into the deck — usually fine, occasionally a trap
+        val -= fx.max_hp_cost * 1.5
+        val -= fx.self_hp_cost * 0.3
+        if "curse" in low:
+            val -= 8.0
+        if m := _EV_GOLD_LOSS.search(text):
+            val -= int(m.group(1)) * 0.03
+        return val
 
     # ------------------------------------------------------------------ card rewards
 
