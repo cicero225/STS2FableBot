@@ -248,8 +248,12 @@ Done this session: Rage sequencing · smart in-combat exhaust targeting · false
 on `card_select` modals · **Fiend Fire hand-scaling** (missed lethals) · **hail-mary
 block-awareness** (panic-drank at 13 HP vs 14 when a Defend survives) · **minion-aware
 lethal + focus-fire** (leader-kill ends the fight; stop dumping damage on ignorable
-minions; Illusion folded in). The Fiend-Fire / hail-mary / minion bullets below are now
-implemented + tested. Remaining:
+minions; Illusion folded in) · **potion taxonomy** (per-potion classifier + categorised
+use: hail-mary → Fruit Juice → heal → proactive buffs at elite/boss start → reactive
+block + finisher at end of turn; downside held). The Fiend-Fire / hail-mary / minion /
+potion bullets below are now implemented + tested. Potion deferrals: full-belt proactive
+*deploy* is reward-screen logic (only discard exists); the finisher fires on board-clear
+or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
 
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
