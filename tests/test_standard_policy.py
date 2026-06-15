@@ -164,6 +164,38 @@ def test_actions_disabled_waits() -> None:
     assert "disabled" in decision.reason
 
 
+def test_rage_sequenced_before_attacks() -> None:
+    """Owner (Rage, not Anger): 'gain 3 Block per Attack this turn' must be played
+    BEFORE attacks so each one grants block — observed played last, which is useless."""
+    rage = {
+        "index": 0,
+        "id": "RAGE",
+        "name": "Rage",
+        "type": "Skill",
+        "cost": "0",
+        "star_cost": None,
+        "description": "Whenever you play an Attack this turn, gain 3 Block.",
+        "target_type": "Self",
+        "can_play": True,
+        "unplayable_reason": None,
+        "is_upgraded": False,
+        "keywords": [],
+    }
+    state = make_combat(
+        hand=[
+            rage,
+            card(1, "Strike", 1, "Deal 6 damage."),
+            card(2, "Strike", 1, "Deal 6 damage."),
+        ],
+        enemies=[enemy("BRUTE_0", 60, intent_label="15")],
+        energy=2,
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["card_index"] == 0  # Rage first
+    assert "Rage" in d.rationale
+
+
 def test_pack_fight_focuses_fire() -> None:
     """Run 13 spread damage across a 4-Nibbit pack and died from full HP. With the
     focus term, follow-up hits go to the already-wounded enemy."""

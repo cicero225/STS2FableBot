@@ -13,6 +13,7 @@ sequence so 'mystery' cards get exercised rather than hoarded.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, replace
 
 from sts2bot.client import actions as act
@@ -23,6 +24,7 @@ from sts2bot.policy.textparse import CardEffects, parse_card_description, parse_
 
 VULN_MULT = 1.5
 WEAK_MULT = 0.75
+_RAGE_BLOCK = re.compile(r"gain (\d+) block", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -32,6 +34,8 @@ class PlannedCard:
     cost: int  # X-cost resolved to current energy at plan time
     fx: CardEffects
     targets_enemy: bool
+    is_attack: bool = False
+    rage_block: int = 0  # Rage: block gained per Attack played after it this turn
 
 
 @dataclass(frozen=True)
@@ -59,6 +63,7 @@ class SimState:
     kills: int = 0
     overkill: int = 0
     self_damage: int = 0
+    rage_block_active: int = 0  # Rage in play: each later Attack grants this much Block
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
 
@@ -74,12 +79,20 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
         except ValueError:
             return None
     fx = parse_card_description(card.description)
+    # Rage special-case (owner): "Whenever you play an Attack this turn, gain N Block"
+    # — so it must be sequenced BEFORE attacks. Encode it so the planner sees that.
+    rage_block = 0
+    if (card.id or card.name or "").upper().replace(" ", "_") == "RAGE":
+        m = _RAGE_BLOCK.search(card.description or "")
+        rage_block = int(m.group(1)) if m else 3
     return PlannedCard(
         index=card.index,
         name=card.name,
         cost=cost,
         fx=fx,
         targets_enemy=(card.target_type == "AnyEnemy"),
+        is_attack=(card.type == "Attack"),
+        rage_block=rage_block,
     )
 
 
@@ -148,9 +161,12 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
 
 def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> SimState:
     target_id = state.enemies[target_i].entity_id if target_i is not None else None
+    # Rage: an Attack played while Rage is already active grants Block.
+    rage_bonus = state.rage_block_active if (card.is_attack and state.rage_block_active) else 0
     s = replace(
         state,
         energy=state.energy - card.cost,
+        rage_block_active=max(state.rage_block_active, card.rage_block),
         played=(*state.played, (card.index, target_id)),
     )
     if card.fx.total_damage > 0:
@@ -178,7 +194,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             s = replace(s, enemies=tuple(enemies), weak_applied=s.weak_applied + card.fx.weak)
     return replace(
         s,
-        my_block=s.my_block + card.fx.block,
+        my_block=s.my_block + card.fx.block + rage_bonus,
         my_strength=s.my_strength + card.fx.strength,
         strength_gained=s.strength_gained + card.fx.strength,
         draws=s.draws + card.fx.draw,
