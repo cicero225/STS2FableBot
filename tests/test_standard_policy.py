@@ -422,6 +422,34 @@ def test_hail_mary_throws_multiple_potions() -> None:
     assert {d1.action.payload()["slot"], d2.action.payload()["slot"]} == {0, 2}
 
 
+def test_low_hp_plays_block_instead_of_panic_drinking() -> None:
+    """Owner (live 2026-06-15): at 13 HP vs 14 incoming with a Defend in hand, the bot
+    hail-mary-drank a potion. The planned Defend (5 block) survives (9 < 13), so it must
+    play the block, not burn a potion on a turn it isn't actually dying."""
+    state = make_combat(
+        hand=[card(0, "Defend", 1, "Gain 5 Block.", target="Self", ctype="Skill")],
+        enemies=[enemy("MUSHROOM_0", 40, intent_label="14")],
+        energy=1,
+        hp=13,
+        max_hp=80,
+        potions=[
+            {
+                "id": "FYSH",
+                "name": "Fysh Oil",
+                "description": "Gain 1 Strength and 1 Dexterity.",
+                "slot": 0,
+                "can_use_in_combat": True,
+                "target_type": "None",
+                "keywords": [],
+            }
+        ],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] == "play_card"  # the Defend, not a wasted potion
+    assert d.action.payload()["card_index"] == 0
+
+
 def test_no_pointless_plays_against_non_attacker() -> None:
     """Owner observation: Production into Defends vs a non-attacking enemy is pure
     waste. Play friction should leave only the useful play (Strike)."""

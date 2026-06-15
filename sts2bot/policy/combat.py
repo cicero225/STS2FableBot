@@ -338,6 +338,11 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         match = next((c for c in playable if c.index == idx), None)
         plan_names.append(match.name if match else f"#{idx}")
     lethal = all(e.hp <= 0 for e in best_state.enemies)
+    # Projected HP loss if we follow this line (post-block, post-kill incoming) — lets
+    # callers tell "survivable with our own cards" from "actually facing death" so they
+    # don't panic-drink a potion the planned block already covers.
+    proj_incoming = sum(e.incoming for e in best_state.enemies if e.hp > 0)
+    hp_loss = max(0, proj_incoming - best_state.my_block) + best_state.self_damage
     return Decision(
         action=act.PlayCard(card_index=chosen.index, target=target),
         rationale=f"plan [{' > '.join(plan_names)}] score {best_score:.1f}"
@@ -347,5 +352,6 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
             "plan_score": round(best_score, 2),
             "explored": float(visited),
             "lethal": 1.0 if lethal else 0.0,
+            "hp_loss": float(hp_loss),
         },
     )

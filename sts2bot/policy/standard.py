@@ -76,7 +76,7 @@ class StandardRouter:
         survival = self._survival_card(state)
         if survival is not None:
             return survival
-        potion_play = self._combat_potion(state, ctx)
+        potion_play = self._combat_potion(state, ctx, plan)
         if potion_play is not None:
             return potion_play
         desperation = self._desperation_draw(state, plan)
@@ -102,8 +102,11 @@ class StandardRouter:
             for i in e.intents
             if i.type.lower() == "attack"
         )
-        if incoming - player.block < player.hp:
-            return None  # not facing death this turn
+        proj_loss = incoming - player.block
+        if isinstance(plan, Decision) and plan.scores and "hp_loss" in plan.scores:
+            proj_loss = plan.scores["hp_loss"]
+        if proj_loss < player.hp:
+            return None  # the planned line already survives this turn
         for card_ in player.hand or []:
             if not card_.can_play:
                 continue
@@ -182,7 +185,9 @@ class StandardRouter:
     _elite = _combat
     _boss = _combat
 
-    def _combat_potion(self, state: CombatState, ctx: LoopContext) -> Decision | None:
+    def _combat_potion(
+        self, state: CombatState, ctx: LoopContext, plan: Decision | Wait | None = None
+    ) -> Decision | None:
         """Drink a useful potion when the fight is dangerous (elite/boss) or HP is dire."""
         w = self.config.potions
         player = state.player
@@ -247,10 +252,16 @@ class StandardRouter:
                 if fx.heal > 0 and dire:
                     return drink(potion, None, f"drink {potion.name} to heal at {hp_pct:.0%} HP")
 
-        # Hail mary (run 10: died holding buff potions): if this turn's unblocked
-        # incoming can kill us, throw everything — one un-used potion per poll until
-        # we're no longer facing lethal (a block/heal stops it) or the belt is empty.
-        if w.hail_mary and dire and available and incoming - player.block >= player.hp:
+        # Hail mary (run 10: died holding buff potions): if this turn's incoming can
+        # kill us *even after the planned line plays its blocks*, throw everything — one
+        # un-used potion per poll until a block/heal stops it or the belt is empty. Use
+        # the plan's projected post-block loss, not raw incoming: at 13 HP vs 14 a single
+        # Defend (5 block) survives, so panic-drinking there wastes a potion (live
+        # 2026-06-15).
+        proj_loss = incoming - player.block
+        if isinstance(plan, Decision) and plan.scores and "hp_loss" in plan.scores:
+            proj_loss = plan.scores["hp_loss"]
+        if w.hail_mary and dire and available and proj_loss >= player.hp:
             potion = available[0]
             needs_target = (potion.target_type or "").lower() not in ("none", "self")
             target = None
@@ -261,7 +272,7 @@ class StandardRouter:
             return drink(
                 potion,
                 target,
-                f"hail mary: drink {potion.name} (incoming {incoming} >= {player.hp} HP)",
+                f"hail mary: drink {potion.name} (proj loss {proj_loss:.0f} >= {player.hp} HP)",
             )
         return None
 
