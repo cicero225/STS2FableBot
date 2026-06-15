@@ -788,6 +788,30 @@ class StandardRouter:
         bought = ctx.screen_mem.setdefault("shop_bought", [])
         avail = [i for i in state.shop.items if i.is_stocked and i.index not in bought]
 
+        # 0. Discount relics (Membership Card -50% / Courier -20%, applied immediately) — buy
+        #    FIRST so the rest of the shop is cheaper; once owned, the live shop returns
+        #    discounted prices, and the Courier's restock is exploited by the one-buy-per-poll
+        #    re-poll. Bought even if the value table can't rate them (Courier isn't in it),
+        #    as long as there's other stock the discount will help with. (TODO: don't buy in
+        #    isolation at the known last shop of the run — needs intended-path tracking.)
+        discount_relics = {"MEMBERSHIP_CARD", "THE_COURIER", "COURIER"}
+        for item in avail:
+            price = item.gold_price or 0
+            if (
+                item.category == "relic"
+                and (item.relic_id or "").upper() in discount_relics
+                and item.can_afford
+                and gold - price >= reserve
+            ):
+                v = self.shop_stats.relic_value(item.relic_id) if self.shop_stats else None
+                worth_on_own = v is not None and v >= w.relic_war_per_100g_min
+                if worth_on_own or len(avail) > 1:
+                    bought.append(item.index)
+                    return Decision(
+                        action=act.ShopPurchase(index=item.index),
+                        rationale=f"buy {item.relic_name} FIRST ({price}g; discounts the shop)",
+                    )
+
         # 1. Card removal — high, safe value when there's a junk card to cut.
         for item in avail:
             price = item.gold_price or 0

@@ -1633,6 +1633,29 @@ def test_shop_buys_best_value_relic_and_skips_negative() -> None:
     assert d2.action.payload()["action"] == "proceed"  # negative-value relic not bought
 
 
+def test_shop_buys_discount_relic_first() -> None:
+    """Owner: Membership Card (-50%) / Courier (-20%) apply immediately, so buy them FIRST and
+    let the rest of the shop come back discounted — even over a higher-value relic, and even
+    though the Courier isn't in the shop value table at all."""
+    member = json.loads(json.dumps(FIXTURES["shop"]))
+    member["player"]["gold"] = 400
+    member["shop"]["items"] = [
+        _shop_relic_item(0, "DATA_DISK", "Data Disk", 168),  # +0.049, higher raw value
+        _shop_relic_item(1, "MEMBERSHIP_CARD", "Membership Card", 150),  # buy FIRST
+    ]
+    d = router().decide(parse_state(member), LoopContext())
+    assert d.action.payload() == {"action": "shop_purchase", "index": 1}  # Membership first
+
+    courier = json.loads(json.dumps(FIXTURES["shop"]))
+    courier["player"]["gold"] = 400
+    courier["shop"]["items"] = [
+        _shop_relic_item(0, "DATA_DISK", "Data Disk", 168),
+        _shop_relic_item(1, "THE_COURIER", "The Courier", 200),  # not in value table, still first
+    ]
+    d2 = router().decide(parse_state(courier), LoopContext())
+    assert d2.action.payload() == {"action": "shop_purchase", "index": 1}  # Courier first
+
+
 def test_standard_router_handles_every_fixture() -> None:
     """Replay-smoke over all committed fixtures: never raises, returns Decision|Wait."""
     r = router()
