@@ -191,7 +191,7 @@ cohort export (`data/spirebird/cohort_stats.json` — 57-field per-card entries;
 
 ### 8.1 Card drafting beyond single-card Elo
 Current: card rewards scored by one pooled Elo prior ([data/priors_cards.json](data/priors_cards.json)),
-discounted for pilotability, plus a few heuristics. Three proposed refinements:
+discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
 
 - **(a) Multi-card synergy** — value of a card *given another is already in the deck*.
   **Data gap:** the cohort export is per-card aggregates only; no co-occurrence /
@@ -199,13 +199,19 @@ discounted for pilotability, plus a few heuristics. Three proposed refinements:
   the existing "deck-archetype awareness" item), or (ii) a different source exposing
   pairs (raw run files, or ask via jorbs' Discord whether such a product exists). Highest
   strategic value, highest effort — table until archetype work begins.
-- **(b) Elo/WAR by act** — **data present:** every card entry carries `warA1/warA2/warA3`
-  and `pwarA1/pwarA2/pwarA3` (WAR and pick-WAR split by act). We currently ignore act.
-  Feasible near-term: have `priors.py` expose per-act value and the card-reward scorer
-  weight by the run's current act. **Lowest effort of the three; promising.**
+- **(b) Elo/WAR by act** — ✅ **done 2026-06-15** (de-biased per-act tilt; see LOG).
 - **(c) Elo by deck size** — **data gap:** cohorts slice by ascension/skill band, not deck
   size. Not data-driven here. A small `deck>25` penalty already exists heuristically;
   could extend it, but it stays hand-tuned rather than community-derived. Lowest priority.
+- **(d) Dynamic take-vs-skip threshold** (owner, 2026-06-15; tabled for the slowed-down
+  note-taking run). Top players almost never skip the *first* card pick. The `take_threshold`
+  should not be flat: strong preference to take *something* early, decreasing with each card
+  added — and scale with **deck power**, especially the *fraction of starter cards still in
+  the deck* (a weak basic-heavy deck should take more readily than a refined one). A first
+  approximation: lower the threshold by a term proportional to (% basics remaining) and/or
+  (cards added so far). NB: the observed Armaments/Molten Fist/Bludgeon skip was itself
+  defensible (all negative community priors) — this is about the *first-pick* and
+  deck-state scaling, not that specific call.
 
   *Bonus findings, same export:* per-cohort **`relics` and `events`** sections exist →
   relic/event priors are available for the shop/event work below. **Skill-band cohorts**
