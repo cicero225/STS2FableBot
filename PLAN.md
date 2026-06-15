@@ -244,8 +244,32 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   detailed implementation plan when we pick this up.**
 
 ### 8.4 Combat-tactics backlog (from the 2026-06-15 observation run)
-Done this session: Rage sequencing, smart in-combat exhaust targeting. Remaining:
+Done this session: Rage sequencing, smart in-combat exhaust targeting, false-pause fix
+on `card_select` modals (pause-after-fight hard-hang). Remaining:
 
+- **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
+  Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
+  your hand, deal N per exhausted card" — so it missed a 35-dmg lethal on a 21-HP enemy (and
+  passed Fiend Fire across several Fight-5 turns), then panic-drank. Special-case hand-size
+  scaling in `_to_planned`/`_apply_card` (same machinery as Rage); confirm other scaling cards
+  as they appear.
+- **Hail-mary must subtract the block we could play** (live 2026-06-15). At 13 HP vs incoming
+  14 it panic-drank, but a single Defend (5 block) survives. The desperation / `_combat_potion`
+  gate compares raw incoming vs HP; it should fire on *post-plan* survivability
+  (incoming − best achievable block ≥ HP), not raw incoming ≥ HP.
+- **Minion-aware combat** (owner tip: "Minion" rides as a *status* on the enemy —
+  `enemy.status`; tooltip "Minions abandon combat without their leader"):
+  - *Lethal*: `all(e.hp ≤ 0)` should count killing all **non-minion (leader)** enemies as
+    lethal — minions flee. Live: Fiend Fire on the leader ends the fight with the minion up.
+  - *Focus-fire*: highest-HP targeting pours damage into ignorable minions (Fight 5; recurs in
+    Act 2). Deprioritize minions unless one is genuinely threatening.
+  - *Illusion minion* (status "Illusion"): revives at the start of its turn after dying, without
+    acting — so killing it on **your** turn is wasted (only worth it to deny that turn's action,
+    or kill on its turn via poison/doom). Don't target it for damage.
+- **Run-2 draft refinements** (owner): early-damage picks (Infernal Blade D1; Hemokinesis over
+  Shrug It Off — overlaps the early-damage bias below); **Vicious** was ambitious with only Bash
+  to enable it → raise priority on Vulnerable-appliers, and note *draft-affects-draft* (a pick
+  reshapes the value of later picks). Pommel Strike / Fiend Fire picks were right.
 - **Potion taxonomy** (owner; StS2 effects verified). A per-potion handler keyed by
   id/name. Categories:
   - *Reactive, end-of-turn* (drink after the plan plays its cards, vs known remaining
