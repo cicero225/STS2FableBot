@@ -3,12 +3,18 @@
 Input:  data/spirebird/cohort_stats.json (58MB community export, gitignored;
         owner downloads it from spirebird.com — one-time/occasional, per C4)
 Output: data/priors_cards.json (~small, committed) — per (character, card_id):
-        shrunk Elo-based prior score, roughly (-8 .. +8), 0 = replacement-level.
+        {"s": score, "a": [tilt1, tilt2, tilt3]}
+        score = shrunk Elo-based prior, roughly (-8..+8), 0 = replacement-level.
+        a     = per-act tilt (8.1b): how much better/worse the card performs in
+                each act vs. its own average, de-biased and zero-centered.
 
 Key format observed: CARDID_<u>_<f>_CHARACTER_<build>  (u/f are 0/1 variant flags;
 a handful of malformed keys lack the build suffix and are skipped).
-Pooling: picked-weighted mean Elo across builds/variants per (card, character),
-shrunk toward neutral 1600 by sample size: weight = picked / (picked + K).
+Pooling: picked-weighted across builds/variants per (card, character).
+Score: mean Elo shrunk toward neutral 1600 by sample size, /100.
+Act tilt: per-act per-pick WAR = warA[i]/picked[i]; subtract the POPULATION per-act
+mean M[i] (removes the survivorship inflation — act-3 picks come from winning runs),
+then center per card and cap. Acts with too few picks contribute no tilt.
 """
 
 from __future__ import annotations
@@ -27,6 +33,10 @@ CHARACTERS = {"IRONCLAD", "SILENT", "DEFECT", "REGENT", "NECROBINDER"}
 NEUTRAL_ELO = 1600.0
 SHRINK_K = 30.0
 COHORT = "all"
+# below this an act's per-pick WAR is noisy AND biased (sparse-act picks skew toward
+# winning decks — card-level survivorship); require solid sampling before tilting.
+MIN_ACT_PICKS = 300
+TILT_CAP = 1.0  # clamp per-act tilts; keeps the term a bounded secondary nudge
 
 
 def parse_key(key: str) -> tuple[str, str] | None:
@@ -50,7 +60,10 @@ def main() -> int:
     data = json.loads(SRC.read_text(encoding="utf-8"))
     cards = data["cohorts"][COHORT]["cards"]
 
-    pooled: dict[tuple[str, str], list[float]] = defaultdict(lambda: [0.0, 0.0])
+    def new_acc() -> dict:
+        return {"elo_w": 0.0, "picked": 0.0, "warA": [0.0, 0.0, 0.0], "pickedA": [0.0, 0.0, 0.0]}
+
+    pooled: dict[tuple[str, str], dict] = defaultdict(new_acc)
     skipped = 0
     for entry in cards:
         parsed = parse_key(entry["key"])
@@ -62,17 +75,48 @@ def main() -> int:
         if picked <= 0 or elo is None:
             continue
         acc = pooled[parsed]
-        acc[0] += picked * float(elo)
-        acc[1] += picked
+        acc["elo_w"] += picked * float(elo)
+        acc["picked"] += picked
+        for i in range(3):
+            acc["warA"][i] += float(entry.get(f"warA{i + 1}") or 0)
+            acc["pickedA"][i] += float(entry.get(f"picked{i + 1}") or 0)
 
-    out: dict[str, dict[str, float]] = defaultdict(dict)
-    for (card_id, character), (elo_weighted, picked_total) in pooled.items():
-        if picked_total <= 0:
+    # population per-act per-pick WAR (picked-weighted over acts with enough data)
+    tot_w = [0.0, 0.0, 0.0]
+    tot_p = [0.0, 0.0, 0.0]
+    for acc in pooled.values():
+        for i in range(3):
+            if acc["pickedA"][i] >= MIN_ACT_PICKS:
+                tot_w[i] += acc["warA"][i]
+                tot_p[i] += acc["pickedA"][i]
+    pop_mean = [tot_w[i] / tot_p[i] if tot_p[i] > 0 else 0.0 for i in range(3)]
+
+    def act_tilts(acc: dict) -> list[float]:
+        q: list[float | None] = [None, None, None]
+        for i in range(3):
+            if acc["pickedA"][i] >= MIN_ACT_PICKS:
+                q[i] = acc["warA"][i] / acc["pickedA"][i] - pop_mean[i]
+        avail = [x for x in q if x is not None]
+        if not avail:
+            return [0.0, 0.0, 0.0]
+        center = sum(avail) / len(avail)
+        return [
+            round(max(-TILT_CAP, min(TILT_CAP, x - center)), 3) if x is not None else 0.0
+            for x in q
+        ]
+
+    out: dict[str, dict[str, dict]] = defaultdict(dict)
+    for (card_id, character), acc in pooled.items():
+        if acc["picked"] <= 0:
             continue
-        mean_elo = elo_weighted / picked_total
-        shrink = picked_total / (picked_total + SHRINK_K)
+        mean_elo = acc["elo_w"] / acc["picked"]
+        shrink = acc["picked"] / (acc["picked"] + SHRINK_K)
         score = (mean_elo - NEUTRAL_ELO) / 100.0 * shrink
-        out[character][card_id] = round(score, 3)
+        entry_out: dict = {"s": round(score, 3)}
+        tilts = act_tilts(acc)
+        if any(t != 0.0 for t in tilts):
+            entry_out["a"] = tilts
+        out[character][card_id] = entry_out
 
     payload = {
         "meta": {
@@ -81,8 +125,9 @@ def main() -> int:
             "total_runs_parsed": data.get("totalRunsParsed"),
             "generated_at": data.get("generatedAt"),
             "distilled_at": datetime.now(UTC).isoformat(timespec="seconds"),
-            "metric": f"picked-weighted mean Elo, shrunk k={SHRINK_K:.0f}, "
-            f"(elo-{NEUTRAL_ELO:.0f})/100",
+            "metric": f"s = picked-weighted mean Elo shrunk k={SHRINK_K:.0f}, "
+            f"(elo-{NEUTRAL_ELO:.0f})/100; a = de-biased per-act tilt, "
+            f"cap +-{TILT_CAP}, min {MIN_ACT_PICKS} picks/act",
         },
         "cards": {ch: dict(sorted(cards_.items())) for ch, cards_ in sorted(out.items())},
     }

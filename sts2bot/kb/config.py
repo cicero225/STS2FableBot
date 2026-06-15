@@ -65,6 +65,7 @@ class CardRewardWeights(_Section):
     prior_weight: float = 1.8
     conditional_prior_mult: float = 0.7
     unparsed_prior_mult: float = 0.45
+    prior_act_weight: float = 3.0  # per-act tilt (8.1b); bounded secondary nudge
     w_rarity_common: float = 2.0
     w_rarity_uncommon: float = 5.0
     w_rarity_rare: float = 8.0

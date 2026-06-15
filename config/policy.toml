@@ -63,6 +63,10 @@ path_step_discount = 0.80
 take_threshold = 4.0
 # community prior (Spirebird Elo delta, ~±8) weight; heuristics fill the gaps
 prior_weight = 1.8
+# per-act tilt (8.1b): nudge picks toward cards that over-perform in the current
+# act (warA data, de-biased). Bounded ~±1 tilt × this weight; a tiebreaker, not a
+# dominator. Mostly reliable for good cards; noisy/filtered for rarely-late cards.
+prior_act_weight = 3.0
 # pilotability (owner insight 2026-06-12): community Elo prices cards for skilled
 # pilots. Discount POSITIVE priors the planner can't cash in: conditional/synergy
 # text (Evil Eye, Dark Embrace) partially, unparseable text (Cascade) heavily.

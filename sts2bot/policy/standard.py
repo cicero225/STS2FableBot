@@ -401,7 +401,9 @@ class StandardRouter:
 
     # ------------------------------------------------------------------ card rewards
 
-    def _card_score(self, card, deck_size: int, character: str | None = None) -> float:
+    def _card_score(
+        self, card, deck_size: int, character: str | None = None, act: int = 1
+    ) -> float:
         w = self.config.card_rewards
         fx = parse_card_description(card.description)
         score = {
@@ -420,6 +422,8 @@ class StandardRouter:
                     elif fx.conditional:
                         prior *= w.conditional_prior_mult
                 score += w.prior_weight * prior
+            # act-appropriateness nudge (8.1b)
+            score += w.prior_act_weight * self.priors.act_tilt(card.id, character, act)
         score += {
             "Attack": w.w_attack,
             "Skill": w.w_skill,
@@ -451,7 +455,8 @@ class StandardRouter:
             return Wait(reason="card reward with no cards and no skip")
         deck_size = len(state.player.deck) if (state.player and state.player.deck) else 15
         character = state.player.character if state.player else None
-        scored = [(self._card_score(c, deck_size, character), c) for c in cr.cards]
+        run_act = state.run.act if state.run else 1
+        scored = [(self._card_score(c, deck_size, character, run_act), c) for c in cr.cards]
         scored.sort(key=lambda sc: -sc[0])
         best_score, best = scored[0]
         score_map = {c.name: round(s, 2) for s, c in scored}

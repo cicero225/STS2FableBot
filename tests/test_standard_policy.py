@@ -741,6 +741,82 @@ def test_priors_loaded_and_shaped() -> None:
     assert priors.score("NO_SUCH_CARD", "IRONCLAD") is None
 
 
+def test_priors_act_tilt_loads_and_directional() -> None:
+    from sts2bot.kb.priors import CardPriors
+
+    p = CardPriors.load()
+    assert p is not None
+    # Offering is act-1-favored (early tempo): act-1 tilt above act-3 tilt
+    assert p.act_tilt("OFFERING", "The Ironclad", 1) > p.act_tilt("OFFERING", "The Ironclad", 3)
+    assert p.act_tilt("NO_SUCH_CARD", "IRONCLAD", 2) == 0.0
+    # a bare-float (test/legacy) entry has a score but no act tilt
+    legacy = CardPriors(by_character={"IRONCLAD": {"X": 6.0}})
+    assert legacy.score("X", "IRONCLAD") == 6.0
+    assert legacy.act_tilt("X", "IRONCLAD", 1) == 0.0
+
+
+def test_act_tilt_flips_act_appropriate_pick() -> None:
+    """Two equally-rated cards; the act tilt should pick the act-appropriate one."""
+    from sts2bot.kb.priors import CardPriors
+
+    priors = CardPriors(
+        by_character={
+            "IRONCLAD": {
+                "EARLY": {"s": 5.0, "a": [1.0, 0.0, -1.0]},
+                "LATE": {"s": 5.0, "a": [-1.0, 0.0, 1.0]},
+            }
+        }
+    )
+    r = StandardRouter(priors=priors)
+
+    def offered(act):
+        cards = [
+            {
+                "index": 0,
+                "id": "EARLY",
+                "name": "Early",
+                "type": "Attack",
+                "cost": "1",
+                "rarity": "Uncommon",
+                "description": "Deal 6 damage.",
+                "is_upgraded": False,
+                "keywords": [],
+            },
+            {
+                "index": 1,
+                "id": "LATE",
+                "name": "Late",
+                "type": "Attack",
+                "cost": "1",
+                "rarity": "Uncommon",
+                "description": "Deal 6 damage.",
+                "is_upgraded": False,
+                "keywords": [],
+            },
+        ]
+        return parse_state(
+            {
+                "state_type": "card_reward",
+                "card_reward": {"cards": cards, "can_skip": True},
+                "run": {"act": act, "floor": 3, "ascension": 0},
+                "player": {
+                    "character": "The Ironclad",
+                    "hp": 70,
+                    "max_hp": 80,
+                    "status": [],
+                    "relics": [],
+                    "potions": [],
+                    "max_potion_slots": 3,
+                },
+            }
+        )
+
+    d1 = r.decide(offered(1), LoopContext())
+    assert isinstance(d1, Decision) and d1.action.payload()["card_index"] == 0  # EARLY in act 1
+    d3 = r.decide(offered(3), LoopContext())
+    assert isinstance(d3, Decision) and d3.action.payload()["card_index"] == 1  # LATE in act 3
+
+
 def test_card_reward_prior_overrides_heuristics() -> None:
     """A community-loved card must beat a heuristically-flashy but bad card."""
     from sts2bot.kb.priors import CardPriors
