@@ -223,6 +223,14 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   is a known StS pattern. Likely unnecessary at A0 (the map policy currently *avoids*
   elites — correct for a weak pilot). Revisit when climbing ascensions / once deck power
   supports it; would surface as act/HP/deck-strength-aware elite appetite in the map scorer.
+- **Whole-route path awareness** (owner, live 2026-06-15: every individual fight handled fine,
+  but the bot routed itself through a monster gauntlet with no rest and bled out across the
+  map — now a real ceiling). The map scorer is greedy per-node with only shallow lookahead
+  (`lookahead_discount`, `path_step_discount`), so it never prices a *whole path's* cumulative
+  HP loss against the rests on it. Want: plan the full path to the boss (or much deeper
+  lookahead), summing expected fight damage (reuse the combat-stats per-fight-type HP-loss
+  estimates from the rest work) against available rest sites, and prefer paths that bank a rest
+  before the boss instead of stacking monsters.
 - **Shops & events depth.** Note: basic deterministic shop/event policies *already exist*
   (StandardRouter, session 3) — conservative buying, HP-gated choices. The real backlog
   item is *priors-driven depth* (relic/event value from the export above, per-shop
