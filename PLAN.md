@@ -227,3 +227,18 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   (StandardRouter, session 3) — conservative buying, HP-gated choices. The real backlog
   item is *priors-driven depth* (relic/event value from the export above, per-shop
   budgeting, known-event tables), not greenfield work.
+
+### 8.3 Deferred infrastructure (owner, 2026-06-15 — write a detailed plan when revisited)
+- **Per-card special-case pass.** Optimal play will inevitably require special-casing some
+  cards the generic planner can't reason about (owner example: **Anger** — adds a copy of
+  itself to the discard, so its value depends on deck/turn context). Deferred task: take a
+  systematic pass over the full card list and flag the cards with obvious coding
+  exceptions, then encode them (likely as per-card handlers/annotations the planner
+  consults). Pairs with the combat-tactics "phase C" work.
+- **Combat A/B test framework.** A simulated fight harness to A/B policy changes once
+  their impact stops being obvious from live batches: run the bot through fixed difficult
+  fights (Ceremonial Beast, specific elites, common packs) with preprogrammed or
+  recent-run-sampled decks, simulating enemy behavior from the wikis. Lets us regression-
+  test special cases and measure combat tweaks deterministically. Non-trivial (needs an
+  enemy-behavior model); owner is prototyping the simulated-fight scripts. **Write a
+  detailed implementation plan when we pick this up.**
