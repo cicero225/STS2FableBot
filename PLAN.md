@@ -242,3 +242,34 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   test special cases and measure combat tweaks deterministically. Non-trivial (needs an
   enemy-behavior model); owner is prototyping the simulated-fight scripts. **Write a
   detailed implementation plan when we pick this up.**
+
+### 8.4 Combat-tactics backlog (from the 2026-06-15 observation run)
+Done this session: Rage sequencing, smart in-combat exhaust targeting. Remaining:
+
+- **Potion taxonomy** (owner; StS2 effects verified). A per-potion handler keyed by
+  id/name. Categories:
+  - *Reactive, end-of-turn* (drink after the plan plays its cards, vs known remaining
+    incoming): **Block Potion** (12 block) when remaining incoming ≳ 10–12; **Fire
+    Potion** (20 dmg) / **Potion-Shaped Rock** (15 dmg) / **Explosive Ampoule** (10 AoE)
+    when it kills + prevents meaningful damage. (Needs a post-plan potion hook — _combat
+    currently checks potions before planning.)
+  - *Proactive at boss/elite start* (the bot struggles, so just deploy): long-term buffs
+    **Strength/Dexterity/Fysh Oil**, disguised long-term **Power Potion / Blessing of the
+    Forge**, debuffs **Vulnerable/Weak/Potion of Binding/Shackling**.
+  - *Immediate*: **Blood Potion** (Ironclad heal, also usable out of combat) when <80% HP;
+    **Fruit Juice** (+5 max HP) on sight.
+  - *Downside* (**Foul** — 12 to everyone incl. self; **Glowwater** — exhaust hand draw 10):
+    avoid; only via full-belt deploy or hail-mary.
+  - Full belt + incoming potion reward → deploy a low-value potion, esp. vs boss/elite.
+- **Demon Form** (owner; "at start of turn gain 2 Strength" — hard to value). Heuristic:
+  play it only if the damage taken THIS turn would be ≤ X, where X scales up with current
+  enemy HP and for elite/boss (you can afford the tempo loss in a long fight). Else hold.
+- **Conditional-card draft list** (owner; **Rupture** needs HP-loss enablers like
+  Bloodletting/Decay; class of "does nothing without preconditions"). Build a list of such
+  cards with an "enabler present in deck?" gate in card-reward scoring. Owner will review
+  uncertain cases — **pass them by owner before committing.**
+- **Early-draft damage bias** (owner; would take Hemokinesis over Shrug It Off early):
+  weight damage higher in Act 1 drafts (overlaps by-act tilt; may just be a small early
+  attack bonus).
+- **Transform event: transform a Strike, not a curse** (events not yet policy-driven;
+  noted for the eventual event work — transforming a curse is far worse value).
