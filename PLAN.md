@@ -244,8 +244,12 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   detailed implementation plan when we pick this up.**
 
 ### 8.4 Combat-tactics backlog (from the 2026-06-15 observation run)
-Done this session: Rage sequencing, smart in-combat exhaust targeting, false-pause fix
-on `card_select` modals (pause-after-fight hard-hang). Remaining:
+Done this session: Rage sequencing · smart in-combat exhaust targeting · false-pause fix
+on `card_select` modals · **Fiend Fire hand-scaling** (missed lethals) · **hail-mary
+block-awareness** (panic-drank at 13 HP vs 14 when a Defend survives) · **minion-aware
+lethal + focus-fire** (leader-kill ends the fight; stop dumping damage on ignorable
+minions; Illusion folded in). The Fiend-Fire / hail-mary / minion bullets below are now
+implemented + tested. Remaining:
 
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
