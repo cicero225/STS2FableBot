@@ -237,6 +237,42 @@ def test_pack_fight_focuses_fire() -> None:
     assert payload["target"] == "NIBBIT_2"  # finish what you started
 
 
+def _minion_status():
+    return [{"id": "MINION", "name": "Minion",
+             "description": "Minions abandon combat without their leader."}]
+
+
+def test_killing_leader_is_lethal_even_with_minion_alive() -> None:
+    """Owner: 'Minion' enemies abandon combat when their leader dies, so killing the
+    leader is lethal even with the minion up (live 2026-06-15: Fiend Fire on the mushroom
+    ended the fight with the 6/6 plant still alive)."""
+    leader = enemy("MUSHROOM_0", 6, intent_label="14")
+    minion = enemy("PLANT_0", 6, intent_label="5")
+    minion["status"] = _minion_status()
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")], enemies=[leader, minion], energy=1
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("target") == "MUSHROOM_0"  # kill the leader, not the minion
+    assert d.scores and d.scores.get("lethal") == 1.0  # minion flees -> fight over
+
+
+def test_ignores_low_impact_minion_and_hits_leader() -> None:
+    """Owner (Run 2 Fight 5): the bot poured damage into an ignorable minion — the focus
+    term rewards finishing a low-HP enemy. With no offensive reward for minions, the
+    single-target hit goes to the leader instead."""
+    leader = enemy("BEAST_0", 40, intent_label="10")
+    minion = enemy("SPORE_0", 8, intent_label="2")  # low HP: high focus under old scoring
+    minion["status"] = _minion_status()
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")], enemies=[leader, minion], energy=1
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("target") == "BEAST_0"  # leader, not the easy minion
+
+
 OFFERING_DESC = "Lose 6 HP. Gain 2 Energy. Draw 3 cards."
 
 

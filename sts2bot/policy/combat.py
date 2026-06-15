@@ -50,6 +50,7 @@ class EnemySim:
     block: int
     vulnerable: int
     incoming: int  # this enemy's attack damage this turn (0 if not attacking)
+    is_minion: bool = False  # "Minion" status: flees when its leader dies, so ignorable
 
 
 @dataclass(frozen=True)
@@ -113,9 +114,12 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         if e.hp <= 0:
             continue
         vuln = 0
+        is_minion = False
         for p in e.status:
             if p.id.upper() == "VULNERABLE" and p.amount:
                 vuln = p.amount
+            if "MINION" in p.id.upper() or "abandon combat" in (p.description or "").lower():
+                is_minion = True
         incoming = sum(
             parse_intent_damage(i.label) for i in e.intents if i.type.lower() == "attack"
         )
@@ -127,6 +131,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 block=e.block,
                 vulnerable=vuln,
                 incoming=incoming,
+                is_minion=is_minion,
             )
         )
     return tuple(sims)
@@ -148,24 +153,23 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
         dealt = per_hit - absorbed
         hp -= dealt
         dealt_total += dealt
-    kills = state.kills
-    overkill = state.overkill
-    if hp <= 0 < e.hp:
-        kills += 1
-        overkill += -hp
-        hp = 0
+    overkill_amt = -hp if hp < 0 else 0
+    killed = hp <= 0 < e.hp
+    hp = max(0, hp)
     enemies[target_i] = replace(
-        e,
-        hp=hp,
-        block=block,
-        vulnerable=e.vulnerable + card.fx.vulnerable,
+        e, hp=hp, block=block, vulnerable=e.vulnerable + card.fx.vulnerable
     )
+    # Minions don't end the fight (it ends on the leader) and Illusion ones revive, so
+    # damage/kills on them aren't progress — value them only for the incoming their death
+    # removes (the score sees that via hp_loss). Offensive reward is for leaders only.
+    if e.is_minion:
+        return replace(state, enemies=tuple(enemies))
     return replace(
         state,
         enemies=tuple(enemies),
         damage_dealt=state.damage_dealt + dealt_total,
-        kills=kills,
-        overkill=overkill,
+        kills=state.kills + (1 if killed else 0),
+        overkill=state.overkill + overkill_amt,
         vuln_applied=state.vuln_applied + (card.fx.vulnerable if hp > 0 else 0),
     )
 
@@ -234,7 +238,7 @@ def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
     hp_weight = w.w_hp_loss * (w.hp_scarcity_base + w.hp_scarcity_slope * (1.0 - hp_pct))
     # quadratic focus-fire reward: concentrated damage beats spread damage, because
     # a finished enemy stops attacking (run 13: spread vs a 4-Nibbit pack = death)
-    focus = sum(((e.max_hp - e.hp) / e.max_hp) ** 2 for e in state.enemies)
+    focus = sum(((e.max_hp - e.hp) / e.max_hp) ** 2 for e in state.enemies if not e.is_minion)
     return (
         w.w_focus * focus
         + w.w_damage * state.damage_dealt
@@ -337,7 +341,9 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     for idx, _tgt in best_state.played:
         match = next((c for c in playable if c.index == idx), None)
         plan_names.append(match.name if match else f"#{idx}")
-    lethal = all(e.hp <= 0 for e in best_state.enemies)
+    # Fight ends when the leaders die — Minion enemies flee, so they don't gate lethal.
+    leaders = [e for e in best_state.enemies if not e.is_minion]
+    lethal = all(e.hp <= 0 for e in (leaders or best_state.enemies))
     # Projected HP loss if we follow this line (post-block, post-kill incoming) — lets
     # callers tell "survivable with our own cards" from "actually facing death" so they
     # don't panic-drink a potion the planned block already covers.
