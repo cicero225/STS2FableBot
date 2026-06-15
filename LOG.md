@@ -2,6 +2,33 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-06-14 (session 5 cont., Opus) — Deck-power package + by-act priors
+
+The boss analysis said deck power is the ceiling, so this stretch made the deck
+actually improve:
+- **Smart card-selection targeting.** Removal/transform was hitting arbitrary cards
+  (first-legal fallback), so thinning never helped. Now remove/transform target the
+  WORST cards (curses < un-upgraded basics < by prior), upgrade/enchant the BEST
+  un-upgraded, add/choose the BEST. Live-confirmed: "select worst Strike for: Choose
+  a card to Transform", "select best Bash for: Choose a card to Enchant".
+- **Price-aware removal** (owner): don't pay >150g to remove (efficiency drops as the
+  price escalates +50/use); skip removal when nothing's worth removing.
+- **Card-select robustness.** A 'choose' screen returned select 'ok' but didn't always
+  resolve, and the handler waited forever → run rail. Now every path is bounded
+  (re-press then skip); live-confirmed un-sticking an abandoned run.
+- **Hail-mary throws multiple potions** (owner): the one-per-round cap (Kin "already
+  queued" fix) limited a death-turn to one potion. Now tracks used *slots* — regular
+  use stays one/round, hail-mary drinks successive different potions until safe or empty.
+- **By-act priors (8.1b).** warA/picked[act] gives per-act per-pick WAR, but it's
+  survivorship-biased (act-3 picks come from winners). De-biased by subtracting the
+  population per-act mean, centered per card, ≥300 picks/act, capped ±1.0 — a bounded
+  secondary nudge (weight 3.0) toward act-appropriate cards. Directionally sound for
+  cards that matter (Offering/Adrenaline/Footwork early, Whirlwind late).
+
+Save-safety tooling also landed here (per-run profile snapshots + restore script) after
+Steam Cloud reshuffled the modded profiles — see the entry below. 120 tests green,
+replay clean over ~8.8k logged states throughout.
+
 ## 2026-06-14 (session 5, Opus) — Handover; boss-fight analysis; BlockedByHook fix
 
 Fable 5 was disabled mid-project (it had been the builder through session 4); **Opus
