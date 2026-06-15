@@ -294,9 +294,14 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   - *Downside* (**Foul** — 12 to everyone incl. self; **Glowwater** — exhaust hand draw 10):
     avoid; only via full-belt deploy or hail-mary.
   - Full belt + incoming potion reward → deploy a low-value potion, esp. vs boss/elite.
-- **Demon Form** (owner; "at start of turn gain 2 Strength" — hard to value). Heuristic:
-  play it only if the damage taken THIS turn would be ≤ X, where X scales up with current
-  enemy HP and for elite/boss (you can afford the tempo loss in a long fight). Else hold.
+- **Scaling powers — play early, not "safe"** (owner; Demon Form is the prototype). A class of
+  powers with big long-term payoff that hurt to play *this* turn (Demon Form "at start of turn
+  gain 2 Strength"; the Kin-fight power the owner flagged Turn 1–2, name TBD). They pay off more
+  the MORE enemy HP remains and the LOWER the current incoming, so they want to go down Turn 1–2
+  — but `w_power_played` is a flat reward, so under any incoming pressure the bot defers them to
+  "play safe", by which point the fight's nearly over and the payoff is gone. Heuristic: play a
+  scaling power when this-turn damage taken would be ≤ X, where X rises with total enemy HP
+  remaining and for elite/boss (afford the tempo loss in a long fight); else hold.
 - **Deck-aware drafting** (owner; deferred to a later project — "adjust drafting based on the
   current deck"). Two pieces, both needing deck state at draft time: (a) **conditional-card
   list** — **Rupture** / cards that do nothing without enablers (Bloodletting/Decay), gated on
