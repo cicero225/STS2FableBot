@@ -78,6 +78,7 @@ class CardRewardWeights(_Section):
     bonus_block: float = 2.0
     bonus_draw: float = 2.0
     bonus_energy: float = 4.0
+    early_damage_bonus: float = 2.5  # Act 1: nudge toward damage to clear early fights (owner)
 
 
 class RestWeights(_Section):

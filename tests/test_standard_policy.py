@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from sts2bot.client.actions import PlayCard
-from sts2bot.client.models import parse_state
+from sts2bot.client.models import Card, parse_state
 from sts2bot.policy.base import Decision, LoopContext, Wait
 from sts2bot.policy.standard import StandardRouter
 
@@ -772,6 +772,24 @@ def test_downside_potion_held_outside_hail_mary() -> None:
     d = router().decide(state, LoopContext())
     assert isinstance(d, Decision)
     assert d.action.payload()["action"] == "end_turn"  # Foul held, not drunk
+
+
+def test_early_damage_bias_lifts_damage_cards_in_act1() -> None:
+    """Owner (Run-2 Draft 2): in Act 1, bias damage cards to clear early fights. A damage
+    card scores higher in Act 1 than later; a pure block skill gets no such lift."""
+    r = router()
+    bonus = r.config.card_rewards.early_damage_bonus
+    # fake ids so there's no Spirebird prior / act-tilt to confound the structural score
+    dmg = Card.model_validate(card(0, "Zzznovel Slash", 1, "Deal 15 damage."))
+    blk = Card.model_validate(
+        card(1, "Zzznovel Guard", 1, "Gain 8 Block.", target="Self", ctype="Skill")
+    )
+
+    def s(c, a):
+        return r._card_score(c, deck_size=10, character="The Ironclad", act=a)
+
+    assert abs((s(dmg, 1) - s(dmg, 3)) - bonus) < 1e-6  # damage card gets the Act-1 lift
+    assert abs(s(blk, 1) - s(blk, 3)) < 1e-6  # block skill gets none
 
 
 def test_event_refuses_hp_cost_when_low() -> None:
