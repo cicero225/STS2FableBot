@@ -196,6 +196,27 @@ def test_rage_sequenced_before_attacks() -> None:
     assert "Rage" in d.rationale
 
 
+def test_fiend_fire_scales_with_hand_size_for_lethal() -> None:
+    """Owner (live 2026-06-15): Fiend Fire 'Exhaust your hand, deal 7 for each card
+    exhausted' was priced as a flat 7, so a 21-dmg lethal was missed and the bot
+    panic-drank. With 3 other cards in hand it must read as 7x3=21 and be the kill."""
+    fiend = card(0, "Fiend Fire", 2, "Exhaust your hand. Deal 7 damage for each card exhausted.")
+    state = make_combat(
+        hand=[
+            fiend,
+            card(1, "Strike", 1, "Deal 6 damage."),
+            card(2, "Strike", 1, "Deal 6 damage."),
+            card(3, "Defend", 1, "Gain 5 Block.", target="Self", ctype="Skill"),
+        ],
+        enemies=[enemy("MUSHROOM_0", 20, intent_label="14")],
+        energy=2,  # only Fiend Fire (cost 2, 7x3=21) reaches lethal; 2 Strikes = 12 don't
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["card_index"] == 0  # Fiend Fire, the 21-damage kill
+    assert d.scores and d.scores.get("lethal") == 1.0
+
+
 def test_pack_fight_focuses_fire() -> None:
     """Run 13 spread damage across a 4-Nibbit pack and died from full HP. With the
     focus term, follow-up hits go to the already-wounded enemy."""

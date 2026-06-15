@@ -25,6 +25,9 @@ from sts2bot.policy.textparse import CardEffects, parse_card_description, parse_
 VULN_MULT = 1.5
 WEAK_MULT = 0.75
 _RAGE_BLOCK = re.compile(r"gain (\d+) block", re.IGNORECASE)
+# "Exhaust your hand, deal N damage for each card exhausted" (Fiend Fire): damage
+# scales with hand size, so the flat per-hit the text parser sees underprices it.
+_HAND_EXHAUST_DMG = re.compile(r"(\d+) damage for each card", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -36,6 +39,7 @@ class PlannedCard:
     targets_enemy: bool
     is_attack: bool = False
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
+    hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
 
 
 @dataclass(frozen=True)
@@ -55,6 +59,7 @@ class SimState:
     my_block: int
     my_strength: int
     barricade: bool = False  # block persists -> stacking it is never waste
+    hand_size: int = 0  # full hand size at turn start (for hand-exhaust scaling)
     draws: int = 0
     weak_applied: int = 0
     vuln_applied: int = 0
@@ -85,6 +90,11 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
     if (card.id or card.name or "").upper().replace(" ", "_") == "RAGE":
         m = _RAGE_BLOCK.search(card.description or "")
         rage_block = int(m.group(1)) if m else 3
+    # Fiend Fire & kin (owner special-case): damage scales with cards exhausted.
+    desc = card.description or ""
+    hand_exhaust_scale = 0
+    if "exhaust" in desc.lower() and (m := _HAND_EXHAUST_DMG.search(desc)):
+        hand_exhaust_scale = int(m.group(1))
     return PlannedCard(
         index=card.index,
         name=card.name,
@@ -93,6 +103,7 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
         targets_enemy=(card.target_type == "AnyEnemy"),
         is_attack=(card.type == "Attack"),
         rage_block=rage_block,
+        hand_exhaust_scale=hand_exhaust_scale,
     )
 
 
@@ -169,13 +180,19 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         rage_block_active=max(state.rage_block_active, card.rage_block),
         played=(*state.played, (card.index, target_id)),
     )
-    if card.fx.total_damage > 0:
-        if card.fx.aoe:
+    atk = card
+    if card.hand_exhaust_scale > 0:
+        # Fiend Fire & kin: hits once per card still in hand when it resolves
+        # (full hand, minus cards already played this turn, minus itself).
+        exhausted = max(0, state.hand_size - len(state.played) - 1)
+        atk = replace(card, fx=replace(card.fx, damage=card.hand_exhaust_scale, hits=exhausted))
+    if atk.fx.total_damage > 0:
+        if atk.fx.aoe:
             for i in range(len(s.enemies)):
                 if s.enemies[i].hp > 0:
-                    s = _apply_attack(s, i, card)
+                    s = _apply_attack(s, i, atk)
         elif target_i is not None:
-            s = _apply_attack(s, target_i, card)
+            s = _apply_attack(s, target_i, atk)
     elif card.fx.vulnerable and target_i is not None:
         enemies = list(s.enemies)
         e = enemies[target_i]
@@ -267,6 +284,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         my_block=player.block,
         my_strength=my_strength,
         barricade=barricade,
+        hand_size=len(hand),
     )
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")
