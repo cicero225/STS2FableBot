@@ -105,3 +105,18 @@ def test_unexpected_action_errors_halt_the_loop(tmp_path: Path) -> None:
     outcome = loop.play_one_run()
     assert outcome.status == "error"
     assert outcome.error is not None and "consecutive action errors" in outcome.error
+
+
+def test_pause_for_resume_returns_when_signal_present(tmp_path: Path) -> None:
+    """The resume mechanism: _pause_for_resume blocks until the signal file appears,
+    then consumes it. With the signal already present it returns immediately."""
+    sig = tmp_path / "resume.signal"
+    sig.write_text("go", encoding="utf-8")
+    loop = AgentLoop(
+        client=FakeClient(build_doc_script()),
+        router=TrivialRouter(),
+        log_root=tmp_path,
+        config=LoopConfig(poll_interval=0, resume_signal_path=sig),
+    )
+    loop._pause_for_resume(5)  # returns at once (signal present)
+    assert not sig.exists()  # consumed

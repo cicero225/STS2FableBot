@@ -92,6 +92,9 @@ def play(
     backup: bool = typer.Option(
         True, help="Snapshot the bot save profile after each run (C1 safety)."
     ),
+    pause_after_fight: bool = typer.Option(
+        False, help="Observation mode: pause after each fight until you resume it."
+    ),
 ) -> None:
     """Play run(s) with the current policy (P0: trivial policy). Attended use only
     for now — keep an eye on it (REQUIREMENTS FR-4.4)."""
@@ -117,6 +120,8 @@ def play(
         config_hash=config_hash,
         time_scale=speed,
         profile_backup_root=Path("backups/profile_snapshots") if backup else None,
+        pause_after_fight=pause_after_fight,
+        resume_signal_path=Path("logs/resume.signal") if pause_after_fight else None,
     )
     with Sts2Client(base_url=base_url) as client:
         try:

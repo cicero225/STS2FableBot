@@ -58,6 +58,9 @@ class LoopConfig(BaseModel):
     # None disables; set a dir to snapshot the active profile after each run.
     profile_backup_root: Path | None = None
     profile_backup_keep: int = 50
+    # observation mode: pause after each fight until resume_signal_path appears
+    pause_after_fight: bool = False
+    resume_signal_path: Path | None = None
 
 
 class BotStalled(Exception):
@@ -113,6 +116,9 @@ class AgentLoop:
         phase = "to_run"  # -> "post_over" -> done
         last_wait_reason: str | None = None
         manual_announced = False
+        was_in_combat = False
+        if cfg.pause_after_fight and cfg.resume_signal_path:
+            Path(cfg.resume_signal_path).unlink(missing_ok=True)  # clear stale
         self._assert_time_scale()
 
         try:
@@ -135,6 +141,13 @@ class AgentLoop:
                     )
 
                 self._track_progress(state, ctx, outcome)
+
+                # Pause-after-fight (observation mode): when a fight resolves to a
+                # non-combat screen, hold until the owner signals resume.
+                in_combat = state.state_type in ("monster", "elite", "boss", "hand_select")
+                if cfg.pause_after_fight and was_in_combat and not in_combat:
+                    self._pause_for_resume(outcome.floor)
+                was_in_combat = in_combat
 
                 if isinstance(state, GameOverState) and phase != "post_over":
                     phase = "post_over"
@@ -231,6 +244,21 @@ class AgentLoop:
         return outcome
 
     # ------------------------------------------------------------------ helpers
+
+    def _pause_for_resume(self, floor: int | None) -> None:
+        """Block until the resume signal file appears (owner says 'go'), then clear it."""
+        sig = self.config.resume_signal_path
+        if sig is None:
+            return
+        sig_path = Path(sig)
+        print(
+            f"\n*** PAUSED after fight (floor {floor}) — say 'go' to continue ***",
+            flush=True,
+        )
+        while not sig_path.exists():
+            time.sleep(1.0)
+        sig_path.unlink(missing_ok=True)
+        print("*** resumed ***", flush=True)
 
     def _assert_time_scale(self) -> None:
         """Re-apply the configured engine speed; cinematics reset it to 1.0."""
