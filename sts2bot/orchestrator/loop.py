@@ -54,6 +54,10 @@ class LoopConfig(BaseModel):
     # Engine.TimeScale to 1.0 (observed live at the Act 1 boss)
     time_scale: float | None = None
     time_scale_reassert_every: int = 25  # decisions
+    # per-run modded-profile backup (C1; Steam Cloud reshuffled profiles once).
+    # None disables; set a dir to snapshot the active profile after each run.
+    profile_backup_root: Path | None = None
+    profile_backup_keep: int = 50
 
 
 class BotStalled(Exception):
@@ -217,6 +221,12 @@ class AgentLoop:
             logger.finalize(outcome)
             index.finish_run(run_id, _now_iso(), outcome)
             index.close()
+            if cfg.profile_backup_root is not None and cfg.history_dirs:
+                from sts2bot.runlog.saves import backup_active_profile
+
+                backup_active_profile(
+                    cfg.history_dirs, cfg.profile_backup_root, cfg.profile_backup_keep
+                )
 
         return outcome
 

@@ -89,9 +89,14 @@ def play(
     poll_interval: float = typer.Option(
         None, help="Seconds between state polls (default 0.5, scaled down with --speed)."
     ),
+    backup: bool = typer.Option(
+        True, help="Snapshot the bot save profile after each run (C1 safety)."
+    ),
 ) -> None:
     """Play run(s) with the current policy (P0: trivial policy). Attended use only
     for now — keep an eye on it (REQUIREMENTS FR-4.4)."""
+    from pathlib import Path
+
     from sts2bot.client.actions import SetTimeScale
     from sts2bot.orchestrator.loop import AgentLoop, LoopConfig
     from sts2bot.runlog.runfile import discover_history_dirs
@@ -111,6 +116,7 @@ def play(
         policy_name=policy,
         config_hash=config_hash,
         time_scale=speed,
+        profile_backup_root=Path("backups/profile_snapshots") if backup else None,
     )
     with Sts2Client(base_url=base_url) as client:
         try:
