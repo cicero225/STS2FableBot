@@ -188,14 +188,21 @@ class StandardRouter:
             return None
         if state.battle.actions_disabled:
             return None
-        # A used potion stays visibly in the belt while its effect is queued
-        # (run 28 railed on "already queued" x8 at The Kin); one drink per round.
+        # A used potion stays visibly in the belt while its effect is queued, so
+        # re-drinking the SAME slot rails on "already queued" (run 28, The Kin). Track
+        # used slots per round: regular use is one survival potion per round, but a
+        # hail-mary may drink several DIFFERENT potions (owner: it only used one when
+        # facing death on a boss with two in the belt).
         round_ = state.battle.round if state.battle.round is not None else -1
-        if ctx.screen_mem.get("potion_drunk_round") == round_:
-            return None
+        used = ctx.screen_mem.get("potions_used")
+        if not isinstance(used, dict) or used.get("round") != round_:
+            used = {"round": round_, "slots": []}
+            ctx.screen_mem["potions_used"] = used
+        used_slots: list[int] = used["slots"]
 
         def drink(potion: Potion, target: str | None, why: str) -> Decision:
-            ctx.screen_mem["potion_drunk_round"] = round_
+            if potion.slot not in used_slots:
+                used_slots.append(potion.slot)
             return Decision(action=act.UsePotion(slot=potion.slot, target=target), rationale=why)
 
         hp_pct = player.hp / max(1, player.max_hp)
@@ -210,28 +217,37 @@ class StandardRouter:
             for i in e.intents
             if i.type.lower() == "attack"
         )
-        usable = [p for p in player.potions if p.can_use_in_combat is not False]
-        for potion in usable:
-            fx = parse_card_description(potion.description)
-            if fx.total_damage > 0:
-                alive = [e for e in state.battle.enemies if e.hp > 0]
-                if not alive:
-                    continue
-                target = max(alive, key=lambda e: e.hp)
-                needs_target = (potion.target_type or "").lower() not in ("none", "self")
-                return drink(
-                    potion,
-                    target.entity_id if needs_target else None,
-                    f"drink {potion.name} ({'dire HP' if dire else 'hard fight'})",
-                )
-            if fx.block > 0 and incoming > player.block:
-                return drink(potion, None, f"drink {potion.name} to block {incoming} incoming")
-            if fx.heal > 0 and dire:
-                return drink(potion, None, f"drink {potion.name} to heal at {hp_pct:.0%} HP")
-        # Hail mary (learned from run 10: died at 3 HP holding two buff potions):
-        # if this turn's unblocked incoming can kill us, drink anything usable.
-        if w.hail_mary and dire and usable and incoming - player.block >= player.hp:
-            potion = usable[0]
+        available = [
+            p
+            for p in player.potions
+            if p.can_use_in_combat is not False and p.slot not in used_slots
+        ]
+
+        # Regular use: at most one survival/utility potion per round (pacing).
+        if not used_slots:
+            for potion in available:
+                fx = parse_card_description(potion.description)
+                if fx.total_damage > 0:
+                    alive = [e for e in state.battle.enemies if e.hp > 0]
+                    if not alive:
+                        continue
+                    target = max(alive, key=lambda e: e.hp)
+                    needs_target = (potion.target_type or "").lower() not in ("none", "self")
+                    return drink(
+                        potion,
+                        target.entity_id if needs_target else None,
+                        f"drink {potion.name} ({'dire HP' if dire else 'hard fight'})",
+                    )
+                if fx.block > 0 and incoming > player.block:
+                    return drink(potion, None, f"drink {potion.name} to block {incoming} incoming")
+                if fx.heal > 0 and dire:
+                    return drink(potion, None, f"drink {potion.name} to heal at {hp_pct:.0%} HP")
+
+        # Hail mary (run 10: died holding buff potions): if this turn's unblocked
+        # incoming can kill us, throw everything — one un-used potion per poll until
+        # we're no longer facing lethal (a block/heal stops it) or the belt is empty.
+        if w.hail_mary and dire and available and incoming - player.block >= player.hp:
+            potion = available[0]
             needs_target = (potion.target_type or "").lower() not in ("none", "self")
             target = None
             if needs_target:

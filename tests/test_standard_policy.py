@@ -327,6 +327,48 @@ def test_genuine_unplayable_hand_ends_turn() -> None:
     assert decision.action.payload()["action"] == "end_turn"
 
 
+def test_hail_mary_throws_multiple_potions() -> None:
+    """Owner: hail-mary on a boss used only one of two potions (the one-per-round
+    cap). With per-slot tracking it drinks both (different slots) across polls."""
+
+    def state():
+        return make_combat(
+            hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+            enemies=[enemy("BOSS_0", 200, intent_label="30")],
+            hp=10,
+            max_hp=80,
+            state_type="boss",
+            potions=[
+                {
+                    "id": "FYSH",
+                    "name": "Fysh Oil",
+                    "description": "Gain 1 Strength and 1 Dexterity.",
+                    "slot": 0,
+                    "can_use_in_combat": True,
+                    "target_type": "None",
+                    "keywords": [],
+                },
+                {
+                    "id": "SPEED",
+                    "name": "Speed Potion",
+                    "description": "Gain 1 Dexterity.",
+                    "slot": 2,
+                    "can_use_in_combat": True,
+                    "target_type": "None",
+                    "keywords": [],
+                },
+            ],
+        )
+
+    r = router()
+    ctx = LoopContext()
+    d1 = r.decide(state(), ctx)
+    d2 = r.decide(state(), ctx)
+    assert isinstance(d1, Decision) and d1.action.payload()["action"] == "use_potion"
+    assert isinstance(d2, Decision) and d2.action.payload()["action"] == "use_potion"
+    assert {d1.action.payload()["slot"], d2.action.payload()["slot"]} == {0, 2}
+
+
 def test_no_pointless_plays_against_non_attacker() -> None:
     """Owner observation: Production into Defends vs a non-attacking enemy is pure
     waste. Play friction should leave only the useful play (Strike)."""
