@@ -246,6 +246,27 @@ def test_rage_sequenced_first_even_when_block_reads_useless() -> None:
     assert d.action.payload().get("card_index") == 0  # Rage (index 0) before the Strike
 
 
+def test_primal_force_played_first_to_upgrade_weak_attacks() -> None:
+    """Owner (Run-3 Fight 2): Primal Force ('transform all Attacks in hand into Giant Rock',
+    16 dmg) was played late. With a hand of Strikes (6 dmg) it should go first so they become
+    16-damage rocks; the planner only does so when it's an upgrade."""
+    primal = card(0, "Primal Force", 0, "Transform all Attacks in your Hand into Giant Rock.",
+                  target="Self", ctype="Skill")
+    state = make_combat(
+        hand=[
+            primal,
+            card(1, "Strike", 1, "Deal 6 damage."),
+            card(2, "Strike", 1, "Deal 6 damage."),
+        ],
+        enemies=[enemy("GOLEM_0", 80, intent_label="10")],
+        energy=3,
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("card_index") == 0  # Primal Force first
+    assert "Primal Force" in d.rationale
+
+
 def test_pack_fight_focuses_fire() -> None:
     """Run 13 spread damage across a 4-Nibbit pack and died from full HP. With the
     focus term, follow-up hits go to the already-wounded enemy."""
@@ -843,6 +864,26 @@ def test_early_damage_bias_lifts_damage_cards_in_act1() -> None:
 
     assert abs((s(dmg, 1) - s(dmg, 3)) - bonus) < 1e-6  # damage card gets the Act-1 lift
     assert abs(s(blk, 1) - s(blk, 3)) < 1e-6  # block skill gets none
+
+
+def test_infernal_blade_gets_early_damage_bias_as_attack_generator() -> None:
+    """Owner (Run-3 Draft 1): Infernal Blade is a Skill that adds a free Attack — it plays like
+    an attack, so the Act-1 damage bias should apply even though it deals no damage itself."""
+    r = router()
+    bonus = r.config.card_rewards.early_damage_bonus
+    blade = Card.model_validate(
+        card(0, "Zzz Blade", 1, "Add a random Attack to your hand. Exhaust.",
+             target="Self", ctype="Skill")
+    )
+    plain = Card.model_validate(
+        card(1, "Zzz Guard", 1, "Gain 8 Block.", target="Self", ctype="Skill")
+    )
+
+    def s(c, a):
+        return r._card_score(c, deck_size=10, character="The Ironclad", act=a)
+
+    assert abs((s(blade, 1) - s(blade, 3)) - bonus) < 1e-6  # attack-generator gets the Act-1 lift
+    assert abs(s(plain, 1) - s(plain, 3)) < 1e-6  # a plain block skill does not
 
 
 def test_event_refuses_hp_cost_when_low() -> None:

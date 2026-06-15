@@ -28,6 +28,7 @@ _RAGE_BLOCK = re.compile(r"gain (\d+) block", re.IGNORECASE)
 # "Exhaust your hand, deal N damage for each card exhausted" (Fiend Fire): damage
 # scales with hand size, so the flat per-hit the text parser sees underprices it.
 _HAND_EXHAUST_DMG = re.compile(r"(\d+) damage for each card", re.IGNORECASE)
+_PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 damage, 1 cost)
 
 
 @dataclass(frozen=True)
@@ -39,6 +40,7 @@ class PlannedCard:
     targets_enemy: bool
     is_attack: bool = False
     is_power: bool = False  # Power card: playing it banks a permanent buff (play eagerly)
+    primal_force: bool = False  # Primal Force: transforms later Attacks into 16-dmg Giant Rocks
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
 
@@ -75,6 +77,7 @@ class SimState:
     rage_block_granted: int = 0  # total Block Rage has granted to attacks (sequencing nudge)
     powers_played: int = 0  # Power cards played this turn (banked permanent buffs)
     ramp_damage: int = 0  # damage dealt to strength-gaining enemies (rewarded: race them)
+    primal_active: bool = False  # Primal Force played: later Attacks are 16-dmg Giant Rocks
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
 
@@ -108,6 +111,7 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
     # as immediate, over-valuing them and mis-planning this turn's energy. Bank via w_power.
     if is_power and any(s in desc.lower() for s in ("start of", "each turn", "every turn")):
         fx.block = fx.energy_gain = fx.strength = 0
+    primal_force = "transform all attacks" in desc.lower()
     return PlannedCard(
         index=card.index,
         name=card.name,
@@ -116,6 +120,7 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
         targets_enemy=(card.target_type == "AnyEnemy"),
         is_attack=(card.type == "Attack"),
         is_power=is_power,
+        primal_force=primal_force,
         rage_block=rage_block,
         hand_exhaust_scale=hand_exhaust_scale,
     )
@@ -164,10 +169,13 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
     e = enemies[target_i]
     dealt_total = 0
     hp, block = e.hp, e.block
-    per_hit = card.fx.damage + state.my_strength
+    base_damage, hits = card.fx.damage, card.fx.hits
+    if state.primal_active and card.is_attack:
+        base_damage, hits = _PRIMAL_ROCK_DAMAGE, 1  # transformed into a Giant Rock
+    per_hit = base_damage + state.my_strength
     if e.vulnerable > 0:
         per_hit = int(per_hit * VULN_MULT)
-    for _ in range(card.fx.hits):
+    for _ in range(hits):
         if hp <= 0:
             break
         absorbed = min(block, per_hit)
@@ -207,6 +215,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         rage_block_active=max(state.rage_block_active, card.rage_block),
         rage_block_granted=state.rage_block_granted + rage_bonus,
         powers_played=state.powers_played + (1 if card.is_power else 0),
+        primal_active=state.primal_active or card.primal_force,
         played=(*state.played, (card.index, target_id)),
     )
     atk = card

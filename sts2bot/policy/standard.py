@@ -517,10 +517,13 @@ class StandardRouter:
             score += w.bonus_draw
         if fx.energy_gain:
             score += w.bonus_energy
-        # Early-damage bias (owner, Run-2 Draft 2): Act 1 favors cards that deal damage,
-        # to get through early fights (Hemokinesis over Shrug It Off). Deck-aware drafting
-        # (e.g. Vulnerable only once Vicious is in deck) is a deferred, bigger project.
-        if act <= 1 and fx.total_damage > 0:
+        # Early-damage bias (owner, Run-2/3): Act 1 favors cards that deliver damage, to get
+        # through early fights. Includes attack-*generators* like Infernal Blade — a Skill the
+        # text parser reads no damage on, but it adds a free Attack, so it plays like one.
+        # (Deck-aware drafting, e.g. Vulnerable only once Vicious is drafted, is deferred.)
+        desc_l = (card.description or "").lower()
+        generates_attack = "random attack" in desc_l or ("add" in desc_l and "attack" in desc_l)
+        if act <= 1 and (fx.total_damage > 0 or generates_attack):
             score += w.early_damage_bonus
         try:
             if card.cost is not None and card.cost.upper() != "X" and int(card.cost) >= 3:
