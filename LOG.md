@@ -2,6 +2,32 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-06-15 (session 5 cont., Opus) — Rest/upgrade optimization + a 2-session-old bug
+
+Owner asked to optimize rest-vs-smith and upgrade choice (with the caveat that combat
+tactics are the bigger, deferred problem — true). Built:
+- **Upgrade by value:** build_priors now emits an upgrade delta `u` per card (upgraded
+  vs base variant Elo; Havoc +5.7, Body Slam +4.5, basics ~none). Smith/upgrade screens
+  target the card that *gains* the most, not the best base card.
+- **Survival-based rest:** scripts/build_combat_stats.py distills the bot's own logs into
+  per-fight-type HP loss (monster ~11, elite ~30, boss ~38 mean / 66 p75). Pre-boss
+  campfire rests only if HP can't cover the boss's likely damage (p75 × safety), else
+  smiths; auto-adapts as the deck improves. General campfire keeps the 60% rule.
+- **By-act priors / earlier deck-power work** — see the 06-14 entries.
+
+**The catch:** validating the above (prompted by an owner "why did it skip a card?"
+question — the skip was a correct community-rated skip) revealed the rest-vs-smith
+decision had been a **no-op since session 3**. Live rest options are id `HEAL`/`SMITH`,
+but the code keyed on `rest`/`smith` and never lowercased the id, so every rest site
+fell through to "Rest" and the bot **never smithed by choice** — a big reason decks never
+upgraded. Fixed (canonical key mapping) + regression test with the real ids. Post-fix
+batch: a run smithed twice (upgraded Flame Barrier + Bash, 3 upgraded cards vs 0 before).
+Lesson: fixtures used the old ids, so tests/replay couldn't catch it — live strings ≠
+fixture strings. Reinforces the value of the planned slowed-down observation run.
+
+Still 0 wins; combat tactics remain the ceiling. Filed owner's dynamic take-vs-skip
+threshold idea (PLAN.md §8.1d) for that run.
+
 ## 2026-06-14 (session 5 cont., Opus) — Deck-power package + by-act priors
 
 The boss analysis said deck power is the ceiling, so this stretch made the deck
