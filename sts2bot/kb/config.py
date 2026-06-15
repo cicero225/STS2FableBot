@@ -48,6 +48,7 @@ class EventWeights(_Section):
     unknown_take_first_above: float = 0.70
     take_min: float = 0.5  # heuristic net-value floor to engage an option vs proceeding
     spirebird_take_floor: float = -2.0  # take Spirebird's top option unless heuristically harmful
+    min_hp_pct_after_cost: float = 0.20  # never pay an event HP cost that drops below this
 
 
 class MapWeights(_Section):

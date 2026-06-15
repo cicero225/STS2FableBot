@@ -928,6 +928,18 @@ def test_event_heuristic_when_unrated_takes_heal_upgrade() -> None:
     assert idx == 0  # Consume (heal + upgrade), not Proceed
 
 
+def test_event_refuses_hp_cost_that_drops_too_low() -> None:
+    """Owner edge case: a choice can be great on average yet suicidal now. Refuse a high-value
+    option whose HP cost would drop us below the danger floor, and take the safe gain instead."""
+    state = _ev_state("ZZZ_RISK", [
+        _ev_opt(0, "Gamble", "Take 60 damage. Upgrade a card. Remove a card.", relic_name="X"),
+        _ev_opt(1, "Safe", "Gain 5 Max HP."),
+        _ev_opt(2, "Leave", "", is_proceed=True),
+    ], hp=70, max_hp=80)  # Gamble -> 10 HP (12.5%), below the floor despite high value
+    idx = router().decide(state, LoopContext()).action.payload()["index"]
+    assert idx == 1  # the safe Max-HP gain, not the suicidal high-value grab
+
+
 def test_event_declines_pure_cost() -> None:
     """An unknown event whose only choice is a net loss (Lose Max HP for nothing) is declined."""
     state = _ev_state("ZZZ_FAKE_EVENT", [

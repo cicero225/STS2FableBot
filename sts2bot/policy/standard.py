@@ -466,8 +466,12 @@ class StandardRouter:
                 continue
             text = f"{o.title or ''} {o.description or ''}"
             hp_cost = parse_hp_cost(text)
-            if hp_cost and not (hp - hp_cost > 0 and hp_pct >= w.hp_cost_refuse_below):
-                continue  # can't afford the HP cost safely
+            if hp_cost:
+                after_pct = (hp - hp_cost) / max(1, max_hp)
+                # Refuse if already too hurt to pay, or if paying drops us into the danger
+                # zone — a choice can be great on Spirebird yet suicidal in the current state.
+                if hp_pct < w.hp_cost_refuse_below or after_pct < w.min_hp_pct_after_cost:
+                    continue
             heur = self._event_option_value(o, hp, max_hp)
             vs = self.event_stats.option_vs(eid, o.title) if self.event_stats else None
             scored.append((o, heur, vs))
