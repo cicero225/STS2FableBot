@@ -17,6 +17,7 @@ from sts2bot.client.models import (
     CombatState,
     EventState,
     GameState,
+    HandSelectState,
     MapState,
     Potion,
     RestSiteState,
@@ -603,6 +604,30 @@ class StandardRouter:
                 action=act.CancelSelection(), rationale="selection not confirming; skip"
             )
         return Wait(reason=f"selected {len(picked)}/{needed}; awaiting confirm")
+
+    def _hand_select(self, state: HandSelectState, ctx: LoopContext) -> Decision | Wait:
+        """In-combat 'choose a card to exhaust/discard/upgrade'. Target the WORST card
+        for exhaust/discard (curses, basics), the BEST for upgrade — the trivial
+        fallback picked arbitrarily (observed: exhausted a Defend over the curse Decay).
+        Selected cards leave `cards`, so we just pick from what remains until confirm."""
+        hs = state.hand_select
+        if hs.can_confirm:
+            return Decision(
+                action=act.CombatConfirmSelection(), rationale="confirm hand selection"
+            )
+        if not hs.cards:
+            return Wait(reason="hand_select with no cards and no confirm")
+        prompt = (hs.prompt or "").lower()
+        prefer_worst = any(v in prompt for v in ("exhaust", "discard", "remove", "destroy"))
+        character = state.player.character if state.player else None
+        target = self._pick_target(hs, prefer_worst, character)
+        if target is None:
+            return Wait(reason="hand_select: no candidates")
+        kind = "worst" if prefer_worst else "best"
+        return Decision(
+            action=act.CombatSelectCard(card_index=target.index),
+            rationale=f"hand-select {kind} {target.name}: {hs.prompt}",
+        )
 
     # ------------------------------------------------------------------ rest sites
 

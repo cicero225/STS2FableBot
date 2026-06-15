@@ -1217,6 +1217,56 @@ def test_multi_remove_picks_two_worst_then_confirms() -> None:
     assert confirm.action.payload()["action"] == "confirm_selection"
 
 
+def test_hand_select_exhausts_curse_over_basic() -> None:
+    """Owner (fight 3+): Burning Pact exhaust chose a Defend instead of the curse
+    Decay. Exhaust/discard prompts should target the worst card (curse first)."""
+    state = parse_state(
+        {
+            "state_type": "hand_select",
+            "hand_select": {
+                "mode": "simple_select",
+                "prompt": "Choose a card to Exhaust.",
+                "cards": [
+                    {
+                        "index": 0,
+                        "id": "DEFEND_R",
+                        "name": "Defend",
+                        "type": "Skill",
+                        "cost": "1",
+                        "description": "Gain 5 Block.",
+                        "is_upgraded": False,
+                        "keywords": [],
+                    },
+                    {
+                        "index": 1,
+                        "id": "DECAY",
+                        "name": "Decay",
+                        "type": "Curse",
+                        "cost": "",
+                        "description": "Unplayable.",
+                        "is_upgraded": False,
+                        "keywords": [],
+                    },
+                ],
+                "can_confirm": False,
+            },
+            "run": {"act": 1, "floor": 8, "ascension": 0},
+            "player": {
+                "character": "The Ironclad",
+                "hp": 60,
+                "max_hp": 80,
+                "status": [],
+                "relics": [],
+                "potions": [],
+                "max_potion_slots": 3,
+            },
+        }
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload() == {"action": "combat_select_card", "card_index": 1}  # the curse
+
+
 def test_choose_screen_skips_when_stuck() -> None:
     """Run 2 stalled: a 'choose' screen returned ok but never resolved and the
     handler waited forever. Bounded retries, then skip — never an indefinite wait."""
