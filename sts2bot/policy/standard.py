@@ -47,6 +47,18 @@ class StandardRouter:
     # ------------------------------------------------------------------ combat
 
     def _combat(self, state: CombatState, ctx: LoopContext) -> Decision | Wait:
+        # Transient 'BlockedByHook' hands report every card unplayable while the
+        # engine resolves a hook; trusting that ends the turn early (run 33: a
+        # planned triple-Defend became one, 14 HP -> 3). Re-poll, bounded.
+        if self._hand_blocked_by_hook(state):
+            n = ctx.screen_mem.get("hook_waits", 0)
+            if n < self.config.combat.hook_retry_limit:
+                ctx.screen_mem["hook_waits"] = n + 1
+                return Wait(reason=f"hand blocked by transient hook (retry {n + 1}); re-polling")
+            # cap hit: fall through and let the planner act on what it sees
+        else:
+            ctx.screen_mem.pop("hook_waits", None)
+
         plan = plan_combat_turn(state, self.config.combat)
         # If the planned line clears the board this turn, survival measures are a
         # waste (owner watched a hail-mary fire alongside lethal-in-hand vs the
@@ -108,6 +120,21 @@ class StandardRouter:
         if not alive:
             return None
         return max(alive, key=lambda e: e.hp).entity_id
+
+    @staticmethod
+    def _hand_blocked_by_hook(state: CombatState) -> bool:
+        """True when it's our play phase but every card is unplayable solely because
+        the engine is mid-hook-resolution ('BlockedByHook' — a transient). Returns
+        False the moment any card is playable, so it never delays a real end-of-turn."""
+        player, battle = state.player, state.battle
+        if player is None or battle is None or not player.in_combat:
+            return False
+        if battle.turn != "player" or battle.is_play_phase is False:
+            return False
+        hand = player.hand or []
+        if not hand or any(c.can_play for c in hand):
+            return False
+        return any((c.unplayable_reason or "") == "BlockedByHook" for c in hand)
 
     def _survival_card(self, state: CombatState) -> Decision | None:
         """Death-countdown mechanics (The Insatiable's Sandpit): an enemy status

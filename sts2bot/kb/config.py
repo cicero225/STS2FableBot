@@ -34,6 +34,10 @@ class CombatWeights(_Section):
     w_play_friction: float = -0.35
     max_sequences: int = 4000
     survival_status_threshold: int = 2
+    # transient 'BlockedByHook' hands (engine mid-resolution) report every card
+    # unplayable; re-poll up to this many times before trusting it (cost a boss
+    # fight: a planned triple-Defend collapsed to one, 14 HP -> 3, run 33)
+    hook_retry_limit: int = 12
 
 
 class EventWeights(_Section):

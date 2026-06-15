@@ -246,6 +246,87 @@ def test_desperation_draw_targets_attack_cards() -> None:
     assert payload.get("target") == "THE_KIN_0"
 
 
+def _defend(index, can_play, reason):
+    return {
+        "index": index,
+        "id": "DEFEND_R",
+        "name": "Defend",
+        "type": "Skill",
+        "cost": "1",
+        "star_cost": None,
+        "description": "Gain 5 Block.",
+        "target_type": "Self",
+        "can_play": can_play,
+        "unplayable_reason": reason,
+        "is_upgraded": False,
+        "keywords": [],
+    }
+
+
+def test_hook_blocked_hand_waits_then_plays() -> None:
+    """Run 33: a transient 'BlockedByHook' hand reported every card unplayable; the
+    planner ended the turn early and dropped 14 HP -> 3. Re-poll instead."""
+    enemies = [enemy("BEAST_0", 200, intent_label="16")]
+    blocked = make_combat(
+        hand=[_defend(0, False, "BlockedByHook"), _defend(1, False, "BlockedByHook")],
+        enemies=enemies,
+        energy=2,
+        hp=14,
+        max_hp=101,
+        state_type="boss",
+    )
+    ctx = LoopContext()
+    waited = router().decide(blocked, ctx)
+    assert isinstance(waited, Wait) and "hook" in waited.reason
+
+    ready = make_combat(
+        hand=[_defend(0, True, None), _defend(1, True, None)],
+        enemies=enemies,
+        energy=2,
+        hp=14,
+        max_hp=101,
+        state_type="boss",
+    )
+    played = router().decide(ready, ctx)
+    assert isinstance(played, Decision)
+    assert played.action.payload()["action"] == "play_card"
+
+
+def test_hook_retry_cap_eventually_ends_turn() -> None:
+    r = router()
+    cap = r.config.combat.hook_retry_limit
+    blocked = make_combat(
+        hand=[_defend(0, False, "BlockedByHook")],
+        enemies=[enemy("BEAST_0", 200, intent_label="16")],
+        energy=2,
+        hp=14,
+        max_hp=101,
+        state_type="boss",
+    )
+    ctx = LoopContext()
+    decisions = [r.decide(blocked, ctx) for _ in range(cap + 1)]
+    assert all(isinstance(d, Wait) for d in decisions[:cap])
+    assert isinstance(decisions[cap], Decision)
+    assert decisions[cap].action.payload()["action"] == "end_turn"
+
+
+def test_genuine_unplayable_hand_ends_turn() -> None:
+    """NotEnoughEnergy is a real reason, not a transient hook — end the turn."""
+    state = make_combat(
+        hand=[card(0, "Bash", 2, "Deal 8 damage.", can_play=False)],
+        enemies=[enemy("X_0", 40, intent_label="6")],
+        energy=1,
+    )
+    # card() leaves unplayable_reason None; set the real reason
+    raw = state.model_dump(by_alias=True)
+    raw["player"]["hand"][0]["unplayable_reason"] = "NotEnoughEnergy"
+    from sts2bot.client.models import parse_state as ps
+
+    decision = router().decide(ps(raw), LoopContext())
+    assert isinstance(decision, Decision)
+    assert decision.action.payload()["action"] == "end_turn"
+
+
 def test_no_pointless_plays_against_non_attacker() -> None:
     """Owner observation: Production into Defends vs a non-attacking enemy is pure
     waste. Play friction should leave only the useful play (Strike)."""
