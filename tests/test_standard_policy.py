@@ -217,6 +217,35 @@ def test_fiend_fire_scales_with_hand_size_for_lethal() -> None:
     assert d.scores and d.scores.get("lethal") == 1.0
 
 
+def test_plays_free_power_card() -> None:
+    """Owner (Run-3 boss): a free 0-cost Power (Pyre) from a Power Potion was left unplayed.
+    Powers are permanent buffs — play them, especially free ones."""
+    # Pyre: Rare Power, normally 2 energy, here 0-cost from a Power Potion. Its real effect
+    # is "Gain 1 Energy at the start of each turn" (verified online) — a per-turn power.
+    pyre = card(0, "Pyre", 0, "Gain 1 Energy at the start of each turn.",
+                target="Self", ctype="Power")
+    state = make_combat(hand=[pyre], enemies=[enemy("DUMMY_0", 50, intent_label="5")], energy=3)
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("card_index") == 0  # play the free Power, not end turn
+
+
+def test_rage_sequenced_first_even_when_block_reads_useless() -> None:
+    """Owner (Run-3 Fight 6): vs an enemy whose intent the bot can't read (incoming 0), Rage's
+    block scores as excess, so it stopped sequencing Rage first. A small nudge keeps Rage ahead
+    of attacks — it's free to play first."""
+    rage = card(0, "Rage", 0, "Whenever you play an Attack this turn, gain 3 Block.",
+                target="Self", ctype="Skill")
+    state = make_combat(
+        hand=[rage, card(1, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("CONSTRUCT_0", 60, intent_label="")],  # empty intent -> incoming 0
+        energy=2,
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("card_index") == 0  # Rage (index 0) before the Strike
+
+
 def test_pack_fight_focuses_fire() -> None:
     """Run 13 spread damage across a 4-Nibbit pack and died from full HP. With the
     focus term, follow-up hits go to the already-wounded enemy."""

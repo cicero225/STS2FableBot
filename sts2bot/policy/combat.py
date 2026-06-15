@@ -38,6 +38,7 @@ class PlannedCard:
     fx: CardEffects
     targets_enemy: bool
     is_attack: bool = False
+    is_power: bool = False  # Power card: playing it banks a permanent buff (play eagerly)
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
 
@@ -70,6 +71,8 @@ class SimState:
     overkill: int = 0
     self_damage: int = 0
     rage_block_active: int = 0  # Rage in play: each later Attack grants this much Block
+    rage_block_granted: int = 0  # total Block Rage has granted to attacks (sequencing nudge)
+    powers_played: int = 0  # Power cards played this turn (banked permanent buffs)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
 
@@ -91,11 +94,18 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
     if (card.id or card.name or "").upper().replace(" ", "_") == "RAGE":
         m = _RAGE_BLOCK.search(card.description or "")
         rage_block = int(m.group(1)) if m else 3
+        fx.block = 0  # Rage's "gain N Block" is conditional (per Attack), not immediate
     # Fiend Fire & kin (owner special-case): damage scales with cards exhausted.
     desc = card.description or ""
     hand_exhaust_scale = 0
     if "exhaust" in desc.lower() and (m := _HAND_EXHAUST_DMG.search(desc)):
         hand_exhaust_scale = int(m.group(1))
+    is_power = card.type == "Power"
+    # Per-turn powers (Pyre "+1 Energy at the start of each turn", Demon Form "+Str at the
+    # start of turn") don't fire the turn you play them; the text parser reads their numbers
+    # as immediate, over-valuing them and mis-planning this turn's energy. Bank via w_power.
+    if is_power and any(s in desc.lower() for s in ("start of", "each turn", "every turn")):
+        fx.block = fx.energy_gain = fx.strength = 0
     return PlannedCard(
         index=card.index,
         name=card.name,
@@ -103,6 +113,7 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
         fx=fx,
         targets_enemy=(card.target_type == "AnyEnemy"),
         is_attack=(card.type == "Attack"),
+        is_power=is_power,
         rage_block=rage_block,
         hand_exhaust_scale=hand_exhaust_scale,
     )
@@ -182,6 +193,8 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         state,
         energy=state.energy - card.cost,
         rage_block_active=max(state.rage_block_active, card.rage_block),
+        rage_block_granted=state.rage_block_granted + rage_bonus,
+        powers_played=state.powers_played + (1 if card.is_power else 0),
         played=(*state.played, (card.index, target_id)),
     )
     atk = card
@@ -253,6 +266,8 @@ def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
         + w.w_draw * state.draws
         + w.w_energy_waste * max(0, state.energy)
         + w.w_play_friction * len(state.played)
+        + w.w_power_played * state.powers_played
+        + w.w_rage_sequence * state.rage_block_granted
     )
 
 
