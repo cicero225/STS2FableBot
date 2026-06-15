@@ -606,10 +606,21 @@ class StandardRouter:
 
     # ------------------------------------------------------------------ rest sites
 
+    @staticmethod
+    def _rest_option_key(option) -> str:
+        """Canonical key for a rest option. Live IDs are 'HEAL'/'SMITH' (not
+        'rest'/'smith') — this bug silently disabled rest-vs-smith since session 3."""
+        s = (option.id or option.name or "").lower()
+        if "heal" in s or "rest" in s:
+            return "rest"
+        if "smith" in s or "upgrade" in s:
+            return "smith"
+        return s
+
     def _rest_site(self, state: RestSiteState, ctx: LoopContext) -> Decision | Wait:
         w = self.config.rest
         rs = state.rest_site
-        enabled = {o.id or (o.name or "").lower(): o for o in rs.options if o.is_enabled}
+        enabled = {self._rest_option_key(o): o for o in rs.options if o.is_enabled}
         player = state.player
         hp = player.hp if player else 1
         hp_pct = hp / max(1, player.max_hp) if player else 1.0

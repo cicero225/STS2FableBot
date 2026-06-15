@@ -1006,6 +1006,48 @@ def test_rest_before_boss_survival_estimate() -> None:
     assert isinstance(d, Decision) and d.action.payload()["index"] == 1  # smith
 
 
+def test_rest_recognizes_live_heal_smith_ids() -> None:
+    """Regression: live rest options are id 'HEAL'/'SMITH' (not 'rest'/'smith'); the
+    old key check missed them so the bot fell through to Rest and never smithed."""
+    state = parse_state(
+        {
+            "state_type": "rest_site",
+            "rest_site": {
+                "options": [
+                    {
+                        "index": 0,
+                        "id": "HEAL",
+                        "name": "Rest",
+                        "description": "Heal.",
+                        "is_enabled": True,
+                    },
+                    {
+                        "index": 1,
+                        "id": "SMITH",
+                        "name": "Smith",
+                        "description": "Upgrade.",
+                        "is_enabled": True,
+                    },
+                ],
+                "can_proceed": False,
+            },
+            "run": {"act": 1, "floor": 7, "ascension": 0},
+            "player": {
+                "character": "The Ironclad",
+                "hp": 70,
+                "max_hp": 80,
+                "status": [],
+                "relics": [],
+                "potions": [],
+                "max_potion_slots": 3,
+            },
+        }
+    )
+    d = router().decide(state, LoopContext())  # 87% HP > 60% -> smith is now reachable
+    assert isinstance(d, Decision) and d.action.payload()["index"] == 1
+    assert "smith" in d.rationale.lower()
+
+
 def test_full_belt_discards_for_potion_reward() -> None:
     payload = json.loads(json.dumps(FIXTURES["rewards"]))
     payload["player"]["potions"] = [
