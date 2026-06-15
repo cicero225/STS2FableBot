@@ -34,6 +34,21 @@ undo arriving that low — another symptom of weak decks taking too much Act-1 c
 **Next:** deck-building sophistication (the strategic finding above), starting likely
 with by-act priors (8.1b, data confirmed present) + smarter card removal/upgrades.
 
+**Validation batch (later 2026-06-14, on restored modded profile 1).** Steam Cloud had
+reshuffled the modded profiles; data was intact (modded/profile1, 63 KB) — added per-run
+profile snapshots + a restore script + an immediate backup, and recommended Cloud OFF.
+Then ran 3 Ironclad runs to validate the BlockedByHook fix and the backups:
+- **Per-run backups confirmed** — one `modded-profile1_*.zip` per run in
+  `backups/profile_snapshots/`.
+- **Hook fix confirmed engaging live** — run 1's Ceremonial Beast fight hit a
+  `BlockedByHook` hand and the policy re-polled (retry 1…11) instead of ending the turn,
+  then proceeded cleanly. No rail.
+- **Milestone: first Ceremonial Beast kill** (the 3-loss nemesis). Run 1 beat it and
+  reached **Act 2 floor 24** before dying to a *normal* Spiny Toad. Could be partly draft
+  variance, but the wall has clearly moved from Act-1 bosses into Act 2 — and an Act-2
+  death to a normal enemy is the same deck-power story, one act deeper. Still 0 full wins
+  (3/3 this batch: fl 24, fl 17 Ceremonial Beast, fl 8).
+
 ## 2026-06-12 (session 4) — Spirebird priors + the great pilot-skill tuning night
 
 **Spirebird priors shipped:** owner exported cohort_stats.json (440,240 community
