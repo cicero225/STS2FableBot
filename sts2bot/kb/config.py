@@ -110,6 +110,9 @@ class ShopWeights(_Section):
     removal_max_price: int = 150
     buy_potion_min_gold: int = 120
     buy_relic_min_gold: int = 200
+    # Spirebird shop value-per-gold (WAR/100g) floor to buy a relic; negatives are bad
+    # buys (e.g. Book Repair Knife -0.03), unknown relics are skipped.
+    relic_war_per_100g_min: float = 0.01
 
 
 class DeckWeights(_Section):

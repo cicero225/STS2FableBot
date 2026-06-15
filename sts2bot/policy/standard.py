@@ -27,6 +27,7 @@ from sts2bot.client.models import (
 from sts2bot.kb.combat_stats import CombatStats
 from sts2bot.kb.config import PolicyConfig, load_policy_config
 from sts2bot.kb.priors import CardPriors
+from sts2bot.kb.shop_stats import ShopStats
 from sts2bot.policy.base import Decision, LoopContext, Wait
 from sts2bot.policy.combat import plan_combat_turn
 from sts2bot.policy.textparse import parse_card_description, parse_hp_cost, parse_intent_damage
@@ -39,10 +40,12 @@ class StandardRouter:
         config: PolicyConfig | None = None,
         priors: CardPriors | None = None,
         combat_stats: CombatStats | None = None,
+        shop_stats: ShopStats | None = None,
     ):
         self.config = config or load_policy_config()
         self.priors = priors if priors is not None else CardPriors.load()
         self.combat_stats = combat_stats if combat_stats is not None else CombatStats.load()
+        self.shop_stats = shop_stats if shop_stats is not None else ShopStats.load()
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
@@ -781,15 +784,17 @@ class StandardRouter:
             return Wait(reason=f"shop inventory not ready: {state.shop.error}")
         player = state.player
         gold = player.gold if player else 0
+        reserve = w.removal_min_gold_reserve
         bought = ctx.screen_mem.setdefault("shop_bought", [])
-        for item in state.shop.items:
-            if not item.is_stocked or item.index in bought:
-                continue
+        avail = [i for i in state.shop.items if i.is_stocked and i.index not in bought]
+
+        # 1. Card removal — high, safe value when there's a junk card to cut.
+        for item in avail:
             price = item.gold_price or 0
             if (
                 item.category == "card_removal"
                 and price <= w.removal_max_price
-                and gold - price >= w.removal_min_gold_reserve
+                and gold - price >= reserve
                 and self._has_removable_card(player)
             ):
                 bought.append(item.index)
@@ -797,6 +802,27 @@ class StandardRouter:
                     action=act.ShopPurchase(index=item.index),
                     rationale=f"buy card removal ({price}g <= cap {w.removal_max_price})",
                 )
+
+        # 2. Best-value relic by Spirebird WAR/100g — buy the strongest affordable one and
+        #    skip the duds (negative value-per-gold) and unknowns the data can't vouch for.
+        relic_buys = []
+        for item in avail:
+            price = item.gold_price or 0
+            if item.category == "relic" and item.can_afford and gold - price >= reserve:
+                v = self.shop_stats.relic_value(item.relic_id) if self.shop_stats else None
+                if v is not None and v >= w.relic_war_per_100g_min:
+                    relic_buys.append((v, price, item))
+        if relic_buys:
+            v, price, item = max(relic_buys, key=lambda x: x[0])
+            bought.append(item.index)
+            return Decision(
+                action=act.ShopPurchase(index=item.index),
+                rationale=f"buy relic {item.relic_name} ({price}g, WAR/100g {v:+.3f})",
+            )
+
+        # 3. Potions (utility, when the belt has room).
+        for item in avail:
+            price = item.gold_price or 0
             if (
                 item.category == "potion"
                 and gold >= w.buy_potion_min_gold

@@ -1604,6 +1604,35 @@ def test_shop_skips_removal_when_nothing_worth_removing() -> None:
     assert not (p["action"] == "shop_purchase" and p["index"] == 10)
 
 
+def _shop_relic_item(index, relic_id, relic_name, price):
+    return {"index": index, "category": "relic", "relic_id": relic_id,
+            "relic_name": relic_name, "price": price, "is_stocked": True, "can_afford": True}
+
+
+def test_shop_buys_best_value_relic_and_skips_negative() -> None:
+    """Owner: the bot bought no relics at shops. With Spirebird shop value-per-gold it buys
+    the strong relic (Data Disk +0.049) over a weaker one, and skips bad buys (Book Repair
+    Knife -0.03)."""
+    base = json.loads(json.dumps(FIXTURES["shop"]))
+    base["player"]["gold"] = 400
+    base["shop"]["items"] = [
+        _shop_relic_item(0, "BOOK_REPAIR_KNIFE", "Book Repair Knife", 200),  # -0.03, skip
+        _shop_relic_item(1, "DATA_DISK", "Data Disk", 168),  # +0.049, best
+        _shop_relic_item(2, "ANCHOR", "Anchor", 167),  # +0.031, weaker
+    ]
+    d = router().decide(parse_state(base), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload() == {"action": "shop_purchase", "index": 1}  # Data Disk
+
+    only_bad = json.loads(json.dumps(FIXTURES["shop"]))
+    only_bad["player"]["gold"] = 400
+    only_bad["shop"]["items"] = [
+        _shop_relic_item(0, "BOOK_REPAIR_KNIFE", "Book Repair Knife", 200)
+    ]
+    d2 = router().decide(parse_state(only_bad), LoopContext())
+    assert d2.action.payload()["action"] == "proceed"  # negative-value relic not bought
+
+
 def test_standard_router_handles_every_fixture() -> None:
     """Replay-smoke over all committed fixtures: never raises, returns Decision|Wait."""
     r = router()

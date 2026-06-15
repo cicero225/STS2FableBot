@@ -1,0 +1,3691 @@
+{
+ "meta": {
+  "source": "spirebird shops sheet",
+  "generated": "2026-06-15T14:59:36.124077+00:00",
+  "rows": 611,
+  "counts": {
+   "removal": 7,
+   "relics": 149,
+   "cards": 455
+  }
+ },
+ "removal": [
+  {
+   "win": 0.441,
+   "war": 5156.7,
+   "gold": 91.0,
+   "war_per_100g": 0.019,
+   "n": 1
+  },
+  {
+   "win": 0.652,
+   "war": 4302.8,
+   "gold": 126.0,
+   "war_per_100g": 0.027,
+   "n": 2
+  },
+  {
+   "win": 0.787,
+   "war": 1938.5,
+   "gold": 156.0,
+   "war_per_100g": 0.031,
+   "n": 3
+  },
+  {
+   "win": 0.86,
+   "war": 542.5,
+   "gold": 183.0,
+   "war_per_100g": 0.035,
+   "n": 4
+  },
+  {
+   "win": 0.892,
+   "war": 78.3,
+   "gold": 209.0,
+   "war_per_100g": 0.034,
+   "n": 5
+  },
+  {
+   "win": 0.978,
+   "war": 12.9,
+   "gold": 221.0,
+   "war_per_100g": 0.063,
+   "n": 6
+  },
+  {
+   "win": 0.833,
+   "war": 0.0,
+   "gold": 254.0,
+   "war_per_100g": 0.0,
+   "n": 7
+  }
+ ],
+ "relics": {
+  "MEMBERSHIP_CARD": {
+   "win": 0.551,
+   "war": 665.7,
+   "gold": 99.0,
+   "war_per_100g": 0.046
+  },
+  "BAG_OF_PREPARATION": {
+   "win": 0.618,
+   "war": 890.6,
+   "gold": 168.0,
+   "war_per_100g": 0.037
+  },
+  "MINIATURE_TENT": {
+   "win": 0.5529999999999999,
+   "war": 798.1,
+   "gold": 196.0,
+   "war_per_100g": 0.029
+  },
+  "LANTERN": {
+   "win": 0.6,
+   "war": 374.8,
+   "gold": 167.0,
+   "war_per_100g": 0.019
+  },
+  "ANCHOR": {
+   "win": 0.602,
+   "war": 591.6,
+   "gold": 167.0,
+   "war_per_100g": 0.031
+  },
+  "HAPPY_FLOWER": {
+   "win": 0.62,
+   "war": 475.0,
+   "gold": 167.0,
+   "war_per_100g": 0.03
+  },
+  "ODDLY_SMOOTH_STONE": {
+   "win": 0.5870000000000001,
+   "war": 285.0,
+   "gold": 167.0,
+   "war_per_100g": 0.018
+  },
+  "DOLLYS_MIRROR": {
+   "win": 0.6509999999999999,
+   "war": 458.5,
+   "gold": 193.0,
+   "war_per_100g": 0.025
+  },
+  "KIFUDA": {
+   "win": 0.621,
+   "war": 675.8,
+   "gold": 194.0,
+   "war_per_100g": 0.038
+  },
+  "ORRERY": {
+   "win": 0.531,
+   "war": 110.6,
+   "gold": 195.0,
+   "war_per_100g": 0.006
+  },
+  "ROYAL_STAMP": {
+   "win": 0.622,
+   "war": 318.9,
+   "gold": 194.0,
+   "war_per_100g": 0.019
+  },
+  "GORGET": {
+   "win": 0.613,
+   "war": 428.3,
+   "gold": 166.0,
+   "war_per_100g": 0.031
+  },
+  "GHOST_SEED": {
+   "win": 0.5529999999999999,
+   "war": 306.0,
+   "gold": 196.0,
+   "war_per_100g": 0.02
+  },
+  "WAR_PAINT": {
+   "win": 0.619,
+   "war": 266.0,
+   "gold": 165.0,
+   "war_per_100g": 0.021
+  },
+  "LEES_WAFFLE": {
+   "win": 0.5670000000000001,
+   "war": 185.5,
+   "gold": 194.0,
+   "war_per_100g": 0.013
+  },
+  "PUNCH_DAGGER": {
+   "win": 0.537,
+   "war": 59.7,
+   "gold": 195.0,
+   "war_per_100g": 0.004
+  },
+  "TOOLBOX": {
+   "win": 0.614,
+   "war": 422.4,
+   "gold": 194.0,
+   "war_per_100g": 0.034
+  },
+  "CENTENNIAL_PUZZLE": {
+   "win": 0.6759999999999999,
+   "war": 484.8,
+   "gold": 165.0,
+   "war_per_100g": 0.047
+  },
+  "POTION_BELT": {
+   "win": 0.652,
+   "war": 344.0,
+   "gold": 165.0,
+   "war_per_100g": 0.034
+  },
+  "BRONZE_SCALES": {
+   "win": 0.584,
+   "war": 238.5,
+   "gold": 166.0,
+   "war_per_100g": 0.024
+  },
+  "BREAD": {
+   "win": 0.584,
+   "war": 120.5,
+   "gold": 194.0,
+   "war_per_100g": 0.01
+  },
+  "VAJRA": {
+   "win": 0.5920000000000001,
+   "war": 148.7,
+   "gold": 166.0,
+   "war_per_100g": 0.015
+  },
+  "REGAL_PILLOW": {
+   "win": 0.512,
+   "war": -61.0,
+   "gold": 166.0,
+   "war_per_100g": -0.007
+  },
+  "PENDULUM": {
+   "win": 0.677,
+   "war": 355.6,
+   "gold": 165.0,
+   "war_per_100g": 0.039
+  },
+  "DRAGON_FRUIT": {
+   "win": 0.491,
+   "war": 138.0,
+   "gold": 196.0,
+   "war_per_100g": 0.013
+  },
+  "GNARLED_HAMMER": {
+   "win": 0.58,
+   "war": 136.5,
+   "gold": 194.0,
+   "war_per_100g": 0.013
+  },
+  "VENERABLE_TEA_SET": {
+   "win": 0.669,
+   "war": 205.2,
+   "gold": 164.0,
+   "war_per_100g": 0.025
+  },
+  "WHETSTONE": {
+   "win": 0.605,
+   "war": 28.7,
+   "gold": 164.0,
+   "war_per_100g": 0.004
+  },
+  "STRAWBERRY": {
+   "win": 0.631,
+   "war": 84.3,
+   "gold": 164.0,
+   "war_per_100g": 0.011
+  },
+  "HORN_CLEAT": {
+   "win": 0.642,
+   "war": 283.2,
+   "gold": 213.0,
+   "war_per_100g": 0.029
+  },
+  "CANDELABRA": {
+   "win": 0.6459999999999999,
+   "war": 248.9,
+   "gold": 214.0,
+   "war_per_100g": 0.027
+  },
+  "BURNING_STICKS": {
+   "win": 0.644,
+   "war": 199.1,
+   "gold": 193.0,
+   "war_per_100g": 0.024
+  },
+  "RINGING_TRIANGLE": {
+   "win": 0.643,
+   "war": 179.1,
+   "gold": 192.0,
+   "war_per_100g": 0.022
+  },
+  "PANTOGRAPH": {
+   "win": 0.604,
+   "war": 169.4,
+   "gold": 213.0,
+   "war_per_100g": 0.019
+  },
+  "RED_MASK": {
+   "win": 0.603,
+   "war": 94.0,
+   "gold": 164.0,
+   "war_per_100g": 0.014
+  },
+  "BLOOD_VIAL": {
+   "win": 0.5379999999999999,
+   "war": -56.0,
+   "gold": 165.0,
+   "war_per_100g": -0.008
+  },
+  "PERMAFROST": {
+   "win": 0.643,
+   "war": 155.6,
+   "gold": 212.0,
+   "war_per_100g": 0.018
+  },
+  "WING_CHARM": {
+   "win": 0.52,
+   "war": 149.1,
+   "gold": 195.0,
+   "war_per_100g": 0.019
+  },
+  "CHEMICAL_X": {
+   "win": 0.64,
+   "war": 309.1,
+   "gold": 194.0,
+   "war_per_100g": 0.042
+  },
+  "BELT_BUCKLE": {
+   "win": 0.603,
+   "war": 36.6,
+   "gold": 192.0,
+   "war_per_100g": 0.005
+  },
+  "DATA_DISK": {
+   "win": 0.611,
+   "war": 301.8,
+   "gold": 168.0,
+   "war_per_100g": 0.049
+  },
+  "BAG_OF_MARBLES": {
+   "win": 0.588,
+   "war": 39.7,
+   "gold": 164.0,
+   "war_per_100g": 0.007
+  },
+  "ETERNAL_FEATHER": {
+   "win": 0.5660000000000001,
+   "war": 119.4,
+   "gold": 214.0,
+   "war_per_100g": 0.016
+  },
+  "MYSTIC_LIGHTER": {
+   "win": 0.614,
+   "war": 182.8,
+   "gold": 193.0,
+   "war_per_100g": 0.027
+  },
+  "THE_ABACUS": {
+   "win": 0.6629999999999999,
+   "war": 209.3,
+   "gold": 192.0,
+   "war_per_100g": 0.032
+  },
+  "FESTIVE_POPPER": {
+   "win": 0.521,
+   "war": 49.2,
+   "gold": 165.0,
+   "war_per_100g": 0.009
+  },
+  "TUNING_FORK": {
+   "win": 0.639,
+   "war": 121.8,
+   "gold": 212.0,
+   "war_per_100g": 0.02
+  },
+  "LAVA_LAMP": {
+   "win": 0.557,
+   "war": 128.6,
+   "gold": 194.0,
+   "war_per_100g": 0.023
+  },
+  "VAMBRACE": {
+   "win": 0.623,
+   "war": 102.8,
+   "gold": 211.0,
+   "war_per_100g": 0.018
+  },
+  "RUNIC_CAPACITOR": {
+   "win": 0.602,
+   "war": 162.7,
+   "gold": 195.0,
+   "war_per_100g": 0.031
+  },
+  "MEAL_TICKET": {
+   "win": 0.49200000000000005,
+   "war": -31.4,
+   "gold": 165.0,
+   "war_per_100g": -0.007
+  },
+  "STRIKE_DUMMY": {
+   "win": 0.51,
+   "war": 29.4,
+   "gold": 166.0,
+   "war_per_100g": 0.007
+  },
+  "SLING_OF_COURAGE": {
+   "win": 0.542,
+   "war": 17.7,
+   "gold": 193.0,
+   "war_per_100g": 0.004
+  },
+  "SPARKLING_ROUGE": {
+   "win": 0.625,
+   "war": 71.9,
+   "gold": 211.0,
+   "war_per_100g": 0.014
+  },
+  "ORNAMENTAL_FAN": {
+   "win": 0.639,
+   "war": 106.8,
+   "gold": 211.0,
+   "war_per_100g": 0.02
+  },
+  "GREMLIN_HORN": {
+   "win": 0.551,
+   "war": -1.2,
+   "gold": 212.0,
+   "war_per_100g": -0.0
+  },
+  "DINGY_RUG": {
+   "win": 0.474,
+   "war": -67.6,
+   "gold": 195.0,
+   "war_per_100g": -0.014
+  },
+  "BELLOWS": {
+   "win": 0.6859999999999999,
+   "war": 203.4,
+   "gold": 260.0,
+   "war_per_100g": 0.033
+  },
+  "PEAR": {
+   "win": 0.618,
+   "war": 16.5,
+   "gold": 210.0,
+   "war_per_100g": 0.003
+  },
+  "MINIATURE_CANNON": {
+   "win": 0.579,
+   "war": 73.8,
+   "gold": 213.0,
+   "war_per_100g": 0.015
+  },
+  "MUMMIFIED_HAND": {
+   "win": 0.667,
+   "war": 175.8,
+   "gold": 261.0,
+   "war_per_100g": 0.029
+  },
+  "ICE_CREAM": {
+   "win": 0.648,
+   "war": 140.7,
+   "gold": 261.0,
+   "war_per_100g": 0.024
+  },
+  "NUNCHAKU": {
+   "win": 0.66,
+   "war": 72.1,
+   "gold": 210.0,
+   "war_per_100g": 0.016
+  },
+  "PEN_NIB": {
+   "win": 0.636,
+   "war": 38.2,
+   "gold": 210.0,
+   "war_per_100g": 0.008
+  },
+  "LETTER_OPENER": {
+   "win": 0.619,
+   "war": 79.5,
+   "gold": 211.0,
+   "war_per_100g": 0.018
+  },
+  "STONE_CRACKER": {
+   "win": 0.647,
+   "war": 67.7,
+   "gold": 208.0,
+   "war_per_100g": 0.015
+  },
+  "SCREAMING_FLAGON": {
+   "win": 0.575,
+   "war": 14.4,
+   "gold": 193.0,
+   "war_per_100g": 0.004
+  },
+  "BOOK_OF_FIVE_RINGS": {
+   "win": 0.444,
+   "war": -16.7,
+   "gold": 166.0,
+   "war_per_100g": -0.005
+  },
+  "GAMBLING_CHIP": {
+   "win": 0.677,
+   "war": 135.4,
+   "gold": 260.0,
+   "war_per_100g": 0.026
+  },
+  "STURDY_CLAMP": {
+   "win": 0.6809999999999999,
+   "war": 172.0,
+   "gold": 259.0,
+   "war_per_100g": 0.035
+  },
+  "MERCURY_HOURGLASS": {
+   "win": 0.5920000000000001,
+   "war": 70.2,
+   "gold": 212.0,
+   "war_per_100g": 0.018
+  },
+  "RED_SKULL": {
+   "win": 0.545,
+   "war": 23.2,
+   "gold": 168.0,
+   "war_per_100g": 0.008
+  },
+  "RAZOR_TOOTH": {
+   "win": 0.617,
+   "war": 86.7,
+   "gold": 258.0,
+   "war_per_100g": 0.02
+  },
+  "LIZARD_TAIL": {
+   "win": 0.721,
+   "war": 142.5,
+   "gold": 258.0,
+   "war_per_100g": 0.035
+  },
+  "PARRYING_SHIELD": {
+   "win": 0.618,
+   "war": 53.9,
+   "gold": 210.0,
+   "war_per_100g": 0.016
+  },
+  "JUZU_BRACELET": {
+   "win": 0.518,
+   "war": -53.8,
+   "gold": 165.0,
+   "war_per_100g": -0.021
+  },
+  "SNECKO_SKULL": {
+   "win": 0.588,
+   "war": 51.7,
+   "gold": 168.0,
+   "war_per_100g": 0.02
+  },
+  "ORICHALCUM": {
+   "win": 0.568,
+   "war": 25.1,
+   "gold": 210.0,
+   "war_per_100g": 0.008
+  },
+  "FENCING_MANUAL": {
+   "win": 0.506,
+   "war": -7.9,
+   "gold": 167.0,
+   "war_per_100g": -0.003
+  },
+  "RIPPLE_BASIN": {
+   "win": 0.606,
+   "war": 29.3,
+   "gold": 210.0,
+   "war_per_100g": 0.01
+  },
+  "KUNAI": {
+   "win": 0.636,
+   "war": 57.1,
+   "gold": 259.0,
+   "war_per_100g": 0.016
+  },
+  "TOXIC_EGG": {
+   "win": 0.564,
+   "war": 126.0,
+   "gold": 264.0,
+   "war_per_100g": 0.035
+  },
+  "CLOAK_CLASP": {
+   "win": 0.6890000000000001,
+   "war": 129.3,
+   "gold": 259.0,
+   "war_per_100g": 0.037
+  },
+  "PAPER_PHROG": {
+   "win": 0.586,
+   "war": 35.3,
+   "gold": 214.0,
+   "war_per_100g": 0.013
+  },
+  "LASTING_CANDY": {
+   "win": 0.457,
+   "war": -49.6,
+   "gold": 215.0,
+   "war_per_100g": -0.018
+  },
+  "KUSARIGAMA": {
+   "win": 0.606,
+   "war": -16.2,
+   "gold": 209.0,
+   "war_per_100g": -0.006
+  },
+  "CAPTAINS_WHEEL": {
+   "win": 0.672,
+   "war": 68.4,
+   "gold": 257.0,
+   "war_per_100g": 0.021
+  },
+  "VEXING_PUZZLEBOX": {
+   "win": 0.61,
+   "war": 35.3,
+   "gold": 262.0,
+   "war_per_100g": 0.011
+  },
+  "SHURIKEN": {
+   "win": 0.64,
+   "war": 54.4,
+   "gold": 260.0,
+   "war_per_100g": 0.017
+  },
+  "BONE_FLUTE": {
+   "win": 0.623,
+   "war": 70.2,
+   "gold": 166.0,
+   "war_per_100g": 0.035
+  },
+  "TUNGSTEN_ROD": {
+   "win": 0.614,
+   "war": 29.3,
+   "gold": 257.0,
+   "war_per_100g": 0.01
+  },
+  "JOSS_PAPER": {
+   "win": 0.69,
+   "war": 73.1,
+   "gold": 209.0,
+   "war_per_100g": 0.03
+  },
+  "RAINBOW_RING": {
+   "win": 0.716,
+   "war": 89.6,
+   "gold": 256.0,
+   "war_per_100g": 0.031
+  },
+  "AKABEKO": {
+   "win": 0.615,
+   "war": 7.5,
+   "gold": 208.0,
+   "war_per_100g": 0.003
+  },
+  "MANGO": {
+   "win": 0.645,
+   "war": 39.3,
+   "gold": 257.0,
+   "war_per_100g": 0.014
+  },
+  "CHANDELIER": {
+   "win": 0.684,
+   "war": 50.4,
+   "gold": 257.0,
+   "war_per_100g": 0.017
+  },
+  "MEAT_ON_THE_BONE": {
+   "win": 0.514,
+   "war": 0.1,
+   "gold": 260.0,
+   "war_per_100g": 0.0
+  },
+  "PLANISPHERE": {
+   "win": 0.505,
+   "war": -28.4,
+   "gold": 214.0,
+   "war_per_100g": -0.012
+  },
+  "TINY_MAILBOX": {
+   "win": 0.552,
+   "war": -20.7,
+   "gold": 211.0,
+   "war_per_100g": -0.009
+  },
+  "GAME_PIECE": {
+   "win": 0.746,
+   "war": 109.7,
+   "gold": 257.0,
+   "war_per_100g": 0.041
+  },
+  "POCKETWATCH": {
+   "win": 0.685,
+   "war": 108.8,
+   "gold": 259.0,
+   "war_per_100g": 0.04
+  },
+  "VITRUVIAN_MINION": {
+   "win": 0.537,
+   "war": 44.9,
+   "gold": 194.0,
+   "war_per_100g": 0.023
+  },
+  "INTIMIDATING_HELMET": {
+   "win": 0.687,
+   "war": 81.9,
+   "gold": 257.0,
+   "war_per_100g": 0.033
+  },
+  "WHITE_STAR": {
+   "win": 0.521,
+   "war": 25.4,
+   "gold": 262.0,
+   "war_per_100g": 0.01
+  },
+  "PETRIFIED_TOAD": {
+   "win": 0.589,
+   "war": 14.1,
+   "gold": 211.0,
+   "war_per_100g": 0.007
+  },
+  "FUNERARY_MASK": {
+   "win": 0.645,
+   "war": 48.5,
+   "gold": 214.0,
+   "war_per_100g": 0.025
+  },
+  "BRIMSTONE": {
+   "win": 0.56,
+   "war": 43.9,
+   "gold": 195.0,
+   "war_per_100g": 0.025
+  },
+  "FROZEN_EGG": {
+   "win": 0.523,
+   "war": 10.5,
+   "gold": 261.0,
+   "war_per_100g": 0.005
+  },
+  "PRAYER_WHEEL": {
+   "win": 0.532,
+   "war": 30.3,
+   "gold": 261.0,
+   "war_per_100g": 0.014
+  },
+  "NINJA_SCROLL": {
+   "win": 0.6559999999999999,
+   "war": 42.7,
+   "gold": 195.0,
+   "war_per_100g": 0.026
+  },
+  "ART_OF_WAR": {
+   "win": 0.659,
+   "war": 32.8,
+   "gold": 253.0,
+   "war_per_100g": 0.016
+  },
+  "CAULDRON": {
+   "win": 0.705,
+   "war": 10.5,
+   "gold": 186.0,
+   "war_per_100g": 0.007
+  },
+  "UNDYING_SIGIL": {
+   "win": 0.56,
+   "war": 12.2,
+   "gold": 193.0,
+   "war_per_100g": 0.008
+  },
+  "BEATING_REMNANT": {
+   "win": 0.653,
+   "war": 7.9,
+   "gold": 260.0,
+   "war_per_100g": 0.004
+  },
+  "SELF_FORMING_CLAY": {
+   "win": 0.621,
+   "war": 62.8,
+   "gold": 214.0,
+   "war_per_100g": 0.038
+  },
+  "GALACTIC_DUST": {
+   "win": 0.586,
+   "war": 16.3,
+   "gold": 213.0,
+   "war_per_100g": 0.01
+  },
+  "GOLD_PLATED_CABLES": {
+   "win": 0.547,
+   "war": 24.7,
+   "gold": 213.0,
+   "war_per_100g": 0.016
+  },
+  "REPTILE_TRINKET": {
+   "win": 0.698,
+   "war": 15.6,
+   "gold": 206.0,
+   "war_per_100g": 0.01
+  },
+  "TINGSHA": {
+   "win": 0.635,
+   "war": 33.3,
+   "gold": 213.0,
+   "war_per_100g": 0.022
+  },
+  "UNSETTLING_LAMP": {
+   "win": 0.645,
+   "war": 28.0,
+   "gold": 255.0,
+   "war_per_100g": 0.015
+  },
+  "WHITE_BEAST_STATUE": {
+   "win": 0.532,
+   "war": 16.5,
+   "gold": 261.0,
+   "war_per_100g": 0.009
+  },
+  "UNCEASING_TOP": {
+   "win": 0.6679999999999999,
+   "war": 15.6,
+   "gold": 257.0,
+   "war_per_100g": 0.01
+  },
+  "MOLTEN_EGG": {
+   "win": 0.428,
+   "war": -25.6,
+   "gold": 262.0,
+   "war_per_100g": -0.015
+  },
+  "REGALITE": {
+   "win": 0.579,
+   "war": 42.4,
+   "gold": 213.0,
+   "war_per_100g": 0.035
+  },
+  "TWISTED_FUNNEL": {
+   "win": 0.5589999999999999,
+   "war": 11.0,
+   "gold": 212.0,
+   "war_per_100g": 0.009
+  },
+  "SYMBIOTIC_VIRUS": {
+   "win": 0.569,
+   "war": 14.1,
+   "gold": 213.0,
+   "war_per_100g": 0.012
+  },
+  "AMETHYST_AUBERGINE": {
+   "win": 0.556,
+   "war": 9.5,
+   "gold": 164.0,
+   "war_per_100g": 0.011
+  },
+  "SHOVEL": {
+   "win": 0.5660000000000001,
+   "war": 15.2,
+   "gold": 264.0,
+   "war_per_100g": 0.012
+  },
+  "STONE_CALENDAR": {
+   "win": 0.579,
+   "war": -13.3,
+   "gold": 253.0,
+   "war_per_100g": -0.011
+  },
+  "CIRCLET": {
+   "win": 1.0,
+   "war": 87.0,
+   "gold": null,
+   "war_per_100g": null
+  },
+  "LUNAR_PASTRY": {
+   "win": 0.635,
+   "war": 33.2,
+   "gold": 260.0,
+   "war_per_100g": 0.029
+  },
+  "TOUGH_BANDAGES": {
+   "win": 0.7140000000000001,
+   "war": 41.1,
+   "gold": 262.0,
+   "war_per_100g": 0.036
+  },
+  "PAPER_KRANE": {
+   "win": 0.6779999999999999,
+   "war": 19.8,
+   "gold": 261.0,
+   "war_per_100g": 0.019
+  },
+  "GIRYA": {
+   "win": 0.552,
+   "war": 1.5,
+   "gold": 263.0,
+   "war_per_100g": 0.002
+  },
+  "BOOK_REPAIR_KNIFE": {
+   "win": 0.46399999999999997,
+   "war": -22.7,
+   "gold": 212.0,
+   "war_per_100g": -0.03
+  },
+  "MINI_REGENT": {
+   "win": 0.521,
+   "war": 4.6,
+   "gold": 263.0,
+   "war_per_100g": 0.005
+  },
+  "BOWLER_HAT": {
+   "win": 0.523,
+   "war": -8.3,
+   "gold": 212.0,
+   "war_per_100g": -0.012
+  },
+  "RUINED_HELMET": {
+   "win": 0.606,
+   "war": 12.5,
+   "gold": 261.0,
+   "war_per_100g": 0.017
+  },
+  "POWER_CELL": {
+   "win": 0.597,
+   "war": 19.2,
+   "gold": 259.0,
+   "war_per_100g": 0.026
+  },
+  "DEMON_TONGUE": {
+   "win": 0.604,
+   "war": 16.2,
+   "gold": 262.0,
+   "war_per_100g": 0.023
+  },
+  "METRONOME": {
+   "win": 0.563,
+   "war": 1.8,
+   "gold": 260.0,
+   "war_per_100g": 0.003
+  },
+  "CHARONS_ASHES": {
+   "win": 0.621,
+   "war": 20.2,
+   "gold": 261.0,
+   "war_per_100g": 0.035
+  },
+  "BIG_HAT": {
+   "win": 0.556,
+   "war": 2.5,
+   "gold": 263.0,
+   "war_per_100g": 0.005
+  },
+  "EMOTION_CHIP": {
+   "win": 0.609,
+   "war": 14.4,
+   "gold": 254.0,
+   "war_per_100g": 0.029
+  },
+  "HELICAL_DART": {
+   "win": 0.5579999999999999,
+   "war": -1.0,
+   "gold": 264.0,
+   "war_per_100g": -0.002
+  },
+  "ORANGE_DOUGH": {
+   "win": 0.5529999999999999,
+   "war": 7.5,
+   "gold": 258.0,
+   "war_per_100g": 0.016
+  },
+  "IVORY_TILE": {
+   "win": 0.601,
+   "war": 7.6,
+   "gold": 260.0,
+   "war_per_100g": 0.018
+  },
+  "LUCKY_FYSH": {
+   "win": 0.568,
+   "war": -1.7,
+   "gold": 211.0,
+   "war_per_100g": -0.005
+  },
+  "BOOKMARK": {
+   "win": 0.556,
+   "war": -0.3,
+   "gold": 264.0,
+   "war_per_100g": -0.001
+  }
+ },
+ "cards": {
+  "HIDDEN_GEM": {
+   "win": 0.511,
+   "war": -137.3,
+   "gold": 167.0,
+   "war_per_100g": -0.007
+  },
+  "FINESSE": {
+   "win": 0.546,
+   "war": 503.4,
+   "gold": 83.0,
+   "war_per_100g": 0.061
+  },
+  "FASTEN": {
+   "win": 0.43200000000000005,
+   "war": 136.3,
+   "gold": 84.0,
+   "war_per_100g": 0.019
+  },
+  "MASTER_OF_STRATEGY": {
+   "win": 0.659,
+   "war": 564.5,
+   "gold": 165.0,
+   "war_per_100g": 0.041
+  },
+  "FLASH_OF_STEEL": {
+   "win": 0.527,
+   "war": 276.9,
+   "gold": 83.0,
+   "war_per_100g": 0.045
+  },
+  "PRODUCTION": {
+   "win": 0.535,
+   "war": 57.9,
+   "gold": 83.0,
+   "war_per_100g": 0.01
+  },
+  "PROWESS": {
+   "win": 0.469,
+   "war": 83.7,
+   "gold": 84.0,
+   "war_per_100g": 0.016
+  },
+  "SHOCKWAVE": {
+   "win": 0.542,
+   "war": 324.1,
+   "gold": 84.0,
+   "war_per_100g": 0.068
+  },
+  "DARK_SHACKLES": {
+   "win": 0.568,
+   "war": 232.4,
+   "gold": 83.0,
+   "war_per_100g": 0.052
+  },
+  "AUTOMATION": {
+   "win": 0.575,
+   "war": 150.3,
+   "gold": 83.0,
+   "war_per_100g": 0.033
+  },
+  "DISCOVERY": {
+   "win": 0.474,
+   "war": 108.5,
+   "gold": 84.0,
+   "war_per_100g": 0.027
+  },
+  "EQUILIBRIUM": {
+   "win": 0.499,
+   "war": 91.1,
+   "gold": 84.0,
+   "war_per_100g": 0.023
+  },
+  "SPLASH": {
+   "win": 0.418,
+   "war": 57.5,
+   "gold": 84.0,
+   "war_per_100g": 0.018
+  },
+  "PROLONG": {
+   "win": 0.528,
+   "war": 23.9,
+   "gold": 83.0,
+   "war_per_100g": 0.007
+  },
+  "PANACHE": {
+   "win": 0.565,
+   "war": 108.7,
+   "gold": 83.0,
+   "war_per_100g": 0.037
+  },
+  "ALCHEMIZE": {
+   "win": 0.522,
+   "war": 96.4,
+   "gold": 167.0,
+   "war_per_100g": 0.018
+  },
+  "ROLLING_BOULDER": {
+   "win": 0.48200000000000004,
+   "war": -75.7,
+   "gold": 167.0,
+   "war_per_100g": -0.014
+  },
+  "FISTICUFFS": {
+   "win": 0.457,
+   "war": 91.8,
+   "gold": 84.0,
+   "war_per_100g": 0.035
+  },
+  "SECRET_TECHNIQUE": {
+   "win": 0.6920000000000001,
+   "war": 125.0,
+   "gold": 163.0,
+   "war_per_100g": 0.025
+  },
+  "SCRAWL": {
+   "win": 0.688,
+   "war": 231.9,
+   "gold": 164.0,
+   "war_per_100g": 0.047
+  },
+  "DRAMATIC_ENTRANCE": {
+   "win": 0.37799999999999995,
+   "war": -68.1,
+   "gold": 84.0,
+   "war_per_100g": -0.027
+  },
+  "ULTIMATE_DEFEND": {
+   "win": 0.445,
+   "war": -60.9,
+   "gold": 83.0,
+   "war_per_100g": -0.025
+  },
+  "JACKPOT": {
+   "win": 0.541,
+   "war": 135.9,
+   "gold": 168.0,
+   "war_per_100g": 0.028
+  },
+  "MAYHEM": {
+   "win": 0.58,
+   "war": 73.1,
+   "gold": 166.0,
+   "war_per_100g": 0.015
+  },
+  "OMNISLICE": {
+   "win": 0.384,
+   "war": -0.6,
+   "gold": 84.0,
+   "war_per_100g": -0.0
+  },
+  "THINKING_AHEAD": {
+   "win": 0.588,
+   "war": 47.4,
+   "gold": 83.0,
+   "war_per_100g": 0.024
+  },
+  "PURITY": {
+   "win": 0.5539999999999999,
+   "war": 0.3,
+   "gold": 83.0,
+   "war_per_100g": 0.0
+  },
+  "ETERNAL_ARMOR": {
+   "win": 0.606,
+   "war": 91.9,
+   "gold": 165.0,
+   "war_per_100g": 0.027
+  },
+  "NOSTALGIA": {
+   "win": 0.516,
+   "war": -112.9,
+   "gold": 166.0,
+   "war_per_100g": -0.034
+  },
+  "STRATAGEM": {
+   "win": 0.593,
+   "war": 34.8,
+   "gold": 83.0,
+   "war_per_100g": 0.021
+  },
+  "GOLD_AXE": {
+   "win": 0.58,
+   "war": -22.8,
+   "gold": 165.0,
+   "war_per_100g": -0.007
+  },
+  "BOLAS": {
+   "win": 0.5479999999999999,
+   "war": 17.5,
+   "gold": 166.0,
+   "war_per_100g": 0.006
+  },
+  "IMPATIENCE": {
+   "win": 0.625,
+   "war": 44.1,
+   "gold": 83.0,
+   "war_per_100g": 0.029
+  },
+  "RESTLESSNESS": {
+   "win": 0.529,
+   "war": -61.3,
+   "gold": 83.0,
+   "war_per_100g": -0.041
+  },
+  "ENTROPY": {
+   "win": 0.526,
+   "war": -24.3,
+   "gold": 165.0,
+   "war_per_100g": -0.008
+  },
+  "PANIC_BUTTON": {
+   "win": 0.569,
+   "war": 57.6,
+   "gold": 83.0,
+   "war_per_100g": 0.04
+  },
+  "PREP_TIME": {
+   "win": 0.457,
+   "war": -28.3,
+   "gold": 83.0,
+   "war_per_100g": -0.022
+  },
+  "SECRET_WEAPON": {
+   "win": 0.632,
+   "war": 0.6,
+   "gold": 164.0,
+   "war_per_100g": 0.0
+  },
+  "CATASTROPHE": {
+   "win": 0.517,
+   "war": 11.7,
+   "gold": 83.0,
+   "war_per_100g": 0.01
+  },
+  "HAND_OF_GREED": {
+   "win": 0.423,
+   "war": -9.6,
+   "gold": 168.0,
+   "war_per_100g": -0.005
+  },
+  "THRUMMING_HATCHET": {
+   "win": 0.39899999999999997,
+   "war": -12.8,
+   "gold": 84.0,
+   "war_per_100g": -0.013
+  },
+  "JACK_OF_ALL_TRADES": {
+   "win": 0.49200000000000005,
+   "war": -20.0,
+   "gold": 83.0,
+   "war_per_100g": -0.021
+  },
+  "BEAT_DOWN": {
+   "win": 0.57,
+   "war": -12.8,
+   "gold": 166.0,
+   "war_per_100g": -0.007
+  },
+  "SALVO": {
+   "win": 0.561,
+   "war": 4.5,
+   "gold": 166.0,
+   "war_per_100g": 0.003
+  },
+  "SEEKER_STRIKE": {
+   "win": 0.5589999999999999,
+   "war": 6.5,
+   "gold": 83.0,
+   "war_per_100g": 0.008
+  },
+  "THE_BOMB": {
+   "win": 0.371,
+   "war": -45.2,
+   "gold": 84.0,
+   "war_per_100g": -0.058
+  },
+  "ULTIMATE_STRIKE": {
+   "win": 0.40299999999999997,
+   "war": -43.1,
+   "gold": 83.0,
+   "war_per_100g": -0.056
+  },
+  "CALAMITY": {
+   "win": 0.596,
+   "war": 24.7,
+   "gold": 163.0,
+   "war_per_100g": 0.018
+  },
+  "VOLLEY": {
+   "win": 0.45799999999999996,
+   "war": -19.4,
+   "gold": 83.0,
+   "war_per_100g": -0.028
+  },
+  "THE_GAMBIT": {
+   "win": 0.609,
+   "war": -7.4,
+   "gold": 166.0,
+   "war_per_100g": -0.006
+  },
+  "ANOINTED": {
+   "win": 0.6709999999999999,
+   "war": -15.5,
+   "gold": 163.0,
+   "war_per_100g": -0.014
+  },
+  "MIND_BLAST": {
+   "win": 0.521,
+   "war": -35.7,
+   "gold": 82.0,
+   "war_per_100g": -0.075
+  },
+  "REND": {
+   "win": 0.617,
+   "war": -13.6,
+   "gold": 165.0,
+   "war_per_100g": -0.025
+  },
+  "PREPARED": {
+   "win": 0.5870000000000001,
+   "war": 12.1,
+   "gold": 48.0,
+   "war_per_100g": 0.055
+  },
+  "COOLHEADED": {
+   "win": 0.5760000000000001,
+   "war": 23.8,
+   "gold": 49.0,
+   "war_per_100g": 0.119
+  },
+  "GLOW": {
+   "win": 0.505,
+   "war": 8.6,
+   "gold": 49.0,
+   "war_per_100g": 0.045
+  },
+  "POMMEL_STRIKE": {
+   "win": 0.522,
+   "war": 2.0,
+   "gold": 49.0,
+   "war_per_100g": 0.011
+  },
+  "BLOODLETTING": {
+   "win": 0.49,
+   "war": -6.6,
+   "gold": 49.0,
+   "war_per_100g": -0.035
+  },
+  "ACROBATICS": {
+   "win": 0.619,
+   "war": 28.3,
+   "gold": 74.0,
+   "war_per_100g": 0.099
+  },
+  "HOLOGRAM": {
+   "win": 0.5579999999999999,
+   "war": 13.9,
+   "gold": 49.0,
+   "war_per_100g": 0.076
+  },
+  "SHRUG_IT_OFF": {
+   "win": 0.509,
+   "war": 7.1,
+   "gold": 49.0,
+   "war_per_100g": 0.038
+  },
+  "DEFY": {
+   "win": 0.5,
+   "war": 7.1,
+   "gold": 49.0,
+   "war_per_100g": 0.043
+  },
+  "BACKFLIP": {
+   "win": 0.5660000000000001,
+   "war": 7.6,
+   "gold": 49.0,
+   "war_per_100g": 0.046
+  },
+  "PIERCING_WAIL": {
+   "win": 0.5539999999999999,
+   "war": 7.2,
+   "gold": 49.0,
+   "war_per_100g": 0.047
+  },
+  "TURBO": {
+   "win": 0.509,
+   "war": -1.9,
+   "gold": 49.0,
+   "war_per_100g": -0.012
+  },
+  "GATHER_LIGHT": {
+   "win": 0.446,
+   "war": 3.3,
+   "gold": 49.0,
+   "war_per_100g": 0.022
+  },
+  "GRAVE_WARDEN": {
+   "win": 0.49700000000000005,
+   "war": 2.6,
+   "gold": 49.0,
+   "war_per_100g": 0.018
+  },
+  "UNTOUCHABLE": {
+   "win": 0.523,
+   "war": 4.9,
+   "gold": 49.0,
+   "war_per_100g": 0.035
+  },
+  "HIDDEN_CACHE": {
+   "win": 0.41600000000000004,
+   "war": -13.1,
+   "gold": 49.0,
+   "war_per_100g": -0.095
+  },
+  "TRUE_GRIT": {
+   "win": 0.506,
+   "war": 2.2,
+   "gold": 48.0,
+   "war_per_100g": 0.017
+  },
+  "COSMIC_INDIFFERENCE": {
+   "win": 0.415,
+   "war": -13.6,
+   "gold": 49.0,
+   "war_per_100g": -0.113
+  },
+  "TREMBLE": {
+   "win": 0.48700000000000004,
+   "war": 6.0,
+   "gold": 49.0,
+   "war_per_100g": 0.053
+  },
+  "CLAW": {
+   "win": 0.504,
+   "war": 0.6,
+   "gold": 49.0,
+   "war_per_100g": 0.005
+  },
+  "BOOST_AWAY": {
+   "win": 0.486,
+   "war": 4.8,
+   "gold": 49.0,
+   "war_per_100g": 0.044
+  },
+  "CHARGE_BATTERY": {
+   "win": 0.435,
+   "war": -4.2,
+   "gold": 49.0,
+   "war_per_100g": -0.039
+  },
+  "CLOAK_OF_STARS": {
+   "win": 0.44799999999999995,
+   "war": -1.2,
+   "gold": 49.0,
+   "war_per_100g": -0.011
+  },
+  "WISP": {
+   "win": 0.565,
+   "war": 4.1,
+   "gold": 49.0,
+   "war_per_100g": 0.04
+  },
+  "BLADE_DANCE": {
+   "win": 0.556,
+   "war": 6.6,
+   "gold": 49.0,
+   "war_per_100g": 0.066
+  },
+  "KNOW_THY_PLACE": {
+   "win": 0.535,
+   "war": 13.6,
+   "gold": 49.0,
+   "war_per_100g": 0.137
+  },
+  "FOOTWORK": {
+   "win": 0.51,
+   "war": 0.9,
+   "gold": 73.0,
+   "war_per_100g": 0.006
+  },
+  "CALCULATED_GAMBLE": {
+   "win": 0.579,
+   "war": 7.1,
+   "gold": 72.0,
+   "war_per_100g": 0.051
+  },
+  "REFLECT": {
+   "win": 0.47100000000000003,
+   "war": 5.0,
+   "gold": 73.0,
+   "war_per_100g": 0.036
+  },
+  "HOTFIX": {
+   "win": 0.601,
+   "war": 12.9,
+   "gold": 49.0,
+   "war_per_100g": 0.14
+  },
+  "BURNING_PACT": {
+   "win": 0.449,
+   "war": -10.4,
+   "gold": 72.0,
+   "war_per_100g": -0.077
+  },
+  "GO_FOR_THE_EYES": {
+   "win": 0.5670000000000001,
+   "war": 17.1,
+   "gold": 49.0,
+   "war_per_100g": 0.187
+  },
+  "GLACIER": {
+   "win": 0.5579999999999999,
+   "war": 13.7,
+   "gold": 74.0,
+   "war_per_100g": 0.102
+  },
+  "DEFLECT": {
+   "win": 0.5920000000000001,
+   "war": 2.5,
+   "gold": 49.0,
+   "war_per_100g": 0.029
+  },
+  "ESCAPE_PLAN": {
+   "win": 0.61,
+   "war": 9.4,
+   "gold": 73.0,
+   "war_per_100g": 0.073
+  },
+  "BLOOD_WALL": {
+   "win": 0.483,
+   "war": -0.8,
+   "gold": 49.0,
+   "war_per_100g": -0.009
+  },
+  "NEGATIVE_PULSE": {
+   "win": 0.42,
+   "war": -5.2,
+   "gold": 50.0,
+   "war_per_100g": -0.06
+  },
+  "FEEL_NO_PAIN": {
+   "win": 0.585,
+   "war": 6.3,
+   "gold": 72.0,
+   "war_per_100g": 0.051
+  },
+  "TACTICIAN": {
+   "win": 0.561,
+   "war": -2.8,
+   "gold": 73.0,
+   "war_per_100g": -0.023
+  },
+  "CHILD_OF_THE_STARS": {
+   "win": 0.526,
+   "war": 2.8,
+   "gold": 73.0,
+   "war_per_100g": 0.022
+  },
+  "BATTLE_TRANCE": {
+   "win": 0.59,
+   "war": 13.8,
+   "gold": 73.0,
+   "war_per_100g": 0.114
+  },
+  "INVOKE": {
+   "win": 0.479,
+   "war": -5.5,
+   "gold": 48.0,
+   "war_per_100g": -0.068
+  },
+  "CAPACITOR": {
+   "win": 0.506,
+   "war": -3.2,
+   "gold": 73.0,
+   "war_per_100g": -0.027
+  },
+  "DOMINATE": {
+   "win": 0.46299999999999997,
+   "war": -1.5,
+   "gold": 73.0,
+   "war_per_100g": -0.013
+  },
+  "SKIM": {
+   "win": 0.604,
+   "war": 11.1,
+   "gold": 74.0,
+   "war_per_100g": 0.094
+  },
+  "MOLTEN_FIST": {
+   "win": 0.449,
+   "war": -4.0,
+   "gold": 49.0,
+   "war_per_100g": -0.052
+  },
+  "GLITTERSTREAM": {
+   "win": 0.359,
+   "war": -15.7,
+   "gold": 49.0,
+   "war_per_100g": -0.206
+  },
+  "ENFEEBLING_TOUCH": {
+   "win": 0.483,
+   "war": 0.1,
+   "gold": 73.0,
+   "war_per_100g": 0.001
+  },
+  "CLOAK_AND_DAGGER": {
+   "win": 0.531,
+   "war": 2.9,
+   "gold": 49.0,
+   "war_per_100g": 0.041
+  },
+  "ARMAMENTS": {
+   "win": 0.552,
+   "war": 9.2,
+   "gold": 49.0,
+   "war_per_100g": 0.13
+  },
+  "DAGGER_THROW": {
+   "win": 0.348,
+   "war": -8.8,
+   "gold": 50.0,
+   "war_per_100g": -0.126
+  },
+  "ROYAL_GAMBLE": {
+   "win": 0.45299999999999996,
+   "war": -6.2,
+   "gold": 73.0,
+   "war_per_100g": -0.062
+  },
+  "OVERCLOCK": {
+   "win": 0.5760000000000001,
+   "war": 10.5,
+   "gold": 73.0,
+   "war_per_100g": 0.104
+  },
+  "FLAME_BARRIER": {
+   "win": 0.457,
+   "war": -4.3,
+   "gold": 73.0,
+   "war_per_100g": -0.042
+  },
+  "BEGONE": {
+   "win": 0.43,
+   "war": 0.1,
+   "gold": 48.0,
+   "war_per_100g": 0.001
+  },
+  "TAUNT": {
+   "win": 0.489,
+   "war": 3.0,
+   "gold": 74.0,
+   "war_per_100g": 0.031
+  },
+  "FRIENDSHIP": {
+   "win": 0.588,
+   "war": 10.8,
+   "gold": 74.0,
+   "war_per_100g": 0.112
+  },
+  "COMPILE_DRIVER": {
+   "win": 0.638,
+   "war": 12.9,
+   "gold": 49.0,
+   "war_per_100g": 0.202
+  },
+  "BORROWED_TIME": {
+   "win": 0.562,
+   "war": -0.7,
+   "gold": 72.0,
+   "war_per_100g": -0.007
+  },
+  "COLOSSUS": {
+   "win": 0.575,
+   "war": 10.1,
+   "gold": 74.0,
+   "war_per_100g": 0.108
+  },
+  "CHILL": {
+   "win": 0.5429999999999999,
+   "war": 3.0,
+   "gold": 73.0,
+   "war_per_100g": 0.033
+  },
+  "SCOURGE": {
+   "win": 0.49200000000000005,
+   "war": 0.3,
+   "gold": 49.0,
+   "war_per_100g": 0.005
+  },
+  "PULL_AGGRO": {
+   "win": 0.488,
+   "war": 1.9,
+   "gold": 49.0,
+   "war_per_100g": 0.03
+  },
+  "BULWARK": {
+   "win": 0.496,
+   "war": 4.0,
+   "gold": 73.0,
+   "war_per_100g": 0.045
+  },
+  "PARTICLE_WALL": {
+   "win": 0.46299999999999997,
+   "war": -3.1,
+   "gold": 73.0,
+   "war_per_100g": -0.036
+  },
+  "DIRGE": {
+   "win": 0.5670000000000001,
+   "war": 4.3,
+   "gold": 73.0,
+   "war_per_100g": 0.049
+  },
+  "CONVERGENCE": {
+   "win": 0.504,
+   "war": 3.3,
+   "gold": 73.0,
+   "war_per_100g": 0.039
+  },
+  "DELAY": {
+   "win": 0.43700000000000006,
+   "war": -8.5,
+   "gold": 72.0,
+   "war_per_100g": -0.098
+  },
+  "LIGHTNING_ROD": {
+   "win": 0.429,
+   "war": -1.6,
+   "gold": 49.0,
+   "war_per_100g": -0.027
+  },
+  "NOXIOUS_FUMES": {
+   "win": 0.45799999999999996,
+   "war": -2.2,
+   "gold": 72.0,
+   "war_per_100g": -0.025
+  },
+  "FORGOTTEN_RITUAL": {
+   "win": 0.513,
+   "war": -2.7,
+   "gold": 73.0,
+   "war_per_100g": -0.031
+  },
+  "DODGE_AND_ROLL": {
+   "win": 0.504,
+   "war": -2.0,
+   "gold": 49.0,
+   "war_per_100g": -0.036
+  },
+  "WELL_LAID_PLANS": {
+   "win": 0.53,
+   "war": 3.4,
+   "gold": 74.0,
+   "war_per_100g": 0.04
+  },
+  "SUBROUTINE": {
+   "win": 0.603,
+   "war": 4.9,
+   "gold": 71.0,
+   "war_per_100g": 0.059
+  },
+  "BOOT_SEQUENCE": {
+   "win": 0.5429999999999999,
+   "war": 7.6,
+   "gold": 74.0,
+   "war_per_100g": 0.089
+  },
+  "LEG_SWEEP": {
+   "win": 0.574,
+   "war": 4.2,
+   "gold": 73.0,
+   "war_per_100g": 0.05
+  },
+  "ORBIT": {
+   "win": 0.496,
+   "war": 0.3,
+   "gold": 73.0,
+   "war_per_100g": 0.004
+  },
+  "WHITE_NOISE": {
+   "win": 0.522,
+   "war": -3.0,
+   "gold": 74.0,
+   "war_per_100g": -0.035
+  },
+  "REFLEX": {
+   "win": 0.496,
+   "war": -3.8,
+   "gold": 73.0,
+   "war_per_100g": -0.045
+  },
+  "PATTER": {
+   "win": 0.426,
+   "war": 0.3,
+   "gold": 49.0,
+   "war_per_100g": 0.006
+  },
+  "BLUR": {
+   "win": 0.579,
+   "war": 3.3,
+   "gold": 73.0,
+   "war_per_100g": 0.04
+  },
+  "SPOILS_OF_BATTLE": {
+   "win": 0.386,
+   "war": -8.4,
+   "gold": 49.0,
+   "war_per_100g": -0.15
+  },
+  "LEAP": {
+   "win": 0.363,
+   "war": -8.7,
+   "gold": 49.0,
+   "war_per_100g": -0.156
+  },
+  "PERFECTED_STRIKE": {
+   "win": 0.46399999999999997,
+   "war": -0.8,
+   "gold": 50.0,
+   "war_per_100g": -0.014
+  },
+  "CHARGE": {
+   "win": 0.446,
+   "war": 0.3,
+   "gold": 72.0,
+   "war_per_100g": 0.004
+  },
+  "COLD_SNAP": {
+   "win": 0.355,
+   "war": -6.1,
+   "gold": 50.0,
+   "war_per_100g": -0.111
+  },
+  "HEADBUTT": {
+   "win": 0.505,
+   "war": 1.9,
+   "gold": 49.0,
+   "war_per_100g": 0.035
+  },
+  "LETHALITY": {
+   "win": 0.505,
+   "war": 4.0,
+   "gold": 73.0,
+   "war_per_100g": 0.051
+  },
+  "STONE_ARMOR": {
+   "win": 0.585,
+   "war": 5.4,
+   "gold": 73.0,
+   "war_per_100g": 0.071
+  },
+  "BLACK_HOLE": {
+   "win": 0.415,
+   "war": -0.4,
+   "gold": 74.0,
+   "war_per_100g": -0.005
+  },
+  "HAVOC": {
+   "win": 0.514,
+   "war": -0.0,
+   "gold": 49.0,
+   "war_per_100g": -0.0
+  },
+  "EVIL_EYE": {
+   "win": 0.5710000000000001,
+   "war": 4.4,
+   "gold": 73.0,
+   "war_per_100g": 0.058
+  },
+  "SECOND_WIND": {
+   "win": 0.6,
+   "war": 7.6,
+   "gold": 74.0,
+   "war_per_100g": 0.098
+  },
+  "ALIGNMENT": {
+   "win": 0.505,
+   "war": 2.8,
+   "gold": 73.0,
+   "war_per_100g": 0.036
+  },
+  "PUTREFY": {
+   "win": 0.51,
+   "war": 3.5,
+   "gold": 73.0,
+   "war_per_100g": 0.046
+  },
+  "HAZE": {
+   "win": 0.534,
+   "war": 4.1,
+   "gold": 73.0,
+   "war_per_100g": 0.055
+  },
+  "RICOCHET": {
+   "win": 0.402,
+   "war": -6.4,
+   "gold": 50.0,
+   "war_per_100g": -0.125
+  },
+  "EXPOSE": {
+   "win": 0.495,
+   "war": -2.0,
+   "gold": 73.0,
+   "war_per_100g": -0.028
+  },
+  "GRAVEBLAST": {
+   "win": 0.535,
+   "war": 1.6,
+   "gold": 48.0,
+   "war_per_100g": 0.034
+  },
+  "ASHEN_STRIKE": {
+   "win": 0.433,
+   "war": -1.6,
+   "gold": 73.0,
+   "war_per_100g": -0.023
+  },
+  "ASTRAL_PULSE": {
+   "win": 0.22699999999999998,
+   "war": -12.4,
+   "gold": 49.0,
+   "war_per_100g": -0.261
+  },
+  "VICIOUS": {
+   "win": 0.44799999999999995,
+   "war": -5.3,
+   "gold": 72.0,
+   "war_per_100g": -0.076
+  },
+  "COMPACT": {
+   "win": 0.49,
+   "war": 3.0,
+   "gold": 74.0,
+   "war_per_100g": 0.042
+  },
+  "FETCH": {
+   "win": 0.49,
+   "war": 2.8,
+   "gold": 74.0,
+   "war_per_100g": 0.039
+  },
+  "AFTERLIFE": {
+   "win": 0.552,
+   "war": 5.7,
+   "gold": 49.0,
+   "war_per_100g": 0.123
+  },
+  "SLEIGHT_OF_FLESH": {
+   "win": 0.474,
+   "war": -0.8,
+   "gold": 73.0,
+   "war_per_100g": -0.012
+  },
+  "CAPTURE_SPIRIT": {
+   "win": 0.4,
+   "war": -7.4,
+   "gold": 74.0,
+   "war_per_100g": -0.105
+  },
+  "GUIDING_STAR": {
+   "win": 0.436,
+   "war": -1.0,
+   "gold": 50.0,
+   "war_per_100g": -0.021
+  },
+  "BEAM_CELL": {
+   "win": 0.40399999999999997,
+   "war": -7.4,
+   "gold": 49.0,
+   "war_per_100g": -0.162
+  },
+  "MANIFEST_AUTHORITY": {
+   "win": 0.467,
+   "war": 1.8,
+   "gold": 73.0,
+   "war_per_100g": 0.026
+  },
+  "SNAKEBITE": {
+   "win": 0.391,
+   "war": -3.0,
+   "gold": 50.0,
+   "war_per_100g": -0.067
+  },
+  "PILLAR_OF_CREATION": {
+   "win": 0.56,
+   "war": 2.9,
+   "gold": 73.0,
+   "war_per_100g": 0.044
+  },
+  "CRESCENT_SPEAR": {
+   "win": 0.495,
+   "war": 1.4,
+   "gold": 50.0,
+   "war_per_100g": 0.031
+  },
+  "FEAR": {
+   "win": 0.456,
+   "war": 0.3,
+   "gold": 49.0,
+   "war_per_100g": 0.007
+  },
+  "FERAL": {
+   "win": 0.389,
+   "war": -8.2,
+   "gold": 74.0,
+   "war_per_100g": -0.124
+  },
+  "LOOP": {
+   "win": 0.5670000000000001,
+   "war": 0.0,
+   "gold": 73.0,
+   "war_per_100g": 0.0
+  },
+  "DEATHS_DOOR": {
+   "win": 0.551,
+   "war": 7.5,
+   "gold": 73.0,
+   "war_per_100g": 0.116
+  },
+  "SHADOW_SHIELD": {
+   "win": 0.44299999999999995,
+   "war": -1.6,
+   "gold": 74.0,
+   "war_per_100g": -0.024
+  },
+  "FTL": {
+   "win": 0.529,
+   "war": 6.3,
+   "gold": 74.0,
+   "war_per_100g": 0.097
+  },
+  "HIDDEN_DAGGERS": {
+   "win": 0.45299999999999996,
+   "war": 1.9,
+   "gold": 72.0,
+   "war_per_100g": 0.03
+  },
+  "BALL_LIGHTNING": {
+   "win": 0.271,
+   "war": -9.7,
+   "gold": 50.0,
+   "war_per_100g": -0.231
+  },
+  "BREAKTHROUGH": {
+   "win": 0.369,
+   "war": -1.1,
+   "gold": 50.0,
+   "war_per_100g": -0.027
+  },
+  "REFINE_BLADE": {
+   "win": 0.35700000000000004,
+   "war": -7.5,
+   "gold": 49.0,
+   "war_per_100g": -0.184
+  },
+  "SNAP": {
+   "win": 0.33299999999999996,
+   "war": -9.6,
+   "gold": 50.0,
+   "war_per_100g": -0.229
+  },
+  "BARRAGE": {
+   "win": 0.5,
+   "war": 3.5,
+   "gold": 50.0,
+   "war_per_100g": 0.085
+  },
+  "SUMMON_FORTH": {
+   "win": 0.39799999999999996,
+   "war": -6.3,
+   "gold": 73.0,
+   "war_per_100g": -0.105
+  },
+  "EXPECT_A_FIGHT": {
+   "win": 0.46299999999999997,
+   "war": -1.6,
+   "gold": 72.0,
+   "war_per_100g": -0.027
+  },
+  "RAGE": {
+   "win": 0.42,
+   "war": -5.6,
+   "gold": 74.0,
+   "war_per_100g": -0.093
+  },
+  "DOUBLE_ENERGY": {
+   "win": 0.679,
+   "war": 9.2,
+   "gold": 75.0,
+   "war_per_100g": 0.152
+  },
+  "FIGHT_THROUGH": {
+   "win": 0.5379999999999999,
+   "war": 10.3,
+   "gold": 74.0,
+   "war_per_100g": 0.174
+  },
+  "DEATHBRINGER": {
+   "win": 0.494,
+   "war": 4.9,
+   "gold": 73.0,
+   "war_per_100g": 0.084
+  },
+  "ITERATION": {
+   "win": 0.456,
+   "war": -1.3,
+   "gold": 74.0,
+   "war_per_100g": -0.022
+  },
+  "POKE": {
+   "win": 0.38,
+   "war": -4.9,
+   "gold": 50.0,
+   "war_per_100g": -0.126
+  },
+  "FLATTEN": {
+   "win": 0.342,
+   "war": -5.7,
+   "gold": 50.0,
+   "war_per_100g": -0.145
+  },
+  "NO_ESCAPE": {
+   "win": 0.392,
+   "war": -6.1,
+   "gold": 73.0,
+   "war_per_100g": -0.105
+  },
+  "INFLAME": {
+   "win": 0.513,
+   "war": 1.2,
+   "gold": 73.0,
+   "war_per_100g": 0.021
+  },
+  "UPPERCUT": {
+   "win": 0.603,
+   "war": 7.2,
+   "gold": 75.0,
+   "war_per_100g": 0.124
+  },
+  "UPROAR": {
+   "win": 0.474,
+   "war": 2.4,
+   "gold": 49.0,
+   "war_per_100g": 0.063
+  },
+  "GAMMA_BLAST": {
+   "win": 0.5770000000000001,
+   "war": 7.3,
+   "gold": 74.0,
+   "war_per_100g": 0.125
+  },
+  "PARSE": {
+   "win": 0.532,
+   "war": 0.0,
+   "gold": 72.0,
+   "war_per_100g": 0.001
+  },
+  "ROCKET_PUNCH": {
+   "win": 0.61,
+   "war": 8.3,
+   "gold": 74.0,
+   "war_per_100g": 0.146
+  },
+  "FLICK_FLACK": {
+   "win": 0.32899999999999996,
+   "war": -8.3,
+   "gold": 49.0,
+   "war_per_100g": -0.221
+  },
+  "DEADLY_POISON": {
+   "win": 0.474,
+   "war": -0.6,
+   "gold": 50.0,
+   "war_per_100g": -0.015
+  },
+  "BULK_UP": {
+   "win": 0.48700000000000004,
+   "war": -2.1,
+   "gold": 74.0,
+   "war_per_100g": -0.037
+  },
+  "THUNDERCLAP": {
+   "win": 0.33299999999999996,
+   "war": -4.7,
+   "gold": 49.0,
+   "war_per_100g": -0.128
+  },
+  "BODY_SLAM": {
+   "win": 0.6759999999999999,
+   "war": 5.3,
+   "gold": 49.0,
+   "war_per_100g": 0.147
+  },
+  "ACCURACY": {
+   "win": 0.635,
+   "war": 3.6,
+   "gold": 73.0,
+   "war_per_100g": 0.066
+  },
+  "RUPTURE": {
+   "win": 0.466,
+   "war": -5.5,
+   "gold": 74.0,
+   "war_per_100g": -0.102
+  },
+  "SPECTRUM_SHIFT": {
+   "win": 0.452,
+   "war": -3.9,
+   "gold": 73.0,
+   "war_per_100g": -0.072
+  },
+  "LEADING_STRIKE": {
+   "win": 0.486,
+   "war": 2.6,
+   "gold": 49.0,
+   "war_per_100g": 0.075
+  },
+  "CRUSH_UNDER": {
+   "win": 0.39399999999999996,
+   "war": 0.6,
+   "gold": 50.0,
+   "war_per_100g": 0.018
+  },
+  "SYNCHRONIZE": {
+   "win": 0.614,
+   "war": 4.2,
+   "gold": 74.0,
+   "war_per_100g": 0.081
+  },
+  "QUASAR": {
+   "win": 0.42,
+   "war": -3.3,
+   "gold": 73.0,
+   "war_per_100g": -0.066
+  },
+  "STORM": {
+   "win": 0.623,
+   "war": 3.1,
+   "gold": 73.0,
+   "war_per_100g": 0.061
+  },
+  "THUNDER": {
+   "win": 0.507,
+   "war": 1.1,
+   "gold": 73.0,
+   "war_per_100g": 0.022
+  },
+  "SCAVENGE": {
+   "win": 0.536,
+   "war": 4.7,
+   "gold": 73.0,
+   "war_per_100g": 0.093
+  },
+  "STAMPEDE": {
+   "win": 0.5589999999999999,
+   "war": 4.1,
+   "gold": 73.0,
+   "war_per_100g": 0.083
+  },
+  "SOLAR_STRIKE": {
+   "win": 0.33799999999999997,
+   "war": -3.9,
+   "gold": 49.0,
+   "war_per_100g": -0.117
+  },
+  "GLIMMER": {
+   "win": 0.588,
+   "war": 6.9,
+   "gold": 72.0,
+   "war_per_100g": 0.142
+  },
+  "GLASSWORK": {
+   "win": 0.25,
+   "war": -9.2,
+   "gold": 74.0,
+   "war_per_100g": -0.182
+  },
+  "RADIATE": {
+   "win": 0.34299999999999997,
+   "war": -6.5,
+   "gold": 74.0,
+   "war_per_100g": -0.132
+  },
+  "ANGER": {
+   "win": 0.39399999999999996,
+   "war": -6.6,
+   "gold": 50.0,
+   "war_per_100g": -0.202
+  },
+  "COUNTDOWN": {
+   "win": 0.385,
+   "war": -1.5,
+   "gold": 73.0,
+   "war_per_100g": -0.031
+  },
+  "ANTICIPATE": {
+   "win": 0.516,
+   "war": -3.3,
+   "gold": 48.0,
+   "war_per_100g": -0.107
+  },
+  "HAUNT": {
+   "win": 0.578,
+   "war": 3.4,
+   "gold": 73.0,
+   "war_per_100g": 0.072
+  },
+  "CLEANSE": {
+   "win": 0.375,
+   "war": -1.6,
+   "gold": 75.0,
+   "war_per_100g": -0.033
+  },
+  "PAGESTORM": {
+   "win": 0.5870000000000001,
+   "war": 2.9,
+   "gold": 74.0,
+   "war_per_100g": 0.063
+  },
+  "GUNK_UP": {
+   "win": 0.444,
+   "war": 2.3,
+   "gold": 49.0,
+   "war_per_100g": 0.073
+  },
+  "DRUM_OF_BATTLE": {
+   "win": 0.54,
+   "war": -0.0,
+   "gold": 74.0,
+   "war_per_100g": -0.001
+  },
+  "PILLAGE": {
+   "win": 0.46799999999999997,
+   "war": -2.7,
+   "gold": 74.0,
+   "war_per_100g": -0.058
+  },
+  "COLLISION_COURSE": {
+   "win": 0.371,
+   "war": -2.1,
+   "gold": 50.0,
+   "war_per_100g": -0.069
+  },
+  "SHINING_STRIKE": {
+   "win": 0.295,
+   "war": -5.6,
+   "gold": 74.0,
+   "war_per_100g": -0.125
+  },
+  "DANSE_MACABRE": {
+   "win": 0.525,
+   "war": 3.1,
+   "gold": 74.0,
+   "war_per_100g": 0.069
+  },
+  "DREDGE": {
+   "win": 0.557,
+   "war": 2.6,
+   "gold": 72.0,
+   "war_per_100g": 0.059
+  },
+  "DEBILITATE": {
+   "win": 0.59,
+   "war": 5.8,
+   "gold": 74.0,
+   "war_per_100g": 0.13
+  },
+  "REAVE": {
+   "win": 0.35,
+   "war": -4.6,
+   "gold": 50.0,
+   "war_per_100g": -0.154
+  },
+  "SUPERMASSIVE": {
+   "win": 0.467,
+   "war": -1.0,
+   "gold": 75.0,
+   "war_per_100g": -0.022
+  },
+  "SEVERANCE": {
+   "win": 0.542,
+   "war": 1.9,
+   "gold": 74.0,
+   "war_per_100g": 0.044
+  },
+  "BULLY": {
+   "win": 0.368,
+   "war": -4.1,
+   "gold": 75.0,
+   "war_per_100g": -0.096
+  },
+  "TWIN_STRIKE": {
+   "win": 0.386,
+   "war": -4.1,
+   "gold": 50.0,
+   "war_per_100g": -0.146
+  },
+  "FOCUSED_STRIKE": {
+   "win": 0.474,
+   "war": 1.8,
+   "gold": 49.0,
+   "war_per_100g": 0.064
+  },
+  "SMOKESTACK": {
+   "win": 0.439,
+   "war": -0.0,
+   "gold": 73.0,
+   "war_per_100g": -0.0
+  },
+  "SWORD_BOOMERANG": {
+   "win": 0.5,
+   "war": 1.3,
+   "gold": 50.0,
+   "war_per_100g": 0.047
+  },
+  "RESONANCE": {
+   "win": 0.5,
+   "war": 1.2,
+   "gold": 72.0,
+   "war_per_100g": 0.03
+  },
+  "DARKNESS": {
+   "win": 0.46399999999999997,
+   "war": -2.0,
+   "gold": 72.0,
+   "war_per_100g": -0.05
+  },
+  "INFERNO": {
+   "win": 0.214,
+   "war": -9.3,
+   "gold": 74.0,
+   "war_per_100g": -0.224
+  },
+  "WHIRLWIND": {
+   "win": 0.491,
+   "war": 0.8,
+   "gold": 72.0,
+   "war_per_100g": 0.021
+  },
+  "SPEEDSTER": {
+   "win": 0.455,
+   "war": -0.6,
+   "gold": 74.0,
+   "war_per_100g": -0.014
+  },
+  "SPUR": {
+   "win": 0.436,
+   "war": -2.2,
+   "gold": 74.0,
+   "war_per_100g": -0.055
+  },
+  "HAILSTORM": {
+   "win": 0.444,
+   "war": -1.1,
+   "gold": 74.0,
+   "war_per_100g": -0.027
+  },
+  "HAND_TRICK": {
+   "win": 0.396,
+   "war": -1.9,
+   "gold": 71.0,
+   "war_per_100g": -0.051
+  },
+  "SHROUD": {
+   "win": 0.48100000000000004,
+   "war": -1.1,
+   "gold": 71.0,
+   "war_per_100g": -0.029
+  },
+  "BONE_SHARDS": {
+   "win": 0.353,
+   "war": -3.1,
+   "gold": 75.0,
+   "war_per_100g": -0.081
+  },
+  "STARDUST": {
+   "win": 0.51,
+   "war": 2.1,
+   "gold": 73.0,
+   "war_per_100g": 0.056
+  },
+  "PHOTON_CUT": {
+   "win": 0.51,
+   "war": 2.4,
+   "gold": 49.0,
+   "war_per_100g": 0.097
+  },
+  "SCULPTING_STRIKE": {
+   "win": 0.32,
+   "war": -3.0,
+   "gold": 50.0,
+   "war_per_100g": -0.122
+  },
+  "SPITE": {
+   "win": 0.551,
+   "war": 4.1,
+   "gold": 73.0,
+   "war_per_100g": 0.116
+  },
+  "REFRACT": {
+   "win": 0.34700000000000003,
+   "war": -0.4,
+   "gold": 74.0,
+   "war_per_100g": -0.01
+  },
+  "BLUDGEON": {
+   "win": 0.45799999999999996,
+   "war": 0.0,
+   "gold": 73.0,
+   "war_per_100g": 0.001
+  },
+  "MELANCHOLY": {
+   "win": 0.521,
+   "war": 3.3,
+   "gold": 73.0,
+   "war_per_100g": 0.095
+  },
+  "INFINITE_BLADES": {
+   "win": 0.426,
+   "war": -1.9,
+   "gold": 75.0,
+   "war_per_100g": -0.055
+  },
+  "UP_MY_SLEEVE": {
+   "win": 0.46799999999999997,
+   "war": -2.4,
+   "gold": 74.0,
+   "war_per_100g": -0.068
+  },
+  "REAP": {
+   "win": 0.40399999999999997,
+   "war": 0.6,
+   "gold": 49.0,
+   "war_per_100g": 0.025
+  },
+  "BOUNCING_FLASK": {
+   "win": 0.426,
+   "war": -2.3,
+   "gold": 74.0,
+   "war_per_100g": -0.067
+  },
+  "FUSION": {
+   "win": 0.426,
+   "war": -1.9,
+   "gold": 71.0,
+   "war_per_100g": -0.056
+  },
+  "PHANTOM_BLADES": {
+   "win": 0.46799999999999997,
+   "war": -0.1,
+   "gold": 73.0,
+   "war_per_100g": -0.002
+  },
+  "DISMANTLE": {
+   "win": 0.304,
+   "war": -2.7,
+   "gold": 75.0,
+   "war_per_100g": -0.079
+  },
+  "STOMP": {
+   "win": 0.5,
+   "war": 2.6,
+   "gold": 74.0,
+   "war_per_100g": 0.077
+  },
+  "HOWL_FROM_BEYOND": {
+   "win": 0.511,
+   "war": 0.9,
+   "gold": 73.0,
+   "war_per_100g": 0.027
+  },
+  "PULL_FROM_BELOW": {
+   "win": 0.409,
+   "war": -3.0,
+   "gold": 72.0,
+   "war_per_100g": -0.094
+  },
+  "HIGH_FIVE": {
+   "win": 0.386,
+   "war": -0.3,
+   "gold": 74.0,
+   "war_per_100g": -0.011
+  },
+  "PALE_BLUE_DOT": {
+   "win": 0.591,
+   "war": 2.0,
+   "gold": 73.0,
+   "war_per_100g": 0.063
+  },
+  "SWEEPING_BEAM": {
+   "win": 0.273,
+   "war": -5.4,
+   "gold": 50.0,
+   "war_per_100g": -0.244
+  },
+  "TESLA_COIL": {
+   "win": 0.614,
+   "war": 6.3,
+   "gold": 71.0,
+   "war_per_100g": 0.2
+  },
+  "TEMPEST": {
+   "win": 0.512,
+   "war": -0.2,
+   "gold": 72.0,
+   "war_per_100g": -0.006
+  },
+  "BACKSTAB": {
+   "win": 0.326,
+   "war": -4.7,
+   "gold": 74.0,
+   "war_per_100g": -0.149
+  },
+  "OUTBREAK": {
+   "win": 0.5579999999999999,
+   "war": 1.4,
+   "gold": 73.0,
+   "war_per_100g": 0.045
+  },
+  "CONQUEROR": {
+   "win": 0.27899999999999997,
+   "war": -8.7,
+   "gold": 74.0,
+   "war_per_100g": -0.273
+  },
+  "SIC_EM": {
+   "win": 0.37200000000000005,
+   "war": -1.1,
+   "gold": 74.0,
+   "war_per_100g": -0.035
+  },
+  "SETUP_STRIKE": {
+   "win": 0.452,
+   "war": -2.6,
+   "gold": 49.0,
+   "war_per_100g": -0.127
+  },
+  "UNRELENTING": {
+   "win": 0.33299999999999996,
+   "war": -5.1,
+   "gold": 73.0,
+   "war_per_100g": -0.165
+  },
+  "PARRY": {
+   "win": 0.405,
+   "war": -2.9,
+   "gold": 75.0,
+   "war_per_100g": -0.094
+  },
+  "INFERNAL_BLADE": {
+   "win": 0.46299999999999997,
+   "war": -2.8,
+   "gold": 71.0,
+   "war_per_100g": -0.097
+  },
+  "RATTLE": {
+   "win": 0.475,
+   "war": -1.1,
+   "gold": 74.0,
+   "war_per_100g": -0.036
+  },
+  "RIGHT_HAND_HAND": {
+   "win": 0.5,
+   "war": 1.6,
+   "gold": 74.0,
+   "war_per_100g": 0.053
+  },
+  "BUBBLE_BUBBLE": {
+   "win": 0.55,
+   "war": -0.1,
+   "gold": 73.0,
+   "war_per_100g": -0.003
+  },
+  "VEILPIERCER": {
+   "win": 0.4,
+   "war": -1.3,
+   "gold": 73.0,
+   "war_per_100g": -0.044
+  },
+  "DEFILE": {
+   "win": 0.48700000000000004,
+   "war": 3.8,
+   "gold": 50.0,
+   "war_per_100g": 0.197
+  },
+  "FLECHETTES": {
+   "win": 0.395,
+   "war": -0.8,
+   "gold": 74.0,
+   "war_per_100g": -0.029
+  },
+  "FURNACE": {
+   "win": 0.474,
+   "war": 1.1,
+   "gold": 73.0,
+   "war_per_100g": 0.039
+  },
+  "JUGGLING": {
+   "win": 0.486,
+   "war": -1.4,
+   "gold": 74.0,
+   "war_per_100g": -0.051
+  },
+  "CALCIFY": {
+   "win": 0.35100000000000003,
+   "war": -3.6,
+   "gold": 75.0,
+   "war_per_100g": -0.129
+  },
+  "MIRAGE": {
+   "win": 0.583,
+   "war": -1.4,
+   "gold": 71.0,
+   "war_per_100g": -0.053
+  },
+  "BLIGHT_STRIKE": {
+   "win": 0.361,
+   "war": -4.3,
+   "gold": 48.0,
+   "war_per_100g": -0.245
+  },
+  "SOW": {
+   "win": 0.33299999999999996,
+   "war": 0.3,
+   "gold": 50.0,
+   "war_per_100g": 0.018
+  },
+  "PINPOINT": {
+   "win": 0.34299999999999997,
+   "war": -4.0,
+   "gold": 70.0,
+   "war_per_100g": -0.162
+  },
+  "SCRAPE": {
+   "win": 0.529,
+   "war": -1.4,
+   "gold": 73.0,
+   "war_per_100g": -0.057
+  },
+  "CINDER": {
+   "win": 0.324,
+   "war": -3.6,
+   "gold": 50.0,
+   "war_per_100g": -0.214
+  },
+  "NULL": {
+   "win": 0.235,
+   "war": -4.8,
+   "gold": 74.0,
+   "war_per_100g": -0.193
+  },
+  "IRON_WAVE": {
+   "win": 0.39399999999999996,
+   "war": -5.0,
+   "gold": 48.0,
+   "war_per_100g": -0.32
+  },
+  "DAGGER_SPRAY": {
+   "win": 0.212,
+   "war": -3.3,
+   "gold": 50.0,
+   "war_per_100g": -0.199
+  },
+  "DRAIN_POWER": {
+   "win": 0.182,
+   "war": -5.7,
+   "gold": 50.0,
+   "war_per_100g": -0.347
+  },
+  "OFFERING": {
+   "win": 0.69,
+   "war": 4.3,
+   "gold": 144.0,
+   "war_per_100g": 0.104
+  },
+  "DASH": {
+   "win": 0.483,
+   "war": 1.6,
+   "gold": 75.0,
+   "war_per_100g": 0.076
+  },
+  "WROUGHT_IN_WAR": {
+   "win": 0.25,
+   "war": -5.2,
+   "gold": 50.0,
+   "war_per_100g": -0.374
+  },
+  "EXPERTISE": {
+   "win": 0.536,
+   "war": 0.8,
+   "gold": 74.0,
+   "war_per_100g": 0.038
+  },
+  "MOMENTUM_STRIKE": {
+   "win": 0.35700000000000004,
+   "war": -2.9,
+   "gold": 49.0,
+   "war_per_100g": -0.214
+  },
+  "FIGHT_ME": {
+   "win": 0.444,
+   "war": -1.2,
+   "gold": 75.0,
+   "war_per_100g": -0.061
+  },
+  "DEVASTATE": {
+   "win": 0.29600000000000004,
+   "war": -2.7,
+   "gold": 73.0,
+   "war_per_100g": -0.134
+  },
+  "DEATH_MARCH": {
+   "win": 0.40700000000000003,
+   "war": -1.1,
+   "gold": 75.0,
+   "war_per_100g": -0.056
+  },
+  "STRANGLE": {
+   "win": 0.26899999999999996,
+   "war": -2.6,
+   "gold": 75.0,
+   "war_per_100g": -0.131
+  },
+  "POISONED_STAB": {
+   "win": 0.308,
+   "war": -6.4,
+   "gold": 49.0,
+   "war_per_100g": -0.498
+  },
+  "CHAOS": {
+   "win": 0.34600000000000003,
+   "war": -3.3,
+   "gold": 74.0,
+   "war_per_100g": -0.174
+  },
+  "ECHO_FORM": {
+   "win": 0.6920000000000001,
+   "war": 1.7,
+   "gold": 143.0,
+   "war_per_100g": 0.046
+  },
+  "HEMOKINESIS": {
+   "win": 0.44,
+   "war": -0.1,
+   "gold": 74.0,
+   "war_per_100g": -0.003
+  },
+  "BURY": {
+   "win": 0.4,
+   "war": -1.4,
+   "gold": 73.0,
+   "war_per_100g": -0.077
+  },
+  "FINISHER": {
+   "win": 0.542,
+   "war": 1.2,
+   "gold": 73.0,
+   "war_per_100g": 0.071
+  },
+  "ABRASIVE": {
+   "win": 0.625,
+   "war": 3.0,
+   "gold": 147.0,
+   "war_per_100g": 0.086
+  },
+  "TERRAFORMING": {
+   "win": 0.542,
+   "war": 0.4,
+   "gold": 74.0,
+   "war_per_100g": 0.021
+  },
+  "BIG_BANG": {
+   "win": 0.708,
+   "war": 5.5,
+   "gold": 149.0,
+   "war_per_100g": 0.154
+  },
+  "SUPERCRITICAL": {
+   "win": 0.5,
+   "war": -2.2,
+   "gold": 147.0,
+   "war_per_100g": -0.063
+  },
+  "PREDATOR": {
+   "win": 0.304,
+   "war": -1.7,
+   "gold": 50.0,
+   "war_per_100g": -0.145
+  },
+  "TOOLS_OF_THE_TRADE": {
+   "win": 0.652,
+   "war": 0.1,
+   "gold": 143.0,
+   "war_per_100g": 0.002
+  },
+  "KINGLY_PUNCH": {
+   "win": 0.304,
+   "war": -2.5,
+   "gold": 75.0,
+   "war_per_100g": -0.145
+  },
+  "RAMPAGE": {
+   "win": 0.136,
+   "war": -5.8,
+   "gold": 75.0,
+   "war_per_100g": -0.35
+  },
+  "FEED": {
+   "win": 0.545,
+   "war": 1.4,
+   "gold": 150.0,
+   "war_per_100g": 0.043
+  },
+  "SUCKER_PUNCH": {
+   "win": 0.5,
+   "war": -0.7,
+   "gold": 50.0,
+   "war_per_100g": -0.06
+  },
+  "AFTERIMAGE": {
+   "win": 0.682,
+   "war": 2.2,
+   "gold": 143.0,
+   "war_per_100g": 0.07
+  },
+  "ADRENALINE": {
+   "win": 0.727,
+   "war": 3.5,
+   "gold": 147.0,
+   "war_per_100g": 0.109
+  },
+  "KNOCKOUT_BLOW": {
+   "win": 0.455,
+   "war": 2.0,
+   "gold": 75.0,
+   "war_per_100g": 0.123
+  },
+  "UNMOVABLE": {
+   "win": 0.762,
+   "war": 3.1,
+   "gold": 141.0,
+   "war_per_100g": 0.105
+  },
+  "MEMENTO_MORI": {
+   "win": 0.23800000000000002,
+   "war": -1.9,
+   "gold": 75.0,
+   "war_per_100g": -0.121
+  },
+  "BURST": {
+   "win": 0.619,
+   "war": 0.4,
+   "gold": 150.0,
+   "war_per_100g": 0.014
+  },
+  "MONOLOGUE": {
+   "win": 0.524,
+   "war": -0.8,
+   "gold": 75.0,
+   "war_per_100g": -0.048
+  },
+  "CRUELTY": {
+   "win": 0.23800000000000002,
+   "war": -6.3,
+   "gold": 150.0,
+   "war_per_100g": -0.2
+  },
+  "PROPHESIZE": {
+   "win": 0.55,
+   "war": 0.5,
+   "gold": 74.0,
+   "war_per_100g": 0.035
+  },
+  "SUNDER": {
+   "win": 0.5,
+   "war": 1.1,
+   "gold": 72.0,
+   "war_per_100g": 0.075
+  },
+  "DEFRAGMENT": {
+   "win": 0.6,
+   "war": 1.7,
+   "gold": 146.0,
+   "war_per_100g": 0.059
+  },
+  "MODDED": {
+   "win": 0.65,
+   "war": 2.5,
+   "gold": 149.0,
+   "war_per_100g": 0.084
+  },
+  "FIEND_FIRE": {
+   "win": 0.684,
+   "war": 0.9,
+   "gold": 146.0,
+   "war_per_100g": 0.032
+  },
+  "DARK_EMBRACE": {
+   "win": 0.684,
+   "war": 2.1,
+   "gold": 148.0,
+   "war_per_100g": 0.076
+  },
+  "IMPERVIOUS": {
+   "win": 0.526,
+   "war": -0.5,
+   "gold": 148.0,
+   "war_per_100g": -0.019
+  },
+  "KINGLY_KICK": {
+   "win": 0.263,
+   "war": -1.1,
+   "gold": 75.0,
+   "war_per_100g": -0.077
+  },
+  "CELESTIAL_MIGHT": {
+   "win": 0.42100000000000004,
+   "war": -0.3,
+   "gold": 50.0,
+   "war_per_100g": -0.036
+  },
+  "HEGEMONY": {
+   "win": 0.579,
+   "war": 1.3,
+   "gold": 71.0,
+   "war_per_100g": 0.1
+  },
+  "PRECISE_CUT": {
+   "win": 0.444,
+   "war": 0.2,
+   "gold": 74.0,
+   "war_per_100g": 0.017
+  },
+  "SYNTHESIS": {
+   "win": 0.5,
+   "war": 0.6,
+   "gold": 75.0,
+   "war_per_100g": 0.046
+  },
+  "VOID_FORM": {
+   "win": 0.556,
+   "war": -0.4,
+   "gold": 145.0,
+   "war_per_100g": -0.015
+  },
+  "STOKE": {
+   "win": 0.588,
+   "war": 1.7,
+   "gold": 150.0,
+   "war_per_100g": 0.067
+  },
+  "DECISIONS_DECISIONS": {
+   "win": 0.647,
+   "war": 1.5,
+   "gold": 150.0,
+   "war_per_100g": 0.059
+  },
+  "MACHINE_LEARNING": {
+   "win": 0.47100000000000003,
+   "war": 1.2,
+   "gold": 150.0,
+   "war_per_100g": 0.048
+  },
+  "LUNAR_BLAST": {
+   "win": 0.47100000000000003,
+   "war": 1.8,
+   "gold": 73.0,
+   "war_per_100g": 0.149
+  },
+  "BRAND": {
+   "win": 0.625,
+   "war": 0.5,
+   "gold": 145.0,
+   "war_per_100g": 0.021
+  },
+  "ASSASSINATE": {
+   "win": 0.688,
+   "war": 3.0,
+   "gold": 150.0,
+   "war_per_100g": 0.127
+  },
+  "FOLLOW_THROUGH": {
+   "win": 0.625,
+   "war": 1.6,
+   "gold": 47.0,
+   "war_per_100g": 0.217
+  },
+  "GENESIS": {
+   "win": 0.563,
+   "war": 0.8,
+   "gold": 141.0,
+   "war_per_100g": 0.036
+  },
+  "THRASH": {
+   "win": 0.667,
+   "war": 1.6,
+   "gold": 135.0,
+   "war_per_100g": 0.079
+  },
+  "NEUROSURGE": {
+   "win": 0.667,
+   "war": 1.2,
+   "gold": 150.0,
+   "war_per_100g": 0.055
+  },
+  "CREATIVE_AI": {
+   "win": 0.733,
+   "war": 2.0,
+   "gold": 137.0,
+   "war_per_100g": 0.096
+  },
+  "END_OF_DAYS": {
+   "win": 0.4,
+   "war": -1.1,
+   "gold": 150.0,
+   "war_per_100g": -0.047
+  },
+  "REBOOT": {
+   "win": 0.5329999999999999,
+   "war": 0.2,
+   "gold": 145.0,
+   "war_per_100g": 0.007
+  },
+  "DEMESNE": {
+   "win": 0.4,
+   "war": -1.6,
+   "gold": 150.0,
+   "war_per_100g": -0.073
+  },
+  "PYRE": {
+   "win": 0.643,
+   "war": 1.3,
+   "gold": 145.0,
+   "war_per_100g": 0.065
+  },
+  "CRIMSON_MANTLE": {
+   "win": 0.7140000000000001,
+   "war": 0.8,
+   "gold": 139.0,
+   "war_per_100g": 0.041
+  },
+  "BARRICADE": {
+   "win": 0.643,
+   "war": 0.3,
+   "gold": 150.0,
+   "war_per_100g": 0.014
+  },
+  "POUNCE": {
+   "win": 0.429,
+   "war": -0.6,
+   "gold": 72.0,
+   "war_per_100g": -0.058
+  },
+  "SEANCE": {
+   "win": 0.7859999999999999,
+   "war": 2.5,
+   "gold": 148.0,
+   "war_per_100g": 0.123
+  },
+  "DYING_STAR": {
+   "win": 0.5710000000000001,
+   "war": 0.4,
+   "gold": 148.0,
+   "war_per_100g": 0.019
+  },
+  "TRANSFIGURE": {
+   "win": 0.5710000000000001,
+   "war": 1.4,
+   "gold": 150.0,
+   "war_per_100g": 0.068
+  },
+  "SPINNER": {
+   "win": 0.429,
+   "war": -0.5,
+   "gold": 148.0,
+   "war_per_100g": -0.027
+  },
+  "TRASH_TO_TREASURE": {
+   "win": 0.5,
+   "war": 0.7,
+   "gold": 148.0,
+   "war_per_100g": 0.034
+  },
+  "OBLIVION": {
+   "win": 0.5710000000000001,
+   "war": 1.2,
+   "gold": 150.0,
+   "war_per_100g": 0.055
+  },
+  "CONFLAGRATION": {
+   "win": 0.615,
+   "war": 0.8,
+   "gold": 150.0,
+   "war_per_100g": 0.039
+  },
+  "CASCADE": {
+   "win": 0.5379999999999999,
+   "war": 1.0,
+   "gold": 150.0,
+   "war_per_100g": 0.054
+  },
+  "SLICE": {
+   "win": 0.385,
+   "war": -0.4,
+   "gold": 48.0,
+   "war_per_100g": -0.071
+  },
+  "TRACKING": {
+   "win": 0.462,
+   "war": -2.1,
+   "gold": 143.0,
+   "war_per_100g": -0.112
+  },
+  "UNDEATH": {
+   "win": 0.615,
+   "war": 2.2,
+   "gold": 150.0,
+   "war_per_100g": 0.113
+  },
+  "COMET": {
+   "win": 0.308,
+   "war": -1.6,
+   "gold": 150.0,
+   "war_per_100g": -0.085
+  },
+  "COOLANT": {
+   "win": 0.6920000000000001,
+   "war": 1.3,
+   "gold": 148.0,
+   "war_per_100g": 0.068
+  },
+  "NECRO_MASTERY": {
+   "win": 0.615,
+   "war": 0.6,
+   "gold": 150.0,
+   "war_per_100g": 0.033
+  },
+  "AGGRESSION": {
+   "win": 0.583,
+   "war": 1.6,
+   "gold": 150.0,
+   "war_per_100g": 0.091
+  },
+  "GUARDS": {
+   "win": 0.667,
+   "war": 0.5,
+   "gold": 150.0,
+   "war_per_100g": 0.027
+  },
+  "NEUTRON_AEGIS": {
+   "win": 0.5,
+   "war": -1.2,
+   "gold": 144.0,
+   "war_per_100g": -0.068
+  },
+  "MANGLE": {
+   "win": 0.455,
+   "war": -0.7,
+   "gold": 143.0,
+   "war_per_100g": -0.042
+  },
+  "THE_HUNT": {
+   "win": 0.545,
+   "war": 1.0,
+   "gold": 150.0,
+   "war_per_100g": 0.06
+  },
+  "CORROSIVE_WAVE": {
+   "win": 0.455,
+   "war": -0.9,
+   "gold": 143.0,
+   "war_per_100g": -0.056
+  },
+  "TYRANNY": {
+   "win": 0.364,
+   "war": -1.0,
+   "gold": 136.0,
+   "war_per_100g": -0.07
+  },
+  "SHADOWMELD": {
+   "win": 0.636,
+   "war": 1.2,
+   "gold": 140.0,
+   "war_per_100g": 0.079
+  },
+  "ADAPTIVE_STRIKE": {
+   "win": 0.545,
+   "war": -0.0,
+   "gold": 136.0,
+   "war_per_100g": -0.001
+  },
+  "MISERY": {
+   "win": 0.636,
+   "war": 0.9,
+   "gold": 140.0,
+   "war_per_100g": 0.059
+  },
+  "BUFFER": {
+   "win": 0.818,
+   "war": 2.3,
+   "gold": 150.0,
+   "war_per_100g": 0.137
+  },
+  "GENETIC_ALGORITHM": {
+   "win": 0.545,
+   "war": 1.6,
+   "gold": 150.0,
+   "war_per_100g": 0.1
+  },
+  "RAINBOW": {
+   "win": 0.818,
+   "war": 2.2,
+   "gold": 143.0,
+   "war_per_100g": 0.139
+  },
+  "SIGNAL_BOOST": {
+   "win": 0.545,
+   "war": -0.4,
+   "gold": 150.0,
+   "war_per_100g": -0.024
+  },
+  "DEMON_FORM": {
+   "win": 0.5,
+   "war": -0.4,
+   "gold": 150.0,
+   "war_per_100g": -0.027
+  },
+  "ICE_LANCE": {
+   "win": 0.6,
+   "war": -0.1,
+   "gold": 147.0,
+   "war_per_100g": -0.01
+  },
+  "FAN_OF_KNIVES": {
+   "win": 0.4,
+   "war": -0.9,
+   "gold": 143.0,
+   "war_per_100g": -0.066
+  },
+  "I_AM_INVINCIBLE": {
+   "win": 0.4,
+   "war": -1.0,
+   "gold": 150.0,
+   "war_per_100g": -0.065
+  },
+  "THE_SMITH": {
+   "win": 0.8,
+   "war": 2.6,
+   "gold": 147.0,
+   "war_per_100g": 0.176
+  },
+  "DEVOUR_LIFE": {
+   "win": 0.6,
+   "war": 0.4,
+   "gold": 135.0,
+   "war_per_100g": 0.027
+  },
+  "ALL_FOR_ONE": {
+   "win": 0.8,
+   "war": 3.0,
+   "gold": 150.0,
+   "war_per_100g": 0.2
+  },
+  "SHARED_FATE": {
+   "win": 0.6,
+   "war": 1.1,
+   "gold": 143.0,
+   "war_per_100g": 0.076
+  },
+  "VOLTAIC": {
+   "win": 0.6,
+   "war": 0.5,
+   "gold": 135.0,
+   "war_per_100g": 0.035
+  },
+  "SHATTER": {
+   "win": 0.3,
+   "war": -1.4,
+   "gold": 150.0,
+   "war_per_100g": -0.096
+  },
+  "SENTRY_MODE": {
+   "win": 0.9,
+   "war": 4.0,
+   "gold": 143.0,
+   "war_per_100g": 0.28
+  },
+  "PACTS_END": {
+   "win": 0.4,
+   "war": -1.1,
+   "gold": 150.0,
+   "war_per_100g": -0.075
+  },
+  "FLAK_CANNON": {
+   "win": 0.5,
+   "war": -0.4,
+   "gold": 147.0,
+   "war_per_100g": -0.028
+  },
+  "SCARE": {
+   "win": 0.4,
+   "war": 0.5,
+   "gold": 75.0,
+   "war_per_100g": 0.063
+  },
+  "BEAT_INTO_SHAPE": {
+   "win": 0.33299999999999996,
+   "war": -0.8,
+   "gold": 150.0,
+   "war_per_100g": -0.059
+  },
+  "FOREGONE_CONCLUSION": {
+   "win": 0.778,
+   "war": 2.0,
+   "gold": 150.0,
+   "war_per_100g": 0.151
+  },
+  "SEEKING_EDGE": {
+   "win": 0.222,
+   "war": -1.8,
+   "gold": 142.0,
+   "war_per_100g": -0.141
+  },
+  "GRAPPLE": {
+   "win": 0.375,
+   "war": -1.3,
+   "gold": 50.0,
+   "war_per_100g": -0.335
+  },
+  "HELLRAISER": {
+   "win": 0.375,
+   "war": -1.0,
+   "gold": 150.0,
+   "war_per_100g": -0.082
+  },
+  "BULLET_TIME": {
+   "win": 0.375,
+   "war": -1.5,
+   "gold": 150.0,
+   "war_per_100g": -0.125
+  },
+  "REANIMATE": {
+   "win": 0.5,
+   "war": 0.1,
+   "gold": 146.0,
+   "war_per_100g": 0.006
+  },
+  "MALAISE": {
+   "win": 0.375,
+   "war": -0.6,
+   "gold": 150.0,
+   "war_per_100g": -0.053
+  },
+  "REAPER_FORM": {
+   "win": 0.375,
+   "war": -1.1,
+   "gold": 141.0,
+   "war_per_100g": -0.095
+  },
+  "ACCELERANT": {
+   "win": 0.375,
+   "war": -1.6,
+   "gold": 150.0,
+   "war_per_100g": -0.137
+  },
+  "SWORD_SAGE": {
+   "win": 0.5,
+   "war": 0.3,
+   "gold": 150.0,
+   "war_per_100g": 0.022
+  },
+  "TEAR_ASUNDER": {
+   "win": 0.375,
+   "war": -1.1,
+   "gold": 150.0,
+   "war_per_100g": -0.091
+  },
+  "MASTER_PLANNER": {
+   "win": 0.125,
+   "war": -3.1,
+   "gold": 137.0,
+   "war_per_100g": -0.279
+  },
+  "SHADOW_STEP": {
+   "win": 0.28600000000000003,
+   "war": -1.3,
+   "gold": 150.0,
+   "war_per_100g": -0.127
+  },
+  "ENVENOM": {
+   "win": 0.7140000000000001,
+   "war": 0.8,
+   "gold": 150.0,
+   "war_per_100g": 0.079
+  },
+  "SEVEN_STARS": {
+   "win": 0.5710000000000001,
+   "war": -0.2,
+   "gold": 150.0,
+   "war_per_100g": -0.023
+  },
+  "CALL_OF_THE_VOID": {
+   "win": 0.14300000000000002,
+   "war": -2.0,
+   "gold": 150.0,
+   "war_per_100g": -0.19
+  },
+  "BANSHEES_CRY": {
+   "win": 0.429,
+   "war": -0.4,
+   "gold": 150.0,
+   "war_per_100g": -0.035
+  },
+  "ARSENAL": {
+   "win": 0.5710000000000001,
+   "war": 1.1,
+   "gold": 129.0,
+   "war_per_100g": 0.123
+  },
+  "ONE_TWO_PUNCH": {
+   "win": 0.5,
+   "war": -0.9,
+   "gold": 145.0,
+   "war_per_100g": -0.103
+  },
+  "SERPENT_FORM": {
+   "win": 0.667,
+   "war": 1.4,
+   "gold": 150.0,
+   "war_per_100g": 0.151
+  },
+  "NIGHTMARE": {
+   "win": 0.5,
+   "war": -1.1,
+   "gold": 150.0,
+   "war_per_100g": -0.122
+  },
+  "SQUEEZE": {
+   "win": 0.5,
+   "war": 0.5,
+   "gold": 150.0,
+   "war_per_100g": 0.053
+  },
+  "BOMBARDMENT": {
+   "win": 0.33299999999999996,
+   "war": -0.6,
+   "gold": 150.0,
+   "war_per_100g": -0.066
+  },
+  "SOUL_STORM": {
+   "win": 0.5,
+   "war": 0.0,
+   "gold": 150.0,
+   "war_per_100g": 0.0
+  },
+  "ROYALTIES": {
+   "win": 0.16699999999999998,
+   "war": -1.3,
+   "gold": 150.0,
+   "war_per_100g": -0.147
+  },
+  "MULTI_CAST": {
+   "win": 0.667,
+   "war": 0.7,
+   "gold": 150.0,
+   "war_per_100g": 0.077
+  },
+  "METEOR_STRIKE": {
+   "win": 0.5,
+   "war": 0.6,
+   "gold": 150.0,
+   "war_per_100g": 0.071
+  },
+  "SACRIFICE": {
+   "win": 0.16699999999999998,
+   "war": -2.3,
+   "gold": 150.0,
+   "war_per_100g": -0.256
+  },
+  "HELIX_DRILL": {
+   "win": 0.5,
+   "war": -0.3,
+   "gold": 150.0,
+   "war_per_100g": -0.034
+  },
+  "BLADE_OF_INK": {
+   "win": 0.16699999999999998,
+   "war": -1.1,
+   "gold": 150.0,
+   "war_per_100g": -0.12
+  },
+  "NOT_YET": {
+   "win": 0.33299999999999996,
+   "war": -0.8,
+   "gold": 150.0,
+   "war_per_100g": -0.091
+  },
+  "HEIRLOOM_HAMMER": {
+   "win": 0.4,
+   "war": -0.3,
+   "gold": 144.0,
+   "war_per_100g": -0.037
+  },
+  "MAKE_IT_SO": {
+   "win": 0.2,
+   "war": -1.5,
+   "gold": 135.0,
+   "war_per_100g": -0.216
+  },
+  "THE_SCYTHE": {
+   "win": 0.4,
+   "war": 0.0,
+   "gold": 150.0,
+   "war_per_100g": 0.006
+  },
+  "MURDER": {
+   "win": 0.6,
+   "war": 0.7,
+   "gold": 150.0,
+   "war_per_100g": 0.098
+  },
+  "STORM_OF_STEEL": {
+   "win": 0.6,
+   "war": 0.6,
+   "gold": 150.0,
+   "war_per_100g": 0.076
+  },
+  "SPIRIT_OF_ASH": {
+   "win": 0.4,
+   "war": -0.9,
+   "gold": 150.0,
+   "war_per_100g": -0.115
+  },
+  "CONSUMING_SHADOW": {
+   "win": 0.2,
+   "war": -1.3,
+   "gold": 150.0,
+   "war_per_100g": -0.169
+  },
+  "HEAVENLY_DRILL": {
+   "win": 0.6,
+   "war": 0.3,
+   "gold": 150.0,
+   "war_per_100g": 0.041
+  },
+  "PREPARE": {
+   "win": 0.2,
+   "war": -1.3,
+   "gold": 50.0,
+   "war_per_100g": -0.537
+  },
+  "PRIMAL_FORCE": {
+   "win": 0.5,
+   "war": -0.1,
+   "gold": 150.0,
+   "war_per_100g": -0.019
+  },
+  "ERADICATE": {
+   "win": 0.5,
+   "war": -0.5,
+   "gold": 150.0,
+   "war_per_100g": -0.076
+  },
+  "BUNDLE_OF_JOY": {
+   "win": 0.25,
+   "war": -1.5,
+   "gold": 150.0,
+   "war_per_100g": -0.251
+  },
+  "HANG": {
+   "win": 0.25,
+   "war": -0.4,
+   "gold": 150.0,
+   "war_per_100g": -0.064
+  },
+  "JUGGERNAUT": {
+   "win": 0.667,
+   "war": 0.1,
+   "gold": 125.0,
+   "war_per_100g": 0.04
+  },
+  "ECHOING_SLASH": {
+   "win": 0.0,
+   "war": -1.2,
+   "gold": 150.0,
+   "war_per_100g": -0.275
+  },
+  "SKEWER": {
+   "win": 1.0,
+   "war": 1.4,
+   "gold": 75.0,
+   "war_per_100g": 0.622
+  },
+  "CRASH_LANDING": {
+   "win": 1.0,
+   "war": 1.2,
+   "gold": 150.0,
+   "war_per_100g": 0.269
+  },
+  "MONARCHS_GAZE": {
+   "win": 0.33299999999999996,
+   "war": -0.0,
+   "gold": 150.0,
+   "war_per_100g": -0.01
+  },
+  "EIDOLON": {
+   "win": 0.667,
+   "war": 0.1,
+   "gold": 150.0,
+   "war_per_100g": 0.011
+  },
+  "TIMES_UP": {
+   "win": 0.33299999999999996,
+   "war": -0.5,
+   "gold": 150.0,
+   "war_per_100g": -0.121
+  },
+  "KNIFE_TRAP": {
+   "win": 0.5,
+   "war": 0.2,
+   "gold": 150.0,
+   "war_per_100g": 0.053
+  },
+  "HYPERBEAM": {
+   "win": 1.0,
+   "war": 0.8,
+   "gold": 150.0,
+   "war_per_100g": 0.262
+  }
+ }
+}
