@@ -23,6 +23,7 @@ from sts2bot.client.models import (
     RewardsState,
     ShopState,
 )
+from sts2bot.kb.combat_stats import CombatStats
 from sts2bot.kb.config import PolicyConfig, load_policy_config
 from sts2bot.kb.priors import CardPriors
 from sts2bot.policy.base import Decision, LoopContext, Wait
@@ -36,9 +37,11 @@ class StandardRouter:
         self,
         config: PolicyConfig | None = None,
         priors: CardPriors | None = None,
+        combat_stats: CombatStats | None = None,
     ):
         self.config = config or load_policy_config()
         self.priors = priors if priors is not None else CardPriors.load()
+        self.combat_stats = combat_stats if combat_stats is not None else CombatStats.load()
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
@@ -608,19 +611,32 @@ class StandardRouter:
         rs = state.rest_site
         enabled = {o.id or (o.name or "").lower(): o for o in rs.options if o.is_enabled}
         player = state.player
-        hp_pct = player.hp / max(1, player.max_hp) if player else 1.0
+        hp = player.hp if player else 1
+        hp_pct = hp / max(1, player.max_hp) if player else 1.0
         pre_boss = bool(ctx.screen_mem.get("pre_boss"))
-        threshold = w.rest_before_boss_below_hp_pct if pre_boss else w.rest_below_hp_pct
-        if hp_pct < threshold and "rest" in enabled:
+
+        # Rest only when we might not survive to the next heal, else smith to gear up.
+        if pre_boss:
+            # next "fight" is the boss: estimate its likely HP cost from our own history.
+            est = self.combat_stats.expected_loss("boss") if self.combat_stats else None
+            if est is None:
+                est = w.default_boss_loss
+            needed = est * w.boss_safety_factor
+            should_rest = hp < needed
+            rest_why = f"rest: {hp} HP < ~{needed:.0f} needed for boss (est loss {est:.0f})"
+            smith_why = f"smith: {hp} HP covers the boss (~{needed:.0f} needed)"
+        else:
+            should_rest = hp_pct < w.rest_below_hp_pct
+            rest_why = f"rest at {hp_pct:.0%} HP"
+            smith_why = f"smith (HP {hp_pct:.0%} is comfortable)"
+
+        if should_rest and "rest" in enabled:
             return Decision(
-                action=act.ChooseRestOption(index=enabled["rest"].index),
-                rationale=f"rest at {hp_pct:.0%} HP"
-                + (" (boss next — top up)" if pre_boss else ""),
+                action=act.ChooseRestOption(index=enabled["rest"].index), rationale=rest_why
             )
         if "smith" in enabled:
             return Decision(
-                action=act.ChooseRestOption(index=enabled["smith"].index),
-                rationale=f"smith (HP {hp_pct:.0%} is comfortable)",
+                action=act.ChooseRestOption(index=enabled["smith"].index), rationale=smith_why
             )
         if "rest" in enabled:
             return Decision(

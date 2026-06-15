@@ -978,23 +978,32 @@ def test_rest_threshold() -> None:
     assert decision.action.payload()["index"] == 1  # smith
 
 
-def test_rest_tops_up_before_boss() -> None:
-    """Entered Ceremonial Beast at 46/91 and lost with the boss at 32 HP. On the
-    last row before the boss, rest unless nearly full."""
+def _router_with_boss_loss(p75_loss):
+    from sts2bot.kb.combat_stats import CombatStats
+    from sts2bot.policy.standard import StandardRouter
+
+    stats = CombatStats(by_type={"boss": {"mean": p75_loss * 0.6, "p75": p75_loss, "n": 10}})
+    return StandardRouter(combat_stats=stats)
+
+
+def test_rest_before_boss_survival_estimate() -> None:
+    """Pre-boss: rest only if HP can't cover the boss's likely damage (p75 x safety),
+    else smith to gear up. With boss p75=60, safety 1.1 -> need ~66 HP."""
     payload = json.loads(json.dumps(FIXTURES["rest_site"]))
-    payload["player"]["hp"] = 64  # 80% of 80 — would normally smith
-    state = parse_state(payload)
+    r = _router_with_boss_loss(60)
 
+    payload["player"]["hp"] = 50  # < 66 needed -> rest
     ctx = LoopContext()
-    decision = router().decide(state, ctx)
-    assert isinstance(decision, Decision)
-    assert decision.action.payload()["index"] == 1  # smith normally
-
     ctx.screen_mem["pre_boss"] = True
-    decision = router().decide(state, ctx)
-    assert isinstance(decision, Decision)
-    assert decision.action.payload()["index"] == 0  # rest before the boss
-    assert "boss next" in decision.rationale
+    d = r.decide(parse_state(payload), ctx)
+    assert isinstance(d, Decision) and d.action.payload()["index"] == 0  # rest
+    assert "boss" in d.rationale
+
+    payload["player"]["hp"] = 72  # >= 66 needed -> can survive the boss, so smith
+    ctx = LoopContext()
+    ctx.screen_mem["pre_boss"] = True
+    d = r.decide(parse_state(payload), ctx)
+    assert isinstance(d, Decision) and d.action.payload()["index"] == 1  # smith
 
 
 def test_full_belt_discards_for_potion_reward() -> None:

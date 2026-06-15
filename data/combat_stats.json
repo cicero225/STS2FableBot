@@ -1,0 +1,20 @@
+{
+ "source": "47 run logs",
+ "fight_hp_loss": {
+  "monster": {
+   "mean": 10.7,
+   "p75": 16,
+   "n": 248
+  },
+  "elite": {
+   "mean": 30.2,
+   "p75": 42,
+   "n": 4
+  },
+  "boss": {
+   "mean": 37.9,
+   "p75": 66,
+   "n": 11
+  }
+ }
+}

@@ -81,8 +81,11 @@ class CardRewardWeights(_Section):
 
 
 class RestWeights(_Section):
-    rest_below_hp_pct: float = 0.60
-    rest_before_boss_below_hp_pct: float = 0.90
+    rest_below_hp_pct: float = 0.60  # general campfire: rest below this, else smith
+    # pre-boss campfire: rest unless HP covers the upcoming boss's likely damage
+    # (the bot's own p75 boss HP-loss) times a safety factor; else smith to gear up.
+    boss_safety_factor: float = 1.1
+    default_boss_loss: float = 60.0  # fallback when combat_stats has too few boss fights
 
 
 class PotionWeights(_Section):
