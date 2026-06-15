@@ -893,6 +893,149 @@ def test_full_belt_discards_for_potion_reward() -> None:
     assert decision.action.payload() == {"action": "discard_potion", "slot": 0}
 
 
+def _sc_card(index, name, ctype="Attack", rarity="Common", upgraded=False, cid=None):
+    return {
+        "index": index,
+        "id": cid or name.upper().replace(" ", "_"),
+        "name": name,
+        "type": ctype,
+        "cost": "1",
+        "star_cost": None,
+        "description": "x",
+        "rarity": rarity,
+        "is_upgraded": upgraded,
+        "keywords": [],
+    }
+
+
+def _card_select_state(screen_type, prompt, cards, can_confirm=False, can_cancel=True):
+    return parse_state(
+        {
+            "state_type": "card_select",
+            "card_select": {
+                "screen_type": screen_type,
+                "prompt": prompt,
+                "cards": cards,
+                "preview_showing": False,
+                "can_confirm": can_confirm,
+                "can_cancel": can_cancel,
+            },
+            "run": {"act": 1, "floor": 5, "ascension": 0},
+            "player": {
+                "character": "The Ironclad",
+                "hp": 70,
+                "max_hp": 80,
+                "status": [],
+                "relics": [],
+                "potions": [],
+                "max_potion_slots": 3,
+            },
+        }
+    )
+
+
+def test_removal_targets_basics_not_good_cards() -> None:
+    """The boss-analysis ceiling: thinning never helped because removal hit arbitrary
+    cards. Remove a basic, never Bash."""
+    cards = [_sc_card(0, "Bash"), _sc_card(1, "Strike"), _sc_card(2, "Defend", "Skill")]
+    d = router().decide(
+        _card_select_state("select", "Choose a card to Remove.", cards), LoopContext()
+    )
+    assert isinstance(d, Decision)
+    assert d.action.payload()["index"] in (1, 2)  # a basic, not Bash
+
+
+def test_removal_prioritizes_curse() -> None:
+    cards = [_sc_card(0, "Strike"), _sc_card(1, "Regret", "Curse", rarity="Curse")]
+    d = router().decide(
+        _card_select_state("select", "Choose a card to Remove.", cards), LoopContext()
+    )
+    assert isinstance(d, Decision) and d.action.payload()["index"] == 1
+
+
+def test_upgrade_targets_best_unupgraded() -> None:
+    cards = [
+        _sc_card(0, "Strike"),
+        _sc_card(1, "Inflame", "Power", rarity="Uncommon"),
+        _sc_card(2, "Inflame", "Power", rarity="Uncommon", upgraded=True),
+    ]
+    d = router().decide(
+        _card_select_state("upgrade", "Choose a card to Upgrade.", cards), LoopContext()
+    )
+    assert isinstance(d, Decision) and d.action.payload()["index"] == 1  # unupgraded Inflame
+
+
+def test_add_screen_targets_best() -> None:
+    cards = [_sc_card(0, "Strike"), _sc_card(1, "Offering", "Skill", rarity="Rare")]
+    d = router().decide(_card_select_state("choose", "Choose a card.", cards), LoopContext())
+    assert isinstance(d, Decision) and d.action.payload()["index"] == 1  # the good card
+
+
+def test_multi_remove_picks_two_worst_then_confirms() -> None:
+    r = router()
+    ctx = LoopContext()
+    cards = [
+        _sc_card(0, "Bash"),
+        _sc_card(1, "Strike"),
+        _sc_card(2, "Strike"),
+        _sc_card(3, "Defend", "Skill"),
+    ]
+    state = _card_select_state("select", "Choose 2 cards to Remove.", cards)
+    d1 = r.decide(state, ctx)
+    d2 = r.decide(state, ctx)
+    assert isinstance(d1, Decision) and isinstance(d2, Decision)
+    picks = {d1.action.payload()["index"], d2.action.payload()["index"]}
+    assert picks <= {1, 2, 3} and len(picks) == 2  # two distinct basics, never Bash(0)
+    assert isinstance(r.decide(state, ctx), Wait)  # enough chosen; awaiting confirm
+    confirm = r.decide(
+        _card_select_state("select", "Choose 2 cards to Remove.", cards, can_confirm=True), ctx
+    )
+    assert isinstance(confirm, Decision)
+    assert confirm.action.payload()["action"] == "confirm_selection"
+
+
+def _shop_with_removal(price, gold=400, deck=None, full_belt=True):
+    payload = json.loads(json.dumps(FIXTURES["shop"]))
+    payload["player"]["gold"] = gold
+    if deck is not None:
+        payload["player"]["deck"] = deck
+    if full_belt:  # fill the belt so potion buys don't pre-empt the removal check
+        payload["player"]["potions"] = [
+            {"id": f"P{i}", "name": f"P{i}", "slot": i} for i in range(3)
+        ]
+        payload["player"]["max_potion_slots"] = 3
+    for it in payload["shop"]["items"]:
+        if it["category"] == "card_removal":
+            it["price"] = price
+    return parse_state(payload)
+
+
+def test_shop_removal_price_reluctance() -> None:
+    deck = [_sc_card(0, "Strike")]  # a removable basic exists
+    expensive = router().decide(_shop_with_removal(200, deck=deck), LoopContext())
+    assert isinstance(expensive, Decision)
+    p = expensive.action.payload()
+    assert not (p["action"] == "shop_purchase" and p["index"] == 10)  # 200g removal skipped
+
+    cheap = router().decide(_shop_with_removal(100, deck=deck), LoopContext())
+    assert isinstance(cheap, Decision)
+    assert cheap.action.payload() == {
+        "action": "shop_purchase",
+        "index": 10,
+    }  # 100g removal bought
+
+
+def test_shop_skips_removal_when_nothing_worth_removing() -> None:
+    deck = [
+        _sc_card(0, "Bash"),
+        _sc_card(1, "Inflame", "Power", rarity="Uncommon"),
+    ]  # no basics/curses
+    d = router().decide(_shop_with_removal(100, deck=deck), LoopContext())
+    assert isinstance(d, Decision)
+    p = d.action.payload()
+    assert not (p["action"] == "shop_purchase" and p["index"] == 10)
+
+
 def test_standard_router_handles_every_fixture() -> None:
     """Replay-smoke over all committed fixtures: never raises, returns Decision|Wait."""
     r = router()

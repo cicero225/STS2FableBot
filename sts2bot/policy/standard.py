@@ -8,9 +8,12 @@ TrivialRouter, which is already battle-tested plumbing.
 
 from __future__ import annotations
 
+import re
+
 from sts2bot.client import actions as act
 from sts2bot.client.models import (
     CardRewardState,
+    CardSelectState,
     CombatState,
     EventState,
     GameState,
@@ -449,6 +452,83 @@ class StandardRouter:
             scores=score_map,
         )
 
+    # -------------------------------------------------------- card selection overlay
+
+    def _card_quality(self, card, character: str | None) -> float:
+        """Higher = better card to KEEP; lower = better to remove. Curses sink below
+        un-upgraded basics, which sink below everything else; Spirebird prior on top."""
+        w = self.config.deck
+        base = (card.name or "").rstrip("+")
+        quality = 0.0
+        if (card.type or "") in ("Curse", "Status"):
+            quality += w.curse_penalty
+        if base in ("Strike", "Defend") and not card.is_upgraded:
+            quality += w.basic_penalty
+        if self.priors is not None:
+            prior = self.priors.score(card.id, character)
+            if prior is not None:
+                quality += prior
+        return quality
+
+    def _has_removable_card(self, player) -> bool:
+        """A basic or curse worth paying to remove. Unknown deck -> assume yes (the
+        selection screen targets the worst card regardless)."""
+        if player is None or player.deck is None:
+            return True
+        for c in player.deck:
+            if (c.type or "") in ("Curse", "Status"):
+                return True
+            if (c.name or "").rstrip("+") in ("Strike", "Defend") and not c.is_upgraded:
+                return True
+        return False
+
+    @staticmethod
+    def _select_count(prompt: str) -> int:
+        m = re.search(r"choose (\d+)", prompt)
+        return int(m.group(1)) if m else 1
+
+    def _card_select(self, state: CardSelectState, ctx: LoopContext) -> Decision | Wait:
+        """Target removal/transform at the WORST cards (basics, curses) and
+        upgrade/enchant/add at the BEST — the first-legal fallback removed arbitrary
+        cards, so thinning never improved the deck (boss-analysis ceiling)."""
+        cs = state.card_select
+        mem_key = f"cardsel:{cs.screen_type}:{cs.prompt}"
+        if cs.can_confirm:
+            ctx.screen_mem.pop(mem_key, None)
+            return Decision(action=act.ConfirmSelection(), rationale="confirm card selection")
+        if not cs.cards:
+            ctx.screen_mem.pop(mem_key, None)
+            if cs.can_cancel:
+                return Decision(
+                    action=act.CancelSelection(), rationale="nothing selectable; cancel"
+                )
+            return Wait(reason="card select with no cards, confirm, or cancel")
+
+        prompt = (cs.prompt or "").lower()
+        needed = self._select_count(prompt)
+        picked: list[int] = ctx.screen_mem.setdefault(mem_key, [])
+        if len(picked) >= needed:
+            return Wait(reason=f"selected {len(picked)}/{needed}; awaiting confirm")
+
+        prefer_worst = any(v in prompt for v in ("remove", "transform", "exhaust", "destroy"))
+        candidates = [c for c in cs.cards if c.index not in picked]
+        if "upgrade" in prompt or "enchant" in prompt:
+            unupgraded = [c for c in candidates if not c.is_upgraded]
+            if unupgraded:
+                candidates = unupgraded
+        if not candidates:
+            return Wait(reason="card select: no remaining candidates")
+
+        character = state.player.character if state.player else None
+        chooser = min if prefer_worst else max
+        target = chooser(candidates, key=lambda c: self._card_quality(c, character))
+        picked.append(target.index)
+        kind = "worst" if prefer_worst else "best"
+        return Decision(
+            action=act.SelectCard(index=target.index),
+            rationale=f"select {kind} {target.name} for: {cs.prompt}",
+        )
+
     # ------------------------------------------------------------------ rest sites
 
     def _rest_site(self, state: RestSiteState, ctx: LoopContext) -> Decision | Wait:
@@ -498,11 +578,16 @@ class StandardRouter:
             if not item.is_stocked or item.index in bought:
                 continue
             price = item.gold_price or 0
-            if item.category == "card_removal" and gold - price >= w.removal_min_gold_reserve:
+            if (
+                item.category == "card_removal"
+                and price <= w.removal_max_price
+                and gold - price >= w.removal_min_gold_reserve
+                and self._has_removable_card(player)
+            ):
                 bought.append(item.index)
                 return Decision(
                     action=act.ShopPurchase(index=item.index),
-                    rationale=f"buy card removal ({price}g, {gold}g held)",
+                    rationale=f"buy card removal ({price}g <= cap {w.removal_max_price})",
                 )
             if (
                 item.category == "potion"

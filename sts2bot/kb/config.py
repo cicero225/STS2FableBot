@@ -94,8 +94,19 @@ class PotionWeights(_Section):
 class ShopWeights(_Section):
     buy_card_removal_below_gold: int = 999
     removal_min_gold_reserve: int = 75
+    # removal price escalates +50 per use (100, 150, 200…); efficiency drops sharply
+    # past ~150g (owner), so don't pay more than this to remove a card.
+    removal_max_price: int = 150
     buy_potion_min_gold: int = 120
     buy_relic_min_gold: int = 200
+
+
+class DeckWeights(_Section):
+    """Card-quality penalties for removal/upgrade/transform targeting (higher
+    quality = better card to KEEP). Prior (Spirebird) is added on top."""
+
+    basic_penalty: float = -50.0  # un-upgraded Strike/Defend: prime removal targets
+    curse_penalty: float = -100.0  # curses/statuses: remove first
 
 
 class PolicyConfig(BaseModel):
@@ -108,6 +119,7 @@ class PolicyConfig(BaseModel):
     rest: RestWeights = RestWeights()
     potions: PotionWeights = PotionWeights()
     shop: ShopWeights = ShopWeights()
+    deck: DeckWeights = DeckWeights()
     source_path: str | None = None
     config_hash: str | None = None
 

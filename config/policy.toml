@@ -101,5 +101,14 @@ discard_priority = ["BLOOD_POTION", "BLOCK_POTION"]  # least-valued first (place
 [shop]
 buy_card_removal_below_gold = 999    # always consider removal if affordable
 removal_min_gold_reserve = 75
+# removal price escalates +50 per use (100, 150, 200…); the standard wisdom is
+# efficiency drops off sharply past ~150g, so don't pay more than this to remove.
+removal_max_price = 150
 buy_potion_min_gold = 120
 buy_relic_min_gold = 200
+
+[deck]
+# card-quality penalties for removal/upgrade/transform targeting (higher = keep).
+# Spirebird prior is added on top, so a high-prior card resists removal.
+basic_penalty = -50.0     # un-upgraded Strike/Defend are prime removal targets
+curse_penalty = -100.0    # curses/statuses get removed first
