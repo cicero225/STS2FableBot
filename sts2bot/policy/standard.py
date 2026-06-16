@@ -280,6 +280,17 @@ class StandardRouter:
             tgt = biggest_threat() if cat[buff.slot] == "debuff" else None
             return drink(buff, tgt, f"drink {buff.name} (deploy at {state.state_type} start)")
 
+        # 4b. Value/tempo potions (energy / draw): spend them early in a big fight so the extra
+        #     energy + cards convert to more block and damage. Owner B04BGZEDRN: the bot hoarded
+        #     Cure All (gain energy, draw 2) through the 126-HP Ovicopter and threw it away in a
+        #     hail-mary at the next floor — the human spent it to power through and exited +30 HP.
+        if vp := first("value"):
+            enemy_hp = sum(e.hp for e in state.battle.enemies if e.hp > 0)
+            if enemy_hp >= w.value_drink_enemy_hp_min and round_ <= w.value_drink_by_round:
+                return drink(
+                    vp, None, f"drink {vp.name} (energy/draw for a {enemy_hp}-HP fight)"
+                )
+
         # 5. Reactive, once the planned line has spent its cards (end of turn):
         if plan_ends_turn:
             if proj_loss >= w.block_reactive_min and (blockp := first("block")):
@@ -318,6 +329,8 @@ class StandardRouter:
             k in nid for k in ("STRENGTH", "DEXTER", "FOCUS", "POWER", "BLESSING", "FYSH", "FORGE")
         ):
             return "buff"
+        if fx.draw > 0 or fx.energy_gain > 0 or "ENERGY" in nid:  # tempo: more energy / cards
+            return "value"
         return "other"
 
     @staticmethod

@@ -148,6 +148,23 @@ def test_combat_potion_when_dire() -> None:
     assert decision.action.payload()["action"] == "use_potion"
 
 
+def test_spends_value_potion_in_a_big_fight() -> None:
+    """Seeded run B04BGZEDRN: the bot hoarded Cure All ('Gain energy. Draw 2 cards') through the
+    126-HP Ovicopter and threw it away in a hail-mary at the next floor; the human spent it to
+    power through and exited ~30 HP higher. Energy/draw potions are now a 'value' bucket, deployed
+    early in a big fight to convert to more block + damage."""
+    cure = {"id": "CURE_ALL", "name": "Cure All", "description": "Gain energy. Draw 2 cards.",
+            "slot": 0, "can_use_in_combat": True, "target_type": "AnyPlayer", "keywords": []}
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("OVICOPTER_0", 120, intent_label="10")],
+        hp=80, max_hp=90, potions=[cure],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload() == {"action": "use_potion", "slot": 0}  # spend the tempo potion
+
+
 def test_actions_disabled_waits() -> None:
     """Run 16 (Act 2!) died to hammering plays into a scripted lockout; the fork
     exposes battle.actions_disabled and combat must wait on it."""

@@ -102,6 +102,8 @@ class PotionWeights(_Section):
     heal_below_pct: float = 0.80  # drink a heal/Blood potion below this HP fraction
     block_reactive_min: int = 10  # end-of-turn: drink a Block potion to stop >= this unblocked
     damage_potion_prevents_min: int = 10  # finisher: kill an attacker doing >= this much
+    value_drink_enemy_hp_min: int = 90  # spend an energy/draw potion when the fight has >= this HP
+    value_drink_by_round: int = 3  # ...and only in the first few rounds (front-load the tempo)
     discard_priority: list[str] = []
 
 
