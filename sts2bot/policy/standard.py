@@ -9,6 +9,7 @@ TrivialRouter, which is already battle-tested plumbing.
 from __future__ import annotations
 
 import re
+from typing import ClassVar
 
 from sts2bot.client import actions as act
 from sts2bot.client.models import (
@@ -976,12 +977,22 @@ class StandardRouter:
             ctx.screen_mem.pop("discarded_for_reward", None)
         return decision
 
+    # Keep-value by category for the full-belt discard: ditch junk (downside / unknown),
+    # keep the good stuff (heals, buffs, energy/draw value, damage). Tie-break by slot.
+    _DISCARD_RANK: ClassVar[dict[str, int]] = {
+        "downside": 0, "other": 1, "debuff": 3, "block": 3, "value": 4,
+        "damage": 4, "aoe_damage": 4, "buff": 5, "heal": 6, "fruit_juice": 7,
+    }
+
     def _worst_potion(self, potions: list[Potion]) -> Potion | None:
         if not potions:
             return None
         priority = [p.upper() for p in self.config.potions.discard_priority]
-        for pid in priority:
+        for pid in priority:  # explicit config override wins
             for potion in potions:
                 if potion.id.upper() == pid:
                     return potion
-        return potions[0]
+        # else discard the lowest-value potion by category — was arbitrarily potions[0],
+        # which threw away a Cure All when the cascade landed it in slot 0 (live B04BGZEDRN).
+        return min(potions, key=lambda p: (self._DISCARD_RANK.get(self._potion_category(p), 2),
+                                           p.slot))

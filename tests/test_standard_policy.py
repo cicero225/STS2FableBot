@@ -165,6 +165,24 @@ def test_spends_value_potion_in_a_big_fight() -> None:
     assert d.action.payload() == {"action": "use_potion", "slot": 0}  # spend the tempo potion
 
 
+def test_full_belt_discard_keeps_value_potions_ditches_junk() -> None:
+    """Live B04BGZEDRN: the full-belt discard returned potions[0] (slot order), so when the cascade
+    landed Cure All in slot 0 it got thrown away — leaving none for the Ovicopter. Rank by value:
+    ditch downside/unknown, keep energy/draw value, buffs, heals."""
+    from sts2bot.client.models import Potion
+
+    def pot(slot, pid, name, desc):
+        return Potion(id=pid, name=name, description=desc, slot=slot, can_use_in_combat=True)
+
+    belt = [
+        pot(0, "CURE_ALL", "Cure All", "Gain energy. Draw 2 cards."),  # value
+        pot(1, "FOUL_POTION", "Foul Potion", "Deal 12 damage to ALL (incl. you)."),  # downside
+        pot(2, "STRENGTH_POTION", "Strength Potion", "Gain 2 Strength."),  # buff
+    ]
+    victim = router()._worst_potion(belt)
+    assert victim is not None and victim.id == "FOUL_POTION"  # ditch the junk, keep Cure All
+
+
 def test_actions_disabled_waits() -> None:
     """Run 16 (Act 2!) died to hammering plays into a scripted lockout; the fork
     exposes battle.actions_disabled and combat must wait on it."""
