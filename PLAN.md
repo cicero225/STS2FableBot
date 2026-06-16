@@ -357,6 +357,13 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
     (Burning Blood → 13), then died f23 (The Obscura) entering that low with no rest between.
     Targeting is solved here; the residual is **deck-power / surviving a costly race into the next
     node** — the capability estimate, not minion micro.
+- **Vantom (Act-1 boss, ~173 HP) — Slippery negates chip damage** (recurring batch wall 2026-06-16:
+  killed 3/5 of a batch + 1 earlier). Verified status **Slippery**: "the next time Vantom loses HP, it
+  only loses 1 HP instead" — drops the *first* HP-loss each turn to 1, so multi-hit / small attacks are
+  wasted; it also ramps Strength and swings 27–29. The one-turn planner doesn't model Slippery, so it
+  over-values its damage, can't close the race, and bleeds out (live: entered 38/80, stuck at 12, died).
+  Special-case candidate (§8.3): model Slippery (lead with a throwaway hit, then land big single hits)
+  alongside HP-at-boss work. Like the Kin, it's a deck-power + per-enemy-mechanic wall.
 - **Run-2 draft notes** (owner; reference): early-damage picks (Infernal Blade D1; Hemokinesis
   over Shrug It Off) → covered by the early-damage bias. The **Vicious** / Vulnerable-applier and
   *draft-affects-draft* observations fold into the deferred deck-aware drafting below. Pommel
