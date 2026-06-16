@@ -224,13 +224,22 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   elites — correct for a weak pilot). Revisit when climbing ascensions / once deck power
   supports it; would surface as act/HP/deck-strength-aware elite appetite in the map scorer.
 - **Whole-route path awareness** (owner, live 2026-06-15: every individual fight handled fine,
-  but the bot routed itself through a monster gauntlet with no rest and bled out across the
-  map — now a real ceiling). The map scorer is greedy per-node with only shallow lookahead
-  (`lookahead_discount`, `path_step_discount`), so it never prices a *whole path's* cumulative
-  HP loss against the rests on it. Want: plan the full path to the boss (or much deeper
-  lookahead), summing expected fight damage (reuse the combat-stats per-fight-type HP-loss
-  estimates from the rest work) against available rest sites, and prefer paths that bank a rest
-  before the boss instead of stacking monsters.
+  but the bot routed itself through a monster gauntlet with no rest and bled out — now a real
+  ceiling). The map scorer is greedy per-node with shallow lookahead (`lookahead_discount`,
+  `path_step_discount`); it never prices a *whole path's* cumulative HP loss against the rests
+  on it. Owner's principled design:
+  - Enumerate all paths to the boss; estimate **HP along each** = running HP − Σ(expected loss
+    per fight on it, by type: normal / elite, from combat-stats) + Σ(campfire heals). Keep the
+    **survivable** ones (HP stays above a floor).
+  - Among survivable paths prefer **≥1 elite** (bank relics — light elite-chasing), and add a
+    **bonus for reaching a shop with ≳250 gold** (needs a parallel gold estimate).
+  - (a) **First 3 nodes of each act are easier** than later fights — track as its own HP-loss
+    data point in `build_combat_stats.py` (segment early-act vs the rest) so path estimates
+    aren't pessimistic about openings.
+  - (b) The Act-1 boss wants **nearly full HP**, but selecting hard for that can leave *no*
+    elites on the viable paths — needs flexibility, not a hard HP-at-boss constraint.
+  - (c) **Branchy paths** (multiple options) are moderately favorable (keep options open); and
+    re-assess the route with **actual hp/gold at each branch**, not just once at act start.
 - **Shops & events depth.** Note: basic deterministic shop/event policies *already exist*
   (StandardRouter, session 3) — conservative buying, HP-gated choices. The real backlog
   item is *priors-driven depth* (relic/event value from the export above, per-shop
