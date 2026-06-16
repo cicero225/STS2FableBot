@@ -341,6 +341,28 @@ def test_attacks_dangerous_ramping_minion() -> None:
     assert d.action.payload().get("target") == "WASP_0"  # grind the dangerous minion down
 
 
+def test_ignores_summoned_minions_and_races_summoner() -> None:
+    """Seeded run B04BGZEDRN: the bot died to the Ovicopter — a summoner whose eggs/hatchlings
+    are Minions that *respawn*. Chasing them is a treadmill (kill the summoner and they flee), so
+    with a summoner on the board even minions that would otherwise be fought are ignored, and
+    damage goes to the leader. (These non-ramping adds would be ignorable anyway; the summoner
+    flag also covers a summoner with ramping adds.)"""
+    leader = enemy("OVICOPTER_0", 60, intent_label="10")
+    leader["intents"] = [
+        {"type": "Special", "label": "Summon", "title": "Summon",
+         "description": "This enemy intends to summon Monsters."}
+    ]
+    hatch = [enemy(f"HATCHLING_{i}", 21, intent_label="6") for i in range(2)]
+    for h in hatch:
+        h["status"] = _minion_status()  # Minion, but NOT strength-gaining
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")], enemies=[leader, *hatch], energy=1
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("target") == "OVICOPTER_0"  # race the summoner, not the adds
+
+
 def test_races_strength_gaining_enemy() -> None:
     """Owner (Run-3 Fight 6): vs strength-gaining (ramping) enemies the bot turtled and bled
     out. It should trade more — attack to end the fight before the ramp compounds, where vs a

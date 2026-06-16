@@ -29,7 +29,6 @@ _RAGE_BLOCK = re.compile(r"gain (\d+) block", re.IGNORECASE)
 # scales with hand size, so the flat per-hit the text parser sees underprices it.
 _HAND_EXHAUST_DMG = re.compile(r"(\d+) damage for each card", re.IGNORECASE)
 _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 damage, 1 cost)
-_DANGEROUS_MINION_INCOMING = 6  # a Minion hitting this hard is worth killing despite the tag
 
 
 @dataclass(frozen=True)
@@ -56,6 +55,7 @@ class EnemySim:
     incoming: int  # this enemy's attack damage this turn (0 if not attacking)
     is_minion: bool = False  # "Minion" status: flees when its leader dies, so ignorable
     gains_strength: bool = False  # ramping (Strength buff / Empower intent): race to kill it
+    summons: bool = False  # has a Summon intent — its minions are replaceable, so race it
 
 
 @dataclass(frozen=True)
@@ -65,6 +65,7 @@ class SimState:
     my_block: int
     my_strength: int
     barricade: bool = False  # block persists -> stacking it is never waste
+    has_summoner: bool = False  # an enemy summons minions: chasing the minions is a treadmill
     hand_size: int = 0  # full hand size at turn start (for hand-exhaust scaling)
     draws: int = 0
     weak_applied: int = 0
@@ -135,6 +136,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         vuln = 0
         is_minion = False
         gains_strength = False
+        summons = False
         for p in e.status:
             if p.id.upper() == "VULNERABLE" and p.amount:
                 vuln = p.amount
@@ -143,10 +145,13 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
             if "STRENGTH" in p.id.upper() and (p.amount or 0) > 0:
                 gains_strength = True
         for i in e.intents:
+            text = f"{i.type or ''} {i.title or ''} {i.description or ''}".lower()
             if (i.type or "").lower() == "buff" and (
                 "empower" in (i.title or "").lower() or "strength" in (i.description or "").lower()
             ):
                 gains_strength = True
+            if "summon" in text:
+                summons = True
         incoming = sum(
             parse_intent_damage(i.label) for i in e.intents if i.type.lower() == "attack"
         )
@@ -160,17 +165,24 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 incoming=incoming,
                 is_minion=is_minion,
                 gains_strength=gains_strength,
+                summons=summons,
             )
         )
     return tuple(sims)
 
 
-def _ignorable_minion(e: EnemySim) -> bool:
-    """A Minion not worth attacking: low threat and not ramping, so killing it is wasted effort
-    (it flees when the leader dies anyway). Dangerous minions — high incoming or gaining strength,
-    like the Kin's followers — are fought like normal enemies to manage damage. Minions never
+def _ignorable_minion(e: EnemySim, has_summoner: bool = False) -> bool:
+    """A Minion not worth attacking: race the leader instead, since killing the leader makes the
+    minions flee. Diverting damage to a minion pays off only when it's a *fixed* escalating threat
+    — it ramps (gains Strength, like the Kin's followers) and won't simply be re-summoned. If
+    anything on the board summons (e.g. the Ovicopter's eggs/hatchlings), every minion is
+    replaceable, so chasing them is a treadmill: ignore them and race the summoner. Minions never
     gate lethal regardless (killing them doesn't end the fight)."""
-    return e.is_minion and not (e.gains_strength or e.incoming >= _DANGEROUS_MINION_INCOMING)
+    if not e.is_minion:
+        return False
+    if has_summoner:
+        return True
+    return not e.gains_strength
 
 
 def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState:
@@ -201,7 +213,7 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
     # Ignorable minions (weak, non-ramping) aren't progress — they flee with the leader and
     # Illusion ones revive — so deny offensive reward; their death's incoming drop is still
     # seen via hp_loss. Dangerous minions (Kin followers etc.) fall through to normal reward.
-    if _ignorable_minion(e):
+    if _ignorable_minion(e, state.has_summoner):
         return replace(state, enemies=tuple(enemies))
     return replace(
         state,
@@ -282,7 +294,9 @@ def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
     # quadratic focus-fire reward: concentrated damage beats spread damage, because
     # a finished enemy stops attacking (run 13: spread vs a 4-Nibbit pack = death)
     focus = sum(
-        ((e.max_hp - e.hp) / e.max_hp) ** 2 for e in state.enemies if not _ignorable_minion(e)
+        ((e.max_hp - e.hp) / e.max_hp) ** 2
+        for e in state.enemies
+        if not _ignorable_minion(e, state.has_summoner)
     )
     return (
         w.w_focus * focus
@@ -330,13 +344,15 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     if not playable:
         return Decision(action=act.EndTurn(), rationale="no playable cards; end turn")
 
+    enemy_sims = _enemy_sims(state.battle.enemies)
     start = SimState(
         energy=energy,
-        enemies=_enemy_sims(state.battle.enemies),
+        enemies=enemy_sims,
         my_block=player.block,
         my_strength=my_strength,
         barricade=barricade,
         hand_size=len(hand),
+        has_summoner=any(e.summons for e in enemy_sims),
     )
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")
