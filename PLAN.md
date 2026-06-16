@@ -242,6 +242,15 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
     elites on the viable paths — needs flexibility, not a hard HP-at-boss constraint.
   - (c) **Branchy paths** (multiple options) are moderately favorable (keep options open); and
     re-assess the route with **actual hp/gold at each branch**, not just once at act start.
+- **Deck-power-aware node gating** (owner, 2026-06-15 manual run 2 — a loss). Died f7 to **Phrog
+  Parasite** with a 16-card near-starter deck (burst = Bash / Pommel / Infernal Blade only, no AoE)
+  and **321 gold unspent** (no shop on the route). Owner: "shouldn't have pathed into the elite with
+  so little attack damage." The path scorer must price *can my deck actually clear this node*, not
+  just HP — an AoE-needing elite is a death trap for a basic-heavy deck at any HP. Ties to the
+  capability estimate (§5-C) and the take-vs-skip deck-power scaling (§8.1d). *Enemy knowledge:*
+  Phrog Parasite is **two-phase** — parasite (62 HP) → on death spawns **4 ramping Wrigglers** (gain
+  Str each turn) that shuffle **Infection** curses into hand; needs AoE / fast clear, else the hand
+  clogs and the swarm out-scales.
 - **Shops & events depth.** Note: basic deterministic shop/event policies *already exist*
   (StandardRouter, session 3) — conservative buying, HP-gated choices. The real backlog
   item is *priors-driven depth* (relic/event value from the export above, per-shop
@@ -299,6 +308,13 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   - *Illusion minion* (status "Illusion"): revives at the start of its turn after dying, without
     acting — so killing it on **your** turn is wasted (only worth it to deny that turn's action,
     or kill on its turn via poison/doom). Don't target it for damage.
+  - *Not a universal rule* (owner, 2026-06-15 manual runs): kill-the-minion vs race-the-leader is a
+    **burst-capability judgment**, not one policy. Same A0 Ironclad pilot: **raced the leader** on the
+    **Kin** boss (left both ramping Followers alive — leader-kill ends the fight; spending ~58 dmg on a
+    58-HP Follower loses the race) but **killed the minion first** on the **Act-3 boss**. The shipped
+    `gains_strength / incoming≥6` bias is a stopgap; the real arbiter is the **multi-turn capability
+    estimate** (§5-C / §8.3) — "can I close the leader before the ramp out-scales me?". Don't pile on
+    more universal minion micro-rules.
 - **Run-2 draft notes** (owner; reference): early-damage picks (Infernal Blade D1; Hemokinesis
   over Shrug It Off) → covered by the early-damage bias. The **Vicious** / Vulnerable-applier and
   *draft-affects-draft* observations fold into the deferred deck-aware drafting below. Pommel
