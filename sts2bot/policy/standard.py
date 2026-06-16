@@ -701,6 +701,36 @@ class StandardRouter:
         enchant at the BEST un-upgraded, add/choose at the BEST. Every path is
         bounded — on a stuck screen we skip/cancel rather than wait forever."""
         cs = state.card_select
+        prompt = (cs.prompt or "").lower()
+        prefer_worst = any(
+            v in prompt for v in ("remove", "transform", "exhaust", "destroy", "discard")
+        )
+        character = state.player.character if state.player else None
+
+        # Preview-based per-card selection (Gnarled Axe enchant etc.): pick a card -> it previews
+        # -> confirm to lock it in -> repeat until the screen closes. `can_confirm` stays True
+        # *between* cards, so confirming while nothing is previewed is a no-op that hangs the loop
+        # (live f27: select once, then confirm 61x). Drive it off preview_showing instead.
+        preview_key = f"cardsel_preview:{cs.screen_type}:{cs.prompt}"
+        if cs.preview_showing:
+            ctx.screen_mem[preview_key] = True
+            if cs.can_confirm:
+                return Decision(action=act.ConfirmSelection(), rationale="lock in previewed card")
+            return Wait(reason="preview showing; awaiting confirm")
+        if ctx.screen_mem.get(preview_key):  # preview screen, between cards: pick the next one
+            if cs.cards:
+                target = self._pick_target(cs, prefer_worst, character) or cs.cards[0]
+                return Decision(
+                    action=act.SelectCard(index=target.index),
+                    rationale=f"select {target.name} to enchant ({cs.prompt})",
+                )
+            ctx.screen_mem.pop(preview_key, None)
+            if cs.can_confirm:
+                return Decision(action=act.ConfirmSelection(), rationale="all picks made; confirm")
+            if cs.can_skip or cs.can_cancel:
+                return Decision(action=act.CancelSelection(), rationale="preview screen done")
+            return Wait(reason="preview screen: awaiting close")
+
         # fingerprint the offered cards so a later same-prompt screen gets fresh
         # mem (retry counts / picks don't leak across distinct selection events).
         fp = ",".join(f"{c.index}:{c.id or c.name}" for c in cs.cards)
@@ -714,11 +744,6 @@ class StandardRouter:
                 return Decision(action=act.CancelSelection(), rationale="nothing selectable; skip")
             return Wait(reason="card select with no cards, confirm, or cancel")
 
-        prompt = (cs.prompt or "").lower()
-        prefer_worst = any(
-            v in prompt for v in ("remove", "transform", "exhaust", "destroy", "discard")
-        )
-        character = state.player.character if state.player else None
         mem: dict = ctx.screen_mem.setdefault(mem_key, {"picked": [], "tries": 0})
 
         # choose-a-card: select_card picks immediately (no confirm). Re-press a few

@@ -1789,3 +1789,32 @@ def test_standard_router_handles_every_fixture() -> None:
     for payload in payloads:
         decision = r.decide(parse_state(payload), ctx)
         assert isinstance(decision, Decision | Wait)
+
+
+def test_enchant_preview_cycle_selects_then_confirms_each_card() -> None:
+    """Live f27 hang: Gnarled Axe's 'Choose 3 cards to Enchant' is a per-card preview screen
+    (select -> preview -> confirm, x3) and `can_confirm` stays True *between* cards. The old
+    handler confirmed whenever can_confirm, so once a preview cleared it re-confirmed nothing
+    forever (select once, confirm 61x, stall). Now: confirm a showing preview, else select next."""
+    def cardsel(preview: bool, can_confirm: bool, ncards: int):
+        cards = [{"id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack", "cost": "1",
+                  "description": "Deal 6 damage.", "rarity": "Basic", "is_upgraded": False,
+                  "index": i} for i in range(ncards)]
+        return parse_state({
+            "state_type": "card_select",
+            "card_select": {"screen_type": "NDeckEnchantSelectScreen",
+                            "prompt": "Choose 3 cards to Enchant.", "cards": cards,
+                            "preview_showing": preview, "can_confirm": can_confirm,
+                            "can_cancel": False},
+            "run": {"act": 1, "floor": 27, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 50, "max_hp": 80},
+        })
+
+    r = router()
+    ctx = LoopContext()
+    # 1) nothing previewed yet -> select a card to preview it
+    assert r.decide(cardsel(False, False, 24), ctx).action.payload()["action"] == "select_card"
+    # 2) a card is previewed -> confirm to lock it in
+    assert r.decide(cardsel(True, True, 24), ctx).action.payload()["action"] == "confirm_selection"
+    # 3) preview cleared but can_confirm still True (the hang) -> select the NEXT card
+    assert r.decide(cardsel(False, True, 11), ctx).action.payload()["action"] == "select_card"
