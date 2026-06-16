@@ -351,6 +351,12 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   leader has a Summon ability/intent, treat its minions as low-priority and **race the leader**.
   Contrast the **Kin** (same run, f17, won): its followers are a *fixed* set, so killing them first
   removes the ramp for good. **Fixed-add vs summoned-add is the distinction the minion logic misses.**
+  - *Fixed + validated 2026-06-16:* `_ignorable_minion` is now summoner-aware (any enemy with a
+    Summon intent → its minions are ignorable; race the leader). Same-seed A/B: the bot **raced the
+    Ovicopter and survived** (killed it R7, minions fled) where before it drowned — but at only 7 HP
+    (Burning Blood → 13), then died f23 (The Obscura) entering that low with no rest between.
+    Targeting is solved here; the residual is **deck-power / surviving a costly race into the next
+    node** — the capability estimate, not minion micro.
 - **Run-2 draft notes** (owner; reference): early-damage picks (Infernal Blade D1; Hemokinesis
   over Shrug It Off) → covered by the early-damage bias. The **Vicious** / Vulnerable-applier and
   *draft-affects-draft* observations fold into the deferred deck-aware drafting below. Pommel
