@@ -1,0 +1,14 @@
+[
+  {
+    "seed": "B04BGZEDRN",
+    "boss_id": "THE_KIN_BOSS",
+    "boss_name": "The Kin",
+    "boss_source": "api_bot_run",
+    "verified_in_custom": true,
+    "character": "The Ironclad",
+    "ascension": 0,
+    "mode": "standard",
+    "found_at": 1781591164,
+    "custom_boss_name": null
+  }
+]

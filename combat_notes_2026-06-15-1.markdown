@@ -94,3 +94,37 @@ I wouldn't have drafted Rupture: This _can_ be a great card, but it falls into t
 
 Fight 4 + (roughly)
     a. There is the second order fact that the advantage of Rupture _can_ proc off of Decay but that would only matter in long fights, and Rupture never gets played.
+
+
+Run 2 Observations:
+
+Fight 1. Nearly a pure mathematical fight. Nothing to object to.
+
+Draft 1: Would have taken Infernal Blade. We can consider examining this logic.
+
+Fight 2. Straightforward.
+
+Draft 2: Vicious is an ambitious draft with just Bash in deck. It is legitimately a very good card,
+but True Grit was perhaps safer. Defensible in this case, but now should raise priority on future vulnerable applying cards. An eample of draft choices affecting other draft choices.
+
+Fight 3: Was fine.
+
+Draft 3: Pommel Strike is a perfectly sensible pick here.
+
+Fight 4: Execution was sensible. Passed on playing Vicious a few times which was correct--it won't give enough value here.
+
+Draft 4: Fiend Fire is the right pick.
+
+Rest: is correct. I would rest here too.
+
+Fight 5: Multiple opprtunities to play fiend fire were passed on. Notable is turn 1--it would have exhausted a handle of strikes, defends, and Vicious. Easily worth it for the 28 damage on a turn I think the enemy wasn't even attacking. An alternative is to play Vicious (1 energy) then Fiend Fire with 7 less damage. Vicious does have _some_ value (drawing 1 card when Bash is played) though it's unclear whether this will matter.
+
+Also: A lot of effort is being spent on attacking the low-impact minion, which should honestly be ignored in this fight. Prioritizing minion over main enemy is hard, but for this specific
+fight the minion is completely ignorable. (there are other fights where this problem crops up again, mainly in Act 2).
+
+- This particular minion _also_ has the buff/status effect "Illusion", meaning it revives at the beginning of its turn after being killed (though without acting). This is particularly pernicious because it means
+that the only reason to kill it on your turn (as opposed to on _its_ turn with poison or doom) is to negate its combat action, but otherwise not worth it.
+
+Also, now stuck after drinking a Skill potion. I'm actually not sure why it was drunk tbh. Wouldn't fiend fire have been lethal on the 21 hp enemy? If not, the incoming 14 isn't even deadly after block is played. [We already discussed this at length]
+
+

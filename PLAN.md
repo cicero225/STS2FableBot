@@ -339,6 +339,18 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   - *Bot implications*: `lethal = all leaders dead` must know about **Adaptable / revive** (killing
     phase 1 does **not** end the fight); each phase wants different play — a canonical case for the
     per-enemy special-case pass (§8.3), with the seeded-runs harness as its deterministic test bed.
+- **Summoner leaders: race the leader, don't chase respawning minions** (first seeded Kin test, seed
+  `B04BGZEDRN` — the bot **beat the Kin** at f17 but **died at f22** to this). The **Ovicopter** (Act-2
+  normal, 126 HP) has a **Summon** intent that lays **Tough Eggs → Hatchlings** *repeatedly* (verified:
+  the eggs/hatchlings carry status **Minion** = "abandon combat without their leader"; the Ovicopter
+  also ramps Str and swings 28/33). The dangerous-minion fix flagged the Hatchlings (incoming ≥6 ×3),
+  so the bot **chased the respawning minions** instead of racing the 126-HP summoner — a treadmill: it
+  cleared wave after wave, never closed the Ovicopter (got it to 38/126), and drowned 77→0. The bot
+  already knows "kill the leader → minions flee" (the lethal calc); it just needs to **not chase
+  minions a summoner replaces**. Refinement (owner's call, per the no-universal-rule steer): when a
+  leader has a Summon ability/intent, treat its minions as low-priority and **race the leader**.
+  Contrast the **Kin** (same run, f17, won): its followers are a *fixed* set, so killing them first
+  removes the ramp for good. **Fixed-add vs summoned-add is the distinction the minion logic misses.**
 - **Run-2 draft notes** (owner; reference): early-damage picks (Infernal Blade D1; Hemokinesis
   over Shrug It Off) → covered by the early-damage bias. The **Vicious** / Vulnerable-applier and
   *draft-affects-draft* observations fold into the deferred deck-aware drafting below. Pommel
