@@ -1198,6 +1198,32 @@ def test_card_reward_takes_good_skips_bad() -> None:
     assert decision.action.payload() == {"action": "skip_card_reward"}
 
 
+def test_weak_starter_deck_takes_card_a_polished_deck_skips() -> None:
+    """8.1d: the same modest card (Common Skill, score 3.5 < base take_threshold 4.0) is TAKEN by a
+    starter-heavy deck (a real card beats keeping a basic) but SKIPPED once the deck is polished.
+    In the 0/5 batch the bot skipped good cards (Molten Fist x4) holding a 9-starter deck."""
+    def reward(deck_ids):
+        deck = [{"index": i, "id": cid, "name": cid.title(), "type": "Attack", "cost": "1",
+                 "description": "Deal 6 damage.", "rarity": "Basic", "is_upgraded": False}
+                for i, cid in enumerate(deck_ids)]
+        return parse_state({
+            "state_type": "card_reward",
+            "card_reward": {"cards": [
+                {"index": 0, "id": "MYSTERY_SKILL", "name": "Modest", "type": "Skill", "cost": "1",
+                 "description": "A modest effect.", "rarity": "Common", "is_upgraded": False,
+                 "keywords": []}], "can_skip": True},
+            "run": {"act": 1, "floor": 5, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "deck": deck},
+        })
+
+    r = router()
+    weak = ["STRIKE_IRONCLAD"] * 8 + ["DEFEND_IRONCLAD"] * 4   # 100% basic -> low bar
+    polished = ["BASH"] * 12                                   # 0% basic -> full bar
+    assert r.decide(reward(weak), LoopContext()).action.payload()["action"] == "select_card_reward"
+    skipped = r.decide(reward(polished), LoopContext()).action.payload()
+    assert skipped == {"action": "skip_card_reward"}
+
+
 def test_priors_loaded_and_shaped() -> None:
     from sts2bot.kb.priors import CardPriors
 

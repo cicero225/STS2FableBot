@@ -68,6 +68,10 @@ class MapWeights(_Section):
 
 class CardRewardWeights(_Section):
     take_threshold: float = 4.0
+    # 8.1d: a weak, starter-heavy deck should take cards readily (a Strike-tier card beats keeping
+    # a basic). Drop the take threshold by this much times the fraction of the deck that's still
+    # Basic Strikes/Defends — near-starter decks take almost anything; polished ones stay picky.
+    take_weak_deck_discount: float = 4.0
     prior_weight: float = 1.8
     conditional_prior_mult: float = 0.7
     unparsed_prior_mult: float = 0.45

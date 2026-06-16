@@ -616,23 +616,29 @@ class StandardRouter:
             if cr.can_skip:
                 return Decision(action=act.SkipCardReward(), rationale="no cards offered; skip")
             return Wait(reason="card reward with no cards and no skip")
-        deck_size = len(state.player.deck) if (state.player and state.player.deck) else 15
+        deck = state.player.deck if (state.player and state.player.deck) else []
+        deck_size = len(deck) if deck else 15
         character = state.player.character if state.player else None
         run_act = state.run.act if state.run else 1
         scored = [(self._card_score(c, deck_size, character, run_act), c) for c in cr.cards]
         scored.sort(key=lambda sc: -sc[0])
         best_score, best = scored[0]
         score_map = {c.name: round(s, 2) for s, c in scored}
-        if best_score >= w.take_threshold or not cr.can_skip:
+        # 8.1d: lower the take bar for an unrefined deck (lots of basic Strikes/Defends) — a weak
+        # deck profits from almost any real card, and top players rarely skip early picks.
+        basics = sum(1 for c in deck if (c.id or "").upper().startswith(("STRIKE_", "DEFEND_")))
+        weak_frac = basics / max(1, deck_size)
+        threshold = w.take_threshold - w.take_weak_deck_discount * weak_frac
+        if best_score >= threshold or not cr.can_skip:
             return Decision(
                 action=act.SelectCardReward(card_index=best.index),
-                rationale=f"take {best.name} (score {best_score:.1f})",
+                rationale=f"take {best.name} (score {best_score:.1f} >= thr {threshold:.1f}, "
+                f"{weak_frac:.0%} basic)",
                 scores=score_map,
             )
         return Decision(
             action=act.SkipCardReward(),
-            rationale=f"skip: best {best.name} scored {best_score:.1f} < "
-            f"threshold {w.take_threshold}",
+            rationale=f"skip: best {best.name} scored {best_score:.1f} < thr {threshold:.1f}",
             scores=score_map,
         )
 
