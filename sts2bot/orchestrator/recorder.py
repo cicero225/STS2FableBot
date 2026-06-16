@@ -15,16 +15,25 @@ from sts2bot.client.models import MenuState, parse_state
 from sts2bot.orchestrator.loop import GameClient, _fingerprint
 from sts2bot.runlog.logger import RunLogger, RunOutcome
 
+_COMBAT_SCREENS = ("monster", "elite", "boss", "hand_select")
+
 
 def record_session(
     client: GameClient,
     log_root: str = "logs/manual",
     history_dirs: list | None = None,
     poll_interval: float = 0.5,
+    nav_poll_interval: float = 4.0,
     runs: int | None = None,
 ) -> int:
     """Block, recording human play, until `runs` runs are captured (None = until interrupted).
-    Returns the number of runs recorded."""
+    Returns the number of runs recorded.
+
+    The mod re-renders the current screen on each `/state` read, which fights a human's in-game
+    "leave"/select click (the bot never hits this — it acts via the API, not clicks). So we poll
+    combat fast (to capture card plays) but non-combat screens slowly (`nav_poll_interval`) to
+    leave the owner room to navigate shops/maps/rewards. Not a full fix (an unlucky poll can
+    still interrupt) — the real fix is making the mod's state read passive."""
     history_dirs = history_dirs or []
     from sts2bot.runlog.runfile import latest_run_summary, newest_record_mtime
 
@@ -77,7 +86,8 @@ def record_session(
                     break
             was_in_run = in_run
             last_fp = fp
-            time.sleep(poll_interval)
+            combat = state.state_type in _COMBAT_SCREENS
+            time.sleep(poll_interval if combat else nav_poll_interval)
     except KeyboardInterrupt:
         if logger is not None:
             finalize(logger)

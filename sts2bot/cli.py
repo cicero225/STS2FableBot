@@ -161,7 +161,11 @@ def play(
 @app.command()
 def record(
     out: str = typer.Option("logs/manual", help="Directory for manual-play run logs."),
-    poll_interval: float = typer.Option(0.5, help="Seconds between state polls."),
+    poll_interval: float = typer.Option(0.5, help="Seconds between polls during combat."),
+    nav_poll_interval: float = typer.Option(
+        4.0, help="Seconds between polls on non-combat screens (slower so the mod's "
+        "screen re-render doesn't fight your shop/map navigation)."
+    ),
     base_url: str = DEFAULT_BASE_URL,
 ) -> None:
     """Record a human-played session (a state trace per run, same format as bot runs) for
@@ -182,6 +186,7 @@ def record(
                 log_root=out,
                 history_dirs=discover_history_dirs(),
                 poll_interval=poll_interval,
+                nav_poll_interval=nav_poll_interval,
             )
             typer.echo(f"recorded {n} run(s).")
         except KeyboardInterrupt:

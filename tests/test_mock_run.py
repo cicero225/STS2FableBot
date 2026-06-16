@@ -166,7 +166,9 @@ def test_record_session_observes_and_logs(tmp_path: Path) -> None:
         def act(self, action):
             raise AssertionError("the recorder must never act")
 
-    n = record_session(SeqClient(), log_root=str(tmp_path), poll_interval=0, runs=1)
+    n = record_session(
+        SeqClient(), log_root=str(tmp_path), poll_interval=0, nav_poll_interval=0, runs=1
+    )
     assert n == 1
     run_dir = next((tmp_path / "runs").iterdir())
     lines = (run_dir / "decisions.jsonl").read_text(encoding="utf-8").splitlines()
