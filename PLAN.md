@@ -230,7 +230,9 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   on it. Owner's principled design:
   - Enumerate all paths to the boss; estimate **HP along each** = running HP − Σ(expected loss
     per fight on it, by type: normal / elite, from combat-stats) + Σ(campfire heals). Keep the
-    **survivable** ones (HP stays above a floor).
+    **survivable** ones (HP stays above a floor). Note the combat-stats loss is *net* (measured
+    from logs), so the **Ironclad +6 HP/combat is already baked in** — don't add it again; just
+    keep the estimate **character-specific** (other characters lack that heal).
   - Among survivable paths prefer **≥1 elite** (bank relics — light elite-chasing), and add a
     **bonus for reaching a shop with ≳250 gold** (needs a parallel gold estimate).
   - (a) **First 3 nodes of each act are easier** than later fights — track as its own HP-loss
