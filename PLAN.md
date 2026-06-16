@@ -326,6 +326,19 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
     `gains_strength / incoming≥6` bias is a stopgap; the real arbiter is the **multi-turn capability
     estimate** (§5-C / §8.3) — "can I close the leader before the ramp out-scales me?". Don't pile on
     more universal minion micro-rules.
+- **Multi-phase / reviving bosses break the lethal calc** (verified from in-game status tooltips —
+  **Test Subject #C8**, an Act-3 boss, 2026-06-15 manual run). **Adaptable** ("when defeated, revives
+  even stronger") → 3 phases ≈ 100 / 200 / 300 HP (~600 effective), each a different punishing power:
+  - *Phase 1 — Enrage* "whenever you play a Skill, gains 2 Strength." Strength **and Enrage wipe on
+    revive**, so the owner's per-enemy call is: **burst the phase with Skills if you can kill it this
+    turn** (the ramp evaporates) **else minimise Skills**. The one-turn planner can't see this.
+  - *Phase 2 — Painful Stabs* "shuffle 1 Wound into your discard each time you take **unblocked** attack
+    damage" → block fully or pollute the deck.
+  - *Phase 3 — Painful Stabs (persists) + Nemesis* "at the end of every other turn, gains Intangible 1"
+    (all damage to it → 1) → don't dump burst into an Intangible turn.
+  - *Bot implications*: `lethal = all leaders dead` must know about **Adaptable / revive** (killing
+    phase 1 does **not** end the fight); each phase wants different play — a canonical case for the
+    per-enemy special-case pass (§8.3), with the seeded-runs harness as its deterministic test bed.
 - **Run-2 draft notes** (owner; reference): early-damage picks (Infernal Blade D1; Hemokinesis
   over Shrug It Off) → covered by the early-damage bias. The **Vicious** / Vulnerable-applier and
   *draft-affects-draft* observations fold into the deferred deck-aware drafting below. Pommel
