@@ -60,7 +60,7 @@ def record_session(
             watermark = newest_record_mtime(history_dirs)
         lg.finalize(outcome)
         print(
-            f"■ recorded run: seed={outcome.seed} victory={outcome.victory} "
+            f"recorded run: seed={outcome.seed} victory={outcome.victory} "
             f"killed_by={outcome.killed_by_encounter}",
             flush=True,
         )
@@ -73,7 +73,7 @@ def record_session(
             if in_run and logger is None:
                 char = (state.player.character if state.player else None) or "MANUAL"
                 logger = RunLogger(log_root, character_hint=char, header={"mode": "manual"})
-                print(f"● recording run -> {logger.run_dir.name}", flush=True)
+                print(f"recording run -> {logger.run_dir.name}", flush=True)
                 last_fp = None
             fp = _fingerprint(raw)
             if logger is not None and fp != last_fp:
