@@ -248,6 +248,11 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   budgeting, known-event tables), not greenfield work.
 
 ### 8.3 Deferred infrastructure (owner, 2026-06-15 — write a detailed plan when revisited)
+- **Passive state read (fork).** The mod re-renders the current screen on each `/state` read,
+  which fights *human* in-game clicks (live 2026-06-15: the shop re-opened on every recorder
+  poll, so `record` had to slow non-combat polling as a partial workaround). Make the state read
+  passive (no screen re-render/re-focus) in the fork so manual recording is friction-free and
+  fast polling is safe — benefits the agent loop's reads too.
 - **Per-card special-case pass.** Optimal play will inevitably require special-casing some
   cards the generic planner can't reason about (owner example: **Anger** — adds a copy of
   itself to the discard, so its value depends on deck/turn context). Deferred task: take a
