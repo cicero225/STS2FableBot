@@ -1831,30 +1831,32 @@ def test_standard_router_handles_every_fixture() -> None:
         assert isinstance(decision, Decision | Wait)
 
 
-def test_enchant_preview_cycle_selects_then_confirms_each_card() -> None:
-    """Live f27 hang: Gnarled Axe's 'Choose 3 cards to Enchant' is a per-card preview screen
-    (select -> preview -> confirm, x3) and `can_confirm` stays True *between* cards. The old
-    handler confirmed whenever can_confirm, so once a preview cleared it re-confirmed nothing
-    forever (select once, confirm 61x, stall). Now: confirm a showing preview, else select next."""
-    def cardsel(preview: bool, can_confirm: bool, ncards: int):
-        cards = [{"id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack", "cost": "1",
-                  "description": "Deal 6 damage.", "rarity": "Basic", "is_upgraded": False,
+def test_enchant_selects_full_count_before_confirming() -> None:
+    """Live f27 hang (owner-diagnosed mechanic): Gnarled Axe's 'Choose 3 cards to Enchant' lets you
+    confirm with fewer than 3 selected, which strands you on a dead sub-screen. `can_confirm` is
+    True from the first pick (the trap), so the handler must select 3 DISTINCT cards FIRST, then
+    confirm — never confirm early."""
+    def cardsel(ncards: int = 12):
+        cards = [{"id": f"CARD_{i}", "name": f"Card{i}", "type": "Attack", "cost": "1",
+                  "description": "Deal 6 damage.", "rarity": "Common", "is_upgraded": False,
                   "index": i} for i in range(ncards)]
         return parse_state({
             "state_type": "card_select",
             "card_select": {"screen_type": "NDeckEnchantSelectScreen",
                             "prompt": "Choose 3 cards to Enchant.", "cards": cards,
-                            "preview_showing": preview, "can_confirm": can_confirm,
+                            "preview_showing": False, "can_confirm": True,  # confirm offered early
                             "can_cancel": False},
-            "run": {"act": 1, "floor": 27, "ascension": 0},
+            "run": {"act": 2, "floor": 27, "ascension": 0},
             "player": {"character": "The Ironclad", "hp": 50, "max_hp": 80},
         })
 
     r = router()
     ctx = LoopContext()
-    # 1) nothing previewed yet -> select a card to preview it
-    assert r.decide(cardsel(False, False, 24), ctx).action.payload()["action"] == "select_card"
-    # 2) a card is previewed -> confirm to lock it in
-    assert r.decide(cardsel(True, True, 24), ctx).action.payload()["action"] == "confirm_selection"
-    # 3) preview cleared but can_confirm still True (the hang) -> select the NEXT card
-    assert r.decide(cardsel(False, True, 11), ctx).action.payload()["action"] == "select_card"
+    picks = []
+    for _ in range(3):  # must SELECT three distinct cards despite can_confirm being True
+        p = r.decide(cardsel(), ctx).action.payload()
+        assert p["action"] == "select_card", f"confirmed too early: {p}"
+        picks.append(p["index"])
+    assert len(set(picks)) == 3  # three distinct cards
+    # now that 3 are picked, confirm
+    assert r.decide(cardsel(), ctx).action.payload()["action"] == "confirm_selection"

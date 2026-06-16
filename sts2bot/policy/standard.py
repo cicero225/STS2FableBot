@@ -708,47 +708,16 @@ class StandardRouter:
         )
         character = state.player.character if state.player else None
 
-        # Preview-based per-card selection (Gnarled Axe enchant etc.): pick a card -> it previews
-        # -> confirm to lock it in -> repeat until the screen closes. `can_confirm` stays True
-        # *between* cards, so confirming while nothing is previewed is a no-op that hangs the loop
-        # (live f27: select once, then confirm 61x). Drive it off preview_showing instead.
-        preview_key = f"cardsel_preview:{cs.screen_type}:{cs.prompt}"
-        if cs.preview_showing:
-            ctx.screen_mem[preview_key] = True
-            if cs.can_confirm:
-                return Decision(action=act.ConfirmSelection(), rationale="lock in previewed card")
-            return Wait(reason="preview showing; awaiting confirm")
-        if ctx.screen_mem.get(preview_key):  # preview screen, between cards: pick the next one
-            if cs.cards:
-                target = self._pick_target(cs, prefer_worst, character) or cs.cards[0]
-                return Decision(
-                    action=act.SelectCard(index=target.index),
-                    rationale=f"select {target.name} to enchant ({cs.prompt})",
-                )
-            ctx.screen_mem.pop(preview_key, None)
-            if cs.can_confirm:
-                return Decision(action=act.ConfirmSelection(), rationale="all picks made; confirm")
-            if cs.can_skip or cs.can_cancel:
-                return Decision(action=act.CancelSelection(), rationale="preview screen done")
-            return Wait(reason="preview screen: awaiting close")
-
-        # fingerprint the offered cards so a later same-prompt screen gets fresh
-        # mem (retry counts / picks don't leak across distinct selection events).
-        fp = ",".join(f"{c.index}:{c.id or c.name}" for c in cs.cards)
-        mem_key = f"cardsel:{cs.screen_type}:{cs.prompt}:{fp}"
-        if cs.can_confirm:
-            ctx.screen_mem.pop(mem_key, None)
-            return Decision(action=act.ConfirmSelection(), rationale="confirm card selection")
-        if not cs.cards:
-            ctx.screen_mem.pop(mem_key, None)
-            if cs.can_skip or cs.can_cancel:
-                return Decision(action=act.CancelSelection(), rationale="nothing selectable; skip")
-            return Wait(reason="card select with no cards, confirm, or cancel")
-
+        # `needed` distinct cards to pick: 1 for "Choose a card to Remove/Upgrade", 3 for the
+        # Gnarled Axe "Choose 3 cards to Enchant". Key the pick-tracking on the selection's
+        # identity (screen + prompt) so it survives the cards list changing under us; it's cleared
+        # on confirm/bail, so a later same-prompt event starts fresh.
+        needed = self._select_count(prompt)
+        mem_key = f"cardsel:{cs.screen_type}:{cs.prompt}"
         mem: dict = ctx.screen_mem.setdefault(mem_key, {"picked": [], "tries": 0})
+        picked: list[int] = mem["picked"]
 
-        # choose-a-card: select_card picks immediately (no confirm). Re-press a few
-        # times if it doesn't resolve, then skip rather than stall.
+        # "choose"-type screens resolve immediately on select_card (no confirm step).
         if (cs.screen_type or "") == "choose":
             target = self._pick_target(cs, prefer_worst, character)
             if mem["tries"] < self._CHOOSE_RETRIES and target is not None:
@@ -764,23 +733,41 @@ class StandardRouter:
                 )
             return Wait(reason="choose-a-card stuck")
 
-        # grid: select the right N distinct cards, then confirm when offered.
-        needed = self._select_count(prompt)
-        picked: list[int] = mem["picked"]
-        if len(picked) < needed:
+        # Pick the required N DISTINCT cards FIRST. The enchant screen lets you confirm with fewer
+        # than N selected, which strands you on a dead sub-screen (live f27 hang). So don't confirm
+        # until `needed` are picked — even though can_confirm goes True after the first pick.
+        if cs.cards and len(picked) < needed:
             target = self._pick_target(cs, prefer_worst, character, exclude=picked)
-            if target is None:
-                ctx.screen_mem.pop(mem_key, None)
-                if cs.can_skip or cs.can_cancel:
-                    return Decision(action=act.CancelSelection(), rationale="no target; skip")
-                return Wait(reason="card select: no remaining candidates")
-            picked.append(target.index)
-            kind = "worst" if prefer_worst else "best"
+            if target is not None:
+                picked.append(target.index)
+                kind = "worst" if prefer_worst else "best"
+                return Decision(
+                    action=act.SelectCard(index=target.index),
+                    rationale=f"select {kind} {target.name} ({len(picked)}/{needed}): {cs.prompt}",
+                )
+            # fewer distinct candidates than asked — confirm/skip with what we have
+            ctx.screen_mem.pop(mem_key, None)
+            if cs.can_confirm:
+                return Decision(
+                    action=act.ConfirmSelection(), rationale="no more candidates; confirm"
+                )
+            if cs.can_skip or cs.can_cancel:
+                return Decision(action=act.CancelSelection(), rationale="no target; skip")
+            return Wait(reason="card select: no remaining candidates")
+
+        # Enough picked (or a previewed single pick): confirm.
+        if cs.can_confirm:
+            ctx.screen_mem.pop(mem_key, None)
             return Decision(
-                action=act.SelectCard(index=target.index),
-                rationale=f"select {kind} {target.name} for: {cs.prompt}",
+                action=act.ConfirmSelection(), rationale=f"confirm {len(picked)}/{needed} selected"
             )
-        # enough chosen — wait briefly for confirm to enable, then bail safely.
+        if not cs.cards:
+            ctx.screen_mem.pop(mem_key, None)
+            if cs.can_skip or cs.can_cancel:
+                return Decision(action=act.CancelSelection(), rationale="nothing selectable; skip")
+            return Wait(reason="card select with no cards or confirm")
+
+        # Picked enough but confirm not offered yet: wait briefly, then bail safely.
         mem["tries"] += 1
         if mem["tries"] > self._AWAIT_CONFIRM_POLLS and (cs.can_skip or cs.can_cancel):
             ctx.screen_mem.pop(mem_key, None)
