@@ -5,6 +5,12 @@ states: deck/relic/gold/HP deltas plus the `was_chosen` flag on event options. O
 run can span several dirs (a recording interrupted and resumed continues the same run), so
 this accepts multiple dirs and concatenates their records in order.
 
+Savescum caveat: a quit-to-menu-then-reload also spans dirs but *rewinds* — the resumed dir
+restarts at an earlier floor and replays nodes (signature: a mid-run `menu` ends one dir, the
+next begins at a lower floor). Naively concatenating then double-counts the redone floors and
+shows backward jumps / phantom deck changes at the seam. A future `--keep-final` mode should
+detect the menu+rewind and keep only the surviving attempt; for now analyze such runs per-dir.
+
 Usage:
     python scripts/analyze_manual_run.py logs/manual/runs/DIR1 [logs/manual/runs/DIR2 ...]
     python scripts/analyze_manual_run.py --latest         # newest dir only
