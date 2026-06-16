@@ -268,13 +268,24 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   systematic pass over the full card list and flag the cards with obvious coding
   exceptions, then encode them (likely as per-card handlers/annotations the planner
   consults). Pairs with the combat-tactics "phase C" work.
+- **Seeded custom runs = the boss/elite test harness** (owner reminder, 2026-06-15; this is what
+  the manual-run grind is *for*). Custom game mode — **locked until 3 Act-3 wins** — supports
+  **seeded** runs that **guarantee the Act-1 boss**. We already have **logged Kin seeds** (the manual
+  win `1PKWCTW4M9` had a Kin Act-1 boss; several earlier batch runs died to the Kin — enumerable from
+  run logs by Act-1 boss / `killed_by`; the mod exposes `MapInfo.boss` right after Neow). So once
+  custom unlocks we **batch-test the bot on the Kin deterministically in the real game**, no
+  enemy-behavior model required. This **defers the simulated harness below** (only needed for
+  arbitrary fights/decks a seed can't reproduce) and lets us **tune the minion/rest/burst heuristics
+  empirically against real outcomes** instead of building the multi-turn forward model first (§5-C) —
+  *measure, don't simulate*, wherever a seed can hand us the fight.
 - **Combat A/B test framework.** A simulated fight harness to A/B policy changes once
   their impact stops being obvious from live batches: run the bot through fixed difficult
   fights (Ceremonial Beast, specific elites, common packs) with preprogrammed or
   recent-run-sampled decks, simulating enemy behavior from the wikis. Lets us regression-
   test special cases and measure combat tweaks deterministically. Non-trivial (needs an
   enemy-behavior model); owner is prototyping the simulated-fight scripts. **Write a
-  detailed implementation plan when we pick this up.**
+  detailed implementation plan when we pick this up.** (Fallback to the seeded-runs harness
+  above: build this only for what a seed can't reproduce.)
 
 ### 8.4 Combat-tactics backlog (from the 2026-06-15 observation run)
 Done this session: Rage sequencing · smart in-combat exhaust targeting · false-pause fix
