@@ -158,5 +158,35 @@ def play(
                 break
 
 
+@app.command()
+def record(
+    out: str = typer.Option("logs/manual", help="Directory for manual-play run logs."),
+    poll_interval: float = typer.Option(0.5, help="Seconds between state polls."),
+    base_url: str = DEFAULT_BASE_URL,
+) -> None:
+    """Record a human-played session (a state trace per run, same format as bot runs) for
+    human-vs-bot comparison. Start this, then play normally; Ctrl+C to stop. The bot never acts."""
+    from sts2bot.orchestrator.recorder import record_session
+    from sts2bot.runlog.runfile import discover_history_dirs
+
+    with Sts2Client(base_url=base_url) as client:
+        try:
+            client.get_state_raw()
+        except Sts2ConnectionError as e:
+            typer.echo(f"NOT CONNECTED: {e}")
+            raise typer.Exit(code=1) from None
+        typer.echo("Recording manual play. Play normally; Ctrl+C to stop. The bot will NOT act.")
+        try:
+            n = record_session(
+                client,
+                log_root=out,
+                history_dirs=discover_history_dirs(),
+                poll_interval=poll_interval,
+            )
+            typer.echo(f"recorded {n} run(s).")
+        except KeyboardInterrupt:
+            typer.echo("\nstopped recording.")
+
+
 if __name__ == "__main__":
     app()

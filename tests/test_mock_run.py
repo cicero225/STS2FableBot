@@ -137,6 +137,44 @@ def test_fight_end_pause_ignores_in_combat_card_select() -> None:
     assert pauses == 1  # only at `rewards`, never at the mid-fight `card_select`
 
 
+def test_record_session_observes_and_logs(tmp_path: Path) -> None:
+    """The `record` command logs a state trace per run for human-vs-bot comparison, and never
+    acts. A human advances the game, so the fake advances on each poll (not on act)."""
+    from sts2bot.orchestrator.recorder import record_session
+
+    player = {"character": "The Ironclad", "hp": 80, "max_hp": 80, "block": 0,
+              "energy": 3, "max_energy": 3, "hand": [], "status": [], "relics": [],
+              "potions": [], "max_potion_slots": 3}
+    battle = {"round": 1, "turn": "player", "is_play_phase": True, "enemies": []}
+    run = {"act": 1, "floor": 1, "ascension": 0}
+    seq = [
+        {"state_type": "menu", "menu_screen": "main"},
+        {"state_type": "monster", "run": run, "player": player, "battle": battle},
+        {"state_type": "monster", "run": run, "player": {**player, "hp": 72}, "battle": battle},
+        {"state_type": "menu", "menu_screen": "main"},
+    ]
+
+    class SeqClient:
+        def __init__(self):
+            self.i = 0
+
+        def get_state_raw(self):
+            s = seq[min(self.i, len(seq) - 1)]
+            self.i += 1
+            return s
+
+        def act(self, action):
+            raise AssertionError("the recorder must never act")
+
+    n = record_session(SeqClient(), log_root=str(tmp_path), poll_interval=0, runs=1)
+    assert n == 1
+    run_dir = next((tmp_path / "runs").iterdir())
+    lines = (run_dir / "decisions.jsonl").read_text(encoding="utf-8").splitlines()
+    records = [json.loads(line) for line in lines]
+    assert records  # the in-run states were captured
+    assert all(r["action"] is None and r["rationale"] == "human play" for r in records)
+
+
 def test_fight_end_pause_state_transitions() -> None:
     fight_end = AgentLoop._fight_end_pause
     assert fight_end("monster", False) == (False, True)  # enter combat -> armed
