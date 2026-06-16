@@ -95,6 +95,9 @@ def play(
     pause_after_fight: bool = typer.Option(
         False, help="Observation mode: pause after each fight until you resume it."
     ),
+    stop_at_floor: int = typer.Option(
+        None, help="Stop (without acting) when a fight starts at this floor, for manual takeover."
+    ),
 ) -> None:
     """Play run(s) with the current policy (P0: trivial policy). Attended use only
     for now — keep an eye on it (REQUIREMENTS FR-4.4)."""
@@ -122,6 +125,7 @@ def play(
         profile_backup_root=Path("backups/profile_snapshots") if backup else None,
         pause_after_fight=pause_after_fight,
         resume_signal_path=Path("logs/resume.signal") if pause_after_fight else None,
+        stop_at_floor=stop_at_floor,
     )
     with Sts2Client(base_url=base_url) as client:
         try:

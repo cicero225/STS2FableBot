@@ -184,3 +184,30 @@ def test_fight_end_pause_state_transitions() -> None:
     assert fight_end("rewards", True) == (True, False)  # fight over -> pause once
     assert fight_end("card_reward", False) == (False, False)  # already paused: no repeat
     assert fight_end("map", False) == (False, False)  # between fights: nothing
+
+
+def test_stop_at_floor_hands_off_without_acting(tmp_path: Path) -> None:
+    """`--stop-at-floor N` stops cleanly at the fight on floor N *without acting*, leaving the
+    live game at the player's turn so a human can play it with the bot-built deck (the 2026-06-16
+    Ovicopter/Obscura hypothesis test)."""
+    player = {"character": "The Ironclad", "hp": 50, "max_hp": 80, "block": 0,
+              "energy": 3, "max_energy": 3, "hand": [], "status": [], "relics": [],
+              "potions": [], "max_potion_slots": 3}
+    monster = {"state_type": "monster", "run": {"act": 2, "floor": 22, "ascension": 0},
+               "player": player,
+               "battle": {"round": 1, "turn": "player", "is_play_phase": True, "enemies": []}}
+
+    class StuckClient:
+        def get_state_raw(self):
+            return monster
+
+        def act(self, action):
+            raise AssertionError("the bot must not act once stop_at_floor is reached")
+
+    loop = AgentLoop(
+        StuckClient(), TrivialRouter(), log_root=tmp_path,
+        config=LoopConfig(poll_interval=0, stop_at_floor=22),
+    )
+    outcome = loop.play_one_run()
+    assert outcome.status == "stopped"  # handed off, did not flail or finish
+    assert outcome.floor == 22

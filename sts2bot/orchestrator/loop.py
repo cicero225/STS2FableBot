@@ -71,6 +71,9 @@ class LoopConfig(BaseModel):
     # observation mode: pause after each fight until resume_signal_path appears
     pause_after_fight: bool = False
     resume_signal_path: Path | None = None
+    # one-shot manual takeover: stop cleanly (without acting) when a fight begins at
+    # this floor, leaving the live game at the player's turn for a human to play it out
+    stop_at_floor: int | None = None
 
 
 class BotStalled(Exception):
@@ -151,6 +154,23 @@ class AgentLoop:
                     )
 
                 self._track_progress(state, ctx, outcome)
+
+                # One-shot manual takeover: stop (without acting) at the fight on the
+                # target floor so a human can play it out with the bot-built deck.
+                if (
+                    cfg.stop_at_floor is not None
+                    and state.run is not None
+                    and state.run.floor is not None
+                    and state.run.floor >= cfg.stop_at_floor
+                    and state.state_type in ("monster", "elite", "boss")
+                ):
+                    outcome.status = "stopped"
+                    print(
+                        f"\n*** STOPPING at floor {state.run.floor} ({state.state_type}) for "
+                        "manual takeover — play it out, the bot will NOT act. ***",
+                        flush=True,
+                    )
+                    break
 
                 # Pause-after-fight (observation mode): hold only when a fight
                 # genuinely ends at its reward screen. In-combat modals like
