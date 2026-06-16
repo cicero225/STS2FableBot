@@ -398,6 +398,28 @@ def test_ignores_summoned_minions_and_races_summoner() -> None:
     assert d.action.payload().get("target") == "OVICOPTER_0"  # race the summoner, not the adds
 
 
+def test_ignores_illusion_minion_and_races_leader() -> None:
+    """Live B04BGZEDRN f23 (Obscura): the Parafright is an Illusion (revives at full HP when
+    killed) AND a ramping Minion, so the old logic read it as 'a ramping minion worth grinding'
+    and poured damage into it every turn — futile, since it revives, while the 123-HP Obscura
+    barely dropped. An Illusion minion is ignorable for progress: race the leader instead."""
+    leader = enemy("OBSCURA_0", 80, intent_label="10")
+    illusion = enemy("PARAFRIGHT_0", 21, intent_label="16")
+    illusion["status"] = [
+        {"id": "ILLUSION", "name": "Illusion",
+         "description": "When this dies, it revives next turn at full HP."},
+        {"id": "MINION_POWER", "name": "Minion",
+         "description": "Minions abandon combat without their leader."},
+        {"id": "STRENGTH_POWER", "name": "Strength", "amount": 3, "description": "Stronger."},
+    ]
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")], enemies=[leader, illusion], energy=1
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("target") == "OBSCURA_0"  # race the leader, not the reviving add
+
+
 def test_races_strength_gaining_enemy() -> None:
     """Owner (Run-3 Fight 6): vs strength-gaining (ramping) enemies the bot turtled and bled
     out. It should trade more — attack to end the fight before the ramp compounds, where vs a

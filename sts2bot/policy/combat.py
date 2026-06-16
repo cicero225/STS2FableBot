@@ -56,6 +56,7 @@ class EnemySim:
     is_minion: bool = False  # "Minion" status: flees when its leader dies, so ignorable
     gains_strength: bool = False  # ramping (Strength buff / Empower intent): race to kill it
     summons: bool = False  # has a Summon intent — its minions are replaceable, so race it
+    illusion: bool = False  # "Illusion": revives at full HP when killed — grinding it is futile
 
 
 @dataclass(frozen=True)
@@ -137,6 +138,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         is_minion = False
         gains_strength = False
         summons = False
+        illusion = False
         for p in e.status:
             if p.id.upper() == "VULNERABLE" and p.amount:
                 vuln = p.amount
@@ -144,6 +146,8 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 is_minion = True
             if "STRENGTH" in p.id.upper() and (p.amount or 0) > 0:
                 gains_strength = True
+            if "ILLUSION" in p.id.upper() or "revives" in (p.description or "").lower():
+                illusion = True
         for i in e.intents:
             text = f"{i.type or ''} {i.title or ''} {i.description or ''}".lower()
             if (i.type or "").lower() == "buff" and (
@@ -166,21 +170,23 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 is_minion=is_minion,
                 gains_strength=gains_strength,
                 summons=summons,
+                illusion=illusion,
             )
         )
     return tuple(sims)
 
 
 def _ignorable_minion(e: EnemySim, has_summoner: bool = False) -> bool:
-    """A Minion not worth attacking: race the leader instead, since killing the leader makes the
-    minions flee. Diverting damage to a minion pays off only when it's a *fixed* escalating threat
-    — it ramps (gains Strength, like the Kin's followers) and won't simply be re-summoned. If
-    anything on the board summons (e.g. the Ovicopter's eggs/hatchlings), every minion is
-    replaceable, so chasing them is a treadmill: ignore them and race the summoner. Minions never
-    gate lethal regardless (killing them doesn't end the fight)."""
+    """A Minion not worth grinding down: race the leader instead — killing the leader makes the
+    minions flee. Diverting damage to a minion pays off only when it's a *fixed* escalating threat:
+    it ramps (Strength, like the Kin's followers) and isn't re-summoned. Ignore it when anything on
+    the board summons (the Ovicopter's eggs/hatchlings — every minion is then replaceable, so
+    chasing them is a treadmill), or it's an **Illusion** (revives at full HP when killed, so
+    grinding makes no progress). Killing an Illusion only to deny a turn's attack is the deferred
+    capability-estimate layer. Minions never gate lethal regardless."""
     if not e.is_minion:
         return False
-    if has_summoner:
+    if has_summoner or e.illusion:
         return True
     return not e.gains_strength
 
