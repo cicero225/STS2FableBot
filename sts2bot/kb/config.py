@@ -70,6 +70,14 @@ class MapWeights(_Section):
     shop_bonus_per_100_gold: float = 6.0
     lookahead_discount: float = 0.35
     path_step_discount: float = 0.80
+    # §8.2 HP-aware routing (active only when combat_stats is loaded). The DP projects HP along
+    # each route using the bot's own per-fight p75 loss; these tune how it reacts.
+    survival_floor_hp_pct: float = 0.10  # route projected to drop to/below this HP frac = "lethal"
+    route_death_penalty: float = 80.0  # ...and pays this; dominates a node's own type score
+    # a *survivable* elite earns elite_relic_value (vs score_elite -20 -> net +16, just above
+    # treasure): relics are deck power, so chase elites when the HP is there to spend
+    elite_relic_value: float = 36.0
+    rest_heal_pct: float = 0.30  # HP fraction a rest site restores, for the projection
 
 
 class CardRewardWeights(_Section):

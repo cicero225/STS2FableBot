@@ -1128,7 +1128,23 @@ def test_event_refuses_hp_cost_when_low() -> None:
     assert decision.action.payload() == {"action": "choose_event_option", "index": 1}
 
 
-def test_map_avoids_elites_and_rests_when_hurt() -> None:
+def _router_for_routing() -> StandardRouter:
+    """StandardRouter with a fixed combat_stats so HP-aware routing tests don't ride on the
+    evolving data file: early normals cheap, late normals/elite/boss progressively costlier."""
+    from sts2bot.kb.combat_stats import CombatStats
+
+    stats = CombatStats(
+        by_type={
+            "monster_early": {"mean": 4.0, "p75": 5, "n": 99},
+            "monster": {"mean": 12.0, "p75": 18, "n": 99},
+            "elite": {"mean": 21.0, "p75": 32, "n": 99},
+            "boss": {"mean": 25.0, "p75": 42, "n": 99},
+        }
+    )
+    return StandardRouter(combat_stats=stats)
+
+
+def test_map_chases_survivable_elite_but_rests_when_hurt() -> None:
     payload = json.loads(json.dumps(FIXTURES["map"]))  # deep copy
     payload["map"]["next_options"] = [
         {"index": 0, "col": 1, "row": 3, "type": "Elite", "leads_to": []},
@@ -1138,69 +1154,84 @@ def test_map_avoids_elites_and_rests_when_hurt() -> None:
     payload["player"]["hp"] = 20
     payload["player"]["max_hp"] = 80
     state = parse_state(payload)
-    decision = router().decide(state, LoopContext())
+    decision = _router_for_routing().decide(state, LoopContext())
     assert isinstance(decision, Decision)
-    # 75% missing HP makes the rest site dominate; elite must never win
+    # 20/80: the elite is unsurvivable (route death penalty) and 75% missing HP makes the
+    # rest site dominate; the elite must never win when hurt
     assert decision.action.payload() == {"action": "choose_map_node", "index": 2}
 
     payload["player"]["hp"] = 80
     state = parse_state(payload)
-    decision = router().decide(state, LoopContext())
+    decision = _router_for_routing().decide(state, LoopContext())
     assert isinstance(decision, Decision)
-    assert decision.action.payload()["index"] == 1  # healthy: fight the monster
+    # full HP: the elite is survivable, so chase it for its relic (deck power) over the plain
+    # monster and the (unneeded) rest
+    assert decision.action.payload()["index"] == 0
 
 
-def test_map_path_planning_avoids_forced_elite_lane() -> None:
-    """Runs 10/15 died in lanes whose elite was committed floors earlier. Two lanes
-    with identical immediate nodes: the one whose future forces an elite must lose."""
-    payload = {
-        "state_type": "map",
-        "map": {
-            "current_position": {"col": 2, "row": 0, "type": "Start"},
-            "visited": [],
-            "next_options": [
-                {
-                    "index": 0,
-                    "col": 1,
-                    "row": 1,
-                    "type": "Monster",
-                    "leads_to": [{"col": 1, "row": 2, "type": "Elite"}],
-                },
-                {
-                    "index": 1,
-                    "col": 3,
-                    "row": 1,
-                    "type": "Monster",
-                    "leads_to": [{"col": 3, "row": 2, "type": "Event"}],
-                },
-            ],
-            "nodes": [
-                {"col": 2, "row": 0, "type": "Start", "children": [[1, 1], [3, 1]]},
-                {"col": 1, "row": 1, "type": "Monster", "children": [[1, 2]]},
-                {"col": 3, "row": 1, "type": "Monster", "children": [[3, 2]]},
-                {"col": 1, "row": 2, "type": "Elite", "children": [[2, 3]]},
-                {"col": 3, "row": 2, "type": "Event", "children": [[2, 3]]},
-                {"col": 2, "row": 3, "type": "Monster", "children": []},
-            ],
-            "boss": {"col": 2, "row": 4, "id": "B", "name": "Boss"},
-            "bosses": [],
-        },
-        "run": {"act": 1, "floor": 1, "ascension": 0},
-        "player": {
-            "character": "The Ironclad",
-            "hp": 70,
-            "max_hp": 80,
-            "gold": 50,
-            "status": [],
-            "relics": [],
-            "potions": [],
-            "max_potion_slots": 3,
-        },
-    }
-    decision = router().decide(parse_state(payload), LoopContext())
-    assert isinstance(decision, Decision)
-    assert decision.action.payload()["index"] == 1  # the lane without the forced elite
-    assert decision.scores["1:Monster"] > decision.scores["0:Monster"]
+def test_map_path_planning_weighs_forced_elite_lane_by_hp() -> None:
+    """Runs 10/15 died in lanes whose elite was committed floors earlier. With HP-aware
+    routing the committed elite is judged by whether the bot can still afford it on arrival:
+    chase the lane for its relic when healthy, avoid it when the elite would be unsurvivable.
+    Two lanes with identical immediate nodes; only the committed future differs."""
+
+    def payload(hp: int) -> dict:
+        return {
+            "state_type": "map",
+            "map": {
+                "current_position": {"col": 2, "row": 0, "type": "Start"},
+                "visited": [],
+                "next_options": [
+                    {
+                        "index": 0,
+                        "col": 1,
+                        "row": 1,
+                        "type": "Monster",
+                        "leads_to": [{"col": 1, "row": 2, "type": "Elite"}],
+                    },
+                    {
+                        "index": 1,
+                        "col": 3,
+                        "row": 1,
+                        "type": "Monster",
+                        "leads_to": [{"col": 3, "row": 2, "type": "Event"}],
+                    },
+                ],
+                "nodes": [
+                    {"col": 2, "row": 0, "type": "Start", "children": [[1, 1], [3, 1]]},
+                    {"col": 1, "row": 1, "type": "Monster", "children": [[1, 2]]},
+                    {"col": 3, "row": 1, "type": "Monster", "children": [[3, 2]]},
+                    {"col": 1, "row": 2, "type": "Elite", "children": [[2, 3]]},
+                    {"col": 3, "row": 2, "type": "Event", "children": [[2, 3]]},
+                    {"col": 2, "row": 3, "type": "Monster", "children": []},
+                ],
+                "boss": {"col": 2, "row": 4, "id": "B", "name": "Boss"},
+                "bosses": [],
+            },
+            "run": {"act": 1, "floor": 1, "ascension": 0},
+            "player": {
+                "character": "The Ironclad",
+                "hp": hp,
+                "max_hp": 80,
+                "gold": 50,
+                "status": [],
+                "relics": [],
+                "potions": [],
+                "max_potion_slots": 3,
+            },
+        }
+
+    # healthy: the committed elite is survivable -> chase the lane for its relic
+    healthy = _router_for_routing().decide(parse_state(payload(70)), LoopContext())
+    assert isinstance(healthy, Decision)
+    assert healthy.action.payload()["index"] == 0
+    assert healthy.scores["0:Monster"] > healthy.scores["1:Monster"]
+
+    # hurt: by the time it reaches the committed elite it can't survive it -> avoid the lane
+    hurt = _router_for_routing().decide(parse_state(payload(40)), LoopContext())
+    assert isinstance(hurt, Decision)
+    assert hurt.action.payload()["index"] == 1
+    assert hurt.scores["1:Monster"] > hurt.scores["0:Monster"]
 
 
 def test_card_reward_takes_good_skips_bad() -> None:

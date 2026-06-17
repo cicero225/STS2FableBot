@@ -401,26 +401,60 @@ class StandardRouter:
                 base += w.shop_bonus_per_100_gold * (gold / 100.0)
             return base
 
-        # Act-level path value: DP over the full map DAG so options are judged by
-        # the best complete route to the boss, not just their own node type
-        # (1-ply lookahead committed us to forced-elite lanes floors in advance).
+        # Act-level path value: DP over the full map DAG so options are judged by the best
+        # complete route to the boss, not just their own node type (1-ply lookahead committed
+        # us to forced-elite lanes floors in advance). When the bot has HP data (combat_stats)
+        # the DP also projects HP along each route (§8.2): routes it can't survive are penalised,
+        # and a *survivable* elite is rewarded for its relic (deck power, the binding constraint),
+        # flipping the flat elite-avoidance into elite-chasing whenever the HP is there to spend.
         node_by_pos = {(n.col, n.row): n for n in state.map.nodes}
-        memo: dict[tuple[int, int], float] = {}
+        hp_aware = player is not None and self.combat_stats is not None
+        cur_hp = float(player.hp) if player else 0.0
+        max_hp = float(player.max_hp) if player else 1.0
+        death_floor = max_hp * w.survival_floor_hp_pct
+        EARLY_ROWS = 3  # first 3 rows of an act = the easy early normals (cf. build_combat_stats)
+        _loss_default = {"monster_early": 5.0, "monster": 18.0, "elite": 32.0, "boss": 42.0}
 
-        def path_value(col: int, row: int) -> float:
-            key = (col, row)
+        def fight_loss(key: str) -> float:
+            est = self.combat_stats.expected_loss(key) if self.combat_stats else None
+            return float(est) if est is not None else _loss_default[key]
+
+        def project(node_type: str | None, row: int, hp: float) -> tuple[float, float]:
+            """Project HP through one node -> (hp_after, score_adjustment). Combat subtracts the
+            bot's own p75 loss for that fight type; a route that drops to/below the death floor is
+            penalised; a survivable elite earns its relic bonus; a rest heals."""
+            t = (node_type or "").lower()
+            if t == "monster":
+                hp_after = hp - fight_loss("monster_early" if row < EARLY_ROWS else "monster")
+            elif t == "elite":
+                hp_after = hp - fight_loss("elite")
+            elif t == "boss":
+                hp_after = hp - fight_loss("boss")
+            elif t in ("restsite", "rest_site"):
+                return min(max_hp, hp + w.rest_heal_pct * max_hp), 0.0
+            else:
+                return hp, 0.0
+            if hp_after <= death_floor:
+                return hp_after, -w.route_death_penalty  # route not survivable as projected
+            return hp_after, (w.elite_relic_value if t == "elite" else 0.0)
+
+        memo: dict[tuple[int, int, int], float] = {}
+
+        def path_value(col: int, row: int, hp: float) -> float:
+            key = (col, row, int(hp) // 4)
             if key in memo:
                 return memo[key]
-            node = node_by_pos.get(key)
+            node = node_by_pos.get((col, row))
             if node is None:
                 memo[key] = 0.0
                 return 0.0
             memo[key] = 0.0  # cycle guard (map is a DAG, but be safe)
+            hp_after, adj = project(node.type, row, hp) if hp_aware else (hp, 0.0)
             future = max(
-                (path_value(c_col, c_row) for c_col, c_row in node.children),
+                (path_value(c_col, c_row, hp_after) for c_col, c_row in node.children),
                 default=0.0,
             )
-            value = type_score(node.type) + w.path_step_discount * future
+            value = type_score(node.type) + adj + w.path_step_discount * future
             memo[key] = value
             return value
 
@@ -428,16 +462,17 @@ class StandardRouter:
         best = None
         best_score = float("-inf")
         for opt in opts:
+            hp_after, adj = project(opt.type, opt.row, cur_hp) if hp_aware else (cur_hp, 0.0)
             future = max(
-                (path_value(c.col, c.row) for c in opt.leads_to),
+                (path_value(c.col, c.row, hp_after) for c in opt.leads_to),
                 default=0.0,
             )
             if not opt.leads_to and (node := node_by_pos.get((opt.col, opt.row))):
                 future = max(
-                    (path_value(c_col, c_row) for c_col, c_row in node.children),
+                    (path_value(c_col, c_row, hp_after) for c_col, c_row in node.children),
                     default=0.0,
                 )
-            score = type_score(opt.type) + w.path_step_discount * future
+            score = type_score(opt.type) + adj + w.path_step_discount * future
             scored[f"{opt.index}:{opt.type}"] = round(score, 2)
             if score > best_score:
                 best_score, best = score, opt
