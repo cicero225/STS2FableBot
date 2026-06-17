@@ -3,7 +3,9 @@ caps / thorns so the planner stops wasting burst into mechanics it can't see."""
 
 from __future__ import annotations
 
-from sts2bot.policy.combat import EnemySim, PlannedCard, SimState, _apply_attack
+from sts2bot.client.models import parse_state
+from sts2bot.kb.config import load_policy_config
+from sts2bot.policy.combat import EnemySim, PlannedCard, SimState, _apply_attack, plan_combat_turn
 from sts2bot.policy.textparse import CardEffects
 
 
@@ -50,3 +52,30 @@ def test_apply_attack_thorns_costs_self_damage_per_hit() -> None:
 def test_apply_attack_unthrottled_enemy_is_unchanged() -> None:
     out = _apply_attack(_state(_enemy()), 0, _attack(30))
     assert out.enemies[0].hp == 70 and out.damage_dealt == 30 and out.self_damage == 0
+
+
+def _slippery_fight(statuses: list[dict]) -> dict:
+    def card(i, cid, name, cost, desc):
+        return {"index": i, "id": cid, "name": name, "type": "Attack", "cost": str(cost),
+                "description": desc, "can_play": True, "target_type": "AnyEnemy"}
+    return {"state_type": "monster", "run": {"act": 1, "floor": 5, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 0,
+                       "energy": 4, "status": [],
+                       "hand": [card(0, "BLUDGEON", "Bludgeon", 3, "Deal 32 damage."),
+                                card(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.")]},
+            "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "v0", "name": "Vantom", "hp": 50, "max_hp": 173,
+                                    "block": 0, "status": statuses,
+                                    "intents": [{"type": "attack", "label": "10"}]}]}}
+
+
+def test_planner_sequences_small_hit_first_into_slippery() -> None:
+    # end-to-end payoff: vs a Slippery enemy the planner plays the small hit first (wasting the
+    # first-HP-loss-to-1), then lands the big one; without Slippery it leads with the big hit.
+    w = load_policy_config().combat
+    slip = [{"id": "SLIPPERY_POWER", "name": "Slippery",
+             "description": "The next time it loses HP, it only loses 1 HP instead."}]
+    vs_slip = plan_combat_turn(parse_state(_slippery_fight(slip)), w)
+    vs_none = plan_combat_turn(parse_state(_slippery_fight([])), w)
+    assert vs_slip.action.payload()["card_index"] == 1  # Strike first, to waste Slippery
+    assert vs_none.action.payload()["card_index"] == 0  # Bludgeon first when it lands in full
