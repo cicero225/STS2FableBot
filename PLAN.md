@@ -196,17 +196,20 @@ reach Act 2 after §8.1d). **Sharpened 2026-06-16 (post anti-turtle weights):** 
 77–80/80, yet the bot *still lost the Act-1 boss at full 80/80* (run 4, 10 rounds) — so **deck power
 is the *binding* constraint; HP/routing is necessary-but-not-sufficient.** Weight the priority toward
 **deck-strengthening** (removal, elite→relic routing, synergy) over pure HP-management. Order:
-1. **Routing / whole-route path-EV (§8.2)** — *next.* Hits two links: the bleed (arrive at the boss
-   healthy) AND the elite/relic deficit (the bot under-takes elites vs intermediate humans → starves
-   itself of relics → weak deck). Step (a): build combat-stats (net HP-loss per fight type, early-act
-   vs late) from the ~20 logged runs; (b) a map scorer that keeps survivable paths + lightly chases
-   elite→rest patterns.
-2. **Ancient / relic-choice awareness** (owner, 2026-06-16; basic-competence gap — the routing-first
-   rule of thumb: minimal competence at *every* basic feature first). `relic_select` only exists in
-   TrivialRouter (picks `relics[0]`), so Ancient relic picks (Neow, start of Act 2/3, treasure) are
-   **effectively random**. Add a StandardRouter `_relic_select` that ranks by relic value
-   (`shop_stats.relic_value` / relic priors). Small + tractable.
-3. **Removal aggressiveness** — decks still carry 5–9 basics; thinning speeds every fight. Tractable.
+1. **Routing / whole-route path-EV (§8.2)** — ✅ **2026-06-16.** Hits two links: the bleed (arrive at
+   the boss healthy) AND the elite/relic deficit (the bot under-takes elites → starves itself of relics
+   → weak deck). (a) combat-stats split early-act vs late (monster_early p75=5 vs monster p75=18 over
+   90 runs); (b) HP-aware map DP — projects HP along each route via the bot's own p75 loss, penalises
+   routes it can't survive, and rewards a *survivable* elite for its relic (net +16, just above
+   treasure), so the bot now **chases elites at ~70+ HP** and rests/avoids when low (real-map replay
+   confirms). Caveat: far-future (boss) death is path-discounted → whole-route boss-survival is softer
+   than the robust near-term elite-affordability check; deeper survival is a later pass.
+2. **Ancient / relic-choice awareness** — ✅ 2026-06-16. StandardRouter `_relic_select` ranks free
+   relic choices (Neow, start of Act 2/3, treasure) by value (`shop_stats.relic_war`) instead of
+   TrivialRouter's `relics[0]` (was effectively random).
+3. **Removal aggressiveness** — ✅ 2026-06-16. Starter-heavy decks spend down to a smaller gold
+   reserve for shop removal (scaled by % basics), still under the 150g price cap. Marginal by design
+   (removal chances are rare — owner).
 3. **Combat aggression stopgap** — ✅ 2026-06-16 (anti-turtle weights: block double-count trimmed,
    healthy HP-loss penalty flattened). A placeholder for §5-C; batch-tuned, not principled.
 4. **Per-enemy special-cases (§8.3)** — Vantom Slippery, Test Subject Adaptable, …; each unlocks a boss.
@@ -247,10 +250,14 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   upward (ties to the pilotability discount).
 
 ### 8.2 Strategy notes
-- **Elite-rushing for relics.** Surviving early elites to bank relics for late-run power
-  is a known StS pattern. Likely unnecessary at A0 (the map policy currently *avoids*
-  elites — correct for a weak pilot). Revisit when climbing ascensions / once deck power
-  supports it; would surface as act/HP/deck-strength-aware elite appetite in the map scorer.
+**Status 2026-06-16:** the HP-aware path-EV scorer is **implemented** (the DP below: per-route HP
+projection from the bot's own p75 loss, survivable-route preference, survivable-elite relic bonus,
+early-act fight split). *Still open:* parallel **gold** estimate + shop-bonus, **character-specific**
+net-loss (other chars lack Ironclad +6), boss-HP flexibility (b), branchy-path bonus + per-branch
+re-assess (c), and **deck-power node gating** (can my deck actually clear this node — below).
+- **Elite-rushing for relics.** ✅ Now HP-aware: a *survivable* elite earns a relic bonus, so the bot
+  chases elites at ~70+ HP and backs off when low — instead of the old flat avoidance. Appetite still
+  keys only on HP, not deck-strength/act; revisit those tilts when climbing ascensions.
 - **Whole-route path awareness** (owner, live 2026-06-15: every individual fight handled fine,
   but the bot routed itself through a monster gauntlet with no rest and bled out — now a real
   ceiling). The map scorer is greedy per-node with shallow lookahead (`lookahead_discount`,
@@ -263,9 +270,9 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
     keep the estimate **character-specific** (other characters lack that heal).
   - Among survivable paths prefer **≥1 elite** (bank relics — light elite-chasing), and add a
     **bonus for reaching a shop with ≳250 gold** (needs a parallel gold estimate).
-  - (a) **First 3 nodes of each act are easier** than later fights — track as its own HP-loss
-    data point in `build_combat_stats.py` (segment early-act vs the rest) so path estimates
-    aren't pessimistic about openings.
+  - (a) **First 3 nodes of each act are easier** than later fights — ✅ done: `build_combat_stats.py`
+    now splits `monster_early` (floor − act_start < 3) from `monster`; the DP uses the cheap early
+    number for `row < 3` so it isn't pessimistic about openings (90-run data: p75 5 vs 18).
   - (b) The Act-1 boss wants **nearly full HP**, but selecting hard for that can leave *no*
     elites on the viable paths — needs flexibility, not a hard HP-at-boss constraint.
   - (c) **Branchy paths** (multiple options) are moderately favorable (keep options open); and
