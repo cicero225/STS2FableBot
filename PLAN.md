@@ -533,9 +533,11 @@ the owner's projected-impact ranking within it:
    (no co-occurrence in the export). Overlaps §8.0's deck-power priority.
 2. **All-enemies analysis** — *already a run-killer.* The one-turn planner is blind to most enemy
    statuses/mechanics (see the §8.4 cluster: Slippery, Ringing, Adaptable, Illusion, escalating
-   end-of-turn DoT, **Soul Fysh** block-bypass status-card, **Knowledge Demon**). Document each
-   enemy's powers/intents, then route through the §5-C capability estimate + per-enemy handlers (§8.3).
-   Seeded custom runs are the deterministic test bed.
+   end-of-turn DoT, **Soul Fysh** block-bypass status-card, **Knowledge Demon**). **→ Dedicated plan:
+   [ENEMY_PASS.md](ENEMY_PASS.md)** — bosses-first, harvest mechanics from the mod's own status
+   descriptions (confirmed they ship as rules text), classify (A already-modelled / B extend the
+   estimate / C per-enemy handler), route through the §5-C estimate; seeded custom runs as the
+   deterministic test bed.
 3. **Play Powers earlier** (first approximation to card analysis) — the "play 0-cost Powers
    immediately" fix (§8.4) generalises to better power-timing priority overall. Small, near-term.
 4. **Card-by-card examination** — a systematic pass over the full Ironclad list flagging cards the
