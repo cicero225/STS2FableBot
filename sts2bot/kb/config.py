@@ -120,6 +120,10 @@ class PotionWeights(_Section):
 class ShopWeights(_Section):
     buy_card_removal_below_gold: int = 999
     removal_min_gold_reserve: int = 75
+    # A starter-heavy deck spends down to a smaller gold cushion for removal (cutting a basic is
+    # high value when the deck is mostly basics) — shrink the reserve by up to this fraction,
+    # scaled by the fraction of the deck still Basic Strikes/Defends. Respects removal_max_price.
+    removal_weak_reserve_cut: float = 0.5
     # removal price escalates +50 per use (100, 150, 200…); efficiency drops sharply
     # past ~150g (owner), so don't pay more than this to remove a card.
     removal_max_price: int = 150

@@ -903,19 +903,29 @@ class StandardRouter:
                         rationale=f"buy {item.relic_name} FIRST ({price}g; discounts the shop)",
                     )
 
-        # 1. Card removal — high, safe value when there's a junk card to cut.
+        # 1. Card removal — high, safe value when there's a junk card to cut. A starter-heavy deck
+        #    spends down to a smaller cushion for it (cutting a basic is worth dipping into gold);
+        #    still capped at removal_max_price (owner: efficiency dies past ~150g).
+        deck = (player.deck if player else None) or []
+        basics = sum(
+            1 for c in deck
+            if (c.name or "").rstrip("+") in ("Strike", "Defend") and not c.is_upgraded
+        )
+        weak_frac = basics / len(deck) if deck else 0.5
+        removal_reserve = int(reserve * (1 - w.removal_weak_reserve_cut * weak_frac))
         for item in avail:
             price = item.gold_price or 0
             if (
                 item.category == "card_removal"
                 and price <= w.removal_max_price
-                and gold - price >= reserve
+                and gold - price >= removal_reserve
                 and self._has_removable_card(player)
             ):
                 bought.append(item.index)
                 return Decision(
                     action=act.ShopPurchase(index=item.index),
-                    rationale=f"buy card removal ({price}g <= cap {w.removal_max_price})",
+                    rationale=f"buy card removal ({price}g; reserve {removal_reserve}, "
+                    f"{weak_frac:.0%} basic)",
                 )
 
         # 2. Best-value relic by Spirebird WAR/100g — buy the strongest affordable one and

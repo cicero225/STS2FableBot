@@ -1842,6 +1842,20 @@ def test_shop_skips_removal_when_nothing_worth_removing() -> None:
     assert not (p["action"] == "shop_purchase" and p["index"] == 10)
 
 
+def test_shop_removal_more_eager_when_starter_heavy() -> None:
+    """Marginal (owner: removal chances are rare) — a starter-heavy deck spends down to a smaller
+    cushion for removal (cutting a basic is high value when mostly basics) where a near-polished
+    deck holds the gold for relics. Same 150g removal, same 200 gold, price cap respected."""
+    weak = [_sc_card(i, "Strike") for i in range(9)] + [_sc_card(9, "Bash")]      # 90% basic
+    polished = [_sc_card(0, "Strike")] + [
+        _sc_card(i, "Inflame", "Power", rarity="Uncommon") for i in range(1, 10)]  # 10% basic
+    bought = router().decide(_shop_with_removal(150, gold=200, deck=weak), LoopContext())
+    assert bought.action.payload() == {"action": "shop_purchase", "index": 10}    # weak: buy it
+    held = router().decide(_shop_with_removal(150, gold=200, deck=polished), LoopContext())
+    p2 = held.action.payload()
+    assert not (p2["action"] == "shop_purchase" and p2.get("index") == 10)        # polished: hold
+
+
 def _shop_relic_item(index, relic_id, relic_name, price):
     return {"index": index, "category": "relic", "relic_id": relic_id,
             "relic_name": relic_name, "price": price, "is_stocked": True, "can_afford": True}
