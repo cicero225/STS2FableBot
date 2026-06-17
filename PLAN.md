@@ -159,6 +159,43 @@ possibly streaming. Direction set by what the data says is losing us runs.
   effects, beam search over 2 turns, or per-character heuristic modules. Decide from
   loss analysis, not speculation.
 
+### 5.1 §5-C capability estimate — design (2026-06-16)
+The recurring root lever (memory `combat-capability-estimate-is-the-root-lever`; §8.3/§8.4): nearly
+every contested combat/route call — race-vs-turtle, minion-leader vs chase-minions, elite/path
+appetite, rest timing, multi-phase burst — is one question the one-turn planner can't answer:
+**"can I win this fight, and at what HP cost?"** The 2026-06-16 routing batch made it concrete —
+HP-aware elite-chasing took elites the bot *survives* but can't *win* with a weak deck (no benefit,
+one death to a chased Terror Eel). The fix isn't more micro-rules (owner's repeated steer) — it's a
+forward estimate. **The shipped stopgaps it will retire:** the `gains_strength / incoming≥6` minion
+bias, the anti-turtle combat weights, and the HP-only elite gate in the map scorer.
+
+**Model: a closed-form HP-race**, not a stochastic simulator (that's P4, only where the race model
+mispredicts in logs — "measure don't simulate"). The owner's own framing *is* a race ("close the
+leader before the ramp out-scales me"; "58 dmg on a 58-HP Follower loses the race"):
+
+  `estimate_fight(my_hp, deck/relics/powers, enemies, config) -> FightOutcome(win, exp_end_hp, turns, margin)`
+
+- **My output/turn:** the deck's expected damage & block per turn — reuse `parse_card_description`
+  (`CardEffects`) over the deck ÷ cards-drawn-per-cycle, scaled by Strength & energy. A deck-average,
+  not a draw simulation.
+- **Enemy threat:** Σ enemy damage/turn from current intents (`parse_intent_damage`) + **ramp**
+  (`gains_strength` → +Str/turn) − my block/turn. **Slippery** (Vantom) caps my *effective* damage
+  (first HP-loss/turn → 1). **Minion structure:** race the **leader** (leader-kill ends it); a
+  **summoner**'s minions don't add to the kill total (treadmill), **fixed adds** (Kin) do.
+  **Multi-phase** (Test Subject Adaptable): sum effective HP across phases.
+- **Verdict:** `turns_to_kill_leader < turns_to_kill_me` → win; `exp_end_hp = my_hp − net_enemy_dps
+  × turns_to_kill`; margin → confidence.
+
+**Consumers (one estimate replaces the stopgaps):** *map routing* — gate `elite_relic_value` on
+`estimate_fight(elite).win` (the batch fix) + rest on a dangerous-fight `exp_end_hp` floor; *combat*
+— race-vs-turtle / minion-leader from the same estimate.
+
+**First increment (mock-first, no live behaviour change):** `estimate_fight` as the race model in a
+new pure module `sts2bot/policy/capability.py`, reusing combat.py's `EnemySim`/`CardEffects`.
+Unit-test the canonical §8.4 cases — weak deck vs **Vantom** (Slippery → can't close → lose), **Kin**
+(race the fixed-add leader), strong deck vs an elite (win, acceptable HP). Then wire into the **map
+elite gate** and re-run the batch before any combat-side rewiring.
+
 ## 6. Working conventions
 
 - Mock-first; live game sessions are attended (owner present) until owner flips
