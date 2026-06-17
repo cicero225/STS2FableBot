@@ -18,6 +18,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from sts2bot.client.models import Card
+from sts2bot.policy.textparse import parse_card_description
+
 
 @dataclass(frozen=True)
 class DeckOutput:
@@ -81,3 +84,66 @@ def estimate_fight(
             return FightOutcome(win=False, exp_end_hp=round(hp), turns=turn)
     # couldn't close inside the horizon -> a grind it doesn't win (treadmill / wall)
     return FightOutcome(win=False, exp_end_hp=round(hp), turns=max_turns)
+
+
+def _resolve_cost(cost: str | None, energy: int) -> int:
+    s = (cost or "0").strip().upper()
+    if s == "X":  # X-cost dumps the turn's energy
+        return energy
+    try:
+        return max(0, int(s))
+    except ValueError:
+        return 0  # unparsed cost (rare) -> don't let it inflate the energy denominator
+
+
+def _best_burst(attacks: list[tuple[int, float]], energy: int) -> float:
+    """Max single-target damage in one energy-limited turn: a 0/1 knapsack over the deck's best
+    affordable attacks (the ideal-draw peak the race uses for 'can I one-shot the leader?')."""
+    best = [0.0] * (energy + 1)
+    for cost, dmg in attacks:
+        cost = max(0, min(energy, cost))
+        for e in range(energy, cost - 1, -1):
+            best[e] = max(best[e], best[e - cost] + dmg)
+    return best[energy]
+
+
+def deck_output(
+    cards: list[Card],
+    *,
+    strength: int = 0,
+    energy_per_turn: int = 3,
+    cards_per_turn: int = 5,
+) -> DeckOutput:
+    """Estimate a deck's per-turn race inputs from its cards (reusing the CardEffects parser).
+
+    sustained/block are the deck's totals spread over a full cycle, whose length is the binding of
+    energy (total cost / energy) and draw (deck size / cards drawn), so an expensive deck and a
+    curse-clogged one both read as slower. burst is the best energy-limited turn; biggest_hit is
+    the deck's largest single hit (what Slippery drops to 1). Strength rides on every hit.
+    """
+    attacks: list[tuple[int, float]] = []  # (cost, total damage incl. strength)
+    total_attack_damage = total_block = total_cost = 0.0
+    biggest_hit = 0.0
+    deck_size = 0
+    for c in cards:
+        deck_size += 1  # curses/statuses still clog draws
+        if (c.type or "").lower() in ("curse", "status"):
+            continue
+        cost = _resolve_cost(c.cost, energy_per_turn)
+        total_cost += cost
+        fx = parse_card_description(c.description)
+        if c.type == "Attack" and fx.damage:
+            hit = fx.damage + strength  # one hit, with Strength
+            dmg = hit * max(1, fx.hits)
+            total_attack_damage += dmg
+            attacks.append((cost, dmg))
+            biggest_hit = max(biggest_hit, float(hit))
+        if fx.block:
+            total_block += fx.block
+    cycle = max(1.0, deck_size / max(1, cards_per_turn), total_cost / max(1, energy_per_turn))
+    return DeckOutput(
+        burst_dmg=_best_burst(attacks, energy_per_turn),
+        sustained_dmg=total_attack_damage / cycle,
+        biggest_hit=biggest_hit,
+        block_per_turn=total_block / cycle,
+    )
