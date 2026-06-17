@@ -32,6 +32,12 @@ from sts2bot.kb.event_stats import EventStats
 from sts2bot.kb.priors import CardPriors
 from sts2bot.kb.shop_stats import ShopStats
 from sts2bot.policy.base import Decision, LoopContext, Wait
+from sts2bot.policy.capability import (
+    FightEnemy,
+    deck_output,
+    estimate_fight,
+    load_card_descriptions,
+)
 from sts2bot.policy.combat import plan_combat_turn
 from sts2bot.policy.textparse import parse_card_description, parse_hp_cost, parse_intent_damage
 from sts2bot.policy.trivial import TrivialRouter
@@ -40,6 +46,16 @@ from sts2bot.policy.trivial import TrivialRouter
 _EV_MAXHP_GAIN = re.compile(r"Gain (\d+) Max(?:imum)? HP", re.IGNORECASE)
 _EV_GOLD_GAIN = re.compile(r"Gain (\d+) Gold", re.IGNORECASE)
 _EV_GOLD_LOSS = re.compile(r"Lose (\d+) Gold", re.IGNORECASE)
+
+# §5-C elite gate: a typical elite per act (hp, dps, Strength ramp) the deck must be able to *win*
+# (not just survive) before the map scorer chases it for its relic. A conservative prior — the batch
+# evidence is that the bot *loses* Act-1 elites with starter-heavy decks, so err tough; the re-batch
+# calibrates these (loosen if no elites are ever taken, tighten if elite deaths persist). Tunable.
+_GENERIC_ELITE = {
+    1: (90, 17, 1),
+    2: (140, 23, 2),
+    3: (190, 29, 3),
+}
 
 
 class StandardRouter:
@@ -56,6 +72,7 @@ class StandardRouter:
         self.combat_stats = combat_stats if combat_stats is not None else CombatStats.load()
         self.shop_stats = shop_stats if shop_stats is not None else ShopStats.load()
         self.event_stats = event_stats if event_stats is not None else EventStats.load()
+        self.card_effects = load_card_descriptions()  # id|upgrade -> text, for §5-C deck pricing
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
@@ -415,6 +432,21 @@ class StandardRouter:
         EARLY_ROWS = 3  # first 3 rows of an act = the easy early normals (cf. build_combat_stats)
         _loss_default = {"monster_early": 5.0, "monster": 18.0, "elite": 32.0, "boss": 42.0}
 
+        # §5-C capability gate: chase an elite only if the deck can actually *win* a typical elite
+        # of this act (not merely survive — death_floor still handles survival). Judged at full HP,
+        # so it's a pure deck-strength read; a starter-heavy deck fails it and stays elite-neutral.
+        # The routing-batch fix: the bot was taking elites it survived but couldn't win.
+        can_win_elite = False
+        if hp_aware and player is not None and player.deck:
+            cur_act = state.run.act if state.run else 1
+            ehp, edps, eramp = _GENERIC_ELITE.get(cur_act, _GENERIC_ELITE[1])
+            deck_out = deck_output(player.deck, descriptions=self.card_effects)
+            outcome = estimate_fight(
+                int(max_hp), deck_out, [FightEnemy(hp=ehp, dps=edps, str_ramp=eramp)]
+            )
+            floor_hp = max_hp * w.elite_gate_min_end_hp_pct
+            can_win_elite = outcome.win and outcome.exp_end_hp >= floor_hp
+
         def fight_loss(key: str) -> float:
             est = self.combat_stats.expected_loss(key) if self.combat_stats else None
             return float(est) if est is not None else _loss_default[key]
@@ -436,7 +468,8 @@ class StandardRouter:
                 return hp, 0.0
             if hp_after <= death_floor:
                 return hp_after, -w.route_death_penalty  # route not survivable as projected
-            return hp_after, (w.elite_relic_value if t == "elite" else 0.0)
+            # a survivable elite earns its relic bonus only if the deck can win it (§5-C gate)
+            return hp_after, (w.elite_relic_value if (t == "elite" and can_win_elite) else 0.0)
 
         memo: dict[tuple[int, int, int], float] = {}
 

@@ -1128,9 +1128,44 @@ def test_event_refuses_hp_cost_when_low() -> None:
     assert decision.action.payload() == {"action": "choose_event_option", "index": 1}
 
 
+# card rules text the §5-C elite gate prices test decks against (fixed, so the gate tests don't
+# ride the harvested data file)
+_ROUTING_CARD_EFFECTS = {
+    "STRIKE_IRONCLAD|0": "Deal 6 damage.",
+    "DEFEND_IRONCLAD|0": "Gain 5 Block.",
+    "BASH|0": "Deal 8 damage. Apply 2 Vulnerable.",
+    "BLUDGEON|0": "Deal 32 damage.",
+}
+
+
+def _deck(*specs: tuple[str, str, int, int]) -> list[dict]:
+    """Build a map-style deck payload: each spec is (id, type, cost, count)."""
+    out: list[dict] = []
+    for cid, typ, cost, n in specs:
+        for _ in range(n):
+            out.append(
+                {
+                    "index": len(out),
+                    "id": cid,
+                    "name": cid.title(),
+                    "type": typ,
+                    "cost": str(cost),
+                    "is_upgraded": False,
+                }
+            )
+    return out
+
+
+# a starter-heavy deck (can't win an elite -> gate stays shut) and a built one (can -> chase)
+_STARTER_DECK = _deck(("STRIKE_IRONCLAD", "Attack", 1, 5), ("DEFEND_IRONCLAD", "Skill", 1, 4),
+                      ("BASH", "Attack", 2, 1))
+_STRONG_DECK = [*_STARTER_DECK, *_deck(("BLUDGEON", "Attack", 3, 4))]
+
+
 def _router_for_routing() -> StandardRouter:
-    """StandardRouter with a fixed combat_stats so HP-aware routing tests don't ride on the
-    evolving data file: early normals cheap, late normals/elite/boss progressively costlier."""
+    """StandardRouter with fixed combat_stats + card_effects so routing / gate tests don't ride the
+    evolving data files (early normals cheap, late/elite/boss costlier; decks priced from
+    _ROUTING_CARD_EFFECTS)."""
     from sts2bot.kb.combat_stats import CombatStats
 
     stats = CombatStats(
@@ -1141,7 +1176,9 @@ def _router_for_routing() -> StandardRouter:
             "boss": {"mean": 25.0, "p75": 42, "n": 99},
         }
     )
-    return StandardRouter(combat_stats=stats)
+    r = StandardRouter(combat_stats=stats)
+    r.card_effects = _ROUTING_CARD_EFFECTS
+    return r
 
 
 def test_map_chases_survivable_elite_but_rests_when_hurt() -> None:
@@ -1151,6 +1188,7 @@ def test_map_chases_survivable_elite_but_rests_when_hurt() -> None:
         {"index": 1, "col": 2, "row": 3, "type": "Monster", "leads_to": []},
         {"index": 2, "col": 3, "row": 3, "type": "RestSite", "leads_to": []},
     ]
+    payload["player"]["deck"] = _STRONG_DECK  # strong enough to win the elite (gate open)
     payload["player"]["hp"] = 20
     payload["player"]["max_hp"] = 80
     state = parse_state(payload)
@@ -1164,9 +1202,25 @@ def test_map_chases_survivable_elite_but_rests_when_hurt() -> None:
     state = parse_state(payload)
     decision = _router_for_routing().decide(state, LoopContext())
     assert isinstance(decision, Decision)
-    # full HP: the elite is survivable, so chase it for its relic (deck power) over the plain
+    # full HP + a deck that can win the elite: chase it for its relic (deck power) over the plain
     # monster and the (unneeded) rest
     assert decision.action.payload()["index"] == 0
+
+
+def test_map_elite_gate_skips_elite_a_weak_deck_cannot_win() -> None:
+    # §5-C gate / the routing-batch fix: at full HP the elite is *survivable*, but a starter-heavy
+    # deck can't *win* it, so the bot must not chase it — it takes the plain monster instead.
+    payload = json.loads(json.dumps(FIXTURES["map"]))  # deep copy
+    payload["map"]["next_options"] = [
+        {"index": 0, "col": 1, "row": 3, "type": "Elite", "leads_to": []},
+        {"index": 1, "col": 2, "row": 3, "type": "Monster", "leads_to": []},
+    ]
+    payload["player"]["hp"] = 80
+    payload["player"]["max_hp"] = 80
+    payload["player"]["deck"] = _STARTER_DECK  # can't win an elite -> gate shut
+    decision = _router_for_routing().decide(parse_state(payload), LoopContext())
+    assert isinstance(decision, Decision)
+    assert decision.action.payload()["index"] == 1  # the monster, not the unwinnable elite
 
 
 def test_map_path_planning_weighs_forced_elite_lane_by_hp() -> None:
@@ -1218,6 +1272,7 @@ def test_map_path_planning_weighs_forced_elite_lane_by_hp() -> None:
                 "relics": [],
                 "potions": [],
                 "max_potion_slots": 3,
+                "deck": _STRONG_DECK,  # can win the elite, so the gate is about HP, not deck power
             },
         }
 

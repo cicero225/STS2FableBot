@@ -16,10 +16,23 @@ deck model carries a separate `biggest_hit`. Pure functions only (no I/O); consu
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
-from sts2bot.client.models import Card
 from sts2bot.policy.textparse import parse_card_description
+
+_CARD_EFFECTS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "card_effects.json"
+
+
+def load_card_descriptions(path: Path | str | None = None) -> dict[str, str]:
+    """id|<0|1> -> rules text (from scripts/build_card_effects.py). Empty if absent — the map deck
+    can then only price cards that still carry their own description (curses, statuses)."""
+    p = Path(path) if path else _CARD_EFFECTS_PATH
+    if not p.is_file():
+        return {}
+    return json.loads(p.read_text(encoding="utf-8"))
 
 
 @dataclass(frozen=True)
@@ -108,18 +121,21 @@ def _best_burst(attacks: list[tuple[int, float]], energy: int) -> float:
 
 
 def deck_output(
-    cards: list[Card],
+    cards: list[Any],
     *,
     strength: int = 0,
     energy_per_turn: int = 3,
     cards_per_turn: int = 5,
+    descriptions: dict[str, str] | None = None,
 ) -> DeckOutput:
     """Estimate a deck's per-turn race inputs from its cards (reusing the CardEffects parser).
 
-    sustained/block are the deck's totals spread over a full cycle, whose length is the binding of
-    energy (total cost / energy) and draw (deck size / cards drawn), so an expensive deck and a
-    curse-clogged one both read as slower. burst is the best energy-limited turn; biggest_hit is
-    the deck's largest single hit (what Slippery drops to 1). Strength rides on every hit.
+    Cards carrying their own `description` (combat-hand Cards) are parsed directly; map `DeckCard`s
+    have none, so their rules text is looked up by id+upgrade in `descriptions` (the harvested
+    table). sustained/block are the deck's totals spread over a full cycle, whose length is the
+    binding of energy (total cost / energy) and draw (deck size / cards drawn), so an expensive
+    deck and a curse-clogged one both read as slower. burst is the best energy-limited turn;
+    biggest_hit is the deck's largest single hit (what Slippery drops to 1). Strength rides along.
     """
     attacks: list[tuple[int, float]] = []  # (cost, total damage incl. strength)
     total_attack_damage = total_block = total_cost = 0.0
@@ -131,7 +147,11 @@ def deck_output(
             continue
         cost = _resolve_cost(c.cost, energy_per_turn)
         total_cost += cost
-        fx = parse_card_description(c.description)
+        desc = getattr(c, "description", None)
+        if not desc and descriptions is not None and c.id:
+            up = 1 if getattr(c, "is_upgraded", False) else 0
+            desc = descriptions.get(f"{c.id}|{up}") or descriptions.get(f"{c.id}|0")
+        fx = parse_card_description(desc)
         if c.type == "Attack" and fx.damage:
             hit = fx.damage + strength  # one hit, with Strength
             dmg = hit * max(1, fx.hits)

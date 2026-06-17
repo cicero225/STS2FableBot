@@ -78,6 +78,9 @@ class MapWeights(_Section):
     # treasure): relics are deck power, so chase elites when the HP is there to spend
     elite_relic_value: float = 36.0
     rest_heal_pct: float = 0.30  # HP fraction a rest site restores, for the projection
+    # §5-C elite gate: chase an elite only if the deck wins it (at full HP) with at least this HP
+    # fraction left — a pyrrhic 2-HP win is a loss for the next node, so don't chase it.
+    elite_gate_min_end_hp_pct: float = 0.30
 
 
 class CardRewardWeights(_Section):
