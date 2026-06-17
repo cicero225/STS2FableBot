@@ -95,3 +95,39 @@ death-by-that-enemy rate drops in a batch.
 `data/bestiary.json` doubles as the checklist (handling-status per enemy). The existing PLAN §8.4
 notes — Vantom (Slippery), Ceremonial Beast (Ringing), Soul Fysh (block-bypass), Test Subject
 (Adaptable), Ovicopter (Summon), Slithering Strangler (DoT) — seed the first entries.
+
+## Status vocabulary — classified (Phase 0, from the 44 harvested)
+The harvested statuses cluster into a few mechanic *types*. The dominant one is **damage-throttling**
+— the bot wastes burst into caps/block it can't see (the Slippery/Ringing observations generalise).
+Highest-impact group to model first, **in the §5-C race estimate** (it changes turns-to-kill):
+
+- **Damage-throttling — burst is wasted:**
+  - *Hard per-turn caps:* **Hardened Shell** (≤15 HP lost/turn), **Hard to Kill** (≤9/turn),
+    **Intangible** (all damage → 1, 1 turn). → cap my effective damage/turn; **never burst into one**.
+  - *Recurring self-block:* **Plating** (+12 Block end of turn, −1/turn), **Skittish** (+6 on first
+    hit/turn), **Curl Up** (+14 on first hit). → reduce effective damage; **multi-hit beats first-hit
+    block** (same shape as Slippery → reuse `biggest_hit`).
+  - *First-hit reduction:* **Slippery** (next HP-loss → 1) — already in the estimate.
+- **Ramp (race it / deny the trigger):** **Ritual** (+2 Str/turn), **Territorial** (+1/turn),
+  **Vigor** (+6 next attack) → flat `str_ramp`. **Suck/Fossil Stalker** (+3 Str on *unblocked*
+  damage) → block to deny. **Crab Rage / Ravenous** (gain on an *ally* death) → don't feed kills.
+- **Stun windows — exploit (free enemy turn / phase break):** **Plow** (Ceremonial Beast ≤150 → Stun
+  + loses all Strength), **Shriek** (Terror Eel ≤70 → Stun), **Imbalanced** (Bowlbug Rock: fully
+  block it → Stun), **Burrowed** (Tunneler: strip its Block → Stun), **Flutter** (5 hits → Stun).
+  Pushing past the threshold buys a turn — value it.
+- **Retaliation / hit-cost (attacking hurts me):** **Thorns** (5 back per hit → multi-hit is *worse*),
+  **Personal Hive** (a Dazed into my draw per hit), **Steam Eruption** (15 self-damage on kill). →
+  self-damage cost in the estimate; don't over-multi-hit Thorns.
+- **Hard timers (race or lose):** **Sandpit** (eaten/die in 4 turns), **Escape Artist** (flees after
+  5 → lose the kill), **Asleep / Slumber** (wake timers — attack-timing).
+- **Revive / segments:** **Illusion** (revive full HP — handled), **Reattach** (segment revives 25 HP
+  / 2 turns — kill all segments together), **Infested** (death-summon).
+- **Debuff-resist:** **Artifact** (negates 2 debuffs → my Vulnerable/Weak may whiff).
+- **Not enemy mechanics (ignore):** Dark Shackles, Shackling Potion, Debilitate (these are *our*
+  debuffs applied to enemies). **Low combat priority:** Thievery / Heist / Swipe (gold), Back Attack,
+  Surprise, Hatch.
+
+**Implication for the estimate (Phase 0c):** extend `FightEnemy` with a small set of generic flags —
+`dmg_cap_per_turn`, `block_per_turn` (regen), `thorns`, `death_damage`, plus a `stun_threshold`
+(HP at which it loses a turn) — detected from these status descriptions in the harvest. That one set
+covers most bosses; the bespoke ones (multi-phase, Sandpit timer, Ringing) stay per-enemy handlers.
