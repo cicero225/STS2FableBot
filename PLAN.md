@@ -198,7 +198,12 @@ reach Act 2 after §8.1d). Every item below breaks a link in that chain. Order:
    itself of relics → weak deck). Step (a): build combat-stats (net HP-loss per fight type, early-act
    vs late) from the ~20 logged runs; (b) a map scorer that keeps survivable paths + lightly chases
    elite→rest patterns.
-2. **Removal aggressiveness** — decks still carry 5–9 basics; thinning speeds every fight. Tractable.
+2. **Ancient / relic-choice awareness** (owner, 2026-06-16; basic-competence gap — the routing-first
+   rule of thumb: minimal competence at *every* basic feature first). `relic_select` only exists in
+   TrivialRouter (picks `relics[0]`), so Ancient relic picks (Neow, start of Act 2/3, treasure) are
+   **effectively random**. Add a StandardRouter `_relic_select` that ranks by relic value
+   (`shop_stats.relic_value` / relic priors). Small + tractable.
+3. **Removal aggressiveness** — decks still carry 5–9 basics; thinning speeds every fight. Tractable.
 3. **Combat aggression stopgap** — ✅ 2026-06-16 (anti-turtle weights: block double-count trimmed,
    healthy HP-loss penalty flattened). A placeholder for §5-C; batch-tuned, not principled.
 4. **Per-enemy special-cases (§8.3)** — Vantom Slippery, Test Subject Adaptable, …; each unlocks a boss.
