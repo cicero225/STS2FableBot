@@ -56,9 +56,13 @@ universal micro-rules. Per-enemy handlers are for the genuinely specific only.
 3. **Per-enemy handlers** — a small dispatch keyed by enemy id, consulted by the planner, for (C).
 
 ## Phasing (bosses first; batch between phases)
-- **Phase 0 — infrastructure (no game needed):** `build_bestiary.py` + schema + status→`FightEnemy`
-  detection + wire the estimate to read per-boss numbers from the bestiary. Produces the roster +
-  act assignments data-driven (not guessed).
+- **Phase 0 — infrastructure (no game needed): ✅ done 2026-06-17.** `build_bestiary.py` → 75 enemies
+  w/ status text; the 44-status vocabulary classified; `detect_mechanics` parses dmg-cap / self-block
+  / death-damage / stun-threshold / thorns / slippery / ramp from the descriptions; `estimate_fight`
+  applies them; `bestiary_enemy` builds a per-boss `FightEnemy` (real HP + mechanics); **drafting now
+  prices cards vs the *real* upcoming boss** (map.boss cached → bestiary), e.g. multi-hit over a big
+  swing vs a Slippery boss. *Open:* the **combat planner** still ignores throttling in-fight (Phase 1),
+  and the elite gate still uses the generic elite (the specific elite isn't named on the map node).
 - **Phase 1 — Act-1 bosses** (the immediate win; the pool we keep dying to, by death count):
   **Kin** (13), **Vantom** (9 — Slippery), **Ceremonial Beast** (6 — Ringing low-HP), **Soul Fysh**
   (6 — block-bypass card), **Lagavulin Matriarch** (3 — Plating armor), **Kaiser Crab**, **Waterfall
