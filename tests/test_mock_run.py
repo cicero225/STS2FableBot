@@ -211,3 +211,43 @@ def test_stop_at_floor_hands_off_without_acting(tmp_path: Path) -> None:
     outcome = loop.play_one_run()
     assert outcome.status == "stopped"  # handed off, did not flail or finish
     assert outcome.floor == 22
+
+
+def test_loop_retries_transient_malformed_state(tmp_path: Path) -> None:
+    """A transient mod error-object (no state_type) mid event-transition — the live
+    'Failed to read GardenerResponse' that halted a late-Act-2 run at the fake merchant — is
+    re-polled, not treated as fatal; the loop recovers to the next clean state. If it persists
+    past the retry budget it still fails safe."""
+    monster = {"state_type": "monster", "run": {"act": 2, "floor": 22, "ascension": 0},
+               "player": {"character": "The Ironclad", "hp": 50, "max_hp": 80, "block": 0,
+                          "energy": 3, "max_energy": 3, "hand": [], "status": [], "relics": [],
+                          "potions": [], "max_potion_slots": 3},
+               "battle": {"round": 1, "turn": "player", "is_play_phase": True, "enemies": []}}
+    transient = {"error": "Failed to read GardenerResponse response"}  # no state_type
+    seq = [transient, transient, transient, monster]
+
+    class FlakyClient:
+        def __init__(self):
+            self.i = 0
+
+        def get_state_raw(self):
+            s = seq[min(self.i, len(seq) - 1)]
+            self.i += 1
+            return s
+
+        def act(self, action):
+            raise AssertionError("must not act: recovers to a stop_at_floor handoff")
+
+    # 5 retries clears the 3 transient errors -> reaches the floor-22 monster -> clean stop
+    recovered = AgentLoop(
+        FlakyClient(), TrivialRouter(), log_root=tmp_path / "ok",
+        config=LoopConfig(poll_interval=0, stop_at_floor=22, malformed_state_retries=5),
+    ).play_one_run()
+    assert recovered.status == "stopped"
+
+    # too few retries -> the transient run of errors outlasts the budget -> fail safe
+    failed = AgentLoop(
+        FlakyClient(), TrivialRouter(), log_root=tmp_path / "fail",
+        config=LoopConfig(poll_interval=0, stop_at_floor=22, malformed_state_retries=2),
+    ).play_one_run()
+    assert failed.status == "error"

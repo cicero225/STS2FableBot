@@ -51,6 +51,10 @@ class LoopConfig(BaseModel):
     stall_threshold: int = 60  # consecutive unchanged-state ticks before giving up
     manual_stall_threshold: int = 600  # generous rail while waiting on owner (MANUAL waits)
     error_streak_limit: int = 8  # consecutive rejected actions before giving up
+    # the mod can briefly return an error-object (no state_type) mid event-transition (seen:
+    # 'Failed to read GardenerResponse' rolling into the fake merchant); re-poll this many times
+    # before treating an unparseable state as fatal — the next read is clean.
+    malformed_state_retries: int = 5
     max_decisions: int = 3000  # hard safety cap per run
     character: str = "IRONCLAD"
     ascension: int = 0
@@ -137,7 +141,19 @@ class AgentLoop:
         try:
             while True:
                 raw = self.client.get_state_raw()
-                state = parse_state(raw)
+                parse_tries = 0
+                while True:
+                    try:
+                        state = parse_state(raw)
+                        break
+                    except StateParseError:
+                        # transient mod error-object (no state_type) during an event transition;
+                        # re-poll a few times before failing safe — the next read is usually clean.
+                        parse_tries += 1
+                        if parse_tries > cfg.malformed_state_retries:
+                            raise
+                        time.sleep(cfg.poll_interval)
+                        raw = self.client.get_state_raw()
 
                 fp = _fingerprint(raw)
                 stall = stall + 1 if fp == last_fp else 0
