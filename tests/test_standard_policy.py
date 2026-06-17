@@ -1227,6 +1227,7 @@ def test_capability_drafting_prefers_the_card_that_beats_the_boss() -> None:
     # §5-C drafting: a damage-starved deck should value a big attack (helps close the 170-HP boss)
     # over a no-impact cantrip (doesn't move estimate_fight at all).
     from sts2bot.client.models import Card, DeckCard
+    from sts2bot.policy.capability import FightEnemy
 
     r = _router_for_routing()  # injects _ROUTING_CARD_EFFECTS so the deck is priced
     deck = [
@@ -1241,9 +1242,24 @@ def test_capability_drafting_prefers_the_card_that_beats_the_boss() -> None:
                description="Deal 32 damage.")
     cantrip = Card(index=1, id="CANTRIP", name="Cantrip", type="Skill", cost="0",
                    description="Draw 1 card.")
-    deltas = r._capability_deltas(deck, [big, cantrip], 80)
+    boss = [FightEnemy(hp=170, dps=24, str_ramp=2)]
+    deltas = r._capability_deltas(deck, [big, cantrip], 80, boss)
     assert deltas[0] > deltas[1]  # the attack helps beat the boss; the cantrip doesn't
     assert deltas[0] > 0
+
+
+def test_upcoming_boss_uses_the_real_boss_when_its_name_is_cached() -> None:
+    # the map caches map.boss.name; drafting then prices vs the real boss (bestiary HP + mechanics)
+    r = _router_for_routing()
+    r.bestiary = {"Vantom": {"hp": [173, 173], "statuses": {
+        "SLIPPERY_POWER": {"name": "Slippery",
+                           "description": "The next time Vantom loses HP, it only loses 1 HP."}}}}
+    ctx = LoopContext()
+    ctx.screen_mem["act_boss_name"] = "Vantom"
+    boss = r._upcoming_boss(ctx, 1)
+    assert boss[0].hp == 173 and boss[0].slippery  # real HP + Slippery from the bestiary
+    # no cached name (or unknown / multi-creature like The Kin) -> generic fallback, no crash
+    assert r._upcoming_boss(LoopContext(), 1)[0].hp == 170
 
 
 def test_map_path_planning_weighs_forced_elite_lane_by_hp() -> None:
@@ -2060,3 +2076,24 @@ def test_enchant_selects_full_count_before_confirming() -> None:
     assert len(set(picks)) == 3  # three distinct cards
     # now that 3 are picked, confirm
     assert r.decide(cardsel(), ctx).action.payload()["action"] == "confirm_selection"
+
+
+def test_drafting_vs_slippery_boss_prefers_multi_hit() -> None:
+    # the payoff of wiring real mechanics in: vs a Slippery boss the largest hit is gutted to 1,
+    # so a multi-hit card lands far more than an equal-total single swing. Drafting should see it.
+    from sts2bot.client.models import Card, DeckCard
+    from sts2bot.policy.capability import FightEnemy
+
+    r = _router_for_routing()
+    deck = [
+        DeckCard(index=i, id="STRIKE_IRONCLAD", name="Strike", type="Attack", cost="1",
+                 is_upgraded=False)
+        for i in range(8)
+    ]
+    multi = Card(index=0, id="MULTI", name="Multi", type="Attack", cost="2",
+                 description="Deal 5 damage 4 times.")  # 20 total, small hits
+    big = Card(index=1, id="BIG", name="Big", type="Attack", cost="2",
+               description="Deal 20 damage.")  # 20 total, one big hit
+    slippery_boss = [FightEnemy(hp=173, dps=20, slippery=True)]
+    deltas = r._capability_deltas(deck, [multi, big], 80, slippery_boss)
+    assert deltas[0] > deltas[1]  # multi-hit beats Slippery; the big swing is wasted

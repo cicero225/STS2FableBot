@@ -34,8 +34,10 @@ from sts2bot.kb.shop_stats import ShopStats
 from sts2bot.policy.base import Decision, LoopContext, Wait
 from sts2bot.policy.capability import (
     FightEnemy,
+    bestiary_enemy,
     deck_output,
     estimate_fight,
+    load_bestiary,
     load_card_descriptions,
 )
 from sts2bot.policy.combat import plan_combat_turn
@@ -56,10 +58,12 @@ _GENERIC_ELITE = {
     2: (140, 23, 2),
     3: (190, 29, 3),
 }
-# §5-C drafting target: a tough generic Act-1 boss (hp, dps, Strength ramp). Value a card by how
-# much it improves estimate_fight against it. Generic (not per-boss); a Slippery/per-boss profile
-# from map.boss is a later refinement.
+# §5-C drafting target. Prefer the *real* upcoming boss (bestiary: real HP + detected mechanics
+# like Slippery/Plating, name cached from map.boss); fall back to this generic profile for unknown
+# or multi-creature bosses (e.g. The Kin). _ACT_BOSS supplies the per-act dps/ramp estimate (not
+# harvested), paired with the bestiary's real HP + throttling.
 _GENERIC_BOSS = (170, 24, 2)
+_ACT_BOSS = {1: (24, 2), 2: (30, 2), 3: (36, 3)}  # (dps, str_ramp) estimate for the act's boss
 
 
 class StandardRouter:
@@ -77,6 +81,7 @@ class StandardRouter:
         self.shop_stats = shop_stats if shop_stats is not None else ShopStats.load()
         self.event_stats = event_stats if event_stats is not None else EventStats.load()
         self.card_effects = load_card_descriptions()  # id|upgrade -> text, for §5-C deck pricing
+        self.bestiary = load_bestiary()  # enemy name -> HP + status text, for per-boss estimates
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
@@ -514,6 +519,10 @@ class StandardRouter:
             if score > best_score:
                 best_score, best = score, opt
         assert best is not None
+        if state.map.boss and state.map.boss.name:
+            # cache the act's boss name (known after Neow) so post-combat drafting, where the map
+            # isn't in state, can price cards against the *real* boss (§5-C / ENEMY_PASS).
+            ctx.screen_mem["act_boss_name"] = state.map.boss.name
         boss_row = state.map.boss.row if state.map.boss else None
         if boss_row is not None and best.row == boss_row - 1:
             ctx.screen_mem["pre_boss"] = True  # arriving on the last row before the boss
@@ -682,9 +691,21 @@ class StandardRouter:
             score += w.penalty_deck_over_25
         return score
 
-    def _capability_deltas(self, deck, cards, max_hp: int) -> dict[int, float]:
-        """§5-C drafting: per card index, how much it improves estimate_fight vs a generic Act-1
-        boss in the *current deck's* context (deck-aware: a block-starved deck values block, a
+    def _upcoming_boss(self, ctx: LoopContext, act: int) -> list[FightEnemy]:
+        """The act's boss as a FightEnemy: real HP + mechanics from the bestiary (name cached from
+        the map) with a per-act dps/ramp estimate; the generic profile for unknown / multi-creature
+        bosses (e.g. The Kin, whose bestiary entries are its components)."""
+        entry = self.bestiary.get(ctx.screen_mem.get("act_boss_name", ""))
+        if entry:
+            dps, ramp = _ACT_BOSS.get(act, _ACT_BOSS[1])
+            return [bestiary_enemy(entry, dps=dps, str_ramp=ramp)]
+        return [FightEnemy(*_GENERIC_BOSS)]
+
+    def _capability_deltas(
+        self, deck, cards, max_hp: int, boss: list[FightEnemy]
+    ) -> dict[int, float]:
+        """§5-C drafting: per card index, how much it improves estimate_fight vs the upcoming boss
+        in the *current deck's* context (deck-aware: a block-starved deck values block, a
         damage-starved one values damage). Needs the deck + harvested card text to price it; if
         either is missing the term is skipped (empty) and drafting falls back to Elo/heuristics.
         Note: deck_output prices direct damage/block, not Strength-granting or scaling cards, so
@@ -692,7 +713,6 @@ class StandardRouter:
         if not deck or not self.card_effects:
             return {}
         w = self.config.card_rewards
-        boss = [FightEnemy(*_GENERIC_BOSS)]
 
         def progress(o) -> float:
             # HP I'd retain minus the boss HP still standing: rewards getting *closer* to the kill
@@ -724,8 +744,8 @@ class StandardRouter:
         character = state.player.character if state.player else None
         run_act = state.run.act if state.run else 1
         max_hp = state.player.max_hp if (state.player and state.player.max_hp) else 80
-        # §5-C: add each card's marginal contribution to beating the Act-1 boss (deck-aware)
-        cap = self._capability_deltas(deck, cr.cards, max_hp)
+        # §5-C: value each card by how much it improves the estimate vs the *real* upcoming boss
+        cap = self._capability_deltas(deck, cr.cards, max_hp, self._upcoming_boss(ctx, run_act))
         scored = [
             (self._card_score(c, deck_size, character, run_act) + cap.get(c.index, 0.0), c)
             for c in cr.cards
