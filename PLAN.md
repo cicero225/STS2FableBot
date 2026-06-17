@@ -435,6 +435,14 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   incoming end-of-turn self-damage, so it can't price the clock. But **blocking it isn't necessarily
   right — the Strangler wants to die fast anyway** (race it, like a ramp). Another status the planner
   is blind to (cf. Slippery / Ringing); the §5-C capability/race estimate is the real arbiter.
+- **Soul Fysh — block-bypassing status card** (owner, 2026-06-16; a recurring run-killer, normal +
+  boss) — deposits a unique **damaging status as a card in your hand** that **bypasses Block/armor**;
+  **playing the card discards it but costs 1 energy** to clear. The planner neither prices the
+  unblockable damage it inflicts nor knows that spending the energy to play the junk card removes it.
+  Per-enemy handling (§8.3) + a status the §5-C estimate should count as unavoidable chip.
+- **Knowledge Demon (Act-2 boss)** — complex mechanics, **not yet documented** (the f33 run was too
+  injured to matter, but the owner notes it would have "put up a better show" understanding its
+  options). Document its powers/intents when next seen; per-enemy special-case (§8.3).
 - **Summoner leaders: race the leader, don't chase respawning minions** (first seeded Kin test, seed
   `B04BGZEDRN` — the bot **beat the Kin** at f17 but **died at f22** to this). The **Ovicopter** (Act-2
   normal, 126 HP) has a **Summon** intent that lays **Tough Eggs → Hatchlings** *repeatedly* (verified:
@@ -514,3 +522,28 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   egg and near-full. The "arrive near max HP at the next rest" check can reuse the §8.2 map
   HP-projection (it already walks the route projecting HP). Precision play; deferred. Minor caveat for
   the current batches: the bot eats this value when the egg event fires.
+
+### 8.5 The special-casing scrub — owner priority (2026-06-16)
+Watching the live runs convinced the owner we will need an **exhaustive scrub of all Ironclad cards,
+all enemies, and (eventually) all events** for things that need special-casing — *"there's just a lot
+of these, and we're at the point where it's starting to matter."* The scrub is a category of its own;
+the owner's projected-impact ranking within it:
+
+1. **Deck synergy / archetype drafting** (§8.1a) — the deepest deck-power lever; data-gap-blocked
+   (no co-occurrence in the export). Overlaps §8.0's deck-power priority.
+2. **All-enemies analysis** — *already a run-killer.* The one-turn planner is blind to most enemy
+   statuses/mechanics (see the §8.4 cluster: Slippery, Ringing, Adaptable, Illusion, escalating
+   end-of-turn DoT, **Soul Fysh** block-bypass status-card, **Knowledge Demon**). Document each
+   enemy's powers/intents, then route through the §5-C capability estimate + per-enemy handlers (§8.3).
+   Seeded custom runs are the deterministic test bed.
+3. **Play Powers earlier** (first approximation to card analysis) — the "play 0-cost Powers
+   immediately" fix (§8.4) generalises to better power-timing priority overall. Small, near-term.
+4. **Card-by-card examination** — a systematic pass over the full Ironclad list flagging cards the
+   generic planner can't reason about (Anger, Fiend Fire, scaling/conditional cards), then encode
+   per-card handlers/annotations (§8.3 "per-card special-case pass").
+5. **Event analysis** — mostly already covered by event-choice WAR; only a few events carry nuance
+   (Byrdonis Egg, §8.4). Lowest priority.
+
+Sequencing note: this complements §8.0 (the immediate routing/deck-power items). Items 2–4 are the
+combat-side maturation that the §5-C capability estimate was built to anchor — they slot in as its
+consumers, not as a pile of one-off rules.
