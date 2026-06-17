@@ -422,6 +422,19 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   unnecessary damage. Fix: model **Ringing → max 1 card this turn** as a planner cap (generalises to
   any "cards-per-turn" status the energy model misses); under it, plan the single best card — **prefer
   the lethal**, else the highest-value play. Per-enemy special-case (§8.3) / planner constraint.
+- **Undergrowth elites are newer + harder; combat-stats / `_GENERIC_ELITE` lag them** (owner,
+  2026-06-16). The **Undergrowth** (Act-1 area, unlocked by the Act-3 wins) adds tough elites like
+  **Phantasmal Gardeners** — a notoriously hard one (of all elites to randomly lose to, the most
+  sensible). Live: a 15-card starter-ish deck was **forced** into one at f8 (`opts=['elite']`, the only
+  next node) and died. *Two implications:* (1) the §8.2 elite **gate can't help when the elite is the
+  only path** — a routing/avoidance limit, not a gate miss; (2) `combat_stats` HP-loss and the
+  `_GENERIC_ELITE` prior predate the Undergrowth, so they **underrate these elites** — rebuild
+  combat-stats once enough Undergrowth runs accumulate, and consider an Undergrowth-aware profile.
+- **Slithering Strangler — escalating end-of-turn DoT** (owner, 2026-06-16) — applies a debuff that
+  deals **X self-damage at end of turn, escalating each turn**. The one-turn planner doesn't model
+  incoming end-of-turn self-damage, so it can't price the clock. But **blocking it isn't necessarily
+  right — the Strangler wants to die fast anyway** (race it, like a ramp). Another status the planner
+  is blind to (cf. Slippery / Ringing); the §5-C capability/race estimate is the real arbiter.
 - **Summoner leaders: race the leader, don't chase respawning minions** (first seeded Kin test, seed
   `B04BGZEDRN` — the bot **beat the Kin** at f17 but **died at f22** to this). The **Ovicopter** (Act-2
   normal, 126 HP) has a **Summon** intent that lays **Tough Eggs → Hatchlings** *repeatedly* (verified:
@@ -474,6 +487,13 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   "play safe", by which point the fight's nearly over and the payoff is gone. Heuristic: play a
   scaling power when this-turn damage taken would be ≤ X, where X rises with total enemy HP
   remaining and for elite/boss (afford the tempo loss in a long fight); else hold.
+- **Play 0-cost Powers immediately** (owner, 2026-06-16, seen live: a 0-cost power played late in a
+  turn) — distinct from the scaling-power tempo call above: a **free** Power banks a permanent buff at
+  **no opportunity cost**, so it should go the **moment it's playable** (including straight out of a
+  potion), ahead of the rest of the turn — only a few edge cases aside. The planner scores end-states
+  and is **order-indifferent within a turn**, so it sequences free powers arbitrarily; force 0-cost
+  powers to the front. Matters when the power buffs this turn's later plays, or under a cards-per-turn
+  cap (Ringing). Likely a small, near-term planner fix.
 - **Deck-aware drafting** (owner; deferred to a later project — "adjust drafting based on the
   current deck"). Two pieces, both needing deck state at draft time: (a) **conditional-card
   list** — **Rupture** / cards that do nothing without enablers (Bloodletting/Decay), gated on
