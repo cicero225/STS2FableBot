@@ -192,7 +192,10 @@ cohort export (`data/spirebird/cohort_stats.json` — 57-field per-card entries;
 ### 8.0 Current priority (2026-06-16, from the standard-batch evidence)
 The wall is **deck power**, manifesting as a chain: weak decks deal ~5 dmg/round → normal fights
 drag 15+ rounds → cumulative chip-bleed → arrive at the Act-1 boss at 38–69/80 HP → lose (0/5; 2/5
-reach Act 2 after §8.1d). Every item below breaks a link in that chain. Order:
+reach Act 2 after §8.1d). **Sharpened 2026-06-16 (post anti-turtle weights):** boss-entry HP rose to
+77–80/80, yet the bot *still lost the Act-1 boss at full 80/80* (run 4, 10 rounds) — so **deck power
+is the *binding* constraint; HP/routing is necessary-but-not-sufficient.** Weight the priority toward
+**deck-strengthening** (removal, elite→relic routing, synergy) over pure HP-management. Order:
 1. **Routing / whole-route path-EV (§8.2)** — *next.* Hits two links: the bleed (arrive at the boss
    healthy) AND the elite/relic deficit (the bot under-takes elites vs intermediate humans → starves
    itself of relics → weak deck). Step (a): build combat-stats (net HP-loss per fight type, early-act
