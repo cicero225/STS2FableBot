@@ -190,11 +190,15 @@ leader before the ramp out-scales me"; "58 dmg on a 58-HP Follower loses the rac
 `estimate_fight(elite).win` (the batch fix) + rest on a dangerous-fight `exp_end_hp` floor; *combat*
 — race-vs-turtle / minion-leader from the same estimate.
 
-**First increment (mock-first, no live behaviour change):** `estimate_fight` as the race model in a
-new pure module `sts2bot/policy/capability.py`, reusing combat.py's `EnemySim`/`CardEffects`.
-Unit-test the canonical §8.4 cases — weak deck vs **Vantom** (Slippery → can't close → lose), **Kin**
-(race the fixed-add leader), strong deck vs an elite (win, acceptable HP). Then wire into the **map
-elite gate** and re-run the batch before any combat-side rewiring.
+**First increment — ✅ landed 2026-06-16 (mock-first):** `estimate_fight` race model + `deck_output`
+in `sts2bot/policy/capability.py` (11 canonical tests: Vantom/Slippery, leader-race, ramp, starter-
+vs-built). **Wired into the map elite gate:** the survivable-elite relic bonus applies only if the
+deck can *win* a typical elite of the act (`_GENERIC_ELITE` prior) with an HP margin
+(`elite_gate_min_end_hp_pct`); a starter-heavy deck stays elite-neutral. Map `DeckCard`s carry no
+rules text, so `deck_output` prices them via a harvested `id|upgrade→description` table
+(`scripts/build_card_effects.py`). *Open:* re-batch to calibrate `_GENERIC_ELITE` (loosen if no
+elites taken / tighten if elite deaths persist); then combat-side rewiring (race-vs-turtle from the
+same estimate), and `deck_output` refinements (energy relics, X-cost, scaling cards).
 
 ## 6. Working conventions
 
@@ -473,3 +477,13 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   gets a tunable nudge (Hemokinesis over Shrug It Off); priors still do the heavy lifting.
 - **Transform event: transform a Strike, not a curse** (events not yet policy-driven;
   noted for the eventual event work — transforming a curse is far worse value).
+- **Byrdonis Egg event** (owner, 2026-06-16, seen live): Choose-1 — (a) gain Max HP, or (b) gain a
+  **Byrdonis Egg**, a pseudo-curse (unplayable card). The egg can later be *removed* (pointless — you
+  could have just taken the Max HP) or, uniquely, **hatched at a rest site** (a 3rd campfire option)
+  into a moderately strong Act-1 attack, replacing the curse. **The bot currently takes the egg but
+  never hatches it → strictly worse than the Max HP.** Right logic: at *event time* only take the egg
+  if it'll reach the next rest site positioned to **hatch instead of rest** — i.e. arriving near max
+  HP so the forgone heal is cheap; else take the Max HP. Then at the campfire, hatch when holding the
+  egg and near-full. The "arrive near max HP at the next rest" check can reuse the §8.2 map
+  HP-projection (it already walks the route projecting HP). Precision play; deferred. Minor caveat for
+  the current batches: the bot eats this value when the egg event fires.
