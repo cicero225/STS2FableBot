@@ -183,6 +183,39 @@ def test_full_belt_discard_keeps_value_potions_ditches_junk() -> None:
     assert victim is not None and victim.id == "FOUL_POTION"  # ditch the junk, keep Cure All
 
 
+def test_plays_offering_when_healthy() -> None:
+    """Owner's anti-turtle rule of thumb: above ~20 HP, Offering (lose 6 HP -> 2 energy + draw 3,
+    exhaust) is near-guaranteed value and should be played. If it isn't, the planner is still too
+    damage-averse (turtling)."""
+    state = make_combat(
+        hand=[card(0, "Offering", 0, "Lose 6 HP. Gain 2 Energy. Draw 3 cards. Exhaust.",
+                   target="Self", ctype="Skill"),
+              card(1, "Strike", 1, "Deal 6 damage."),
+              card(2, "Strike", 1, "Deal 6 damage."),
+              card(3, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("E_0", 60, intent_label="8")], energy=1, hp=50, max_hp=80,
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("card_index") == 0  # play Offering for the energy + draw
+
+
+def test_plays_bloodletting_when_healthy_and_energy_usable() -> None:
+    """Owner's rule: above ~20 HP, Bloodletting (lose 3 HP -> 2 energy) is worth it whenever the
+    energy does anything (here, two extra Strikes)."""
+    blood = card(0, "Bloodletting", 0, "Lose 3 HP. Gain 2 Energy.", target="Self", ctype="Skill")
+    state = make_combat(
+        hand=[blood,
+              card(1, "Strike", 1, "Deal 6 damage."),
+              card(2, "Strike", 1, "Deal 6 damage."),
+              card(3, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("E_0", 60, intent_label="8")], energy=1, hp=50, max_hp=80,
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("card_index") == 0  # play Bloodletting for the energy
+
+
 def test_actions_disabled_waits() -> None:
     """Run 16 (Act 2!) died to hammering plays into a scripted lockout; the fork
     exposes battle.actions_disabled and combat must wait on it."""
