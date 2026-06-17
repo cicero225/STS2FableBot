@@ -48,14 +48,18 @@ _EV_GOLD_GAIN = re.compile(r"Gain (\d+) Gold", re.IGNORECASE)
 _EV_GOLD_LOSS = re.compile(r"Lose (\d+) Gold", re.IGNORECASE)
 
 # §5-C elite gate: a typical elite per act (hp, dps, Strength ramp) the deck must be able to *win*
-# (not just survive) before the map scorer chases it for its relic. A conservative prior — the batch
-# evidence is that the bot *loses* Act-1 elites with starter-heavy decks, so err tough; the re-batch
-# calibrates these (loosen if no elites are ever taken, tighten if elite deaths persist). Tunable.
+# (not just survive) before the map scorer chases it for its relic. A conservative prior: the batch
+# evidence is the bot *loses* Act-1 elites with starter-heavy decks, so err tough; the re-batch
+# calibrates these (loosen if no elites taken, tighten if elite deaths persist). Tunable.
 _GENERIC_ELITE = {
     1: (90, 17, 1),
     2: (140, 23, 2),
     3: (190, 29, 3),
 }
+# §5-C drafting target: a tough generic Act-1 boss (hp, dps, Strength ramp). Value a card by how
+# much it improves estimate_fight against it. Generic (not per-boss); a Slippery/per-boss profile
+# from map.boss is a later refinement.
+_GENERIC_BOSS = (170, 24, 2)
 
 
 class StandardRouter:
@@ -678,6 +682,36 @@ class StandardRouter:
             score += w.penalty_deck_over_25
         return score
 
+    def _capability_deltas(self, deck, cards, max_hp: int) -> dict[int, float]:
+        """§5-C drafting: per card index, how much it improves estimate_fight vs a generic Act-1
+        boss in the *current deck's* context (deck-aware: a block-starved deck values block, a
+        damage-starved one values damage). Needs the deck + harvested card text to price it; if
+        either is missing the term is skipped (empty) and drafting falls back to Elo/heuristics.
+        Note: deck_output prices direct damage/block, not Strength-granting or scaling cards, so
+        the capability term under-rates those (the Elo prior / w_power still carry them)."""
+        if not deck or not self.card_effects:
+            return {}
+        w = self.config.card_rewards
+        boss = [FightEnemy(*_GENERIC_BOSS)]
+
+        def progress(o) -> float:
+            # HP I'd retain minus the boss HP still standing: rewards getting *closer* to the kill
+            # even in a loss (the usual Act-1-boss case), where raw end-HP alone is misleading.
+            return o.exp_end_hp - o.enemy_hp_left
+
+        base_out = estimate_fight(max_hp, deck_output(deck, descriptions=self.card_effects), boss)
+        base = progress(base_out)
+        deltas: dict[int, float] = {}
+        for c in cards:
+            out = estimate_fight(
+                max_hp, deck_output([*deck, c], descriptions=self.card_effects), boss
+            )
+            delta = w.capability_weight * (progress(out) - base)
+            if out.win and not base_out.win:
+                delta += w.capability_win_flip_bonus  # flips the boss lose->win: prize it
+            deltas[c.index] = delta
+        return deltas
+
     def _card_reward(self, state: CardRewardState, ctx: LoopContext) -> Decision | Wait:
         w = self.config.card_rewards
         cr = state.card_reward
@@ -689,7 +723,13 @@ class StandardRouter:
         deck_size = len(deck) if deck else 15
         character = state.player.character if state.player else None
         run_act = state.run.act if state.run else 1
-        scored = [(self._card_score(c, deck_size, character, run_act), c) for c in cr.cards]
+        max_hp = state.player.max_hp if (state.player and state.player.max_hp) else 80
+        # §5-C: add each card's marginal contribution to beating the Act-1 boss (deck-aware)
+        cap = self._capability_deltas(deck, cr.cards, max_hp)
+        scored = [
+            (self._card_score(c, deck_size, character, run_act) + cap.get(c.index, 0.0), c)
+            for c in cr.cards
+        ]
         scored.sort(key=lambda sc: -sc[0])
         best_score, best = scored[0]
         score_map = {c.name: round(s, 2) for s, c in scored}

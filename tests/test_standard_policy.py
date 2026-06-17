@@ -1223,6 +1223,29 @@ def test_map_elite_gate_skips_elite_a_weak_deck_cannot_win() -> None:
     assert decision.action.payload()["index"] == 1  # the monster, not the unwinnable elite
 
 
+def test_capability_drafting_prefers_the_card_that_beats_the_boss() -> None:
+    # §5-C drafting: a damage-starved deck should value a big attack (helps close the 170-HP boss)
+    # over a no-impact cantrip (doesn't move estimate_fight at all).
+    from sts2bot.client.models import Card, DeckCard
+
+    r = _router_for_routing()  # injects _ROUTING_CARD_EFFECTS so the deck is priced
+    deck = [
+        DeckCard(index=i, id=cid, name=cid.title(), type=typ, cost=str(cost), is_upgraded=False)
+        for i, (cid, typ, cost) in enumerate(
+            [("STRIKE_IRONCLAD", "Attack", 1)] * 5
+            + [("DEFEND_IRONCLAD", "Skill", 1)] * 4
+            + [("BASH", "Attack", 2)]
+        )
+    ]
+    big = Card(index=0, id="BLUDGEON", name="Bludgeon", type="Attack", cost="3",
+               description="Deal 32 damage.")
+    cantrip = Card(index=1, id="CANTRIP", name="Cantrip", type="Skill", cost="0",
+                   description="Draw 1 card.")
+    deltas = r._capability_deltas(deck, [big, cantrip], 80)
+    assert deltas[0] > deltas[1]  # the attack helps beat the boss; the cantrip doesn't
+    assert deltas[0] > 0
+
+
 def test_map_path_planning_weighs_forced_elite_lane_by_hp() -> None:
     """Runs 10/15 died in lanes whose elite was committed floors earlier. With HP-aware
     routing the committed elite is judged by whether the bot can still afford it on arrival:

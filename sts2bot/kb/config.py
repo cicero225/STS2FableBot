@@ -106,6 +106,11 @@ class CardRewardWeights(_Section):
     bonus_draw: float = 2.0
     bonus_energy: float = 4.0
     early_damage_bonus: float = 2.5  # Act 1: nudge toward damage to clear early fights (owner)
+    # capability-aware drafting (§5-C): value a card by how much it improves estimate_fight vs a
+    # generic Act-1 boss in the *current deck's* context (a block-starved deck values block, a
+    # damage-starved one values damage). Added on top of the Elo/heuristic score, not replacing it.
+    capability_weight: float = 0.4  # score per +1 projected boss-survival HP the card adds
+    capability_win_flip_bonus: float = 6.0  # extra if the card flips the boss estimate lose->win
 
 
 class RestWeights(_Section):

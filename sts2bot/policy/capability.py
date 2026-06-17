@@ -64,6 +64,7 @@ class FightOutcome:
     win: bool
     exp_end_hp: int  # projected HP when the leaders die (or <=0 if I lose the race)
     turns: int  # turns to close the leaders (or to die)
+    enemy_hp_left: int  # leaders' HP still standing when it ends (0 on a win) — progress in a loss
 
 
 def estimate_fight(
@@ -76,7 +77,7 @@ def estimate_fight(
     """Race the deck against the enemies; -> who reaches zero first and at what HP."""
     kill_hp = float(sum(e.hp for e in enemies if e.counts_toward_kill))
     if kill_hp <= 0:
-        return FightOutcome(win=True, exp_end_hp=my_hp, turns=0)
+        return FightOutcome(win=True, exp_end_hp=my_hp, turns=0, enemy_hp_left=0)
     # Slippery on any leader gates my whole turn (it's the leader I'm chipping).
     slippery = any(e.slippery for e in enemies if e.counts_toward_kill)
     hp = float(my_hp)
@@ -88,15 +89,15 @@ def estimate_fight(
             out = max(1.0, out - deck.biggest_hit + 1.0)  # largest hit drops to 1
         kill_hp -= out
         if kill_hp <= 0:
-            return FightOutcome(win=True, exp_end_hp=round(hp), turns=turn)
+            return FightOutcome(win=True, exp_end_hp=round(hp), turns=turn, enemy_hp_left=0)
         # --- enemy turn: they chip me (ramp already in effect this turn), minus my block ---
         enemy_dps = sum(e.dps for e in enemies) + extra_str * sum(1 for e in enemies if e.dps > 0)
         hp -= max(0.0, enemy_dps - deck.block_per_turn)
         extra_str += sum(e.str_ramp for e in enemies)
-        if hp <= 0:
-            return FightOutcome(win=False, exp_end_hp=round(hp), turns=turn)
+        if hp <= 0:  # died; remaining kill_hp = how close I got (progress signal for drafting)
+            return FightOutcome(False, round(hp), turn, round(kill_hp))
     # couldn't close inside the horizon -> a grind it doesn't win (treadmill / wall)
-    return FightOutcome(win=False, exp_end_hp=round(hp), turns=max_turns)
+    return FightOutcome(False, round(hp), max_turns, round(kill_hp))
 
 
 def _resolve_cost(cost: str | None, energy: int) -> int:
