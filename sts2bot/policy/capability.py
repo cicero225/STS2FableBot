@@ -17,6 +17,7 @@ deck model carries a separate `biggest_hit`. Pure functions only (no I/O); consu
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -57,6 +58,12 @@ class FightEnemy:
     slippery: bool = False  # first HP-loss/turn -> 1 (negates chip; only burst gets through)
     # False for summoned / raced-past minions: they add dps but not kill-HP (leader-kill ends it)
     counts_toward_kill: bool = True
+    # damage-throttling (ENEMY_PASS Phase 0c) — detected from status text by detect_mechanics:
+    dmg_cap_per_turn: int | None = None  # max HP it can lose/turn (Hardened Shell, Intangible)
+    self_block: int = 0  # block it regenerates each turn (Plating); soaks that much of my damage
+    death_damage: int = 0  # self-damage it deals me when I kill it (Steam Eruption)
+    stun_threshold: int = 0  # HP at/below which it's Stunned once, skipping a turn (Plow, Shriek)
+    thorns: int = 0  # damage it deals me each turn I attack it (Thorns)
 
 
 @dataclass(frozen=True)
@@ -75,29 +82,106 @@ def estimate_fight(
     max_turns: int = 30,
 ) -> FightOutcome:
     """Race the deck against the enemies; -> who reaches zero first and at what HP."""
-    kill_hp = float(sum(e.hp for e in enemies if e.counts_toward_kill))
+    leaders = [e for e in enemies if e.counts_toward_kill]
+    kill_hp = float(sum(e.hp for e in leaders))
     if kill_hp <= 0:
         return FightOutcome(win=True, exp_end_hp=my_hp, turns=0, enemy_hp_left=0)
-    # Slippery on any leader gates my whole turn (it's the leader I'm chipping).
-    slippery = any(e.slippery for e in enemies if e.counts_toward_kill)
+    # Fight-level throttling, derived from the leaders (exact for a single-leader boss; an
+    # approximation when several leaders carry kill-HP). All gate the damage I land each turn.
+    slippery = any(e.slippery for e in leaders)
+    self_block = sum(e.self_block for e in leaders)  # regenerating enemy block, absorbs my damage
+    caps = [e.dmg_cap_per_turn for e in leaders if e.dmg_cap_per_turn is not None]
+    cap = min(caps) if caps else None  # hard per-turn HP-loss cap (burst is wasted past it)
+    death_damage = sum(e.death_damage for e in leaders)  # self-damage on the kill
+    stun_at = max((e.stun_threshold for e in leaders), default=0)  # crossing it skips a turn
+    thorns = sum(e.thorns for e in leaders)
+    base_dps = sum(e.dps for e in enemies)
+    n_attackers = sum(1 for e in enemies if e.dps > 0)
     hp = float(my_hp)
     extra_str = 0  # accumulated ramp, added to every attacker's dps as turns pass
+    stunned_used = False
     for turn in range(1, max_turns + 1):
-        # --- my turn: chip the leaders ---
+        # --- my turn: chip the leaders, throttled ---
         out = deck.burst_dmg if turn == 1 else deck.sustained_dmg
+        if self_block:
+            out = max(0.0, out - self_block)  # regenerating block soaks the first chunk
         if slippery:
             out = max(1.0, out - deck.biggest_hit + 1.0)  # largest hit drops to 1
+        if cap is not None:
+            out = min(out, float(cap))  # hard cap: never burst more than this into it
         kill_hp -= out
-        if kill_hp <= 0:
-            return FightOutcome(win=True, exp_end_hp=round(hp), turns=turn, enemy_hp_left=0)
-        # --- enemy turn: they chip me (ramp already in effect this turn), minus my block ---
-        enemy_dps = sum(e.dps for e in enemies) + extra_str * sum(1 for e in enemies if e.dps > 0)
-        hp -= max(0.0, enemy_dps - deck.block_per_turn)
+        if thorns and out > 0:
+            hp -= thorns  # retaliation for attacking it
+        if kill_hp <= 0:  # killed the leaders (thorns already paid); eat any death-damage
+            return FightOutcome(win=True, exp_end_hp=round(hp - death_damage), turns=turn,
+                                enemy_hp_left=0)
+        if hp <= 0:  # thorns killed me while it still stands
+            return FightOutcome(False, round(hp), turn, round(kill_hp))
+        # --- enemy turn: skipped the turn it's Stunned by crossing its threshold ---
+        if stun_at and kill_hp <= stun_at and not stunned_used:
+            stunned_used = True
+        else:
+            enemy_dps = base_dps + extra_str * n_attackers
+            hp -= max(0.0, enemy_dps - deck.block_per_turn)
         extra_str += sum(e.str_ramp for e in enemies)
         if hp <= 0:  # died; remaining kill_hp = how close I got (progress signal for drafting)
             return FightOutcome(False, round(hp), turn, round(kill_hp))
     # couldn't close inside the horizon -> a grind it doesn't win (treadmill / wall)
     return FightOutcome(False, round(hp), max_turns, round(kill_hp))
+
+
+# ENEMY_PASS Phase 0c: the mod ships enemy status text as rules descriptions, so the race-relevant
+# mechanics parse straight out of it. Anchored tightly to avoid catching conditional one-offs
+# (e.g. Crab Rage's "gains 99 Block on ally death" is NOT per-turn regen).
+# caps -> Hardened Shell, Hard to Kill, Intangible; block -> Plating; stun -> Plow, Shriek
+_CAP_RE = re.compile(r"cannot lose more than (\d+) HP", re.I)
+_CAP_RE2 = re.compile(r"damage taken and HP los[ts][^.]*? to (\d+)", re.I)
+_BLOCK_RE = re.compile(r"end of (?:your|its|each)?\s*turn,?\s*gain[s]? (\d+) Block", re.I)
+_DEATH_RE = re.compile(r"when killed, deals (\d+) damage", re.I)  # Steam Eruption
+_STUN_RE = re.compile(r"HP reaches (\d+) or below", re.I)
+_THORNS_RE = re.compile(r"hit by an attack, deal (\d+) damage back", re.I)  # Thorns
+_RAMP_RE = re.compile(r"end of (?:its|each|your)?\s*turn,?\s*gain[s]? (\d+) Strength", re.I)
+
+
+def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
+    """Parse an enemy's statuses (each `{name, description, ...}`) into `FightEnemy` throttling
+    kwargs. Unknown text contributes nothing (so a new status fails safe to 'generic enemy')."""
+    cap: int | None = None
+    block = death = stun = thorns = ramp = 0
+    slippery = False
+    for s in statuses:
+        d = s.get("description") or ""
+        if m := (_CAP_RE.search(d) or _CAP_RE2.search(d)):
+            v = int(m.group(1))
+            cap = v if cap is None else min(cap, v)
+        if m := _BLOCK_RE.search(d):
+            block += int(m.group(1))
+        if m := _DEATH_RE.search(d):
+            death += int(m.group(1))
+        if (m := _STUN_RE.search(d)) and "stunned" in d.lower():
+            stun = max(stun, int(m.group(1)))
+        if m := _THORNS_RE.search(d):
+            thorns += int(m.group(1))
+        if m := _RAMP_RE.search(d):
+            ramp += int(m.group(1))
+        if "only loses 1 hp" in d.lower():
+            slippery = True
+    out: dict[str, Any] = {}
+    if cap is not None:
+        out["dmg_cap_per_turn"] = cap
+    if block:
+        out["self_block"] = block
+    if death:
+        out["death_damage"] = death
+    if stun:
+        out["stun_threshold"] = stun
+    if thorns:
+        out["thorns"] = thorns
+    if ramp:
+        out["str_ramp"] = ramp
+    if slippery:
+        out["slippery"] = True
+    return out
 
 
 def _resolve_cost(cost: str | None, energy: int) -> int:

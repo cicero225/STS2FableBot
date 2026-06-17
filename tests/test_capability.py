@@ -13,8 +13,13 @@ from sts2bot.policy.capability import (
     FightEnemy,
     FightOutcome,
     deck_output,
+    detect_mechanics,
     estimate_fight,
 )
+
+
+def _st(name: str, desc: str) -> dict:
+    return {"name": name, "description": desc}
 
 
 def _card(name: str, type_: str, cost: int | str, desc: str) -> Card:
@@ -130,3 +135,70 @@ def test_deck_output_feeds_the_race_end_to_end() -> None:
     won = estimate_fight(70, deck_output(strong), [FightEnemy(hp=46, dps=10)])
     assert won.win
     assert won.exp_end_hp >= 60
+
+
+def test_detect_mechanics_from_real_status_text() -> None:
+    # the descriptions are verbatim from data/bestiary.json (the mod's own rules text)
+    assert detect_mechanics([_st("Hardened Shell", "Skulking Colony cannot lose more than 15 HP "
+                                 "each turn.")]) == {"dmg_cap_per_turn": 15}
+    assert detect_mechanics([_st("Hard to Kill", "Reduce all damage taken and HP lost by "
+                                 "Exoskeleton to 9.")]) == {"dmg_cap_per_turn": 9}
+    assert detect_mechanics([_st("Intangible", "Reduce all damage taken and HP loss to 1. Lasts "
+                                 "for 1 turn.")]) == {"dmg_cap_per_turn": 1}
+    assert detect_mechanics([_st("Plating", "At the end of your turn, gain 12 Block. Plating is "
+                                 "reduced by 1 at the start of your turn.")]) == {"self_block": 12}
+    assert detect_mechanics([_st("Steam Eruption", "When killed, deals 15 damage at the end of "
+                                 "your next turn.")]) == {"death_damage": 15}
+    assert detect_mechanics([_st("Plow", "The first time Ceremonial Beast's HP reaches 150 or "
+                                 "below, it becomes Stunned and loses all its Strength.")]) == {
+        "stun_threshold": 150}
+    assert detect_mechanics([_st("Thorns", "When hit by an attack, deal 5 damage back.")]) == {
+        "thorns": 5}
+    assert detect_mechanics([_st("Ritual", "At the end of its turn, gains 2 Strength.")]) == {
+        "str_ramp": 2}
+    assert detect_mechanics([_st("Slippery", "The next time Inklet loses HP, it only loses 1 HP "
+                                 "instead.")]) == {"slippery": True}
+
+
+def test_detect_mechanics_ignores_conditional_one_offs_and_unknowns() -> None:
+    # Crab Rage's Block/Strength are conditional on an *ally* dying, not per-turn -> not detected
+    assert detect_mechanics([_st("Crab Rage", "When an ally dies, Crusher gains 6 Strength and 99 "
+                                 "Block.")]) == {}
+    assert detect_mechanics([_st("Surprise", "Something is off about this creature...")]) == {}
+    assert detect_mechanics([]) == {}
+
+
+def test_estimate_hard_cap_makes_a_winnable_fight_unwinnable() -> None:
+    deck = DeckOutput(burst_dmg=40, sustained_dmg=30, biggest_hit=15, block_per_turn=5)
+    assert estimate_fight(70, deck, [FightEnemy(hp=80, dps=14)]).win
+    assert not estimate_fight(70, deck, [FightEnemy(hp=80, dps=14, dmg_cap_per_turn=8)]).win
+
+
+def test_estimate_regenerating_block_slows_the_race() -> None:
+    deck = DeckOutput(burst_dmg=40, sustained_dmg=30, biggest_hit=15, block_per_turn=5)
+    assert estimate_fight(70, deck, [FightEnemy(hp=80, dps=14)]).win
+    assert not estimate_fight(70, deck, [FightEnemy(hp=80, dps=14, self_block=25)]).win
+
+
+def test_estimate_stun_threshold_saves_hp() -> None:
+    deck = DeckOutput(burst_dmg=40, sustained_dmg=30, biggest_hit=15, block_per_turn=0)
+    base = estimate_fight(70, deck, [FightEnemy(hp=80, dps=30)])
+    stunned = estimate_fight(70, deck, [FightEnemy(hp=80, dps=30, stun_threshold=40)])
+    assert base.win and stunned.win
+    assert stunned.exp_end_hp > base.exp_end_hp  # skipping the stunned turn = less damage taken
+
+
+def test_estimate_death_damage_costs_end_hp() -> None:
+    deck = DeckOutput(burst_dmg=40, sustained_dmg=30, biggest_hit=15, block_per_turn=0)
+    base = estimate_fight(70, deck, [FightEnemy(hp=40, dps=5)])
+    boom = estimate_fight(70, deck, [FightEnemy(hp=40, dps=5, death_damage=20)])
+    assert base.win and boom.win
+    assert boom.exp_end_hp == base.exp_end_hp - 20
+
+
+def test_estimate_thorns_costs_hp_per_attacking_turn() -> None:
+    deck = DeckOutput(burst_dmg=20, sustained_dmg=20, biggest_hit=10, block_per_turn=0)
+    base = estimate_fight(70, deck, [FightEnemy(hp=80, dps=0)])
+    thorny = estimate_fight(70, deck, [FightEnemy(hp=80, dps=0, thorns=10)])
+    assert base.win and thorny.win
+    assert thorny.exp_end_hp < base.exp_end_hp
