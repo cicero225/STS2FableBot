@@ -415,6 +415,13 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   - *Bot implications*: `lethal = all leaders dead` must know about **Adaptable / revive** (killing
     phase 1 does **not** end the fight); each phase wants different play — a canonical case for the
     per-enemy special-case pass (§8.3), with the seeded-runs harness as its deterministic test bed.
+- **Ringing status (Ceremonial Beast, low-HP phase)** (owner, seen live 2026-06-16) — caps you at
+  playing **ONE card** that turn; the energy-based one-turn planner ignores it and wastes the single
+  play. Live: the Beast at **3 HP**, the bot played an unrelated **Block** card first, so its **lethal
+  Attack was then unplayable** (Ringing consumed) → ended the turn, missed the kill, ate ~10
+  unnecessary damage. Fix: model **Ringing → max 1 card this turn** as a planner cap (generalises to
+  any "cards-per-turn" status the energy model misses); under it, plan the single best card — **prefer
+  the lethal**, else the highest-value play. Per-enemy special-case (§8.3) / planner constraint.
 - **Summoner leaders: race the leader, don't chase respawning minions** (first seeded Kin test, seed
   `B04BGZEDRN` — the bot **beat the Kin** at f17 but **died at f22** to this). The **Ovicopter** (Act-2
   normal, 126 HP) has a **Summon** intent that lays **Tough Eggs → Hatchlings** *repeatedly* (verified:
