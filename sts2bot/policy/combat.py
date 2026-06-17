@@ -20,6 +20,7 @@ from sts2bot.client import actions as act
 from sts2bot.client.models import CombatState, Enemy
 from sts2bot.kb.config import CombatWeights
 from sts2bot.policy.base import Decision, Wait
+from sts2bot.policy.capability import detect_mechanics
 from sts2bot.policy.textparse import CardEffects, parse_card_description, parse_intent_damage
 
 VULN_MULT = 1.5
@@ -57,6 +58,13 @@ class EnemySim:
     gains_strength: bool = False  # ramping (Strength buff / Empower intent): race to kill it
     summons: bool = False  # has a Summon intent — its minions are replaceable, so race it
     illusion: bool = False  # "Illusion": revives at full HP when killed — grinding it is futile
+    # damage-throttling (ENEMY_PASS): first HP-loss/turn -> 1 (Slippery); a hard per-turn HP-loss
+    # cap (Hardened Shell, Intangible); thorns per hit. hp_lost_this_turn accrues so the planner
+    # stops over-investing (don't dump a big hit into Slippery, don't burst past a cap).
+    slippery: bool = False
+    dmg_cap_per_turn: int | None = None
+    thorns: int = 0
+    hp_lost_this_turn: int = 0
 
 
 @dataclass(frozen=True)
@@ -159,6 +167,8 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         incoming = sum(
             parse_intent_damage(i.label) for i in e.intents if i.type.lower() == "attack"
         )
+        # throttling parsed from the same status text the bestiary harvests (ENEMY_PASS)
+        mech = detect_mechanics([{"description": p.description} for p in e.status])
         sims.append(
             EnemySim(
                 entity_id=e.entity_id,
@@ -171,6 +181,9 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 gains_strength=gains_strength,
                 summons=summons,
                 illusion=illusion,
+                slippery=mech.get("slippery", False),
+                dmg_cap_per_turn=mech.get("dmg_cap_per_turn"),
+                thorns=mech.get("thorns", 0),
             )
         )
     return tuple(sims)
@@ -196,6 +209,9 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
     e = enemies[target_i]
     dealt_total = 0
     hp, block = e.hp, e.block
+    lost = e.hp_lost_this_turn  # HP it has already lost this turn (for the per-turn cap)
+    slippery_pending = e.slippery and lost == 0  # first HP-loss this turn -> 1
+    thorns_taken = 0
     base_damage, hits = card.fx.damage, card.fx.hits
     if state.primal_active and card.is_attack:
         base_damage, hits = _PRIMAL_ROCK_DAMAGE, 1  # transformed into a Giant Rock
@@ -205,22 +221,30 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
     for _ in range(hits):
         if hp <= 0:
             break
+        thorns_taken += e.thorns  # "when hit by an attack" retaliates, per hit landed
         absorbed = min(block, per_hit)
         block -= absorbed
         dealt = per_hit - absorbed
+        if dealt > 0:
+            if slippery_pending:  # Slippery: the first HP-loss this turn drops to 1
+                dealt = 1
+                slippery_pending = False
+            if e.dmg_cap_per_turn is not None:  # Hardened Shell / Intangible: cap HP lost per turn
+                dealt = max(0, min(dealt, e.dmg_cap_per_turn - lost))
         hp -= dealt
         dealt_total += dealt
+        lost += dealt
     overkill_amt = -hp if hp < 0 else 0
     killed = hp <= 0 < e.hp
     hp = max(0, hp)
     enemies[target_i] = replace(
-        e, hp=hp, block=block, vulnerable=e.vulnerable + card.fx.vulnerable
+        e, hp=hp, block=block, vulnerable=e.vulnerable + card.fx.vulnerable, hp_lost_this_turn=lost
     )
     # Ignorable minions (weak, non-ramping) aren't progress — they flee with the leader and
     # Illusion ones revive — so deny offensive reward; their death's incoming drop is still
     # seen via hp_loss. Dangerous minions (Kin followers etc.) fall through to normal reward.
     if _ignorable_minion(e, state.has_summoner):
-        return replace(state, enemies=tuple(enemies))
+        return replace(state, enemies=tuple(enemies), self_damage=state.self_damage + thorns_taken)
     return replace(
         state,
         enemies=tuple(enemies),
@@ -229,6 +253,7 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
         overkill=state.overkill + overkill_amt,
         vuln_applied=state.vuln_applied + (card.fx.vulnerable if hp > 0 else 0),
         ramp_damage=state.ramp_damage + (dealt_total if e.gains_strength else 0),
+        self_damage=state.self_damage + thorns_taken,
     )
 
 
