@@ -184,6 +184,28 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
     return out
 
 
+_BESTIARY_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "bestiary.json"
+
+
+def load_bestiary(path: Path | str | None = None) -> dict[str, dict]:
+    """Enemy name -> harvested record (roles, acts, hp, statuses) from data/bestiary.json
+    (scripts/build_bestiary.py). Empty if absent."""
+    p = Path(path) if path else _BESTIARY_PATH
+    if not p.is_file():
+        return {}
+    return json.loads(p.read_text(encoding="utf-8")).get("enemies", {})
+
+
+def bestiary_enemy(entry: dict, *, dps: int, **overrides: Any) -> FightEnemy:
+    """Build a FightEnemy from a bestiary entry: its max HP seen + the mechanics detected from its
+    status descriptions. dps isn't harvested reliably (intents vary), so the caller passes a
+    per-act estimate; HP and the mechanics are the real, race-relevant parts. `overrides` win."""
+    hp = (entry.get("hp") or [None, None])[1] or 1
+    flags = detect_mechanics(list((entry.get("statuses") or {}).values()))
+    flags.update(overrides)
+    return FightEnemy(hp=int(hp), dps=dps, **flags)
+
+
 def _resolve_cost(cost: str | None, energy: int) -> int:
     s = (cost or "0").strip().upper()
     if s == "X":  # X-cost dumps the turn's energy

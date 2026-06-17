@@ -202,3 +202,23 @@ def test_estimate_thorns_costs_hp_per_attacking_turn() -> None:
     thorny = estimate_fight(70, deck, [FightEnemy(hp=80, dps=0, thorns=10)])
     assert base.win and thorny.win
     assert thorny.exp_end_hp < base.exp_end_hp
+
+
+def test_bestiary_enemy_from_synthetic_entry() -> None:
+    plating = {"name": "Plating", "description": "At the end of your turn, gain 12 Block."}
+    entry = {"hp": [200, 222], "statuses": {"PLATING_POWER": plating}}
+    from sts2bot.policy.capability import bestiary_enemy
+
+    e = bestiary_enemy(entry, dps=20)
+    assert e.hp == 222 and e.self_block == 12 and e.dps == 20  # max HP seen + Plating detected
+
+
+def test_bestiary_enemy_from_real_bosses() -> None:
+    from sts2bot.policy.capability import bestiary_enemy, load_bestiary
+
+    best = load_bestiary()
+    assert {"Lagavulin Matriarch", "Vantom"} <= set(best)  # the harvest is present
+    lag = bestiary_enemy(best["Lagavulin Matriarch"], dps=20)
+    assert lag.hp == 222 and lag.self_block == 12  # real HP + Plating regen
+    vantom = bestiary_enemy(best["Vantom"], dps=28)
+    assert vantom.hp == 173 and vantom.slippery  # real HP + Slippery
