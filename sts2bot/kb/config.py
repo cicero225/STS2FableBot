@@ -21,10 +21,16 @@ class CombatWeights(_Section):
     w_kill: float = 25.0
     w_focus: float = 9.0
     w_overkill: float = -0.3
-    w_block_useful: float = 1.2
+    # Block is valued both directly here AND via the avoided hp_loss below, which double-counts it
+    # and makes the one-turn planner fully block incoming every turn and barely attack — so normal
+    # fights drag 15+ rounds and chip-bleed it out (live: a Beetle+Wurm pack took 64->7 HP). Trim
+    # the direct reward, and flatten the always-on HP-loss penalty so a HEALTHY bot trades a little
+    # damage to end fights faster (the steep `slope` still makes it block hard when low). Stopgap
+    # until real multi-turn fight planning (§5-C) — keep modest.
+    w_block_useful: float = 0.8
     w_block_excess: float = -0.15
     w_hp_loss: float = -2.0
-    hp_scarcity_base: float = 0.5
+    hp_scarcity_base: float = 0.3
     hp_scarcity_slope: float = 2.0
     w_vulnerable: float = 6.0
     w_weak: float = 5.0
