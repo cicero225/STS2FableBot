@@ -189,6 +189,26 @@ cohort export (`data/spirebird/cohort_stats.json` — 57-field per-card entries;
 `all / a10 / midA10 / strongA10 / a10Sub50 / a10Sub75`; per-cohort sections
 `summary / cards / relics / events`).
 
+### 8.0 Current priority (2026-06-16, from the standard-batch evidence)
+The wall is **deck power**, manifesting as a chain: weak decks deal ~5 dmg/round → normal fights
+drag 15+ rounds → cumulative chip-bleed → arrive at the Act-1 boss at 38–69/80 HP → lose (0/5; 2/5
+reach Act 2 after §8.1d). Every item below breaks a link in that chain. Order:
+1. **Routing / whole-route path-EV (§8.2)** — *next.* Hits two links: the bleed (arrive at the boss
+   healthy) AND the elite/relic deficit (the bot under-takes elites vs intermediate humans → starves
+   itself of relics → weak deck). Step (a): build combat-stats (net HP-loss per fight type, early-act
+   vs late) from the ~20 logged runs; (b) a map scorer that keeps survivable paths + lightly chases
+   elite→rest patterns.
+2. **Removal aggressiveness** — decks still carry 5–9 basics; thinning speeds every fight. Tractable.
+3. **Combat aggression stopgap** — ✅ 2026-06-16 (anti-turtle weights: block double-count trimmed,
+   healthy HP-loss penalty flattened). A placeholder for §5-C; batch-tuned, not principled.
+4. **Per-enemy special-cases (§8.3)** — Vantom Slippery, Test Subject Adaptable, …; each unlocks a boss.
+5. **Multi-turn fight planning / capability estimate (§5-C)** — the *real* combat answer (race-vs-turtle,
+   minion targeting, rest all flow from it). Biggest lift; deferred but "not forever" (owner).
+6. **Synergy/archetype drafting (§8.1a)** — deepest deck-power lever; data-gap-blocked (co-occurrence).
+- *Done this session:* §8.1d take-vs-skip scaling (✅ 2/5→Act 2); 6 combat/potion fixes (summoner,
+  value potions, discard, Illusion, enchant-hang, value-rank discard). *Non-bug:* max-HP valuation.
+- *Quick fruit (opportunistic):* Vambrace first-block, Stampede timing, Dominate-early, potion value-allocation.
+
 ### 8.1 Card drafting beyond single-card Elo
 Current: card rewards scored by one pooled Elo prior ([data/priors_cards.json](data/priors_cards.json)),
 discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
