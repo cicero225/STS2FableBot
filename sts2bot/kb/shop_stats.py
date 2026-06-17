@@ -41,6 +41,12 @@ class ShopStats:
         r = self.relics.get((relic_id or "").upper())
         return r.get("war_per_100g") if r else None
 
+    def relic_war(self, relic_id: str | None) -> float | None:
+        """Raw value (WAR) of owning this relic — for ranking FREE choices (Ancient / elite /
+        treasure relics) where price doesn't apply. None if unknown."""
+        r = self.relics.get((relic_id or "").upper())
+        return r.get("war") if r else None
+
     def card_value(self, card_id: str | None) -> float | None:
         c = self.cards.get((card_id or "").upper())
         return c.get("war_per_100g") if c else None

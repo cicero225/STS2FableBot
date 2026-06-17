@@ -1257,6 +1257,24 @@ def test_weak_starter_deck_takes_card_a_polished_deck_skips() -> None:
     assert skipped == {"action": "skip_card_reward"}
 
 
+def test_relic_select_takes_highest_value_not_first() -> None:
+    """Ancient/elite/treasure relic choices were effectively random (TrivialRouter took relics[0]).
+    Rank by Spirebird raw WAR and take the best: Bag of Preparation (WAR ~890) over Membership Card
+    (~665), even though Membership Card is offered first."""
+    state = parse_state({
+        "state_type": "relic_select",
+        "relic_select": {"relics": [
+            {"id": "MEMBERSHIP_CARD", "name": "Membership Card", "index": 0},
+            {"id": "BAG_OF_PREPARATION", "name": "Bag of Preparation", "index": 1}],
+            "can_skip": False},
+        "run": {"act": 1, "floor": 9, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80},
+    })
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload() == {"action": "select_relic", "index": 1}  # higher WAR, not first
+
+
 def test_priors_loaded_and_shaped() -> None:
     from sts2bot.kb.priors import CardPriors
 

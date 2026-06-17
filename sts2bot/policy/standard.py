@@ -21,6 +21,7 @@ from sts2bot.client.models import (
     HandSelectState,
     MapState,
     Potion,
+    RelicSelectState,
     RestSiteState,
     RewardsState,
     ShopState,
@@ -969,6 +970,24 @@ class StandardRouter:
         if isinstance(decision, Decision) and decision.action.payload().get("action") == "proceed":
             ctx.screen_mem.pop("discarded_for_reward", None)
         return decision
+
+    def _relic_select(self, state: RelicSelectState, ctx: LoopContext) -> Decision | Wait:
+        """Ancient / elite / treasure relic choice: take the highest-value relic by Spirebird raw
+        WAR, not the first offered (the trivial fallback took relics[0] -> effectively random).
+        Unknown relics get a neutral 0 (taken over a known-bad, not over a known-good relic)."""
+        rs = state.relic_select
+        if rs.relics:
+            def war(relic) -> float:
+                v = self.shop_stats.relic_war(relic.id) if self.shop_stats else None
+                return v if v is not None else 0.0
+            best = max(rs.relics, key=war)
+            return Decision(
+                action=act.SelectRelic(index=best.index or 0),
+                rationale=f"take {best.name} (relic WAR {war(best):.0f})",
+            )
+        if rs.can_skip:
+            return Decision(action=act.SkipRelicSelection(), rationale="no relics; skip")
+        return Wait(reason="relic select with nothing to do")
 
     # Keep-value by category for the full-belt discard: ditch junk (downside / unknown),
     # keep the good stuff (heals, buffs, energy/draw value, damage). Tie-break by slot.
