@@ -365,11 +365,14 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     energy = player.energy or 0
     my_strength = 0
     barricade = False
+    card_cap = None  # "You can only play N cards this turn" (Ringing): spend it on the best play
     for p in player.status:
         if p.id.upper() == "STRENGTH" and p.amount:
             my_strength = p.amount
         if p.id.upper() == "BARRICADE":
             barricade = True
+        if m := re.search(r"only play (\d+) card", p.description or "", re.IGNORECASE):
+            card_cap = int(m.group(1)) if card_cap is None else min(card_cap, int(m.group(1)))
 
     playable = [c for c in (_to_planned(card, energy) for card in hand) if c is not None]
     if not playable:
@@ -392,8 +395,14 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     best_state = start
     best_score = _score(start, weights, hp_pct)
     visited = 0
+    # Ringing & kin cap cards/turn; default = hand size (search stays energy-bound). The cap stops
+    # the planner *starting* a 2-card plan it can't finish (the live miss: blocked, then couldn't
+    # hit); it commits to the single best card by the turn score (a lethal scores huge; a survival-
+    # block dodges the death penalty). The fuller call — block now and hit on the clean turn the
+    # Beast's Ringing/attack cycle guarantees, or read the draw pile — is deferred to §5-C.
+    max_plays = card_cap if card_cap is not None else len(playable)
 
-    def dfs(sim: SimState, remaining: list[PlannedCard]) -> None:
+    def dfs(sim: SimState, remaining: list[PlannedCard], plays_left: int) -> None:
         nonlocal best_state, best_score, visited
         if visited >= weights.max_sequences:
             return
@@ -411,16 +420,18 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
                     score = _score(nxt, weights, hp_pct)
                     if score > best_score:
                         best_score, best_state = score, nxt
-                    dfs(nxt, rest)
+                    if plays_left > 1:
+                        dfs(nxt, rest, plays_left - 1)
             else:
                 visited += 1
                 nxt = _apply_card(sim, card, None)
                 score = _score(nxt, weights, hp_pct)
                 if score > best_score:
                     best_score, best_state = score, nxt
-                dfs(nxt, rest)
+                if plays_left > 1:
+                    dfs(nxt, rest, plays_left - 1)
 
-    dfs(start, playable)
+    dfs(start, playable, max_plays)
 
     if not best_state.played:
         return Decision(action=act.EndTurn(), rationale="no play improves the turn; end turn")

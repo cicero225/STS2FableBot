@@ -415,13 +415,19 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   - *Bot implications*: `lethal = all leaders dead` must know about **Adaptable / revive** (killing
     phase 1 does **not** end the fight); each phase wants different play — a canonical case for the
     per-enemy special-case pass (§8.3), with the seeded-runs harness as its deterministic test bed.
-- **Ringing status (Ceremonial Beast, low-HP phase)** (owner, seen live 2026-06-16) — caps you at
-  playing **ONE card** that turn; the energy-based one-turn planner ignores it and wastes the single
-  play. Live: the Beast at **3 HP**, the bot played an unrelated **Block** card first, so its **lethal
-  Attack was then unplayable** (Ringing consumed) → ended the turn, missed the kill, ate ~10
-  unnecessary damage. Fix: model **Ringing → max 1 card this turn** as a planner cap (generalises to
-  any "cards-per-turn" status the energy model misses); under it, plan the single best card — **prefer
-  the lethal**, else the highest-value play. Per-enemy special-case (§8.3) / planner constraint.
+- **Ringing status (Ceremonial Beast, low-HP phase)** (owner, seen live 2026-06-16; status
+  `RINGING_POWER` "You can only play 1 card this turn.") — caps you at **ONE card** that turn. Live:
+  the Beast low, the bot played an unrelated **Block** first, so its **Attack was then unplayable**
+  (Ringing consumed) → missed the kill, ate ~10 unnecessary damage. **✅ cap done 2026-06-17:**
+  `plan_combat_turn` detects "only play N card" on the player and caps the DFS to N plays, so it never
+  *starts* a 2-card plan it can't finish; it commits to the single best card by the turn score.
+  **Remaining nuance (owner 2026-06-17 — attack-beats-block is NOT universal; deferred to §5-C):**
+  the proper logic is (1) if a one-card **lethal**, play it; (2) if one-card **block is needed to
+  survive**, block; (3) else weigh one-card damage vs block **factoring next turn** — the Beast
+  *alternates* Ringing then attacks while Ringing is up, so a **clean attack turn is guaranteed
+  next**, making "block now, hit then" often best; (3a) full optimality reads the **draw pile**.
+  Steps 1–2 fall out of the turn score today; step 3 is the multi-turn capability layer. Per-enemy
+  special-case (§8.3) / planner constraint.
 - **Undergrowth elites are newer + harder; combat-stats / `_GENERIC_ELITE` lag them** (owner,
   2026-06-16). The **Undergrowth** (Act-1 area, unlocked by the Act-3 wins) adds tough elites like
   **Phantasmal Gardeners** — a notoriously hard one (of all elites to randomly lose to, the most

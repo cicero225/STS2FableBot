@@ -79,3 +79,36 @@ def test_planner_sequences_small_hit_first_into_slippery() -> None:
     vs_none = plan_combat_turn(parse_state(_slippery_fight([])), w)
     assert vs_slip.action.payload()["card_index"] == 1  # Strike first, to waste Slippery
     assert vs_none.action.payload()["card_index"] == 0  # Bludgeon first when it lands in full
+
+
+def test_planner_under_ringing_caps_to_a_single_card() -> None:
+    # Ringing (Ceremonial Beast low-HP) caps you to 1 card/turn. The fix verified here is only the
+    # cap: the planner must not *start* a 2-card plan it can't finish (the live miss -- blocked,
+    # then couldn't hit). WHICH single card is best (attack vs block, factoring the clean turn that
+    # follows) is the deferred §5-C nuance, so we don't assert it.
+    import re
+
+    w = load_policy_config().combat
+
+    def card(i, cid, name, typ, cost, desc, tt="AnyEnemy"):
+        return {"index": i, "id": cid, "name": name, "type": typ, "cost": str(cost),
+                "description": desc, "can_play": True, "target_type": tt}
+
+    ring = {"id": "RINGING_POWER", "name": "Ringing",
+            "description": "You can only play 1 card this turn."}
+    hand = [card(0, "DEFEND_IRONCLAD", "Defend", "Skill", 1, "Gain 5 Block.", tt="None"),
+            card(1, "BLUDGEON", "Bludgeon", "Attack", 3, "Deal 32 damage.")]
+    beast = {"entity_id": "b0", "name": "Ceremonial Beast", "hp": 50, "max_hp": 200, "block": 0,
+             "status": [], "intents": [{"type": "attack", "label": "6"}]}
+
+    def plan(player_status):
+        battle = {"round": 1, "turn": "player", "is_play_phase": True, "enemies": [beast]}
+        state = {"state_type": "monster", "run": {"act": 1, "floor": 17, "ascension": 0},
+                 "player": {"character": "The Ironclad", "hp": 40, "max_hp": 80, "block": 0,
+                            "energy": 4, "status": player_status, "hand": hand},
+                 "battle": battle}
+        rationale = plan_combat_turn(parse_state(state), w).rationale
+        return re.search(r"plan \[(.*?)\]", rationale).group(1)
+
+    assert ">" not in plan([ring])  # Ringing: a single card, never a 2-card plan
+    assert ">" in plan([])  # uncapped: the planner sequences two cards
