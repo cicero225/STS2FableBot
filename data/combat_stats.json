@@ -1,20 +1,25 @@
 {
- "source": "47 run logs",
+ "source": "90 run logs",
  "fight_hp_loss": {
+  "monster_early": {
+   "mean": 3.9,
+   "p75": 5,
+   "n": 137
+  },
   "monster": {
-   "mean": 10.7,
-   "p75": 16,
-   "n": 248
+   "mean": 11.9,
+   "p75": 18,
+   "n": 429
   },
   "elite": {
-   "mean": 30.2,
-   "p75": 42,
-   "n": 4
+   "mean": 20.8,
+   "p75": 32,
+   "n": 17
   },
   "boss": {
-   "mean": 37.9,
-   "p75": 66,
-   "n": 11
+   "mean": 24.5,
+   "p75": 42,
+   "n": 46
   }
  }
 }
