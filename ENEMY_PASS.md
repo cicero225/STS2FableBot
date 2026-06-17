@@ -66,8 +66,13 @@ universal micro-rules. Per-enemy handlers are for the genuinely specific only.
 - **Phase 1 — Act-1 bosses** (the immediate win; the pool we keep dying to, by death count):
   **Kin** (13), **Vantom** (9 — Slippery), **Ceremonial Beast** (6 — Ringing low-HP), **Soul Fysh**
   (6 — block-bypass card), **Lagavulin Matriarch** (3 — Plating armor), **Kaiser Crab**, **Waterfall
-  Giant**. Document → classify → handle → mock-test each, then **batch** (Act-1-boss survival/win-rate
-  is the metric). Seeded custom runs give deterministic per-boss A/B.
+  Giant**. *Generic throttling done 2026-06-17:* the **combat planner now respects Slippery / damage
+  caps / thorns in-fight** (detect_mechanics on live status text → `_apply_attack`; verified
+  end-to-end: it sequences small-then-big into Slippery, won't burst past a cap) — covering most of
+  the pool's mechanics at once. **Remaining per-boss handlers (B):** Kin (multi-creature leader/
+  follower), Ceremonial Beast (Ringing → one card/turn in its low-HP phase), Soul Fysh (block-bypass
+  status-card). Then **batch** (Act-1-boss survival/win-rate); seeded custom runs give deterministic
+  per-boss A/B.
 - **Phase 2 — Act-2/3 bosses:** Knowledge Demon, The Insatiable, Test Subject #C8 (Adaptable), …
 - **Phase 3 — Elites:** Bygone Effigy (3), Phrog Parasite (2 — spawns ramping Wrigglers), Terror Eel,
   Decimillipede, Phantasmal Gardeners (hard Undergrowth elite), …
