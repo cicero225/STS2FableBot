@@ -436,6 +436,16 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   only path** — a routing/avoidance limit, not a gate miss; (2) `combat_stats` HP-loss and the
   `_GENERIC_ELITE` prior predate the Undergrowth, so they **underrate these elites** — rebuild
   combat-stats once enough Undergrowth runs accumulate, and consider an Undergrowth-aware profile.
+- **Data currency after the v0.107.1 game update** (owner, 2026-06-23 — game auto-updated v0.103.3 →
+  v0.107.1 over the trip, breaking + then rebuilding the mod, see [patches/](patches/)). Our harvested
+  data predates the new build, so refresh when convenient: (a) **re-harvest `bestiary.json` /
+  `card_effects.json`** from a few new-build runs (text-based mechanics like Slippery/Plating should
+  hold; HP/numbers may shift); (b) **Act-3 boss Doormaker → replaced by Aeonglass** with new mechanics
+  — document Aeonglass when ENEMY_PASS Phase 2 (Act-3 bosses) starts; our bestiary never had Doormaker
+  (bot's never reached Act 3); (c) **Spirebird card priors** (`priors_cards.json`) — the live build has
+  now caught up to the recent betas, so a 4-version jump may have rebalanced cards, biasing stale Elos
+  in the drafting score; fold a re-export into the next Spirebird pull (marginal, owner-assisted, not
+  blocking — the capability-aware drafting term partly compensates).
 - **Slithering Strangler — escalating end-of-turn DoT** (owner, 2026-06-16) — applies a debuff that
   deals **X self-damage at end of turn, escalating each turn**. The one-turn planner doesn't model
   incoming end-of-turn self-damage, so it can't price the clock. But **blocking it isn't necessarily
