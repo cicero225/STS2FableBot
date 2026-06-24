@@ -18,11 +18,16 @@ combat state). Three game-API drifts, fixed against the new `sts2.dll`:
    `MerchantRoom.GetLocalInventory()`.
 
 ### Apply after a re-clone
+Clone **our fork** (`cicero225/STS2MCP`), not upstream — upstream lacks the `deck`/`set_time_scale`/
+`set_ascension`/`actions_disabled` commits the bot needs. (Rebuilding from upstream on 2026-06-23
+silently dropped `player.deck`, no-op'ing drafting + the elite gate for a whole batch.)
 ```
-git clone --depth 1 https://github.com/Gennadiyev/STS2MCP external/STS2MCP
+git clone https://github.com/cicero225/STS2MCP external/STS2MCP
 git -C external/STS2MCP apply ../../patches/STS2MCP-newbuild-fix.patch
-dotnet build external/STS2MCP/STS2_MCP.csproj -c Release -p:STS2GameDir="<game dir>"
-# deploy bin/Release/net9.0/STS2_MCP.dll -> "<game dir>/mods/STS2_MCP.dll"
+external/STS2MCP/build.ps1 -GameDir "I:\SteamLibrary\steamapps\common\Slay the Spire 2"
+# deploy: out/STS2_MCP/STS2_MCP.dll -> "<game dir>/mods/STS2_MCP.dll"
+#         mod_manifest.json        -> "<game dir>/mods/STS2_MCP.json"
 ```
-The fix is already built + deployed; this patch is for reproducibility. Consider upstreaming it to
-`Gennadiyev/STS2MCP` (it's not specific to our fork).
+The patch applies cleanly except `McpMod.StateBuilder.cs` (one conflict at `is_play_phase`: keep the
+`PlayerInPlayPhase(...)` fix **and** the fork's `actions_disabled` lines). Consider upstreaming the
+v0.107.1 API fixes to `Gennadiyev/STS2MCP` (they're not fork-specific).

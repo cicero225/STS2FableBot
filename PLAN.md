@@ -222,6 +222,7 @@ same estimate), and `deck_output` refinements (energy relics, X-cost, scaling ca
 | Game patch cadence on release branch | P1+ | informs KB diff automation priority |
 | StS2 ascension cap (10 vs 20) | P2 | owner reports 10 currently; verify in-game |
 | Safe automation of Timeline epoch *reveals* | P2 fork candidate | mod automates timeline advance/back + queued unlock screens, but deliberately refuses to force-reveal "Obtained" epochs ("invalid unlock path"); decompile the reveal flow to see if a safe replication exists, else it stays a rare owner click |
+| **Mod build provenance — build the FORK, not upstream** | infra/done | 2026-06-23: rebuilding the v0.107.1 mod from upstream `Gennadiyev/STS2MCP` silently dropped the fork's `player.deck` (+ `set_time_scale`/`set_ascension`/`actions_disabled`) → capability drafting **and** the elite gate no-op'd for a whole batch (deck = `None`, so the b3b7593yb results don't test §5-C). Fixed: build from `cicero225/STS2MCP` + re-apply `patches/STS2MCP-newbuild-fix.patch`; CLAUDE.md + patches/README corrected. Re-batch to actually exercise drafting/gate. |
 
 ## 8. Backlog: drafting sophistication & strategy (owner notes 2026-06-14)
 
@@ -486,15 +487,31 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   alongside HP-at-boss work. Like the Kin, it's a deck-power + per-enemy-mechanic wall. *✅ Slippery
   now modeled (Phase 1, 2026-06-17): the planner leads with a throwaway hit then lands the big one;
   the deeper race / HP-at-boss work remains.*
-- **Lagavulin Matriarch (Act-1 boss, ~222 HP) — Asleep + Plating** (owner, 2026-06-23; ≥2 deaths in
-  the v0.107.1 batch). **Plating** (+12 Block end of turn, −1/turn) eats chip damage — you must
-  **out-damage ~12 block/turn with big hits**; **Asleep** ("wakes on HP loss or after 3 turns") gifts
-  free setup turns, so **build (powers / draw) during the sleep, then burst** rather than chip-waking
-  it early into its swings. Punishes decks that **can't stack damage early, lack big attacks, or fail
-  to set up / play powers** (owner). Our §5-C estimate models the Plating (`self_block`); the one-turn
-  planner sees only the *current* Plating block (not the regen, nor the multi-turn setup-then-burst),
-  and **Asleep is unmodeled** (not in `detect_mechanics`). Per-enemy handler candidate + a clean
-  deck-power / big-attack drafting reinforcement. *Death-deck analysis pending the 2026-06-23 batch.*
+- **Lagavulin Matriarch (Act-1 boss, 222 HP) — Asleep + Plating + Soul Siphon** (owner 2026-06-23,
+  precise mechanics + online-verified; ≥2 deaths in the deck-blind v0.107.1 batch). Three layers:
+  - **Asleep 3**: −1/turn, wakes at 0 *and acts that turn*; **any unblocked HP loss wakes it early**
+    on its upcoming turn (or the current enemy turn if hit mid-turn, e.g. poison). **Wake removes ALL
+    Plating immediately** — so the wall only exists while asleep.
+  - **Plating** (decaying stack): +12 Block at end of your turn, −1/turn. While asleep it isn't
+    swinging, so chip ≈ wasted into block — but chipping also *wakes it early*.
+  - **Soul Siphon** (move name verified online): post-wake cycle Slash → Disembowel → Block/Attack →
+    Soul Siphon (~every 4th turn). Each cast **permanently −2 Str AND −2 Dex to the player and +2 Str
+    to the boss** — double-ended ramp, you decay while she grows. Makes it a **DPS race**.
+  - **Optimal line** (owner, matches consensus): spend the 3 sleep turns setting up (powers / scaling
+    / draw), *don't* chip it awake, then **burst the turn it wakes** (Plating gone) and kill before
+    Soul Siphon cycles neuter you. Punishes decks that can't stack damage early, lack big attacks, or
+    hold powers.
+  - **Model gaps**: §5-C estimate models Plating (`self_block`) but NOT (a) the Asleep free-setup
+    window, (b) **player-side permanent decay** — our `str_ramp` ramps the *enemy*; Soul Siphon is a
+    *reverse ramp on us* (damage **and** block decay), unmodeled, and (c) wake timing. One-turn planner
+    sees only current Plating block. Per-enemy handler candidate; the −Str/−Dex move isn't in our
+    bestiary yet (logging gap — capture its power text from a post-fix run that survives to it).
+    *Death-deck analysis pending the RE-batch (the 2026-06-23 batch was deck-blind — see §7 row).*
+- **Slumbering Beetle (Act-2 normal, 86 HP) — Slumber + Plating** (owner 2026-06-23; same family,
+  no Soul Siphon). **Slumber 3** decrements on **each HP-loss *or* turn** (3 combined events → wake),
+  so unlike the Matriarch's binary damage-wake, **chipping it actively speeds the wake**; wakes next
+  turn at 0 (current turn if poison) and **sheds all Plating** (15/turn here). Lower stakes (normal),
+  but the wake-accounting differs — worth a shared "sleeper" handler with a per-enemy decrement rule.
 - **Run-2 draft notes** (owner; reference): early-damage picks (Infernal Blade D1; Hemokinesis
   over Shrug It Off) → covered by the early-damage bias. The **Vicious** / Vulnerable-applier and
   *draft-affects-draft* observations fold into the deferred deck-aware drafting below. Pommel
