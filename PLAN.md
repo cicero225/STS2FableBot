@@ -483,7 +483,18 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   wasted; it also ramps Strength and swings 27–29. The one-turn planner doesn't model Slippery, so it
   over-values its damage, can't close the race, and bleeds out (live: entered 38/80, stuck at 12, died).
   Special-case candidate (§8.3): model Slippery (lead with a throwaway hit, then land big single hits)
-  alongside HP-at-boss work. Like the Kin, it's a deck-power + per-enemy-mechanic wall.
+  alongside HP-at-boss work. Like the Kin, it's a deck-power + per-enemy-mechanic wall. *✅ Slippery
+  now modeled (Phase 1, 2026-06-17): the planner leads with a throwaway hit then lands the big one;
+  the deeper race / HP-at-boss work remains.*
+- **Lagavulin Matriarch (Act-1 boss, ~222 HP) — Asleep + Plating** (owner, 2026-06-23; ≥2 deaths in
+  the v0.107.1 batch). **Plating** (+12 Block end of turn, −1/turn) eats chip damage — you must
+  **out-damage ~12 block/turn with big hits**; **Asleep** ("wakes on HP loss or after 3 turns") gifts
+  free setup turns, so **build (powers / draw) during the sleep, then burst** rather than chip-waking
+  it early into its swings. Punishes decks that **can't stack damage early, lack big attacks, or fail
+  to set up / play powers** (owner). Our §5-C estimate models the Plating (`self_block`); the one-turn
+  planner sees only the *current* Plating block (not the regen, nor the multi-turn setup-then-burst),
+  and **Asleep is unmodeled** (not in `detect_mechanics`). Per-enemy handler candidate + a clean
+  deck-power / big-attack drafting reinforcement. *Death-deck analysis pending the 2026-06-23 batch.*
 - **Run-2 draft notes** (owner; reference): early-damage picks (Infernal Blade D1; Hemokinesis
   over Shrug It Off) → covered by the early-damage bias. The **Vicious** / Vulnerable-applier and
   *draft-affects-draft* observations fold into the deferred deck-aware drafting below. Pommel
