@@ -385,6 +385,14 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   eagerly" flag, but it's clearly too weak. Fix: a **study of Ironclad powers** (effect + right
   play-timing — most go down ASAP; a few gate on energy/setup) feeding a stronger power-play
   valuation that front-loads the permanent buff. High viewer-satisfaction + a genuine combat lever.
+- **Energy-gain cards unmodeled (Production) — planner under-plays its turn** (owner lookthrough
+  2026-06-25, Fight 1). The DFS is energy-bound but models energy *cost*, not energy *gain*:
+  **Production** (colorless from Neow — 0 energy, gain 2 energy, Exhaust) reads as a 0-value card
+  (no damage/block, +2 energy unmodeled), so it went unplayed — and without that +2 the bot couldn't
+  fit **Defend×2** (to soak the Toadpole's **thorns**) ahead of the lethal **Strike×3**, so it ate
+  the thorns self-damage unblocked. Optimal: Production → Defend×2 → Strike×3 (lethal *and* thorns
+  blocked). Fix: parse "gain N energy" in `_apply_card` → add to `SimState.energy` so the DFS sees the
+  expanded budget (and play 0-cost energy-positive cards first). Same class as the Fiend-Fire gap.
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
   your hand, deal N per exhausted card" — so it missed a 35-dmg lethal on a 21-HP enemy (and
