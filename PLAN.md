@@ -263,6 +263,14 @@ is the *binding* constraint; HP/routing is necessary-but-not-sufficient.** Weigh
 - *Quick fruit (opportunistic):* Vambrace first-block, Stampede timing, Dominate-early, potion value-allocation.
 
 ### 8.1 Card drafting beyond single-card Elo
+
+- **Draft calibration: Spirebird Elo over-values long-game scaling for the bot's *short* games** (owner
+  lookthrough 2026-06-25). The bot drafted **Drum of Battle** (draw 2; exhaust → +2 energy) on a
+  starter-heavy deck with no energy-gen / fish target and only one random-Exhaust (unupgraded True Grit).
+  Spirebird rates it high because draw-2 compounds *if the game runs long* — but the bot's runs end at
+  the Act-1 boss, so the payoff never lands. Plausible **plateau driver**: the Elo prior pulls toward
+  late-game scaling while the §5-C capability term (immediate boss-closing power) is outweighed. Test in
+  the deck-power diagnostic; consider tilting capability-vs-Elo by run depth (favor immediate power early).
 Current: card rewards scored by one pooled Elo prior ([data/priors_cards.json](data/priors_cards.json)),
 discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
 
@@ -676,6 +684,13 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   gets a tunable nudge (Hemokinesis over Shrug It Off); priors still do the heavy lifting.
 - **Transform event: transform a Strike, not a curse** (events not yet policy-driven;
   noted for the eventual event work — transforming a curse is far worse value).
+- **Slippery Bridge event** (owner lookthrough 2026-06-25; unmodeled, deferred). Picks a **random**
+  deck card and offers to remove it, threatening 3 HP loss to decline; declining costs the HP, then it
+  picks a *different* random card (preferring not-yet-offered) at +1 HP (4, 5, …) — escalating until you
+  accept or die. The bot always accepts the first offer (fine for now). Ideal: know the deck and **fish
+  for basic/curse removals** — accept the first "good" one, willingness rising as HP drops — gated on how
+  much HP the rest of the Act will cost. Complicated; per-event handling. *(Ironic this run: it removed
+  the Drum of Battle just drafted.)*
 - **Byrdonis Egg event** (owner, 2026-06-16, seen live): Choose-1 — (a) gain Max HP, or (b) gain a
   **Byrdonis Egg**, a pseudo-curse (unplayable card). The egg can later be *removed* (pointless — you
   could have just taken the Max HP) or, uniquely, **hatched at a rest site** (a 3rd campfire option)
