@@ -48,6 +48,10 @@ from sts2bot.policy.trivial import TrivialRouter
 _EV_MAXHP_GAIN = re.compile(r"Gain (\d+) Max(?:imum)? HP", re.IGNORECASE)
 _EV_GOLD_GAIN = re.compile(r"Gain (\d+) Gold", re.IGNORECASE)
 _EV_GOLD_LOSS = re.compile(r"Lose (\d+) Gold", re.IGNORECASE)
+# Relic grants the mod leaves with relic_name unset: text reads "Obtain the <Relic>"
+# (e.g. The Chosen Cheese). Curse-guarded below; "card" is NOT excluded (relics like
+# "Membership Card" contain the word).
+_EV_OBTAIN_RELIC = re.compile(r"\bobtain (?:the|a|an) ", re.IGNORECASE)
 
 # §5-C elite gate: a typical elite per act (hp, dps, Strength ramp) the deck must be able to *win*
 # (not just survive) before the map scorer chases it for its relic. A conservative prior: the batch
@@ -622,8 +626,8 @@ class StandardRouter:
             val += 5.0
         if "remove" in low:
             val += 5.0
-        if option.relic_name:
-            val += 6.0
+        if option.relic_name or (_EV_OBTAIN_RELIC.search(text) and "curse" not in low):
+            val += 6.0  # mod often omits relic_name; "Obtain the <Relic>" text catches it
         if m := _EV_GOLD_GAIN.search(text):
             val += int(m.group(1)) * 0.03
         if "add " in low and "curse" not in low:

@@ -1058,6 +1058,20 @@ def test_event_heuristic_when_unrated_takes_heal_upgrade() -> None:
     assert idx == 0  # Consume (heal + upgrade), not Proceed
 
 
+def test_event_recognizes_obtain_relic_when_relic_name_unset() -> None:
+    """Owner live QA (bxtd5uum8): on The Chosen Cheese the mod leaves relic_name unset, so the bot
+    scored 'Obtain the Chosen Cheese' as pure -14 HP and took the bland 'add 2 commons'. The
+    heuristic must read 'Obtain the <Relic>' as a relic gain (curse-guarded so 'Obtain a Curse'
+    is unaffected)."""
+    state = _ev_state("THE_CHOSEN_CHEESE", [
+        _ev_opt(0, "Gorge", "Choose 2 of 8 random Common cards to add to your Deck."),
+        _ev_opt(1, "Devour", "Lose 14 HP. Obtain the Chosen Cheese."),
+        _ev_opt(2, "Proceed", "", is_proceed=True),
+    ])
+    idx = router().decide(state, LoopContext()).action.payload()["index"]
+    assert idx == 1  # the relic (6.0 - 4.2 = 1.8) beats the bland card-add (1.0)
+
+
 def test_event_refuses_hp_cost_that_drops_too_low() -> None:
     """Owner edge case: a choice can be great on average yet suicidal now. Refuse a high-value
     option whose HP cost would drop us below the danger floor, and take the safe gain instead."""
