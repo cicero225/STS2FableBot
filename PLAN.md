@@ -587,6 +587,15 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   the current batches: the bot eats this value when the egg event fires. *Live-confirmed (bxtd5uum8,
   2026-06-24): a run took the egg and then passed **3 rest sites without hatching** — it rode along as
   a dead unplayable curse, exactly the strictly-worse outcome. Still backlog (owner: "leave it").*
+- **Pael's Tooth (Ancient relic) — an upgrade engine, not a removal** (owner 2026-06-25, seen live).
+  On pickup: *remove 5 cards from your Deck; after each combat randomly add 1 back **Upgraded***. So
+  the 5 "removed" cards return permanently upgraded (1/combat) — optimally pick the **5 highest-impact
+  cards to upgrade**, not the worst, at the cost of a thinner deck for ~5 early-Act-2 combats (real
+  risk). First approximation (owner): high-roll the 5 best and hope. But the screen is just "Choose 5
+  cards to Remove", so the bot can't tell it from a normal removal → treats it as one and picks the 5
+  **worst** (backwards). The relic is in `player.relics`, so the handler could detect Pael's Tooth on
+  a remove screen and flip prefer-worst→best. Backlog (ancient relics as a class; owner: note for now).
+  *(NB: this screen also surfaced the card-select hang regression — now fixed, commit 47e661d.)*
 
 ### 8.5 The special-casing scrub — owner priority (2026-06-16)
 Watching the live runs convinced the owner we will need an **exhaustive scrub of all Ironclad cards,
