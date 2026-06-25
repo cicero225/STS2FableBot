@@ -291,6 +291,15 @@ is the *binding* constraint; HP/routing is necessary-but-not-sufficient.** Weigh
   setup-heavy* — so the real axis is **tempo/efficiency per energy in a short fight**, not block-vs-
   damage. **Lever:** the draft term should reward tempo-efficient burst + Vulnerable enablers and
   downweight slow scaling/engine/big-block cards *early* (mirror onto the §5-C capability tilt above).
+- **✅ REGRESSION-vs-VARIANCE — no regression; "stuck at Act 1" is recency/variance** (index dig
+  2026-06-25). Across Ironclad configs, the **current** config `a45509a7b572` (n=91 — by far the
+  largest sample) is the **best**-performing: 76% reach the Act-1 boss, 22% beat it, 4% reach Act 3.
+  Older configs (n=5 each) were no better (40–60% reach, 0–20% beat). By **mod build**, the newer
+  corrected build **v0.107.1 reaches the Act-1 boss 85%** vs old v0.103.3's 60% — the 2026-06-23
+  fork/deck fix *helped*. **Wins remain 0 on every config.** So the owner's "used to reach Act 2-3,
+  now stuck Act 1" is consistent with the current ~22% Act-2 / 4% Act-3 base rate seen against a
+  memorable earlier good streak — variance, not a capability regression. The real, stable barrier is
+  the 0-win plateau + the tempo gap above, not a lost capability.
 Current: card rewards scored by one pooled Elo prior ([data/priors_cards.json](data/priors_cards.json)),
 discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
 
