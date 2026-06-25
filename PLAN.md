@@ -420,6 +420,12 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   (no big block/heal intent). Needs multi-turn reasoning the one-turn planner lacks: (1) draw-pile
   lookahead for next-turn damage (expert humans track this constantly), (2) the enemy's next intent
   (block/heal that punishes waiting). §5-C / multi-turn-forward-model territory, not a simple fix.
+- **Pen Nib (relic) unmodeled — missed lethal** (owner lookthrough 2026-06-25). Pen Nib: **every 10th
+  attack deals double damage** (it carries a counter). With a Vulnerable front minion the bot had lethal
+  via the doubled 10th attack, but the planner (blind to Pen Nib) under-counted it → attacked once then
+  blocked with True Grit, missing the kill + eating the front minion's damage. Fix: read the Pen Nib
+  counter from player relics; in the DFS, double the attack that lands as the 10th. Per-relic combat
+  modeling, same class as Strength / scaling-card effects.
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
   your hand, deal N per exhausted card" — so it missed a 35-dmg lethal on a 21-HP enemy (and
