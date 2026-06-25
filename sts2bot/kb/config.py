@@ -38,7 +38,9 @@ class CombatWeights(_Section):
     w_draw: float = 3.0
     w_energy_waste: float = -0.5
     w_play_friction: float = -0.35
-    w_power_played: float = 8.0  # play Power cards (permanent buffs); esp. free ones (Pyre)
+    w_power_played: float = 8.0  # per-turn value of a banked Power; scaled by remaining-turns
+    w_power_horizon_cap: float = 6.0  # cap on the remaining-turns multiplier for power value
+    power_self_damage_hp_safe: float = 0.5  # HP% above which self-damage powers may front-load
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     w_ramp_damage: float = 1.5  # extra value for damaging strength-gaining enemies (race them)
     max_sequences: int = 4000

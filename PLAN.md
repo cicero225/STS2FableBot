@@ -445,12 +445,36 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
 
 - **Powers under-played — the one-turn planner defers permanent buffs** (owner 2026-06-25; viewer-
   jarring + real upside). The planner scores end states by *this turn's* damage/block/lethal, so a
-  **Power** (0 immediate damage/block) is under-valued and held "for trivial reasons" — e.g.
-  **Juggernaut** (deal 6/8 dmg per Block gained, 2e) is drafted often but sits unplayed early when it
-  should go down ASAP (its value compounds every later turn). `PlannedCard` has an `is_power` "play
-  eagerly" flag, but it's clearly too weak. Fix: a **study of Ironclad powers** (effect + right
-  play-timing — most go down ASAP; a few gate on energy/setup) feeding a stronger power-play
-  valuation that front-loads the permanent buff. High viewer-satisfaction + a genuine combat lever.
+  **Power** (0 immediate damage/block) gets only the flat `w_power_played = 8.0` (per-turn powers like
+  Demon Form even have their immediate effects zeroed, combat.py:124), which routinely loses to spending
+  the same energy on an attack — so it's deferred until "spare" energy that rarely comes early. The
+  compounding payoff (Juggernaut's 6 dmg per *future* Block; Demon Form's +Str *every* turn) is invisible
+  to a one-turn horizon. **Scoped plan (owner-agreed 2026-06-25):**
+  - **Tier 1 (build now):** horizon-aware power value = per-turn benefit × **remaining fight turns**, so
+    early powers dominate and late ones don't. Remaining turns from a *local* `enemy_total_HP /
+    base_per-turn-damage` estimate (owner: the cheaper turn-number proxy would just need re-fixing — do
+    the HP/damage one). Tier 1 reuses `w_power_played` as the generic per-turn value; calibrate the
+    multiplier against a live batch, don't guess.
+  - **Tier 2:** per-power knowledge table (effect + ASAP-vs-gated timing) with a per-power **defer/gated
+    flag** the generic can't express. The category is non-empty across characters (owner: **Neurosurge**
+    for Necrobinder), so build the hook even though Ironclad is mostly ASAP.
+  - **Owner's timing rules (Ironclad):** assuming a power was drafted where it has value (Feel No Pain
+    into a real exhaust deck), almost everything goes down **ASAP**; defer only when *forced*. Forced
+    cases mostly fall out of existing terms — **incoming damage** (survival via `hp_loss`/`w_kill`),
+    **Demon Form 3e** unplayable in short fights (energy term). The one genuinely new guard: **self-
+    damage powers (Inferno, Crimson Mantle)** are strong but must **not** be front-loaded at low HP —
+    their per-turn HP cost hits at *next*-turn upkeep, which the one-turn tally misses (ties to the
+    Inferno death-tally note below). **Corruption** (rare-event power) needs deferring in some long
+    fights — a Tier-2 corner case. `PlannedCard.is_power` exists but is too weak as a flat flag.
+    *Validation:* re-run a batch; expect turns-to-first-power-play ↓, Act-1-boss win ↑, and the
+    diagnostic's power-card loss-correlation to shrink (de-confounds the deferred §8.1 tempo tilt).
+  - **✅ Tier 1 SHIPPED** (config `379cb9c6744b`): `_score` now multiplies `w_power_played` by
+    `power_horizon = min(cap 6, enemy_HP / this-turn base damage)` (powers excluded from the base read,
+    no circularity), so a Power goes down ASAP early and is ignored when near-lethal. Self-damage
+    powers (Inferno) front-load only above `power_self_damage_hp_safe = 0.5` HP, else fall back to the
+    flat value; also zeroed per-turn powers' "lose N HP" *this* turn (a next-turn upkeep cost the
+    parser misread as immediate). Knobs in `config/policy.toml`. **Pending:** validate + tune the cap
+    against a live batch (the calibration step — the multiplier could over/undershoot).
 - **Energy-gain cards unmodeled (Production) — planner under-plays its turn** (owner lookthrough
   2026-06-25, Fight 1). The DFS is energy-bound but models energy *cost*, not energy *gain*:
   **Production** (colorless from Neow — 0 energy, gain 2 energy, Exhaust) reads as a 0-value card

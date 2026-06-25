@@ -41,6 +41,7 @@ class PlannedCard:
     targets_enemy: bool
     is_attack: bool = False
     is_power: bool = False  # Power card: playing it banks a permanent buff (play eagerly)
+    self_damage_power: bool = False  # per-turn self-HP power (Inferno): no front-load at low HP
     primal_force: bool = False  # Primal Force: transforms later Attacks into 16-dmg Giant Rocks
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
@@ -88,6 +89,7 @@ class SimState:
     rage_block_active: int = 0  # Rage in play: each later Attack grants this much Block
     rage_block_granted: int = 0  # total Block Rage has granted to attacks (sequencing nudge)
     powers_played: int = 0  # Power cards played this turn (banked permanent buffs)
+    self_damage_powers_played: int = 0  # of those, per-turn self-HP-cost powers (Inferno)
     ramp_damage: int = 0  # damage dealt to strength-gaining enemies (rewarded: race them)
     primal_active: bool = False  # Primal Force played: later Attacks are 16-dmg Giant Rocks
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
@@ -118,12 +120,19 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
     if "exhaust" in desc.lower() and (m := _HAND_EXHAUST_DMG.search(desc)):
         hand_exhaust_scale = int(m.group(1))
     is_power = card.type == "Power"
+    low = desc.lower()
     # Per-turn powers (Pyre "+1 Energy at the start of each turn", Demon Form "+Str at the
     # start of turn") don't fire the turn you play them; the text parser reads their numbers
     # as immediate, over-valuing them and mis-planning this turn's energy. Bank via w_power.
-    if is_power and any(s in desc.lower() for s in ("start of", "each turn", "every turn")):
-        fx.block = fx.energy_gain = fx.strength = 0
-    primal_force = "transform all attacks" in desc.lower()
+    per_turn_power = is_power and any(s in low for s in ("start of", "each turn", "every turn"))
+    if per_turn_power:
+        # also zero self_hp_cost: a per-turn power's "lose N HP" is a *next*-turn upkeep drain, not
+        # damage you take the turn you play it (the parser reads it as immediate).
+        fx.block = fx.energy_gain = fx.strength = fx.self_hp_cost = 0
+    # Self-damage powers (Inferno, Crimson Mantle) drain HP at upkeep — strong, but front-loading
+    # them at low HP is fatal (the drain lands next turn, which the one-turn tally can't see).
+    self_damage_power = per_turn_power and "lose" in low and "hp" in low
+    primal_force = "transform all attacks" in low
     return PlannedCard(
         index=card.index,
         name=card.name,
@@ -132,6 +141,7 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
         targets_enemy=(card.target_type == "AnyEnemy"),
         is_attack=(card.type == "Attack"),
         is_power=is_power,
+        self_damage_power=self_damage_power,
         primal_force=primal_force,
         rage_block=rage_block,
         hand_exhaust_scale=hand_exhaust_scale,
@@ -273,6 +283,9 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         rage_block_active=max(state.rage_block_active, card.rage_block),
         rage_block_granted=state.rage_block_granted + rage_bonus,
         powers_played=state.powers_played + (1 if card.is_power else 0),
+        self_damage_powers_played=(
+            state.self_damage_powers_played + (1 if card.self_damage_power else 0)
+        ),
         primal_active=state.primal_active or card.primal_force,
         played=(*state.played, (card.index, target_id)),
     )
@@ -316,7 +329,9 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     )
 
 
-def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
+def _score(
+    state: SimState, w: CombatWeights, hp_pct: float = 1.0, power_horizon: float = 1.0
+) -> float:
     incoming = sum(e.incoming for e in state.enemies if e.hp > 0)
     if state.barricade:
         blocked = state.my_block  # persistent block is all future-useful
@@ -335,6 +350,15 @@ def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
         for e in state.enemies
         if not _ignorable_minion(e, state.has_summoner)
     )
+    # Powers compound over the rest of the fight, so value them by per-turn buff × turns left
+    # (power_horizon) — that front-loads them instead of deferring to "spare" energy that never
+    # comes. Self-damage powers (Inferno) are the exception: only front-load them while healthy;
+    # at low HP their upkeep drain makes eager play dangerous, so fall back to the flat value.
+    safe_powers = state.powers_played - state.self_damage_powers_played
+    sd_horizon = power_horizon if hp_pct >= w.power_self_damage_hp_safe else 1.0
+    power_term = w.w_power_played * (
+        safe_powers * power_horizon + state.self_damage_powers_played * sd_horizon
+    )
     return (
         w.w_focus * focus
         + w.w_damage * state.damage_dealt
@@ -349,7 +373,7 @@ def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
         + w.w_draw * state.draws
         + w.w_energy_waste * max(0, state.energy)
         + w.w_play_friction * len(state.played)
-        + w.w_power_played * state.powers_played
+        + power_term
         + w.w_rage_sequence * state.rage_block_granted
         + w.w_ramp_damage * state.ramp_damage
     )
@@ -406,8 +430,24 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")
 
     hp_pct = player.hp / max(1, player.max_hp)
+    # Power horizon: estimate turns left in the fight from enemy HP over a quick greedy read of
+    # this turn's attack damage (powers excluded -> no circularity), capped. A power's worth scales
+    # with it, so it goes down ASAP early and not bothered late. No attacks in hand -> assume long
+    # fight (cap), i.e. the turn you can't attack is exactly when you should bank a power.
+    enemy_total_hp = sum(e.hp for e in enemy_sims if e.hp > 0)
+    budget, base_dmg = energy, 0
+    for c in sorted(
+        (c for c in playable if c.is_attack and c.fx.damage),
+        key=lambda c: c.fx.damage * max(1, c.fx.hits),
+        reverse=True,
+    ):
+        if c.cost <= budget:
+            base_dmg += c.fx.damage * max(1, c.fx.hits)
+            budget -= c.cost
+    remaining_turns = enemy_total_hp / base_dmg if base_dmg else weights.w_power_horizon_cap
+    power_horizon = min(weights.w_power_horizon_cap, max(1.0, remaining_turns))
     best_state = start
-    best_score = _score(start, weights, hp_pct)
+    best_score = _score(start, weights, hp_pct, power_horizon)
     visited = 0
     # Ringing & kin cap cards/turn; default = hand size (search stays energy-bound). The cap stops
     # the planner *starting* a 2-card plan it can't finish (the live miss: blocked, then couldn't
@@ -431,7 +471,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
                 for ti in target_idx[:3]:
                     visited += 1
                     nxt = _apply_card(sim, card, ti)
-                    score = _score(nxt, weights, hp_pct)
+                    score = _score(nxt, weights, hp_pct, power_horizon)
                     if score > best_score:
                         best_score, best_state = score, nxt
                     if plays_left > 1:
@@ -439,7 +479,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
             else:
                 visited += 1
                 nxt = _apply_card(sim, card, None)
-                score = _score(nxt, weights, hp_pct)
+                score = _score(nxt, weights, hp_pct, power_horizon)
                 if score > best_score:
                     best_score, best_state = score, nxt
                 if plays_left > 1:

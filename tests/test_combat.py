@@ -149,6 +149,45 @@ def test_planner_treats_unplayed_toxic_as_blockable() -> None:
     assert d.scores["hp_loss"] == 0.0  # 3 incoming + 5 Toxic, both blockable, soaked by 8 block
 
 
+def _power_state(enemy_hp: int, hp: int, power_desc: str) -> dict:
+    def card(i, cid, name, cost, desc, typ, tgt):
+        return {"index": i, "id": cid, "name": name, "type": typ, "cost": str(cost),
+                "description": desc, "can_play": True, "target_type": tgt}
+    return {"state_type": "monster", "run": {"act": 1, "floor": 5, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80, "block": 0,
+                       "energy": 1, "status": [],
+                       "hand": [card(0, "POW", "Power", 1, power_desc, "Power", "None"),
+                                card(1, "BIGSTRIKE", "Heavy Strike", 1, "Deal 12 damage.",
+                                     "Attack", "AnyEnemy")]},
+            "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Slug", "hp": enemy_hp,
+                                    "max_hp": enemy_hp, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "5"}]}]}}
+
+
+def test_planner_front_loads_a_power_when_the_fight_is_long() -> None:
+    # Horizon: vs a high-HP enemy (many turns left) a per-turn Power is worth its buff x remaining
+    # turns, so it goes down ASAP -- here over a same-cost Heavy Strike (owner: Juggernaut should
+    # not sit early). A near-dead enemy (1 turn left) flips it: just kill, don't bank a buff.
+    w = load_policy_config().combat
+    metallicize = "At the start of your turn, gain 3 Block."
+    long_fight = plan_combat_turn(parse_state(_power_state(100, 80, metallicize)), w)
+    short_fight = plan_combat_turn(parse_state(_power_state(10, 80, metallicize)), w)
+    assert long_fight.action.payload()["card_index"] == 0   # Power front-loaded in the long fight
+    assert short_fight.action.payload()["card_index"] == 1  # near-lethal: Heavy Strike, not Power
+
+
+def test_planner_does_not_front_load_a_self_damage_power_at_low_hp() -> None:
+    # Self-damage powers (Inferno) front-load only while healthy; at low HP their upkeep drain
+    # makes eager play dangerous, so the horizon bonus drops to flat and a real Strike wins.
+    w = load_policy_config().combat
+    inferno = "At the start of your turn, lose 2 HP. Gain 4 Block."
+    healthy = plan_combat_turn(parse_state(_power_state(100, 80, inferno)), w)  # 100% HP
+    hurt = plan_combat_turn(parse_state(_power_state(100, 16, inferno)), w)     # 20% HP, below cut
+    assert healthy.action.payload()["card_index"] == 0  # front-loaded while healthy
+    assert hurt.action.payload()["card_index"] == 1     # not front-loaded when hurt -> Strike wins
+
+
 def test_planner_under_ringing_caps_to_a_single_card() -> None:
     # Ringing (Ceremonial Beast low-HP) caps you to 1 card/turn. The fix verified here is only the
     # cap: the planner must not *start* a 2-card plan it can't finish (the live miss -- blocked,
