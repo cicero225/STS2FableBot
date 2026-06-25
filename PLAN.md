@@ -377,6 +377,14 @@ implemented + tested. Potion deferrals: full-belt proactive
 *deploy* is reward-screen logic (only discard exists); the finisher fires on board-clear
 or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
 
+- **Powers under-played — the one-turn planner defers permanent buffs** (owner 2026-06-25; viewer-
+  jarring + real upside). The planner scores end states by *this turn's* damage/block/lethal, so a
+  **Power** (0 immediate damage/block) is under-valued and held "for trivial reasons" — e.g.
+  **Juggernaut** (deal 6/8 dmg per Block gained, 2e) is drafted often but sits unplayed early when it
+  should go down ASAP (its value compounds every later turn). `PlannedCard` has an `is_power` "play
+  eagerly" flag, but it's clearly too weak. Fix: a **study of Ironclad powers** (effect + right
+  play-timing — most go down ASAP; a few gate on energy/setup) feeding a stronger power-play
+  valuation that front-loads the permanent buff. High viewer-satisfaction + a genuine combat lever.
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
   your hand, deal N per exhausted card" — so it missed a 35-dmg lethal on a 21-HP enemy (and
