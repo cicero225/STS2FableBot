@@ -40,6 +40,12 @@ def load_card_descriptions(path: Path | str | None = None) -> dict[str, str]:
 # deck that *can* apply it is credited an uptime-averaged multiplier rather than the full 1.5.
 _VULN_DAMAGE_MULT = 1.3
 
+# The Insatiable's Sandpit timer is *extendable*: it shuffles in 6 Frantic Escape cards, each of
+# which raises the counter (at escalating cost). The one-turn planner plays them opportunistically
+# (0-value cards go late in a sequence), so the real race window is ~6-8 turns, not the base ~4 —
+# pad the parsed deadline by this much. (Optimal Frantic-Escape timing is a later refinement.)
+_SANDPIT_SLACK = 3
+
 
 @dataclass(frozen=True)
 class DeckOutput:
@@ -75,6 +81,7 @@ class FightEnemy:
     death_damage: int = 0  # self-damage it deals me when I kill it (Steam Eruption)
     stun_threshold: int = 0  # HP at/below which it's Stunned once, skipping a turn (Plow, Shriek)
     thorns: int = 0  # damage it deals me each turn I attack it (Thorns)
+    death_timer: int = 0  # Sandpit (The Insatiable): I die at this turn unless I've won — race it
 
 
 @dataclass(frozen=True)
@@ -106,6 +113,9 @@ def estimate_fight(
     death_damage = sum(e.death_damage for e in leaders)  # self-damage on the kill
     stun_at = max((e.stun_threshold for e in leaders), default=0)  # crossing it skips a turn
     thorns = sum(e.thorns for e in leaders)
+    death_timer = min((e.death_timer for e in leaders if e.death_timer), default=0)  # race-or-die
+    if death_timer:
+        death_timer += _SANDPIT_SLACK  # extendable via Frantic Escape -> the real window is longer
     base_dps = sum(e.dps for e in enemies)
     n_attackers = sum(1 for e in enemies if e.dps > 0)
     hp = float(my_hp)
@@ -113,6 +123,8 @@ def estimate_fight(
     my_str = 0.0  # my accumulated Strength (deck's Str-granters); plateaus at deck.str_cap
     stunned_used = False
     for turn in range(1, max_turns + 1):
+        if death_timer and turn > death_timer:  # Sandpit fired before I could close — I'm eaten
+            return FightOutcome(False, round(hp), death_timer, round(kill_hp))
         # --- my turn: chip the leaders, throttled ---
         out = deck.burst_dmg if turn == 1 else deck.sustained_dmg
         # in-fight scaling: accumulated Strength adds to every hit, Vulnerable amplifies the lot
@@ -156,6 +168,7 @@ _DEATH_RE = re.compile(r"when killed, deals (\d+) damage", re.I)  # Steam Erupti
 _STUN_RE = re.compile(r"HP reaches (\d+) or below", re.I)
 _THORNS_RE = re.compile(r"hit by an attack, deal (\d+) damage back", re.I)  # Thorns
 _RAMP_RE = re.compile(r"end of (?:its|each|your)?\s*turn,?\s*gain[s]? (\d+) Strength", re.I)
+_TIMER_RE = re.compile(r"in (\d+) turns?[^.]*?\bdie\b", re.I)  # Sandpit: "In N turns ... you die"
 
 
 def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
@@ -163,12 +176,16 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
     kwargs. Unknown text contributes nothing (so a new status fails safe to 'generic enemy')."""
     cap: int | None = None
     block = death = stun = thorns = ramp = 0
+    timer = 0  # soonest "you will die in N turns" deadline (Sandpit)
     slippery = False
     for s in statuses:
         d = s.get("description") or ""
         if m := (_CAP_RE.search(d) or _CAP_RE2.search(d)):
             v = int(m.group(1))
             cap = v if cap is None else min(cap, v)
+        if m := _TIMER_RE.search(d):
+            t = int(m.group(1))
+            timer = t if not timer else min(timer, t)
         if m := _BLOCK_RE.search(d):
             block += int(m.group(1))
         if m := _DEATH_RE.search(d):
@@ -196,6 +213,8 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
         out["str_ramp"] = ramp
     if slippery:
         out["slippery"] = True
+    if timer:
+        out["death_timer"] = timer
     return out
 
 

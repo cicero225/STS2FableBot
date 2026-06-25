@@ -519,12 +519,34 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   so unlike the Matriarch's binary damage-wake, **chipping it actively speeds the wake**; wakes next
   turn at 0 (current turn if poison) and **sheds all Plating** (15/turn here). Lower stakes (normal),
   but the wake-accounting differs — worth a shared "sleeper" handler with a per-enemy decrement rule.
-- **The Insatiable (Act-2 boss) — Sandpit countdown** (captured + handler confirmed, bxtd5uum8 R2
-  2026-06-24). Unique mechanic **Sandpit**: *"In 2 turns, you will be eaten and die"* — a hard
-  countdown insta-kill, so it's a **race**: kill it (or reset the timer) before it fires. Heavy hitter
-  (28 / 30 / 10×2, ramps Strength). The bot **won** here by stacking **Vulnerable (6 turns)** and racing
-  it to death (→19 then dead) before Sandpit triggered — the long-dormant handler earning a 4-HP win,
-  so the per-enemy approach is sound. (Re-confirm the timer-reset condition when next seen.)
+- **The Insatiable (Act-2 boss, 321 HP) — Sandpit = a SOFT, extendable race** (owner 2026-06-25 +
+  online-verified; now modeled). **Sandpit** is a ~4-turn countdown to an insta-kill — *but* the
+  Insatiable shuffles in **6 Frantic Escape** cards; playing one **raises the counter** (+1 cost to
+  that copy each time, so escalating), and **exhausting one loses a turn off the clock**. So the real
+  race window is **~6-8 turns**, not a hard 4. The one-turn planner already plays Frantic Escape
+  opportunistically (0-value cards go *late* in a sequence — owner: "already modeled"), so the bot
+  does extend the timer. **§5-C now models it**: `detect_mechanics` parses the Sandpit deadline →
+  `FightEnemy.death_timer`; `estimate_fight` pads it (`+_SANDPIT_SLACK` → ~7) and calls the fight a
+  loss if not closed in that window → drafting now values burst for this matchup. Heavy hitter, ramps
+  Strength. Won once (bxtd5uum8 R2, Vulnerable + race, 4 HP) / lost once (bx5u0h4ec R4, boss@80).
+  **Refinement** (later): play Frantic Escape *strategically* — reserve for low Sandpit, mind the
+  escalating cost + exhaust risk — rather than opportunistically.
+- **Knowledge Demon (Act-2 boss, 379 HP) — Curse-of-Knowledge choice + a race** (owner 2026-06-25 +
+  online-verified). Fixed 4-move cycle: **Curse of Knowledge** → **Slap** (17, 18 hi-asc) → **Knowledge
+  Overwhelming** (8×3, 9×3) → **Ponder** (11 dmg + **heal 30** + **+2 Str**; 13/+3 hi-asc). After the
+  3rd Curse of Knowledge it's skipped (the other three repeat).
+  - **Curse of Knowledge** is a do-nothing turn that forces a **1-of-2 permanent-debuff choice**:
+    R1 **Disintegration 6** (take 6 dmg end of each turn, *blockable*) | Mind Rot (−1 card drawn/turn);
+    R2 **Disintegration 7** (stacks) | Sloth (≤3 cards/turn); R3 **Disintegration 8** | Waste Away
+    (−1 energy/turn).
+  - **Strategy (owner, first approximation): pick Disintegration every round** — the alternatives
+    need expertise; refine later. So the fight is a **race**: by R3 you're eating 6+7+8 = 21 blockable
+    self-damage/turn while it heals 30 + ramps Str on Ponder. Speed (and block) matter.
+  - **Bot gaps** (handler candidate, ENEMY_PASS Act-2): (a) the **Curse-of-Knowledge choice screen** —
+    needs a handler that picks Disintegration; *verify its screen type when next seen* (card-select vs
+    event-like vs custom — determines where the handler lives); (b) the §5-C estimate models none of
+    the escalating Disintegration self-damage, the Ponder heal, or the Str ramp → it under-rates the
+    fight; (c) high HP + self-heal ⇒ needs a genuine race deck.
 - **Aeonglass (Act-3 boss — replaced Doormaker in v0.107.1) — FIRST CAPTURE** (bxtd5uum8 R4,
   2026-06-24; our bestiary/card data predates it). High-HP wall (seen at 375). Mechanics: **Withering
   Presence** — *every 6 cards you play, add a Wither to your Hand* (punishes cheap/wide card-spam,

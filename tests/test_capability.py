@@ -207,6 +207,20 @@ def test_estimate_hard_cap_makes_a_winnable_fight_unwinnable() -> None:
     assert not estimate_fight(70, deck, [FightEnemy(hp=80, dps=14, dmg_cap_per_turn=8)]).win
 
 
+def test_estimate_sandpit_timer_loses_a_slow_race() -> None:
+    # The Insatiable's Sandpit (race-or-die). detect_mechanics parses the deadline; the estimate
+    # pads it (+_SANDPIT_SLACK) for the Frantic Escapes the planner extends with. A slow deck that
+    # out-races the HP-loss but can't *close* inside the window gets eaten; a burst deck survives.
+    assert detect_mechanics([{"description": "In 4 turns, you will be eaten and die."}]) == {
+        "death_timer": 4}
+    insat = FightEnemy(hp=321, dps=14, death_timer=4)
+    slow = DeckOutput(burst_dmg=22, sustained_dmg=18, biggest_hit=12, block_per_turn=20)
+    assert estimate_fight(80, slow, [FightEnemy(hp=321, dps=14)]).win  # no timer -> grinds it out
+    assert not estimate_fight(80, slow, [insat]).win  # but the Sandpit eats it first
+    fast = DeckOutput(burst_dmg=60, sustained_dmg=55, biggest_hit=30, block_per_turn=20)
+    assert estimate_fight(80, fast, [insat]).win  # closes inside the (padded) window
+
+
 def test_estimate_regenerating_block_slows_the_race() -> None:
     deck = DeckOutput(burst_dmg=40, sustained_dmg=30, biggest_hit=15, block_per_turn=5)
     assert estimate_fight(70, deck, [FightEnemy(hp=80, dps=14)]).win
