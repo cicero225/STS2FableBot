@@ -531,6 +531,25 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   rewards a lean high-impact deck); **Artifact** — negates your first debuff (strip it before Vulnerable
   /Weak lands); **Strength +7** behind 26 / 33 / 18×2 hits. The bot barely dented it before dying f48.
   New per-enemy handler candidate; re-harvest its full intent cycle + exact HP from a deeper run.
+- **Kaiser Crab (Act-2 boss) — a DUAL boss with a facing / Back-Attack mechanic** (owner 2026-06-25,
+  detailed). Captured raw as **two crabs**: **Crusher** (209 HP, Back Attack *Left*) + **Rocket**
+  (199 HP, Back Attack *Right*); you start **facing Rocket**. Two intertwined mechanics, neither
+  modeled:
+  - **Back Attack = facing.** The crab you are **not facing** deals **+50%**. *Clicking* an enemy
+    (attack / potion / any targeted action) **turns you to face it**, so the *other* crab now carries
+    the +50%; the faced one doesn't. **Multi-target attacks (hit both) do NOT rotate** facing;
+    **end-of-turn auto-plays (Stampede etc.) rotate it arbitrarily.** Rule: **end the turn facing
+    whichever crab throws the bigger hit next**, so it lacks the bonus.
+  - **Crab Rage.** When one crab dies, the other gains **+6 Strength + 99 Block** (one turn).
+  - **Strategy (owner — corrects the naive "kill them together"):** killing one is generally a
+    **boon** — you then face the survivor *permanently* (no more back-attack risk), and its one-turn
+    +6 Str / 99 Block is a manageable cost. NOT an even-kill puzzle.
+  - **Bot gaps** (handler candidate, ENEMY_PASS Act-2; no facing model at all): (a) *targeting order
+    matters* — the last enemy you click is who you face at turn-end, so the planner must end facing
+    the bigger threat; (b) the non-faced crab's incoming is +50%, so the §5-C estimate (flat 2-leader
+    race) under-counts incoming and ignores both facing and the kill-one-buffs-the-other dynamic;
+    (c) **draft trap** — end-of-turn auto-play cards (Stampede) can rotate facing badly; devalue them
+    in Act 2 when Kaiser Crab is on the table.
 - **Run-2 draft notes** (owner; reference): early-damage picks (Infernal Blade D1; Hemokinesis
   over Shrug It Off) → covered by the early-damage bias. The **Vicious** / Vulnerable-applier and
   *draft-affects-draft* observations fold into the deferred deck-aware drafting below. Pommel
