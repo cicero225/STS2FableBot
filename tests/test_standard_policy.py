@@ -1957,6 +1957,26 @@ def test_card_select_no_confirm_screen_reselects_not_awaits() -> None:
         assert d.action.payload()["action"] == "select_card"
 
 
+def test_card_select_forced_multiremove_picks_distinct() -> None:
+    """Regression from the Headbutt fix (Pael's Tooth, live): 'Choose 5 cards to Remove' is forced
+    (no cancel) with can_confirm False until 5 are picked. It must NOT be treated as resolve-on-
+    select (which re-clicked the first Strike forever) -- needed>1 routes it to pick-N-distinct."""
+    cards = [_sc_card(i, "Strike") for i in range(5)] + [
+        _sc_card(5, "Bash"), _sc_card(6, "Defend", "Skill"),
+    ]
+    state = _card_select_state(
+        "select", "Choose 5 cards to Remove.", cards, can_confirm=False, can_cancel=False
+    )
+    r = router()
+    ctx = LoopContext()
+    picked = []
+    for _ in range(5):
+        d = r.decide(state, ctx)
+        assert isinstance(d, Decision) and d.action.payload()["action"] == "select_card"
+        picked.append(d.action.payload()["index"])
+    assert len(set(picked)) == 5  # 5 DISTINCT cards, not the same index five times
+
+
 def _shop_with_removal(price, gold=400, deck=None, full_belt=True):
     payload = json.loads(json.dumps(FIXTURES["shop"]))
     payload["player"]["gold"] = gold
