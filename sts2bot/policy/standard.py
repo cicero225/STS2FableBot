@@ -857,8 +857,15 @@ class StandardRouter:
         mem: dict = ctx.screen_mem.setdefault(mem_key, {"picked": [], "tries": 0})
         picked: list[int] = mem["picked"]
 
-        # "choose"-type screens resolve immediately on select_card (no confirm step).
-        if (cs.screen_type or "") == "choose":
+        # Screens that resolve on select_card alone: the "choose" type, and any with no
+        # confirm/cancel/skip (e.g. Headbutt's NCombatPileCardSelectScreen — "put a card on top of
+        # your Draw Pile"). No confirm step, so (re)select until it closes instead of stranding in
+        # await-confirm. The live hang: the first select hit a not-yet-settled overlay and no-op'd,
+        # the bot logged it as picked, then waited forever for a confirm that can't come.
+        resolves_on_select = (cs.screen_type or "") == "choose" or not (
+            cs.can_confirm or cs.can_cancel or cs.can_skip
+        )
+        if resolves_on_select:
             target = self._pick_target(cs, prefer_worst, character)
             if mem["tries"] < self._CHOOSE_RETRIES and target is not None:
                 mem["tries"] += 1

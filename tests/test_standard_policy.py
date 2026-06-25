@@ -1939,6 +1939,24 @@ def test_choose_screen_skips_when_stuck() -> None:
     assert final.action.payload()["action"] == "cancel_selection"
 
 
+def test_card_select_no_confirm_screen_reselects_not_awaits() -> None:
+    """Live hang (Headbutt): NCombatPileCardSelectScreen ('put a card on top of your Draw Pile')
+    has no confirm/cancel/skip -- it resolves on select alone. The bot selected once, the select
+    no-op'd on a not-yet-settled overlay, then it waited 60 ticks for a confirm that can't come
+    (C5). The handler must keep (re)selecting on such screens, not strand in await-confirm."""
+    cards = [_sc_card(0, "Strike"), _sc_card(1, "Defend", "Skill"), _sc_card(2, "Bash")]
+    state = _card_select_state(
+        "NCombatPileCardSelectScreen", "Choose a card to put on top of your Draw Pile.",
+        cards, can_confirm=False, can_cancel=False,
+    )
+    r = router()
+    ctx = LoopContext()
+    for _ in range(2):  # screen stays open -> must RE-select each poll (old code Waited here)
+        d = r.decide(state, ctx)
+        assert isinstance(d, Decision), f"stranded in a Wait instead of re-selecting: {d}"
+        assert d.action.payload()["action"] == "select_card"
+
+
 def _shop_with_removal(price, gold=400, deck=None, full_belt=True):
     payload = json.loads(json.dumps(FIXTURES["shop"]))
     payload["player"]["gold"] = gold
