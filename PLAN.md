@@ -590,6 +590,13 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
     **Fruit Juice** (+5 max HP) on sight.
   - *Downside* (**Foul** — 12 to everyone incl. self; **Glowwater** — exhaust hand draw 10):
     avoid; only via full-belt deploy or hail-mary.
+  - **⚠ Survival hail-mary — the highest-value potion case** (owner, live 2026-06-25): bb2r3v7os R5
+    died to Soul Fysh holding a combat-usable potion, no defensive use (one would have covered the
+    lethal ~6). The post-plan hook's *first* question must be *"does the planned turn leave me dead —
+    and can any potion (Block, Blood, even Glowwater → draw into a block) save me?"*. This is a
+    **universal** survival fix — it would also save Act-1-boss deaths (the current wall), where the
+    bot can't yet reach the Act-2 bosses the per-enemy work targets — so it ranks **above** the rest
+    of the taxonomy and above further per-enemy handlers.
   - Full belt + incoming potion reward → deploy a low-value potion, esp. vs boss/elite.
 - **Scaling powers — play early, not "safe"** (owner; Demon Form is the prototype). A class of
   powers with big long-term payoff that hurt to play *this* turn (Demon Form "at start of turn
