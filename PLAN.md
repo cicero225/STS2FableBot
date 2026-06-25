@@ -457,6 +457,16 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   **playing the card discards it but costs 1 energy** to clear. The planner neither prices the
   unblockable damage it inflicts nor knows that spending the energy to play the junk card removes it.
   Per-enemy handling (§8.3) + a status the §5-C estimate should count as unavoidable chip.
+  *✅ Partial (2ac2d90): combat `hp_loss` now counts unplayed Beckon as unblockable HP so the hail-mary
+  fires; still TODO — make the planner* value *spending the energy to play it.*
+- **Death-tally completeness — self-HP-loss powers (Inferno) the lethal projection misses** (owner
+  2026-06-25, theoretical). `hp_loss` now counts thorns + self-HP-cost cards + unplayed Beckon, but
+  NOT start-of-turn self-damage **powers**: **Inferno** (lose 1 HP/turn — ×copies — at turn start
+  while dealing 6 AoE; the bot drafts it often and does well with it) sets up a *next*-turn-start
+  drain this turn's tally can't see, so at ~1 HP with Inferno up the bot could read "survive" then die
+  on upkeep. The Knowledge Demon's Disintegration (−6/7/8/turn) is the enemy-applied cousin. Marginal
+  (never seen live), but for completeness the projection should add active "lose N HP at start of
+  turn" powers.
 - **Knowledge Demon (Act-2 boss)** — complex mechanics, **not yet documented** (the f33 run was too
   injured to matter, but the owner notes it would have "put up a better show" understanding its
   options). Document its powers/intents when next seen; per-enemy special-case (§8.3).
