@@ -526,6 +526,12 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   Per-enemy handling (§8.3) + a status the §5-C estimate should count as unavoidable chip.
   *✅ Partial (2ac2d90): combat `hp_loss` now counts unplayed Beckon as unblockable HP so the hail-mary
   fires; still TODO — make the planner* value *spending the energy to play it.*
+  *✅ Extended (owner lookthrough 2026-06-25): generalized the end-of-turn-in-hand tally to a second
+  flavor — **Toxic** ("take N damage" if held), which the owner flagged was being missed. Modeled*
+  **differently** *per the owner's correction: Beckon "lose N HP" is unblockable (straight to hp_loss);
+  Toxic "take N damage" is **blockable** (joins the incoming pool so leftover block soaks it). Keyword-
+  gated on "in your hand" + "end of" so card word-order/phrasing don't matter. Same energy-to-clear TODO
+  (with Luminesce's +2 energy unplayed, the bot couldn't clear two Toxics to save 10 — the energy-gap).*
 - **Death-tally completeness — self-HP-loss powers (Inferno) the lethal projection misses** (owner
   2026-06-25, theoretical). `hp_loss` now counts thorns + self-HP-cost cards + unplayed Beckon, but
   NOT start-of-turn self-damage **powers**: **Inferno** (lose 1 HP/turn — ×copies — at turn start

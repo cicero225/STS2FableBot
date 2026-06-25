@@ -122,6 +122,33 @@ def test_planner_counts_unplayed_beckon_in_hp_loss() -> None:
     assert d.scores["hp_loss"] == 11.0  # 5 incoming + 6 unblockable Beckon, not just 5
 
 
+def test_planner_treats_unplayed_toxic_as_blockable() -> None:
+    # Toxic ("if in hand at end of turn, take 5 dmg") is BLOCKABLE -- unlike Beckon's unblockable
+    # "lose N HP", leftover block soaks it (owner correction). Planner plays Defend (8 block) vs 3
+    # incoming + 5 Toxic; block covers both, so hp_loss is 0 (mismodeled as unblockable it'd be 5).
+    w = load_policy_config().combat
+
+    def card(i, cid, name, cost, desc, typ, tgt, can_play=True):
+        return {"index": i, "id": cid, "name": name, "type": typ, "cost": str(cost),
+                "description": desc, "can_play": can_play, "target_type": tgt}
+
+    state = {"state_type": "monster", "run": {"act": 1, "floor": 5, "ascension": 0},
+             "player": {"character": "The Ironclad", "hp": 40, "max_hp": 80, "block": 0,
+                        "energy": 1, "status": [],
+                        "hand": [card(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 8 Block.",
+                                      "Skill", "None"),
+                                 card(1, "TOXIC", "Toxic", 0,
+                                      "If this is in your hand at end of turn, take 5 damage.",
+                                      "Status", "None", can_play=False)]},
+             "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                        "enemies": [{"entity_id": "s0", "name": "Spawn", "hp": 100,
+                                     "max_hp": 100, "block": 0, "status": [],
+                                     "intents": [{"type": "attack", "label": "3"}]}]}}
+    d = plan_combat_turn(parse_state(state), w)
+    assert d.action.payload()["card_index"] == 0  # Defend played, Toxic left in hand
+    assert d.scores["hp_loss"] == 0.0  # 3 incoming + 5 Toxic, both blockable, soaked by 8 block
+
+
 def test_planner_under_ringing_caps_to_a_single_card() -> None:
     # Ringing (Ceremonial Beast low-HP) caps you to 1 card/turn. The fix verified here is only the
     # cap: the planner must not *start* a 2-card plan it can't finish (the live miss -- blocked,

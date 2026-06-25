@@ -355,9 +355,12 @@ def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
     )
 
 
-# Block-bypassing status cards (Soul Fysh's Beckon): "at the end of your turn, if this is in your
-# Hand, lose N HP" — unblockable HP damage the incoming/block tally would otherwise miss.
-_HAND_END_LOSS_RE = re.compile(r"end of your turn.*?in your hand.*?lose (\d+) hp", re.I)
+# Status cards that bite if left in hand at end of turn — the incoming/block tally misses them. Two
+# flavors, modeled DIFFERENTLY: Beckon "lose N HP" is unblockable (straight to HP); Toxic "take N
+# damage" is blockable (leftover block soaks it). The caller keyword-gates on "in your hand" + "end
+# of" (order/phrasing vary across cards), then these pull the number for the right pool.
+_HAND_HP_LOSS_RE = re.compile(r"lose (\d+) hp", re.I)       # Beckon-type: unblockable
+_HAND_TAKE_DMG_RE = re.compile(r"take (\d+) damage", re.I)  # Toxic-type: blockable
 
 
 def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | Wait:
@@ -465,16 +468,26 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     # callers tell "survivable with our own cards" from "actually facing death" so they
     # don't panic-drink a potion the planned block already covers.
     proj_incoming = sum(e.incoming for e in best_state.enemies if e.hp > 0)
-    hp_loss = max(0, proj_incoming - best_state.my_block) + best_state.self_damage
-    # Block-bypassing status cards left in hand hit HP at end of turn (Soul Fysh's Beckon: "at the
-    # end of your turn, if this is in your Hand, lose 6 HP") — unblockable, and the incoming/block
-    # tally misses it. Count the *unplayed* ones so hp_loss (and the hail-mary that reads it) is
-    # honest. Skipped on a lethal turn (the fight ends before end-of-turn resolves).
+    # Status cards stranded in hand hit you at end of turn; the incoming/block tally misses them.
+    # Beckon "lose N HP" is unblockable (added straight to hp_loss); Toxic "take N damage" is
+    # blockable (joins the incoming pool so leftover block soaks it). Count the *unplayed* ones so
+    # hp_loss (and the hail-mary reading it) is honest. Skip on a lethal turn (fight ends first).
+    extra_unblockable = 0
+    extra_blockable = 0
     if not lethal:
         played_idx = {idx for idx, _ in best_state.played}
         for c in hand:
-            if c.index not in played_idx and (m := _HAND_END_LOSS_RE.search(c.description or "")):
-                hp_loss += int(m.group(1))
+            if c.index in played_idx:
+                continue
+            low = (c.description or "").lower()
+            if "in your hand" not in low or "end of" not in low:
+                continue
+            if m := _HAND_HP_LOSS_RE.search(low):
+                extra_unblockable += int(m.group(1))
+            elif m := _HAND_TAKE_DMG_RE.search(low):
+                extra_blockable += int(m.group(1))
+    hp_loss = (max(0, proj_incoming + extra_blockable - best_state.my_block)
+               + best_state.self_damage + extra_unblockable)
     return Decision(
         action=act.PlayCard(card_index=chosen.index, target=target),
         rationale=f"plan [{' > '.join(plan_names)}] score {best_score:.1f}"
