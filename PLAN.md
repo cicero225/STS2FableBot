@@ -271,6 +271,11 @@ is the *binding* constraint; HP/routing is necessary-but-not-sufficient.** Weigh
   the Act-1 boss, so the payoff never lands. Plausible **plateau driver**: the Elo prior pulls toward
   late-game scaling while the §5-C capability term (immediate boss-closing power) is outweighed. Test in
   the deck-power diagnostic; consider tilting capability-vs-Elo by run depth (favor immediate power early).
+- **Context-dependent card value the Elo prior may miss: Expect a Fight** (owner lookthrough 2026-06-25).
+  Expect a Fight (2e, gain energy per Attack in hand, no further energy this turn) is **deck-dependent**:
+  weak here (deck already has Luminesce + Bloodletting for energy, and few attacks → likely nets +1 or
+  less), strong only with heavy draw / many attacks. The §5-C capability term *should* downrate it (the
+  deck can't convert the energy), but the Elo prior may over-rate it — same theme as the note above.
 Current: card rewards scored by one pooled Elo prior ([data/priors_cards.json](data/priors_cards.json)),
 discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
 
