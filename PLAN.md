@@ -222,7 +222,7 @@ same estimate), and `deck_output` refinements (energy relics, X-cost, scaling ca
 | Game patch cadence on release branch | P1+ | informs KB diff automation priority |
 | StS2 ascension cap (10 vs 20) | P2 | owner reports 10 currently; verify in-game |
 | Safe automation of Timeline epoch *reveals* | P2 fork candidate | mod automates timeline advance/back + queued unlock screens, but deliberately refuses to force-reveal "Obtained" epochs ("invalid unlock path"); decompile the reveal flow to see if a safe replication exists, else it stays a rare owner click |
-| **Mod build provenance — build the FORK, not upstream** | infra/done | 2026-06-23: rebuilding the v0.107.1 mod from upstream `Gennadiyev/STS2MCP` silently dropped the fork's `player.deck` (+ `set_time_scale`/`set_ascension`/`actions_disabled`) → capability drafting **and** the elite gate no-op'd for a whole batch (deck = `None`, so the b3b7593yb results don't test §5-C). Fixed: build from `cicero225/STS2MCP` + re-apply `patches/STS2MCP-newbuild-fix.patch`; CLAUDE.md + patches/README corrected. Re-batch to actually exercise drafting/gate. |
+| **Mod build provenance — build the FORK, not upstream** | infra/done | 2026-06-23: rebuilding the v0.107.1 mod from upstream `Gennadiyev/STS2MCP` silently dropped the fork's `player.deck` (+ `set_time_scale`/`set_ascension`/`actions_disabled`) → capability drafting **and** the elite gate no-op'd for a whole batch (deck = `None`, so the b3b7593yb results don't test §5-C). Fixed: build from `cicero225/STS2MCP` + re-apply `patches/STS2MCP-newbuild-fix.patch`; CLAUDE.md + patches/README corrected. **Re-batch bxtd5uum8 (2026-06-24) confirmed the fix: act-reach 1.0→1.8 (max 3 — two Act-3 runs, one reaching the Aeonglass boss), relics 4.0→7.0, elites 0.2→0.6; still 0/5 wins but the wall moved from Act-1 boss to Act 2/3.** |
 
 ## 8. Backlog: drafting sophistication & strategy (owner notes 2026-06-14)
 
@@ -506,12 +506,31 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
     *reverse ramp on us* (damage **and** block decay), unmodeled, and (c) wake timing. One-turn planner
     sees only current Plating block. Per-enemy handler candidate; the −Str/−Dex move isn't in our
     bestiary yet (logging gap — capture its power text from a post-fix run that survives to it).
-    *Death-deck analysis pending the RE-batch (the 2026-06-23 batch was deck-blind — see §7 row).*
+    *Hypothesis validated (re-batch bxtd5uum8, 2026-06-24): 0 Matriarch deaths (was 2/5); the one
+    Matriarch fight was a **win** — lean 17-card deck, Strength ramped 3→8 by R4 + Bash Vulnerable →
+    boss 198→22 in **6 rounds** (biggest effective hit 40 off a raw biggest_hit of 15), dead before
+    Soul Siphon stacked. Vs the deck-blind losses that stalled the boss at 95–143 over 10 rounds while
+    decaying to −4/−4. Stack-early + big-effective-hits = win; can't-stack = loss, exactly as owner
+    called. **§5-C estimate gap exposed:** it predicted this winning deck would LOSE (win=False,
+    boss_hp_left=200) — it models neither in-fight Strength ramp (Vajra) nor Vulnerable amplification,
+    so it's pessimistic about ramp/Vuln decks (drafting-valuation bug; backlog).*
 - **Slumbering Beetle (Act-2 normal, 86 HP) — Slumber + Plating** (owner 2026-06-23; same family,
   no Soul Siphon). **Slumber 3** decrements on **each HP-loss *or* turn** (3 combined events → wake),
   so unlike the Matriarch's binary damage-wake, **chipping it actively speeds the wake**; wakes next
   turn at 0 (current turn if poison) and **sheds all Plating** (15/turn here). Lower stakes (normal),
   but the wake-accounting differs — worth a shared "sleeper" handler with a per-enemy decrement rule.
+- **The Insatiable (Act-2 boss) — Sandpit countdown** (captured + handler confirmed, bxtd5uum8 R2
+  2026-06-24). Unique mechanic **Sandpit**: *"In 2 turns, you will be eaten and die"* — a hard
+  countdown insta-kill, so it's a **race**: kill it (or reset the timer) before it fires. Heavy hitter
+  (28 / 30 / 10×2, ramps Strength). The bot **won** here by stacking **Vulnerable (6 turns)** and racing
+  it to death (→19 then dead) before Sandpit triggered — the long-dormant handler earning a 4-HP win,
+  so the per-enemy approach is sound. (Re-confirm the timer-reset condition when next seen.)
+- **Aeonglass (Act-3 boss — replaced Doormaker in v0.107.1) — FIRST CAPTURE** (bxtd5uum8 R4,
+  2026-06-24; our bestiary/card data predates it). High-HP wall (seen at 375). Mechanics: **Withering
+  Presence** — *every 6 cards you play, add a Wither to your Hand* (punishes cheap/wide card-spam,
+  rewards a lean high-impact deck); **Artifact** — negates your first debuff (strip it before Vulnerable
+  /Weak lands); **Strength +7** behind 26 / 33 / 18×2 hits. The bot barely dented it before dying f48.
+  New per-enemy handler candidate; re-harvest its full intent cycle + exact HP from a deeper run.
 - **Run-2 draft notes** (owner; reference): early-damage picks (Infernal Blade D1; Hemokinesis
   over Shrug It Off) → covered by the early-damage bias. The **Vicious** / Vulnerable-applier and
   *draft-affects-draft* observations fold into the deferred deck-aware drafting below. Pommel
@@ -565,7 +584,9 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   HP so the forgone heal is cheap; else take the Max HP. Then at the campfire, hatch when holding the
   egg and near-full. The "arrive near max HP at the next rest" check can reuse the §8.2 map
   HP-projection (it already walks the route projecting HP). Precision play; deferred. Minor caveat for
-  the current batches: the bot eats this value when the egg event fires.
+  the current batches: the bot eats this value when the egg event fires. *Live-confirmed (bxtd5uum8,
+  2026-06-24): a run took the egg and then passed **3 rest sites without hatching** — it rode along as
+  a dead unplayable curse, exactly the strictly-worse outcome. Still backlog (owner: "leave it").*
 
 ### 8.5 The special-casing scrub — owner priority (2026-06-16)
 Watching the live runs convinced the owner we will need an **exhaustive scrub of all Ironclad cards,
