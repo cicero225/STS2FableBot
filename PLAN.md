@@ -420,6 +420,12 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   (no big block/heal intent). Needs multi-turn reasoning the one-turn planner lacks: (1) draw-pile
   lookahead for next-turn damage (expert humans track this constantly), (2) the enemy's next intent
   (block/heal that punishes waiting). §5-C / multi-turn-forward-model territory, not a simple fix.
+- **Inferno overkill — its guaranteed next-turn AoE is the *easy* block-and-wait case** (owner
+  lookthrough 2026-06-25; theoretical, didn't bite here). With **Inferno** up (6/8 AoE at the start of
+  your turn), if that AoE will kill the enemy *next* turn and you already have block to survive this
+  turn, don't spend resources finishing it now — Inferno does it free. Unlike the case above, the
+  next-turn damage is *guaranteed* (no draw-pile lookahead), so it's the easier sub-case — still gated
+  on the enemy not escaping (block/heal/summon). Same multi-turn-lethal model.
 - **Pen Nib (relic) unmodeled — missed lethal** (owner lookthrough 2026-06-25). Pen Nib: **every 10th
   attack deals double damage** (it carries a counter). With a Vulnerable front minion the bot had lethal
   via the doubled 10th attack, but the planner (blind to Pen Nib) under-counted it → attacked once then
