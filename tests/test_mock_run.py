@@ -137,6 +137,22 @@ def test_fight_end_pause_ignores_in_combat_card_select() -> None:
     assert pauses == 1  # only at `rewards`, never at the mid-fight `card_select`
 
 
+def test_observe_pause_fires_once_per_screen_entry() -> None:
+    """Observation mode pauses once per *entry* into draft/shop/event screens, not every poll, and
+    re-pauses on a fresh entry (owner request 2026-06-25: shop + Ancient-event pauses)."""
+    observe = AgentLoop._observe_pause
+    paused = None
+    labels = []
+    # draft (2 polls) -> map -> shop (2 polls) -> Ancient event -> back to combat -> event again
+    sequence = ["card_reward", "card_reward", "map", "shop", "shop", "event", "monster", "event"]
+    for state_type in sequence:
+        label, paused = observe(state_type, paused)
+        if label:
+            labels.append(label)
+    # one pause each: first draft poll, first shop poll, first event, and the re-entered event
+    assert labels == ["at card draft", "at shop", "at event", "at event"]
+
+
 def test_record_session_observes_and_logs(tmp_path: Path) -> None:
     """The `record` command logs a state trace per run for human-vs-bot comparison, and never
     acts. A human advances the game, so the fake advances on each poll (not on act)."""

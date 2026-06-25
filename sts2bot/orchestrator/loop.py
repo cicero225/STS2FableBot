@@ -38,6 +38,11 @@ _COMBAT_STATES = ("monster", "elite", "boss", "hand_select")
 # but is an in-fight modal, so it must never count as a fight end.
 _POST_FIGHT_STATES = ("rewards", "card_reward")
 
+# Observation mode pauses once per entry into each of these decision screens so the owner can audit
+# the choice on-screen before the bot commits (the fight-end pause only covers the rewards screen).
+# Ancient rooms surface as `event` (owner request 2026-06-25, alongside the shop pause).
+_OBSERVE_PAUSE_LABELS = {"card_reward": "at card draft", "shop": "at shop", "event": "at event"}
+
 
 class GameClient(Protocol):
     """What the loop needs from a client (real Sts2Client or a test fake)."""
@@ -134,7 +139,7 @@ class AgentLoop:
         last_wait_reason: str | None = None
         manual_announced = False
         fight_in_progress = False
-        paused_at_draft = False  # observation mode: one pause per card-draft screen
+        paused_screen: str | None = None  # observation mode: screen we've already paused on
         if cfg.pause_after_fight and cfg.resume_signal_path:
             Path(cfg.resume_signal_path).unlink(missing_ok=True)  # clear stale
         self._assert_time_scale()
@@ -199,14 +204,11 @@ class AgentLoop:
                 )
                 if cfg.pause_after_fight and should_pause:
                     self._pause_for_resume(outcome.floor)
-                # Observation mode: also pause at the card-draft screen (the fight-end pause only
-                # fires on the rewards screen, so the draft otherwise flies by) -- owner audits it.
-                if state.state_type == "card_reward":
-                    if cfg.pause_after_fight and not paused_at_draft:
-                        paused_at_draft = True
-                        self._pause_for_resume(outcome.floor, label="at card draft")
-                else:
-                    paused_at_draft = False
+                # Observation mode: also pause once per entry into the draft / shop / Ancient-event
+                # screens (the fight-end pause only fires on the rewards screen, so these fly by).
+                pause_label, paused_screen = self._observe_pause(state.state_type, paused_screen)
+                if cfg.pause_after_fight and pause_label:
+                    self._pause_for_resume(outcome.floor, label=pause_label)
 
                 if isinstance(state, GameOverState) and phase != "post_over":
                     phase = "post_over"
@@ -321,6 +323,24 @@ class AgentLoop:
         if fight_in_progress and state_type in _POST_FIGHT_STATES:
             return True, False
         return False, fight_in_progress
+
+    @staticmethod
+    def _observe_pause(
+        state_type: str, paused_screen: str | None
+    ) -> tuple[str | None, str | None]:
+        """Observation mode: pause once per *entry* into a draft / shop / Ancient-event screen.
+
+        Returns ``(label_or_None, paused_screen_next)``. ``label`` is set only on the first poll
+        after entering a pausable screen (the caller pauses with it). ``paused_screen`` latches the
+        screen we paused on so repeated polls don't re-pause; it clears once we leave the pausable
+        screens, so a later entry pauses again.
+        """
+        label = _OBSERVE_PAUSE_LABELS.get(state_type)
+        if label is None:
+            return None, None
+        if paused_screen == state_type:
+            return None, paused_screen  # already paused on this entry
+        return label, state_type
 
     def _pause_for_resume(self, floor: int | None, label: str = "after fight") -> None:
         """Block until the resume signal file appears (owner says 'go'), then clear it."""
