@@ -637,6 +637,13 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   **worst** (backwards). The relic is in `player.relics`, so the handler could detect Pael's Tooth on
   a remove screen and flip prefer-worst→best. Backlog (ancient relics as a class; owner: note for now).
   *(NB: this screen also surfaced the card-select hang regression — now fixed, commit 47e661d.)*
+- **Girya (relic) — "Lift" rest option, and the non-standard-campfire class** (owner 2026-06-25,
+  seen live). Girya adds a **Lift** choice at rest sites: **permanent +1 Strength**, up to **3 times**
+  total (then greyed out) — for Ironclad that's +3 Str over the run, usually a **strong early pick**
+  (it compounds) above Smith/Rest unless HP is critical. Same class as the **Byrdonis Egg hatch**:
+  a relic/item-added campfire option the rest handler is blind to (it only weighs Rest vs Smith — the
+  Byrdonis note confirmed it skips Hatch across 3 rests). Backlog: a pass to **read the actual rest
+  options off the screen** and value the non-standard ones, rather than assuming Rest/Smith exist.
 
 ### 8.5 The special-casing scrub — owner priority (2026-06-16)
 Watching the live runs convinced the owner we will need an **exhaustive scrub of all Ironclad cards,
