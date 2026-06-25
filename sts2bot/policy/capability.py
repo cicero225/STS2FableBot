@@ -36,6 +36,11 @@ def load_card_descriptions(path: Path | str | None = None) -> dict[str, str]:
     return json.loads(p.read_text(encoding="utf-8"))
 
 
+# Vulnerable is +50% damage, but it's not up every turn (a setup turn, reapplication gaps), so a
+# deck that *can* apply it is credited an uptime-averaged multiplier rather than the full 1.5.
+_VULN_DAMAGE_MULT = 1.3
+
+
 @dataclass(frozen=True)
 class DeckOutput:
     """What a deck can bring to bear per turn (estimated from the cards; see `deck_output`)."""
@@ -44,6 +49,12 @@ class DeckOutput:
     sustained_dmg: float  # damage/turn averaged over a deck cycle (long races)
     biggest_hit: float  # largest single attack — the part Slippery reduces to 1 each turn
     block_per_turn: float  # block/turn averaged over a cycle
+    # in-fight scaling (estimated from the cards) — why a static burst/sustained under-rates
+    # ramp/Vulnerable decks (the Matriarch-win pessimism, PLAN §8.4):
+    str_per_turn: float = 0.0  # Strength the deck gains/turn -> adds to every hit as turns pass
+    hits_per_turn: float = 0.0  # attack instances/turn (each one cashes in accumulated Strength)
+    str_cap: float = 0.0  # total Strength the deck's cards can grant (plateaus the ramp)
+    vuln_mult: float = 1.0  # damage multiplier when the deck reliably applies Vulnerable
 
 
 @dataclass(frozen=True)
@@ -98,11 +109,14 @@ def estimate_fight(
     base_dps = sum(e.dps for e in enemies)
     n_attackers = sum(1 for e in enemies if e.dps > 0)
     hp = float(my_hp)
-    extra_str = 0  # accumulated ramp, added to every attacker's dps as turns pass
+    extra_str = 0  # accumulated enemy ramp, added to every attacker's dps as turns pass
+    my_str = 0.0  # my accumulated Strength (deck's Str-granters); plateaus at deck.str_cap
     stunned_used = False
     for turn in range(1, max_turns + 1):
         # --- my turn: chip the leaders, throttled ---
         out = deck.burst_dmg if turn == 1 else deck.sustained_dmg
+        # in-fight scaling: accumulated Strength adds to every hit, Vulnerable amplifies the lot
+        out = (out + my_str * deck.hits_per_turn) * deck.vuln_mult
         if self_block:
             out = max(0.0, out - self_block)  # regenerating block soaks the first chunk
         if slippery:
@@ -124,6 +138,7 @@ def estimate_fight(
             enemy_dps = base_dps + extra_str * n_attackers
             hp -= max(0.0, enemy_dps - deck.block_per_turn)
         extra_str += sum(e.str_ramp for e in enemies)
+        my_str = min(deck.str_cap, my_str + deck.str_per_turn)  # one-time gains plateau at the cap
         if hp <= 0:  # died; remaining kill_hp = how close I got (progress signal for drafting)
             return FightOutcome(False, round(hp), turn, round(kill_hp))
     # couldn't close inside the horizon -> a grind it doesn't win (treadmill / wall)
@@ -246,6 +261,8 @@ def deck_output(
     """
     attacks: list[tuple[int, float]] = []  # (cost, total damage incl. strength)
     total_attack_damage = total_block = total_cost = 0.0
+    total_hits = total_str_gain = 0.0  # hit instances / Strength granted (in-fight scaling)
+    applies_vulnerable = False
     biggest_hit = 0.0
     deck_size = 0
     for c in cards:
@@ -260,17 +277,25 @@ def deck_output(
             desc = descriptions.get(f"{c.id}|{up}") or descriptions.get(f"{c.id}|0")
         fx = parse_card_description(desc)
         if c.type == "Attack" and fx.damage:
-            hit = fx.damage + strength  # one hit, with Strength
-            dmg = hit * max(1, fx.hits)
-            total_attack_damage += dmg
-            attacks.append((cost, dmg))
+            hits = max(1, fx.hits)
+            hit = fx.damage + strength  # one hit, with (starting) Strength
+            total_attack_damage += hit * hits
+            total_hits += hits
+            attacks.append((cost, hit * hits))
             biggest_hit = max(biggest_hit, float(hit))
         if fx.block:
             total_block += fx.block
+        total_str_gain += fx.strength  # Inflame/Spot Weakness/Limit Break... ramp my damage
+        if fx.vulnerable:
+            applies_vulnerable = True
     cycle = max(1.0, deck_size / max(1, cards_per_turn), total_cost / max(1, energy_per_turn))
     return DeckOutput(
         burst_dmg=_best_burst(attacks, energy_per_turn),
         sustained_dmg=total_attack_damage / cycle,
         biggest_hit=biggest_hit,
         block_per_turn=total_block / cycle,
+        str_per_turn=total_str_gain / cycle,
+        hits_per_turn=total_hits / cycle,
+        str_cap=total_str_gain,
+        vuln_mult=_VULN_DAMAGE_MULT if applies_vulnerable else 1.0,
     )

@@ -712,8 +712,9 @@ class StandardRouter:
         in the *current deck's* context (deck-aware: a block-starved deck values block, a
         damage-starved one values damage). Needs the deck + harvested card text to price it; if
         either is missing the term is skipped (empty) and drafting falls back to Elo/heuristics.
-        Note: deck_output prices direct damage/block, not Strength-granting or scaling cards, so
-        the capability term under-rates those (the Elo prior / w_power still carry them)."""
+        Note: deck_output now also prices Strength-ramp + Vulnerable from card text (approx; it
+        still misses relic Strength e.g. Vajra and true per-turn rampers like Demon Form, which
+        the Elo prior / w_power carry)."""
         if not deck or not self.card_effects:
             return {}
         w = self.config.card_rewards

@@ -34,6 +34,10 @@ def _starter() -> list[Card]:
     )
 
 
+def _progress(o) -> float:
+    return o.exp_end_hp - o.enemy_hp_left  # what §5-C drafting scores (progress even in a loss)
+
+
 def test_strong_deck_clears_a_normal_with_hp_to_spare() -> None:
     deck = DeckOutput(burst_dmg=30, sustained_dmg=20, biggest_hit=15, block_per_turn=10)
     enemy = [FightEnemy(hp=46, dps=10)]
@@ -135,6 +139,35 @@ def test_deck_output_feeds_the_race_end_to_end() -> None:
     won = estimate_fight(70, deck_output(strong), [FightEnemy(hp=46, dps=10)])
     assert won.win
     assert won.exp_end_hp >= 60
+
+
+def test_deck_output_credits_strength_and_vulnerable_from_text() -> None:
+    # In-fight scaling read straight from card text (the Matriarch-win pessimism fix, PLAN §8.4).
+    plain = deck_output([_card("Strike", "Attack", 1, "Deal 6 damage.")])
+    assert plain.vuln_mult == 1.0 and plain.str_cap == 0.0
+    vuln = deck_output([_card("Bash", "Attack", 2, "Deal 8 damage. Apply 2 Vulnerable.")])
+    assert vuln.vuln_mult > 1.0  # the deck can apply Vulnerable -> damage multiplier
+    strong = deck_output([_card("Inflame", "Power", 1, "Gain 2 Strength."),
+                          _card("Strike", "Attack", 1, "Deal 6 damage.")])
+    assert strong.str_cap == 2 and strong.str_per_turn > 0 and strong.hits_per_turn > 0
+
+
+def test_vulnerable_multiplier_helps_close_the_race() -> None:
+    # Same raw damage; the Vulnerable multiplier makes more progress (exp_end_hp - enemy_hp_left,
+    # the metric drafting scores) — why the estimate stopped under-rating Bash decks.
+    enemy = [FightEnemy(hp=90, dps=16)]
+    base = DeckOutput(20, 15, 12, 8)
+    vuln = DeckOutput(20, 15, 12, 8, vuln_mult=1.3)
+    assert _progress(estimate_fight(70, vuln, enemy)) > _progress(estimate_fight(70, base, enemy))
+
+
+def test_accumulating_strength_ramps_my_damage() -> None:
+    # A Strength bonus that grows each turn adds to every hit -> a slow deck closes a long race
+    # the flat sustained number says it can't (the Matriarch Str 3->8 ramp the estimate missed).
+    enemy = [FightEnemy(hp=140, dps=16)]  # dps > block, so a slow close costs real HP
+    flat = DeckOutput(14, 12, 8, 10)
+    ramp = DeckOutput(14, 12, 8, 10, str_per_turn=1.0, hits_per_turn=2.0, str_cap=8)
+    assert _progress(estimate_fight(70, ramp, enemy)) > _progress(estimate_fight(70, flat, enemy))
 
 
 def test_detect_mechanics_from_real_status_text() -> None:
