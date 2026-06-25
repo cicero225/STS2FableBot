@@ -134,6 +134,7 @@ class AgentLoop:
         last_wait_reason: str | None = None
         manual_announced = False
         fight_in_progress = False
+        paused_at_draft = False  # observation mode: one pause per card-draft screen
         if cfg.pause_after_fight and cfg.resume_signal_path:
             Path(cfg.resume_signal_path).unlink(missing_ok=True)  # clear stale
         self._assert_time_scale()
@@ -198,6 +199,14 @@ class AgentLoop:
                 )
                 if cfg.pause_after_fight and should_pause:
                     self._pause_for_resume(outcome.floor)
+                # Observation mode: also pause at the card-draft screen (the fight-end pause only
+                # fires on the rewards screen, so the draft otherwise flies by) -- owner audits it.
+                if state.state_type == "card_reward":
+                    if cfg.pause_after_fight and not paused_at_draft:
+                        paused_at_draft = True
+                        self._pause_for_resume(outcome.floor, label="at card draft")
+                else:
+                    paused_at_draft = False
 
                 if isinstance(state, GameOverState) and phase != "post_over":
                     phase = "post_over"
@@ -313,14 +322,14 @@ class AgentLoop:
             return True, False
         return False, fight_in_progress
 
-    def _pause_for_resume(self, floor: int | None) -> None:
+    def _pause_for_resume(self, floor: int | None, label: str = "after fight") -> None:
         """Block until the resume signal file appears (owner says 'go'), then clear it."""
         sig = self.config.resume_signal_path
         if sig is None:
             return
         sig_path = Path(sig)
         print(
-            f"\n*** PAUSED after fight (floor {floor}) — say 'go' to continue ***",
+            f"\n*** PAUSED {label} (floor {floor}) — say 'go' to continue ***",
             flush=True,
         )
         while not sig_path.exists():
