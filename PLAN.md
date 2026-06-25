@@ -487,6 +487,21 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   alongside HP-at-boss work. Like the Kin, it's a deck-power + per-enemy-mechanic wall. *✅ Slippery
   now modeled (Phase 1, 2026-06-17): the planner leads with a throwaway hit then lands the big one;
   the deeper race / HP-at-boss work remains.*
+- **Phantasmal Gardeners (Act-1 elite) — Skittish swarm, and the elite-gate-mismodel it exposes**
+  (owner live + investigation 2026-06-25). **Skittish**: *"the first time each Gardener is hit each
+  turn, it gains 6 Block."* The first hit lands, then +6 Block soaks every follow-up that turn — so it
+  **guts chip / multi-hit decks** (the bot's starter-heavy ones: only one hit per gardener per turn
+  really counts) and rewards **one big hit per gardener**. The exact mirror of Slippery, and just as
+  modelable: `detect_mechanics` → a reactive first-hit +block; `_apply_attack` adds it after the first
+  hit on that enemy. *Live-confirmed: bq8fskrg9 R2 nearly died from full HP to the swarm — saved only
+  by a Fairy in a Bottle auto-revive, not by play.*
+  - **Wider problem**: the §5-C elite **gate** prices every Act-1 elite as a *generic* 90 HP / 17 dps
+    with no mechanic, but real ones run 21→140 HP with Skittish / Hardened Shell / Shriek — so it
+    chases un-winnable fights. Kill-tally: **Bygone Effigy (127 HP) #1 (4×)**, then Phrog Parasite /
+    Phantasmal Gardeners (2×), Terror Eel (140 HP). Fixes: (1) model Skittish in the planner; (2) a
+    tougher / zone-aware gate — zone (Underdocks vs Overgrowth, different elite pools) isn't in state,
+    so infer from the boss. Pool-depletion (no elite repeats until all 3 in the act are seen → narrow
+    the estimate after one is met) = future optimization.
 - **Lagavulin Matriarch (Act-1 boss, 222 HP) — Asleep + Plating + Soul Siphon** (owner 2026-06-23,
   precise mechanics + online-verified; ≥2 deaths in the deck-blind v0.107.1 batch). Three layers:
   - **Asleep 3**: −1/turn, wakes at 0 *and acts that turn*; **any unblocked HP loss wakes it early**
