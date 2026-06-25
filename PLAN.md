@@ -276,6 +276,21 @@ is the *binding* constraint; HP/routing is necessary-but-not-sufficient.** Weigh
   weak here (deck already has Luminesce + Bloodletting for energy, and few attacks → likely nets +1 or
   less), strong only with heavy draw / many attacks. The §5-C capability term *should* downrate it (the
   deck can't convert the energy), but the Elo prior may over-rate it — same theme as the note above.
+- **✅ DIAGNOSTIC RESULT — hypothesis confirmed *and sharpened: it's a tempo mismatch, not thinning***
+  ([scripts/deck_power_diagnostic.py](scripts/deck_power_diagnostic.py), config `a45509a7b572`, 91
+  Ironclad runs, 2026-06-25). The bot reaches the **Act-1 boss in 63/91** runs but **wins only 30%
+  (19/63)**; losers die a **median 33% of boss HP short** (mean 35%; only 12/44 are ≥80%-damage
+  near-misses — most losses are a real gap, not a sliver). **Key negative result:** boss-entry deck
+  *size* and *%basics* are **identical** between winners and losers (17.2 / 43% vs 16.4 / 46%), so the
+  gap is **not** under-thinning. The differentiator is card **role/tempo** (avg copies/deck, won−lost):
+  *winners over-index on burst + Vulnerable enablers* — Conflagration (+0.24), Evil Eye, Neow's Fury,
+  Stampede, Ashen Strike, Molten Fist+, **Bash / Dominate / Tremble** (the Vulnerable package the owner
+  keeps flagging); *losers over-index on slow block/scaling/utility engines* — Second Wind, Burning
+  Pact, Colossus, Feel No Pain, Spoils Map. The top winner signal is **Shrug It Off (+0.47)** — *cheap
+  efficient* block+draw, while the loser-side block (Colossus, Feel No Pain, Second Wind) is *slow/
+  setup-heavy* — so the real axis is **tempo/efficiency per energy in a short fight**, not block-vs-
+  damage. **Lever:** the draft term should reward tempo-efficient burst + Vulnerable enablers and
+  downweight slow scaling/engine/big-block cards *early* (mirror onto the §5-C capability tilt above).
 Current: card rewards scored by one pooled Elo prior ([data/priors_cards.json](data/priors_cards.json)),
 discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
 
