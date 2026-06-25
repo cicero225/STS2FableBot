@@ -644,6 +644,15 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   a relic/item-added campfire option the rest handler is blind to (it only weighs Rest vs Smith — the
   Byrdonis note confirmed it skips Hatch across 3 rests). Backlog: a pass to **read the actual rest
   options off the screen** and value the non-standard ones, rather than assuming Rest/Smith exist.
+- **Miniature Tent (shop relic, Spirebird-top-rated) — "all rest options may be picked"** (owner
+  2026-06-25). Lets you take **every** rest-site option, not just one — baseline Rest *and* Smith is
+  already excellent, and it compounds absurdly with Girya / other rest relics (Rest + Smith + Lift×3 …).
+  Weak only in the sad edge case of getting it just before Act 3's last rest. **Bot risk:** the
+  rest handler picks **one option and leaves** (the game allows it) — wasting the multi-pick — or could
+  **hang** if the screen stays open expecting more. *Observed: bx5u0h4ec R4 owned Miniature Tent and
+  reached f33, so it did **not** hang on a rest — consistent with the pick-one-and-leave (suboptimal)
+  case.* This is the capstone of the read-the-rest-options pass: with Miniature Tent, take **all**
+  worthwhile options (Smith every upgrade, Lift to cap, Rest if needed), then leave.
 
 ### 8.5 The special-casing scrub — owner priority (2026-06-16)
 Watching the live runs convinced the owner we will need an **exhaustive scrub of all Ironclad cards,
