@@ -464,9 +464,10 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   NOT start-of-turn self-damage **powers**: **Inferno** (lose 1 HP/turn — ×copies — at turn start
   while dealing 6 AoE; the bot drafts it often and does well with it) sets up a *next*-turn-start
   drain this turn's tally can't see, so at ~1 HP with Inferno up the bot could read "survive" then die
-  on upkeep. The Knowledge Demon's Disintegration (−6/7/8/turn) is the enemy-applied cousin. Marginal
-  (never seen live), but for completeness the projection should add active "lose N HP at start of
-  turn" powers.
+  on upkeep. (NOT to be confused with the Knowledge Demon's Disintegration, which per owner memory is
+  *end*-of-turn and **blockable** — a different case the tally also misses, but one block covers.)
+  Marginal (never seen live), but for completeness the projection should add active "lose N HP at
+  start of turn" powers.
 - **Knowledge Demon (Act-2 boss)** — complex mechanics, **not yet documented** (the f33 run was too
   injured to matter, but the owner notes it would have "put up a better show" understanding its
   options). Document its powers/intents when next seen; per-enemy special-case (§8.3).
