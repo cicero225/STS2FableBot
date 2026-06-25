@@ -300,6 +300,14 @@ discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
   upward (ties to the pilotability discount).
 
 ### 8.2 Strategy notes
+
+- **Draft × route should be joint near a boss; card value is boss-dependent** (owner lookthrough
+  2026-06-25). Thunderclap-vs-Bloodletting draft, 3 rooms from Soul Fysh with a shop branch: owner's
+  optimal is draft **Bloodletting** *and* **divert to the shop** (save HP + buy boss-damage) — the pick
+  and the route reinforce each other, but the bot decides them separately. Context nuance: Bloodletting's
+  +2 energy is unusually good *vs Soul Fysh* — the energy discards **Beckons** even when the deck can't
+  otherwise spend it. Beyond current scope (joint draft+route+boss-proximity); a seed for integrated
+  routing. (Vacuum pick: still Bloodletting, unless 2 rooms from a burst boss + desperate for Thunderclap.)
 **Status 2026-06-16:** the HP-aware path-EV scorer is **implemented** (the DP below: per-route HP
 projection from the bot's own p75 loss, survivable-route preference, survivable-elite relic bonus,
 early-act fight split). *Still open:* parallel **gold** estimate + shop-bonus, **character-specific**
