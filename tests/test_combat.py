@@ -81,6 +81,33 @@ def test_planner_sequences_small_hit_first_into_slippery() -> None:
     assert vs_none.action.payload()["card_index"] == 0  # Bludgeon first when it lands in full
 
 
+def test_planner_counts_unplayed_beckon_in_hp_loss() -> None:
+    # Soul Fysh's Beckon ("at end of turn, if in hand, lose 6 HP") is unblockable, bypassing the
+    # incoming/block tally. The planner spends 1 energy on Strike, leaving Beckon unplayed, so
+    # hp_loss must include the 6 -- the hail-mary reads it (owner: bot died under-counting it).
+    w = load_policy_config().combat
+
+    def card(i, cid, name, cost, desc, typ, tgt):
+        return {"index": i, "id": cid, "name": name, "type": typ, "cost": str(cost),
+                "description": desc, "can_play": True, "target_type": tgt}
+
+    state = {"state_type": "monster", "run": {"act": 1, "floor": 5, "ascension": 0},
+             "player": {"character": "The Ironclad", "hp": 40, "max_hp": 80, "block": 0,
+                        "energy": 1, "status": [],
+                        "hand": [card(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                                      "Attack", "AnyEnemy"),
+                                 card(1, "BECKON", "Beckon", 1,
+                                      "End of your turn, if in your Hand, lose 6 HP.",
+                                      "Status", "None")]},
+             "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                        "enemies": [{"entity_id": "s0", "name": "Soul Fysh", "hp": 100,
+                                     "max_hp": 100, "block": 0, "status": [],
+                                     "intents": [{"type": "attack", "label": "5"}]}]}}
+    d = plan_combat_turn(parse_state(state), w)
+    assert d.action.payload()["card_index"] == 0  # Strike played, Beckon left in hand
+    assert d.scores["hp_loss"] == 11.0  # 5 incoming + 6 unblockable Beckon, not just 5
+
+
 def test_planner_under_ringing_caps_to_a_single_card() -> None:
     # Ringing (Ceremonial Beast low-HP) caps you to 1 card/turn. The fix verified here is only the
     # cap: the planner must not *start* a 2-card plan it can't finish (the live miss -- blocked,

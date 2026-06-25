@@ -349,6 +349,11 @@ def _score(state: SimState, w: CombatWeights, hp_pct: float = 1.0) -> float:
     )
 
 
+# Block-bypassing status cards (Soul Fysh's Beckon): "at the end of your turn, if this is in your
+# Hand, lose N HP" — unblockable HP damage the incoming/block tally would otherwise miss.
+_HAND_END_LOSS_RE = re.compile(r"end of your turn.*?in your hand.*?lose (\d+) hp", re.I)
+
+
 def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences."""
     if state.battle is None:
@@ -455,6 +460,15 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     # don't panic-drink a potion the planned block already covers.
     proj_incoming = sum(e.incoming for e in best_state.enemies if e.hp > 0)
     hp_loss = max(0, proj_incoming - best_state.my_block) + best_state.self_damage
+    # Block-bypassing status cards left in hand hit HP at end of turn (Soul Fysh's Beckon: "at the
+    # end of your turn, if this is in your Hand, lose 6 HP") — unblockable, and the incoming/block
+    # tally misses it. Count the *unplayed* ones so hp_loss (and the hail-mary that reads it) is
+    # honest. Skipped on a lethal turn (the fight ends before end-of-turn resolves).
+    if not lethal:
+        played_idx = {idx for idx, _ in best_state.played}
+        for c in hand:
+            if c.index not in played_idx and (m := _HAND_END_LOSS_RE.search(c.description or "")):
+                hp_loss += int(m.group(1))
     return Decision(
         action=act.PlayCard(card_index=chosen.index, target=target),
         rationale=f"plan [{' > '.join(plan_names)}] score {best_score:.1f}"
