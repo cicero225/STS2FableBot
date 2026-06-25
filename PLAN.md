@@ -393,6 +393,17 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   the thorns self-damage unblocked. Optimal: Production → Defend×2 → Strike×3 (lethal *and* thorns
   blocked). Fix: parse "gain N energy" in `_apply_card` → add to `SimState.energy` so the DFS sees the
   expanded budget (and play 0-cost energy-positive cards first). Same class as the Fiend-Fire gap.
+- **Retain cards — hold when not needed** (owner lookthrough 2026-06-25). True Grit gained **Retain**
+  (stays in hand at end of turn). The one-turn planner doesn't manage it: if you can full-block
+  *without* the retain card, holding it is effectively deck-thinning + optionality next turn. Fix: a
+  small weight to prefer NOT playing a Retain card when it isn't needed for this turn's block/lethal.
+  Bounded planner tweak; Retain is rare on Ironclad, so narrow scope.
+- **Near-lethal: block-and-wait when next-turn lethal is likely** (owner lookthrough 2026-06-25; ~5 HP
+  suboptimality observed). The bot sacrificed HP to chip the enemy to 3 this turn; better to **block +
+  kill next turn** *if* it's very likely to draw ≥9 damage (e.g. 2× Strike) AND the enemy won't escape
+  (no big block/heal intent). Needs multi-turn reasoning the one-turn planner lacks: (1) draw-pile
+  lookahead for next-turn damage (expert humans track this constantly), (2) the enemy's next intent
+  (block/heal that punishes waiting). §5-C / multi-turn-forward-model territory, not a simple fix.
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
   your hand, deal N per exhausted card" — so it missed a 35-dmg lethal on a 21-HP enemy (and
