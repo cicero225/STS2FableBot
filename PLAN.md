@@ -437,6 +437,13 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   blocked with True Grit, missing the kill + eating the front minion's damage. Fix: read the Pen Nib
   counter from player relics; in the DFS, double the attack that lands as the 10th. Per-relic combat
   modeling, same class as Strength / scaling-card effects.
+- **Artifact unmodeled — planner wastes debuffs into it** (owner lookthrough 2026-06-25). Enemies had
+  **Artifact 2** (negates the next 2 debuffs/status effects). The bot played **Dominate** (apply 1
+  Vulnerable, +1 Str per Vulnerable layer) → Artifact ate the Vulnerable → zero effect for 1 energy
+  (pure waste; the enemies were dying well before the Artifacts would clear). The planner applies
+  Vulnerable/Weak without checking Artifact. Fix: model Artifact on the enemy (a debuff is negated +
+  Artifact decremented while >0), so debuff/Vulnerable cards into Artifact score ~0 unless intentionally
+  stripping it. General mechanic (also **Aeonglass**); detect_mechanics + `_apply_card`.
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
   your hand, deal N per exhausted card" — so it missed a 35-dmg lethal on a 21-HP enemy (and
