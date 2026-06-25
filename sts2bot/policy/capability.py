@@ -287,7 +287,7 @@ def deck_output(
     attacks: list[tuple[int, float]] = []  # (cost, total damage incl. strength)
     total_attack_damage = total_block = total_cost = 0.0
     total_hits = total_str_gain = 0.0  # hit instances / Strength granted (in-fight scaling)
-    applies_vulnerable = False
+    vuln_sources = 0  # cards that apply Vulnerable -> reliability of the damage multiplier
     biggest_hit = 0.0
     deck_size = 0
     for c in cards:
@@ -312,8 +312,15 @@ def deck_output(
             total_block += fx.block
         total_str_gain += fx.strength  # Inflame/Spot Weakness/Limit Break... ramp my damage
         if fx.vulnerable:
-            applies_vulnerable = True
+            vuln_sources += 1
     cycle = max(1.0, deck_size / max(1, cards_per_turn), total_cost / max(1, energy_per_turn))
+    # Vulnerable as *uptime*, not a binary flag: a lone source applies it only intermittently (you
+    # draw it ~once per cycle), so the deck seldom has Vulnerable up every turn; each extra source
+    # raises uptime with diminishing returns, capped at the reliable-application ceiling. apps/turn
+    # = sources * cards_drawn / deck_size (owner lookthrough 2026-06-25: a lone Bash is a weak
+    # Vulnerable source; a 2nd enabler matters — the binary flag over-credited the first).
+    vuln_uptime = min(1.0, vuln_sources * cards_per_turn / max(1, deck_size))
+    vuln_mult = 1.0 + (_VULN_DAMAGE_MULT - 1.0) * vuln_uptime
     return DeckOutput(
         burst_dmg=_best_burst(attacks, energy_per_turn),
         sustained_dmg=total_attack_damage / cycle,
@@ -322,5 +329,5 @@ def deck_output(
         str_per_turn=total_str_gain / cycle,
         hits_per_turn=total_hits / cycle,
         str_cap=total_str_gain,
-        vuln_mult=_VULN_DAMAGE_MULT if applies_vulnerable else 1.0,
+        vuln_mult=vuln_mult,
     )

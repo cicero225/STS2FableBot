@@ -152,6 +152,20 @@ def test_deck_output_credits_strength_and_vulnerable_from_text() -> None:
     assert strong.str_cap == 2 and strong.str_per_turn > 0 and strong.hits_per_turn > 0
 
 
+def test_vuln_mult_scales_with_source_uptime_not_binary() -> None:
+    # A lone Vulnerable source in a real-size deck applies it only intermittently -> partial
+    # multiplier, not the full ceiling; a 2nd source raises uptime (owner: a single Bash is weak,
+    # the 2nd enabler matters). Replaces the old binary "any source -> 1.3" credit.
+    filler = [_card("Strike", "Attack", 1, "Deal 6 damage.") for _ in range(15)]
+    bash = _card("Bash", "Attack", 2, "Deal 8 damage. Apply 2 Vulnerable.")
+    dominate = _card("Dominate", "Attack", 1, "Apply 1 Vulnerable.")
+    one = deck_output([*filler, bash])
+    two = deck_output([*filler, bash, dominate])
+    assert 1.0 < one.vuln_mult < 1.3      # intermittent: partial, not the full multiplier
+    assert two.vuln_mult > one.vuln_mult  # the 2nd source improves Vulnerable uptime
+    assert two.vuln_mult <= 1.3           # capped at the reliable-application ceiling
+
+
 def test_vulnerable_multiplier_helps_close_the_race() -> None:
     # Same raw damage; the Vulnerable multiplier makes more progress (exp_end_hp - enemy_hp_left,
     # the metric drafting scores) — why the estimate stopped under-rating Bash decks.

@@ -300,6 +300,27 @@ is the *binding* constraint; HP/routing is necessary-but-not-sufficient.** Weigh
   now stuck Act 1" is consistent with the current ~22% Act-2 / 4% Act-3 base rate seen against a
   memorable earlier good streak — variance, not a capability regression. The real, stable barrier is
   the 0-win plateau + the tempo gap above, not a lost capability.
+- **⚠ Cautions on the tempo lever (owner 2026-06-25) — shape the design, don't naively penalize:**
+  **(1) Depth-aware, not global.** Over-suppressing slow block/scaling starves the *long* Act-2/3 boss
+  fights that genuinely need it; burst/tempo priority is a known **Act-1** optimization, not a global
+  rule. **(2) The won−lost differential is confounded by the bot's own piloting.** Power-scaling cards
+  (**Juggernaut, Feel No Pain**) look bad in the data partly because the bot rarely plays them early
+  (powers-under-played, §8.4) — they function as effective *curses* much of the time, so of course they
+  correlate with losing. Baking that into the draft prior is **circular** (bot mis-pilots a power → data
+  says "powers bad" → bot stops drafting them → the real fix, playing them, never gets exercised). So:
+  prefer **positive** signals (burst, **Vulnerable** enablers — immediate-value, *un*-confounded) over
+  **penalizing** scaling/powers. Vulnerable is the cleanest, strongest lever (owner: arguably the best
+  Ironclad synergy) and the §5-C `vuln_mult` already knows how to cash it in.
+- **✅ FIRST CUT shipped — Vulnerable *uptime* model (replaces the binary flag)** (2026-06-25).
+  `deck_output.vuln_mult` was binary (any Vulnerable source → ×1.3, 2nd source worth nothing); now it
+  scales with **uptime** = `min(1, sources × cards_drawn / deck_size)` against the same 1.3 ceiling. So
+  a lone Bash in a 16-card deck earns only ~×1.09 (intermittent), and a 2nd enabler lifts it to ~×1.18 —
+  exactly the owner's Dominate insight ("a single Bash is a weak source; even one more helps a lot").
+  This reaches drafting through the deck-aware §5-C term (`_capability_deltas` → `deck_output`), so
+  Vulnerable enablers are now priced by accurate forward-model uptime instead of leaning on the Elo
+  prior. **Pure forward-model improvement — no scaling/power penalty** (honors the confound caution).
+  *Remaining:* the broader burst/tempo-vs-slow-scaling tilt is **deferred until the powers-under-played
+  fix (§8.4) de-confounds the data** — penalizing powers now would just encode the bot's own misplay.
 Current: card rewards scored by one pooled Elo prior ([data/priors_cards.json](data/priors_cards.json)),
 discounted for pilotability, plus by-act tilt and a few heuristics. Refinements:
 
