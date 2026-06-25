@@ -54,6 +54,20 @@ def test_apply_attack_unthrottled_enemy_is_unchanged() -> None:
     assert out.enemies[0].hp == 70 and out.damage_dealt == 30 and out.self_damage == 0
 
 
+def test_apply_attack_skittish_soaks_follow_up_hits() -> None:
+    # Skittish: the first hit lands, then it gains 6 Block which soaks the follow-ups. 5 dmg x4 ->
+    # 5 (then +6 block), 0 (5 vs 6, 1 block left), 4 (1 block), 5 = 14 dealt (vs 20 unthrottled).
+    out = _apply_attack(_state(_enemy(skittish=6)), 0, _attack(5, hits=4))
+    assert out.damage_dealt == 14 and out.enemies[0].hp == 86
+
+
+def test_apply_attack_skittish_does_not_dampen_a_single_big_hit() -> None:
+    # One big hit lands in full -- the +6 Block triggers after it, with no follow-up to soak. So
+    # Skittish punishes chip/multi-hit, not single big hits (the mirror of Slippery).
+    out = _apply_attack(_state(_enemy(skittish=6)), 0, _attack(30))
+    assert out.damage_dealt == 30 and out.enemies[0].hp == 70
+
+
 def _slippery_fight(statuses: list[dict]) -> dict:
     def card(i, cid, name, cost, desc):
         return {"index": i, "id": cid, "name": name, "type": "Attack", "cost": str(cost),

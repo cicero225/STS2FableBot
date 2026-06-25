@@ -65,6 +65,7 @@ class EnemySim:
     dmg_cap_per_turn: int | None = None
     thorns: int = 0
     hp_lost_this_turn: int = 0
+    skittish: int = 0  # +Block on its FIRST hit each turn (Skittish); follow-ups get soaked
 
 
 @dataclass(frozen=True)
@@ -184,6 +185,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 slippery=mech.get("slippery", False),
                 dmg_cap_per_turn=mech.get("dmg_cap_per_turn"),
                 thorns=mech.get("thorns", 0),
+                skittish=mech.get("skittish", 0),
             )
         )
     return tuple(sims)
@@ -211,6 +213,7 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
     hp, block = e.hp, e.block
     lost = e.hp_lost_this_turn  # HP it has already lost this turn (for the per-turn cap)
     slippery_pending = e.slippery and lost == 0  # first HP-loss this turn -> 1
+    skittish_pending = e.skittish > 0 and lost == 0  # first hit this turn -> it gains Block
     thorns_taken = 0
     base_damage, hits = card.fx.damage, card.fx.hits
     if state.primal_active and card.is_attack:
@@ -234,6 +237,9 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
         hp -= dealt
         dealt_total += dealt
         lost += dealt
+        if skittish_pending:  # Skittish: first hit lands, then it gains Block (soaks follow-ups)
+            block += e.skittish
+            skittish_pending = False
     overkill_amt = -hp if hp < 0 else 0
     killed = hp <= 0 < e.hp
     hp = max(0, hp)

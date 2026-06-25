@@ -82,6 +82,7 @@ class FightEnemy:
     stun_threshold: int = 0  # HP at/below which it's Stunned once, skipping a turn (Plow, Shriek)
     thorns: int = 0  # damage it deals me each turn I attack it (Thorns)
     death_timer: int = 0  # Sandpit (The Insatiable): I die at this turn unless I've won — race it
+    skittish: int = 0  # +Block on its first hit each turn (Skittish) — guts chip/multi-hit
 
 
 @dataclass(frozen=True)
@@ -169,13 +170,14 @@ _STUN_RE = re.compile(r"HP reaches (\d+) or below", re.I)
 _THORNS_RE = re.compile(r"hit by an attack, deal (\d+) damage back", re.I)  # Thorns
 _RAMP_RE = re.compile(r"end of (?:its|each|your)?\s*turn,?\s*gain[s]? (\d+) Strength", re.I)
 _TIMER_RE = re.compile(r"in (\d+) turns?[^.]*?\bdie\b", re.I)  # Sandpit: "In N turns ... you die"
+_SKITTISH_RE = re.compile(r"first time.*?hit each turn.*?gains? (\d+) block", re.I)  # Skittish
 
 
 def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
     """Parse an enemy's statuses (each `{name, description, ...}`) into `FightEnemy` throttling
     kwargs. Unknown text contributes nothing (so a new status fails safe to 'generic enemy')."""
     cap: int | None = None
-    block = death = stun = thorns = ramp = 0
+    block = death = stun = thorns = ramp = skittish = 0
     timer = 0  # soonest "you will die in N turns" deadline (Sandpit)
     slippery = False
     for s in statuses:
@@ -186,6 +188,8 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
         if m := _TIMER_RE.search(d):
             t = int(m.group(1))
             timer = t if not timer else min(timer, t)
+        if m := _SKITTISH_RE.search(d):
+            skittish = max(skittish, int(m.group(1)))
         if m := _BLOCK_RE.search(d):
             block += int(m.group(1))
         if m := _DEATH_RE.search(d):
@@ -215,6 +219,8 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
         out["slippery"] = True
     if timer:
         out["death_timer"] = timer
+    if skittish:
+        out["skittish"] = skittish
     return out
 
 
