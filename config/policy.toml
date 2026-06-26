@@ -1,5 +1,8 @@
 # Policy parameters (FR-3.4). Every run records the hash of this file; change it
 # via commits, not live edits, so the run index can attribute behavior changes.
+# 2026-06-26 code-state marker (no weight change): bumps the hash so runs after the
+# treasure-race fix + iconized-energy parsing are separable from the partial pre-fix
+# 379cb9c6744b batch (which validated the power-horizon mechanism: play-rate 48%->83%).
 
 [combat]
 # one-turn planner scoring weights
