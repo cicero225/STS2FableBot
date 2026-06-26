@@ -476,14 +476,17 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
     flat value; also zeroed per-turn powers' "lose N HP" *this* turn (a next-turn upkeep cost the
     parser misread as immediate). Knobs in `config/policy.toml`. **Pending:** validate + tune the cap
     against a live batch (the calibration step — the multiplier could over/undershoot).
-- **Energy-gain cards unmodeled (Production) — planner under-plays its turn** (owner lookthrough
-  2026-06-25, Fight 1). The DFS is energy-bound but models energy *cost*, not energy *gain*:
-  **Production** (colorless from Neow — 0 energy, gain 2 energy, Exhaust) reads as a 0-value card
-  (no damage/block, +2 energy unmodeled), so it went unplayed — and without that +2 the bot couldn't
-  fit **Defend×2** (to soak the Toadpole's **thorns**) ahead of the lethal **Strike×3**, so it ate
-  the thorns self-damage unblocked. Optimal: Production → Defend×2 → Strike×3 (lethal *and* thorns
-  blocked). Fix: parse "gain N energy" in `_apply_card` → add to `SimState.energy` so the DFS sees the
-  expanded budget (and play 0-cost energy-positive cards first). Same class as the Fiend-Fire gap.
+- **~~Energy-gain cards unmodeled (Production)~~ — ✅ ACTUALLY MODELED; note was wrong** (re-verified
+  2026-06-26). Energy gain *is* wired end-to-end and has been since the original planner (commit
+  5c9c59d, *before* the lookthrough): the parser's `_ENERGY` regex sets `fx.energy_gain` (matches
+  "Gain 2 Energy") and `_apply_card` adds it to `SimState.energy` (combat.py:327). Direct planner test
+  confirms it plays **Production → Defend×2 → Strike×3** (exactly the "optimal" line) — locked by
+  `test_planner_plays_zero_cost_energy_card_to_enable_more`. So the Fight-1 *Production-unplayed* the
+  owner saw was **not** an energy gap; likely causes to re-check if it recurs: (a) it was a *lethal*
+  turn (bot correctly skips Production/Defends to take the kill — and note Defend doesn't block
+  **thorns** anyway, which is unblockable self-damage from attacking, so the "soak thorns" framing was
+  off), or (b) the live colorless card arrived without a parseable `description`. Not a planner-logic
+  fix.
 - **Free 0-cost card-draw should be played FIRST, then re-assess** (owner 2026-06-25). The DFS values
   draws by a flat `w_draw` proxy and never sees the drawn cards (random/unknown at plan time) — it plans
   the current hand as one set. The orchestrator re-plans after *every* card (one card per decision,

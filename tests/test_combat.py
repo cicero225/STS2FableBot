@@ -188,6 +188,33 @@ def test_planner_does_not_front_load_a_self_damage_power_at_low_hp() -> None:
     assert hurt.action.payload()["card_index"] == 1     # not front-loaded when hurt -> Strike wins
 
 
+def test_planner_plays_zero_cost_energy_card_to_enable_more() -> None:
+    # Energy-gain IS modeled: Production (0c, +2 energy, Exhaust) unlocks Defend x2 + Strike x3 on 3
+    # base energy (5 total), so the planner plays it FIRST (owner: "did we wire energy cards?" -- yes,
+    # since the original planner: parser sets energy_gain, _apply_card adds it to the DFS budget).
+    w = load_policy_config().combat
+
+    def card(i, cid, name, cost, desc, typ, tgt):
+        return {"index": i, "id": cid, "name": name, "type": typ, "cost": str(cost),
+                "description": desc, "can_play": True, "target_type": tgt}
+
+    hand = [card(0, "PRODUCTION", "Production", 0, "Gain 2 Energy. Exhaust.", "Skill", "None"),
+            card(1, "DEF1", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            card(2, "DEF2", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            card(3, "STR1", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            card(4, "STR2", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            card(5, "STR3", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy")]
+    state = {"state_type": "monster", "run": {"act": 1, "floor": 5, "ascension": 0},
+             "player": {"character": "The Ironclad", "hp": 40, "max_hp": 80, "block": 0,
+                        "energy": 3, "status": [], "hand": hand},
+             "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                        "enemies": [{"entity_id": "e0", "name": "Slug", "hp": 100, "max_hp": 100,
+                                     "block": 0, "status": [],
+                                     "intents": [{"type": "attack", "label": "10"}]}]}}
+    d = plan_combat_turn(parse_state(state), w)
+    assert d.action.payload()["card_index"] == 0  # Production first, to unlock the fuller turn
+
+
 def test_planner_under_ringing_caps_to_a_single_card() -> None:
     # Ringing (Ceremonial Beast low-HP) caps you to 1 card/turn. The fix verified here is only the
     # cap: the planner must not *start* a 2-card plan it can't finish (the live miss -- blocked,
