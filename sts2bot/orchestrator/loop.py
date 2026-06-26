@@ -93,6 +93,31 @@ def _fingerprint(raw: dict[str, Any]) -> str:
     return hashlib.sha1(json.dumps(raw, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
+# >>> TEMP TRIPWIRE — delete once Artifact + Pen Nib are validated live (PLAN §8.4: their combat
+# modeling shipped but is "await live sighting"; small 10-run batches rarely roll these rare
+# mechanics, so flag any appearance loudly instead of trusting memory to catch it). Owner request
+# 2026-06-26. Remove this fn, its call in play_one_run, the `tripwired` local, and the test.
+def _temp_mechanic_sightings(state: GameState) -> list[tuple[str, str]]:
+    """Rare mechanics worth flagging on first sight in a run: (key, human-readable detail)."""
+    out: list[tuple[str, str]] = []
+    player = state.player
+    if player is not None:
+        for r in player.relics:
+            tag = (r.id or r.name or "").upper().replace(" ", "")
+            if "PEN" in tag and "NIB" in tag:
+                out.append(("PEN_NIB", f"Pen Nib held (counter={r.counter})"))
+                break
+    battle = getattr(state, "battle", None)
+    if battle is not None:
+        for e in battle.enemies:
+            amt = max((p.amount or 0 for p in e.status if "ARTIFACT" in p.id.upper()), default=0)
+            if amt > 0:
+                out.append(("ARTIFACT", f"{e.name} has Artifact {amt}"))
+                break
+    return out
+# <<< end TEMP TRIPWIRE <<<
+
+
 class AgentLoop:
     def __init__(
         self,
@@ -140,6 +165,7 @@ class AgentLoop:
         manual_announced = False
         fight_in_progress = False
         paused_screen: str | None = None  # observation mode: screen we've already paused on
+        tripwired: set[str] = set()  # TEMP: rare-mechanic sightings already flagged this run
         if cfg.pause_after_fight and cfg.resume_signal_path:
             Path(cfg.resume_signal_path).unlink(missing_ok=True)  # clear stale
         self._assert_time_scale()
@@ -176,6 +202,22 @@ class AgentLoop:
                     )
 
                 self._track_progress(state, ctx, outcome)
+
+                # >>> TEMP TRIPWIRE (see _temp_mechanic_sightings) — flag Artifact/Pen Nib on
+                # first sight so a small batch can't silently skip them. Delete once resolved.
+                for key, detail in _temp_mechanic_sightings(state):
+                    if key not in tripwired:
+                        tripwired.add(key)
+                        print(
+                            f"\n*** MECHANIC TRIPWIRE *** {key} (floor {outcome.floor}): {detail}"
+                            " — validate the planner's handling (PLAN §8.4).\n",
+                            flush=True,
+                        )
+                        logger.log_decision(
+                            {"state_type": state.state_type}, None,
+                            f"TRIPWIRE {key}: {detail}", None,
+                        )
+                # <<< end TEMP TRIPWIRE <<<
 
                 # One-shot manual takeover: stop (without acting) at the fight on the
                 # target floor so a human can play it out with the bot-built deck.
