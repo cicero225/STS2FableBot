@@ -310,6 +310,12 @@ class TrivialRouter:
 
     def _treasure(self, state: TreasureState, ctx: LoopContext) -> Decision | Wait:
         t = state.treasure
+        # Wait through the chest's transitional "Opening chest..." state -- `can_proceed` defaults
+        # True, so without this guard the bot fires a *premature* proceed before the relic even
+        # appears, racing the open/upgrade animation and freezing the map node (esp. at high speed:
+        # War Paint on a ?-node, seed ZWSK88UNQN, clean at 1x / frozen at 4x, 2026-06-25).
+        if t.message:
+            return Wait(reason=f"treasure opening: {t.message}")
         if t.relics:
             relic = t.relics[0]
             return Decision(

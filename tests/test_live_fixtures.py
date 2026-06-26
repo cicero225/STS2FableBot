@@ -227,3 +227,26 @@ def test_embark_is_sent_only_once() -> None:
     assert not isinstance(second, Wait) and second.action.payload()["option"] == "confirm"
     third = router.decide(parse_state(screen), ctx)
     assert isinstance(third, Wait)
+
+
+def test_treasure_waits_through_opening_transition() -> None:
+    # The chest's transitional "Opening chest..." state -- can_proceed defaults True, so without a
+    # guard the bot fires a premature proceed before the relic appears, racing the animation and
+    # freezing the map node (War Paint on a ?-node, ZWSK88UNQN). Must WAIT till the message clears.
+    router = TrivialRouter()
+
+    def tstate(treasure):
+        return parse_state({"state_type": "treasure",
+                            "run": {"act": 1, "floor": 14, "ascension": 0},
+                            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80},
+                            "treasure": treasure})
+
+    opening = tstate({"message": "Opening chest...", "relics": []})
+    assert isinstance(router.decide(opening, LoopContext()), Wait)  # do not act mid-open
+
+    claimable = tstate({"relics": [{"index": 0, "id": "WAR_PAINT", "name": "War Paint"}]})
+    claim = router.decide(claimable, LoopContext()).action.payload()["action"]
+    assert claim == "claim_treasure_relic"
+
+    done = tstate({"relics": [], "can_proceed": True})
+    assert router.decide(done, LoopContext()).action.payload()["action"] == "proceed"
