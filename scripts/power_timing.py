@@ -5,7 +5,7 @@ config, scan every fight in the logged traces and measure how promptly Power car
   - first-play round: the mean round at which the first Power went down (lower = earlier = ASAP).
 
 Usage: .venv\\Scripts\\python.exe scripts/power_timing.py [config_hash] [character]
-Defaults to the most-populous recent config and 'The Ironclad'. Run before/after the fix to compare.
+Defaults to the most recent config and 'The Ironclad'. Run before/after the fix to compare.
 """
 
 from __future__ import annotations
