@@ -68,3 +68,17 @@ def test_conditional_language_detected() -> None:
     assert cascade.conditional and not cascade.has_any_effect
     strike = parse_card_description("Deal 6 damage.")
     assert not strike.conditional
+
+
+def test_iconized_energy_gain() -> None:
+    # The game renders gained energy as ICON tokens, not "N Energy" text. The text regex missed it
+    # so Luminesce / Bloodletting / Offering parsed to 0 energy and got left unplayed (owner-caught
+    # 2026-06-26). Count the per-character energy icons after "Gain"; don't count star_icon.
+    icon = "[ironclad_energy_icon.png]"
+    assert parse_card_description(f"Retain. Gain {icon}{icon}. Exhaust.").energy_gain == 2
+    assert parse_card_description(f"Lose 3 HP. Gain {icon}{icon}.").energy_gain == 2
+    off = parse_card_description(f"Lose 6 HP. Gain {icon}{icon}. Draw 3 cards. Exhaust.")
+    assert off.energy_gain == 2 and off.draw == 3 and off.self_hp_cost == 6
+    assert parse_card_description("Gain [silent_energy_icon.png].").energy_gain == 1  # other chars
+    assert parse_card_description("Gain [star_icon.png].").energy_gain == 0  # star != energy
+    assert parse_card_description("Gain 2 Energy.").energy_gain == 2  # text form still works

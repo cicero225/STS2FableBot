@@ -16,6 +16,11 @@ _ALL_ENEMIES = re.compile(r"\bALL enem", re.IGNORECASE)
 _BLOCK = re.compile(r"\bGain (\d+) Block", re.IGNORECASE)
 _DRAW = re.compile(r"\bDraw (\d+) card", re.IGNORECASE)
 _ENERGY = re.compile(r"\bGain (\d+) Energy", re.IGNORECASE)
+# Some cards render gained energy as ICON tokens, not "N Energy" text (Luminesce: "Gain
+# [ironclad_energy_icon.png][ironclad_energy_icon.png]. Exhaust."). Count the energy icons after
+# "Gain" so iconized energy-gain isn't read as 0 (-> card left unplayed). Owner-caught 2026-06-26.
+_ENERGY_ICON_RUN = re.compile(r"\bGain ((?:\s*\[[a-z_]*energy[a-z_]*\.png\])+)", re.IGNORECASE)
+_ENERGY_ICON = re.compile(r"\[[a-z_]*energy[a-z_]*\.png\]", re.IGNORECASE)
 _VULN = re.compile(r"\bApply (\d+) Vulnerable", re.IGNORECASE)
 _WEAK = re.compile(r"\bApply (\d+) Weak", re.IGNORECASE)
 _STRENGTH = re.compile(r"\bGain (\d+) Strength", re.IGNORECASE)
@@ -79,6 +84,9 @@ def parse_card_description(text: str | None) -> CardEffects:
         fx.recognized.append("draw")
     if m := _ENERGY.search(text):
         fx.energy_gain = int(m.group(1))
+        fx.recognized.append("energy")
+    elif m := _ENERGY_ICON_RUN.search(text):  # iconized form: "Gain [energy][energy]"
+        fx.energy_gain = len(_ENERGY_ICON.findall(m.group(1)))
         fx.recognized.append("energy")
     if m := _VULN.search(text):
         fx.vulnerable = int(m.group(1))
