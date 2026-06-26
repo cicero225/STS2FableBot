@@ -30,6 +30,11 @@ _RAGE_BLOCK = re.compile(r"gain (\d+) block", re.IGNORECASE)
 # scales with hand size, so the flat per-hit the text parser sees underprices it.
 _HAND_EXHAUST_DMG = re.compile(r"(\d+) damage for each card", re.IGNORECASE)
 _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 damage, 1 cost)
+# An enemy in its invincible/about-to-explode state (Waterfall Giant's Steam Eruption) is reported
+# at a sentinel HP — damage into it is wasted (it dies on its own after the explosion), only block
+# matters. Treat any absurd HP as invincible so the planner stops chipping it.
+_INVINCIBLE_HP = 100_000_000
+_PEN_NIB_PERIOD = 10  # Pen Nib: every 10th attack deals double damage (counter persists per-run)
 
 
 @dataclass(frozen=True)
@@ -45,6 +50,9 @@ class PlannedCard:
     primal_force: bool = False  # Primal Force: transforms later Attacks into 16-dmg Giant Rocks
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
+    # debuff types this card applies to the *target* enemy, in card-TEXT order (Uppercut = Weak
+    # then Vulnerable). Order matters for Artifact, which eats one debuff per unique status.
+    debuff_order: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -67,6 +75,9 @@ class EnemySim:
     thorns: int = 0
     hp_lost_this_turn: int = 0
     skittish: int = 0  # +Block on its FIRST hit each turn (Skittish); follow-ups get soaked
+    artifact: int = 0  # negates the next N debuffs (one per unique status type, magnitude-blind)
+    stun_threshold: int = 0  # at/below this HP it's Stunned, skipping its turn (Ceremonial Beast)
+    invincible: bool = False  # sentinel-HP invincible state (Waterfall Giant): damage is wasted
 
 
 @dataclass(frozen=True)
@@ -92,6 +103,9 @@ class SimState:
     self_damage_powers_played: int = 0  # of those, per-turn self-HP-cost powers (Inferno)
     ramp_damage: int = 0  # damage dealt to strength-gaining enemies (rewarded: race them)
     primal_active: bool = False  # Primal Force played: later Attacks are 16-dmg Giant Rocks
+    heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
+    healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
+    pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
 
@@ -133,6 +147,16 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
     # them at low HP is fatal (the drain lands next turn, which the one-turn tally can't see).
     self_damage_power = per_turn_power and "lose" in low and "hp" in low
     primal_force = "transform all attacks" in low
+    # Debuffs this card lands on its target, in card-text order (for Artifact). Find each
+    # status word's position in the description; a present-but-unfound status sorts last.
+    debuff_spots = []
+    if fx.vulnerable:
+        pos = low.find("vulnerab")
+        debuff_spots.append((pos if pos >= 0 else len(low), "vulnerable"))
+    if fx.weak:
+        pos = low.find("weak")
+        debuff_spots.append((pos if pos >= 0 else len(low), "weak"))
+    debuff_order = tuple(t for _, t in sorted(debuff_spots))
     return PlannedCard(
         index=card.index,
         name=card.name,
@@ -145,6 +169,7 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
         primal_force=primal_force,
         rage_block=rage_block,
         hand_exhaust_scale=hand_exhaust_scale,
+        debuff_order=debuff_order,
     )
 
 
@@ -154,6 +179,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         if e.hp <= 0:
             continue
         vuln = 0
+        artifact = 0
         is_minion = False
         gains_strength = False
         summons = False
@@ -161,6 +187,8 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         for p in e.status:
             if p.id.upper() == "VULNERABLE" and p.amount:
                 vuln = p.amount
+            if "ARTIFACT" in p.id.upper() and p.amount:
+                artifact = p.amount
             if "MINION" in p.id.upper() or "abandon combat" in (p.description or "").lower():
                 is_minion = True
             if "STRENGTH" in p.id.upper() and (p.amount or 0) > 0:
@@ -203,6 +231,9 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 dmg_cap_per_turn=mech.get("dmg_cap_per_turn"),
                 thorns=mech.get("thorns", 0),
                 skittish=mech.get("skittish", 0),
+                artifact=artifact,
+                stun_threshold=mech.get("stun_threshold", 0),
+                invincible=e.hp >= _INVINCIBLE_HP,
             )
         )
     return tuple(sims)
@@ -223,9 +254,25 @@ def _ignorable_minion(e: EnemySim, has_summoner: bool = False) -> bool:
     return not e.gains_strength
 
 
-def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState:
+def _enemy_attacking(e: EnemySim) -> bool:
+    """Will this enemy's intent actually land this turn? No if dead, or Stunned by having been
+    dropped to/below its stun threshold (Ceremonial Beast / Terror Eel) — crossing it skips its
+    turn, which the planner can choose deliberately to dodge an otherwise-lethal hit."""
+    if e.hp <= 0:
+        return False
+    return not (e.stun_threshold and e.hp <= e.stun_threshold)
+
+
+def _apply_attack(
+    state: SimState, target_i: int, card: PlannedCard, pen_double: bool = False
+) -> SimState:
     enemies = list(state.enemies)
     e = enemies[target_i]
+    # Invincible (Waterfall Giant mid-explosion): damage is wasted — it dies on its own after the
+    # eruption. Charge the energy (already spent by the caller) but credit no progress so the
+    # planner spends its cards on block/mitigation instead of chipping an unkillable wall.
+    if e.invincible:
+        return state
     dealt_total = 0
     hp, block = e.hp, e.block
     lost = e.hp_lost_this_turn  # HP it has already lost this turn (for the per-turn cap)
@@ -236,6 +283,8 @@ def _apply_attack(state: SimState, target_i: int, card: PlannedCard) -> SimState
     if state.primal_active and card.is_attack:
         base_damage, hits = _PRIMAL_ROCK_DAMAGE, 1  # transformed into a Giant Rock
     per_hit = base_damage + state.my_strength
+    if pen_double:
+        per_hit *= 2  # Pen Nib's 10th attack: double the (post-Strength) per-hit damage
     if e.vulnerable > 0:
         per_hit = int(per_hit * VULN_MULT)
     for _ in range(hits):
@@ -296,35 +345,67 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         primal_active=state.primal_active or card.primal_force,
         played=(*state.played, (card.index, target_id)),
     )
+    # Pen Nib: count attack cards; the one whose counter rolls past a multiple of 10 doubles.
+    pen_double = False
+    if card.is_attack and s.pen_nib_counter is not None:
+        pen_double = (s.pen_nib_counter % _PEN_NIB_PERIOD) == _PEN_NIB_PERIOD - 1
+        s = replace(s, pen_nib_counter=s.pen_nib_counter + 1)
+    # Resolve this card's debuffs against the target's Artifact: card-text order, one strip per
+    # unique status (magnitude-blind), eaten debuffs don't land. So a debuff dumped into Artifact
+    # scores ~0 (Dominate into Artifact 2 = waste); a multi-status card (Uppercut) strips two.
+    landed_vuln, landed_weak = card.fx.vulnerable, card.fx.weak
+    if target_i is not None and card.debuff_order:
+        e = s.enemies[target_i]
+        art = e.artifact
+        lv = lw = 0
+        for typ in card.debuff_order:
+            if art > 0:
+                art -= 1
+            elif typ == "vulnerable":
+                lv = card.fx.vulnerable
+            else:
+                lw = card.fx.weak
+        landed_vuln, landed_weak = lv, lw
+        if art != e.artifact:
+            enemies = list(s.enemies)
+            enemies[target_i] = replace(e, artifact=art)
+            s = replace(s, enemies=tuple(enemies))
     atk = card
     if card.hand_exhaust_scale > 0:
         # Fiend Fire & kin: hits once per card still in hand when it resolves
         # (full hand, minus cards already played this turn, minus itself).
         exhausted = max(0, state.hand_size - len(state.played) - 1)
         atk = replace(card, fx=replace(card.fx, damage=card.hand_exhaust_scale, hits=exhausted))
+    # bake the post-Artifact Vulnerable into the attack so _apply_attack lands the right amount
+    if atk.fx.vulnerable != landed_vuln:
+        atk = replace(atk, fx=replace(atk.fx, vulnerable=landed_vuln))
     if atk.fx.total_damage > 0:
         if atk.fx.aoe:
             for i in range(len(s.enemies)):
                 if s.enemies[i].hp > 0:
-                    s = _apply_attack(s, i, atk)
+                    s = _apply_attack(s, i, atk, pen_double=pen_double)
         elif target_i is not None:
-            s = _apply_attack(s, target_i, atk)
-    elif card.fx.vulnerable and target_i is not None:
+            s = _apply_attack(s, target_i, atk, pen_double=pen_double)
+    elif landed_vuln and target_i is not None:
         enemies = list(s.enemies)
         e = enemies[target_i]
         if e.hp > 0:
-            enemies[target_i] = replace(e, vulnerable=e.vulnerable + card.fx.vulnerable)
-            s = replace(
-                s, enemies=tuple(enemies), vuln_applied=s.vuln_applied + card.fx.vulnerable
-            )
-    if card.fx.weak:
-        # apply to the biggest attacker still alive (approximation: weak is defensive)
+            enemies[target_i] = replace(e, vulnerable=e.vulnerable + landed_vuln)
+            s = replace(s, enemies=tuple(enemies), vuln_applied=s.vuln_applied + landed_vuln)
+    if landed_weak:
         enemies = list(s.enemies)
-        alive = [i for i, e in enumerate(enemies) if e.hp > 0 and e.incoming > 0]
-        if alive:
-            i = max(alive, key=lambda i: enemies[i].incoming)
+        if target_i is not None and enemies[target_i].hp > 0:
+            # Weak lands on the struck/targeted enemy (Uppercut), per Artifact resolution
+            i = target_i
+        else:
+            # Untargeted Weak: approximate onto the biggest attacker still alive (defensive)
+            alive = [i for i, e in enumerate(enemies) if e.hp > 0 and e.incoming > 0]
+            i = max(alive, key=lambda i: enemies[i].incoming) if alive else None
+        if i is not None:
             enemies[i] = replace(enemies[i], incoming=int(enemies[i].incoming * WEAK_MULT))
-            s = replace(s, enemies=tuple(enemies), weak_applied=s.weak_applied + card.fx.weak)
+            s = replace(s, enemies=tuple(enemies), weak_applied=s.weak_applied + landed_weak)
+    # In-combat healing (Not Yet), capped at the turn's damage taken — no overheal credit.
+    heal_applied = max(0, min(card.fx.heal, s.heal_room - s.healing)) if card.fx.heal else 0
     return replace(
         s,
         my_block=s.my_block + card.fx.block + rage_bonus,
@@ -333,20 +414,25 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         draws=s.draws + card.fx.draw,
         energy=s.energy + card.fx.energy_gain,
         self_damage=s.self_damage + card.fx.self_hp_cost,
+        healing=s.healing + heal_applied,
     )
 
 
 def _score(
     state: SimState, w: CombatWeights, hp_pct: float = 1.0, power_horizon: float = 1.0
 ) -> float:
-    incoming = sum(e.incoming for e in state.enemies if e.hp > 0)
+    # A stunned enemy (dropped to/below its stun threshold this turn) skips its turn, so its
+    # intent doesn't land — attacking down to the threshold can cancel an otherwise-lethal hit.
+    incoming = sum(e.incoming for e in state.enemies if _enemy_attacking(e))
     if state.barricade:
         blocked = state.my_block  # persistent block is all future-useful
         excess = 0
     else:
         blocked = min(state.my_block, incoming)
         excess = max(0, state.my_block - incoming)
-    hp_loss = incoming - min(state.my_block, incoming) + state.self_damage
+    # Healing offsets HP lost (Not Yet); net it against the loss so both ride the same scarcity
+    # curve — a heal is worth ~nothing at full HP and a lot when low, symmetric with Offering.
+    hp_loss = incoming - min(state.my_block, incoming) + state.self_damage - state.healing
     # HP is cheap when full, precious when low (owner: Offering should be played
     # freely when healthy, shelved when hurt)
     hp_weight = w.w_hp_loss * (w.hp_scarcity_base + w.hp_scarcity_slope * (1.0 - hp_pct))
@@ -423,6 +509,14 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     if not playable:
         return Decision(action=act.EndTurn(), rationale="no playable cards; end turn")
 
+    # Pen Nib (relic): live attack counter, persists between fights. On a multiple of 9 (i.e. the
+    # next attack is the 10th) that attack doubles. Read the counter; absent relic -> None (no-op).
+    pen_nib_counter = next(
+        (r.counter for r in player.relics
+         if r.counter is not None and "PEN" in (r.id or r.name or "").upper().replace(" ", "")
+         and "NIB" in (r.id or r.name or "").upper().replace(" ", "")),
+        None,
+    )
     enemy_sims = _enemy_sims(state.battle.enemies)
     start = SimState(
         energy=energy,
@@ -432,6 +526,8 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         barricade=barricade,
         hand_size=len(hand),
         has_summoner=any(e.summons for e in enemy_sims),
+        heal_room=max(0, player.max_hp - player.hp),
+        pen_nib_counter=pen_nib_counter,
     )
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")
@@ -514,7 +610,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     # Projected HP loss if we follow this line (post-block, post-kill incoming) — lets
     # callers tell "survivable with our own cards" from "actually facing death" so they
     # don't panic-drink a potion the planned block already covers.
-    proj_incoming = sum(e.incoming for e in best_state.enemies if e.hp > 0)
+    proj_incoming = sum(e.incoming for e in best_state.enemies if _enemy_attacking(e))
     # Status cards stranded in hand hit you at end of turn; the incoming/block tally misses them.
     # Beckon "lose N HP" is unblockable (added straight to hp_loss); Toxic "take N damage" is
     # blockable (joins the incoming pool so leftover block soaks it). Count the *unplayed* ones so
@@ -534,7 +630,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
             elif m := _HAND_TAKE_DMG_RE.search(low):
                 extra_blockable += int(m.group(1))
     hp_loss = (max(0, proj_incoming + extra_blockable - best_state.my_block)
-               + best_state.self_damage + extra_unblockable)
+               + best_state.self_damage + extra_unblockable - best_state.healing)
     return Decision(
         action=act.PlayCard(card_index=chosen.index, target=target),
         rationale=f"plan [{' > '.join(plan_names)}] score {best_score:.1f}"

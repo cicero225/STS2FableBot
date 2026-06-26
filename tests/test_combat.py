@@ -5,7 +5,15 @@ from __future__ import annotations
 
 from sts2bot.client.models import parse_state
 from sts2bot.kb.config import load_policy_config
-from sts2bot.policy.combat import EnemySim, PlannedCard, SimState, _apply_attack, plan_combat_turn
+from sts2bot.policy.combat import (
+    EnemySim,
+    PlannedCard,
+    SimState,
+    _apply_attack,
+    _apply_card,
+    _enemy_attacking,
+    plan_combat_turn,
+)
 from sts2bot.policy.textparse import CardEffects
 
 
@@ -272,3 +280,99 @@ def test_planner_under_ringing_caps_to_a_single_card() -> None:
 
     assert ">" not in plan([ring])  # Ringing: a single card, never a 2-card plan
     assert ">" in plan([])  # uncapped: the planner sequences two cards
+
+
+# ---------------------------------------------------------------- combat-modeling pass
+
+
+def test_apply_attack_invincible_enemy_takes_no_damage() -> None:
+    # Waterfall Giant mid-eruption is reported at a sentinel HP and is invincible: damage is wasted
+    # (it dies on its own), only mitigation matters. The planner must not chip it.
+    out = _apply_attack(_state(_enemy(invincible=True)), 0, _attack(30))
+    assert out.damage_dealt == 0 and out.enemies[0].hp == 100  # unchanged; the attack did nothing
+
+
+def _vuln_card(vuln: int = 0, weak: int = 0, order: tuple[str, ...] = ()) -> PlannedCard:
+    return PlannedCard(index=0, name="Dbf", cost=1,
+                       fx=CardEffects(vulnerable=vuln, weak=weak), targets_enemy=True,
+                       debuff_order=order)
+
+
+def test_artifact_eats_a_lone_vulnerable_so_it_lands_nothing() -> None:
+    # Dominate (1 Vulnerable) into Artifact 2: Artifact negates it -> zero effect, decrement to 1.
+    s = SimState(energy=3, enemies=(_enemy(artifact=2),), my_block=0, my_strength=0)
+    out = _apply_card(s, _vuln_card(vuln=1, order=("vulnerable",)), 0)
+    assert out.vuln_applied == 0 and out.enemies[0].vulnerable == 0
+    assert out.enemies[0].artifact == 1  # one strip consumed
+
+
+def test_artifact_strips_one_per_unique_status_in_card_text_order() -> None:
+    # Uppercut (Weak THEN Vulnerable) into Artifact 1: the Weak is eaten (Artifact -> 0), then the
+    # Vulnerable lands. Magnitude-blind: it's one strip per status, not per stack (owner).
+    s = SimState(energy=3, enemies=(_enemy(artifact=1),), my_block=0, my_strength=0)
+    out = _apply_card(s, _vuln_card(vuln=1, weak=1, order=("weak", "vulnerable")), 0)
+    assert out.enemies[0].artifact == 0
+    assert out.weak_applied == 0  # Weak was the first status, eaten by Artifact
+    assert out.vuln_applied == 1 and out.enemies[0].vulnerable == 1  # Vulnerable then lands
+
+
+def test_pen_nib_doubles_the_tenth_attack_only() -> None:
+    # Counter at 9 -> the next attack is the 10th and doubles; the one after returns to normal.
+    s = SimState(energy=9, enemies=(_enemy(),), my_block=0, my_strength=0, pen_nib_counter=9)
+    s = _apply_card(s, _attack(10), 0)
+    assert s.damage_dealt == 20 and s.pen_nib_counter == 10  # doubled
+    s = _apply_card(s, _attack(10), 0)
+    assert s.damage_dealt == 30  # +10 only (counter 10 -> not a multiple-of-10 boundary)
+
+
+def test_pen_nib_absent_relic_never_doubles() -> None:
+    s = SimState(energy=9, enemies=(_enemy(),), my_block=0, my_strength=0)  # counter None
+    s = _apply_card(s, _attack(10), 0)
+    assert s.damage_dealt == 10 and s.pen_nib_counter is None
+
+
+def test_enemy_attacking_false_when_stunned_below_threshold() -> None:
+    def es(hp):
+        return EnemySim(entity_id="e", hp=hp, max_hp=300, block=0, vulnerable=0, incoming=40,
+                        stun_threshold=150)
+    assert _enemy_attacking(es(160)) is True  # above threshold: it attacks
+    assert _enemy_attacking(es(150)) is False  # at threshold: stunned, skips its turn
+    assert _enemy_attacking(es(0)) is False  # dead
+
+
+def test_planner_attacks_to_stun_threshold_to_survive() -> None:
+    # Ceremonial Beast: 150-HP stun threshold, telegraphing a 40 hit. At 5 HP with no block cards,
+    # attacking it from 158 -> below 150 stuns it (skips the hit). The planner takes the kill-
+    # the-turn line over a useless tiny block.
+    w = load_policy_config().combat
+
+    def card(i, cid, name, cost, desc, typ, tgt):
+        return {"index": i, "id": cid, "name": name, "type": typ, "cost": str(cost),
+                "description": desc, "can_play": True, "target_type": tgt}
+
+    beast = {"entity_id": "b0", "name": "Ceremonial Beast", "hp": 158, "max_hp": 300, "block": 0,
+             "status": [{"id": "STUN_THRESHOLD", "name": "Stun",
+                         "description": "Stunned when its HP reaches 150 or below."}],
+             "intents": [{"type": "attack", "label": "40"}]}
+    state = {"state_type": "monster", "run": {"act": 1, "floor": 17, "ascension": 0},
+             "player": {"character": "The Ironclad", "hp": 5, "max_hp": 80, "block": 0,
+                        "energy": 1, "status": [],
+                        "hand": [card(0, "DEF", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+                                 card(1, "STRIKE", "Strike", 1, "Deal 12 damage.", "Attack",
+                                      "AnyEnemy")]},
+             "battle": {"round": 1, "turn": "player", "is_play_phase": True, "enemies": [beast]}}
+    d = plan_combat_turn(parse_state(state), w)
+    assert d.action.payload()["card_index"] == 1  # Strike to cross the stun threshold, not Defend
+    assert d.scores["hp_loss"] == 0.0  # stunned -> the 40 hit doesn't land
+
+
+def test_healing_credited_when_hurt_capped_at_damage_taken() -> None:
+    # Not Yet (Heal 10) capped at the HP actually missing; played when hurt it should be preferred
+    # over an idle skip. heal_room caps the credit (no overheal).
+    heal = PlannedCard(index=0, name="Not Yet", cost=2,
+                       fx=CardEffects(heal=10), targets_enemy=False)
+    s = SimState(energy=2, enemies=(_enemy(),), my_block=0, my_strength=0, heal_room=4)
+    out = _apply_card(s, heal, None)
+    assert out.healing == 4  # capped at the missing 4 HP, no overheal
+    s2 = SimState(energy=2, enemies=(_enemy(),), my_block=0, my_strength=0, heal_room=25)
+    assert _apply_card(s2, heal, None).healing == 10  # full heal when there's room
