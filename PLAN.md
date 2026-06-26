@@ -572,6 +572,15 @@ actively **strip or weaken** them. Split into two halves:
     ~30% boss-HP short. **Encouraging:** the runs that got going went *deep* — floors 33/39/**48**
     (deep Act 3; baseline reached Act 3 only ~4%), consistent with Powers paying off in long Act-2/3
     fights (§8.1 thesis). Need a clean full 40+ batch for a definitive win-rate read (blocked on §7).
+  - **Power-*adjacent Skills* miss the horizon value — Apotheosis under-played** (owner live 2026-06-26).
+    **Apotheosis** (2e, Innate, Exhaust, *upgrade all your cards for the rest of combat*) is a one-shot
+    **combat-long buff** that plays like a Power, but it's `type == "Skill"` with no immediate
+    damage/block the parser recognizes — so it gets neither the horizon term (`is_power` is False) nor a
+    this-turn score, and loses to spending the 2e on attacks (the exact deferral the Tier-1 fix cured for
+    real Powers). Same root as the powers item, different card class. **Fix:** flag combat-long-buff
+    Skills as power-like for scoring — either a phrase heuristic on "rest of combat" / "this combat" +
+    upgrade/buff (cheap, some false-positive risk) or the Tier-2 per-card table (Apotheosis tagged
+    power-like). Then it rides `power_horizon` and goes down ASAP early. Edge case; do with Tier 2.
 - **~~Energy-gain cards unmodeled (Production)~~ — ✅ ACTUALLY MODELED; note was wrong** (re-verified
   2026-06-26). Energy gain *is* wired end-to-end and has been since the original planner (commit
   5c9c59d, *before* the lookthrough): the parser's `_ENERGY` regex sets `fx.energy_gain` (matches
