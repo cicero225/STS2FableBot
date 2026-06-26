@@ -542,6 +542,46 @@ actively **strip or weaken** them. Split into two halves:
   fold a per-turn passive-block term (sourced from `player.relics`/`player.status` like §5-C's enemy
   mechanics) into `block_per_turn`. Modest; do with the §5-C enemy-mechanic-awareness pass.
 
+#### 8.4-B Act-2 boss mechanics — deep-dive reference (2026-06-26)
+
+**Three** Act-2 bosses (the **Hive**; one chosen at random) — web (STS2 wiki, sts2companion, games.gg,
+bossdown) cross-checked vs `data/bestiary.json` (thin: `runs_seen` 1–2, Act 2 rarely reached). All three
+killed runs in the validation batch ble3lyl8a (Kaiser Crab f33, Knowledge Demon f33) — **this is the
+current wall**. The Act-1-style in-the-moment fixes ported here are the lever.
+
+- **Kaiser Crab** (two claws: **Crusher** 209 HP tanky + **Rocket** 199 HP heavy-hitter; kill BOTH → the
+  body flees). *Mechanics:* **Crab Rage** — "when an ally dies, [survivor] gains **6 Strength and 99
+  Block**" (`CRAB_RAGE_POWER`), so killing one claw early makes the other ~unkillable; **Surrounded /
+  Back Attack** — the claw *behind* you deals **+50%** (`BACK_ATTACK_LEFT/RIGHT_POWER`); **Bug Sting** —
+  Weak 2 + Frail 2 on the player. Strategy: whittle both ~evenly, then kill ~together (AoE/poison is the
+  cheese; both die same hit → no enrage). *Modeled:* Bug Sting's Weak/Frail ✓ (the in-the-moment fix);
+  AoE-hits-both ✓; multi-enemy focus-fire ✓. **GAP (live-confirmed, batch run 6): the planner's
+  focus-fire heuristic poured all damage into Rocket (199→113) while Crusher sat at 209 — straight toward
+  the Crab Rage trap** (kill Rocket → Crusher +6 Str +99 Block → unkillable). **FIX (building now):**
+  `EnemySim.crab_rage`; in-sim, a claw's death (at *card* granularity, so an AoE that kills both triggers
+  nothing) gives surviving Crab-Rage allies +99 Block +6 Str; plus a `_score` penalty
+  (`w_crab_rage_split`) when a line ends with one claw dead and another alive — so the planner whittles
+  both and only commits the kills ~together. *Open/filed:* **Back Attack +50%** — need to confirm whether
+  the intent `label` already bakes in the +50% (if yes, `incoming` is fine; if no, model the multiplier
+  + the "facing" state). Lower priority.
+- **Knowledge Demon** (379 HP). *Mechanic:* every few turns **"Choose a Card"** forces an escalating
+  player debuff — Disintegration (end-of-turn DoT) vs Mind Rot (draw −1); later **Sloth** (max 3 cards/turn,
+  = Normality-class card cap) vs **Waste Away** (−1 energy). Race it before the choices compound; pick the
+  least-bad for your deck. *Modeled:* Str ramp / Vuln / Weak ✓; race ✓. *Open/filed:* the **in-combat
+  debuff CHOICE** (pick least-harmful) is unmodeled — it surfaces as an in-fight card/selection the policy
+  must resolve well (deck-aware); and the *resulting* debuffs touch the planner (Waste Away → energy, Sloth
+  → `card_cap` like Normality, Disintegration → per-turn self-damage, Mind Rot → −1 draw). Bigger lift
+  (decision policy + several debuff models); not in static data (the choices aren't bestiary statuses).
+- **The Insatiable** (321 HP). *Mechanic:* **Sandpit** — "In 4 turns, you will be eaten and die"
+  (`SANDPIT_POWER`); ramps every turn, no cap → pure DPS check, kill in ~5 turns. *Modeled:* **already
+  well-covered** — §5-C parses Sandpit as `death_timer` (race-or-die, with `_SANDPIT_SLACK` for Frantic
+  Escape) and models Str ramp + Vuln. Mostly handled at the estimate level; the in-combat planner just
+  races. No new work beyond confirming the death-timer fires live.
+
+**Act-2 takeaway:** the one clean, high-value, tractable in-the-moment fix is **Kaiser Crab's Crab Rage**
+(building now). Knowledge Demon's choice mechanic is a larger decision-policy lift (filed). The Insatiable
+is already modeled. Back Attack +50% needs a quick API check on whether the label bakes it in.
+
 - **Powers under-played — the one-turn planner defers permanent buffs** (owner 2026-06-25; viewer-
   jarring + real upside). The planner scores end states by *this turn's* damage/block/lethal, so a
   **Power** (0 immediate damage/block) gets only the flat `w_power_played = 8.0` (per-turn powers like
