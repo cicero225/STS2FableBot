@@ -531,7 +531,14 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   turn, don't spend resources finishing it now — Inferno does it free. Unlike the case above, the
   next-turn damage is *guaranteed* (no draw-pile lookahead), so it's the easier sub-case — still gated
   on the enemy not escaping (block/heal/summon). Same multi-turn-lethal model.
-- **Pen Nib (relic) unmodeled — missed lethal** (owner lookthrough 2026-06-25). Pen Nib: **every 10th
+- **[RESOLVED 2026-06-26]** Pen Nib, Artifact, in-combat healing (Not Yet), planner-side stun-threshold,
+  and invincible-enemy handling all landed in the combat-modeling pass (commit on `combat.py`; 9 tests).
+  Details inline below per item. Normality's card cap stays deferred — no API field exposes
+  cards-already-played-this-turn, so `3 − played` can't be sourced (the in-game `can_play` flag
+  self-enforces the hard cap on replan anyway).
+- **Pen Nib (relic) unmodeled — missed lethal** (owner lookthrough 2026-06-25). **DONE:** read the live
+  relic counter (`Relic.counter`, persists per-run); in the DFS each attack increments it and the one
+  landing as the 10th (counter ≡ 9 mod 10) doubles its post-Strength damage. **Pen Nib:** **every 10th
   attack deals double damage** (it carries a counter). With a Vulnerable front minion the bot had lethal
   via the doubled 10th attack, but the planner (blind to Pen Nib) under-counted it → attacked once then
   blocked with True Grit, missing the kill + eating the front minion's damage. Fix: read the Pen Nib
@@ -544,7 +551,11 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   so if the parsed card damage reflects that preview, the planner would over-count; apply the double to
   exactly **one** attack (the first played while on 9), and check whether `card.description`/damage
   already carries the doubling.
-- **Artifact unmodeled — planner wastes debuffs into it** (owner lookthrough 2026-06-25). Enemies had
+- **Artifact unmodeled — planner wastes debuffs into it** (owner lookthrough 2026-06-25). **DONE:**
+  `EnemySim.artifact`; `_apply_card` resolves a card's debuffs against the target's Artifact in
+  card-text order (`PlannedCard.debuff_order`), stripping one per unique status (magnitude-blind),
+  landing only what survives. Dominate-into-Artifact-2 scores ~0; Uppercut at Artifact 1 strips Weak
+  and lands Vulnerable. Original detail: Enemies had
   **Artifact 2** (negates the next 2 debuffs/status effects). The bot played **Dominate** (apply 1
   Vulnerable, +1 Str per Vulnerable layer) → Artifact ate the Vulnerable → zero effect for 1 energy
   (pure waste; the enemies were dying well before the Artifacts would clear). The planner applies
@@ -556,14 +567,21 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   status** — **Uppercut** (Weak *then* Vulnerable) strips **2**, and at **Artifact 1** the Weak is eaten
   (Artifact→0) and the Vulnerable then **lands**; (c) order follows the card text. General mechanic
   (also **Aeonglass**); detect_mechanics + `_apply_card`.
-- **Healing on cards (Not Yet) parsed but NOT modeled in combat** (owner 2026-06-26, live question). The
+- **Healing on cards (Not Yet) parsed but NOT modeled in combat** (owner 2026-06-26, live question).
+  **DONE:** `_apply_card` accrues `min(heal, max_hp−hp)` into `SimState.healing` (no overheal), and
+  `_score` nets it against `hp_loss` on the same HP-scarcity curve — worth ~nothing at full HP, a lot
+  when hurt (symmetric with Offering). Original detail: The
   parser sets `fx.heal` (Not Yet = 2e, Heal 10 HP) and *event* scoring uses it, but the combat planner's
   `_apply_card`/`_score` ignore `fx.heal` — so an in-combat heal reads as a 0-value energy sink and the
   planner won't play it even when hurt with spare energy. Fix: track capped healing in `_apply_card`
   (`min(heal, max_hp − hp)`, no overheal) and credit it in `_score` scaled by the same HP-scarcity curve
   as `hp_loss` (worth more when low, ~nothing at full HP — symmetric with the Offering logic). Small.
 - **Stun-threshold as a defensive play (Ceremonial Beast / Terror Eel) — modeled in §5-C, NOT the
-  planner** (owner 2026-06-26; not 100% sure of the instance but the gap is real). These bosses are
+  planner** (owner 2026-06-26; not 100% sure of the instance but the gap is real). **DONE:**
+  `EnemySim.stun_threshold` (sourced via `detect_mechanics`, same as the other throttling mechanics);
+  `_enemy_attacking()` returns False once an enemy's HP is at/below it, so its `incoming` drops out of
+  the tally and the planner will attack-to-threshold to dodge a lethal instead of blocking. Original
+  detail: These bosses are
   **Stunned** when dropped to/below an HP threshold (Beast ~150), skipping a turn — so *attacking down
   to the threshold* can cancel an otherwise-lethal hit and buy a turn. `estimate_fight` already models
   this (`stun_threshold` → skip the enemy turn when crossed), but the one-turn **combat planner**'s
@@ -603,7 +621,11 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   to `type == "attack"` only, so DeathBlow read as **0 incoming** → no block reserved, and the
   hail-mary/desperation gate (compares incoming vs HP) never saw the lethal. Now counts
   `type in ("attack", "deathblow")`. So this was a **parsing/filter bug, not eruption-blindness** — the
-  fix makes the bot block it and hail-mary it like any other big hit. **(a) still open** for the general
+  fix makes the bot block it and hail-mary it like any other big hit. **Also done (owner refinement
+  2026-06-26):** while the giant shows its sentinel/invincible HP, damage into it is wasted — it dies on
+  its own after the eruption, only mitigation matters — so `EnemySim.invincible` (HP ≥ 1e8) makes
+  `_apply_attack` credit no progress for hitting it, steering the planner onto block/potions instead of
+  chipping an unkillable wall. **(a) still open** for the general
   case: when the eruption is *not* yet on the board as a DeathBlow intent (the bot is mid-fight deciding
   whether to push the boss to 0 *this* turn), it still doesn't model the one-turn-delayed post-lethal
   hit — that needs scheduled-hit modeling (block reserved like a delayed Beckon), tied to the
