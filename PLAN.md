@@ -511,10 +511,17 @@ profile these punish, so §5-C race-accuracy + tempo drafting are the binding le
   is shared with the Vantom Slippery fix, so they're naturally done together.
 
 **Cross-boss filed item — enemy-applied player debuffs** (Soul Siphon, Dark Shackles, Frail, Weak): the
-recurring gap is that §5-C/`planner` model *my* Str/block/damage as monotonic, but three of four Act-1
-bosses actively **strip or weaken** them. A single mechanism — parse enemy intents/statuses that debuff the
-player and fold them into the per-turn projection — closes Lagavulin (b/a), the Kin, and likely Act-2/3
-bosses too. Higher-leverage than per-boss patches; sized for the §5-C enemy-mechanic-awareness pass.
+recurring gap is that §5-C/`planner` model *my* Str/block/damage as monotonic, but several Act-1 bosses
+actively **strip or weaken** them. Split into two halves:
+- **(a) In-the-moment — DONE 2026-06-26.** The planner now reads my **own** Weak / Frail off `player.status`
+  and applies them this turn: Weak (`my_weak`) cuts my Attack damage ×0.75 in `_apply_attack`; Frail
+  (`my_frail`) cuts Block-gained-from-cards ×0.75 in `_apply_card` (`FRAIL_MULT`). Universal (every
+  Weak/Frail fight, not just bosses — the Kin applies **both** via Orb of Weakness / Orb of Frailty), so
+  the lethal/survival math is no longer over-stated when debuffed. 2 tests.
+- **(b) Multi-turn — filed.** §5-C still treats `my_str`/block as only-growing across turns, so it doesn't
+  model a boss **permanently stripping** them (Lagavulin **Soul Siphon** −2 Str AND −2 Dex per cycle; Kin
+  **Dark Shackles** −9 Str). Needs the fight estimate to subtract enemy-applied player-debuffs per turn —
+  sized for the §5-C enemy-mechanic-awareness pass. Closes the §5-C over-rating vs Lagavulin / the Kin.
 
 - **Powers under-played — the one-turn planner defers permanent buffs** (owner 2026-06-25; viewer-
   jarring + real upside). The planner scores end states by *this turn's* damage/block/lethal, so a

@@ -25,6 +25,7 @@ from sts2bot.policy.textparse import CardEffects, parse_card_description, parse_
 
 VULN_MULT = 1.5
 WEAK_MULT = 0.75
+FRAIL_MULT = 0.75  # Frail: block I gain from cards is reduced by 25%
 _RAGE_BLOCK = re.compile(r"gain (\d+) block", re.IGNORECASE)
 # "Exhaust your hand, deal N damage for each card exhausted" (Fiend Fire): damage
 # scales with hand size, so the flat per-hit the text parser sees underprices it.
@@ -88,6 +89,8 @@ class SimState:
     my_block: int
     my_strength: int
     barricade: bool = False  # block persists -> stacking it is never waste
+    my_weak: bool = False  # I'm Weak: my Attacks deal 25% less (Kin Orb of Weakness, etc.)
+    my_frail: bool = False  # I'm Frail: Block I gain from cards is 25% less (Kin Orb of Frailty)
     has_summoner: bool = False  # an enemy summons minions: chasing the minions is a treadmill
     hand_size: int = 0  # full hand size at turn start (for hand-exhaust scaling)
     draws: int = 0
@@ -288,6 +291,8 @@ def _apply_attack(
     per_hit = base_damage + state.my_strength
     if pen_double:
         per_hit *= 2  # Pen Nib's 10th attack: double the (post-Strength) per-hit damage
+    if state.my_weak:
+        per_hit = int(per_hit * WEAK_MULT)  # I'm Weak: my Attacks deal 25% less
     if e.vulnerable > 0:
         per_hit = int(per_hit * VULN_MULT)
     for _ in range(hits):
@@ -415,9 +420,13 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             s = replace(s, enemies=tuple(enemies), weak_applied=s.weak_applied + landed_weak)
     # In-combat healing (Not Yet), capped at the turn's damage taken — no overheal credit.
     heal_applied = max(0, min(card.fx.heal, s.heal_room - s.healing)) if card.fx.heal else 0
+    # Frail cuts the Block I gain from cards (and Rage) by 25% — the floor matches the game.
+    block_gain = card.fx.block + rage_bonus
+    if s.my_frail and block_gain:
+        block_gain = int(block_gain * FRAIL_MULT)
     return replace(
         s,
-        my_block=s.my_block + card.fx.block + rage_bonus,
+        my_block=s.my_block + block_gain,
         my_strength=s.my_strength + card.fx.strength,
         strength_gained=s.strength_gained + card.fx.strength,
         draws=s.draws + card.fx.draw,
@@ -505,12 +514,20 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     energy = player.energy or 0
     my_strength = 0
     barricade = False
+    my_weak = my_frail = False
     card_cap = None  # "You can only play N cards this turn" (Ringing): spend it on the best play
     for p in player.status:
-        if p.id.upper() == "STRENGTH" and p.amount:
+        pid = p.id.upper()
+        if pid == "STRENGTH" and p.amount:
             my_strength = p.amount
-        if p.id.upper() == "BARRICADE":
+        if pid == "BARRICADE":
             barricade = True
+        # My own Weak/Frail throttle this turn's output (the Kin applies both via Orbs); amount is
+        # turns remaining, so any positive stack is live now.
+        if "WEAK" in pid and (p.amount or 0) > 0:
+            my_weak = True
+        if "FRAIL" in pid and (p.amount or 0) > 0:
+            my_frail = True
         if m := re.search(r"only play (\d+) card", p.description or "", re.IGNORECASE):
             card_cap = int(m.group(1)) if card_cap is None else min(card_cap, int(m.group(1)))
 
@@ -533,6 +550,8 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         my_block=player.block,
         my_strength=my_strength,
         barricade=barricade,
+        my_weak=my_weak,
+        my_frail=my_frail,
         hand_size=len(hand),
         has_summoner=any(e.summons for e in enemy_sims),
         heal_room=max(0, player.max_hp - player.hp),

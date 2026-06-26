@@ -392,3 +392,22 @@ def test_healing_credited_when_hurt_capped_at_damage_taken() -> None:
     assert out.healing == 4  # capped at the missing 4 HP, no overheal
     s2 = SimState(energy=2, enemies=(_enemy(),), my_block=0, my_strength=0, heal_room=25)
     assert _apply_card(s2, heal, None).healing == 10  # full heal when there's room
+
+
+def test_player_weak_cuts_my_attack_damage() -> None:
+    # I'm Weak (Kin Orb of Weakness): my Attacks deal 25% less, so a 10 hit lands 7 (int floor).
+    base = _apply_attack(_state(_enemy()), 0, _attack(10))
+    weak = _apply_attack(SimState(energy=3, enemies=(_enemy(),), my_block=0, my_strength=0,
+                                  my_weak=True), 0, _attack(10))
+    assert base.damage_dealt == 10 and weak.damage_dealt == 7
+
+
+def test_player_frail_cuts_block_i_gain() -> None:
+    # I'm Frail (Kin Orb of Frailty): Block gained from cards is 25% less, so a 10-Block card -> 7.
+    block_card = PlannedCard(index=0, name="Defend", cost=1, fx=CardEffects(block=10),
+                             targets_enemy=False)
+    healthy = _apply_card(SimState(energy=3, enemies=(_enemy(),), my_block=0, my_strength=0),
+                          block_card, None)
+    frail = _apply_card(SimState(energy=3, enemies=(_enemy(),), my_block=0, my_strength=0,
+                                 my_frail=True), block_card, None)
+    assert healthy.my_block == 10 and frail.my_block == 7
