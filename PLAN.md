@@ -556,6 +556,12 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   status** — **Uppercut** (Weak *then* Vulnerable) strips **2**, and at **Artifact 1** the Weak is eaten
   (Artifact→0) and the Vulnerable then **lands**; (c) order follows the card text. General mechanic
   (also **Aeonglass**); detect_mechanics + `_apply_card`.
+- **Healing on cards (Not Yet) parsed but NOT modeled in combat** (owner 2026-06-26, live question). The
+  parser sets `fx.heal` (Not Yet = 2e, Heal 10 HP) and *event* scoring uses it, but the combat planner's
+  `_apply_card`/`_score` ignore `fx.heal` — so an in-combat heal reads as a 0-value energy sink and the
+  planner won't play it even when hurt with spare energy. Fix: track capped healing in `_apply_card`
+  (`min(heal, max_hp − hp)`, no overheal) and credit it in `_score` scaled by the same HP-scarcity curve
+  as `hp_loss` (worth more when low, ~nothing at full HP — symmetric with the Offering logic). Small.
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
   your hand, deal N per exhausted card" — so it missed a 35-dmg lethal on a 21-HP enemy (and
