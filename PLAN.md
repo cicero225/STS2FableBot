@@ -521,10 +521,16 @@ actively **strip or weaken** them. Split into two halves:
   (`my_frail`) cuts Block-gained-from-cards ×0.75 in `_apply_card` (`FRAIL_MULT`). Universal (every
   Weak/Frail fight, not just bosses — the Kin applies **both** via Orb of Weakness / Orb of Frailty), so
   the lethal/survival math is no longer over-stated when debuffed. 2 tests.
-- **(b) Multi-turn — filed.** §5-C still treats `my_str`/block as only-growing across turns, so it doesn't
-  model a boss **permanently stripping** them (Lagavulin **Soul Siphon** −2 Str AND −2 Dex per cycle; Kin
-  **Dark Shackles** −9 Str). Needs the fight estimate to subtract enemy-applied player-debuffs per turn —
-  sized for the §5-C enemy-mechanic-awareness pass. Closes the §5-C over-rating vs Lagavulin / the Kin.
+- **(b) Multi-turn — filed, DATA-BLOCKED.** §5-C still treats `my_str`/block as only-growing across turns,
+  so it doesn't model a boss **permanently stripping** them. Verified 2026-06-26 that this **can't be done
+  well from current data**: **Soul Siphon** (the impactful one — Lagavulin, −2 Str AND −2 Dex *per cycle*,
+  permanent) is **not in `bestiary.json` at all** (it's a move/intent, never captured as a status), so
+  modeling it = hardcoding web numbers (fragile). **Dark Shackles** (Kin Priest, "lose 9 Strength until end
+  of this turn") *is* in data but is **temporary** and its **cadence in the move cycle is unknown**, so
+  placing it in §5-C's per-turn loop is also a guess. **Unblock = a live trace**: capture a Lagavulin/Kin
+  fight's intents (`scripts` dwell or a seeded run) to read Soul Siphon's actual params + cadence, then
+  build a generic "enemy reduces my Str/Dex by N per turn" drain in `estimate_fight`. Until then, §5-C
+  over-rates survivability vs Lagavulin / the Kin — accepted.
 
 - **Powers under-played — the one-turn planner defers permanent buffs** (owner 2026-06-25; viewer-
   jarring + real upside). The planner scores end states by *this turn's* damage/block/lethal, so a
