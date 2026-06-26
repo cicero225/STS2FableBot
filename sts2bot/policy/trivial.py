@@ -30,11 +30,6 @@ from sts2bot.client.models import (
 )
 from sts2bot.policy.base import Decision, LoopContext, Wait
 
-# A treasure relic claim occasionally doesn't register (the relic stays listed and the screen never
-# advances -- a mod-state quirk seen on a Bellows chest, 2026-06-25). Retry a few times, then cut
-# losses and proceed rather than re-claim until the run aborts on the orchestrator's stall timeout.
-_TREASURE_CLAIM_TRIES = 8
-
 
 class TrivialRouter:
     """First-legal-choice decisions for every state type."""
@@ -317,25 +312,10 @@ class TrivialRouter:
         t = state.treasure
         if t.relics:
             relic = t.relics[0]
-            key = relic.id or relic.name
-            mem = ctx.screen_mem
-            if mem.get("treasure_claim_key") != key:  # new relic: reset the retry counter
-                mem["treasure_claim_key"] = key
-                mem["treasure_claim_tries"] = 0
-            tries = mem.get("treasure_claim_tries", 0)
-            if tries >= _TREASURE_CLAIM_TRIES and t.can_proceed:
-                return Decision(
-                    action=act.Proceed(),
-                    rationale=f"claim of {relic.name} not advancing after {tries}; proceed",
-                )
-            mem["treasure_claim_tries"] = tries + 1
             return Decision(
                 action=act.ClaimTreasureRelic(index=relic.index or 0),
                 rationale=f"claim treasure relic {relic.name}",
             )
-        mem = ctx.screen_mem  # relic gone -> claimed; clear the retry state for the next chest
-        mem.pop("treasure_claim_key", None)
-        mem.pop("treasure_claim_tries", None)
         if t.can_proceed:
             return Decision(action=act.Proceed(), rationale="treasure claimed; proceed")
         return Wait(reason="treasure chest still opening")
