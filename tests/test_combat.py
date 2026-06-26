@@ -189,9 +189,9 @@ def test_planner_does_not_front_load_a_self_damage_power_at_low_hp() -> None:
 
 
 def test_planner_plays_zero_cost_energy_card_to_enable_more() -> None:
-    # Energy-gain IS modeled: Production (0c, +2 energy, Exhaust) unlocks Defend x2 + Strike x3 on 3
-    # base energy (5 total), so the planner plays it FIRST (owner asked "did we wire energy cards?"
-    # -- yes, since the original planner: parser sets energy_gain, _apply_card adds it to the budget).
+    # Energy-gain IS modeled: Production (0c, +2 energy) unlocks Defend x2 + Strike x3 on 3 base
+    # energy (5 total), so the planner plays it FIRST. (Owner asked "did we wire energy cards?" --
+    # yes: parser sets energy_gain, _apply_card adds it to the DFS budget.)
     w = load_policy_config().combat
 
     def card(i, cid, name, cost, desc, typ, tgt):
