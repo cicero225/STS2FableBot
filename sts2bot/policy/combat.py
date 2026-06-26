@@ -80,6 +80,7 @@ class EnemySim:
     stun_threshold: int = 0  # crossing to/below this HP Stuns it ONCE, skipping its turn (Plow)
     stunned_this_turn: bool = False  # our damage crossed the stun threshold this turn -> it skips
     invincible: bool = False  # sentinel-HP invincible state (Waterfall Giant): damage is wasted
+    crab_rage: bool = False  # Kaiser Crab claw: when an ally dies, survivors get +6 Str +99 Block
 
 
 @dataclass(frozen=True)
@@ -185,6 +186,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         vuln = 0
         artifact = 0
         slippery_stacks = 0
+        crab_rage = False
         is_minion = False
         gains_strength = False
         summons = False
@@ -194,6 +196,8 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 vuln = p.amount
             if "ARTIFACT" in p.id.upper() and p.amount:
                 artifact = p.amount
+            if "CRAB_RAGE" in p.id.upper() or "ally dies" in (p.description or "").lower():
+                crab_rage = True
             # Slippery carries a stack count (Inklet 1, Vantom 9): each charge drops one HP-loss
             # instance to 1, so multi-hit strips it cheaply and a big single hit is wasted.
             if "SLIPPERY" in p.id.upper():
@@ -243,6 +247,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 artifact=artifact,
                 stun_threshold=mech.get("stun_threshold", 0),
                 invincible=e.hp >= _INVINCIBLE_HP,
+                crab_rage=crab_rage,
             )
         )
     return tuple(sims)
@@ -423,6 +428,22 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         if i is not None:
             enemies[i] = replace(enemies[i], incoming=int(enemies[i].incoming * WEAK_MULT))
             s = replace(s, enemies=tuple(enemies), weak_applied=s.weak_applied + landed_weak)
+    # Crab Rage (Kaiser Crab): when a claw dies, every still-living Crab-Rage ally gains +6 Str
+    # and +99 Block (~unkillable). Resolve at *card* granularity (this card's before/after) so an
+    # AoE killing BOTH claws at once enrages no one (the recommended line), while a single-target
+    # kill leaving a claw alive buffs the survivor — the planner then sees that a premature single-
+    # claw kill leaves an unkillable wall (the §8.4-B trap, run 6 live).
+    if any(e.crab_rage for e in s.enemies):
+        pre = {e.entity_id: e.hp for e in state.enemies}
+        died_crab = any(e.crab_rage and e.hp <= 0 < pre.get(e.entity_id, 0) for e in s.enemies)
+        if died_crab:
+            enemies = [
+                replace(e, block=e.block + 99, incoming=e.incoming + 6)
+                if (e.crab_rage and e.hp > 0)
+                else e
+                for e in s.enemies
+            ]
+            s = replace(s, enemies=tuple(enemies))
     # In-combat healing (Not Yet), capped at the turn's damage taken — no overheal credit.
     heal_applied = max(0, min(card.fx.heal, s.heal_room - s.healing)) if card.fx.heal else 0
     # Frail cuts the Block I gain from cards (and Rage) by 25% — the floor matches the game.
@@ -475,8 +496,19 @@ def _score(
     power_term = w.w_power_played * (
         safe_powers * power_horizon + state.self_damage_powers_played * sd_horizon
     )
+    # Crab Rage (Kaiser Crab): ending a turn with one claw dead and another alive enraged the
+    # survivor (+6 Str, +99 Block next turn) — a future cost the one-turn tally can't see, so add a
+    # flat penalty for the split. Lines that kill BOTH or NEITHER claw avoid it, so the planner
+    # to whittle both then finish ~together (the §8.4-B fix; the kill reward alone lured run 6 in).
+    crab = [e for e in state.enemies if e.crab_rage]
+    crab_split = (
+        w.w_crab_rage_split
+        if crab and any(e.hp <= 0 for e in crab) and any(e.hp > 0 for e in crab)
+        else 0.0
+    )
     return (
-        w.w_focus * focus
+        crab_split
+        + w.w_focus * focus
         + w.w_damage * state.damage_dealt
         + w.w_kill * state.kills
         + w.w_overkill * state.overkill

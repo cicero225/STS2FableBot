@@ -43,6 +43,7 @@ class CombatWeights(_Section):
     power_self_damage_hp_safe: float = 0.5  # HP% above which self-damage powers may front-load
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     w_ramp_damage: float = 1.5  # extra value for damaging strength-gaining enemies (race them)
+    w_crab_rage_split: float = -80.0  # penalty for killing one Crab-Rage claw while another lives
     max_sequences: int = 4000
     survival_status_threshold: int = 2
     # transient 'BlockedByHook' hands (engine mid-resolution) report every card

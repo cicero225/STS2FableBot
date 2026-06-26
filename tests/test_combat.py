@@ -12,6 +12,7 @@ from sts2bot.policy.combat import (
     _apply_attack,
     _apply_card,
     _enemy_attacking,
+    _score,
     plan_combat_turn,
 )
 from sts2bot.policy.textparse import CardEffects
@@ -416,6 +417,43 @@ def test_player_weak_cuts_my_attack_damage() -> None:
     weak = _apply_attack(SimState(energy=3, enemies=(_enemy(),), my_block=0, my_strength=0,
                                   my_weak=True), 0, _attack(10))
     assert base.damage_dealt == 10 and weak.damage_dealt == 7
+
+
+def _crab(hp: int, eid: str = "c", **kw) -> EnemySim:
+    return EnemySim(entity_id=eid, hp=hp, max_hp=200, block=0, vulnerable=0, incoming=10,
+                    crab_rage=True, **kw)
+
+
+def test_crab_rage_single_kill_enrages_the_survivor() -> None:
+    # Kaiser Crab: killing one claw (single-target) buffs the survivor +99 Block + 6 Str (~+6 dmg),
+    # so the planner sees the premature kill leaves an unkillable wall.
+    s = SimState(energy=3, my_block=0, my_strength=0,
+                 enemies=(_crab(8, "ROCKET"), _crab(200, "CRUSHER")))
+    out = _apply_card(s, _attack(20), 0)  # 20 dmg kills the 8-HP Rocket
+    rocket, crusher = out.enemies
+    assert rocket.hp == 0
+    assert crusher.block == 99 and crusher.incoming == 16  # enraged: +99 Block, +6 to its hit
+
+
+def test_crab_rage_aoe_double_kill_enrages_no_one() -> None:
+    # An AoE that kills BOTH claws in one card triggers no enrage (they die together) — the cheese.
+    s = SimState(energy=3, my_block=0, my_strength=0,
+                 enemies=(_crab(8, "ROCKET"), _crab(8, "CRUSHER")))
+    aoe = PlannedCard(index=0, name="Cleave", cost=1,
+                      fx=CardEffects(damage=20, aoe=True), targets_enemy=False)
+    out = _apply_card(s, aoe, None)
+    assert all(e.hp == 0 for e in out.enemies) and all(e.block == 0 for e in out.enemies)
+
+
+def test_score_penalizes_a_crab_rage_split() -> None:
+    # A line ending with one claw dead and another alive is penalized below leaving both alive,
+    # so the planner whittles both and finishes ~together rather than focus-firing one into rage.
+    w = load_policy_config().combat
+    split = SimState(energy=0, my_block=0, my_strength=0,
+                     enemies=(_crab(0, "ROCKET"), _crab(150, "CRUSHER")))
+    both_alive = SimState(energy=0, my_block=0, my_strength=0,
+                          enemies=(_crab(150, "ROCKET"), _crab(150, "CRUSHER")))
+    assert _score(split, w) < _score(both_alive, w)
 
 
 def test_player_frail_cuts_block_i_gain() -> None:

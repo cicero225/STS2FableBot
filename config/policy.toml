@@ -1,8 +1,8 @@
 # Policy parameters (FR-3.4). Every run records the hash of this file; change it
 # via commits, not live edits, so the run index can attribute behavior changes.
-# 2026-06-26 code-state marker (no weight change): bumps the hash so runs after the
-# treasure-race fix + iconized-energy parsing are separable from the partial pre-fix
-# 379cb9c6744b batch (which validated the power-horizon mechanism: play-rate 48%->83%).
+# 2026-06-26: adds w_crab_rage_split (Kaiser Crab Act-2 fix, §8.4-B) — first weight change since
+# the combat-modeling pass (Artifact/Pen Nib/healing/stun/Slippery/Weak-Frail were all code-only,
+# so they shared hash 6a29cd7f6549, validated clean in batch ble3lyl8a: Artifact confirmed live).
 
 [combat]
 # one-turn planner scoring weights
@@ -35,6 +35,10 @@ w_play_friction = -0.35     # per card played: animation time + on-play risks; s
 w_power_played = 8.0            # per-turn value of a banked Power (scaled by remaining turns)
 w_power_horizon_cap = 6.0       # cap on the remaining-turns multiplier
 power_self_damage_hp_safe = 0.5 # HP% above which self-damage powers may front-load
+# Kaiser Crab (Act-2): killing one claw enrages the survivor (+6 Str, +99 Block -> ~unkillable). A
+# flat penalty for ending a turn with one Crab-Rage claw dead and another alive, so the planner
+# whittles both then finishes ~together instead of focus-firing one into the trap (PLAN §8.4-B).
+w_crab_rage_split = -80.0
 max_sequences = 4000        # planner search cap per decision
 hook_retry_limit = 12       # re-poll a transient 'BlockedByHook' hand this many times
                             # before trusting "no playable cards" (cost a boss fight:
