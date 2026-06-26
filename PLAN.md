@@ -447,8 +447,11 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
 
 #### 8.4-A Act-1 boss mechanics — deep-dive reference (2026-06-26)
 
-Full pass on the **four** Act-1 bosses (bestiary `acts:[1], roles:[boss]` + web: STS2 wiki, sts2companion,
-spire-codex). Sourced mechanics, diffed against the planner (`combat.py`) and §5-C (`capability.py`).
+Full pass on the **six** Act-1 bosses (web: STS2 wiki, sts2companion, spire-codex, pcgamer). The bestiary
+only had **four** — Vantom and Soul Fysh have `runs_seen: 0` (the bot has never reached them in a batch;
+Soul Fysh is the **Underdocks** alt-Act-1 boss, a separate area). Most-faced in our runs: **Kin (20)**,
+**Ceremonial Beast (14)**, Lagavulin (5), Waterfall (3) — so Kin + Beast are where Act-1 losses concentrate.
+Sourced mechanics, diffed against the planner (`combat.py`) and §5-C (`capability.py`).
 Live validation is **opportunistic** until seeded runs unlock (needs 3 Act-3 wins;
 [[seeded-custom-runs-test-harness]]) — so this is model-against-docs + fixture tests, confirm live when a
 run reaches one. **Common thread across all four: a DPS race** — the bot's weak decks are exactly the
@@ -485,6 +488,24 @@ profile these punish, so §5-C race-accuracy + tempo drafting are the binding le
   block/damage as un-debuffed, so it **over-projects** both vs the Kin (same class as Lagavulin Soul Siphon:
   enemy-applied player-debuffs). General item: **model enemy debuff-intents onto the player** (Str/Dex/
   Frail/Weak strips), feeding §5-C's per-turn block/damage and the planner's lethal check.
+
+- **Vantom** (173 HP; `runs_seen 0` — toughest Act-1 boss, strict 4-turn cycle). *Mechanic:* enters with
+  **9 stacks of Slippery** — each stack reduces the next damage *instance* (any source) to 1 and is
+  consumed, so **multi-hit strips stacks fast and single big hits are wasted**; clear Slippery, then burst.
+  Cycle: T1 attack+apply Slippery, T2 attack, **T3 Tail Stab (~20 dmg + 3 Wounds to hand)**, T4 +Strength.
+  *Modeled:* the planner has a Slippery model but it's **per-turn-first-hit** (`slippery_pending = lost==0`),
+  which mis-prices Vantom's **stacked** Slippery — it thinks hits 2..n of a multi-hit land full when they
+  each deal 1. *Open (filed):* model Slippery as a **charge counter** (`slippery_stacks` from the status
+  amount; each hit while >0 → 1, decrement; thread across cards like the dmg cap). Makes the planner prefer
+  multi-hit and not waste a big single hit into Vantom. Tractable + fixture-testable; §5-C's per-turn
+  biggest-hit reduction is a rough multi-turn proxy, fine to leave. *Wounds to hand* (clog) unmodeled.
+- **Soul Fysh** (211 HP; `runs_seen 0` — **Underdocks** alt boss, 5-turn cycle). *Mechanic:* Beckon → Lure →
+  Nibble → **Intangible** → Vulnerable-Bite + Intangible, repeat. **Beckon** adds status cards (cost 1e; if
+  not exhausted/discarded by end of turn → **6 unblockable** each). **Intangible** turns reduce **every hit
+  you land to 1** (don't attack — defend + clear Beckons). *Modeled:* Beckon-type unblockable end-of-turn
+  hand cards ✓ (`_HAND_HP_LOSS_RE`, owner-confirmed Beckon→HP). *Open (filed):* **Intangible** = per-hit
+  cap of 1 — same shape as stacked Slippery but a 1-turn status; the planner would waste attacks into an
+  Intangible turn (should defend/clear instead). Lower priority (boss unreached + rarer alt area).
 
 **Cross-boss filed item — enemy-applied player debuffs** (Soul Siphon, Dark Shackles, Frail, Weak): the
 recurring gap is that §5-C/`planner` model *my* Str/block/damage as monotonic, but three of four Act-1
