@@ -76,7 +76,8 @@ class EnemySim:
     hp_lost_this_turn: int = 0
     skittish: int = 0  # +Block on its FIRST hit each turn (Skittish); follow-ups get soaked
     artifact: int = 0  # negates the next N debuffs (one per unique status type, magnitude-blind)
-    stun_threshold: int = 0  # at/below this HP it's Stunned, skipping its turn (Ceremonial Beast)
+    stun_threshold: int = 0  # crossing to/below this HP Stuns it ONCE, skipping its turn (Plow)
+    stunned_this_turn: bool = False  # our damage crossed the stun threshold this turn -> it skips
     invincible: bool = False  # sentinel-HP invincible state (Waterfall Giant): damage is wasted
 
 
@@ -255,12 +256,14 @@ def _ignorable_minion(e: EnemySim, has_summoner: bool = False) -> bool:
 
 
 def _enemy_attacking(e: EnemySim) -> bool:
-    """Will this enemy's intent actually land this turn? No if dead, or Stunned by having been
-    dropped to/below its stun threshold (Ceremonial Beast / Terror Eel) — crossing it skips its
-    turn, which the planner can choose deliberately to dodge an otherwise-lethal hit."""
+    """Will this enemy's intent actually land this turn? No if dead, or if our damage crossed its
+    stun threshold this turn (Ceremonial Beast's Plow / Terror Eel) — the planner can deliberately
+    attack to the threshold to cancel an otherwise-lethal hit. The stun is ONE-TIME and crossing-
+    based: an enemy that *began* the turn already below its threshold (it already used the stun and
+    is now awake) attacks per its live intent, so we key off the crossing, not the HP level."""
     if e.hp <= 0:
         return False
-    return not (e.stun_threshold and e.hp <= e.stun_threshold)
+    return not e.stunned_this_turn
 
 
 def _apply_attack(
@@ -309,8 +312,14 @@ def _apply_attack(
     overkill_amt = -hp if hp < 0 else 0
     killed = hp <= 0 < e.hp
     hp = max(0, hp)
+    # Plow stun: if this attack crossed the threshold (from above to at/below), it's stunned and
+    # skips its next turn — one-time, so we key off the crossing (started above) not the HP level.
+    stunned = e.stunned_this_turn or bool(
+        e.stun_threshold and e.hp > e.stun_threshold and hp <= e.stun_threshold
+    )
     enemies[target_i] = replace(
-        e, hp=hp, block=block, vulnerable=e.vulnerable + card.fx.vulnerable, hp_lost_this_turn=lost
+        e, hp=hp, block=block, vulnerable=e.vulnerable + card.fx.vulnerable,
+        hp_lost_this_turn=lost, stunned_this_turn=stunned,
     )
     # Ignorable minions (weak, non-ramping) aren't progress — they flee with the leader and
     # Illusion ones revive — so deny offensive reward; their death's incoming drop is still

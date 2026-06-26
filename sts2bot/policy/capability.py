@@ -147,6 +147,7 @@ def estimate_fight(
         # --- enemy turn: skipped the turn it's Stunned by crossing its threshold ---
         if stun_at and kill_hp <= stun_at and not stunned_used:
             stunned_used = True
+            extra_str = 0  # Plow: the Beast loses ALL accumulated Strength when it stuns
         else:
             enemy_dps = base_dps + extra_str * n_attackers
             hp -= max(0.0, enemy_dps - deck.block_per_turn)

@@ -331,13 +331,29 @@ def test_pen_nib_absent_relic_never_doubles() -> None:
     assert s.damage_dealt == 10 and s.pen_nib_counter is None
 
 
-def test_enemy_attacking_false_when_stunned_below_threshold() -> None:
-    def es(hp):
+def test_enemy_attacking_keys_off_the_crossing_not_the_level() -> None:
+    # The Plow stun is one-time: it fires when our damage CROSSES the threshold, not whenever HP
+    # happens to sit below it. An enemy already below the line (stun spent, now awake) attacks.
+    def es(hp, stunned=False):
         return EnemySim(entity_id="e", hp=hp, max_hp=300, block=0, vulnerable=0, incoming=40,
-                        stun_threshold=150)
-    assert _enemy_attacking(es(160)) is True  # above threshold: it attacks
-    assert _enemy_attacking(es(150)) is False  # at threshold: stunned, skips its turn
+                        stun_threshold=150, stunned_this_turn=stunned)
+    assert _enemy_attacking(es(160)) is True  # above threshold: attacks
+    assert _enemy_attacking(es(140)) is True  # below but NOT crossed this turn (awake again)
+    assert _enemy_attacking(es(140, stunned=True)) is False  # we crossed it -> stunned, skips turn
     assert _enemy_attacking(es(0)) is False  # dead
+
+
+def test_apply_attack_sets_stun_flag_only_on_the_crossing() -> None:
+    def es(hp):
+        return SimState(energy=3, my_block=0, my_strength=0,
+                        enemies=(EnemySim(entity_id="e", hp=hp, max_hp=300, block=0, vulnerable=0,
+                                          incoming=40, stun_threshold=150),))
+    crossed = _apply_attack(es(158), 0, _attack(12))  # 158 -> 146, crosses 150
+    assert crossed.enemies[0].stunned_this_turn is True
+    not_crossed = _apply_attack(es(170), 0, _attack(12))  # 170 -> 158, still above 150
+    assert not_crossed.enemies[0].stunned_this_turn is False
+    already_below = _apply_attack(es(140), 0, _attack(12))  # started below: no fresh crossing
+    assert already_below.enemies[0].stunned_this_turn is False
 
 
 def test_planner_attacks_to_stun_threshold_to_survive() -> None:

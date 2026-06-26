@@ -445,6 +445,53 @@ implemented + tested. Potion deferrals: full-belt proactive
 *deploy* is reward-screen logic (only discard exists); the finisher fires on board-clear
 or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
 
+#### 8.4-A Act-1 boss mechanics — deep-dive reference (2026-06-26)
+
+Full pass on the **four** Act-1 bosses (bestiary `acts:[1], roles:[boss]` + web: STS2 wiki, sts2companion,
+spire-codex). Sourced mechanics, diffed against the planner (`combat.py`) and §5-C (`capability.py`).
+Live validation is **opportunistic** until seeded runs unlock (needs 3 Act-3 wins;
+[[seeded-custom-runs-test-harness]]) — so this is model-against-docs + fixture tests, confirm live when a
+run reaches one. **Common thread across all four: a DPS race** — the bot's weak decks are exactly the
+profile these punish, so §5-C race-accuracy + tempo drafting are the binding levers, not micro-tactics.
+
+- **Ceremonial Beast** (252 HP). *Mechanic:* ramps **Strength** (Plow); **first time** HP ≤150 → **Stunned
+  + loses ALL Strength** (one free turn); Phase 2 **Beast Cry → Ringing** (play only 1 card/turn). Pure
+  race, ~100 dmg ASAP. *Modeled:* Str-ramp race ✓; Ringing `card_cap` (generic, live) ✓; **stun now
+  crossing-based + one-time** in the planner (`stunned_this_turn`, set when our damage crosses 150 — fixes
+  the level-based bug that would treat it as stunned every turn below 150) ✓ **[done 2026-06-26]**; §5-C
+  **zeroes enemy Strength on stun** ✓ **[done]**. *Open:* none material.
+- **Lagavulin Matriarch** (222 HP). *Mechanic:* starts **Asleep + 12 Plating** (sleeps 3 turns OR until
+  unblocked damage; wakes → loses Plating). Awake cycle Slash → Disembowel → Block/Attack → **Soul Siphon**
+  (= permanent **−2 Strength AND −2 Dexterity to the PLAYER** each cycle). Multi-hit pierces Plating; rush
+  once awake. *Modeled:* Plating as §5-C `self_block` (12) ✓; multi-hit-vs-block soak ✓; Asleep = Sleep
+  intent → `incoming` 0 (passively) ✓; Str-ramp ✓. *Open (filed):* **(a)** Soul Siphon stripping the
+  player's Str/Dex is unmodeled — §5-C `my_str` only grows, so it **over-rates** survivability vs Lagavulin
+  (and the Kin's Dark Shackles); **(b)** Asleep is a **multi-turn setup window** (buff/scale during the 3
+  free turns, don't wake it early with chip attacks) — the one-turn planner can't price the hidden cost of
+  waking it; §5-C race-vs-setup territory; **(c)** Plating's −1/turn decay is ignored (treated constant →
+  slightly over-rates its defense).
+- **Waterfall Giant** (240 HP). *Mechanic:* almost every move adds **+3 Steam Eruption**; killed-while-
+  -Steam-Eruption → **invulnerable**, "About To Blow" then **Explode** next turn for the **accumulated**
+  stack, then dies. Speed race. *Modeled:* DeathBlow telegraph counted as incoming ✓ **[done]**; sentinel-
+  HP **invincible → damage wasted** ✓ **[done]**; §5-C `death_damage` ✓. *Open (filed, part a):* §5-C uses
+  the **fixed 15** from the status text, but the real explosion = the **accumulating** stack (3/move, so
+  30–60+ by kill) → under-reserves block; and the *pre-kill* decision (push to 0 this turn vs wait) needs
+  scheduled-post-lethal-hit modeling (reserve block like a delayed Beckon). Multi-turn; deferred.
+- **The Kin** (Kin Priest 190 + 2 Kin Followers ~58). *Mechanic:* Priest cycles **Frail → Weak → triple-hit
+  → +Str**; Followers ramp Str; **Orb of Frailty** (Frail −25% your Block) / **Orb of Weakness** (Weak −25%
+  your damage). Kill Priest → Followers **flee** (Minion); or clear Followers first; **AoE trivializes**.
+  *Modeled:* Minion-aware lethal (leader-kill ends it) ✓; focus-fire ✓; Str-ramp ✓. *Open (filed):*
+  **Frail/Weak on the PLAYER** (−25% block / −25% damage) is unmodeled — the planner treats its own
+  block/damage as un-debuffed, so it **over-projects** both vs the Kin (same class as Lagavulin Soul Siphon:
+  enemy-applied player-debuffs). General item: **model enemy debuff-intents onto the player** (Str/Dex/
+  Frail/Weak strips), feeding §5-C's per-turn block/damage and the planner's lethal check.
+
+**Cross-boss filed item — enemy-applied player debuffs** (Soul Siphon, Dark Shackles, Frail, Weak): the
+recurring gap is that §5-C/`planner` model *my* Str/block/damage as monotonic, but three of four Act-1
+bosses actively **strip or weaken** them. A single mechanism — parse enemy intents/statuses that debuff the
+player and fold them into the per-turn projection — closes Lagavulin (b/a), the Kin, and likely Act-2/3
+bosses too. Higher-leverage than per-boss patches; sized for the §5-C enemy-mechanic-awareness pass.
+
 - **Powers under-played — the one-turn planner defers permanent buffs** (owner 2026-06-25; viewer-
   jarring + real upside). The planner scores end states by *this turn's* damage/block/lethal, so a
   **Power** (0 immediate damage/block) gets only the flat `w_power_played = 8.0` (per-turn powers like
@@ -579,8 +626,11 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
 - **Stun-threshold as a defensive play (Ceremonial Beast / Terror Eel) — modeled in §5-C, NOT the
   planner** (owner 2026-06-26; not 100% sure of the instance but the gap is real). **DONE:**
   `EnemySim.stun_threshold` (sourced via `detect_mechanics`, same as the other throttling mechanics);
-  `_enemy_attacking()` returns False once an enemy's HP is at/below it, so its `incoming` drops out of
-  the tally and the planner will attack-to-threshold to dodge a lethal instead of blocking. Original
+  the stun is **one-time + crossing-based** (`stunned_this_turn`, set in `_apply_attack` only when our
+  damage drops it from *above* the threshold to at/below — corrected 2026-06-26 from an initial level-based
+  check that would have treated the Beast as stunned every turn it sat below 150, i.e. after the stun was
+  already spent and it was awake again). `_enemy_attacking()` then drops the stunned enemy's `incoming`, so
+  the planner attacks-to-threshold to dodge the otherwise-lethal hit instead of blocking. Original
   detail: These bosses are
   **Stunned** when dropped to/below an HP threshold (Beast ~150), skipping a turn — so *attacking down
   to the threshold* can cancel an otherwise-lethal hit and buy a turn. `estimate_fight` already models
