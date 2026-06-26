@@ -596,11 +596,19 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   delayed explosion → it "kills" the boss and then dies to the eruption (often with genuinely too little
   block, so many of these deaths weren't misplays). **(b)** But this batch it **failed to Hail-Mary a
   clear lethal**: full potion belt (≥1 damage-saving potion), low HP, **~69 incoming** from the eruption
-  — should have fired trivially, didn't. **Post-batch check (from the trace):** does the API surface the
-  ~69 as `incoming`/an intent? If **yes** → the Hail-Mary/desperation gate has a bug (didn't read it);
-  if **no** → the bot is blind to the eruption and needs **Steam-Eruption modeling** (a scheduled
-  post-lethal hit the §5-C / hp_loss tally reserves block for, like a delayed Beckon). Ties to the
-  hail-mary note above and the death-tally completeness items.
+  — should have fired trivially, didn't. **RESOLVED (b), the no-fire — `incoming` filter bug** (fixed
+  2026-06-26, commit on `combat.py`): the eruption **is** surfaced by the API, as a **`DeathBlow`**
+  intent (the boss flips invincible at an HP sentinel `999999999`, then telegraphs the explosion as
+  DeathBlow with the full stack as its label). But the combat planner's incoming tally filtered intents
+  to `type == "attack"` only, so DeathBlow read as **0 incoming** → no block reserved, and the
+  hail-mary/desperation gate (compares incoming vs HP) never saw the lethal. Now counts
+  `type in ("attack", "deathblow")`. So this was a **parsing/filter bug, not eruption-blindness** — the
+  fix makes the bot block it and hail-mary it like any other big hit. **(a) still open** for the general
+  case: when the eruption is *not* yet on the board as a DeathBlow intent (the bot is mid-fight deciding
+  whether to push the boss to 0 *this* turn), it still doesn't model the one-turn-delayed post-lethal
+  hit — that needs scheduled-hit modeling (block reserved like a delayed Beckon), tied to the
+  death-tally completeness items. The lethal/desperation-on-post-plan-survivability note above also
+  still stands.
 - **Minion-aware combat** (owner tip: "Minion" rides as a *status* on the enemy —
   `enemy.status`; tooltip "Minions abandon combat without their leader"):
   - *Lethal*: `all(e.hp ≤ 0)` should count killing all **non-minion (leader)** enemies as
