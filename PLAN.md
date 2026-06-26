@@ -551,19 +551,28 @@ current wall**. The Act-1-style in-the-moment fixes ported here are the lever.
 
 - **Kaiser Crab** (two claws: **Crusher** 209 HP tanky + **Rocket** 199 HP heavy-hitter; kill BOTH → the
   body flees). *Mechanics:* **Crab Rage** — "when an ally dies, [survivor] gains **6 Strength and 99
-  Block**" (`CRAB_RAGE_POWER`), so killing one claw early makes the other ~unkillable; **Surrounded /
-  Back Attack** — the claw *behind* you deals **+50%** (`BACK_ATTACK_LEFT/RIGHT_POWER`); **Bug Sting** —
-  Weak 2 + Frail 2 on the player. Strategy: whittle both ~evenly, then kill ~together (AoE/poison is the
-  cheese; both die same hit → no enrage). *Modeled:* Bug Sting's Weak/Frail ✓ (the in-the-moment fix);
-  AoE-hits-both ✓; multi-enemy focus-fire ✓. **GAP (live-confirmed, batch run 6): the planner's
-  focus-fire heuristic poured all damage into Rocket (199→113) while Crusher sat at 209 — straight toward
-  the Crab Rage trap** (kill Rocket → Crusher +6 Str +99 Block → unkillable). **FIX (building now):**
-  `EnemySim.crab_rage`; in-sim, a claw's death (at *card* granularity, so an AoE that kills both triggers
-  nothing) gives surviving Crab-Rage allies +99 Block +6 Str; plus a `_score` penalty
-  (`w_crab_rage_split`) when a line ends with one claw dead and another alive — so the planner whittles
-  both and only commits the kills ~together. *Open/filed:* **Back Attack +50%** — need to confirm whether
-  the intent `label` already bakes in the +50% (if yes, `incoming` is fine; if no, model the multiplier
-  + the "facing" state). Lower priority.
+  Block**" (`CRAB_RAGE_POWER`) for ONE turn; **Surrounded / Back Attack** — the claw you face *away from*
+  deals **+50%** (`BACK_ATTACK_LEFT/RIGHT_POWER` + player `SURROUNDED_POWER`); **Bug Sting** — Weak 2 +
+  Frail 2 on the player. **Facing mechanic (owner, from a prior session):** you face whichever enemy you
+  **single-target-clicked LAST** this turn (attack/potion); the *other* claw takes the +50%. AoE does
+  **not** rotate. So face the claw with the bigger incoming at end of turn. Crucially, **killing one claw
+  ends Surrounded → you face the survivor permanently (no +50%)**, so killing a claw is **generally a
+  BOON** despite the one-turn enrage — *not* the "trap" the first cut assumed. **DONE 2026-06-26**
+  (config `8914a6c97a18` → `374480217e9e`): (1) `EnemySim.back_attack` + `SimState.surrounded` +
+  `SimState.facing` (tracks the last single-target click through the sequence); `_score` adds +50% to the
+  unfaced claw's incoming while 2+ claws live (label is **base** — verified live: facing changed
+  None→Rocket at seq1168→1170 with labels steady 18/3), defaulting to facing the biggest hitter. Killing
+  a claw drops to one → no +50% → the boon shows up as an incoming drop. (2) `EnemySim.crab_rage`: at
+  *card* granularity a claw's death gives surviving allies +99 Block +6 Str (AoE that kills both enrages
+  no one); the in-sim 99 Block stops the planner over-crediting a sequential double-kill it can't punch
+  through. (3) `w_crab_rage_split` **reduced −80 → −20** — only a gentle nudge against a *needless* split,
+  since the back-attack model now carries the real kill-the-claw value. Bug Sting's Weak/Frail ✓ (the
+  in-the-moment fix). *Open/filed (edge):* **Stampede & end-of-turn auto-play cards rotate facing
+  arbitrarily** (owner) — the facing model assumes none active; a card that auto-plays attacks at end of
+  turn can flip you to face the wrong claw. Rare; could later flag such cards as bad picks vs Kaiser Crab.
+  *Simplification:* the initial/carried facing (turn start, before any click) defaults to "facing the
+  biggest" rather than the true last-turn facing (the API exposes no facing field); self-corrects once the
+  bot clicks.
 - **Knowledge Demon** (379 HP). *Mechanic:* every few turns **"Choose a Card"** forces an escalating
   player debuff — Disintegration (end-of-turn DoT) vs Mind Rot (draw −1); later **Sloth** (max 3 cards/turn,
   = Normality-class card cap) vs **Waste Away** (−1 energy). Race it before the choices compound; pick the
@@ -573,14 +582,19 @@ current wall**. The Act-1-style in-the-moment fixes ported here are the lever.
   → `card_cap` like Normality, Disintegration → per-turn self-damage, Mind Rot → −1 draw). Bigger lift
   (decision policy + several debuff models); not in static data (the choices aren't bestiary statuses).
 - **The Insatiable** (321 HP). *Mechanic:* **Sandpit** — "In 4 turns, you will be eaten and die"
-  (`SANDPIT_POWER`); ramps every turn, no cap → pure DPS check, kill in ~5 turns. *Modeled:* **already
-  well-covered** — §5-C parses Sandpit as `death_timer` (race-or-die, with `_SANDPIT_SLACK` for Frantic
-  Escape) and models Str ramp + Vuln. Mostly handled at the estimate level; the in-combat planner just
-  races. No new work beyond confirming the death-timer fires live.
+  (`SANDPIT_POWER`); ramps every turn, no cap → pure DPS check, kill in ~5 turns. It shuffles **Frantic
+  Escape** cards into your deck; playing one **raises the death timer by 1** (owner reminder). *Modeled:*
+  **already well-covered (confirmed 2026-06-26)** — §5-C parses Sandpit as `death_timer` (race-or-die) and
+  pads it `_SANDPIT_SLACK = 3` for the Frantic Escapes; **and the in-combat policy already plays Frantic
+  Escape** — `StandardRouter._survival_card` ([standard.py]) generically detects a death-countdown status
+  ("you…die/eaten") and, once it drops to `survival_status_threshold = 2`, plays the injected card whose
+  text names that status (Frantic Escape) to push the timer back. Str ramp + Vuln modeled. No new work;
+  optimal Frantic-Escape *timing* is a later refinement (the `_SANDPIT_SLACK` comment already flags it).
 
-**Act-2 takeaway:** the one clean, high-value, tractable in-the-moment fix is **Kaiser Crab's Crab Rage**
-(building now). Knowledge Demon's choice mechanic is a larger decision-policy lift (filed). The Insatiable
-is already modeled. Back Attack +50% needs a quick API check on whether the label bakes it in.
+**Act-2 takeaway:** **Kaiser Crab is DONE** (Crab Rage + back-attack/facing + Bug Sting all modeled; the
+key insight — killing a claw ends Surrounded so it's a boon, not a trap — corrected from owner notes).
+Knowledge Demon's "Choose a Card" is a larger decision-policy lift (filed). The Insatiable is already
+covered including Frantic Escape. Remaining Act-2 work is the Knowledge Demon choice policy.
 
 - **Powers under-played — the one-turn planner defers permanent buffs** (owner 2026-06-25; viewer-
   jarring + real upside). The planner scores end states by *this turn's* damage/block/lethal, so a

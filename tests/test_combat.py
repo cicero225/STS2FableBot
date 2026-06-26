@@ -446,14 +446,45 @@ def test_crab_rage_aoe_double_kill_enrages_no_one() -> None:
 
 
 def test_score_penalizes_a_crab_rage_split() -> None:
-    # A line ending with one claw dead and another alive is penalized below leaving both alive,
-    # so the planner whittles both and finishes ~together rather than focus-firing one into rage.
+    # Ending a turn with one claw dead and another alive eats a (small) penalty vs leaving both
+    # alive — a gentle nudge against a needless split (killing a claw is otherwise usually a boon).
     w = load_policy_config().combat
     split = SimState(energy=0, my_block=0, my_strength=0,
                      enemies=(_crab(0, "ROCKET"), _crab(150, "CRUSHER")))
     both_alive = SimState(energy=0, my_block=0, my_strength=0,
                           enemies=(_crab(150, "ROCKET"), _crab(150, "CRUSHER")))
     assert _score(split, w) < _score(both_alive, w)
+
+
+def _bclaw(eid: str, incoming: int, hp: int = 150) -> EnemySim:
+    # back-attack in isolation (no crab_rage, so the split penalty doesn't muddy the comparison)
+    return EnemySim(entity_id=eid, hp=hp, max_hp=200, block=0, vulnerable=0, incoming=incoming,
+                    back_attack=True)
+
+
+def test_back_attack_adds_50pct_to_the_unfaced_claw() -> None:
+    # Surrounded + 2 claws: the claw you face (state.facing) hits base; the OTHER hits +50%.
+    w = load_policy_config().combat
+    enemies = (_bclaw("ROCKET", 30), _bclaw("CRUSHER", 10))
+    facing_rocket = SimState(energy=0, my_block=0, my_strength=0, surrounded=True,
+                             facing="ROCKET", enemies=enemies)
+    facing_crusher = SimState(energy=0, my_block=0, my_strength=0, surrounded=True,
+                              facing="CRUSHER", enemies=enemies)
+    # facing Rocket -> Crusher(10) is behind: incoming 30 + 10 + 5 = 45.
+    # facing Crusher -> Rocket(30) is behind: incoming 30 + 10 + 15 = 55 -> worse (more loss).
+    assert _score(facing_rocket, w) > _score(facing_crusher, w)
+
+
+def test_back_attack_vanishes_once_one_claw_dies() -> None:
+    # Down to a single claw you face it permanently — no +50%. So the surviving claw's incoming is
+    # just its base, even while Surrounded is still flagged (the boon from killing a claw).
+    w = load_policy_config().combat
+    two = SimState(energy=0, my_block=0, my_strength=0, surrounded=True, facing="ROCKET",
+                   enemies=(_bclaw("ROCKET", 30), _bclaw("CRUSHER", 10)))
+    one = SimState(energy=0, my_block=0, my_strength=0, surrounded=True, facing="ROCKET",
+                   enemies=(_bclaw("ROCKET", 30), _bclaw("CRUSHER", 10, hp=0)))
+    # the +50% on the unfaced Crusher (worth -5 in hp_loss) is gone once it's dead -> higher score
+    assert _score(one, w) > _score(two, w)
 
 
 def test_player_frail_cuts_block_i_gain() -> None:

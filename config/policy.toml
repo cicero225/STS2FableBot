@@ -35,10 +35,11 @@ w_play_friction = -0.35     # per card played: animation time + on-play risks; s
 w_power_played = 8.0            # per-turn value of a banked Power (scaled by remaining turns)
 w_power_horizon_cap = 6.0       # cap on the remaining-turns multiplier
 power_self_damage_hp_safe = 0.5 # HP% above which self-damage powers may front-load
-# Kaiser Crab (Act-2): killing one claw enrages the survivor (+6 Str, +99 Block -> ~unkillable). A
-# flat penalty for ending a turn with one Crab-Rage claw dead and another alive, so the planner
-# whittles both then finishes ~together instead of focus-firing one into the trap (PLAN §8.4-B).
-w_crab_rage_split = -80.0
+# Kaiser Crab (Act-2): killing one claw enrages the survivor (+6 Str, +99 Block for ONE turn). But
+# it also ends Surrounded -> you face the survivor permanently (no more +50% back-attack), so killing
+# a claw is generally a BOON (owner). The back-attack incoming model carries that benefit; this is
+# only a small penalty for the enrage's one-turn 99-Block stall, not a deterrent (PLAN §8.4-B).
+w_crab_rage_split = -20.0
 max_sequences = 4000        # planner search cap per decision
 hook_retry_limit = 12       # re-poll a transient 'BlockedByHook' hand this many times
                             # before trusting "no playable cards" (cost a boss fight:

@@ -81,6 +81,7 @@ class EnemySim:
     stunned_this_turn: bool = False  # our damage crossed the stun threshold this turn -> it skips
     invincible: bool = False  # sentinel-HP invincible state (Waterfall Giant): damage is wasted
     crab_rage: bool = False  # Kaiser Crab claw: when an ally dies, survivors get +6 Str +99 Block
+    back_attack: bool = False  # Kaiser Crab: deals +50% from behind while you're Surrounded
 
 
 @dataclass(frozen=True)
@@ -92,6 +93,7 @@ class SimState:
     barricade: bool = False  # block persists -> stacking it is never waste
     my_weak: bool = False  # I'm Weak: my Attacks deal 25% less (Kin Orb of Weakness, etc.)
     my_frail: bool = False  # I'm Frail: Block I gain from cards is 25% less (Kin Orb of Frailty)
+    surrounded: bool = False  # Kaiser Crab: a claw behind me deals +50% (gone once one claw dies)
     has_summoner: bool = False  # an enemy summons minions: chasing the minions is a treadmill
     hand_size: int = 0  # full hand size at turn start (for hand-exhaust scaling)
     draws: int = 0
@@ -111,6 +113,7 @@ class SimState:
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
     pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
+    facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
 
@@ -187,6 +190,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         artifact = 0
         slippery_stacks = 0
         crab_rage = False
+        back_attack = False
         is_minion = False
         gains_strength = False
         summons = False
@@ -198,6 +202,8 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 artifact = p.amount
             if "CRAB_RAGE" in p.id.upper() or "ally dies" in (p.description or "").lower():
                 crab_rage = True
+            if "BACK_ATTACK" in p.id.upper() or "from behind" in (p.description or "").lower():
+                back_attack = True
             # Slippery carries a stack count (Inklet 1, Vantom 9): each charge drops one HP-loss
             # instance to 1, so multi-hit strips it cheaply and a big single hit is wasted.
             if "SLIPPERY" in p.id.upper():
@@ -248,6 +254,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 stun_threshold=mech.get("stun_threshold", 0),
                 invincible=e.hp >= _INVINCIBLE_HP,
                 crab_rage=crab_rage,
+                back_attack=back_attack,
             )
         )
     return tuple(sims)
@@ -357,6 +364,10 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     target_id = state.enemies[target_i].entity_id if target_i is not None else None
     # Rage: an Attack played while Rage is already active grants Block.
     rage_bonus = state.rage_block_active if (card.is_attack and state.rage_block_active) else 0
+    # Kaiser Crab facing: any single-target click turns you to face that enemy, so the OTHER claw
+    # takes the +50% back-attack. AoE doesn't rotate. What matters is who you face LAST this turn
+    # (owner), so just track the most recent single-target target through the sequence.
+    facing = target_id if target_i is not None else state.facing
     s = replace(
         state,
         energy=state.energy - card.cost,
@@ -367,6 +378,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             state.self_damage_powers_played + (1 if card.self_damage_power else 0)
         ),
         primal_active=state.primal_active or card.primal_force,
+        facing=facing,
         played=(*state.played, (card.index, target_id)),
     )
     # Pen Nib: count attack cards; the one whose counter rolls past a multiple of 10 doubles.
@@ -428,11 +440,12 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         if i is not None:
             enemies[i] = replace(enemies[i], incoming=int(enemies[i].incoming * WEAK_MULT))
             s = replace(s, enemies=tuple(enemies), weak_applied=s.weak_applied + landed_weak)
-    # Crab Rage (Kaiser Crab): when a claw dies, every still-living Crab-Rage ally gains +6 Str
-    # and +99 Block (~unkillable). Resolve at *card* granularity (this card's before/after) so an
-    # AoE killing BOTH claws at once enrages no one (the recommended line), while a single-target
-    # kill leaving a claw alive buffs the survivor — the planner then sees that a premature single-
-    # claw kill leaves an unkillable wall (the §8.4-B trap, run 6 live).
+    # Crab Rage (Kaiser Crab): when a claw dies, every still-living Crab-Rage ally gains +6 Str and
+    # +99 Block (one-turn wall). Resolve at *card* granularity (this card's before/after) so an AoE
+    # killing BOTH claws at once enrages no one, while a single-target kill buffs the survivor — so
+    # the sim sees the survivor can't also be finished this turn (no over-credited double-kill).
+    # The kill is still usually good (it ends Surrounded — see the back-attack term); this just
+    # prices in the enrage so the planner doesn't *assume* it can punch through the fresh 99 Block.
     if any(e.crab_rage for e in s.enemies):
         pre = {e.entity_id: e.hp for e in state.enemies}
         died_crab = any(e.crab_rage and e.hp <= 0 < pre.get(e.entity_id, 0) for e in s.enemies)
@@ -468,6 +481,18 @@ def _score(
     # A stunned enemy (dropped to/below its stun threshold this turn) skips its turn, so its
     # intent doesn't land — attacking down to the threshold can cancel an otherwise-lethal hit.
     incoming = sum(e.incoming for e in state.enemies if _enemy_attacking(e))
+    # Kaiser Crab back-attack: while Surrounded with 2+ claws alive, the claw you're NOT facing
+    # hits for +50% (labels are base — verified live). You face whoever you single-target-clicked
+    # LAST (state.facing); default to facing the biggest hitter (the optimal play, and what the
+    # biggest-first targeting tends to do). Killing one claw drops to 1 -> permanently faced -> no
+    # +50% (owner: that removal is why killing a claw is usually a boon despite the enrage).
+    if state.surrounded:
+        back = [e for e in state.enemies if e.back_attack and _enemy_attacking(e)]
+        if len(back) >= 2:
+            faced = next((e for e in back if e.entity_id == state.facing), None) or max(
+                back, key=lambda e: e.incoming
+            )
+            incoming += int(0.5 * sum(e.incoming for e in back if e is not faced))
     if state.barricade:
         blocked = state.my_block  # persistent block is all future-useful
         excess = 0
@@ -496,10 +521,10 @@ def _score(
     power_term = w.w_power_played * (
         safe_powers * power_horizon + state.self_damage_powers_played * sd_horizon
     )
-    # Crab Rage (Kaiser Crab): ending a turn with one claw dead and another alive enraged the
-    # survivor (+6 Str, +99 Block next turn) — a future cost the one-turn tally can't see, so add a
-    # flat penalty for the split. Lines that kill BOTH or NEITHER claw avoid it, so the planner
-    # to whittle both then finish ~together (the §8.4-B fix; the kill reward alone lured run 6 in).
+    # Crab Rage split: ending a turn with one claw dead and another alive left the survivor a fresh
+    # 99 Block for a turn — a small future cost the one-turn tally misses. Only a gentle penalty:
+    # killing a claw is usually a BOON (it ends Surrounded; the back-attack term carries that), so
+    # this just nudges against a needless split when both could fall ~together (§8.4-B).
     crab = [e for e in state.enemies if e.crab_rage]
     crab_split = (
         w.w_crab_rage_split
@@ -551,7 +576,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     energy = player.energy or 0
     my_strength = 0
     barricade = False
-    my_weak = my_frail = False
+    my_weak = my_frail = my_surrounded = False
     card_cap = None  # "You can only play N cards this turn" (Ringing): spend it on the best play
     for p in player.status:
         pid = p.id.upper()
@@ -559,6 +584,8 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
             my_strength = p.amount
         if pid == "BARRICADE":
             barricade = True
+        if "SURROUND" in pid:  # Kaiser Crab: a claw behind me deals +50% (back-attack)
+            my_surrounded = True
         # My own Weak/Frail throttle this turn's output (the Kin applies both via Orbs); amount is
         # turns remaining, so any positive stack is live now.
         if "WEAK" in pid and (p.amount or 0) > 0:
@@ -589,6 +616,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         barricade=barricade,
         my_weak=my_weak,
         my_frail=my_frail,
+        surrounded=my_surrounded,
         hand_size=len(hand),
         has_summoner=any(e.summons for e in enemy_sims),
         heal_room=max(0, player.max_hp - player.hp),
