@@ -657,7 +657,15 @@ actively **strip or weaken** them. Split into two halves:
   so if the parsed card damage reflects that preview, the planner would over-count; apply the double to
   exactly **one** attack (the first played while on 9), and check whether `card.description`/damage
   already carries the doubling.
-- **Artifact unmodeled — planner wastes debuffs into it** (owner lookthrough 2026-06-25). **DONE:**
+- **Artifact unmodeled — planner wastes debuffs into it** (owner lookthrough 2026-06-25). **DONE +
+  ✅ VALIDATED LIVE 2026-06-26** (batch ble3lyl8a, tripwire caught Artifact in 4 runs — Cubex Construct
+  Artifact 1, Chomper Artifact 2). Concrete proof from run 6's Chomper fight (both Chompers Artifact 2):
+  at seq848 the planner played **Defend+ → Defend → Strike+ → Defend** and **withheld Uppercut+/Bash**
+  (their Weak/Vuln would be eaten) while still playing the *pure* attack Strike+; at seq875, with the hand
+  clogged by 3 Dazed and Uppercut+ the only damage, it **did** play Uppercut+ into the Artifact-2 Chomper
+  — correct nuance (an attack-debuff is still worth its *damage* once it's the best play). Run 5 likewise
+  played Defend over **Dominate** (pure debuff) into Artifact 2. Resolves the held "await live sighting"
+  for Artifact. (Pen Nib still unseen — tripwire stays.) Implementation:
   `EnemySim.artifact`; `_apply_card` resolves a card's debuffs against the target's Artifact in
   card-text order (`PlannedCard.debuff_order`), stripping one per unique status (magnitude-blind),
   landing only what survives. Dominate-into-Artifact-2 scores ~0; Uppercut at Artifact 1 strips Weak
