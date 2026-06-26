@@ -562,6 +562,17 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   planner won't play it even when hurt with spare energy. Fix: track capped healing in `_apply_card`
   (`min(heal, max_hp − hp)`, no overheal) and credit it in `_score` scaled by the same HP-scarcity curve
   as `hp_loss` (worth more when low, ~nothing at full HP — symmetric with the Offering logic). Small.
+- **Stun-threshold as a defensive play (Ceremonial Beast / Terror Eel) — modeled in §5-C, NOT the
+  planner** (owner 2026-06-26; not 100% sure of the instance but the gap is real). These bosses are
+  **Stunned** when dropped to/below an HP threshold (Beast ~150), skipping a turn — so *attacking down
+  to the threshold* can cancel an otherwise-lethal hit and buy a turn. `estimate_fight` already models
+  this (`stun_threshold` → skip the enemy turn when crossed), but the one-turn **combat planner**'s
+  `EnemySim` has no `stun_threshold`, so in the moment it treats `incoming` as fixed and can't choose
+  "attack to the threshold → stun → survive" — owner saw it block (and die) instead. Fix: carry
+  `stun_threshold` into the planner's `EnemySim` (source it from the bestiary like §5-C, or
+  detect_mechanics) and in `_apply_attack`/`_score` zero that enemy's `incoming` once cumulative damage
+  crosses it (stunned this turn). Concrete instance of the standing theme: **the planner needs §5-C's
+  enemy-mechanic awareness in the moment, not just at draft/route time.**
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
   your hand, deal N per exhausted card" — so it missed a 35-dmg lethal on a 21-HP enemy (and
