@@ -573,6 +573,12 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   detect_mechanics) and in `_apply_attack`/`_score` zero that enemy's `incoming` once cumulative damage
   crosses it (stunned this turn). Concrete instance of the standing theme: **the planner needs §5-C's
   enemy-mechanic awareness in the moment, not just at draft/route time.**
+- **Normality (curse) — 3-card/turn cap unmodeled** (owner 2026-06-26; "at some point"). While
+  **Normality** is in hand you can't play **>3 cards this turn**, *inclusive of cards already played*
+  before it was drawn into hand. Same class as **Ringing** (the planner's existing `card_cap` —
+  Ceremonial Beast's 1/turn), just cap **3** and sourced from a curse in *hand* rather than an enemy
+  status. Fix: detect Normality in hand → set the plan's `card_cap = 3 − cards_already_played_this_turn`
+  so the DFS doesn't start a sequence it can't finish and picks the best ≤3-card play. Deferred.
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
   your hand, deal N per exhausted card" — so it missed a 35-dmg lethal on a 21-HP enemy (and
