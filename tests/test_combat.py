@@ -215,6 +215,32 @@ def test_planner_plays_zero_cost_energy_card_to_enable_more() -> None:
     assert d.action.payload()["card_index"] == 0  # Production first, to unlock the fuller turn
 
 
+def test_planner_counts_deathblow_intent_as_incoming() -> None:
+    # Waterfall Giant's Steam-Eruption explosion telegraphs as a "DeathBlow" intent (boss goes
+    # invincible at an HP sentinel), not "attack". The attack-only filter missed it, so the bot saw
+    # 0 incoming and didn't block / hail-mary a lethal (owner). Now it counts DeathBlow.
+    w = load_policy_config().combat
+
+    def card(i, cid, name, cost, desc, typ, tgt):
+        return {"index": i, "id": cid, "name": name, "type": typ, "cost": str(cost),
+                "description": desc, "can_play": True, "target_type": tgt}
+
+    state = {"state_type": "boss", "run": {"act": 1, "floor": 17, "ascension": 0},
+             "player": {"character": "The Ironclad", "hp": 5, "max_hp": 80, "block": 0,
+                        "energy": 1, "status": [],
+                        "hand": [card(0, "DEFEND", "Defend", 1, "Gain 8 Block.", "Skill", "None"),
+                                 card(1, "STRIKE", "Strike", 1, "Deal 6 damage.", "Attack",
+                                      "AnyEnemy")]},
+             "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                        "enemies": [{"entity_id": "wg", "name": "Waterfall Giant", "hp": 999999999,
+                                     "max_hp": 999999999, "block": 0, "status": [],
+                                     "intents": [{"type": "DeathBlow", "label": "10",
+                                                  "title": "Death Blow"}]}]}}
+    d = plan_combat_turn(parse_state(state), w)
+    assert d.action.payload()["card_index"] == 0  # Defend, don't chip the invincible boss
+    assert d.scores["hp_loss"] == 2.0  # 10 DeathBlow - 8 block (was 0: incoming missed entirely)
+
+
 def test_planner_under_ringing_caps_to_a_single_card() -> None:
     # Ringing (Ceremonial Beast low-HP) caps you to 1 card/turn. The fix verified here is only the
     # cap: the planner must not *start* a 2-card plan it can't finish (the live miss -- blocked,

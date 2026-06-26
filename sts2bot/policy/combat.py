@@ -175,8 +175,15 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 gains_strength = True
             if "summon" in text:
                 summons = True
+        # Count damage from Attack AND DeathBlow intents. The Waterfall Giant's Steam-Eruption
+        # explosion telegraphs as a "DeathBlow" (the boss goes invincible at an HP sentinel, then
+        # hits for the whole stack), which the attack-only filter missed -> the bot saw 0 incoming
+        # and neither blocked nor hail-mary'd a blatant lethal (owner). Extend the set if other
+        # damage-intent types surface.
         incoming = sum(
-            parse_intent_damage(i.label) for i in e.intents if i.type.lower() == "attack"
+            parse_intent_damage(i.label)
+            for i in e.intents
+            if (i.type or "").lower() in ("attack", "deathblow")
         )
         # throttling parsed from the same status text the bestiary harvests (ENEMY_PASS)
         mech = detect_mechanics([{"description": p.description} for p in e.status])
