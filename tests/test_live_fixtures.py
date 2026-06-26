@@ -227,3 +227,22 @@ def test_embark_is_sent_only_once() -> None:
     assert not isinstance(second, Wait) and second.action.payload()["option"] == "confirm"
     third = router.decide(parse_state(screen), ctx)
     assert isinstance(third, Wait)
+
+
+def test_treasure_claim_recovers_when_it_wont_advance() -> None:
+    # A stuck treasure claim (relic stays listed, screen never advances -- mod-state quirk on a
+    # Bellows chest, 2026-06-25) must not loop until the run aborts: after a few retries the bot
+    # cuts losses and proceeds, so one bad chest can't kill the whole batch.
+    from sts2bot.policy.trivial import _TREASURE_CLAIM_TRIES
+
+    state = parse_state({
+        "state_type": "treasure", "run": {"act": 2, "floor": 26, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 50, "max_hp": 80, "relics": []},
+        "treasure": {"relics": [{"index": 0, "id": "BELLOWS", "name": "Bellows",
+                                 "rarity": "Rare"}], "can_proceed": True}})
+    router = TrivialRouter()
+    ctx = LoopContext()
+    acts = [router.decide(state, ctx).action.payload()["action"]
+            for _ in range(_TREASURE_CLAIM_TRIES + 1)]
+    assert acts[:_TREASURE_CLAIM_TRIES] == ["claim_treasure_relic"] * _TREASURE_CLAIM_TRIES
+    assert acts[-1] == "proceed"  # recovered instead of looping to the stall abort
