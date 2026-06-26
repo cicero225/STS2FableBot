@@ -904,9 +904,15 @@ class StandardRouter:
                 return Decision(action=act.CancelSelection(), rationale="no target; skip")
             return Wait(reason="card select: no remaining candidates")
 
-        # Enough picked (or a previewed single pick): confirm.
+        # Enough picked (or a previewed single pick): confirm. Clear pick-tracking ONLY once the
+        # game raises its preview (preview_showing) -- the honest "selection registered" signal. If
+        # cleared before that, a confirm that no-ops (picks not yet registered at 4x) would leave
+        # `picked` empty and we'd re-select, toggling cards back off (the f27 enchant over-toggle).
+        # Keeping `picked` means we just re-confirm next poll until it resolves. (Enchant/upgrade/
+        # remove screens all raise a preview.)
         if cs.can_confirm:
-            ctx.screen_mem.pop(mem_key, None)
+            if cs.preview_showing:
+                ctx.screen_mem.pop(mem_key, None)
             return Decision(
                 action=act.ConfirmSelection(), rationale=f"confirm {len(picked)}/{needed} selected"
             )
