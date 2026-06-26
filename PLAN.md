@@ -532,6 +532,16 @@ actively **strip or weaken** them. Split into two halves:
   build a generic "enemy reduces my Str/Dex by N per turn" drain in `estimate_fight`. Until then, §5-C
   over-rates survivability vs Lagavulin / the Kin — accepted.
 
+- **§5-C `block_per_turn` ignores passive relic/power start-of-turn block** (owner question 2026-06-26).
+  The **in-the-moment planner is fine** — `my_block = player.block` ([combat.py:555]) reads the live block,
+  and beginning-of-turn block resolves *before* the play phase, so it's already counted. But the §5-C fight
+  estimate's `block_per_turn = total_block / cycle` sums only the **deck's block cards** (`fx.block`,
+  [capability.py:312]); it misses passive per-turn block from **relics/powers** (e.g. a "gain N Block at the
+  start of your turn" relic, Necrobinder/defensive powers). So the multi-turn estimate **under-counts block
+  → over-rates fight danger** for such builds, skewing route/draft EV (not how any turn is played). Fix:
+  fold a per-turn passive-block term (sourced from `player.relics`/`player.status` like §5-C's enemy
+  mechanics) into `block_per_turn`. Modest; do with the §5-C enemy-mechanic-awareness pass.
+
 - **Powers under-played — the one-turn planner defers permanent buffs** (owner 2026-06-25; viewer-
   jarring + real upside). The planner scores end states by *this turn's* damage/block/lethal, so a
   **Power** (0 immediate damage/block) gets only the flat `w_power_played = 8.0` (per-turn powers like
