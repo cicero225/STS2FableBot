@@ -503,9 +503,17 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   only if the free draw is played first; today the first-card choice uses the proxy, so it can commit a
   non-draw card *before* drawing and throw away the information. Fix: a **free-draw-first** heuristic —
   if a 0-energy card-draw card is playable, play it before other cards, gated on **no card/skill-count-
-  penalty enemy** (owner's edge case — e.g. an enemy that buffs per card played; needs an enemy list /
-  `detect_mechanics` flag to gate on). Sequencing-only, high-confidence; pairs with the "play 0-cost
-  energy-positive cards first" note above (Production) — both are *play free card-economy first*.
+  penalty enemy**. Sequencing-only; pairs with the "play 0-cost energy-positive cards first" note above
+  (Production) — both are *play free card-economy first*.
+  **⏸ DEFERRED until enemies are modeled (owner 2026-06-26).** The penalty-gate list is long and the
+  naive "play first" upside is real-but-untested, so not worth it until the gating enemies exist. The
+  card/skill-count penalties to detect: **(1) Thorns** (if the free draw is an Attack, e.g. Flash of
+  Steel); **(2) Living Fog** (Act-1 Underdocks normal) — applies **Smoggy** (1 Skill/turn), which caps
+  draw *skills*; **(3) Hunter-Killer** (Act 2) — **Tender 1**: each card played lowers Str+Dex 1 for the
+  turn; **(4) attacking a *sleeping* Beetle / Lagavulin Matriarch** — breaks plating + **wakes** it, so
+  a free draw-that's-an-Attack-generator has a hidden cost; **(5) Aeonglass** — generates statuses per
+  card played. So the gate isn't just "skip on enemy X" — it's whether the *free draw is/produces an
+  Attack* (1,4) vs a Skill (2) vs any card (3,5). Revisit once §5-C enemy modeling is broad.
 - **Retain cards — hold when not needed** (owner lookthrough 2026-06-25). True Grit gained **Retain**
   (stays in hand at end of turn). The one-turn planner doesn't manage it: if you can full-block
   *without* the retain card, holding it is effectively deck-thinning + optionality next turn. Fix: a
@@ -546,6 +554,18 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   14 it panic-drank, but a single Defend (5 block) survives. The desperation / `_combat_potion`
   gate compares raw incoming vs HP; it should fire on *post-plan* survivability
   (incoming − best achievable block ≥ HP), not raw incoming ≥ HP.
+- **Waterfall Giant (boss) — Steam Eruption delayed explosion unmodeled; Hail-Mary no-fired on a blatant
+  lethal** (owner 2026-06-26, confirms a long suspicion). **Mechanic:** the boss stacks **Steam Eruption**
+  over the fight; when its HP first hits 0 there's a **one-turn delay**, then it explodes for the *full*
+  Steam-Eruption stack all at once (must be blocked) *before* it dies. **(a)** The bot doesn't model the
+  delayed explosion → it "kills" the boss and then dies to the eruption (often with genuinely too little
+  block, so many of these deaths weren't misplays). **(b)** But this batch it **failed to Hail-Mary a
+  clear lethal**: full potion belt (≥1 damage-saving potion), low HP, **~69 incoming** from the eruption
+  — should have fired trivially, didn't. **Post-batch check (from the trace):** does the API surface the
+  ~69 as `incoming`/an intent? If **yes** → the Hail-Mary/desperation gate has a bug (didn't read it);
+  if **no** → the bot is blind to the eruption and needs **Steam-Eruption modeling** (a scheduled
+  post-lethal hit the §5-C / hp_loss tally reserves block for, like a delayed Beckon). Ties to the
+  hail-mary note above and the death-tally completeness items.
 - **Minion-aware combat** (owner tip: "Minion" rides as a *status* on the enemy —
   `enemy.status`; tooltip "Minions abandon combat without their leader"):
   - *Lethal*: `all(e.hp ≤ 0)` should count killing all **non-minion (leader)** enemies as
