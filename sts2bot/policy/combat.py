@@ -71,7 +71,7 @@ class EnemySim:
     # damage-throttling (ENEMY_PASS): first HP-loss/turn -> 1 (Slippery); a hard per-turn HP-loss
     # cap (Hardened Shell, Intangible); thorns per hit. hp_lost_this_turn accrues so the planner
     # stops over-investing (don't dump a big hit into Slippery, don't burst past a cap).
-    slippery: bool = False
+    slippery_stacks: int = 0  # Slippery charges: each reduces the NEXT HP-loss to 1, then is spent
     dmg_cap_per_turn: int | None = None
     thorns: int = 0
     hp_lost_this_turn: int = 0
@@ -184,6 +184,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
             continue
         vuln = 0
         artifact = 0
+        slippery_stacks = 0
         is_minion = False
         gains_strength = False
         summons = False
@@ -193,6 +194,10 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 vuln = p.amount
             if "ARTIFACT" in p.id.upper() and p.amount:
                 artifact = p.amount
+            # Slippery carries a stack count (Inklet 1, Vantom 9): each charge drops one HP-loss
+            # instance to 1, so multi-hit strips it cheaply and a big single hit is wasted.
+            if "SLIPPERY" in p.id.upper():
+                slippery_stacks = p.amount if p.amount else 1
             if "MINION" in p.id.upper() or "abandon combat" in (p.description or "").lower():
                 is_minion = True
             if "STRENGTH" in p.id.upper() and (p.amount or 0) > 0:
@@ -231,7 +236,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 gains_strength=gains_strength,
                 summons=summons,
                 illusion=illusion,
-                slippery=mech.get("slippery", False),
+                slippery_stacks=slippery_stacks,
                 dmg_cap_per_turn=mech.get("dmg_cap_per_turn"),
                 thorns=mech.get("thorns", 0),
                 skittish=mech.get("skittish", 0),
@@ -282,7 +287,7 @@ def _apply_attack(
     dealt_total = 0
     hp, block = e.hp, e.block
     lost = e.hp_lost_this_turn  # HP it has already lost this turn (for the per-turn cap)
-    slippery_pending = e.slippery and lost == 0  # first HP-loss this turn -> 1
+    slip = e.slippery_stacks  # Slippery charges left (each reduces one HP-loss instance to 1)
     skittish_pending = e.skittish > 0 and lost == 0  # first hit this turn -> it gains Block
     thorns_taken = 0
     base_damage, hits = card.fx.damage, card.fx.hits
@@ -303,9 +308,9 @@ def _apply_attack(
         block -= absorbed
         dealt = per_hit - absorbed
         if dealt > 0:
-            if slippery_pending:  # Slippery: the first HP-loss this turn drops to 1
+            if slip > 0:  # Slippery: this HP-loss instance drops to 1 and spends a charge
                 dealt = 1
-                slippery_pending = False
+                slip -= 1
             if e.dmg_cap_per_turn is not None:  # Hardened Shell / Intangible: cap HP lost per turn
                 dealt = max(0, min(dealt, e.dmg_cap_per_turn - lost))
         hp -= dealt
@@ -324,7 +329,7 @@ def _apply_attack(
     )
     enemies[target_i] = replace(
         e, hp=hp, block=block, vulnerable=e.vulnerable + card.fx.vulnerable,
-        hp_lost_this_turn=lost, stunned_this_turn=stunned,
+        hp_lost_this_turn=lost, stunned_this_turn=stunned, slippery_stacks=slip,
     )
     # Ignorable minions (weak, non-ramping) aren't progress — they flee with the leader and
     # Illusion ones revive — so deny offensive reward; their death's incoming drop is still

@@ -31,13 +31,29 @@ def _attack(damage: int, hits: int = 1) -> PlannedCard:
 
 
 def test_apply_attack_slippery_guts_a_single_big_hit() -> None:
-    out = _apply_attack(_state(_enemy(slippery=True)), 0, _attack(30))
+    out = _apply_attack(_state(_enemy(slippery_stacks=1)), 0, _attack(30))
     assert out.enemies[0].hp == 99 and out.damage_dealt == 1  # the one big hit -> 1
 
 
-def test_apply_attack_slippery_only_dampens_the_first_hit() -> None:
-    out = _apply_attack(_state(_enemy(slippery=True)), 0, _attack(5, hits=4))
-    assert out.damage_dealt == 16 and out.enemies[0].hp == 84  # 1 + 5 + 5 + 5
+def test_apply_attack_slippery_one_stack_dampens_only_the_first_hit() -> None:
+    out = _apply_attack(_state(_enemy(slippery_stacks=1)), 0, _attack(5, hits=4))
+    assert out.damage_dealt == 16 and out.enemies[0].hp == 84  # 1 + 5 + 5 + 5 (one charge spent)
+
+
+def test_apply_attack_slippery_stacks_each_eat_one_hit() -> None:
+    # Vantom enters with 9 Slippery: a multi-hit card spends one charge per hit (each -> 1), so a
+    # 5x4 card deals just 4 here (4 charges spent), leaving 5 charges. Big single hits are wasted.
+    out = _apply_attack(_state(_enemy(slippery_stacks=9)), 0, _attack(5, hits=4))
+    assert out.damage_dealt == 4 and out.enemies[0].slippery_stacks == 5  # 1+1+1+1, 9-4 left
+
+
+def test_apply_attack_slippery_charges_thread_across_cards() -> None:
+    # Charges persist across cards in a turn: two 1-hit attacks into Vantom each deal 1 and each
+    # spend a charge (so a sequence of cheap hits is how you strip it, not one big hit).
+    s = _apply_attack(_state(_enemy(slippery_stacks=9)), 0, _attack(20))
+    assert s.damage_dealt == 1 and s.enemies[0].slippery_stacks == 8
+    s2 = _apply_attack(s, 0, _attack(20))
+    assert s2.damage_dealt == 2 and s2.enemies[0].slippery_stacks == 7
 
 
 def test_apply_attack_caps_damage_per_turn() -> None:

@@ -495,12 +495,15 @@ profile these punish, so §5-C race-accuracy + tempo drafting are the binding le
   **9 stacks of Slippery** — each stack reduces the next damage *instance* (any source) to 1 and is
   consumed, so **multi-hit strips stacks fast and single big hits are wasted**; clear Slippery, then burst.
   Cycle: T1 attack+apply Slippery, T2 attack, **T3 Tail Stab (~20 dmg + 3 Wounds to hand)**, T4 +Strength.
-  *Modeled:* the planner has a Slippery model but it's **per-turn-first-hit** (`slippery_pending = lost==0`),
-  which mis-prices Vantom's **stacked** Slippery — it thinks hits 2..n of a multi-hit land full when they
-  each deal 1. *Open (filed):* model Slippery as a **charge counter** (`slippery_stacks` from the status
-  amount; each hit while >0 → 1, decrement; thread across cards like the dmg cap). Makes the planner prefer
-  multi-hit and not waste a big single hit into Vantom. Tractable + fixture-testable; §5-C's per-turn
-  biggest-hit reduction is a rough multi-turn proxy, fine to leave. *Wounds to hand* (clog) unmodeled.
+  *Modeled — DONE 2026-06-26:* the planner's old Slippery model was per-turn-first-hit (`slippery_pending =
+  lost==0`), which mis-priced the **9-stack** Vantom (it thought hits 2..n of a multi-hit landed full when
+  each deals 1). Now `EnemySim.slippery_stacks` is sourced from the status **amount** (Inklet 1, Vantom 9 —
+  both are the same consume-on-hit mechanic, so nothing regressed); `_apply_attack` drops each damaging hit
+  to 1 while charges remain, spends one, and threads the count across cards in a sequence. So the planner
+  reads realistic (low) damage during the strip phase and prefers cheap multi-hit over a wasted big single
+  hit. 4 tests. *Still open:* §5-C's per-turn biggest-hit reduction stays a rough multi-turn proxy (it only
+  strips ~one big hit/turn, so it over-rates how fast a multi-hit deck clears 9 stacks — acceptable for a
+  draft/route estimate; the in-combat planner is what plays the fight). *Wounds to hand* (clog) unmodeled.
 - **Soul Fysh** (211 HP; `runs_seen 6` — **Underdocks** alt boss, 5-turn cycle). *Mechanic:* Beckon → Lure →
   Nibble → **Intangible** → Vulnerable-Bite + Intangible, repeat. **Beckon** adds status cards (cost 1e; if
   not exhausted/discarded by end of turn → **6 unblockable** each). **Intangible** turns reduce **every hit
