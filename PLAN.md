@@ -536,14 +536,26 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   via the doubled 10th attack, but the planner (blind to Pen Nib) under-counted it → attacked once then
   blocked with True Grit, missing the kill + eating the front minion's damage. Fix: read the Pen Nib
   counter from player relics; in the DFS, double the attack that lands as the 10th. Per-relic combat
-  modeling, same class as Strength / scaling-card effects.
+  modeling, same class as Strength / scaling-card effects. **Owner rules (2026-06-26):** (a) the counter
+  **persists between fights** — read the *live* value, never assume a per-fight reset; best is whatever
+  the API exposes for the relic counter (in-game the number is shown on the relic — on **9** the next
+  attack doubles). (b) **Gotcha to verify in the API:** while on 9 the game previews **all** attack cards
+  at doubled damage (like Vulnerable's +50% preview), but only the **first** attack actually doubles —
+  so if the parsed card damage reflects that preview, the planner would over-count; apply the double to
+  exactly **one** attack (the first played while on 9), and check whether `card.description`/damage
+  already carries the doubling.
 - **Artifact unmodeled — planner wastes debuffs into it** (owner lookthrough 2026-06-25). Enemies had
   **Artifact 2** (negates the next 2 debuffs/status effects). The bot played **Dominate** (apply 1
   Vulnerable, +1 Str per Vulnerable layer) → Artifact ate the Vulnerable → zero effect for 1 energy
   (pure waste; the enemies were dying well before the Artifacts would clear). The planner applies
-  Vulnerable/Weak without checking Artifact. Fix: model Artifact on the enemy (a debuff is negated +
-  Artifact decremented while >0), so debuff/Vulnerable cards into Artifact score ~0 unless intentionally
-  stripping it. General mechanic (also **Aeonglass**); detect_mechanics + `_apply_card`.
+  Vulnerable/Weak without checking Artifact. Fix: model Artifact on the enemy — process each card's
+  debuffs **in card-text order**, decrementing Artifact by 1 **per unique status type** while >0 (so
+  debuff/Vulnerable cards into Artifact score ~0 unless intentionally stripping it). **Owner rules
+  (2026-06-26):** (a) decrement is **per unique status, not per stack** — magnitude-independent, so
+  **Bash**'s 2(3) Vulnerable strips only **1** Artifact; (b) a multi-status card strips one **per
+  status** — **Uppercut** (Weak *then* Vulnerable) strips **2**, and at **Artifact 1** the Weak is eaten
+  (Artifact→0) and the Vulnerable then **lands**; (c) order follows the card text. General mechanic
+  (also **Aeonglass**); detect_mechanics + `_apply_card`.
 - **Scaling-damage cards (Fiend Fire) in the planner** (live 2026-06-15). The planner scores
   Fiend Fire by the literal "7" in its text, not `per_card × (hand_size − 1)` for "exhaust
   your hand, deal N per exhausted card" — so it missed a 35-dmg lethal on a 21-HP enemy (and
