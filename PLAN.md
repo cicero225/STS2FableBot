@@ -484,6 +484,16 @@ or a real attacker, not yet a minion-leader lethal-via-potion. Remaining:
   the thorns self-damage unblocked. Optimal: Production → Defend×2 → Strike×3 (lethal *and* thorns
   blocked). Fix: parse "gain N energy" in `_apply_card` → add to `SimState.energy` so the DFS sees the
   expanded budget (and play 0-cost energy-positive cards first). Same class as the Fiend-Fire gap.
+- **Free 0-cost card-draw should be played FIRST, then re-assess** (owner 2026-06-25). The DFS values
+  draws by a flat `w_draw` proxy and never sees the drawn cards (random/unknown at plan time) — it plans
+  the current hand as one set. The orchestrator re-plans after *every* card (one card per decision,
+  [loop.py:240](sts2bot/orchestrator/loop.py)), so the bot *does* draw-then-reassess across cycles — but
+  only if the free draw is played first; today the first-card choice uses the proxy, so it can commit a
+  non-draw card *before* drawing and throw away the information. Fix: a **free-draw-first** heuristic —
+  if a 0-energy card-draw card is playable, play it before other cards, gated on **no card/skill-count-
+  penalty enemy** (owner's edge case — e.g. an enemy that buffs per card played; needs an enemy list /
+  `detect_mechanics` flag to gate on). Sequencing-only, high-confidence; pairs with the "play 0-cost
+  energy-positive cards first" note above (Production) — both are *play free card-economy first*.
 - **Retain cards — hold when not needed** (owner lookthrough 2026-06-25). True Grit gained **Retain**
   (stays in hand at end of turn). The one-turn planner doesn't manage it: if you can full-block
   *without* the retain card, holding it is effectively deck-thinning + optionality next turn. Fix: a
