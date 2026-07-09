@@ -748,6 +748,13 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         nonlocal best_state, best_score, visited
         if visited >= weights.max_sequences:
             return
+        # Nothing resolves after the killing blow — the fight ends instantly. Without this cut
+        # the order-indifferent score credited [kill > Not Yet] the same as [Not Yet > kill],
+        # and the bot took lethal with 2 spare energy while a heal sat in hand (owner-caught
+        # 2026-07-09). Heal/setup-before-kill lines keep their credit; post-kill lines can't.
+        sim_leaders = [e for e in sim.enemies if not e.is_minion]
+        if not any(e.hp > 0 for e in (sim_leaders or sim.enemies)):
+            return
         for ci, card in enumerate(remaining):
             if card.cost > sim.energy:
                 continue

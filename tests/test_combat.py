@@ -636,3 +636,16 @@ def test_planner_still_kills_a_sleeper_when_lethal() -> None:
         parse_state(_beckon_state(3, hand, enemy_hp=5, hp=75,
                                   enemy_status=asleep, incoming="0")), w)
     assert d.action.payload().get("card_index") == 0 and "LETHAL" in d.rationale
+
+
+def test_free_heal_played_before_the_killing_blow() -> None:
+    # Owner-caught 2026-07-09: lethal taken with 2 spare energy while Not Yet (2e, Heal 10)
+    # sat in hand -- nothing resolves after the kill, so the heal must go FIRST. The DFS no
+    # longer extends past a lethal state, so only heal-then-kill keeps the healing credit.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            _bcard(1, "NOT_YET", "Not Yet", 2, "Heal 10 HP.", "Skill", "None")]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=5, hp=40)), w)
+    assert d.action.payload()["card_index"] == 1  # heal first...
+    plan = d.rationale.split("[")[1].split("]")[0]
+    assert "LETHAL" in d.rationale and plan.startswith("Not Yet")  # ...then the kill

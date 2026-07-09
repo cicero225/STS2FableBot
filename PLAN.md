@@ -1231,6 +1231,10 @@ pass** (7).*
    passive-block gap (§8.4-A) are the same class; the pass would sweep `player.relics` text for
    combat triggers (on-skill-count / on-attack-count / on-HP-loss / per-turn) the way
    `detect_mechanics` sweeps enemy statuses. *(Ranked 2026-07-09: after enemies+cards.)*
+   *Advanced note (owner 2026-07-09, filed for this pass): deliberately "storing" relic
+   counter ticks across combats — e.g. ending a fight with Pen Nib on 9 so the NEXT fight
+   opens with a doubled attack — is real human play the planner can't see; needs cross-combat
+   relic-state valuation.*
    *Sub-item filed 2026-07-09 (batch b8msts8jx): **multi-body elite synthesis** — the pool gate
    fixed single-body elites (Terror Eel deaths 2→0) but Phrog+Wrigglers / Phantasmal Gardeners
    killed 3 runs; synthesize swarms as multi-FightEnemy pools (Gardeners ≈ 3×31 HP w/ Skittish,
