@@ -1,0 +1,4 @@
+# Pin LF so the per-run config hash (sha1 of raw bytes, kb/config.py) is identical
+# on every machine regardless of core.autocrlf — CRLF checkout silently forked the
+# hash (374480217e9e -> 8f6e6fcf2418) after the 2026-07 machine move.
+config/*.toml text eol=lf
