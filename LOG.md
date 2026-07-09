@@ -2,6 +2,32 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-08 (Fable 5, cont. 3) — Underdocks restored via save edit; unlock mechanics decoded
+
+**Goal:** restore the Underdocks (lost with the pre-unlock profile) without grinding ~50
+bot runs. Owner-proposed and authorized save edit; *C3 note: this restores meta-progression
+the profile had already earned on the old machine (June batches were full of Underdocks
+content) — no run outcome or win-rate is affected.*
+
+**Method + what we learned about the unlock system** (owner-corrected from live test):
+- `progress.save`'s **`current_score` is the LAST run's score, not a cumulative total**
+  (a stopped batch's 4 runs left it unchanged at 749 = the manual win's score; the online
+  "2450 total" framing maps to the *unlock track*, not this field).
+- At **run end** (abandons count), the game **deposits `current_score` into a progressive
+  unlock track** ("X of Y points to next unlock"). Byte-edited the field to 2500 (game
+  closed, backups kept, Cloud off); owner then started+abandoned two runs: deposit 1 →
+  **"Open" rare-potions unlock** (`POTION1_EPOCH`), deposit 2 → **`UNDERDOCKS_EPOCH`
+  revealed**. `total_unlocks` 2→4.
+- **Self-correcting:** the second abandon overwrote `current_score` with its own ~0 score
+  (now 10), so the inflated deposits stopped automatically — future unlocks accrue from
+  real run scores again.
+
+**State:** Underdocks + rare potions restored → batch map pool is much closer to the June
+baselines (Soul Fysh / alt-Act-1 back in rotation). Still pending from the old machine
+(~2026-07-10): the post-unlock profile (custom mode + Undergrowth + the rest) and `logs/`
+(bestiary source). Score-grind batch bh1jsqy7u was stopped after 4 runs once this path
+opened (runs banked; mid-run 5 abandoned by owner from menu).
+
 ## 2026-07-08 (Fable 5, cont. 2) — Owner's recorded manual WIN #1/3; Queen first-capture; bestiary near-miss
 
 **Owner played one recorded run (`sts2bot record`, seed `7Q4QCYQ09J`, A0 Ironclad): a WIN**
