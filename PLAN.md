@@ -1018,10 +1018,13 @@ covered including Frantic Escape. Remaining Act-2 work is the Knowledge Demon ch
     front-load attacks to make Stomp cheap**; it can only stumble into the discount. Needs
     within-sequence dynamic cost (same family as the free-draw-first sequencing items).
   - **Neow's Fury as a tutor** — owner repeatedly played it to **fetch a specific card for this
-    turn's plan** (usually Bloodletting for the +2 energy). Two gaps: the planner doesn't value
-    search/fetch effects at all, and the resulting in-combat card-select screen would be answered
-    by the generic best-prior pick, not by *what this turn needs* (energy when energy-starved, a
-    finisher at lethal range). Context-aware in-combat select is the harder, more general half.
+    turn's plan** (usually Bloodletting for the +2 energy). *Owner correction 2026-07-08: it
+    tutors from the **discard pile** specifically* — so valuing it requires **discard-pile
+    knowledge** (player-visible; the state exposes `discard_pile`). Three gaps: the planner
+    doesn't track pile contents, doesn't value search/fetch effects, and the resulting in-combat
+    card-select screen would be answered by the generic best-prior pick, not by *what this turn
+    needs* (energy when energy-starved, a finisher at lethal range). Context-aware in-combat
+    select is the harder, more general half.
   - **Cascade — X-cost autoplay from deck** (plays the top X cards of the deck). X already
     resolves to current energy in the planner, but the *effect* is unparseable text → scores ~0;
     real value needs draw-pile composition/order awareness (multi-turn / §5-C territory). NB the
@@ -1194,6 +1197,16 @@ the owner's projected-impact ranking within it:
    per-card handlers/annotations (§8.3 "per-card special-case pass").
 5. **Event analysis** — mostly already covered by event-choice WAR; only a few events carry nuance
    (Byrdonis Egg, §8.4). Lowest priority.
+6. **Relic combat-trigger pass** (added 2026-07-08, owner: "worth parsing through the list of
+   relics, which unfortunately adds a lot of complication"). The f44 one-turn-kill analysis
+   ([combat_notes_2026-07-08-f44-knights.markdown](combat_notes_2026-07-08-f44-knights.markdown))
+   showed trigger relics doing load-bearing work the planner can't see — **Letter Opener** (3
+   Skills/turn → 5 AoE), **Centennial Puzzle** (first HP loss → draw 3), **Delicate Frond**
+   (potions refill every combat) — and the state-diff reconstruction *mis-attributed relic
+   effects to cards*, which is exactly the planner's blind spot. Pen Nib (modeled) and the §5-C
+   passive-block gap (§8.4-A) are the same class; the pass would sweep `player.relics` text for
+   combat triggers (on-skill-count / on-attack-count / on-HP-loss / per-turn) the way
+   `detect_mechanics` sweeps enemy statuses. Ranking vs items 4–5: owner's call.
 
 Sequencing note: this complements §8.0 (the immediate routing/deck-power items). Items 2–4 are the
 combat-side maturation that the §5-C capability estimate was built to anchor — they slot in as its
