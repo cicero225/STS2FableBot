@@ -594,3 +594,17 @@ def test_projected_death_wall_blocks_suicidal_self_cost() -> None:
     assert _score(suicidal, w, my_hp=3) < _score(alive, w, my_hp=3) - 400
     killed = replace(alive, enemies=(replace(alive.enemies[0], hp=0),), self_damage=6, kills=1)
     assert _score(killed, w, my_hp=3) > _score(suicidal, w, my_hp=3)  # lethal: no wall
+
+
+def test_negative_dexterity_thins_card_block() -> None:
+    # Soul Siphon drives player Dexterity negative; a drained Defend really grants less block,
+    # so the planner must not over-block-on-paper (Lagavulin trace 2026-07-09: Dex hit -4).
+    from dataclasses import replace as dc_replace
+    base = SimState(energy=3, enemies=(_enemy(),), my_block=0, my_strength=0)
+    defend = PlannedCard(index=0, name="Defend", cost=1, fx=CardEffects(block=8),
+                         targets_enemy=False, is_attack=False)
+    plain = _apply_card(base, defend, None)
+    drained = _apply_card(dc_replace(base, my_dex=-4), defend, None)
+    assert plain.my_block == 8 and drained.my_block == 4
+    boosted = _apply_card(dc_replace(base, my_dex=2), defend, None)
+    assert boosted.my_block == 10  # positive Dexterity now counts too

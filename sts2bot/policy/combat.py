@@ -90,6 +90,7 @@ class SimState:
     enemies: tuple[EnemySim, ...]
     my_block: int
     my_strength: int
+    my_dex: int = 0  # Dexterity: +/- block per block card (Soul Siphon drives it NEGATIVE)
     barricade: bool = False  # block persists -> stacking it is never waste
     my_weak: bool = False  # I'm Weak: my Attacks deal 25% less (Kin Orb of Weakness, etc.)
     my_frail: bool = False  # I'm Frail: Block I gain from cards is 25% less (Kin Orb of Frailty)
@@ -471,8 +472,13 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             s = replace(s, enemies=tuple(enemies))
     # In-combat healing (Not Yet), capped at the turn's damage taken — no overheal credit.
     heal_applied = max(0, min(card.fx.heal, s.heal_room - s.healing)) if card.fx.heal else 0
-    # Frail cuts the Block I gain from cards (and Rage) by 25% — the floor matches the game.
-    block_gain = card.fx.block + rage_bonus
+    # Dexterity adds/subtracts per block-granting card — Soul Siphon drives it NEGATIVE, so a
+    # drained Defend really grants less (the planner over-blocked-on-paper vs Lagavulin without
+    # this). Then Frail cuts the result by 25% — the floor matches the game.
+    base_block = card.fx.block
+    if base_block and s.my_dex:
+        base_block = max(0, base_block + s.my_dex)
+    block_gain = base_block + rage_bonus
     if s.my_frail and block_gain:
         block_gain = int(block_gain * FRAIL_MULT)
     return replace(
@@ -627,10 +633,13 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     barricade = False
     my_weak = my_frail = my_surrounded = False
     card_cap = None  # "You can only play N cards this turn" (Ringing): spend it on the best play
+    my_dex = 0
     for p in player.status:
         pid = p.id.upper()
         if pid == "STRENGTH" and p.amount:
             my_strength = p.amount
+        if "DEXTER" in pid and p.amount:  # DEXTERITY_POWER; negative under Soul Siphon
+            my_dex = p.amount
         if pid == "BARRICADE":
             barricade = True
         if "SURROUND" in pid:  # Kaiser Crab: a claw behind me deals +50% (back-attack)
@@ -662,6 +671,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         enemies=enemy_sims,
         my_block=player.block,
         my_strength=my_strength,
+        my_dex=my_dex,
         barricade=barricade,
         my_weak=my_weak,
         my_frail=my_frail,

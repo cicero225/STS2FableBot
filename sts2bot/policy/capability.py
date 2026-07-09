@@ -83,6 +83,11 @@ class FightEnemy:
     thorns: int = 0  # damage it deals me each turn I attack it (Thorns)
     death_timer: int = 0  # Sandpit (The Insatiable): I die at this turn unless I've won — race it
     skittish: int = 0  # +Block on its first hit each turn (Skittish) — guts chip/multi-hit
+    # player-stat drain (Lagavulin's Soul Siphon — live-traced 2026-07-09: -2 Str AND -2 Dex per
+    # cast, every 4th round post-wake, permanent). A move/intent, not a status, so it can't be
+    # text-detected; sourced from the _EMPIRICAL per-enemy table.
+    drains_player: int = 0  # Str AND Dex the player permanently loses per cast
+    drain_every: int = 0  # cast cadence in turns (0 = never)
 
 
 @dataclass(frozen=True)
@@ -114,6 +119,8 @@ def estimate_fight(
     death_damage = sum(e.death_damage for e in leaders)  # self-damage on the kill
     stun_at = max((e.stun_threshold for e in leaders), default=0)  # crossing it skips a turn
     thorns = sum(e.thorns for e in leaders)
+    drain_amt = max((e.drains_player for e in leaders), default=0)  # Soul Siphon, per cast
+    drain_every = max((e.drain_every for e in leaders if e.drains_player), default=0)
     death_timer = min((e.death_timer for e in leaders if e.death_timer), default=0)  # race-or-die
     if death_timer:
         death_timer += _SANDPIT_SLACK  # extendable via Frantic Escape -> the real window is longer
@@ -122,14 +129,16 @@ def estimate_fight(
     hp = float(my_hp)
     extra_str = 0  # accumulated enemy ramp, added to every attacker's dps as turns pass
     my_str = 0.0  # my accumulated Strength (deck's Str-granters); plateaus at deck.str_cap
+    drained = 0.0  # accumulated Soul-Siphon-style drain: subtracts from my Str AND my block/turn
     stunned_used = False
     for turn in range(1, max_turns + 1):
         if death_timer and turn > death_timer:  # Sandpit fired before I could close — I'm eaten
             return FightOutcome(False, round(hp), death_timer, round(kill_hp))
         # --- my turn: chip the leaders, throttled ---
         out = deck.burst_dmg if turn == 1 else deck.sustained_dmg
-        # in-fight scaling: accumulated Strength adds to every hit, Vulnerable amplifies the lot
-        out = (out + my_str * deck.hits_per_turn) * deck.vuln_mult
+        # in-fight scaling: accumulated Strength adds to every hit, Vulnerable amplifies the lot.
+        # Drained Strength (Soul Siphon) subtracts the same way — it can push net Str negative.
+        out = max(0.0, (out + (my_str - drained) * deck.hits_per_turn) * deck.vuln_mult)
         if self_block:
             out = max(0.0, out - self_block)  # regenerating block soaks the first chunk
         if slippery:
@@ -150,7 +159,12 @@ def estimate_fight(
             extra_str = 0  # Plow: the Beast loses ALL accumulated Strength when it stuns
         else:
             enemy_dps = base_dps + extra_str * n_attackers
-            hp -= max(0.0, enemy_dps - deck.block_per_turn)
+            # Drained Dexterity thins my block; ~1 block-card/turn approximation (drained pts
+            # subtract once per turn, not per card — conservative on multi-block decks).
+            block_pt = max(0.0, deck.block_per_turn - drained)
+            hp -= max(0.0, enemy_dps - block_pt)
+        if drain_amt and drain_every and turn % drain_every == 0:
+            drained += drain_amt  # Soul Siphon cast this cycle: permanent -Str -Dex
         extra_str += sum(e.str_ramp for e in enemies)
         my_str = min(deck.str_cap, my_str + deck.str_per_turn)  # one-time gains plateau at the cap
         if hp <= 0:  # died; remaining kill_hp = how close I got (progress signal for drafting)
@@ -237,12 +251,25 @@ def load_bestiary(path: Path | str | None = None) -> dict[str, dict]:
     return json.loads(p.read_text(encoding="utf-8")).get("enemies", {})
 
 
-def bestiary_enemy(entry: dict, *, dps: int, **overrides: Any) -> FightEnemy:
+# Move/intent mechanics that no status text carries — live-traced params, keyed by a substring of
+# the bestiary entry name. (Soul Siphon: 2026-07-09 trace, -2 Str -2 Dex per cast, every 4th round
+# post-wake; permanent. See PLAN §8.4-A.)
+_EMPIRICAL_MOVES: dict[str, dict[str, int]] = {
+    "MATRIARCH": {"drains_player": 2, "drain_every": 4},
+}
+
+
+def bestiary_enemy(entry: dict, *, dps: int, name: str = "", **overrides: Any) -> FightEnemy:
     """Build a FightEnemy from a bestiary entry: its max HP seen + the mechanics detected from its
     status descriptions. dps isn't harvested reliably (intents vary), so the caller passes a
-    per-act estimate; HP and the mechanics are the real, race-relevant parts. `overrides` win."""
+    per-act estimate; HP and the mechanics are the real, race-relevant parts. Entries carry no
+    name (the bestiary is name-keyed), so callers pass it for the _EMPIRICAL_MOVES lookup.
+    `overrides` win."""
     hp = (entry.get("hp") or [None, None])[1] or 1
     flags = detect_mechanics(list((entry.get("statuses") or {}).values()))
+    for key, move_flags in _EMPIRICAL_MOVES.items():
+        if key in name.upper():
+            flags.update(move_flags)
     flags.update(overrides)
     return FightEnemy(hp=int(hp), dps=dps, **flags)
 

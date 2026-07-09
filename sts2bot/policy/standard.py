@@ -712,10 +712,11 @@ class StandardRouter:
         """The act's boss as a FightEnemy: real HP + mechanics from the bestiary (name cached from
         the map) with a per-act dps/ramp estimate; the generic profile for unknown / multi-creature
         bosses (e.g. The Kin, whose bestiary entries are its components)."""
-        entry = self.bestiary.get(ctx.screen_mem.get("act_boss_name", ""))
+        boss_name = ctx.screen_mem.get("act_boss_name", "")
+        entry = self.bestiary.get(boss_name)
         if entry:
             dps, ramp = _ACT_BOSS.get(act, _ACT_BOSS[1])
-            return [bestiary_enemy(entry, dps=dps, str_ramp=ramp)]
+            return [bestiary_enemy(entry, dps=dps, name=boss_name, str_ramp=ramp)]
         return [FightEnemy(*_GENERIC_BOSS)]
 
     def _capability_deltas(

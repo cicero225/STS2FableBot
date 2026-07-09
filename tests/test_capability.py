@@ -12,6 +12,7 @@ from sts2bot.policy.capability import (
     DeckOutput,
     FightEnemy,
     FightOutcome,
+    bestiary_enemy,
     deck_output,
     detect_mechanics,
     estimate_fight,
@@ -283,3 +284,26 @@ def test_bestiary_enemy_from_real_bosses() -> None:
     assert lag.hp == 222 and lag.self_block == 12  # real HP + Plating regen
     vantom = bestiary_enemy(best["Vantom"], dps=28)
     assert vantom.hp == 173 and vantom.slippery  # real HP + Slippery
+
+
+def test_soul_siphon_drain_degrades_the_race() -> None:
+    # Lagavulin's Soul Siphon (live-traced 2026-07-09): -2 Str AND -2 Dex per cast, every 4th
+    # round. A deck that comfortably beats a plain 222-HP boss must fare strictly worse against
+    # the draining version (later kill or death) -- the pre-fix estimate saw them as identical.
+    deck = DeckOutput(burst_dmg=22, sustained_dmg=16, biggest_hit=9, block_per_turn=8,
+                      hits_per_turn=2.0)
+    plain = estimate_fight(80, deck, [FightEnemy(hp=222, dps=14)])
+    drained = estimate_fight(
+        80, deck, [FightEnemy(hp=222, dps=14, drains_player=2, drain_every=4)])
+    assert plain.win
+    assert (not drained.win) or drained.exp_end_hp < plain.exp_end_hp
+
+
+def test_bestiary_enemy_applies_empirical_moves_by_name() -> None:
+    # Soul Siphon is a move, not a status -- it can't be text-detected, so bestiary_enemy applies
+    # it from the _EMPIRICAL_MOVES table keyed by the caller-passed name.
+    entry = {"hp": [180, 222], "statuses": {}}
+    lag = bestiary_enemy(entry, dps=20, name="Lagavulin Matriarch")
+    assert lag.drains_player == 2 and lag.drain_every == 4
+    other = bestiary_enemy(entry, dps=20, name="Vantom")
+    assert other.drains_player == 0
