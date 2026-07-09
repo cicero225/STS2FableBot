@@ -1,5 +1,10 @@
 # HANDOFF — "you are here" (2026-06-26)
 
+> **2026-07-08: spin-up on the new machine is DONE** (see LOG.md entry) — venv rebuilt,
+> mod built from the fork's `v107-fork` branch and installed, bot profile restored from
+> the pre-reshuffle Steam Cloud copy (Jun-12 state, ~2 weeks stale). Remaining: attended
+> live smoke test; optionally restore a newer profile snapshot from the old machine.
+
 Quick spin-up note for continuing on another machine. Read order: **CLAUDE.md →
 REQUIREMENTS.md → PLAN.md** (PLAN.md is the real lab notebook; this file is just the
 pointer). Delete/refresh this when it goes stale.

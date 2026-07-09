@@ -2,6 +2,32 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-08 (Fable 5) — New-machine spin-up (repo folder now `STS2FableBot`)
+
+Machine transplant per HANDOFF.md. Environment rebuilt and verified: fresh venv
+(**Python 3.13.2**, not 3.14 — 232 tests + ruff green, recreate from 3.14 if parity
+matters), STS2MCP fork re-cloned. The `STS2MCP-newbuild-fix.patch` no longer applies —
+its content is now **committed on the fork's `v107-fork` branch** (f553315, plus a newer
+card-select commit 79f1b69); checked that branch out instead. Needed .NET 9 SDK
+(winget-installed). Mod built clean and installed to the game's `mods/`.
+
+**Game dir on this machine:** `C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2`
+(was `I:\SteamLibrary\...`).
+
+**Bot profile recovery:** the live save tree (`%APPDATA%\SlayTheSpire2\steam\<id>\`) had
+no `modded/` scope — the bot profile didn't travel (backups/ is gitignored; AppData
+doesn't sync). BUT Steam userdata's frozen cloud folder
+(`userdata\50041417\2868840\remote\modded\`) held a copy last synced **2026-06-12, two
+days before the reshuffle** (Cloud is off here — `cloudenabled 0`, sync stuck at
+`conflictingchanges`, so it never pulled the corrupted state). Zipped it to
+`backups/cloud_recovery_jun12/` and installed it as the live modded profile.
+**Caveat: it's ~2 weeks stale** — pre-dates the Jun-26 first A0 win and all runs after
+Jun 12; unlock progression is as of Jun 12. If the old machine's
+`backups/profile_snapshots/` is still reachable, restore its newest snapshot over this.
+
+Not yet done: live smoke test (launch game, confirm mod REST API answers and the modded
+profile loads) — attended, per FR-4.4.
+
 ## 2026-06-15 (session 5 cont., Opus) — Rest/upgrade optimization + a 2-session-old bug
 
 Owner asked to optimize rest-vs-smith and upgrade choice (with the caveat that combat
