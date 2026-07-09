@@ -490,10 +490,10 @@ profile these punish, so §5-C race-accuracy + tempo drafting are the binding le
 - **Waterfall Giant** (240 HP). *Mechanic:* almost every move adds **+3 Steam Eruption**; killed-while-
   -Steam-Eruption → **invulnerable**, "About To Blow" then **Explode** next turn for the **accumulated**
   stack, then dies. Speed race. *Modeled:* DeathBlow telegraph counted as incoming ✓ **[done]**; sentinel-
-  HP **invincible → damage wasted** ✓ **[done]**; §5-C `death_damage` ✓. *Open (filed, part a):* §5-C uses
-  the **fixed 15** from the status text, but the real explosion = the **accumulating** stack (3/move, so
-  30–60+ by kill) → under-reserves block; and the *pre-kill* decision (push to 0 this turn vs wait) needs
-  scheduled-post-lethal-hit modeling (reserve block like a delayed Beckon). Multi-turn; deferred.
+  HP **invincible → damage wasted** ✓ **[done]**; §5-C `death_damage` ✓. *Part (a) estimate-side DONE
+  2026-07-09:* §5-C now grows the projected explosion by 3/turn (`death_damage_growth`, _EMPIRICAL_MOVES)
+  — a slow kill projects the real 30–60+ stack. *Still open:* the in-fight pre-kill decision (push to 0
+  this turn vs wait) needs scheduled-post-lethal-hit modeling in the planner. Multi-turn; deferred.
 - **The Kin** (Kin Priest 190 + 2 Kin Followers ~58). *Mechanic:* Priest cycles **Frail → Weak → triple-hit
   → +Str**; Followers ramp Str; **Orb of Frailty** (Frail −25% your Block) / **Orb of Weakness** (Weak −25%
   your damage). Kill Priest → Followers **flee** (Minion); or clear Followers first; **AoE trivializes**.
@@ -629,8 +629,9 @@ least-bad table (`_DEBUFF_PREFERENCE`: Disintegration > Mind Rot > Sloth > Waste
 debuffs sort last) — the old best-quality pick got Disintegration only by index luck; (2) the chosen
 debuff lands as **`DISINTEGRATION_POWER` on the player** and the planner now counts its end-of-turn
 blockable damage in the incoming pool (text-parsed amount, tracks the 6→7→8 escalation live).
-*Still open:* the §5-C estimate side (escalating Disintegration + Ponder heal + Str ramp in the
-race), and planner effects for the OTHER poisons if a fight ever forces one (Sloth = card cap the
+*Estimate side DONE 2026-07-09* (`heals_per_turn=7` capped-at-start Ponder regen +
+`player_dot_avg=5` via _EMPIRICAL_MOVES — the race now respects both). *Still open:* planner
+effects for the OTHER poisons if a fight ever forces one (Sloth = card cap the
 existing Ringing machinery could carry; Waste Away = energy; Mind Rot = draw). The Insatiable is
 already covered including Frantic Escape.
 
