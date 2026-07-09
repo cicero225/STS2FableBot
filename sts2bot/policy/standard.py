@@ -1171,6 +1171,23 @@ class StandardRouter:
         bought = ctx.screen_mem.setdefault("shop_bought", [])
         avail = [i for i in state.shop.items if i.is_stocked and i.index not in bought]
 
+        # -1. Foul Potions are merchant ammo: thrown at the merchant they pay 100 gold each
+        #     (the event that grants them heavily implies it; owner 2026-07-09 — the bot was
+        #     hauling them past merchants untouched). The mod has no dedicated throw action,
+        #     but using Foul at a shop is the game's own throw interaction; attempt each slot
+        #     ONCE per shop (bounded: an unsupported use is one logged error, nothing more —
+        #     live-verify, and file a fork TODO if the mod rejects it). Thrown before buying
+        #     so the gold is available to spend.
+        thrown = ctx.screen_mem.setdefault("foul_thrown_slots", [])
+        for potion in (player.potions if player else []) or []:
+            nid = f"{potion.id or ''} {potion.name or ''}".upper()
+            if "FOUL" in nid and potion.slot not in thrown:
+                thrown.append(potion.slot)
+                return Decision(
+                    action=act.UsePotion(slot=potion.slot),
+                    rationale=f"throw {potion.name} at the merchant (+100 gold)",
+                )
+
         # 0. Discount relics (Membership Card -50% / Courier -20%, applied immediately) — buy
         #    FIRST so the rest of the shop is cheaper; once owned, the live shop returns
         #    discounted prices, and the Courier's restock is exploited by the one-buy-per-poll

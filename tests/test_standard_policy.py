@@ -2433,3 +2433,28 @@ def test_finisher_potion_held_at_zero_threat() -> None:
     brewing = router().decide(state("buff"), LoopContext())
     assert isinstance(brewing, Decision)
     assert brewing.action.payload()["action"] == "use_potion"  # setup: worth ending it now
+
+
+def test_foul_potion_thrown_at_the_merchant_once() -> None:
+    """Owner 2026-07-09: Foul Potions are merchant ammo (+100 gold thrown at the shopkeeper)
+    -- the bot hauled them past merchants untouched. At a shop, each Foul slot is thrown once
+    (before any purchase); a second poll moves on to normal shopping."""
+    shop_state = {
+        "state_type": "shop",
+        "shop": {"items": []},
+        "run": {"act": 1, "floor": 6, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "gold": 40,
+                   "status": [], "relics": [],
+                   "potions": [_potion("FOUL_POTION", "Foul Potion",
+                                       "Deal 10 damage to EVERYONE.", slot=1)],
+                   "max_potion_slots": 3},
+    }
+    ctx = LoopContext()
+    d = router().decide(parse_state(shop_state), ctx)
+    assert isinstance(d, Decision)
+    assert d.action.payload() == {"action": "use_potion", "slot": 1}
+    assert "merchant" in d.rationale
+
+    d2 = router().decide(parse_state(shop_state), ctx)  # same shop, already thrown
+    assert not (isinstance(d2, Decision)
+                and d2.action.payload().get("action") == "use_potion")
