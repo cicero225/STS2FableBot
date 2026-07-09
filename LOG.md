@@ -54,6 +54,19 @@ Jun 12; unlock progression is as of Jun 12. If the old machine's
 Not yet done: live smoke test (launch game, confirm mod REST API answers and the modded
 profile loads) — attended, per FR-4.4.
 
+## 2026-06-16 → 2026-06-26 (Opus) — BACKFILLED 2026-07-08: the capability-estimate arc + FIRST A0 WIN
+
+*Backfilled summary (Fable 5, from PLAN §5.1/§8 and HANDOFF.md — these sessions logged into
+PLAN.md instead of here; see git history for detail).* The arc: §5-C `estimate_fight`
+capability estimate built + wired into the elite gate (06-16) → seeded-run combat fixes via
+`B04BGZEDRN` while it lasted (06-15/16) → HP-aware path-EV routing → mod broken + rebuilt
+through the v0.103.3→v0.107.1 game update, including the build-from-upstream `player.deck`
+regression + fix (06-23/24) → deck-power diagnostic over 91 runs: tempo mismatch, not
+thinning (06-25) → powers-under-played Tier-1 horizon fix, play-rate 48%→83% (06-25/26) →
+Act-1/Act-2 boss deep-dives, Artifact validated live (06-26). **2026-06-26: first-ever A0
+win (Ironclad, floor 48)** — the 0-wins wall broke; Act-1-boss clear ~44%; the binding wall
+moved to the Act-2 bosses (batch ble3lyl8a: 10 clean runs, 0 wins, 4/10 past Act 1).
+
 ## 2026-06-15 (session 5 cont., Opus) — Rest/upgrade optimization + a 2-session-old bug
 
 Owner asked to optimize rest-vs-smith and upgrade choice (with the caveat that combat

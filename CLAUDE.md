@@ -2,7 +2,8 @@
 
 Bot that plays Slay the Spire 2 via the STS2MCP mod's localhost REST API. Deterministic
 Python decision engine; LLMs only for post-run analysis, new-content triage, optional
-narration — every LLM call goes through the ledger (budget-capped).
+narration — every LLM call must go through the ledger (budget-capped). *(Neither exists
+yet: `sts2bot/llm/` is an empty stub and the bot makes no LLM calls — PLAN P1.8.)*
 
 **Read first:** [REQUIREMENTS.md](REQUIREMENTS.md) (what & why, constraints C1–C6),
 [PLAN.md](PLAN.md) (architecture, current phase, open items), LOG.md (lab notebook of

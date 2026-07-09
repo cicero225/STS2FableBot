@@ -92,7 +92,9 @@ Commit per enemy or per coherent group (FR-3.4 auditability).
 
 ## Testing
 Mock-first unit tests per mechanic. Live confirmation via **seeded custom runs** (deterministic
-per-boss, custom mode now unlocked) — far less noisy than the n=5 standard batches — plus periodic
+per-boss; unlocked 2026-06-15 on the original profile, but **re-locked since the 2026-07-08 machine
+move** — the restored profile predates the unlock; restore the old snapshot or re-earn 3 Act-3 wins) —
+far less noisy than the n=5 standard batches — plus periodic
 standard batches for the aggregate boss win-rate. See PLAN §8.3 (seeded-runs harness).
 
 ## Definition of done (per phase)

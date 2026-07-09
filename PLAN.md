@@ -81,6 +81,11 @@ external/                 gitignored clones for reference (STS2MCP)
 
 ## 4. Phases
 
+**Current phase (stamped 2026-07-08): P1 — Competence.** M0 is closed; M1 (≥40% A0 win
+rate, n≥20) is the target — first-ever A0 win landed 2026-06-26, win rate otherwise ~0%,
+binding wall = the Act-2 bosses (Knowledge Demon / Kaiser Crab, f33). P2's fork item
+(§P2.1) landed early, out of order; the rest of P2 waits on M1.
+
 ### P0 — Plumbing (→ M0: full unattended run, trivial policy)
 Build **mock-first**: STS2MCP's `docs/raw-full.md` documents exact response shapes, so the
 entire loop is built and tested against fixtures before ever touching the live game.
@@ -103,7 +108,9 @@ entire loop is built and tested against fixtures before ever touching the live g
    character select (matters when unlock chain starts).
 
 **Exit:** bot finishes real runs end-to-end at A0 unattended-while-watched, logs complete.
-*Status: behavior demonstrated live; a few more shakeout runs before calling M0 closed.*
+*Status: ✅ **CLOSED** (stamped 2026-07-08 — met long before: hundreds of clean end-to-end
+runs since 2026-06-11). Item 8's investigation leftovers (non-interactive modded launch,
+locked-character representation) move to the §7 open-items table where they already live.*
 
 ### P1 — Competence (→ M1: ≥40% win rate at A0, one character, n≥20)
 1. KB build: compendium endpoint + game-version stamp; diff tooling for patches.
@@ -456,9 +463,12 @@ alt-Act-1 boss). *Correction (2026-06-26): an earlier draft of this section clai
 `runs_seen 0` — that was my error (I inferred "never seen" from a name-grep that didn't match them, instead
 of reading their entries; the bestiary build is fine). They're mid-frequency, ahead of Lagavulin/Waterfall.*
 Sourced mechanics, diffed against the planner (`combat.py`) and §5-C (`capability.py`).
-Live validation is **opportunistic** until seeded runs unlock (needs 3 Act-3 wins;
-[[seeded-custom-runs-test-harness]]) — so this is model-against-docs + fixture tests, confirm live when a
-run reaches one. **Common thread across all four: a DPS race** — the bot's weak decks are exactly the
+Live validation is **opportunistic** until seeded runs are available again *(clarified 2026-07-08,
+owner-confirmed: custom mode WAS unlocked 2026-06-15 on the original profile — the "needs 3 Act-3 wins"
+phrasing here was an error; but it's re-locked on the current machine's restored pre-unlock profile.
+Restore the old machine's newer snapshot (~2026-07-10) or re-earn 3 Act-3 wins — owner offered a manual
+re-grind, which doubles as fresh `record` data)* — so this is model-against-docs + fixture tests,
+confirm live when a run reaches one. **Common thread across all four: a DPS race** — the bot's weak decks are exactly the
 profile these punish, so §5-C race-accuracy + tempo drafting are the binding levers, not micro-tactics.
 
 - **Ceremonial Beast** (252 HP). *Mechanic:* ramps **Strength** (Plow); **first time** HP ≤150 → **Stunned
@@ -472,8 +482,7 @@ profile these punish, so §5-C race-accuracy + tempo drafting are the binding le
   (= permanent **−2 Strength AND −2 Dexterity to the PLAYER** each cycle). Multi-hit pierces Plating; rush
   once awake. *Modeled:* Plating as §5-C `self_block` (12) ✓; multi-hit-vs-block soak ✓; Asleep = Sleep
   intent → `incoming` 0 (passively) ✓; Str-ramp ✓. *Open (filed):* **(a)** Soul Siphon stripping the
-  player's Str/Dex is unmodeled — §5-C `my_str` only grows, so it **over-rates** survivability vs Lagavulin
-  (and the Kin's Dark Shackles); **(b)** Asleep is a **multi-turn setup window** (buff/scale during the 3
+  player's Str/Dex is unmodeled — §5-C `my_str` only grows, so it **over-rates** survivability vs Lagavulin; **(b)** Asleep is a **multi-turn setup window** (buff/scale during the 3
   free turns, don't wake it early with chip attacks) — the one-turn planner can't price the hidden cost of
   waking it; §5-C race-vs-setup territory; **(c)** Plating's −1/turn decay is ignored (treated constant →
   slightly over-rates its defense).
@@ -515,7 +524,7 @@ profile these punish, so §5-C race-accuracy + tempo drafting are the binding le
   Intangible turn (should defend/clear instead). Mid-frequency (faced 6×), but the per-hit-cap-of-1 model
   is shared with the Vantom Slippery fix, so they're naturally done together.
 
-**Cross-boss filed item — enemy-applied player debuffs** (Soul Siphon, Dark Shackles, Frail, Weak): the
+**Cross-boss filed item — enemy-applied player debuffs** (Soul Siphon, Frail, Weak): the
 recurring gap is that §5-C/`planner` model *my* Str/block/damage as monotonic, but several Act-1 bosses
 actively **strip or weaken** them. Split into two halves:
 - **(a) In-the-moment — DONE 2026-06-26.** The planner now reads my **own** Weak / Frail off `player.status`
@@ -527,12 +536,14 @@ actively **strip or weaken** them. Split into two halves:
   so it doesn't model a boss **permanently stripping** them. Verified 2026-06-26 that this **can't be done
   well from current data**: **Soul Siphon** (the impactful one — Lagavulin, −2 Str AND −2 Dex *per cycle*,
   permanent) is **not in `bestiary.json` at all** (it's a move/intent, never captured as a status), so
-  modeling it = hardcoding web numbers (fragile). **Dark Shackles** (Kin Priest, "lose 9 Strength until end
-  of this turn") *is* in data but is **temporary** and its **cadence in the move cycle is unknown**, so
-  placing it in §5-C's per-turn loop is also a guess. **Unblock = a live trace**: capture a Lagavulin/Kin
-  fight's intents (`scripts` dwell or a seeded run) to read Soul Siphon's actual params + cadence, then
-  build a generic "enemy reduces my Str/Dex by N per turn" drain in `estimate_fight`. Until then, §5-C
-  over-rates survivability vs Lagavulin / the Kin — accepted.
+  modeling it = hardcoding web numbers (fragile). *(Correction 2026-07-08, owner + wiki-verified: an
+  earlier draft cited "Dark Shackles" as a Kin Priest Str-strip — wrong. Dark Shackles is **our**
+  colorless 0-cost Skill ("enemy loses 9 Strength this turn"); it shows up in harvested data because
+  our own debuffs land as enemy statuses. The Kin's real player-debuffs are the Orbs' Frail/Weak,
+  already modeled in-the-moment. Soul Siphon is the only data-blocked item here.)* **Unblock = a live
+  trace**: capture a Lagavulin fight's intents (`scripts` dwell or a seeded run) to read Soul Siphon's
+  actual params + cadence, then build a generic "enemy reduces my Str/Dex by N per turn" drain in
+  `estimate_fight`. Until then, §5-C over-rates survivability vs Lagavulin — accepted.
 
 - **§5-C `block_per_turn` ignores passive relic/power start-of-turn block** (owner question 2026-06-26).
   The **in-the-moment planner is fine** — `my_block = player.block` ([combat.py:555]) reads the live block,
