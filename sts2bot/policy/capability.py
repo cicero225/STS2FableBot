@@ -258,6 +258,39 @@ _EMPIRICAL_MOVES: dict[str, dict[str, int]] = {
     "MATRIARCH": {"drains_player": 2, "drain_every": 4},
 }
 
+# Multi-body elites the harvest records as ONE body (PLAN §8.5.6 sub-item, 2026-07-09: the pool
+# gate fixed single-body elites — Terror Eel deaths 2→0 — but Gardeners/Phrog kept killing runs
+# because one 31-HP Gardener flatters a 3-body Skittish swarm, and Phrog's death spawns a
+# Wriggler wave). Keyed by a substring of the elite name; members are (bestiary name, count).
+_ELITE_COMPOSITIONS: dict[str, list[tuple[str, int]]] = {
+    "PHANTASMAL GARDENER": [("Phantasmal Gardener", 3)],
+    "PHROG PARASITE": [("Phrog Parasite", 1), ("Wriggler", 4)],
+}
+
+
+def elite_fight_members(
+    name: str, entry: dict, bestiary: dict, *, dps: int, str_ramp: int = 0
+) -> list[FightEnemy]:
+    """The full body-list for an elite fight. Single-body elites -> [bestiary_enemy(entry)];
+    composed ones (swarms, death-spawn waves) expand via _ELITE_COMPOSITIONS, splitting the
+    per-act dps estimate across the bodies (HP totals and per-body mechanics like Skittish are
+    the real correction; total threat stays the act estimate)."""
+    comp = next(
+        (m for key, m in _ELITE_COMPOSITIONS.items() if key in name.upper()), None
+    )
+    if not comp:
+        return [bestiary_enemy(entry, dps=dps, name=name, str_ramp=str_ramp)]
+    bodies = sum(n for _, n in comp)
+    per_dps = max(1, dps // max(1, bodies))
+    members: list[FightEnemy] = []
+    for member_name, count in comp:
+        m_entry = bestiary.get(member_name) or entry
+        for _ in range(count):
+            members.append(
+                bestiary_enemy(m_entry, dps=per_dps, name=member_name, str_ramp=str_ramp)
+            )
+    return members
+
 
 def bestiary_enemy(entry: dict, *, dps: int, name: str = "", **overrides: Any) -> FightEnemy:
     """Build a FightEnemy from a bestiary entry: its max HP seen + the mechanics detected from its

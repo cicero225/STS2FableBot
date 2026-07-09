@@ -33,9 +33,11 @@ from sts2bot.kb.priors import CardPriors
 from sts2bot.kb.shop_stats import ShopStats
 from sts2bot.policy.base import Decision, LoopContext, Wait
 from sts2bot.policy.capability import (
+    _ELITE_COMPOSITIONS,
     FightEnemy,
     bestiary_enemy,
     deck_output,
+    elite_fight_members,
     estimate_fight,
     load_bestiary,
     load_card_descriptions,
@@ -494,13 +496,17 @@ class StandardRouter:
             pool = [
                 (name, entry) for name, entry in self.bestiary.items()
                 if "elite" in (entry.get("roles") or []) and cur_act in (entry.get("acts") or [])
-                and ((entry.get("hp") or [0, 0])[1] or 0) >= 50  # drop minion-pollution entries
+                # drop minion-pollution entries UNLESS a composition rebuilds them as the real
+                # multi-body fight (Gardener 31 HP alone is pollution; 3x with Skittish is real)
+                and (((entry.get("hp") or [0, 0])[1] or 0) >= 50
+                     or any(k in name.upper() for k in _ELITE_COMPOSITIONS))
             ]
             if pool:
                 outcomes = [
                     estimate_fight(
                         int(max_hp), deck_out,
-                        [bestiary_enemy(entry, dps=edps, name=name, str_ramp=eramp)],
+                        elite_fight_members(name, entry, self.bestiary,
+                                            dps=edps, str_ramp=eramp),
                     )
                     for name, entry in pool
                 ]

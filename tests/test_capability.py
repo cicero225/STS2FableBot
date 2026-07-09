@@ -15,6 +15,7 @@ from sts2bot.policy.capability import (
     bestiary_enemy,
     deck_output,
     detect_mechanics,
+    elite_fight_members,
     estimate_fight,
 )
 
@@ -307,3 +308,27 @@ def test_bestiary_enemy_applies_empirical_moves_by_name() -> None:
     assert lag.drains_player == 2 and lag.drain_every == 4
     other = bestiary_enemy(entry, dps=20, name="Vantom")
     assert other.drains_player == 0
+
+
+def test_elite_fight_members_expands_swarms() -> None:
+    # Multi-body elites (PLAN 8.5.6): one 31-HP Gardener flatters the real 3-body Skittish
+    # swarm; Phrog's Infested death-spawn adds a Wriggler wave. Compositions expand them.
+    bestiary = {
+        "Phantasmal Gardener": {"hp": [26, 31], "statuses": {
+            "SKITTISH_POWER": {"description":
+                               "The first time it is hit each turn, it gains 6 Block."}}},
+        "Phrog Parasite": {"hp": [61, 63], "statuses": {}},
+        "Wriggler": {"hp": [17, 21], "statuses": {}},
+        "Terror Eel": {"hp": [140, 140], "statuses": {}},
+    }
+    swarm = elite_fight_members("Phantasmal Gardener", bestiary["Phantasmal Gardener"],
+                                bestiary, dps=17)
+    assert len(swarm) == 3 and all(e.hp == 31 for e in swarm)
+    assert all(e.skittish == 6 for e in swarm)  # per-body mechanics survive
+    assert sum(e.dps for e in swarm) <= 17  # act threat estimate split, not tripled
+
+    phrog = elite_fight_members("Phrog Parasite", bestiary["Phrog Parasite"], bestiary, dps=17)
+    assert len(phrog) == 5 and phrog[0].hp == 63 and phrog[1].hp == 21
+
+    solo = elite_fight_members("Terror Eel", bestiary["Terror Eel"], bestiary, dps=17)
+    assert len(solo) == 1 and solo[0].hp == 140  # single-body path unchanged
