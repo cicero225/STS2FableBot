@@ -131,3 +131,12 @@ def test_card_pass_tranche_b_parses() -> None:
     fx = p("Gain 15 Block. Next turn, draw 2 cards and gain "
            "[colorless_energy_icon.png][colorless_energy_icon.png]. Exhaust.")
     assert fx.draw == 0 and fx.block == 15  # next-turn effects deferred
+
+
+def test_attack_generator_credited() -> None:
+    # Owner live-caught (2026-07-09): 0-cost Infernal Blade+ ("Add a random Attack into your
+    # Hand. It's free to play this turn. Exhaust.") parsed to nothing and sat unplayed at
+    # pure friction cost. Credit an average random attack; the replan sees the real card.
+    fx = parse_card_description(
+        "Add a random Attack into your Hand. It's free to play this turn. Exhaust.")
+    assert fx.damage == 8 and fx.hits == 1 and fx.has_any_effect

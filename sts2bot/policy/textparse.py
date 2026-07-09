@@ -35,6 +35,12 @@ _RETRIEVE = re.compile(r"\bPut (\d+) cards? from your Discard Pile into your Han
 # (the loop replans per card, so the real Shivs are played right after; slight double-credit
 # within one plan is bounded by the replan)
 _SHIVS = re.compile(r"\bAdd (\d+|a) Shivs? (?:in)?to your Hand", re.IGNORECASE)
+# Attack-generators: Infernal Blade "Add a random Attack into your Hand. It's free to play
+# this turn." parsed to NOTHING, so 0-cost IB+ sat unplayed at pure friction cost (owner
+# live-caught vs Waterfall Giant 2026-07-09). Credit an average random attack (~8); the
+# replan sees the real generated card immediately after.
+_RANDOM_ATTACK = re.compile(r"\bAdd (a|an|\d+) random Attacks? (?:in)?to your Hand", re.IGNORECASE)
+_RANDOM_ATTACK_DMG = 8
 # compound debuff: Shockwave "Apply 3 Weak and Vulnerable" — both get N
 _COMPOUND_DEBUFF = re.compile(
     r"\bApply (\d+) (Weak and Vulnerable|Vulnerable and Weak)", re.IGNORECASE
@@ -121,6 +127,10 @@ def parse_card_description(text: str | None) -> CardEffects:
         if fx.damage == 0:
             fx.damage, fx.hits = 4, n
             fx.recognized.append("damage")
+    if (m := _RANDOM_ATTACK.search(text)) and fx.damage == 0:  # Infernal Blade & kin
+        n = 1 if m.group(1).lower() in ("a", "an") else int(m.group(1))
+        fx.damage, fx.hits = _RANDOM_ATTACK_DMG, n
+        fx.recognized.append("damage")
     if fx.damage and _ALL_ENEMIES.search(text):
         fx.aoe = True
     if m := _BLOCK.search(text):
