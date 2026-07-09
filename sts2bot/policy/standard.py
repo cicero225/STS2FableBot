@@ -306,6 +306,13 @@ class StandardRouter:
         if hp_pct < w.heal_below_pct and (healp := first("heal")):
             return drink(healp, None, f"drink {healp.name} to heal at {hp_pct:.0%} HP")
 
+        # 4a. Card-generating potions (Skill/Attack/Power/Colorless): drop immediately at a
+        #     BOSS start — the chosen card compounds over the fight's length, and held ones
+        #     historically died in the belt or fired as pointless hail-maries (owner
+        #     2026-07-09). Window is two rounds so a buff (4b) and a card-gen both land.
+        if state.state_type == "boss" and round_ <= 2 and (cg := first("card_gen")):
+            return drink(cg, None, f"drink {cg.name} (boss start: bank the card early)")
+
         # 4. Proactive at an elite/boss start: deploy long-term buffs/debuffs early (the
         #    bot struggles with these fights, so bank the value rather than hoard it).
         if dangerous and round_ <= 1 and (buff := first("buff", "debuff")):
@@ -346,6 +353,12 @@ class StandardRouter:
             return "downside"
         if "BLOOD" in nid:  # Blood Potion: % heal (markup the text parser can't read)
             return "heal"
+        # Card-generating potions (Skill/Attack/Power/Colorless Potion: "choose a card, add it
+        # to your hand"). Their text parses to no effect -> they fell to "other" and only ever
+        # fired as the hail-mary fallback, way too late value-wise (owner 2026-07-09): the
+        # earlier the card arrives, the longer it works. Deployed at boss start (rule 4a).
+        if any(k in nid for k in ("SKILL", "ATTACK", "COLORLESS", "POWER POTION")):
+            return "card_gen"
         fx = parse_card_description(potion.description)
         if fx.heal > 0:
             return "heal"
@@ -1151,7 +1164,7 @@ class StandardRouter:
     # keep the good stuff (heals, buffs, energy/draw value, damage). Tie-break by slot.
     _DISCARD_RANK: ClassVar[dict[str, int]] = {
         "downside": 0, "other": 1, "debuff": 3, "block": 3, "value": 4,
-        "damage": 4, "aoe_damage": 4, "buff": 5, "heal": 6, "fruit_juice": 7,
+        "damage": 4, "aoe_damage": 4, "card_gen": 4, "buff": 5, "heal": 6, "fruit_juice": 7,
     }
 
     def _worst_potion(self, potions: list[Potion]) -> Potion | None:

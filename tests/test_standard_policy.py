@@ -2149,3 +2149,35 @@ def test_drafting_vs_slippery_boss_prefers_multi_hit() -> None:
     slippery_boss = [FightEnemy(hp=173, dps=20, slippery=True)]
     deltas = r._capability_deltas(deck, [multi, big], 80, slippery_boss)
     assert deltas[0] > deltas[1]  # multi-hit beats Slippery; the big swing is wasted
+
+
+def test_card_gen_potion_dropped_at_boss_start() -> None:
+    """Owner 2026-07-09: Skill/Attack/Power/Colorless Potions should be dropped immediately
+    at a boss start -- the chosen card compounds over the fight; previously they classified
+    as 'other' and only ever fired as too-late hail-maries."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BOSS_0", 200, intent_label="10")],
+        hp=70, max_hp=80, state_type="boss",
+        potions=[_potion("SKILL_POTION", "Skill Potion",
+                         "Choose 1 of 3 Skills. Add it to your hand.")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] == "use_potion"
+    assert "bank the card early" in d.rationale
+
+
+def test_card_gen_potion_held_in_normal_fights() -> None:
+    """The boss-start drop is boss-only: in a normal monster fight the card-gen potion is
+    held (its value is banked for the fights that matter)."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("MOB_0", 30, intent_label="5")],
+        hp=70, max_hp=80,
+        potions=[_potion("COLORLESS_POTION", "Colorless Potion",
+                         "Choose 1 of 3 Colorless cards. Add it to your hand.")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] != "use_potion"

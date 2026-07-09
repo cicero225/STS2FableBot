@@ -1212,6 +1212,9 @@ the owner's projected-impact ranking within it:
    per-card handlers/annotations (§8.3 "per-card special-case pass").
 5. **Event analysis** — mostly already covered by event-choice WAR; only a few events carry nuance
    (Byrdonis Egg, §8.4). Lowest priority.
+*Owner priority ruling (2026-07-09): items 2 and 4 (enemies, cards) come first, then the
+relic pass (6), then a **full potion pass** (7) — events stay last.*
+
 6. **Relic combat-trigger pass** (added 2026-07-08, owner: "worth parsing through the list of
    relics, which unfortunately adds a lot of complication"). The f44 one-turn-kill analysis
    ([combat_notes_2026-07-08-f44-knights.markdown](combat_notes_2026-07-08-f44-knights.markdown))
@@ -1221,7 +1224,12 @@ the owner's projected-impact ranking within it:
    effects to cards*, which is exactly the planner's blind spot. Pen Nib (modeled) and the §5-C
    passive-block gap (§8.4-A) are the same class; the pass would sweep `player.relics` text for
    combat triggers (on-skill-count / on-attack-count / on-HP-loss / per-turn) the way
-   `detect_mechanics` sweeps enemy statuses. Ranking vs items 4–5: owner's call.
+   `detect_mechanics` sweeps enemy statuses. *(Ranked 2026-07-09: after enemies+cards.)*
+7. **Full potion pass** (scheduled 2026-07-09, after relics — owner ruling). The taxonomy
+   (§8.4) covers reactive/proactive/hail-mary/downside plus the 2026-07-09 quick fix
+   (card-gen potions dropped at boss start); the full pass adds per-potion handlers,
+   Delicate-Frond-style abundance switching, Duplicator×X pairing, and the
+   full-belt/reward-deploy logic.
 
 Sequencing note: this complements §8.0 (the immediate routing/deck-power items). Items 2–4 are the
 combat-side maturation that the §5-C capability estimate was built to anchor — they slot in as its
