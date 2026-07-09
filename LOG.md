@@ -2,6 +2,27 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-09 (Fable 5, session 2 cont. 4 — day end) — Batch bn4v9mf75: PEN NIB ROLLED; elite-death forensics
+
+**Batch (10 clean): 0 wins, act-reach 1.40** (4× Act 2: Insatiable f33, Obscura f30,
+Decimillipede f27, Hunter-Killer f24).
+
+**PEN NIB finally rolled** (run 9, after ~90 runs): counter plumbing **validated live**
+(0→6 across two floors, persists between fights) but the run died before counter 9 — the
+10th-attack DOUBLE remains unexercised, so the TEMP tripwire stays.
+
+**Elite-death forensics (3 deaths):** Gardeners f12 + Terror Eel f8 were **forced
+single-option lanes** — the composed gate visibly refused Gardeners when options existed
+(path values −54/−122). **Decimillipede f27 was a genuine gate-pass**: the Act-2 pool
+held only Entomancer (Decimillipede's 46-HP single-segment harvest fell under the pool
+floor), so the run chose the elite over a RestSite. Live-counted the real fight — **3
+Reattach segments** ("revives in 2 turns with 25 HP if others alive") — and composed it
+(138 effective HP; revive modeling stays the ENEMY_PASS (B) refinement). → The remaining
+elite exposure is **forced lanes**, a route-DP commitment problem, not a gate problem.
+
+**Not yet validated** (didn't roll): sleeper-leak fix (no Lagavulin), Knowledge Demon
+handler (no KD), free-this-turn potion picks (no card-gen potion observed). Next batch.
+
 ## 2026-07-09 (Fable 5, session 2 cont. 3) — Batch bnyka47dn + the Act-2-wall work ships
 
 **Batch (10 clean): 0 wins, act-reach 1.30, ZERO elite deaths** (15 elite fights taken,
