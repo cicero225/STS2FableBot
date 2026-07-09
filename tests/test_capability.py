@@ -340,3 +340,28 @@ def test_decimillipede_composes_three_segments() -> None:
     bestiary = {"Decimillipede": {"hp": [40, 46], "statuses": {}}}
     segs = elite_fight_members("Decimillipede", bestiary["Decimillipede"], bestiary, dps=23)
     assert len(segs) == 3 and all(e.hp == 46 for e in segs)
+
+
+def test_waterfall_death_damage_accumulates_with_fight_length() -> None:
+    # PLAN 8.4-A part (a): the kill explosion is the accumulated Steam stack (~3/move), not
+    # the flat 15 -- a slow kill must project a much bigger post-kill hit than a fast one.
+    fast = DeckOutput(burst_dmg=120, sustained_dmg=90, biggest_hit=30, block_per_turn=10)
+    slow = DeckOutput(burst_dmg=30, sustained_dmg=25, biggest_hit=10, block_per_turn=10)
+    giant = [FightEnemy(hp=240, dps=15, death_damage=15, death_damage_growth=3)]
+    f, s = estimate_fight(80, fast, giant), estimate_fight(80, slow, giant)
+    assert f.win and s.win
+    assert s.turns > f.turns
+    # the slow kill eats a strictly larger explosion (3 more per extra turn)
+    assert (80 - s.exp_end_hp) - (80 - f.exp_end_hp) >= 3 * (s.turns - f.turns)
+
+
+def test_knowledge_demon_regeneration_hardens_the_race() -> None:
+    # PLAN 8.4-B (b): Ponder heals ~7/turn -- a deck that barely out-damages the base HP pool
+    # fails against the regenerating version; a real race deck still wins.
+    kd_plain = [FightEnemy(hp=379, dps=17)]
+    kd_real = [FightEnemy(hp=379, dps=17, heals_per_turn=7, player_dot_avg=5)]
+    marginal = DeckOutput(burst_dmg=30, sustained_dmg=25, biggest_hit=9, block_per_turn=13)
+    racer = DeckOutput(burst_dmg=55, sustained_dmg=42, biggest_hit=16, block_per_turn=18)
+    assert estimate_fight(80, marginal, kd_plain).win
+    assert not estimate_fight(80, marginal, kd_real).win  # regen + dot load close the door
+    assert estimate_fight(80, racer, kd_real).win

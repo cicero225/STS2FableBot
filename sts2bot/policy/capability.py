@@ -88,6 +88,15 @@ class FightEnemy:
     # text-detected; sourced from the _EMPIRICAL per-enemy table.
     drains_player: int = 0  # Str AND Dex the player permanently loses per cast
     drain_every: int = 0  # cast cadence in turns (0 = never)
+    # death-damage that GROWS with fight length (Waterfall Giant: ~+3 Steam Eruption per move,
+    # so the explosion at kill is the accumulated stack, not the flat 15 the status text shows)
+    death_damage_growth: int = 0  # added to death_damage per elapsed turn
+    # sustained self-healing (Knowledge Demon's Ponder: heal 30 every 4th turn ≈ 7.5/turn) —
+    # the race must out-damage the regeneration, so it joins the kill math per turn
+    heals_per_turn: int = 0
+    # average per-turn blockable load its player-debuffs add (KD's escalating Disintegration:
+    # 6+7+8 by round 9 ≈ +5/turn averaged over the fight) — folded into its dps for the race
+    player_dot_avg: int = 0
 
 
 @dataclass(frozen=True)
@@ -117,6 +126,8 @@ def estimate_fight(
     caps = [e.dmg_cap_per_turn for e in leaders if e.dmg_cap_per_turn is not None]
     cap = min(caps) if caps else None  # hard per-turn HP-loss cap (burst is wasted past it)
     death_damage = sum(e.death_damage for e in leaders)  # self-damage on the kill
+    death_growth = sum(e.death_damage_growth for e in leaders)  # Waterfall: stack grows per turn
+    heals = sum(e.heals_per_turn for e in leaders)  # KD's Ponder: the race must out-damage it
     stun_at = max((e.stun_threshold for e in leaders), default=0)  # crossing it skips a turn
     thorns = sum(e.thorns for e in leaders)
     drain_amt = max((e.drains_player for e in leaders), default=0)  # Soul Siphon, per cast
@@ -124,7 +135,7 @@ def estimate_fight(
     death_timer = min((e.death_timer for e in leaders if e.death_timer), default=0)  # race-or-die
     if death_timer:
         death_timer += _SANDPIT_SLACK  # extendable via Frantic Escape -> the real window is longer
-    base_dps = sum(e.dps for e in enemies)
+    base_dps = sum(e.dps for e in enemies) + sum(e.player_dot_avg for e in enemies)
     n_attackers = sum(1 for e in enemies if e.dps > 0)
     hp = float(my_hp)
     extra_str = 0  # accumulated enemy ramp, added to every attacker's dps as turns pass
@@ -149,8 +160,13 @@ def estimate_fight(
         if thorns and out > 0:
             hp -= thorns  # retaliation for attacking it
         if kill_hp <= 0:  # killed the leaders (thorns already paid); eat any death-damage
-            return FightOutcome(win=True, exp_end_hp=round(hp - death_damage), turns=turn,
-                                enemy_hp_left=0)
+            # Waterfall: the kill explosion is the ACCUMULATED stack, growing each turn
+            return FightOutcome(
+                win=True, exp_end_hp=round(hp - death_damage - death_growth * turn),
+                turns=turn, enemy_hp_left=0)
+        # sustained self-healing (Ponder) regenerates AFTER a non-lethal turn, capped at start
+        if heals:
+            kill_hp = min(kill_hp + heals, float(sum(e.hp for e in leaders)))
         if hp <= 0:  # thorns killed me while it still stands
             return FightOutcome(False, round(hp), turn, round(kill_hp))
         # --- enemy turn: skipped the turn it's Stunned by crossing its threshold ---
@@ -256,6 +272,13 @@ def load_bestiary(path: Path | str | None = None) -> dict[str, dict]:
 # post-wake; permanent. See PLAN §8.4-A.)
 _EMPIRICAL_MOVES: dict[str, dict[str, int]] = {
     "MATRIARCH": {"drains_player": 2, "drain_every": 4},
+    # Waterfall Giant: +3 Steam Eruption per move -> the kill explosion is the ACCUMULATED
+    # stack (30-60+ in a real race), not the flat 15 in the status text (PLAN §8.4-A part a)
+    "WATERFALL": {"death_damage_growth": 3},
+    # Knowledge Demon (PLAN §8.4-B open (b)): Ponder heals 30 every 4th turn (~7.5/turn the
+    # race must out-damage) and the forced Disintegration picks average ~+5/turn blockable
+    # load on the player by mid-fight (6+7+8 escalation)
+    "KNOWLEDGE DEMON": {"heals_per_turn": 7, "player_dot_avg": 5},
 }
 
 # Multi-body elites the harvest records as ONE body (PLAN §8.5.6 sub-item, 2026-07-09: the pool
