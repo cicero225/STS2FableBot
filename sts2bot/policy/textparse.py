@@ -10,19 +10,43 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-_DAMAGE = re.compile(r"\bDeal (\d+) damage", re.IGNORECASE)
+# "Deals" (third person) covers companion damage — Unleash/Snap "Osty deals 7 damage" parsed
+# as 0 (card-pass audit, high impact). "(?! back)" excludes retaliation clauses (Flame Barrier
+# "deal 4 damage back" is thorns, not on-play damage).
+_DAMAGE = re.compile(r"\bDeals? (\d+) damage(?! back)", re.IGNORECASE)
 # live text pre-resolves dynamic hit counts parenthetically: "... (Hits 6 times)"
 _HITS_PAREN = re.compile(r"\(Hits (\d+) times\)", re.IGNORECASE)
 # "N times" may sit after a target clause: Conflagration = "Deal 2 damage to ALL enemies 4
 # times." parsed as 2 dmg x1 (a 4x under-value that cascaded: Bloodletting looked pointless
-# because its payoff card looked worthless — owner-caught live 2026-07-09).
+# because its payoff card looked worthless — owner-caught live 2026-07-09). Word numerals
+# too: Twin Strike / Thrash / Fight Me / Astral Pulse all say "twice" (card-pass audit).
 _DAMAGE_TIMES = re.compile(
-    r"\bDeal (\d+) damage(?: to (?:ALL enemies|a random enemy|an enemy))? (\d+) times",
+    r"\bDeals? (\d+) damage(?: to (?:ALL enemies|a random enemy|an enemy))?"
+    r" (?:(\d+) times|(twice)|(thrice))",
     re.IGNORECASE,
 )
-_ALL_ENEMIES = re.compile(r"\bALL enem", re.IGNORECASE)
-_BLOCK = re.compile(r"\bGain (\d+) Block", re.IGNORECASE)
+# "ALL other enemies" = splash (Omnislice); close enough to AoE for the planner
+_ALL_ENEMIES = re.compile(r"\bALL (?:other )?enem", re.IGNORECASE)
+_BLOCK = re.compile(r"\bGain (\d+) (?:Block|Plating)", re.IGNORECASE)  # Plating ~ recurring block
 _DRAW = re.compile(r"\bDraw (\d+) card", re.IGNORECASE)
+# retrieval reads as draw: Dredge "Put 3 cards from your Discard Pile into your Hand"
+_RETRIEVE = re.compile(r"\bPut (\d+) cards? from your Discard Pile into your Hand", re.IGNORECASE)
+# Shivs are 0-cost 4-damage cards added to hand — approximate as immediate 4xN multi-hit
+# (the loop replans per card, so the real Shivs are played right after; slight double-credit
+# within one plan is bounded by the replan)
+_SHIVS = re.compile(r"\bAdd (\d+|a) Shivs? (?:in)?to your Hand", re.IGNORECASE)
+# compound debuff: Shockwave "Apply 3 Weak and Vulnerable" — both get N
+_COMPOUND_DEBUFF = re.compile(
+    r"\bApply (\d+) (Weak and Vulnerable|Vulnerable and Weak)", re.IGNORECASE
+)
+# Trigger/deferred sentences must NOT parse as immediate effects (card-pass audit: Drum of
+# Battle's "When this card is Exhausted, gain [energy]" credited the energy on play; Relax's
+# "Next turn, draw 2..." credited the draw now; whenever-trigger Powers over-credited).
+# Sentences starting with these are dropped before effect parsing; the conditional flag is
+# still computed on the FULL text.
+_TRIGGER_SENTENCE = re.compile(
+    r"^\s*(When\b|Whenever\b|Every \d|Next turn\b|At the start\b|At the end\b)", re.IGNORECASE
+)
 _ENERGY = re.compile(r"\bGain (\d+) Energy", re.IGNORECASE)
 # Some cards render gained energy as ICON tokens, not "N Energy" text (Luminesce: "Gain
 # [ironclad_energy_icon.png][ironclad_energy_icon.png]. Exhaust."). Count the energy icons after
@@ -76,20 +100,33 @@ def parse_card_description(text: str | None) -> CardEffects:
     fx = CardEffects()
     if not text:
         return fx
+    full = text
+    # drop trigger/deferred sentences ("When...", "Whenever...", "Next turn, ...") so their
+    # effects aren't credited as immediate; the conditional flag still reads the full text
+    text = ". ".join(
+        s for s in full.split(". ") if not _TRIGGER_SENTENCE.match(s)
+    )
     if m := _DAMAGE_TIMES.search(text):
-        fx.damage, fx.hits = int(m.group(1)), int(m.group(2))
+        n = m.group(2)
+        fx.damage = int(m.group(1))
+        fx.hits = int(n) if n else (2 if m.group(3) else 3)  # "twice" / "thrice"
         fx.recognized.append("damage")
     elif m := _DAMAGE.search(text):
         fx.damage = int(m.group(1))
         fx.recognized.append("damage")
         if m2 := _HITS_PAREN.search(text):  # "(Hits 6 times)" — game-resolved dynamic count
             fx.hits = int(m2.group(1))
+    if m := _SHIVS.search(text):  # approximate Shivs as immediate 4-damage hits
+        n = 1 if m.group(1).lower() == "a" else int(m.group(1))
+        if fx.damage == 0:
+            fx.damage, fx.hits = 4, n
+            fx.recognized.append("damage")
     if fx.damage and _ALL_ENEMIES.search(text):
         fx.aoe = True
     if m := _BLOCK.search(text):
         fx.block = int(m.group(1))
         fx.recognized.append("block")
-    if m := _DRAW.search(text):
+    if (m := _DRAW.search(text)) or (m := _RETRIEVE.search(text)):
         fx.draw = int(m.group(1))
         fx.recognized.append("draw")
     if m := _ENERGY.search(text):
@@ -98,6 +135,9 @@ def parse_card_description(text: str | None) -> CardEffects:
     elif m := _ENERGY_ICON_RUN.search(text):  # iconized form: "Gain [energy][energy]"
         fx.energy_gain = len(_ENERGY_ICON.findall(m.group(1)))
         fx.recognized.append("energy")
+    if m := _COMPOUND_DEBUFF.search(text):  # Shockwave: "Apply 3 Weak and Vulnerable"
+        fx.weak = fx.vulnerable = int(m.group(1))
+        fx.recognized += ["weak", "vulnerable"]
     if m := _VULN.search(text):
         fx.vulnerable = int(m.group(1))
         fx.recognized.append("vulnerable")
@@ -116,7 +156,7 @@ def parse_card_description(text: str | None) -> CardEffects:
     if m := _HEAL.search(text):
         fx.heal = int(m.group(1))
         fx.recognized.append("heal")
-    fx.conditional = bool(_CONDITIONAL.search(text))
+    fx.conditional = bool(_CONDITIONAL.search(full))  # flag reads the FULL text
     return fx
 
 

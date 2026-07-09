@@ -103,3 +103,31 @@ def test_damage_paren_resolved_hits() -> None:
         "Deal 4 damage. Hits an additional time for each time you lost HP this combat. "
         "(Hits 6 times)")
     assert (fx.damage, fx.hits) == (4, 6)
+
+
+def test_card_pass_tranche_b_parses() -> None:
+    # Card-pass step 1, tranche B (2026-07-09): each case is a REAL card text the parser
+    # previously misread, verified via the 13-agent empirical audit (data/card_notes.json).
+    p = parse_card_description
+    fx = p("Osty deals 6 damage. Deals additional damage equal to Osty's current HP.")
+    assert fx.damage == 6  # third-person "deals" (companion damage) counted
+    fx = p("Deal 6 damage to ALL enemies twice.")
+    assert (fx.damage, fx.hits, fx.aoe) == (6, 2, True)  # word-numeral hits
+    fx = p("Apply 3 Weak and Vulnerable to ALL enemies. Exhaust.")
+    assert (fx.weak, fx.vulnerable) == (3, 3)  # compound debuff
+    fx = p("Put 3 cards from your Discard Pile into your Hand. Exhaust.")
+    assert fx.draw == 3  # retrieval reads as draw
+    fx = p("Gain 4 Plating.")
+    assert fx.block == 4  # Plating ~ block
+    fx = p("Gain 6 Block. Add 1 Shiv into your Hand.")
+    assert (fx.block, fx.damage, fx.hits) == (6, 4, 1)  # Shiv approximation
+    fx = p("Deal 8 damage. Damage ALL other enemies equal to the damage dealt.")
+    assert fx.aoe  # splash counts as AoE
+    fx = p("Gain 12 Block. Whenever you are attacked this turn, deal 4 damage back.")
+    assert fx.damage == 0 and fx.block == 12  # retaliation is not on-play damage
+    fx = p("Draw 2 cards. When this card is Exhausted, gain "
+           "[ironclad_energy_icon.png][ironclad_energy_icon.png].")
+    assert fx.energy_gain == 0 and fx.draw == 2  # trigger-sentence energy not immediate
+    fx = p("Gain 15 Block. Next turn, draw 2 cards and gain "
+           "[colorless_energy_icon.png][colorless_energy_icon.png]. Exhaust.")
+    assert fx.draw == 0 and fx.block == 15  # next-turn effects deferred

@@ -55,7 +55,7 @@
    "shared_pattern": "multi-hit-word-numeral",
    "evidence": "Parse: {'damage': 6/8, 'hits': 1, 'aoe': True} — the word 'twice' is missed, so a 0-cost AoE is priced at HALF its real 12/16 total. The _AOE_TIMES regex (textparse.py:20) only matches digit '(\\d+) times'; this is the same class of bug as the Conflagration '4 times' fix. Undervalued exactly in the multi-enemy fights (Soul Fysh x4 wall) where it matters most.",
    "proposal": "Extend the hit-count regexes to word numerals: '(?:(\\d+) times|twice|thrice)' mapping twice->2, thrice->3, in both _AOE_TIMES and the plain multi-hit pattern.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "AUTOMATION": {
    "name": "Automation",
@@ -65,7 +65,7 @@
    "shared_pattern": "draw-triggered-power",
    "evidence": "Parse: {'energy_gain': 1, 'recognized': ['energy']} — the 'Every 10 cards you draw' trigger is read as immediate +1 energy, and _apply_card adds fx.energy_gain straight to sim energy (combat.py 519). The per-turn-power gate only checks 'start of'/'each turn'/'every turn' (line 177) so 'Every 10 cards' slips through: the sim thinks base Automation is energy-neutral and the upgrade GAINS 1 energy, letting the DFS pick plan lines with one more energy than reality (replan-per-card contains but does not eliminate the distortion).",
    "proposal": "Broaden the trigger gate in _to_planned for Powers: also zero immediate fx when the text matches 'every \\d+ cards' or 'whenever you' (same zeroing as per_turn_power).",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "BARRICADE": {
    "name": "Barricade",
@@ -255,7 +255,7 @@
    "shared_pattern": "add-shiv-to-hand",
    "evidence": "Parse: {'block': 6, 'hits': 1} for BOTH base and upgrade — 'Add 1 Shiv/2 Shivs into your Hand' is invisible, so 4 (base) / 8 (upgraded) free 0-cost damage is unpriced and base+ parse identically. Planner may skip it at a lethal cut where the shivs finish the kill.",
    "proposal": "Generic regex 'Add (\\d+|a) Shivs? into your Hand' -> price as N extra 0-cost hits of 4 damage (Shiv constant), either in textparse as bonus damage or in _to_planned like the Fiend-Fire special case.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "CLUMSY": {
    "name": "Clumsy",
@@ -355,7 +355,7 @@
    "shared_pattern": "whenever-trigger-power",
    "evidence": "Parse: {'draw': 1, 'conditional': True}. The card draws NOTHING when played (draw fires per future exhaust), but per_turn_power in _to_planned only triggers on 'start of'/'each turn'/'every turn' — 'Whenever a card is Exhausted' matches none, so the sim credits an immediate draw of 1 via s.draws (combat.py:518). The real per-exhaust engine value is unpriced; power banking via w_power_played partially compensates.",
    "proposal": "Add 'whenever' to the per_turn_power trigger list in _to_planned (line 177) and zero fx.draw alongside block/energy/strength there, so whenever-triggered powers are priced purely by the banked power term.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "DARK_SHACKLES": {
    "name": "Dark Shackles",
@@ -495,7 +495,7 @@
    "shared_pattern": "discard-to-hand-retrieval",
    "evidence": "Parse returned only {'hits': 1, 'conditional': True} — the 'Put 3 cards from your Discard Pile into your Hand' retrieval is invisible, so the planner prices a 1-cost card at zero and never plays it. Retrieved cards land in HAND and are playable this same turn (and the planner replans after every card, so once played the new hand is picked up correctly); the whole gap is the zero valuation.",
    "proposal": "Add a regex in textparse.py: r'Put (\\d+) cards? from your Discard Pile into your Hand' -> fx.draw += N (selective retrieval is at least as good as draw). One pattern, no sim change.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "DRUM_OF_BATTLE": {
    "name": "Drum of Battle",
@@ -505,7 +505,7 @@
    "shared_pattern": "trigger-clause-credited-as-immediate",
    "evidence": "Parser returned {'draw': 2, 'energy_gain': 2} (3 upgraded) — but the energy only arrives 'When this card is Exhausted', which playing it does NOT do. combat.py line 519 adds fx.energy_gain directly to sim energy, so the planner sees a 1-cost card that refunds 2: a phantom net +1 energy cantrip, systematically over-played and plans built on energy that never materializes.",
    "proposal": "Generic clause scoping in textparse: strip or zero effects inside a 'When this card is Exhausted,' / 'When(ever) ...' trigger clause before extracting numbers (set conditional instead). Same fix covers Juggernaut's misread damage.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "ENVENOM": {
    "name": "Envenom",
@@ -595,7 +595,7 @@
    "shared_pattern": "hits-twice-wording",
    "evidence": "Parser returned {'damage': 5, 'hits': 1, 'strength': 3} — 'Deal 5 damage twice' should be hits=2 (10 dmg), so the attack is priced at half its damage. _DAMAGE_TIMES in textparse.py only matches 'N times', not 'twice'. The enemy's +1 Strength is also unpriced (minor next-turn cost, silently dropped).",
    "proposal": "Extend the hits regex to accept 'twice'/'thrice' (e.g. r'Deal (\\d+) damage (?:to ...)? (twice|thrice|(\\d+) times)' mapping twice→2). Optionally subtract a small penalty for 'The enemy gains N Strength', but the hits fix is the load-bearing one.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "FINESSE": {
    "name": "Finesse",
@@ -615,7 +615,7 @@
    "shared_pattern": "retaliation-thorns",
    "evidence": "Parse: {damage: 4, block: 12, conditional} — the retaliation clause 'deal 4 damage back' is misread as on-play damage. It is inert in the sim (self-target skill, target_i=None so _apply_card:460-466 never applies it), but the parse is wrong and the thorns value (4 per incoming attack this turn) is unpriced, so the card is valued as plain 12 block.",
    "proposal": "Exclude retaliation phrasing from the damage regex (negative lookahead on 'damage back' / preceded by 'whenever you are attacked') and route it to a thorns field; optionally price thorns = value * expected incoming hits from intents.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "FLASH_OF_STEEL": {
    "name": "Flash of Steel",
@@ -635,7 +635,7 @@
    "shared_pattern": "numbered-energy-icon",
    "evidence": "Base parses {energy_gain: 3} via the icon-run regex, but upgraded 'gain 4[ironclad_energy_icon.png]' parses to NOTHING (_ENERGY_ICON_RUN requires icons directly after 'Gain', textparse.py:30) — an upgraded copy is a dead card to the bot. Also the 'If you Exhausted a card this turn' gate is unmodeled: sim credits energy unconditionally (combat.py:519), so base is misplayed as +2 free energy even with no exhaust.",
    "proposal": "Extend the energy-icon regex to 'Gain (\\d+)\\s*\\[...energy...png\\]' (multiplier form). Separately gate energy_gain in the sim on an exhausted-this-turn flag (set by 'Exhaust.'-keyword cards and True Grit/Burning Pact plays).",
-   "status": "open"
+   "status": "energy already parses; the exhaust-conditional joins the C-cluster exhaust-this-turn flag"
   },
   "FRANTIC_ESCAPE": {
    "name": "Frantic Escape",
@@ -875,7 +875,7 @@
    "shared_pattern": "card-play-cap",
    "evidence": "Parse: {'hits': 1}; unplayable → excluded, fine. But its constraint is invisible: the planner's card-cap detection scans player statuses with regex 'only play (\\d+) card' (combat.py 694), which does not match 'cannot play more than 3 cards this turn'. With Normality in hand the DFS plans unconstrained sequences, so the executed 3-card prefix may not be the best 3-card line (e.g. spends plays on cheap chaff before the key block/kill card).",
    "proposal": "Broaden the cap regex to r'(?:only play|play more than) (\\d+) card' and also scan unplayable hand-card text (not just player statuses) in case the mod surfaces no status for it.",
-   "status": "open"
+   "status": "open (card-cap curse; planner-side, deferred per PLAN 8.4)"
   },
   "NOT_YET": {
    "name": "Not Yet",
@@ -905,7 +905,7 @@
    "shared_pattern": "aoe-equal-splash",
    "evidence": "Parse: {damage: 8, hits: 1, aoe: False} — the 'Damage ALL other enemies equal to the damage dealt' splash is lost because _ALL_ENEMIES is r'\\bALL enem' and the intervening 'other' breaks it. A 0-cost 8-to-everyone card is priced as 8-to-one, badly under-valued in multi-enemy fights (exactly where the bot dies).",
    "proposal": "Change _ALL_ENEMIES to r'\\bALL (?:other )?enem' (verified match) so fx.aoe=True; treating it as plain 8-damage AoE is the right one-turn approximation (splash equals damage dealt to the primary).",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "ONE_TWO_PUNCH": {
    "name": "One-Two Punch",
@@ -955,7 +955,7 @@
    "shared_pattern": "variable-draw",
    "evidence": "Parse: {'damage': 6, 'hits': 1} — the 'Draw cards until you draw a non-Attack card' clause is completely missed (no draw, and not even the conditional flag fires since none of textparse's synergy keywords match). It's priced as a vanilla 6-damage attack; replan-after-every-card means the real draws are still picked up in play, so the misplay is just mild under-ranking.",
    "proposal": "Add a textparse pattern for 'draw cards until' setting draw=1 (conservative expected value) plus conditional=True.",
-   "status": "open"
+   "status": "open (variable draw; low)"
   },
   "POMMEL_STRIKE": {
    "name": "Pommel Strike",
@@ -1065,7 +1065,7 @@
    "shared_pattern": "next-turn-clause",
    "evidence": "Parse returned {'block': 15, 'draw': 2, 'energy_gain': 2} — but the draw and energy are NEXT turn ('Next turn, draw 2 cards and gain [energy][energy]'). The parser counts them as immediate; _apply_card credits +2 energy and +2 draws to THIS turn's sim (lines 518-519), so the planner plans follow-up cards with energy that never arrives (replanning recovers the real energy but the turn is already misordered) and over-picks Relax. Same failure the per-turn-power zeroing at line 178-181 fixes for Powers, unfixed for skills.",
    "proposal": "Generic text fix: in textparse (or _to_planned), truncate/zero any effects parsed from text after a 'Next turn,' clause — split the description at 'Next turn' and only parse the prefix.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "RUPTURE": {
    "name": "Rupture",
@@ -1125,7 +1125,7 @@
    "shared_pattern": "compound-debuff-and",
    "evidence": "Parse of 'Apply 3 Weak and Vulnerable to ALL enemies. Exhaust.' returns {weak:3, conditional:True} — vulnerable=0 and aoe=False. Two regex gaps confirmed by probes: _VULN (textparse.py:32, '\\bApply (\\d+) Vulnerable') misses compound phrasing (even 'Apply 3 Weak and 3 Vulnerable' returns weak only), and aoe is gated on fx.damage (textparse.py:87) so apply-only ALL-enemies cards never set it. Net effect in the sim: 3 Weak lands on ONE enemy (untargeted weak → biggest attacker, combat.py:479) and the Vulnerable — the half that multiplies all subsequent damage by 1.5 in _apply_attack (combat.py:345) and earns w_vulnerable credit — is dropped entirely.",
    "proposal": "Parser: add a compound pattern r'Apply (\\d+) (?:Weak and Vulnerable|Vulnerable and Weak)' setting both fields to N; set fx.aoe when _ALL_ENEMIES matches even with damage==0 (apply-only cards). Planner follow-up: when fx.aoe, apply weak to all alive enemies' incoming (combat.py:473-484 currently picks one).",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "SHRUG_IT_OFF": {
    "name": "Shrug It Off",
@@ -1155,7 +1155,7 @@
    "shared_pattern": "companion-deals-damage",
    "evidence": "Parse: {hits: 1} — ZERO damage extracted. _DAMAGE requires 'Deal N damage'; the companion phrasing 'Osty deals 7 damage' never matches. total_damage=0 means _apply_card does nothing and w_play_friction makes the planner never play this attack at all — it is dead weight in every fight.",
    "proposal": "Change _DAMAGE (and _DAMAGE_TIMES) to r'\\bDeals? (\\d+) damage' — verified it matches both 'Osty deals 7 damage' and 'Deal 27 damage'. One-word regex change fixes all Osty/companion attack cards.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "SOOT": {
    "name": "Soot",
@@ -1235,7 +1235,7 @@
    "shared_pattern": "plating-keyword",
    "evidence": "Parser returned NOTHING for 'Gain 4 Plating.' (not even conditional) — the card is a completely blank 1-cost in the sim, valued only by the generic powers_played banking term. Its actual defensive output (Plating = block at end of each turn, including the turn it's played; combat.py already models enemy-side Plating on Lagavulin) is invisible.",
    "proposal": "Add regex 'Gain (\\d+) Plating' → fx.block = N (credits this turn's end-of-turn block) and set conditional; the existing power banking covers the future-turn stream.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "STRATAGEM": {
    "name": "Stratagem",
@@ -1325,7 +1325,7 @@
    "shared_pattern": "hand-to-drawpile-putback",
    "evidence": "Parse: {'draw': 2, 'conditional': True} both versions. The 'Put 1 card from your Hand on top of your Draw Pile' clause is unpriced, so the sim credits w_draw*2 when net hand gain is +1 (the topdeck upside is next-turn value). Slight overvalue of a 0-cost card; play decision is usually still correct.",
    "proposal": "Generic pattern: 'Put N card(s) from your Hand on top of your Draw Pile' → draw -= N (floor 0).",
-   "status": "open"
+   "status": "open (putback; low)"
   },
   "THRASH": {
    "name": "Thrash",
@@ -1335,7 +1335,7 @@
    "shared_pattern": "twice-phrasing",
    "evidence": "Parser returns {'damage': 4, 'hits': 1, 'conditional': True} for 'Deal 4 damage twice' — a 50% base-damage undercount. _DAMAGE_TIMES (textparse.py:19) only matches '(\\d+) times', not the word 'twice'. Verified _HAND_EXHAUST_DMG does NOT false-fire on the exhaust clause ('for each card' absent).",
    "proposal": "Extend _DAMAGE_TIMES to r'Deal (\\d+) damage(?: to ...)? (?:(\\d+) times|twice)' with twice=2 (add thrice=3 while there). Residual: the exhaust-random-Attack-and-absorb-its-damage part (also removes a hand Attack) is a planner mechanic — file separately, the regex fix is the dominant correction.",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "THUNDERCLAP": {
    "name": "Thunderclap",
@@ -1385,7 +1385,7 @@
    "shared_pattern": "damage-twice-word",
    "evidence": "Parse: {damage: 5, hits: 1} — real card is 5x2 (upgraded 7x2). _DAMAGE_TIMES only matches numeric '(\\d+) times', so 'twice' falls through to single-hit: a 2x under-value that skews target choice, missed lethals, and draft/keep decisions on a Common card.",
    "proposal": "Extend _DAMAGE_TIMES multiplier alternation to r'(?:(\\d+) times|(twice)|(thrice))' mapping twice→2, thrice→3 — verified it matches 'Deal 5 damage twice.' while still matching 'Deal 2 damage 3 times.'",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "ULTIMATE_DEFEND": {
    "name": "Ultimate Defend",
@@ -1405,7 +1405,7 @@
    "shared_pattern": "osty-summon",
    "evidence": "parse: {} (only hits:1) — damage=0, so the class's Basic attack is priced at nothing and skipped. textparse.py's _DAMAGE is r\"\\bDeal (\\d+) damage\" which misses the third-person 'Osty deals 6 damage'. A one-character regex fix recovers the base 6 (9 upgraded). The '+ damage equal to Osty's current HP' rider additionally needs the osty-summon planner state (see BODYGUARD) to price fully, but the regex alone turns a never-played attack into a correctly-played 6+ damage attack.",
    "proposal": "Change _DAMAGE (and _DAMAGE_TIMES) to r\"\\bDeals? (\\d+) damage\" in sts2bot/policy/textparse.py; full value needs the osty-summon sim rule on top",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "UNMOVABLE": {
    "name": "Unmovable",
@@ -1445,17 +1445,17 @@
    "shared_pattern": "add-shiv-to-hand",
    "evidence": "Parse: {'hits': 1} — completely empty. Real: 3/4 Shivs = 12/16 damage of free 0-cost attacks for 2 energy, plus self cost-reduction. Planner sees a 2-cost no-op and will never play it; if drafted it is dead weight every fight.",
    "proposal": "Same 'Add N Shivs into your Hand' pattern as Cloak and Dagger (one regex fixes both). The 'Reduce this card's cost by 1' rider is cross-turn — ignore it (file as note, not a fix).",
-   "status": "open"
+   "status": "fixed (tranche B, 2026-07-09)"
   },
   "VENERATE": {
    "name": "Venerate",
-   "class": "B",
+   "class": "D",
    "impact": "high",
    "confidence": "med",
    "shared_pattern": "energy-icon-tokens",
    "evidence": "parse returned {} (only hits:1) — energy_gain=0, so the planner never plays it. Card really gains 2 (3 upgraded) energy rendered as [star_icon.png] tokens; textparse.py's _ENERGY_ICON_RUN regex requires 'energy' in the icon filename ([a-z_]*energy[a-z_]*.png), which star_icon.png fails. Identical failure mode to Luminesce (owner-caught 2026-06-26, fixed for *_energy_icon.png only).",
    "proposal": "Broaden _ENERGY_ICON_RUN/_ENERGY_ICON in sts2bot/policy/textparse.py to also match star_icon.png (Regent energy icon), e.g. r\"\\[(?:[a-z_]*energy[a-z_]*|star_icon)\\.png\\]\" — or treat any bare 'Gain [x.png][x.png].' icon run as energy.",
-   "status": "open"
+   "status": "refiled: star-icon gain needs a star-economy model (Regent resource), not a regex"
   },
   "VICIOUS": {
    "name": "Vicious",
