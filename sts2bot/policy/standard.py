@@ -539,8 +539,16 @@ class StandardRouter:
                 return hp, 0.0
             if hp_after <= death_floor:
                 return hp_after, -w.route_death_penalty  # route not survivable as projected
-            # a survivable elite earns its relic bonus only if the deck can win it (§5-C gate)
-            return hp_after, (w.elite_relic_value if (t == "elite" and can_win_elite) else 0.0)
+            # An elite the §5-C gate says the deck CANNOT WIN is a projected loss, not a missed
+            # relic: price it death-class so the DP refuses lanes that END in forced elites at
+            # commit time (batch bn4v9mf75 forensics: every remaining elite death was a forced
+            # single-option lane the DP had committed into floors earlier, because the
+            # unwinnable elite's only cost was its discounted HP projection). Matches the
+            # owner's Phrog steer: "a death trap for a basic-heavy deck at ANY HP."
+            if t == "elite" and not can_win_elite:
+                return hp_after, -w.route_death_penalty
+            # a survivable, winnable elite earns its relic bonus (§5-C gate)
+            return hp_after, (w.elite_relic_value if t == "elite" else 0.0)
 
         memo: dict[tuple[int, int, int], float] = {}
 

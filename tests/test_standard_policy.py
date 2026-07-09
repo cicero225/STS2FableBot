@@ -2371,3 +2371,42 @@ def test_potion_pick_subsidizes_cost_when_free_this_turn() -> None:
     cs_state["player"]["in_combat"] = False  # out of combat: printed cost is real again
     d2 = router().decide(parse_state(cs_state), LoopContext())
     assert isinstance(d2, Decision)
+
+
+def test_unwinnable_elite_lane_priced_death_class_at_commit_time() -> None:
+    """bn4v9mf75 forensics: the remaining elite deaths were forced single-option lanes the DP
+    had committed into floors earlier -- a gate-rejected elite's only cost was its discounted
+    HP projection. It is now priced death-class: a weak deck at FULL HP must refuse the lane
+    whose committed future holds an elite, even against a blander alternative."""
+    payload = {
+        "state_type": "map",
+        "map": {
+            "current_position": {"col": 2, "row": 0, "type": "Start"},
+            "visited": [],
+            "next_options": [
+                {"index": 0, "col": 1, "row": 1, "type": "Monster",
+                 "leads_to": [{"col": 1, "row": 2, "type": "Elite"}]},
+                {"index": 1, "col": 3, "row": 1, "type": "Monster",
+                 "leads_to": [{"col": 3, "row": 2, "type": "Monster"}]},
+            ],
+            "nodes": [
+                {"col": 2, "row": 0, "type": "Start", "children": [[1, 1], [3, 1]]},
+                {"col": 1, "row": 1, "type": "Monster", "children": [[1, 2]]},
+                {"col": 3, "row": 1, "type": "Monster", "children": [[3, 2]]},
+                {"col": 1, "row": 2, "type": "Elite", "children": [[2, 3]]},
+                {"col": 3, "row": 2, "type": "Monster", "children": [[2, 3]]},
+                {"col": 2, "row": 3, "type": "Monster", "children": []},
+            ],
+            "boss": {"col": 2, "row": 4, "id": "B", "name": "Boss"},
+            "bosses": [],
+        },
+        "run": {"act": 1, "floor": 1, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 80, "max_hp": 80, "gold": 50,
+                   "deck": [{"index": i, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                             "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                             "rarity": "Basic", "is_upgraded": False} for i in range(10)],
+                   "status": [], "relics": [], "potions": [], "max_potion_slots": 3},
+    }
+    d = _router_for_routing().decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["index"] == 1  # refuse the committed-elite lane at full HP
