@@ -894,7 +894,8 @@ class StandardRouter:
     # unknown debuffs sort last so a new one is never accidentally preferred.
     _DEBUFF_PREFERENCE = ("DISINTEGRATION", "MIND_ROT", "SLOTH", "WASTE_AWAY")
 
-    def _pick_target(self, cs, prefer_worst: bool, character, exclude=()):
+    def _pick_target(self, cs, prefer_worst: bool, character, exclude=(),
+                     free_this_turn: bool = False):
         prompt = (cs.prompt or "").lower()
         candidates = [c for c in cs.cards if c.index not in exclude]
         # All options are Status-type = a forced pick-your-poison, not a reward: choose the
@@ -923,6 +924,22 @@ class StandardRouter:
 
             return max(candidates, key=upgrade_key)
         chooser = min if prefer_worst else max
+        if free_this_turn and not prefer_worst:
+            # Card-gen potion / discovery picks show FULL printed cost but play free this turn
+            # (owner 2026-07-09: the bot passed on Pyre from a Power Potion — sensible only at
+            # its printed 2 cost). The community prior prices a card as if its cost is paid
+            # every play, so subsidize by printed cost: a Power's one-time cost barrier is
+            # wiped entirely (x2.0); repeatable cards get a one-time tempo credit (x0.5).
+            # Caveat: an in-combat TUTOR (fetch-from-pile) also lands here and gets a mild
+            # expensive-card bias — acceptable until tutors are context-aware (PLAN §8.4).
+            def free_key(c):
+                try:
+                    cost = int(c.cost) if c.cost and c.cost.upper() != "X" else 0
+                except ValueError:
+                    cost = 0
+                mult = 2.0 if (c.type or "") == "Power" else 0.5
+                return self._card_quality(c, character) + cost * mult
+            return max(candidates, key=free_key)
         return chooser(candidates, key=lambda c: self._card_quality(c, character))
 
     # Bounds so a non-progressing screen can never rail a run (run 2: a 'choose'
@@ -960,8 +977,11 @@ class StandardRouter:
         resolves_on_select = (cs.screen_type or "") == "choose" or (
             needed == 1 and not (cs.can_confirm or cs.can_cancel or cs.can_skip)
         )
+        # In-combat add/choose screens (card-gen potions, discoveries) play the pick FREE this
+        # turn despite showing full cost — the pick scorer subsidizes printed cost there.
+        in_combat = state.player is not None and bool(state.player.in_combat)
         if resolves_on_select:
-            target = self._pick_target(cs, prefer_worst, character)
+            target = self._pick_target(cs, prefer_worst, character, free_this_turn=in_combat)
             if mem["tries"] < self._CHOOSE_RETRIES and target is not None:
                 mem["tries"] += 1
                 return Decision(
@@ -979,7 +999,8 @@ class StandardRouter:
         # than N selected, which strands you on a dead sub-screen (live f27 hang). So don't confirm
         # until `needed` are picked — even though can_confirm goes True after the first pick.
         if cs.cards and len(picked) < needed:
-            target = self._pick_target(cs, prefer_worst, character, exclude=picked)
+            target = self._pick_target(cs, prefer_worst, character, exclude=picked,
+                                       free_this_turn=in_combat)
             if target is not None:
                 picked.append(target.index)
                 kind = "worst" if prefer_worst else "best"

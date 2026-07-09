@@ -2342,3 +2342,32 @@ def test_forced_debuff_choice_picks_disintegration_deliberately() -> None:
     d = router().decide(state, LoopContext())
     assert isinstance(d, Decision)
     assert d.action.payload()["index"] == 1  # Disintegration, despite index order
+
+
+def test_potion_pick_subsidizes_cost_when_free_this_turn() -> None:
+    """Owner 2026-07-09: card-gen potion offers show FULL printed cost but play free this
+    turn -- the bot passed on Pyre (2e Power) in a call that was only sensible at printed
+    cost. In combat, the pick scorer subsidizes printed cost (Powers most)."""
+    cs_state = {
+        "state_type": "card_select",
+        "card_select": {"screen_type": "choose", "prompt": "Choose a card.", "cards": [
+            {"index": 0, "id": "CHEAP_POWER", "name": "Cheap Power", "type": "Power",
+             "cost": "1", "description": "Gain 3 Block each turn.", "is_upgraded": False,
+             "keywords": []},
+            {"index": 1, "id": "PYRE", "name": "Pyre", "type": "Power", "cost": "2",
+             "description": "Gain [ironclad_energy_icon.png] at the start of each turn.",
+             "is_upgraded": False, "keywords": []}]},
+        "run": {"act": 1, "floor": 5, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 0,
+                   "energy": 3, "max_energy": 3, "in_combat": True,
+                   "hand": [], "draw_pile_count": 5, "discard_pile_count": 0,
+                   "exhaust_pile_count": 0,
+                   "status": [], "relics": [], "potions": [], "max_potion_slots": 3},
+    }
+    d = router().decide(parse_state(cs_state), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["index"] == 1  # Pyre: its 2-cost is subsidized in combat
+
+    cs_state["player"]["in_combat"] = False  # out of combat: printed cost is real again
+    d2 = router().decide(parse_state(cs_state), LoopContext())
+    assert isinstance(d2, Decision)
