@@ -1,5 +1,24 @@
 # HANDOFF — "you are here" (2026-06-26)
 
+> **2026-07-09: REVERSE handoff pending — this (laptop) machine now has the NEWER state.**
+> Owner returns to the MAIN machine evening of 2026-07-11. To move the project back:
+> 1. **Repo**: ~15 commits ahead of the 07-08 transplant (through the elite-pool gate /
+>    planner-blind dock work). Push to the remote if one exists, else copy the repo folder.
+> 2. **Copy from THIS machine**: `logs/` (all July runs + manual win trace — bestiary
+>    source data), `backups/` (profile snapshots + the Jun-12 cloud-recovery zips).
+> 3. **Bot profile**: this machine's live profile (`%APPDATA%\SlayTheSpire2\steam\<id>\
+>    modded\profile1\`) has the Underdocks/rare-potion unlocks + 1 of 3 Act-3 wins.
+>    The MAIN machine's profile has custom mode + Undergrowth (all pre-move unlocks).
+>    **Prefer the main machine's profile** (superset except the 07-08+ run history);
+>    the unlock-track deposit mechanics are decoded in LOG (2026-07-08 cont. 3) if score
+>    reconciliation is wanted.
+> 4. **Claude context**: copy `%USERPROFILE%\.claude\projects\<this-repo's-key>\`
+>    (transcripts + `memory/`) onto the main machine under the same key — same procedure
+>    as the 07-08 transplant, opposite direction. Rename the key dir if the main machine's
+>    repo folder name differs.
+> 5. **Game-dir path** in CLAUDE.md will need re-pointing back if the main machine still
+>    uses `I:\SteamLibrary`.
+
 > **2026-07-08: spin-up on the new machine is DONE** (see LOG.md entry) — venv rebuilt,
 > mod built from the fork's `v107-fork` branch and installed, bot profile restored from
 > the pre-reshuffle Steam Cloud copy (Jun-12 state, ~2 weeks stale). Remaining: attended

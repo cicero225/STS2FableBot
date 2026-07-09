@@ -2,6 +2,29 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-09 (Fable 5, session 2 cont.) — Batch b8msts8jx: single-body elite deaths fixed; swarms are the residue
+
+**Batch (10 runs, clean, 0 stalls): 0 wins, act-reach 1.20** (Insatiable f33 deepest;
+Slumbering Beetle f23 — the deliberately-unmodeled sleeper). Boss-entry HP 49–68.
+
+**Elite-gate validation: partial win, sharp residue.** Terror Eel deaths **2 → 0** (the
+single-body pool pricing works). All 3 remaining elite deaths are **multi-body elites the
+single-FightEnemy model flatters**: Phrog+Wrigglers f9, Phantasmal Gardeners f7 and f12.
+Run 10's two elite fights were **forced single-option lanes** (map log: `f8 options=[Elite]`,
+`f11 options=[Elite]`, path values −0.8/−78.5 — the scorer knew, floors too late). → Filed:
+**multi-body elite synthesis** (Gardeners ≈ 3×31 HP w/ Skittish; Phrog + Wriggler treadmill)
+— fixes both the gate AND lets the route DP dodge those lanes at commit time.
+
+**Mid-batch owner-steered fixes** (landed during, so in effect only for the NEXT batch):
+desperation draw skipped under Ringing (owner-caught: Battle Trance burned the capped play
+on a sealed-anyway death — R11 same fight showed the cap logic itself correct);
+**planner-blind draft dock** (owner-approved: Cascade drafted+upgraded twice via the
+8.1d-lowered thresholds; `recognized == []` → −4.0, self-removing once parseable,
+attack-generators exempt).
+
+**Still awaiting live validation:** Soul Siphon drain + sleeper wake-cost (no Lagavulin
+rolled), card-gen potion boss-drop (mostly), Pen Nib (never once, ~60 runs and counting).
+
 ## 2026-07-09 (Fable 5, session 2) — Beckon fix VALIDATED live; owner-steered pricing + potion fixes; Soul Siphon captured
 
 Validation day for the Beckon-clearing fix, split 6+4 by a **Timeline-epoch interruption**

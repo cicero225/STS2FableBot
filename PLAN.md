@@ -1225,6 +1225,11 @@ relic pass (6), then a **full potion pass** (7) — events stay last.*
    passive-block gap (§8.4-A) are the same class; the pass would sweep `player.relics` text for
    combat triggers (on-skill-count / on-attack-count / on-HP-loss / per-turn) the way
    `detect_mechanics` sweeps enemy statuses. *(Ranked 2026-07-09: after enemies+cards.)*
+   *Sub-item filed 2026-07-09 (batch b8msts8jx): **multi-body elite synthesis** — the pool gate
+   fixed single-body elites (Terror Eel deaths 2→0) but Phrog+Wrigglers / Phantasmal Gardeners
+   killed 3 runs; synthesize swarms as multi-FightEnemy pools (Gardeners ≈ 3×31 HP w/ Skittish,
+   Phrog + Wriggler treadmill) so both the gate and the route DP price them. Belongs to the
+   enemies pass (item 2), noted here because the gate work exposed it.*
 7. **Full potion pass** (scheduled 2026-07-09, after relics — owner ruling). The taxonomy
    (§8.4) covers reactive/proactive/hail-mary/downside plus the 2026-07-09 quick fix
    (card-gen potions dropped at boss start); the full pass adds per-potion handlers,
