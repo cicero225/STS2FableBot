@@ -78,6 +78,7 @@ class StandardRouter:
         combat_stats: CombatStats | None = None,
         shop_stats: ShopStats | None = None,
         event_stats: EventStats | None = None,
+        bestiary: dict | None = None,
     ):
         self.config = config or load_policy_config()
         self.priors = priors if priors is not None else CardPriors.load()
@@ -85,7 +86,8 @@ class StandardRouter:
         self.shop_stats = shop_stats if shop_stats is not None else ShopStats.load()
         self.event_stats = event_stats if event_stats is not None else EventStats.load()
         self.card_effects = load_card_descriptions()  # id|upgrade -> text, for §5-C deck pricing
-        self.bestiary = load_bestiary()  # enemy name -> HP + status text, for per-boss estimates
+        # enemy name -> HP + status text, for per-boss/elite estimates (injectable for tests)
+        self.bestiary = bestiary if bestiary is not None else load_bestiary()
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
@@ -458,20 +460,41 @@ class StandardRouter:
         EARLY_ROWS = 3  # first 3 rows of an act = the easy early normals (cf. build_combat_stats)
         _loss_default = {"monster_early": 5.0, "monster": 18.0, "elite": 32.0, "boss": 42.0}
 
-        # §5-C capability gate: chase an elite only if the deck can actually *win* a typical elite
-        # of this act (not merely survive — death_floor still handles survival). Judged at full HP,
+        # §5-C capability gate: chase an elite only if the deck can actually *win* the elites of
+        # this act (not merely survive — death_floor still handles survival). Judged at full HP,
         # so it's a pure deck-strength read; a starter-heavy deck fails it and stays elite-neutral.
-        # The routing-batch fix: the bot was taking elites it survived but couldn't win.
+        # 2026-07-09 (3 elite deaths in one batch, Terror Eel x2 + Phrog): the old generic
+        # 90-HP/no-mechanics profile flattered every real elite (Terror Eel is 140 HP; Hardened
+        # Shell / Skittish / Shriek all detected from the bestiary now). The node's elite is a
+        # random draw from the act's pool, so gate on winning >= elite_gate_pool_win_frac of the
+        # pool's real members. Known limitation: swarm elites (Phantasmal Gardeners) harvest as
+        # one small body and fall below the pool's HP floor — the swarm is under-represented.
         can_win_elite = False
         if hp_aware and player is not None and player.deck:
             cur_act = state.run.act if state.run else 1
             ehp, edps, eramp = _GENERIC_ELITE.get(cur_act, _GENERIC_ELITE[1])
             deck_out = deck_output(player.deck, descriptions=self.card_effects)
-            outcome = estimate_fight(
-                int(max_hp), deck_out, [FightEnemy(hp=ehp, dps=edps, str_ramp=eramp)]
-            )
             floor_hp = max_hp * w.elite_gate_min_end_hp_pct
-            can_win_elite = outcome.win and outcome.exp_end_hp >= floor_hp
+            pool = [
+                (name, entry) for name, entry in self.bestiary.items()
+                if "elite" in (entry.get("roles") or []) and cur_act in (entry.get("acts") or [])
+                and ((entry.get("hp") or [0, 0])[1] or 0) >= 50  # drop minion-pollution entries
+            ]
+            if pool:
+                outcomes = [
+                    estimate_fight(
+                        int(max_hp), deck_out,
+                        [bestiary_enemy(entry, dps=edps, name=name, str_ramp=eramp)],
+                    )
+                    for name, entry in pool
+                ]
+                won = [o for o in outcomes if o.win and o.exp_end_hp >= floor_hp]
+                can_win_elite = len(won) >= len(pool) * w.elite_gate_pool_win_frac
+            else:  # bestiary empty for this act: fall back to the generic profile
+                outcome = estimate_fight(
+                    int(max_hp), deck_out, [FightEnemy(hp=ehp, dps=edps, str_ramp=eramp)]
+                )
+                can_win_elite = outcome.win and outcome.exp_end_hp >= floor_hp
 
         def fight_loss(key: str) -> float:
             est = self.combat_stats.expected_loss(key) if self.combat_stats else None

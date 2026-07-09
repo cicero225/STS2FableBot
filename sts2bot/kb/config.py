@@ -91,6 +91,10 @@ class MapWeights(_Section):
     # §5-C elite gate: chase an elite only if the deck wins it (at full HP) with at least this HP
     # fraction left — a pyrrhic 2-HP win is a loss for the next node, so don't chase it.
     elite_gate_min_end_hp_pct: float = 0.30
+    # The node's elite is a random draw from the act's bestiary pool: chase only if the deck
+    # clears (win + HP floor) at least this fraction of the pool's real members (2026-07-09:
+    # the generic 90-HP profile flattered Terror Eel & co -> 3 elite deaths in one batch).
+    elite_gate_pool_win_frac: float = 0.67
 
 
 class CardRewardWeights(_Section):

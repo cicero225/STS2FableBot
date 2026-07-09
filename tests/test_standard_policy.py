@@ -1190,7 +1190,8 @@ def _router_for_routing() -> StandardRouter:
             "boss": {"mean": 25.0, "p75": 42, "n": 99},
         }
     )
-    r = StandardRouter(combat_stats=stats)
+    r = StandardRouter(combat_stats=stats, bestiary={})  # empty pool -> generic-elite fallback
+    #   (the pool-gate behavior gets its own dedicated test below)
     r.card_effects = _ROUTING_CARD_EFFECTS
     return r
 
@@ -2181,3 +2182,40 @@ def test_card_gen_potion_held_in_normal_fights() -> None:
     d = router().decide(state, LoopContext())
     assert isinstance(d, Decision)
     assert d.action.payload()["action"] != "use_potion"
+
+
+def test_elite_gate_uses_real_bestiary_pool() -> None:
+    """2026-07-09 (3 elite deaths in one batch): the gate must judge the act's REAL elite pool,
+    not the flattering generic 90-HP profile. A deck that beats the generic elite but loses to
+    the pool's big members (Terror Eel 140 HP) fails the pool gate; an empty bestiary falls
+    back to the generic profile (and passes, as before)."""
+    from sts2bot.kb.combat_stats import CombatStats
+
+    stats = CombatStats(by_type={
+        "monster_early": {"mean": 4.0, "p75": 5, "n": 99},
+        "monster": {"mean": 12.0, "p75": 18, "n": 99},
+        "elite": {"mean": 21.0, "p75": 32, "n": 99},
+        "boss": {"mean": 25.0, "p75": 42, "n": 99},
+    })
+    pool = {
+        "Terror Eel": {"roles": ["elite"], "acts": [1], "hp": [140, 140], "statuses": {}},
+        "Bygone Effigy": {"roles": ["elite"], "acts": [1], "hp": [127, 127], "statuses": {}},
+        "Skulking Colony": {"roles": ["elite"], "acts": [1], "hp": [70, 70], "statuses": {
+            "HARDENED_SHELL_POWER": {"description": "Cannot lose more than 15 HP each turn."}}},
+    }
+    payload = json.loads(json.dumps(FIXTURES["map"]))
+    payload["map"]["next_options"] = [
+        {"index": 0, "col": 1, "row": 3, "type": "Elite", "leads_to": []},
+        {"index": 1, "col": 2, "row": 3, "type": "Monster", "leads_to": []},
+    ]
+    payload["player"]["deck"] = _STRONG_DECK  # beats the generic elite (old gate opens)
+    payload["player"]["hp"] = 80
+    payload["player"]["max_hp"] = 80
+
+    for bestiary, expect_elite in (({}, True), (pool, False)):
+        r = StandardRouter(combat_stats=stats, bestiary=bestiary)
+        r.card_effects = _ROUTING_CARD_EFFECTS
+        d = r.decide(parse_state(payload), LoopContext())
+        assert isinstance(d, Decision)
+        took_elite = d.action.payload()["index"] == 0
+        assert took_elite == expect_elite, (bestiary.keys(), d.rationale)
