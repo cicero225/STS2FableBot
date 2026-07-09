@@ -678,3 +678,44 @@ def test_sleeper_damage_is_a_complete_sim_noop() -> None:
     out = _apply_attack(_state(_enemy(asleep=True)), 0, _attack(30))
     assert out.enemies[0].hp == 100  # no hp progress at all
     assert out.damage_dealt == 0
+
+
+def _fysh_with_potion(enemy_hp: int, hand: list, potions: list) -> dict:
+    st = _beckon_state(3, hand, enemy_hp=enemy_hp, hp=50, incoming="15")
+    st["player"]["potions"] = potions
+    st["player"]["max_potion_slots"] = 3
+    return st
+
+
+def test_damage_potion_joins_a_lethal_plan() -> None:
+    # Owner question 2 (2026-07-09): cards alone aren't lethal (6 dmg vs 25 HP) but
+    # Strike + Fire Potion (20) is -- the planner must find the combined lethal instead of
+    # settling into a block pattern.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 8 Block.", "Skill", "None")]
+    pots = [{"id": "FIRE_POTION", "name": "Fire Potion", "description": "Deal 20 damage.",
+             "slot": 0, "can_use_in_combat": True, "target_type": "AnyEnemy", "keywords": []}]
+    d = plan_combat_turn(parse_state(_fysh_with_potion(25, hand, pots)), w)
+    assert "LETHAL" in d.rationale and "(potion)" in d.rationale
+
+
+def test_damage_potion_held_outside_lethal() -> None:
+    # Reluctance: same belt, un-killable enemy -- the potion must NOT appear in the plan.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 8 Block.", "Skill", "None")]
+    pots = [{"id": "FIRE_POTION", "name": "Fire Potion", "description": "Deal 20 damage.",
+             "slot": 0, "can_use_in_combat": True, "target_type": "AnyEnemy", "keywords": []}]
+    d = plan_combat_turn(parse_state(_fysh_with_potion(200, hand, pots)), w)
+    assert "(potion)" not in d.rationale
+
+
+def test_used_potion_slots_excluded_from_planning() -> None:
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy")]
+    pots = [{"id": "FIRE_POTION", "name": "Fire Potion", "description": "Deal 20 damage.",
+             "slot": 0, "can_use_in_combat": True, "target_type": "AnyEnemy", "keywords": []}]
+    d = plan_combat_turn(parse_state(_fysh_with_potion(25, hand, pots)), w,
+                         used_potion_slots=(0,))
+    assert "(potion)" not in d.rationale  # already drunk this round: not re-planned

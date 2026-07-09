@@ -46,6 +46,10 @@ class PlannedCard:
     fx: CardEffects
     targets_enemy: bool
     is_attack: bool = False
+    # Damage potions ride the DFS as pseudo-cards (0 cost, don't consume the card cap, carry
+    # w_potion_spend reluctance) so card+potion LETHALS are weighed against block patterns
+    # (owner question 2026-07-09). None = a real hand card.
+    potion_slot: int | None = None
     is_power: bool = False  # Power card: playing it banks a permanent buff (play eagerly)
     self_damage_power: bool = False  # per-turn self-HP power (Inferno): no front-load at low HP
     primal_force: bool = False  # Primal Force: transforms later Attacks into 16-dmg Giant Rocks
@@ -124,6 +128,7 @@ class SimState:
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
     pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
+    potions_spent: int = 0  # pseudo-card potions drunk this plan (each pays w_potion_spend)
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
@@ -407,6 +412,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     s = replace(
         state,
         energy=state.energy - card.cost,
+        potions_spent=state.potions_spent + (1 if card.potion_slot is not None else 0),
         rage_block_active=max(state.rage_block_active, card.rage_block),
         rage_block_granted=state.rage_block_granted + rage_bonus,
         powers_played=state.powers_played + (1 if card.is_power else 0),
@@ -629,6 +635,7 @@ def _score(
         + power_term
         + w.w_rage_sequence * state.rage_block_granted
         + w.w_ramp_damage * state.ramp_damage
+        + w.w_potion_spend * state.potions_spent
     )
 
 
@@ -640,8 +647,12 @@ _HAND_HP_LOSS_RE = re.compile(r"lose (\d+) hp", re.I)       # Beckon-type: unblo
 _HAND_TAKE_DMG_RE = re.compile(r"take (\d+) damage", re.I)  # Toxic-type: blockable
 
 
-def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | Wait:
-    """Pick the next combat action by searching this turn's play sequences."""
+def plan_combat_turn(
+    state: CombatState, weights: CombatWeights, used_potion_slots: tuple[int, ...] = ()
+) -> Decision | Wait:
+    """Pick the next combat action by searching this turn's play sequences. Damage potions
+    (minus already-used slots) join the search as pseudo-cards so card+potion lethals are
+    weighed against block patterns; w_potion_spend keeps them out of non-lethal lines."""
     if state.battle is None:
         return Wait(reason="combat still loading (no battle block yet)")
     player = state.player
@@ -684,6 +695,30 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
             card_cap = int(m.group(1)) if card_cap is None else min(card_cap, int(m.group(1)))
 
     playable = [c for c in (_to_planned(card, energy) for card in hand) if c is not None]
+    # Damage potions as pseudo-cards: 0-cost, exempt from the card cap (potions aren't card
+    # plays), negative index -(slot+1) mapped back to UsePotion below. is_attack stays False
+    # (no Rage/Pen Nib interaction). Gated on SOMETHING threatening or setting up: at zero
+    # board threat the slow card-kill is free, so the potion stays in the belt (owner rule) —
+    # reluctance alone can't encode "the fight is already won eventually" on a 1-turn horizon.
+    threat_or_setup = any(
+        (i.type or "").lower() in ("attack", "deathblow", "buff", "debuff", "summon",
+                                   "carddebuff")
+        for e in state.battle.enemies if e.hp > 0 for i in e.intents
+    )
+    if threat_or_setup:
+        for potion in state.player.potions or []:
+            if potion.can_use_in_combat is False or potion.slot in used_potion_slots:
+                continue
+            nid = f"{potion.id or ''} {potion.name or ''}".upper()
+            if "FOUL" in nid or "GLOWWATER" in nid:  # downside potions (cf. _potion_category)
+                continue
+            pfx = parse_card_description(potion.description)
+            if pfx.total_damage <= 0:
+                continue
+            playable.append(PlannedCard(
+                index=-(potion.slot + 1), name=f"{potion.name} (potion)", cost=0, fx=pfx,
+                targets_enemy=not pfx.aoe, potion_slot=potion.slot,
+            ))
     if not playable:
         return Decision(action=act.EndTurn(), rationale="no playable cards; end turn")
 
@@ -785,16 +820,18 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
                     score = scored(nxt)
                     if score > best_score:
                         best_score, best_state = score, nxt
-                    if plays_left > 1:
-                        dfs(nxt, rest, plays_left - 1)
+                    nl = plays_left if card.potion_slot is not None else plays_left - 1
+                    if nl > 0:
+                        dfs(nxt, rest, nl)
             else:
                 visited += 1
                 nxt = _apply_card(sim, card, None)
                 score = scored(nxt)
                 if score > best_score:
                     best_score, best_state = score, nxt
-                if plays_left > 1:
-                    dfs(nxt, rest, plays_left - 1)
+                nl = plays_left if card.potion_slot is not None else plays_left - 1
+                if nl > 0:
+                    dfs(nxt, rest, nl)
 
     dfs(start, playable, max_plays)
 
@@ -836,8 +873,13 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     end_dmg = 0 if lethal else best_state.self_end_damage  # Disintegration, blockable
     hp_loss = (max(0, proj_incoming + extra_blockable + end_dmg - best_state.my_block)
                + best_state.self_damage + extra_unblockable - best_state.healing)
+    first_action = (
+        act.UsePotion(slot=chosen.potion_slot, target=target)
+        if chosen.potion_slot is not None
+        else act.PlayCard(card_index=chosen.index, target=target)
+    )
     return Decision(
-        action=act.PlayCard(card_index=chosen.index, target=target),
+        action=first_action,
         rationale=f"plan [{' > '.join(plan_names)}] score {best_score:.1f}"
         + (" LETHAL" if lethal else "")
         + (f"; first: {chosen.name} -> {target}" if target else f"; first: {chosen.name}"),

@@ -48,6 +48,10 @@ class CombatWeights(_Section):
     self_hp_cheap_floor: int = 15
     self_hp_cheap_mult: float = 0.4  # x w_hp_loss, scarcity-free, while above the floor
     w_projected_death: float = -500.0  # non-lethal turn that projects you to <=0 HP: never
+    # Spend-reluctance per damage potion drunk inside a plan: big enough that a potion only
+    # joins a line when it flips something real (lethal's w_kill=25 + the damage clears it;
+    # casual chip never does). Potions persist across fights -- hoard by default.
+    w_potion_spend: float = -18.0
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     w_ramp_damage: float = 1.5  # extra value for damaging strength-gaining enemies (race them)
     w_crab_rage_split: float = -20.0  # small penalty for a 1-claw-dead split (1-turn enrage stall)

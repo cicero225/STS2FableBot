@@ -2410,3 +2410,26 @@ def test_unwinnable_elite_lane_priced_death_class_at_commit_time() -> None:
     d = _router_for_routing().decide(parse_state(payload), LoopContext())
     assert isinstance(d, Decision)
     assert d.action.payload()["index"] == 1  # refuse the committed-elite lane at full HP
+
+
+def test_finisher_potion_held_at_zero_threat() -> None:
+    """Owner Q1 (2026-07-09): killing a harmless last enemy wastes a potion that persists
+    across fights. Zero threat + no setup intent -> hold; a Buff (setting up) -> fire."""
+    def state(intent_type, label=""):
+        s = make_combat(
+            hand=[],
+            enemies=[{"entity_id": "W_0", "name": "Wisp", "hp": 15, "max_hp": 30, "block": 0,
+                      "status": [], "intents": [{"type": intent_type, "label": label}]}],
+            hp=60, max_hp=80,
+            potions=[_potion("FIRE_POTION", "Fire Potion", "Deal 20 damage.",
+                             target="AnyEnemy")],
+        )
+        return s
+
+    idle = router().decide(state("sleep"), LoopContext())
+    assert not (isinstance(idle, Decision)
+                and idle.action.payload().get("action") == "use_potion")  # held
+
+    brewing = router().decide(state("buff"), LoopContext())
+    assert isinstance(brewing, Decision)
+    assert brewing.action.payload()["action"] == "use_potion"  # setup: worth ending it now

@@ -113,7 +113,18 @@ class StandardRouter:
         else:
             ctx.screen_mem.pop("hook_waits", None)
 
-        plan = plan_combat_turn(state, self.config.combat)
+        # One-potion-per-round bookkeeping is shared with _combat_potion: the planner must not
+        # re-drink a slot, and a plan that drinks records the slot the same way.
+        round_ = state.battle.round if state.battle.round is not None else -1
+        pused = ctx.screen_mem.get("potions_used")
+        if not isinstance(pused, dict) or pused.get("round") != round_:
+            pused = {"round": round_, "slots": []}
+            ctx.screen_mem["potions_used"] = pused
+        plan = plan_combat_turn(state, self.config.combat,
+                                used_potion_slots=tuple(pused["slots"]))
+        if (isinstance(plan, Decision) and isinstance(plan.action, act.UsePotion)
+                and plan.action.slot not in pused["slots"]):
+            pused["slots"].append(plan.action.slot)
         # If the planned line clears the board this turn, survival measures are a
         # waste (owner watched a hail-mary fire alongside lethal-in-hand vs the
         # Act 1 boss). Sim-lethal can be optimistic, but the wasted-potion case
@@ -416,12 +427,23 @@ class StandardRouter:
                 parse_intent_damage(i.label) for i in e.intents if i.type.lower() == "attack"
             )
 
+        def setting_up(e) -> bool:
+            # zero attack NOW but a buff/debuff/summon intent = danger next turn: worth killing
+            return any((i.type or "").lower() in ("buff", "debuff", "summon", "carddebuff")
+                       for i in e.intents)
+
         if cat == "aoe_damage":
             prevented = sum(threat(e) for e in kills)
-            worth = len(kills) == len(alive) or prevented >= w.damage_potion_prevents_min
+            # Board-clear at ZERO threat wastes a potion that persists across fights (owner
+            # 2026-07-09): hold unless something is actually incoming or setting up.
+            worth = (len(kills) == len(alive)
+                     and (prevented > 0 or any(setting_up(e) for e in kills))
+                     ) or prevented >= w.damage_potion_prevents_min
             return None if worth else False
         if len(alive) == 1:
-            worth = kills  # killing the last enemy on the board ends the fight
+            # ends the fight — but at ZERO threat with no setup brewing, hold the potion for a
+            # fight that needs it (it persists across combats; owner 2026-07-09)
+            worth = [e for e in kills if threat(e) > 0 or setting_up(e)]
         else:
             worth = [e for e in kills if threat(e) >= w.damage_potion_prevents_min]
         if not worth:
