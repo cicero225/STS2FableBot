@@ -1373,7 +1373,7 @@ def test_card_reward_takes_good_skips_bad() -> None:
 
 
 def test_weak_starter_deck_takes_card_a_polished_deck_skips() -> None:
-    """8.1d: the same modest card (Common Skill, score 3.5 < base take_threshold 4.0) is TAKEN by a
+    """8.1d: the same modest, parseable card (Common Skill, score 3.0 < base bar 4.0) is TAKEN by a
     starter-heavy deck (a real card beats keeping a basic) but SKIPPED once the deck is polished.
     In the 0/5 batch the bot skipped good cards (Molten Fist x4) holding a 9-starter deck."""
     def reward(deck_ids):
@@ -1383,8 +1383,8 @@ def test_weak_starter_deck_takes_card_a_polished_deck_skips() -> None:
         return parse_state({
             "state_type": "card_reward",
             "card_reward": {"cards": [
-                {"index": 0, "id": "MYSTERY_SKILL", "name": "Modest", "type": "Skill", "cost": "1",
-                 "description": "A modest effect.", "rarity": "Common", "is_upgraded": False,
+                {"index": 0, "id": "MYSTERY_SKILL", "name": "Modest", "type": "Skill", "cost": "3",
+                 "description": "Gain 5 Block.", "rarity": "Common", "is_upgraded": False,
                  "keywords": []}], "can_skip": True},
             "run": {"act": 1, "floor": 5, "ascension": 0},
             "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "deck": deck},
@@ -1532,7 +1532,7 @@ def test_card_reward_prior_overrides_heuristics() -> None:
                     "type": "Skill",
                     "cost": "1",
                     "rarity": "Common",
-                    "description": "Does something subtle the regex cannot price.",
+                    "description": "Gain 4 Block. Does something subtle the regex cannot price.",
                     "is_upgraded": False,
                     "keywords": [],
                 },
@@ -2239,3 +2239,24 @@ def test_desperation_draw_skipped_under_ringing() -> None:
     assert isinstance(d, Decision)
     payload = d.action.payload()
     assert payload["action"] == "play_card" and payload["card_index"] == 1  # block, not draw
+
+
+def test_planner_blind_cards_get_docked_at_draft() -> None:
+    """Owner-approved 2026-07-09 (two live Cascade draft-and-upgrades): a card whose parsed
+    effects are EMPTY gets a flat dock -- the planner can't use it, whatever the community
+    prior says. Self-removing: a parseable card of the same rarity scores strictly higher,
+    and an attack-GENERATOR (Infernal Blade) is exempt."""
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class C:
+        def __init__(self, cid, name, desc, rarity="Uncommon", typ="Skill", cost="1"):
+            self.id, self.name, self.description = cid, name, desc
+            self.rarity, self.type, self.cost = rarity, typ, cost
+
+    blind = r._card_score(C("CASCADE", "Cascade", "Play the top X cards of your deck."), 15)
+    parsed = r._card_score(C("SHRUG", "Shrug It Off", "Gain 8 Block. Draw 1 card."), 15)
+    generator = r._card_score(
+        C("INFERNAL_BLADE", "Infernal Blade", "Add a random Attack to your hand. It costs 0."),
+        15)
+    assert parsed > blind
+    assert generator > blind  # the exemption: its output is playable

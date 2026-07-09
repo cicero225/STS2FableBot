@@ -730,6 +730,14 @@ class StandardRouter:
         generates_attack = "random attack" in desc_l or ("add" in desc_l and "attack" in desc_l)
         if act <= 1 and (fx.total_damage > 0 or generates_attack):
             score += w.early_damage_bonus
+        # Planner-blind penalty (owner-approved 2026-07-09, after two Cascade draft-and-upgrades):
+        # a card whose parsed effects are EMPTY is one the combat planner literally cannot use
+        # yet, so the community prior prices a pilot we aren't — flat dock on top of the upside
+        # discount. Self-removing by design: the moment textparse/planner learn the card,
+        # `recognized` fills and the penalty vanishes (Cascade is a fine card in general —
+        # owner). Attack-generators (Infernal Blade) are exempt: their output is playable.
+        if not fx.has_any_effect and not generates_attack:
+            score += w.penalty_planner_blind
         try:
             if card.cost is not None and card.cost.upper() != "X" and int(card.cost) >= 3:
                 score += w.penalty_cost_3plus

@@ -106,6 +106,9 @@ class CardRewardWeights(_Section):
     prior_weight: float = 1.8
     conditional_prior_mult: float = 0.7
     unparsed_prior_mult: float = 0.45
+    # Flat dock for cards the planner can't use AT ALL (parsed effects empty, e.g. Cascade) —
+    # self-removing once the card becomes parseable/pilotable (owner-approved 2026-07-09).
+    penalty_planner_blind: float = -4.0
     prior_act_weight: float = 3.0  # per-act tilt (8.1b); bounded secondary nudge
     w_rarity_common: float = 2.0
     w_rarity_uncommon: float = 5.0
