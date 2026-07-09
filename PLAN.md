@@ -1211,9 +1211,15 @@ the owner's projected-impact ranking within it:
    generic planner can't reason about (Anger, Fiend Fire, scaling/conditional cards), then encode
    per-card handlers/annotations (§8.3 "per-card special-case pass").
 5. **Event analysis** — mostly already covered by event-choice WAR; only a few events carry nuance
-   (Byrdonis Egg, §8.4). Lowest priority.
-*Owner priority ruling (2026-07-09): items 2 and 4 (enemies, cards) come first, then the
-relic pass (6), then a **full potion pass** (7) — events stay last.*
+   (Byrdonis Egg, §8.4). *Promoted 2026-07-09 (owner: "matters around the edges", now ranked after
+   relics, before potions) with a concrete anchor case: the bot **enchanted a Strike with Slither**
+   ("drawn card cost randomizes between 1 and 3") — a net LOSS on a 1-cost card. The enchant
+   handler treats enchant like upgrade (pick the best un-upgraded card) but never evaluates the
+   ENCHANTMENT itself — its value is card-dependent and can be negative; the pass should score
+   enchant×card pairs (and decline/park when everything is negative, if the screen allows).*
+*Owner priority ruling (2026-07-09, revised same day): items 2 and 4 (enemies, cards)
+first, then the relic pass (6), then **events/enchants** (5), then the **full potion
+pass** (7).*
 
 6. **Relic combat-trigger pass** (added 2026-07-08, owner: "worth parsing through the list of
    relics, which unfortunately adds a lot of complication"). The f44 one-turn-kill analysis
