@@ -152,6 +152,14 @@ class StandardRouter:
             proj_loss = plan.scores["hp_loss"]
         if proj_loss < player.hp:
             return None  # the planned line already survives this turn
+        # Under a 1-card cap (Ringing) the draw IS the whole turn — the drawn cards can never
+        # be played, so digging is pure waste (f17 Beast death 2026-07-09: Battle Trance burned
+        # the capped play; the drawn Flame Barrier sat unplayable). Let the planner's capped
+        # search make the one allowed play count instead.
+        for s in player.status:
+            if (m := re.search(r"only play (\d+) card", s.description or "", re.IGNORECASE)) \
+                    and int(m.group(1)) <= 1:
+                return None
         for card_ in player.hand or []:
             if not card_.can_play:
                 continue

@@ -17,7 +17,8 @@ def router() -> StandardRouter:
     return StandardRouter()
 
 
-def make_combat(hand, enemies, energy=3, hp=70, max_hp=80, state_type="monster", potions=None):
+def make_combat(hand, enemies, energy=3, hp=70, max_hp=80, state_type="monster", potions=None,
+                player_status=None):
     return parse_state(
         {
             "state_type": state_type,
@@ -35,7 +36,7 @@ def make_combat(hand, enemies, energy=3, hp=70, max_hp=80, state_type="monster",
                 "draw_pile_count": 5,
                 "discard_pile_count": 0,
                 "exhaust_pile_count": 0,
-                "status": [],
+                "status": player_status or [],
                 "relics": [],
                 "potions": potions or [],
                 "max_potion_slots": 3,
@@ -2219,3 +2220,22 @@ def test_elite_gate_uses_real_bestiary_pool() -> None:
         assert isinstance(d, Decision)
         took_elite = d.action.payload()["index"] == 0
         assert took_elite == expect_elite, (bestiary.keys(), d.rationale)
+
+
+def test_desperation_draw_skipped_under_ringing() -> None:
+    """Under a 1-card cap (Ringing), the desperation draw would BE the whole turn -- the drawn
+    cards can never be played (f17 Beast death 2026-07-09: Battle Trance burned the capped play).
+    The planner's capped search must spend the one play on the best card (the block) instead."""
+    state = make_combat(
+        hand=[card(0, "Battle Trance", 0, "Draw 3 cards. Ringing."),
+              card(1, "Evil Eye+", 1, "Gain 11 Block. Ringing."),
+              card(2, "Strike", 1, "Deal 8 damage. Ringing.")],
+        enemies=[enemy("BEAST_0", 46, intent_label="21")],
+        hp=6, max_hp=80,
+        player_status=[{"id": "RINGING_POWER", "name": "Ringing", "amount": 1,
+                        "description": "You can only play 1 card this turn."}],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    payload = d.action.payload()
+    assert payload["action"] == "play_card" and payload["card_index"] == 1  # block, not draw
