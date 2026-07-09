@@ -2,6 +2,32 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-08 (Fable 5, cont. 2) — Owner's recorded manual WIN #1/3; Queen first-capture; bestiary near-miss
+
+**Owner played one recorded run (`sts2bot record`, seed `7Q4QCYQ09J`, A0 Ironclad): a WIN**
+— Kin (f17) → Kaiser Crab (f33) → **the Queen (f48)**. Profile now shows **1 of the 3
+Act-3 wins** needed to re-earn custom mode; owner will do the other two later. (Setup
+notes: batch had left the engine at 4x — reset to 1x before play; pre-session
+backup_saves taken.)
+
+**Trace findings:**
+- **Queen (Act-3 boss) first-capture** — 400 HP, Str ramp, Torch Head Amalgam minion
+  (leader-kill ends it); Queen = control (`Debuff`/`CardDebuff`/`Buff`/`Defend`), Amalgam
+  = escalating attacker. Filed in PLAN §8.4 next to Aeonglass.
+- **Kaiser Crab model live-confirmed from human play:** Crusher ended at Strength 8 =
+  base 2 **+6 Crab Rage** after Rocket died — the kill-one-claw-is-a-boon line, as modeled.
+  `BACK_ATTACK_LEFT/RIGHT` + Crab Rage text match the planner's constants exactly.
+- **No Strength-strip ever landed on the player in the Kin fight** — consistent with the
+  owner's Dark Shackles ruling (it's our colorless card, not a Kin move). Bonus
+  confirmation of the harvest-pollution pattern: the owner's own Mangle card showed up as
+  an "enemy status" on the Amalgam.
+- No Lagavulin → Soul Siphon stays data-blocked.
+
+**Near-miss:** ran `build_bestiary.py` to bank the new data — it rebuilds from scratch off
+`logs/runs/` and silently replaced the committed 75-enemy bestiary with a 46-enemy one
+(this machine only has today's 10 runs; old logs never transferred). **Reverted via git.**
+Filed in §7: don't rebuild until the old machine's `logs/` is fetched or the script merges.
+
 ## 2026-07-08 (Fable 5, cont.) — Shakeout batch b34khuptc: new machine works end-to-end; plan audit
 
 **Batch (10 runs, A0 Ironclad, speed 4, owner-authorized unattended):** 10/10 completed
