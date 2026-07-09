@@ -2458,3 +2458,18 @@ def test_foul_potion_thrown_at_the_merchant_once() -> None:
     d2 = router().decide(parse_state(shop_state), ctx)  # same shop, already thrown
     assert not (isinstance(d2, Decision)
                 and d2.action.payload().get("action") == "use_potion")
+
+
+def test_combat_without_battle_block_waits_not_crashes() -> None:
+    """Live-only transitional state: combat announced but battle block not yet present
+    (crashed batch bpnsoql1j run 1 via the potion bookkeeping's unguarded state.battle)."""
+    state = parse_state({
+        "state_type": "monster",
+        "run": {"act": 1, "floor": 2, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "block": 0,
+                   "energy": 3, "max_energy": 3, "hand": [], "draw_pile_count": 5,
+                   "discard_pile_count": 0, "exhaust_pile_count": 0,
+                   "status": [], "relics": [], "potions": [], "max_potion_slots": 3},
+    })
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Wait)  # loading: wait, never crash

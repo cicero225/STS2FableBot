@@ -114,8 +114,11 @@ class StandardRouter:
             ctx.screen_mem.pop("hook_waits", None)
 
         # One-potion-per-round bookkeeping is shared with _combat_potion: the planner must not
-        # re-drink a slot, and a plan that drinks records the slot the same way.
-        round_ = state.battle.round if state.battle.round is not None else -1
+        # re-drink a slot, and a plan that drinks records the slot the same way. state.battle
+        # is None while combat is still loading (live-only transitional state — crashed batch
+        # bpnsoql1j run 1); plan_combat_turn Waits on it, the bookkeeping must tolerate it.
+        round_ = (state.battle.round if state.battle is not None
+                  and state.battle.round is not None else -1)
         pused = ctx.screen_mem.get("potions_used")
         if not isinstance(pused, dict) or pused.get("round") != round_:
             pused = {"round": round_, "slots": []}
