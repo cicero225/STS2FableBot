@@ -520,13 +520,20 @@ profile these punish, so §5-C race-accuracy + tempo drafting are the binding le
   Nibble → **Intangible** → Vulnerable-Bite + Intangible, repeat. **Beckon** adds status cards (cost 1e; if
   not exhausted/discarded by end of turn → **6 unblockable** each). **Intangible** turns reduce **every hit
   you land to 1** (don't attack — defend + clear Beckons). *Modeled:* Beckon-type unblockable end-of-turn
-  hand cards ✓ (`_HAND_HP_LOSS_RE`, owner-confirmed Beckon→HP). *Open (filed):* **Intangible** = per-hit
-  cap of 1 — same shape as stacked Slippery but a 1-turn status; the planner would waste attacks into an
-  Intangible turn (should defend/clear instead). The per-hit-cap-of-1 model
-  is shared with the Vantom Slippery fix, so they're naturally done together. **PRIORITY RAISED
-  2026-07-09 (batch bsmwhj26u):** with the Underdocks restored, Soul Fysh was **4 of 9 Act-1 boss
-  encounters — all losses** — and the waste is measured: **11 cards played into visibly-Intangible
-  turns across the 4 fights** (Pommel Strike / Whirlwind / Fight Me!). Top Act-1 item by death count.
+  hand cards ✓ (`_HAND_HP_LOSS_RE`, owner-confirmed Beckon→HP). *Update 2026-07-09 (batch
+  bsmwhj26u made Fysh 4/9 Act-1 bosses, all losses — 11 cards measured going into visibly-Intangible
+  turns):* the diagnosis flipped on investigation. **Intangible was ALREADY modeled** — `_CAP_RE2`
+  parses its text into `dmg_cap_per_turn=1` and `_apply_attack` enforces it; the planner *knew* the
+  attacks were ~worthless (they scored negative). The real bug was the long-filed **Beckon-clearing
+  value gap**, compounded by a parser misread: (a) the stranded Beckon/Toxic end-of-turn penalty was
+  only in the post-hoc `hp_loss` diagnostic, never in the scored objective, so the search could not
+  prefer spending energy to clear one; (b) `parse_card_description` read Beckon's "lose 6 HP" as an
+  immediate self-cost of *playing* it, exactly canceling any clearing credit. **FIXED 2026-07-09**:
+  the stranded penalty (unblockable Beckon / blockable Toxic, keyed by hand index, skipped on lethal)
+  now lives in `_score`, and stranded-status text zeroes the misread fx. Replayed the real failure
+  state: `[Pommel Strike > Strike]` → `[Beckon > Pommel Strike > Beckon]`, hp_loss 17→5. 4 new tests;
+  6740-state replay clean. **Pending live validation** (next batch). This closes the "make the planner
+  value spending the energy to play it" TODO from the Soul Fysh block-bypass item below.
 
 **Cross-boss filed item — enemy-applied player debuffs** (Soul Siphon, Frail, Weak): the
 recurring gap is that §5-C/`planner` model *my* Str/block/damage as monotonic, but several Act-1 bosses

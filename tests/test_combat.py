@@ -120,31 +120,77 @@ def test_planner_sequences_small_hit_first_into_slippery() -> None:
     assert vs_none.action.payload()["card_index"] == 0  # Bludgeon first when it lands in full
 
 
-def test_planner_counts_unplayed_beckon_in_hp_loss() -> None:
-    # Soul Fysh's Beckon ("at end of turn, if in hand, lose 6 HP") is unblockable, bypassing the
-    # incoming/block tally. The planner spends 1 energy on Strike, leaving Beckon unplayed, so
-    # hp_loss must include the 6 -- the hail-mary reads it (owner: bot died under-counting it).
+def _beckon_state(energy: int, hand: list, enemy_hp: int = 100, hp: int = 40,
+                  enemy_status: list | None = None, incoming: str = "5") -> dict:
+    return {"state_type": "monster", "run": {"act": 1, "floor": 5, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80, "block": 0,
+                       "energy": energy, "status": [], "hand": hand},
+            "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "s0", "name": "Soul Fysh", "hp": enemy_hp,
+                                    "max_hp": 100, "block": 0, "status": enemy_status or [],
+                                    "intents": [{"type": "attack", "label": incoming}]}]}}
+
+
+def _bcard(i, cid, name, cost, desc, typ, tgt, can_play=True):
+    return {"index": i, "id": cid, "name": name, "type": typ, "cost": str(cost),
+            "description": desc, "can_play": can_play, "target_type": tgt}
+
+
+_BECKON_DESC = "End of your turn, if in your Hand, lose 6 HP."
+_INTANGIBLE = [{"id": "INTANGIBLE_POWER", "name": "Intangible", "amount": 1,
+                "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."}]
+
+
+def test_planner_values_clearing_a_beckon() -> None:
+    # The stranded-Beckon penalty lives in the scored objective (not just the post-hoc hp_loss
+    # diagnostic), so the search PREFERS spending 1 energy to clear 6 unblockable HP over a
+    # 6-damage Strike into a 100-HP enemy at half health (bsmwhj26u Soul Fysh losses).
     w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            _bcard(1, "BECKON", "Beckon", 1, _BECKON_DESC, "Status", "None")]
+    d = plan_combat_turn(parse_state(_beckon_state(1, hand)), w)
+    assert d.action.payload()["card_index"] == 1  # clear the Beckon, don't poke
+    assert d.scores["hp_loss"] == 5.0  # only the blockable-incoming 5 remains
 
-    def card(i, cid, name, cost, desc, typ, tgt):
-        return {"index": i, "id": cid, "name": name, "type": typ, "cost": str(cost),
-                "description": desc, "can_play": True, "target_type": tgt}
 
-    state = {"state_type": "monster", "run": {"act": 1, "floor": 5, "ascension": 0},
-             "player": {"character": "The Ironclad", "hp": 40, "max_hp": 80, "block": 0,
-                        "energy": 1, "status": [],
-                        "hand": [card(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
-                                      "Attack", "AnyEnemy"),
-                                 card(1, "BECKON", "Beckon", 1,
-                                      "End of your turn, if in your Hand, lose 6 HP.",
-                                      "Status", "None")]},
-             "battle": {"round": 1, "turn": "player", "is_play_phase": True,
-                        "enemies": [{"entity_id": "s0", "name": "Soul Fysh", "hp": 100,
-                                     "max_hp": 100, "block": 0, "status": [],
-                                     "intents": [{"type": "attack", "label": "5"}]}]}}
-    d = plan_combat_turn(parse_state(state), w)
-    assert d.action.payload()["card_index"] == 0  # Strike played, Beckon left in hand
-    assert d.scores["hp_loss"] == 11.0  # 5 incoming + 6 unblockable Beckon, not just 5
+def test_planner_counts_stranded_beckon_in_hp_loss() -> None:
+    # With 1 energy and TWO Beckons, one must strand: hp_loss still reports the honest
+    # 5 incoming + 6 unblockable (the hail-mary reads it; owner: bot died under-counting it).
+    w = load_policy_config().combat
+    hand = [_bcard(0, "BECKON", "Beckon", 1, _BECKON_DESC, "Status", "None"),
+            _bcard(1, "BECKON", "Beckon", 1, _BECKON_DESC, "Status", "None")]
+    d = plan_combat_turn(parse_state(_beckon_state(1, hand)), w)
+    assert d.action.payload()["card_index"] in (0, 1)  # clears one of them
+    assert d.scores["hp_loss"] == 11.0  # 5 incoming + 6 for the stranded one
+
+
+def test_planner_clears_beckons_instead_of_poking_intangible() -> None:
+    # The measured bsmwhj26u failure: Fysh Intangible (all damage -> 1), two Beckons in hand,
+    # 3 energy. Attacks are ~worthless (per-turn cap 1) and each Beckon cleared saves 6
+    # unblockable HP -- the plan must start with a Beckon, not an attack.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "BECKON", "Beckon", 1, _BECKON_DESC, "Status", "None"),
+            _bcard(1, "POMMEL_STRIKE", "Pommel Strike", 1, "Deal 9 damage. Draw 1 card.",
+                   "Attack", "AnyEnemy"),
+            _bcard(2, "BECKON", "Beckon", 1, _BECKON_DESC, "Status", "None"),
+            _bcard(3, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy")]
+    d = plan_combat_turn(
+        parse_state(_beckon_state(3, hand, enemy_hp=172, hp=35,
+                                  enemy_status=_INTANGIBLE, incoming="13")), w)
+    assert d.action.payload()["card_index"] in (0, 2)  # a Beckon leads the plan
+    plan = d.rationale.split("[")[1].split("]")[0]
+    assert plan.count("Beckon") == 2  # and BOTH get cleared in the chosen sequence
+
+
+def test_planner_skips_beckon_clearing_on_lethal() -> None:
+    # Fight ends before end of turn on a kill: the Beckon never fires, so don't waste the
+    # energy -- take the lethal.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            _bcard(1, "BECKON", "Beckon", 1, _BECKON_DESC, "Status", "None")]
+    d = plan_combat_turn(parse_state(_beckon_state(1, hand, enemy_hp=5)), w)
+    assert d.action.payload()["card_index"] == 0  # Strike kills; Beckon penalty is moot
+    assert "LETHAL" in d.rationale
 
 
 def test_planner_treats_unplayed_toxic_as_blockable() -> None:

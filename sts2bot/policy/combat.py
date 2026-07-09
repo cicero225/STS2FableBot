@@ -143,6 +143,13 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
         hand_exhaust_scale = int(m.group(1))
     is_power = card.type == "Power"
     low = desc.lower()
+    # Stranded-status text ("End of your turn, if in your Hand, lose 6 HP" — Beckon/Toxic) is a
+    # penalty for NOT playing the card; playing it just discards it. The parser reads the loss
+    # as an immediate self-cost, which would exactly cancel the clearing credit in _score (the
+    # planner then never clears — the bsmwhj26u Fysh losses). Zero the misread fx.
+    if "in your hand" in low and "end of" in low:
+        fx.self_hp_cost = 0
+        fx.damage = 0
     # Per-turn powers (Pyre "+1 Energy at the start of each turn", Demon Form "+Str at the
     # start of turn") don't fire the turn you play them; the text parser reads their numbers
     # as immediate, over-valuing them and mis-planning this turn's energy. Bank via w_power.
@@ -476,11 +483,31 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
 
 
 def _score(
-    state: SimState, w: CombatWeights, hp_pct: float = 1.0, power_horizon: float = 1.0
+    state: SimState, w: CombatWeights, hp_pct: float = 1.0, power_horizon: float = 1.0,
+    stranded_unblockable: dict[int, int] | None = None,
+    stranded_blockable: dict[int, int] | None = None,
 ) -> float:
     # A stunned enemy (dropped to/below its stun threshold this turn) skips its turn, so its
     # intent doesn't land — attacking down to the threshold can cancel an otherwise-lethal hit.
     incoming = sum(e.incoming for e in state.enemies if _enemy_attacking(e))
+    # Stranded status cards (Beckon "lose N HP" / Toxic "take N damage") bite at end of turn
+    # UNLESS played — so the penalty must live in the scored objective, not just the post-hoc
+    # hp_loss diagnostic, or the search can never prefer spending energy to clear one (the
+    # bsmwhj26u Soul Fysh losses: 3 energy went into ~1-damage Intangible pokes while two
+    # Beckons sat in hand for 12 unblockable). Keyed by hand index; a played card's penalty
+    # vanishes. Skipped on a lethal end-state (the fight ends before end of turn).
+    stranded_unb = stranded_blk = 0
+    if stranded_unblockable or stranded_blockable:
+        leaders = [e for e in state.enemies if not e.is_minion]
+        if any(e.hp > 0 for e in (leaders or state.enemies)):  # not lethal
+            played_idx = {i for i, _ in state.played}
+            stranded_unb = sum(
+                v for i, v in (stranded_unblockable or {}).items() if i not in played_idx
+            )
+            stranded_blk = sum(
+                v for i, v in (stranded_blockable or {}).items() if i not in played_idx
+            )
+    incoming += stranded_blk  # Toxic-type is blockable: it joins the incoming pool
     # Kaiser Crab back-attack: while Surrounded with 2+ claws alive, the claw you're NOT facing
     # hits for +50% (labels are base — verified live). You face whoever you single-target-clicked
     # LAST (state.facing); default to facing the biggest hitter (the optimal play, and what the
@@ -501,7 +528,9 @@ def _score(
         excess = max(0, state.my_block - incoming)
     # Healing offsets HP lost (Not Yet); net it against the loss so both ride the same scarcity
     # curve — a heal is worth ~nothing at full HP and a lot when low, symmetric with Offering.
-    hp_loss = incoming - min(state.my_block, incoming) + state.self_damage - state.healing
+    # Stranded Beckon-type damage is unblockable: straight into the loss, past the block math.
+    hp_loss = (incoming - min(state.my_block, incoming) + state.self_damage
+               - state.healing + stranded_unb)
     # HP is cheap when full, precious when low (owner: Offering should be played
     # freely when healthy, shelved when hurt)
     hp_weight = w.w_hp_loss * (w.hp_scarcity_base + w.hp_scarcity_slope * (1.0 - hp_pct))
@@ -642,8 +671,26 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
             budget -= c.cost
     remaining_turns = enemy_total_hp / base_dmg if base_dmg else weights.w_power_horizon_cap
     power_horizon = min(weights.w_power_horizon_cap, max(1.0, remaining_turns))
+    # Status cards that bite if stranded in hand at end of turn (Beckon unblockable / Toxic
+    # blockable), keyed by hand index so the DFS credits a play that clears one. Computed once
+    # here; _score drops a card's penalty when its index appears in sim.played.
+    stranded_unblockable: dict[int, int] = {}
+    stranded_blockable: dict[int, int] = {}
+    for c in hand:
+        low = (c.description or "").lower()
+        if "in your hand" not in low or "end of" not in low:
+            continue
+        if m := _HAND_HP_LOSS_RE.search(low):
+            stranded_unblockable[c.index] = int(m.group(1))
+        elif m := _HAND_TAKE_DMG_RE.search(low):
+            stranded_blockable[c.index] = int(m.group(1))
+
+    def scored(sim: SimState) -> float:
+        return _score(sim, weights, hp_pct, power_horizon,
+                      stranded_unblockable, stranded_blockable)
+
     best_state = start
-    best_score = _score(start, weights, hp_pct, power_horizon)
+    best_score = scored(start)
     visited = 0
     # Ringing & kin cap cards/turn; default = hand size (search stays energy-bound). The cap stops
     # the planner *starting* a 2-card plan it can't finish (the live miss: blocked, then couldn't
@@ -667,7 +714,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
                 for ti in target_idx[:3]:
                     visited += 1
                     nxt = _apply_card(sim, card, ti)
-                    score = _score(nxt, weights, hp_pct, power_horizon)
+                    score = scored(nxt)
                     if score > best_score:
                         best_score, best_state = score, nxt
                     if plays_left > 1:
@@ -675,7 +722,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
             else:
                 visited += 1
                 nxt = _apply_card(sim, card, None)
-                score = _score(nxt, weights, hp_pct, power_horizon)
+                score = scored(nxt)
                 if score > best_score:
                     best_score, best_state = score, nxt
                 if plays_left > 1:
@@ -712,16 +759,12 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     extra_blockable = 0
     if not lethal:
         played_idx = {idx for idx, _ in best_state.played}
-        for c in hand:
-            if c.index in played_idx:
-                continue
-            low = (c.description or "").lower()
-            if "in your hand" not in low or "end of" not in low:
-                continue
-            if m := _HAND_HP_LOSS_RE.search(low):
-                extra_unblockable += int(m.group(1))
-            elif m := _HAND_TAKE_DMG_RE.search(low):
-                extra_blockable += int(m.group(1))
+        extra_unblockable = sum(
+            v for i, v in stranded_unblockable.items() if i not in played_idx
+        )
+        extra_blockable = sum(
+            v for i, v in stranded_blockable.items() if i not in played_idx
+        )
     hp_loss = (max(0, proj_incoming + extra_blockable - best_state.my_block)
                + best_state.self_damage + extra_unblockable - best_state.healing)
     return Decision(
