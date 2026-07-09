@@ -1035,6 +1035,14 @@ covered including Frantic Escape. Remaining Act-2 work is the Knowledge Demon ch
   - *Meta-note:* none of these four is individually filed work yet — they're the concrete
     picture of what "winning execution depth" looks like vs the one-turn planner, and good
     candidates for the §8.3 per-card special-case pass / §5-C consumers when those open.
+  - **All four composed in one fight — the f44 Knights ONE-TURN KILL** (owner's proudest
+    fight, reconstructed card-by-card from the trace:
+    [combat_notes_2026-07-08-f44-knights.markdown](combat_notes_2026-07-08-f44-knights.markdown)).
+    276 HP of Act-3 elites cleared in round 1: two potions *generated* 0-cost combo pieces,
+    Duplicator doubled a Cascade+ X=4 (8 deck auto-plays), two mid-turn energy refuels, and
+    Stampede's queued end-of-turn auto-attacks delivered the last ~23 damage of the lethal.
+    Flagged as the **acceptance test** for the eventual §8.3/§5-C planner work: could the
+    bot find (or approximate) this line?
 - **The Queen (Act-3 boss) — FIRST CAPTURE** (owner's manual recorded win, seed `7Q4QCYQ09J`,
   2026-07-08). **400 HP**, ramps Strength; fights alongside a **Torch Head Amalgam** carrying
   `MINION_POWER` (leader-kill ends the fight — existing minion logic applies). Division of labor:
