@@ -2,6 +2,33 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-09 (Fable 5, session 2 cont. 3) — Batch bnyka47dn + the Act-2-wall work ships
+
+**Batch (10 clean): 0 wins, act-reach 1.30, ZERO elite deaths** (15 elite fights taken,
+none lost — the gate+pool pipeline works; the two 4-elite runs banked 11–12 relics and
+reached f33). **Kaiser Crab ×3 at f33 is now the wall for deep runs** — model validated,
+these are deck-power losses. Lagavulin ×2, Vantom, Kin, Fysh, Waterfall at f17.
+
+**Fix validations in-batch:** potion targeting **0 errors / 9 targeted drinks** (Beetle
+Juice fix); **16 removals, 0 Guilty**; card-gen potion dropped at boss start (Skill
+Potion, run 1). **Sleeper leak found live** (run 1/3 audit: the asleep deny left the HP
+reduction in the sim → _score's focus term rewarded the chip → Volley/Tremble woke her
+round 1) → fixed mid-batch (damage into a sleeper is now a complete sim no-op);
+validates next batch, as do the owner-caught Pyre free-this-turn subsidy and the
+Knowledge-Demon/multi-body work below.
+
+**Shipped this stretch (all owner-steered or unblocked by captures):**
+- **Knowledge Demon "Choose a Card" handler** — screen captured live (ordinary
+  card_select, all-Status options); pick-your-poison by the owner's least-bad table
+  (Disintegration first); the resulting DISINTEGRATION_POWER on the player now counts
+  as end-of-turn blockable incoming (text-parsed, tracks 6→7→8).
+- **Multi-body elite synthesis** — _ELITE_COMPOSITIONS expands Gardeners (3× Skittish
+  bodies) and Phrog (+4-Wriggler wave) for the pool gate.
+- **Free-this-turn pick subsidy** — card-gen potion / discovery offers show printed cost
+  but play free; in-combat picks subsidize cost (Powers ×2.0 — the owner's Pyre case).
+
+Pen Nib: still unseen (~90 runs).
+
 ## 2026-07-09 (Fable 5, session 2 cont. 2) — Batch b8oazdsui: best act-reach of the week; owner live-watch catches 4 more bugs
 
 **Batch (10 clean runs, full fix stack): 0 wins, act-reach 1.50 (max 3) — week's best.**
