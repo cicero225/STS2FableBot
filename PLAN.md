@@ -551,10 +551,15 @@ actively **strip or weaken** them. Split into two halves:
   earlier draft cited "Dark Shackles" as a Kin Priest Str-strip — wrong. Dark Shackles is **our**
   colorless 0-cost Skill ("enemy loses 9 Strength this turn"); it shows up in harvested data because
   our own debuffs land as enemy statuses. The Kin's real player-debuffs are the Orbs' Frail/Weak,
-  already modeled in-the-moment. Soul Siphon is the only data-blocked item here.)* **Unblock = a live
-  trace**: capture a Lagavulin fight's intents (`scripts` dwell or a seeded run) to read Soul Siphon's
-  actual params + cadence, then build a generic "enemy reduces my Str/Dex by N per turn" drain in
-  `estimate_fight`. Until then, §5-C over-rates survivability vs Lagavulin — accepted.
+  already modeled in-the-moment. Soul Siphon is the only data-blocked item here.)* **UNBLOCKED 2026-07-09 — live trace captured** (batch bljp94t0d run 2, `logs/runs/20260709-104702*`):
+  Soul Siphon lands as plain `STRENGTH_POWER`/`DEXTERITY_POWER` stacks on the player that **go
+  negative** (Str +3→+1→−1, Dex 0→−2→−4), **−2 Str −2 Dex per cast, every 4th round post-wake**
+  (rounds 6 and 10 here), delivered via a `Debuff (Strategic)` intent while the boss ramps (+2→+4).
+  Same trace also shows the Asleep-window misplay live (bot chipped 222→213 in round 1, waking her
+  early). *Ready to implement:* a per-enemy "drains my Str/Dex by 2 every 4 turns" term in
+  `estimate_fight` (empirical params, no more web-number hardcoding), and note the planner already
+  handles negative live Str; **negative Dexterity (block-per-card reduction) is NOT modeled** —
+  smaller sibling gap, do together.
 
 - **§5-C `block_per_turn` ignores passive relic/power start-of-turn block** (owner question 2026-06-26).
   The **in-the-moment planner is fine** — `my_block = player.block` ([combat.py:555]) reads the live block,
