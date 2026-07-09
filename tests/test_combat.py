@@ -608,3 +608,31 @@ def test_negative_dexterity_thins_card_block() -> None:
     assert plain.my_block == 8 and drained.my_block == 4
     boosted = _apply_card(dc_replace(base, my_dex=2), defend, None)
     assert boosted.my_block == 10  # positive Dexterity now counts too
+
+
+def test_planner_does_not_chip_a_sleeper_awake() -> None:
+    # Lagavulin starts Asleep (free setup turns; waking sheds her Plating for her). Chipping
+    # earns no offensive credit, so with a non-lethal hand the planner banks a Power instead
+    # of attacking her awake (2026-07-09 trace: bot chipped 222->213 on round 1).
+    w = load_policy_config().combat
+    asleep = [{"id": "ASLEEP_POWER", "name": "Asleep", "amount": 3,
+               "description": "Awakens upon losing HP or after 3 turns."}]
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            _bcard(1, "DEMON_FORM", "Demon Form", 3,
+                   "At the start of your turn, gain 2 Strength.", "Power", "None")]
+    d = plan_combat_turn(
+        parse_state(_beckon_state(3, hand, enemy_hp=222, hp=75,
+                                  enemy_status=asleep, incoming="0")), w)
+    assert d.action.payload().get("card_index") == 1  # the Power, not the wake-chip
+
+
+def test_planner_still_kills_a_sleeper_when_lethal() -> None:
+    # The exception: if the attack kills the sleeper outright, take it (no wake ever happens).
+    w = load_policy_config().combat
+    asleep = [{"id": "ASLEEP_POWER", "name": "Asleep", "amount": 3,
+               "description": "Awakens upon losing HP or after 3 turns."}]
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy")]
+    d = plan_combat_turn(
+        parse_state(_beckon_state(3, hand, enemy_hp=5, hp=75,
+                                  enemy_status=asleep, incoming="0")), w)
+    assert d.action.payload().get("card_index") == 0 and "LETHAL" in d.rationale

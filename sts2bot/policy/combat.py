@@ -80,6 +80,12 @@ class EnemySim:
     stun_threshold: int = 0  # crossing to/below this HP Stuns it ONCE, skipping its turn (Plow)
     stunned_this_turn: bool = False  # our damage crossed the stun threshold this turn -> it skips
     invincible: bool = False  # sentinel-HP invincible state (Waterfall Giant): damage is wasted
+    # Asleep (Lagavulin): chipping it awake forfeits the remaining free setup turns AND sheds its
+    # Plating for it (wake removes Plating) — so damage into a sleeper earns NO offensive credit
+    # unless the sequence kills it outright (2026-07-09 trace: bot chipped her awake on round 1).
+    # NB deliberately NOT applied to Slumber (Beetle) — that stack decrements on HP loss too, so
+    # chipping a Slumberer is a different (sometimes correct) call; per-enemy nuance later.
+    asleep: bool = False
     crab_rage: bool = False  # Kaiser Crab claw: when an ally dies, survivors get +6 Str +99 Block
     back_attack: bool = False  # Kaiser Crab: deals +50% from behind while you're Surrounded
 
@@ -208,6 +214,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         gains_strength = False
         summons = False
         illusion = False
+        asleep = False
         for p in e.status:
             if p.id.upper() == "VULNERABLE" and p.amount:
                 vuln = p.amount
@@ -227,6 +234,8 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 gains_strength = True
             if "ILLUSION" in p.id.upper() or "revives" in (p.description or "").lower():
                 illusion = True
+            if p.id.upper().startswith("ASLEEP"):  # Asleep only — Slumber wakes differently
+                asleep = True
         for i in e.intents:
             text = f"{i.type or ''} {i.title or ''} {i.description or ''}".lower()
             if (i.type or "").lower() == "buff" and (
@@ -268,6 +277,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 invincible=e.hp >= _INVINCIBLE_HP,
                 crab_rage=crab_rage,
                 back_attack=back_attack,
+                asleep=asleep,
             )
         )
     return tuple(sims)
@@ -360,6 +370,11 @@ def _apply_attack(
     # Illusion ones revive — so deny offensive reward; their death's incoming drop is still
     # seen via hp_loss. Dangerous minions (Kin followers etc.) fall through to normal reward.
     if _ignorable_minion(e, state.has_summoner):
+        return replace(state, enemies=tuple(enemies), self_damage=state.self_damage + thorns_taken)
+    # Chipping a sleeper awake forfeits its remaining free setup turns (and Lagavulin sheds her
+    # Plating FOR you on wake) — deny offensive credit unless this attack kills it outright, so
+    # the planner spends sleep turns on powers/block/clears and bursts only when burst is lethal.
+    if e.asleep and not killed:
         return replace(state, enemies=tuple(enemies), self_damage=state.self_damage + thorns_taken)
     return replace(
         state,
