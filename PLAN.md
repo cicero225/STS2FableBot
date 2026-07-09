@@ -965,13 +965,16 @@ already covered including Frantic Escape.
   modelable: `detect_mechanics` → a reactive first-hit +block; `_apply_attack` adds it after the first
   hit on that enemy. *Live-confirmed: bq8fskrg9 R2 nearly died from full HP to the swarm — saved only
   by a Fairy in a Bottle auto-revive, not by play.*
-  - **Wider problem**: the §5-C elite **gate** prices every Act-1 elite as a *generic* 90 HP / 17 dps
-    with no mechanic, but real ones run 21→140 HP with Skittish / Hardened Shell / Shriek — so it
-    chases un-winnable fights. Kill-tally: **Bygone Effigy (127 HP) #1 (4×)**, then Phrog Parasite /
-    Phantasmal Gardeners (2×), Terror Eel (140 HP). Fixes: (1) model Skittish in the planner; (2) a
-    tougher / zone-aware gate — zone (Underdocks vs Overgrowth, different elite pools) isn't in state,
-    so infer from the boss. Pool-depletion (no elite repeats until all 3 in the act are seen → narrow
-    the estimate after one is met) = future optimization.
+  - **Wider problem — RESOLVED in three layers (2026-07-09):** the §5-C elite gate priced every
+    elite as a generic 90 HP / 17 dps blob. Now: **(1)** the gate judges the act's REAL bestiary
+    pool (win ≥ `elite_gate_pool_win_frac` of it; Terror Eel deaths 2→0 same day); **(2)**
+    multi-body elites compose to their true body count (`_ELITE_COMPOSITIONS`: Gardeners 3×
+    Skittish, Phrog + Wriggler wave, Decimillipede 3× Reattach segments — the last live-counted
+    from a genuine gate-pass death); **(3)** a gate-rejected elite is priced **death-class** in
+    the route DP, so lanes ENDING in forced elites are refused at commit time (bn4v9mf75
+    forensics: all remaining elite deaths were forced lanes). Still future: zone-aware pools
+    (Underdocks vs Overgrowth split — infer from the boss), pool-depletion narrowing, Reattach
+    revive modeling.
 - **Lagavulin Matriarch (Act-1 boss, 222 HP) — Asleep + Plating + Soul Siphon** (owner 2026-06-23,
   precise mechanics + online-verified; ≥2 deaths in the deck-blind v0.107.1 batch). Three layers:
   - **Asleep 3**: −1/turn, wakes at 0 *and acts that turn*; **any unblocked HP loss wakes it early**
