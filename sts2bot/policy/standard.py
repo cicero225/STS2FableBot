@@ -881,9 +881,26 @@ class StandardRouter:
         m = re.search(r"choose (\d+)", prompt)
         return int(m.group(1)) if m else 1
 
+    # Forced debuff choice (Knowledge Demon's Curse of Knowledge, captured 2026-07-09: an
+    # ordinary card_select offering Status debuffs — Disintegration vs Mind Rot, later Sloth /
+    # Waste Away). Owner strategy: take Disintegration every round (end-of-turn BLOCKABLE
+    # damage beats permanent draw/energy/card-cap losses). Preference order, least-bad first;
+    # unknown debuffs sort last so a new one is never accidentally preferred.
+    _DEBUFF_PREFERENCE = ("DISINTEGRATION", "MIND_ROT", "SLOTH", "WASTE_AWAY")
+
     def _pick_target(self, cs, prefer_worst: bool, character, exclude=()):
         prompt = (cs.prompt or "").lower()
         candidates = [c for c in cs.cards if c.index not in exclude]
+        # All options are Status-type = a forced pick-your-poison, not a reward: choose the
+        # least-bad by the owner's table, NOT by card quality (they're all "worthless").
+        if candidates and all((c.type or "") == "Status" for c in candidates):
+            def poison_rank(c):
+                nid = (c.id or c.name or "").upper().replace(" ", "_")
+                for i, key in enumerate(self._DEBUFF_PREFERENCE):
+                    if key in nid:
+                        return i
+                return len(self._DEBUFF_PREFERENCE)
+            return min(candidates, key=poison_rank)
         is_upgrade = "upgrade" in prompt or "enchant" in prompt
         if is_upgrade:
             unupgraded = [c for c in candidates if not c.is_upgraded]

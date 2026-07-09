@@ -2321,3 +2321,24 @@ def test_percent_less_potion_classified_debuff_and_deployed() -> None:
     payload = d.action.payload()
     assert payload["action"] == "use_potion" and payload.get("target") == "BOSS_0"
     assert "deploy at boss" in d.rationale
+
+
+def test_forced_debuff_choice_picks_disintegration_deliberately() -> None:
+    """Knowledge Demon's Curse of Knowledge (captured live 2026-07-09): an all-Status
+    card_select is a pick-your-poison, chosen by the owner's least-bad table (Disintegration
+    first) -- NOT by card quality or index order. Mind Rot at index 0 must still lose."""
+    state = parse_state({
+        "state_type": "card_select",
+        "card_select": {"screen_type": "choose", "prompt": "Choose a card.", "cards": [
+            {"index": 0, "id": "MIND_ROT", "name": "Mind Rot", "type": "Status", "cost": "0",
+             "description": "Draw 1 fewer card each turn.", "is_upgraded": False, "keywords": []},
+            {"index": 1, "id": "DISINTEGRATION", "name": "Disintegration", "type": "Status",
+             "cost": "0", "description": "At the end of your turn, take 6 damage.",
+             "is_upgraded": False, "keywords": []}]},
+        "run": {"act": 2, "floor": 33, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                   "status": [], "relics": [], "potions": [], "max_potion_slots": 3},
+    })
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["index"] == 1  # Disintegration, despite index order

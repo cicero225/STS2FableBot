@@ -622,8 +622,17 @@ current wall**. The Act-1-style in-the-moment fixes ported here are the lever.
 
 **Act-2 takeaway:** **Kaiser Crab is DONE** (Crab Rage + back-attack/facing + Bug Sting all modeled; the
 key insight — killing a claw ends Surrounded so it's a boon, not a trap — corrected from owner notes).
-Knowledge Demon's "Choose a Card" is a larger decision-policy lift (filed). The Insatiable is already
-covered including Frantic Escape. Remaining Act-2 work is the Knowledge Demon choice policy.
+**Knowledge Demon "Choose a Card" — DONE 2026-07-09** (screen captured live in batch b8oazdsui run 10:
+an ordinary `card_select`, `screen_type: "choose"`, all-Status options — Disintegration vs Mind Rot).
+Two pieces shipped: (1) an all-Status card_select is a **pick-your-poison** chosen by the owner's
+least-bad table (`_DEBUFF_PREFERENCE`: Disintegration > Mind Rot > Sloth > Waste Away; unknown
+debuffs sort last) — the old best-quality pick got Disintegration only by index luck; (2) the chosen
+debuff lands as **`DISINTEGRATION_POWER` on the player** and the planner now counts its end-of-turn
+blockable damage in the incoming pool (text-parsed amount, tracks the 6→7→8 escalation live).
+*Still open:* the §5-C estimate side (escalating Disintegration + Ponder heal + Str ramp in the
+race), and planner effects for the OTHER poisons if a fight ever forces one (Sloth = card cap the
+existing Ringing machinery could carry; Waste Away = energy; Mind Rot = draw). The Insatiable is
+already covered including Frantic Escape.
 
 - **Powers under-played — the one-turn planner defers permanent buffs** (owner 2026-06-25; viewer-
   jarring + real upside). The planner scores end states by *this turn's* damage/block/lethal, so a

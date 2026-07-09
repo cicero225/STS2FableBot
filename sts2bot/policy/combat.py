@@ -97,6 +97,10 @@ class SimState:
     my_block: int
     my_strength: int
     my_dex: int = 0  # Dexterity: +/- block per block card (Soul Siphon drives it NEGATIVE)
+    # end-of-MY-turn blockable self-damage from player statuses (Knowledge Demon's
+    # Disintegration: "At the end of your turn, take N damage") — joins the incoming pool
+    # so the planner reserves block for it; skipped on lethal (fight ends first).
+    self_end_damage: int = 0
     barricade: bool = False  # block persists -> stacking it is never waste
     my_weak: bool = False  # I'm Weak: my Attacks deal 25% less (Kin Orb of Weakness, etc.)
     my_frail: bool = False  # I'm Frail: Block I gain from cards is 25% less (Kin Orb of Frailty)
@@ -537,6 +541,8 @@ def _score(
             v for i, v in (stranded_blockable or {}).items() if i not in played_idx
         )
     incoming += stranded_blk  # Toxic-type is blockable: it joins the incoming pool
+    if state.self_end_damage and not lethal_end:  # Disintegration: end-of-turn, blockable
+        incoming += state.self_end_damage
     # Kaiser Crab back-attack: while Surrounded with 2+ claws alive, the claw you're NOT facing
     # hits for +50% (labels are base — verified live). You face whoever you single-target-clicked
     # LAST (state.facing); default to facing the biggest hitter (the optimal play, and what the
@@ -649,12 +655,17 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
     my_weak = my_frail = my_surrounded = False
     card_cap = None  # "You can only play N cards this turn" (Ringing): spend it on the best play
     my_dex = 0
+    self_end_damage = 0
     for p in player.status:
         pid = p.id.upper()
         if pid == "STRENGTH" and p.amount:
             my_strength = p.amount
         if "DEXTER" in pid and p.amount:  # DEXTERITY_POWER; negative under Soul Siphon
             my_dex = p.amount
+        # Knowledge Demon's Disintegration (and kin): end-of-turn blockable self-damage as a
+        # PLAYER status. Parse the amount from the text so escalation (6->7->8) tracks live.
+        if m := re.search(r"end of your turn, take (\d+) damage", p.description or "", re.I):
+            self_end_damage += int(m.group(1))
         if pid == "BARRICADE":
             barricade = True
         if "SURROUND" in pid:  # Kaiser Crab: a claw behind me deals +50% (back-attack)
@@ -687,6 +698,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         my_block=player.block,
         my_strength=my_strength,
         my_dex=my_dex,
+        self_end_damage=self_end_damage,
         barricade=barricade,
         my_weak=my_weak,
         my_frail=my_frail,
@@ -817,7 +829,8 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
         extra_blockable = sum(
             v for i, v in stranded_blockable.items() if i not in played_idx
         )
-    hp_loss = (max(0, proj_incoming + extra_blockable - best_state.my_block)
+    end_dmg = 0 if lethal else best_state.self_end_damage  # Disintegration, blockable
+    hp_loss = (max(0, proj_incoming + extra_blockable + end_dmg - best_state.my_block)
                + best_state.self_damage + extra_unblockable - best_state.healing)
     return Decision(
         action=act.PlayCard(card_index=chosen.index, target=target),

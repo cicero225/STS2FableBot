@@ -649,3 +649,23 @@ def test_free_heal_played_before_the_killing_blow() -> None:
     assert d.action.payload()["card_index"] == 1  # heal first...
     plan = d.rationale.split("[")[1].split("]")[0]
     assert "LETHAL" in d.rationale and plan.startswith("Not Yet")  # ...then the kill
+
+
+def test_player_disintegration_counts_as_blockable_incoming() -> None:
+    # Knowledge Demon's Disintegration is a PLAYER status ("At the end of your turn, take 6
+    # damage" -- captured live 2026-07-09). The planner must reserve block for it: with no
+    # enemy attack incoming, it still plays Defend to soak the end-of-turn tick.
+    w = load_policy_config().combat
+    state = _beckon_state(
+        3,
+        [_bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 8 Block.", "Skill", "None"),
+         _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy")],
+        enemy_hp=300, hp=20, incoming="0")
+    state["battle"]["enemies"][0]["intents"] = [{"type": "buff", "label": ""}]
+    state["player"]["status"] = [{"id": "DISINTEGRATION_POWER", "name": "Disintegration",
+                                  "amount": 6,
+                                  "description": "At the end of your turn, take 6 damage."}]
+    d = plan_combat_turn(parse_state(state), w)
+    plan = d.rationale.split("[")[1].split("]")[0]
+    assert "Defend" in plan  # block reserved for the end-of-turn tick
+    assert d.scores["hp_loss"] == 0.0  # 6 end-damage fully soaked by the 8 block
