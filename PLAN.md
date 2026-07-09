@@ -522,8 +522,11 @@ profile these punish, so §5-C race-accuracy + tempo drafting are the binding le
   you land to 1** (don't attack — defend + clear Beckons). *Modeled:* Beckon-type unblockable end-of-turn
   hand cards ✓ (`_HAND_HP_LOSS_RE`, owner-confirmed Beckon→HP). *Open (filed):* **Intangible** = per-hit
   cap of 1 — same shape as stacked Slippery but a 1-turn status; the planner would waste attacks into an
-  Intangible turn (should defend/clear instead). Mid-frequency (faced 6×), but the per-hit-cap-of-1 model
-  is shared with the Vantom Slippery fix, so they're naturally done together.
+  Intangible turn (should defend/clear instead). The per-hit-cap-of-1 model
+  is shared with the Vantom Slippery fix, so they're naturally done together. **PRIORITY RAISED
+  2026-07-09 (batch bsmwhj26u):** with the Underdocks restored, Soul Fysh was **4 of 9 Act-1 boss
+  encounters — all losses** — and the waste is measured: **11 cards played into visibly-Intangible
+  turns across the 4 fights** (Pommel Strike / Whirlwind / Fight Me!). Top Act-1 item by death count.
 
 **Cross-boss filed item — enemy-applied player debuffs** (Soul Siphon, Frail, Weak): the
 recurring gap is that §5-C/`planner` model *my* Str/block/damage as monotonic, but several Act-1 bosses

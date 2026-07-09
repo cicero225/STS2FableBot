@@ -2,6 +2,31 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-09 (Fable 5) — Batch bsmwhj26u: Underdocks pool live; Soul Fysh is the new Act-1 wall
+
+First batch with the restored Underdocks (10 runs, A0 Ironclad, clean, 0 stalls; config
+`374480217e9e` — LF hash restored). **0/10 wins, act-reach 1.10** — 9/10 reached the Act-1
+boss, only 1 passed. **The alt-Act-1 pool dominated: Soul Fysh ×4 (all losses), Waterfall
+Giant ×2, Vantom, Ceremonial Beast**; 1 elite death (Phantasmal Gardeners f7 — so Gardeners
+are in the pool even without the Undergrowth unlock), 1 Act-2 death to an **Entomancer
+elite (first capture, not in bestiary)** at f28.
+
+**Headline: the filed Soul Fysh Intangible gap is now measured, and it's the top Act-1
+item by death count.** Trace check across the 4 Fysh fights: **11 cards played while
+Intangible was visibly up** (17 such states) — Pommel Strike / Whirlwind / Fight Me!
+thrown into per-hit-cap-of-1 turns. The §8.4-A note ("share the per-hit-cap model with
+the Vantom Slippery fix") is the implementation path; priority should rise now that
+Underdocks makes Fysh ~40% of Act-1 boss encounters.
+
+Also notable: **elites fought jumped 0.4 → 1.8/run** (26 chances offered vs 16 — the new
+pool's map gen differs), with correspondingly lower boss-entry HP (36–70). Watch whether
+the elite gate needs a re-look against Underdocks elites. Pen Nib: still never rolled.
+
+*Ops note:* first launch attempt aborted cleanly — the game had been left on the
+compendium screen and menu recovery has no handler for it ("no back option"); the stall
+rail caught it exactly as designed (C5). Small robustness item: try a blind
+`menu_select back` on unknown menu screens before stalling out.
+
 ## 2026-07-08 (Fable 5, cont. 3) — Underdocks restored via save edit; unlock mechanics decoded
 
 **Goal:** restore the Underdocks (lost with the pre-unlock profile) without grinding ~50
