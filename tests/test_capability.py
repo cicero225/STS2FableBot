@@ -332,3 +332,11 @@ def test_elite_fight_members_expands_swarms() -> None:
 
     solo = elite_fight_members("Terror Eel", bestiary["Terror Eel"], bestiary, dps=17)
     assert len(solo) == 1 and solo[0].hp == 140  # single-body path unchanged
+
+
+def test_decimillipede_composes_three_segments() -> None:
+    # Live-counted (bn4v9mf75 run 3): three 46-HP Reattach segments, not one body -- the
+    # single-segment harvest let the gate chase a 138-HP fight it priced at 46.
+    bestiary = {"Decimillipede": {"hp": [40, 46], "statuses": {}}}
+    segs = elite_fight_members("Decimillipede", bestiary["Decimillipede"], bestiary, dps=23)
+    assert len(segs) == 3 and all(e.hp == 46 for e in segs)

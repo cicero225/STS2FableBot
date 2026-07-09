@@ -265,6 +265,11 @@ _EMPIRICAL_MOVES: dict[str, dict[str, int]] = {
 _ELITE_COMPOSITIONS: dict[str, list[tuple[str, int]]] = {
     "PHANTASMAL GARDENER": [("Phantasmal Gardener", 3)],
     "PHROG PARASITE": [("Phrog Parasite", 1), ("Wriggler", 4)],
+    # 3 segments live-counted (batch bn4v9mf75 run 3, a genuine gate-pass death: the Act-2 pool
+    # held only Entomancer, so a 46-HP single segment flattered a 138-HP Reattach fight).
+    # Reattach's revive (25 HP after 2 turns unless killed together) is NOT modeled — the body
+    # count alone fixes the gross underestimate; revive-HP is the ENEMY_PASS (B) refinement.
+    "DECIMILLIPEDE": [("Decimillipede", 3)],
 }
 
 
