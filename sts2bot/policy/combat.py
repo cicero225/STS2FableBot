@@ -129,6 +129,11 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
         except ValueError:
             return None
     fx = parse_card_description(card.description)
+    # Whirlwind & kin: "Deal N damage to ALL enemies X times" — X-cost resolves to current
+    # energy (above), and the hit count is that same X; the parser can't know it, so set it
+    # here. Without this Whirlwind read as one hit (4x+ under-valued at high energy).
+    if cost_str.upper() == "X" and fx.damage and re.search(r"\bX times", card.description or ""):
+        fx.hits = max(1, cost)
     # Rage special-case (owner): "Whenever you play an Attack this turn, gain N Block"
     # — so it must be sequenced BEFORE attacks. Encode it so the planner sees that.
     rage_block = 0

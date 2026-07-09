@@ -11,7 +11,15 @@ import re
 from dataclasses import dataclass, field
 
 _DAMAGE = re.compile(r"\bDeal (\d+) damage", re.IGNORECASE)
-_DAMAGE_TIMES = re.compile(r"\bDeal (\d+) damage (\d+) times", re.IGNORECASE)
+# live text pre-resolves dynamic hit counts parenthetically: "... (Hits 6 times)"
+_HITS_PAREN = re.compile(r"\(Hits (\d+) times\)", re.IGNORECASE)
+# "N times" may sit after a target clause: Conflagration = "Deal 2 damage to ALL enemies 4
+# times." parsed as 2 dmg x1 (a 4x under-value that cascaded: Bloodletting looked pointless
+# because its payoff card looked worthless — owner-caught live 2026-07-09).
+_DAMAGE_TIMES = re.compile(
+    r"\bDeal (\d+) damage(?: to (?:ALL enemies|a random enemy|an enemy))? (\d+) times",
+    re.IGNORECASE,
+)
 _ALL_ENEMIES = re.compile(r"\bALL enem", re.IGNORECASE)
 _BLOCK = re.compile(r"\bGain (\d+) Block", re.IGNORECASE)
 _DRAW = re.compile(r"\bDraw (\d+) card", re.IGNORECASE)
@@ -74,6 +82,8 @@ def parse_card_description(text: str | None) -> CardEffects:
     elif m := _DAMAGE.search(text):
         fx.damage = int(m.group(1))
         fx.recognized.append("damage")
+        if m2 := _HITS_PAREN.search(text):  # "(Hits 6 times)" — game-resolved dynamic count
+            fx.hits = int(m2.group(1))
     if fx.damage and _ALL_ENEMIES.search(text):
         fx.aoe = True
     if m := _BLOCK.search(text):

@@ -82,3 +82,24 @@ def test_iconized_energy_gain() -> None:
     assert parse_card_description("Gain [silent_energy_icon.png].").energy_gain == 1  # other chars
     assert parse_card_description("Gain [star_icon.png].").energy_gain == 0  # star != energy
     assert parse_card_description("Gain 2 Energy.").energy_gain == 2  # text form still works
+
+
+def test_damage_times_with_target_clause() -> None:
+    # Conflagration = "Deal 2 damage to ALL enemies 4 times." parsed as 2 dmg x1 — a 4x
+    # under-value that cascaded into Bloodletting looking pointless (owner-caught live
+    # 2026-07-09: BL+ skipped because its payoff card looked worthless).
+    fx = parse_card_description("Deal 2 damage to ALL enemies 4 times.")
+    assert (fx.damage, fx.hits, fx.aoe) == (2, 4, True)
+    fx = parse_card_description("Deal 5 damage to a random enemy 3 times.")
+    assert (fx.damage, fx.hits) == (5, 3)
+    fx = parse_card_description("Deal 6 damage 3 times.")  # adjacent form still works
+    assert (fx.damage, fx.hits) == (6, 3)
+
+
+def test_damage_paren_resolved_hits() -> None:
+    # Live text pre-resolves dynamic hit counts: "Deal 4 damage. Hits an additional time for
+    # each time you lost HP this combat. (Hits 6 times)" — trust the game's resolved number.
+    fx = parse_card_description(
+        "Deal 4 damage. Hits an additional time for each time you lost HP this combat. "
+        "(Hits 6 times)")
+    assert (fx.damage, fx.hits) == (4, 6)

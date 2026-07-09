@@ -542,3 +542,41 @@ def test_player_frail_cuts_block_i_gain() -> None:
     frail = _apply_card(SimState(energy=3, enemies=(_enemy(),), my_block=0, my_strength=0,
                                  my_frail=True), block_card, None)
     assert healthy.my_block == 10 and frail.my_block == 7
+
+
+def test_whirlwind_x_cost_hits_resolve_to_energy() -> None:
+    # "Deal 6 damage to ALL enemies X times": X-cost resolves to current energy, and the hit
+    # count is that same X. At 3 energy Whirlwind is 3x6=18 -- it must beat a 9-damage Strike+.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "WHIRLWIND", "Whirlwind", "X",
+                   "Deal 6 damage to ALL enemies X times.", "Attack", "AllEnemy"),
+            _bcard(1, "STRIKE_P", "Strike+", 1, "Deal 9 damage.", "Attack", "AnyEnemy")]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand)), w)
+    assert d.action.payload()["card_index"] == 0  # Whirlwind first at full X
+
+
+def test_bloodletting_line_follows_the_hp_scarcity_curve() -> None:
+    # The owner-caught live miss (2026-07-09, seq 499) had TWO layers. The bug: Conflagration
+    # ("Deal 2 damage to ALL enemies 4 times") parsed as 2x1, so Bloodletting's payoff looked
+    # worthless and the whole line was skipped -- with the parse fixed, Conflagration is always
+    # in the plan. The judgment call: Bloodletting's 3 HP rides the scarcity curve -- cheap at
+    # full HP (played), pricier when dented (dropped at 66/80). Both behaviors pinned here.
+    w = load_policy_config().combat
+    icon = "[ironclad_energy_icon.png]"
+
+    def hand():
+        return [_bcard(0, "CONFLAGRATION", "Conflagration", 1,
+                       "Deal 2 damage to ALL enemies 4 times.", "Attack", "AllEnemy"),
+                _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+                _bcard(2, "STRIKE_P", "Strike+", 1, "Deal 9 damage.", "Attack", "AnyEnemy"),
+                _bcard(3, "BLOODLETTING_P", "Bloodletting+", 0,
+                       f"Lose 3 HP. Gain {icon}{icon}{icon}.", "Skill", "None"),
+                _bcard(4, "ASHEN_P", "Ashen Strike+", 1, "Deal 10 damage.", "Attack", "AnyEnemy")]
+
+    full = plan_combat_turn(parse_state(_beckon_state(3, hand(), enemy_hp=197, hp=80)), w)
+    plan_full = full.rationale.split("[")[1].split("]")[0]
+    assert "Bloodletting+" in plan_full and "Conflagration" in plan_full  # 3 HP is cheap at 80/80
+
+    dented = plan_combat_turn(parse_state(_beckon_state(3, hand(), enemy_hp=197, hp=66)), w)
+    plan_dented = dented.rationale.split("[")[1].split("]")[0]
+    assert "Conflagration" in plan_dented  # the parse fix holds regardless of HP
