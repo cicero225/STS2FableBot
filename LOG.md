@@ -2,6 +2,32 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-08 (Fable 5, cont.) — Shakeout batch b34khuptc: new machine works end-to-end; plan audit
+
+**Batch (10 runs, A0 Ironclad, speed 4, owner-authorized unattended):** 10/10 completed
+cleanly — **zero stalls/errors**, so the §7 batch-resilience hazard never fired this time.
+**0/10 wins, act-reach avg 1.40 (4 runs to Act 2, deepest f33 dying to the Knowledge
+Demon — the standing wall).** Act-1 boss: 8/10 reached it (entry HP 36–80), 4/8 passed;
+deaths: Ceremonial Beast ×2, Vantom, Kin. Elites fought only 0.4/run of 1.6 offered.
+Per-run profile snapshots + run logs confirmed writing.
+
+**Read the numbers with three caveats:** (1) the restored profile is the pre-unlock
+Jun-12 state — **no Undergrowth, no unlock cards, and `CUSTOM_AND_SEEDS_EPOCH:
+not_obtained` (seeded custom runs are LOCKED again on this machine)** — so this batch
+isn't map-pool-comparable to the June baselines; (2) runs logged under config hash
+`8f6e6fcf2418`, a CRLF-checkout **alias of `374480217e9e`** (same content; fixed with
+.gitattributes after launch); (3) n=10. As a shakeout it's a full pass: game + mod +
+profile + planner + snapshots + logging all work on the new machine.
+
+**Plan audit (Fable 5 over the Opus-era docs)** — fixed: config-hash CRLF fork
+(.gitattributes), PLAN §6 still said to clone *upstream* (the 2026-06-23 regression),
+diagram said profile "slot 2/3", ENEMY_PASS's stale Back Attack classification. Flagged
+for owner: PLAN §8.4-A vs memory disagree on whether custom mode was unlocked as of
+06-26; Dark Shackles is classified as *our* debuff in ENEMY_PASS but as a Kin-Priest
+player-debuff in PLAN §8.4-A; LOG.md has no entries 06-16→06-26 (the first A0 win is
+undocumented here); P0/M0 phase bookkeeping stale. Getting the old machine's
+`backups/profile_snapshots/` (post-unlock profile) is now the highest-value recovery item.
+
 ## 2026-07-08 (Fable 5) — New-machine spin-up (repo folder now `STS2FableBot`)
 
 Machine transplant per HANDOFF.md. Environment rebuilt and verified: fresh venv
