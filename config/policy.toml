@@ -19,6 +19,13 @@ w_hp_loss = -2.0            # per point of own HP lost to unblocked intents
 # healthy, shelved when hurt): effective hp weight = w_hp_loss * (base + slope*(1-hp%))
 hp_scarcity_base = 0.5
 hp_scarcity_slope = 2.0
+# Card self-HP costs are a TEMPO trade, not chip (owner 2026-07-09: "play Bloodletting+
+# as low as 15 hp... unless it led to death"). Above the projected-end-HP floor they cost
+# w_hp_loss * mult flat (scarcity-free); below it the curve returns; projecting to <=0 HP
+# on a non-lethal turn is walled off.
+self_hp_cheap_floor = 15
+self_hp_cheap_mult = 0.4
+w_projected_death = -500.0
 w_vulnerable = 6.0          # per stack applied to a surviving enemy
 w_weak = 5.0                # per stack applied to a surviving enemy
 w_strength = 7.0            # per stack of own Strength gained
