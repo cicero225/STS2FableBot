@@ -2284,3 +2284,40 @@ def test_guilty_not_worth_a_paid_removal() -> None:
         def __init__(self):
             self.deck = [guilty, C("BASH", "Bash", "Attack", upgraded=True)]
     assert r._has_removable_card(P()) is False  # Guilty alone doesn't justify paying
+
+
+def test_targeted_potion_always_gets_a_target() -> None:
+    """Owner-caught (b8oazdsui run 2, died vs Kaiser Crab): hail-mary drank Beetle Juice
+    (enemy-targeted debuff, category missed it) with no target -> API error -> died with it
+    in the belt. drink() now enforces targeting from the potion's own target_type."""
+    state = make_combat(
+        hand=[],
+        enemies=[enemy("ROCKET_0", 50, intent_label="52")],
+        hp=4, max_hp=80,
+        potions=[_potion("BEETLE_JUICE", "Beetle Juice",
+                         "Enemy's attacks deal 30% less damage for the next 4 turns.",
+                         target="AnyEnemy")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    payload = d.action.payload()
+    assert payload["action"] == "use_potion"
+    assert payload.get("target") == "ROCKET_0"  # never untargeted again
+
+
+def test_percent_less_potion_classified_debuff_and_deployed() -> None:
+    """Beetle Juice's "%-less" phrasing now classifies as a debuff -> deployed proactively at
+    a boss start (with a target) instead of rotting until a hail-mary."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BOSS_0", 200, intent_label="10")],
+        hp=70, max_hp=80, state_type="boss",
+        potions=[_potion("BEETLE_JUICE", "Beetle Juice",
+                         "Enemy's attacks deal 30% less damage for the next 4 turns.",
+                         target="AnyEnemy")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    payload = d.action.payload()
+    assert payload["action"] == "use_potion" and payload.get("target") == "BOSS_0"
+    assert "deploy at boss" in d.rationale

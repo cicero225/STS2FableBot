@@ -263,6 +263,12 @@ class StandardRouter:
         used_slots: list[int] = used["slots"]
 
         def drink(potion: Potion, target: str | None, why: str) -> Decision:
+            # Targeting is enforced HERE, off the potion's own target_type, not the caller's
+            # category guess: a hail-mary Beetle Juice (enemy-debuff, category "other") was
+            # drunk untargeted -> API error -> died with it in the belt (owner-caught, batch
+            # b8oazdsui run 2 vs Kaiser Crab).
+            if target is None and "enemy" in (potion.target_type or "").lower():
+                target = biggest_threat()
             if potion.slot not in used_slots:
                 used_slots.append(potion.slot)
             return Decision(action=act.UsePotion(slot=potion.slot, target=target), rationale=why)
@@ -378,7 +384,9 @@ class StandardRouter:
             return "aoe_damage" if fx.aoe else "damage"
         if fx.vulnerable > 0 or fx.weak > 0 or any(
             k in nid for k in ("VULNER", "WEAK", "BINDING", "SHACKL")
-        ):
+        ) or re.search(r"deal \d+% less", potion.description or "", re.IGNORECASE):
+            # the %-less phrasing: Beetle Juice "Enemy's attacks deal 30% less damage" — a
+            # Weak-class debuff the Apply-N regexes miss (it sat as "other" until hail-mary)
             return "debuff"
         if fx.strength > 0 or any(
             k in nid for k in ("STRENGTH", "DEXTER", "FOCUS", "POWER", "BLESSING", "FYSH", "FORGE")
