@@ -491,7 +491,12 @@ def _score(
     state: SimState, w: CombatWeights, hp_pct: float = 1.0, power_horizon: float = 1.0,
     stranded_unblockable: dict[int, int] | None = None,
     stranded_blockable: dict[int, int] | None = None,
+    my_hp: int = 999,
 ) -> float:
+    # Lethal end-state (all leaders dead): stranded penalties and the death wall don't apply —
+    # the fight ends before end of turn.
+    leaders = [e for e in state.enemies if not e.is_minion]
+    lethal_end = not any(e.hp > 0 for e in (leaders or state.enemies))
     # A stunned enemy (dropped to/below its stun threshold this turn) skips its turn, so its
     # intent doesn't land — attacking down to the threshold can cancel an otherwise-lethal hit.
     incoming = sum(e.incoming for e in state.enemies if _enemy_attacking(e))
@@ -502,16 +507,14 @@ def _score(
     # Beckons sat in hand for 12 unblockable). Keyed by hand index; a played card's penalty
     # vanishes. Skipped on a lethal end-state (the fight ends before end of turn).
     stranded_unb = stranded_blk = 0
-    if stranded_unblockable or stranded_blockable:
-        leaders = [e for e in state.enemies if not e.is_minion]
-        if any(e.hp > 0 for e in (leaders or state.enemies)):  # not lethal
-            played_idx = {i for i, _ in state.played}
-            stranded_unb = sum(
-                v for i, v in (stranded_unblockable or {}).items() if i not in played_idx
-            )
-            stranded_blk = sum(
-                v for i, v in (stranded_blockable or {}).items() if i not in played_idx
-            )
+    if (stranded_unblockable or stranded_blockable) and not lethal_end:
+        played_idx = {i for i, _ in state.played}
+        stranded_unb = sum(
+            v for i, v in (stranded_unblockable or {}).items() if i not in played_idx
+        )
+        stranded_blk = sum(
+            v for i, v in (stranded_blockable or {}).items() if i not in played_idx
+        )
     incoming += stranded_blk  # Toxic-type is blockable: it joins the incoming pool
     # Kaiser Crab back-attack: while Surrounded with 2+ claws alive, the claw you're NOT facing
     # hits for +50% (labels are base — verified live). You face whoever you single-target-clicked
@@ -534,11 +537,21 @@ def _score(
     # Healing offsets HP lost (Not Yet); net it against the loss so both ride the same scarcity
     # curve — a heal is worth ~nothing at full HP and a lot when low, symmetric with Offering.
     # Stranded Beckon-type damage is unblockable: straight into the loss, past the block math.
-    hp_loss = (incoming - min(state.my_block, incoming) + state.self_damage
-               - state.healing + stranded_unb)
+    external_loss = (incoming - min(state.my_block, incoming)
+                     - state.healing + stranded_unb)
     # HP is cheap when full, precious when low (owner: Offering should be played
     # freely when healthy, shelved when hurt)
     hp_weight = w.w_hp_loss * (w.hp_scarcity_base + w.hp_scarcity_slope * (1.0 - hp_pct))
+    # Self-HP costs (Bloodletting, Offering, thorns eaten) are a TEMPO trade, not chip damage
+    # (owner 2026-07-09: "play Bloodletting+ as low as 15 hp... unless it led to death"). While
+    # the turn's projected end HP stays above the floor they're charged flat-cheap; below it the
+    # scarcity curve returns, and a non-lethal turn that projects to <=0 HP hits a hard wall.
+    projected_hp = my_hp - external_loss - state.self_damage
+    if projected_hp > w.self_hp_cheap_floor:
+        self_term = w.w_hp_loss * w.self_hp_cheap_mult * state.self_damage
+    else:
+        self_term = hp_weight * state.self_damage
+    death_wall = w.w_projected_death if (projected_hp <= 0 and not lethal_end) else 0.0
     # quadratic focus-fire reward: concentrated damage beats spread damage, because
     # a finished enemy stops attacking (run 13: spread vs a 4-Nibbit pack = death)
     focus = sum(
@@ -573,7 +586,9 @@ def _score(
         + w.w_overkill * state.overkill
         + w.w_block_useful * blocked
         + w.w_block_excess * excess
-        + hp_weight * hp_loss
+        + hp_weight * external_loss
+        + self_term
+        + death_wall
         + w.w_vulnerable * state.vuln_applied
         + w.w_weak * state.weak_applied
         + w.w_strength * state.strength_gained
@@ -692,7 +707,7 @@ def plan_combat_turn(state: CombatState, weights: CombatWeights) -> Decision | W
 
     def scored(sim: SimState) -> float:
         return _score(sim, weights, hp_pct, power_horizon,
-                      stranded_unblockable, stranded_blockable)
+                      stranded_unblockable, stranded_blockable, my_hp=player.hp)
 
     best_state = start
     best_score = scored(start)

@@ -555,12 +555,12 @@ def test_whirlwind_x_cost_hits_resolve_to_energy() -> None:
     assert d.action.payload()["card_index"] == 0  # Whirlwind first at full X
 
 
-def test_bloodletting_line_follows_the_hp_scarcity_curve() -> None:
-    # The owner-caught live miss (2026-07-09, seq 499) had TWO layers. The bug: Conflagration
-    # ("Deal 2 damage to ALL enemies 4 times") parsed as 2x1, so Bloodletting's payoff looked
-    # worthless and the whole line was skipped -- with the parse fixed, Conflagration is always
-    # in the plan. The judgment call: Bloodletting's 3 HP rides the scarcity curve -- cheap at
-    # full HP (played), pricier when dented (dropped at 66/80). Both behaviors pinned here.
+def test_bloodletting_tempo_pricing_follows_the_hp_floor() -> None:
+    # Two owner steers pinned together (2026-07-09). Parse layer: Conflagration ("Deal 2 damage
+    # to ALL enemies 4 times") reads its real 2x4 value, so Bloodletting's payoff is visible.
+    # Pricing layer: card self-HP costs are a TEMPO trade -- flat-cheap while projected end HP
+    # stays above self_hp_cheap_floor (owner: "play Bloodletting+ as low as 15 hp"), scarcity
+    # only below it. So BL is IN the plan even at 30/80, and out at 20/80 (projected 12 <= 15).
     w = load_policy_config().combat
     icon = "[ironclad_energy_icon.png]"
 
@@ -573,10 +573,24 @@ def test_bloodletting_line_follows_the_hp_scarcity_curve() -> None:
                        f"Lose 3 HP. Gain {icon}{icon}{icon}.", "Skill", "None"),
                 _bcard(4, "ASHEN_P", "Ashen Strike+", 1, "Deal 10 damage.", "Attack", "AnyEnemy")]
 
-    full = plan_combat_turn(parse_state(_beckon_state(3, hand(), enemy_hp=197, hp=80)), w)
-    plan_full = full.rationale.split("[")[1].split("]")[0]
-    assert "Bloodletting+" in plan_full and "Conflagration" in plan_full  # 3 HP is cheap at 80/80
+    for hp in (80, 30):
+        d = plan_combat_turn(parse_state(_beckon_state(3, hand(), enemy_hp=197, hp=hp)), w)
+        plan = d.rationale.split("[")[1].split("]")[0]
+        assert "Bloodletting+" in plan and "Conflagration" in plan, hp
 
-    dented = plan_combat_turn(parse_state(_beckon_state(3, hand(), enemy_hp=197, hp=66)), w)
-    plan_dented = dented.rationale.split("[")[1].split("]")[0]
-    assert "Conflagration" in plan_dented  # the parse fix holds regardless of HP
+    low = plan_combat_turn(parse_state(_beckon_state(3, hand(), enemy_hp=197, hp=20)), w)
+    plan_low = low.rationale.split("[")[1].split("]")[0]
+    assert "Bloodletting+" not in plan_low  # projected 12 <= floor 15: scarcity is back
+    assert "Conflagration" in plan_low  # the parse fix holds regardless of HP
+
+
+def test_projected_death_wall_blocks_suicidal_self_cost() -> None:
+    # A non-lethal turn that projects you to <=0 HP is walled off outright ("unless it led to
+    # death by fatal" -- owner); on a lethal end-state the wall doesn't apply (fight ends first).
+    from dataclasses import replace
+    w = load_policy_config().combat
+    alive = _state(_enemy())
+    suicidal = replace(alive, self_damage=6)
+    assert _score(suicidal, w, my_hp=3) < _score(alive, w, my_hp=3) - 400
+    killed = replace(alive, enemies=(replace(alive.enemies[0], hp=0),), self_damage=6, kills=1)
+    assert _score(killed, w, my_hp=3) > _score(suicidal, w, my_hp=3)  # lethal: no wall

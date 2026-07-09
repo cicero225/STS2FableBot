@@ -41,6 +41,13 @@ class CombatWeights(_Section):
     w_power_played: float = 8.0  # per-turn value of a banked Power; scaled by remaining-turns
     w_power_horizon_cap: float = 6.0  # cap on the remaining-turns multiplier for power value
     power_self_damage_hp_safe: float = 0.5  # HP% above which self-damage powers may front-load
+    # Card self-HP costs (Bloodletting, Offering) are a TEMPO trade, not chip damage (owner
+    # 2026-07-09: "play Bloodletting+ as low as 15 hp... unless it led to death"). While the turn's
+    # projected end HP stays above the floor, charge them flat-cheap instead of the scarcity curve;
+    # below the floor the full curve returns, and a turn projecting to death gets a hard wall.
+    self_hp_cheap_floor: int = 15
+    self_hp_cheap_mult: float = 0.4  # x w_hp_loss, scarcity-free, while above the floor
+    w_projected_death: float = -500.0  # non-lethal turn that projects you to <=0 HP: never
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     w_ramp_damage: float = 1.5  # extra value for damaging strength-gaining enemies (race them)
     w_crab_rage_split: float = -20.0  # small penalty for a 1-claw-dead split (1-turn enrage stall)
