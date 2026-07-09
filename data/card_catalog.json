@@ -1,0 +1,4443 @@
+{
+ "source": "compendium+wiki (mod, live)",
+ "cards": {
+  "STRIKE_IRONCLAD": {
+   "name": "Strike",
+   "type": "Attack",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Deal 6 damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 9 damage.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 1,
+    "times_lost": 108
+   },
+   "seen_in_runs": true
+  },
+  "DEFEND_IRONCLAD": {
+   "name": "Defend",
+   "type": "Skill",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Gain 5 Block.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 8 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 1,
+    "times_lost": 111
+   },
+   "seen_in_runs": true
+  },
+  "BASH": {
+   "name": "Bash",
+   "type": "Attack",
+   "rarity": "Basic",
+   "cost": "2",
+   "text": "Deal 8 damage. Apply 2 Vulnerable.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Deal 10 damage. Apply 3 Vulnerable.",
+   "keywords": [
+    "Vulnerable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 1,
+    "times_lost": 111
+   },
+   "seen_in_runs": true
+  },
+  "SETUP_STRIKE": {
+   "name": "Setup Strike",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 7 damage. Gain 2 Strength this turn.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 9 damage. Gain 3 Strength this turn.",
+   "keywords": [
+    "Strength"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 3
+   },
+   "seen_in_runs": true
+  },
+  "TREMBLE": {
+   "name": "Tremble",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Apply 3 Vulnerable. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Apply 4 Vulnerable. Exhaust.",
+   "keywords": [
+    "Vulnerable",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 19,
+    "times_won": 1,
+    "times_lost": 19
+   },
+   "seen_in_runs": true
+  },
+  "BLOOD_WALL": {
+   "name": "Blood Wall",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "2",
+   "text": "Lose 2 HP. Gain 16 Block.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Lose 2 HP. Gain 20 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "SLIMED": {
+   "name": "Slimed",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "1",
+   "text": "Draw 1 card. Exhaust.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "BREAKTHROUGH": {
+   "name": "Breakthrough",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Lose 1 HP. Deal 9 damage to ALL enemies.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Lose 1 HP. Deal 13 damage to ALL enemies.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 14,
+    "times_won": 0,
+    "times_lost": 15
+   },
+   "seen_in_runs": true
+  },
+  "INFLAME": {
+   "name": "Inflame",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain 2 Strength.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 3 Strength.",
+   "keywords": [
+    "Strength"
+   ],
+   "exposure": {
+    "times_picked": 13,
+    "times_won": 0,
+    "times_lost": 13
+   },
+   "seen_in_runs": true
+  },
+  "ANGER": {
+   "name": "Anger",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "0",
+   "text": "Deal 6 damage. Add a copy of this card into your Discard Pile.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 8 damage. Add a copy of this card into your Discard Pile.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 9,
+    "times_won": 1,
+    "times_lost": 9
+   },
+   "seen_in_runs": false
+  },
+  "IRON_WAVE": {
+   "name": "Iron Wave",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain 5 Block. Deal 5 damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 7 Block. Deal 7 damage.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 2,
+    "times_won": 0,
+    "times_lost": 3
+   },
+   "seen_in_runs": true
+  },
+  "DISMANTLE": {
+   "name": "Dismantle",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 8 damage. If the enemy is Vulnerable, hits twice.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 10 damage. If the enemy is Vulnerable, hits twice.",
+   "keywords": [
+    "Vulnerable"
+   ],
+   "exposure": {
+    "times_picked": 7,
+    "times_won": 0,
+    "times_lost": 7
+   },
+   "seen_in_runs": true
+  },
+  "CINDER": {
+   "name": "Cinder",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "2",
+   "text": "Deal 18 damage. Exhaust 1 card at random.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Deal 24 damage. Exhaust 1 card at random.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "STOMP": {
+   "name": "Stomp",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "3",
+   "text": "Deal 12 damage to ALL enemies. Costs 1 less [ironclad_energy_icon.png] for each Attack played this turn.",
+   "cost_upgraded": "3",
+   "text_upgraded": "Deal 15 damage to ALL enemies. Costs 1 less [ironclad_energy_icon.png] for each Attack played this turn.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 3,
+    "times_won": 1,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "SHRUG_IT_OFF": {
+   "name": "Shrug It Off",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain 8 Block. Draw 1 card.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 11 Block. Draw 1 card.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 38,
+    "times_won": 0,
+    "times_lost": 31
+   },
+   "seen_in_runs": true
+  },
+  "ARMAMENTS": {
+   "name": "Armaments",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain 5 Block. Upgrade a card in your Hand.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 5 Block. Upgrade ALL cards in your Hand.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 4,
+    "times_won": 1,
+    "times_lost": 5
+   },
+   "seen_in_runs": true
+  },
+  "THUNDERCLAP": {
+   "name": "Thunderclap",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 4 damage and apply 1 Vulnerable to ALL enemies.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 7 damage and apply 1 Vulnerable to ALL enemies.",
+   "keywords": [
+    "Vulnerable"
+   ],
+   "exposure": {
+    "times_picked": 6,
+    "times_won": 0,
+    "times_lost": 6
+   },
+   "seen_in_runs": true
+  },
+  "RAGE": {
+   "name": "Rage",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Whenever you play an Attack this turn, gain 3 Block.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Whenever you play an Attack this turn, gain 5 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 17,
+    "times_won": 1,
+    "times_lost": 15
+   },
+   "seen_in_runs": true
+  },
+  "BATTLE_TRANCE": {
+   "name": "Battle Trance",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Draw 3 cards. You cannot draw additional cards this turn.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Draw 4 cards. You cannot draw additional cards this turn.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 20,
+    "times_won": 0,
+    "times_lost": 18
+   },
+   "seen_in_runs": true
+  },
+  "TRUE_GRIT": {
+   "name": "True Grit",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain 7 Block. Exhaust 1 card at random.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 9 Block. Exhaust 1 card.",
+   "keywords": [
+    "Exhaust",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 17,
+    "times_won": 1,
+    "times_lost": 15
+   },
+   "seen_in_runs": true
+  },
+  "UPPERCUT": {
+   "name": "Uppercut",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Deal 13 damage. Apply 1 Weak. Apply 1 Vulnerable.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Deal 13 damage. Apply 2 Weak. Apply 2 Vulnerable.",
+   "keywords": [
+    "Weak",
+    "Vulnerable"
+   ],
+   "exposure": {
+    "times_picked": 18,
+    "times_won": 0,
+    "times_lost": 17
+   },
+   "seen_in_runs": true
+  },
+  "STRIKE_SILENT": {
+   "name": "Strike",
+   "type": "Attack",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Deal 6 damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 9 damage.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "DEFEND_SILENT": {
+   "name": "Defend",
+   "type": "Skill",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Gain 5 Block.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 8 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "SURVIVOR": {
+   "name": "Survivor",
+   "type": "Skill",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Gain 8 Block. Discard 1 card.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 11 Block. Discard 1 card.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "NEUTRALIZE": {
+   "name": "Neutralize",
+   "type": "Attack",
+   "rarity": "Basic",
+   "cost": "0",
+   "text": "Deal 3 damage. Apply 1 Weak.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 4 damage. Apply 2 Weak.",
+   "keywords": [
+    "Weak"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "CLOAK_AND_DAGGER": {
+   "name": "Cloak and Dagger",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain 6 Block. Add 1 Shiv into your Hand.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 6 Block. Add 2 Shivs into your Hand.",
+   "keywords": [
+    "Shiv",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "RICOCHET": {
+   "name": "Ricochet",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "2",
+   "text": "Sly. Deal 3 damage to a random enemy 4 times.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Sly. Deal 3 damage to a random enemy 5 times.",
+   "keywords": [
+    "Sly"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "DAGGER_THROW": {
+   "name": "Dagger Throw",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 9 damage. Draw 1 card. Discard 1 card.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 12 damage. Draw 1 card. Discard 1 card.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "SHIV": {
+   "name": "Shiv",
+   "type": "Attack",
+   "rarity": "Token",
+   "cost": "0",
+   "text": "Deal 4 damage. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 6 damage. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "ACROBATICS": {
+   "name": "Acrobatics",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Draw 3 cards. Discard 1 card.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Draw 4 cards. Discard 1 card.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "EXPOSE": {
+   "name": "Expose",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Remove all Artifact and Block from the enemy. Apply 2 Vulnerable. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Remove all Artifact and Block from the enemy. Apply 3 Vulnerable. Exhaust.",
+   "keywords": [
+    "Vulnerable",
+    "Artifact",
+    "Block",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "UP_MY_SLEEVE": {
+   "name": "Up My Sleeve",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Add 3 Shivs into your Hand. Reduce this card's cost by 1.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Add 4 Shivs into your Hand. Reduce this card's cost by 1.",
+   "keywords": [
+    "Shiv"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "DEFEND_REGENT": {
+   "name": "Defend",
+   "type": "Skill",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Gain 5 Block.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 8 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "STRIKE_REGENT": {
+   "name": "Strike",
+   "type": "Attack",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Deal 6 damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 9 damage.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "FALLING_STAR": {
+   "name": "Falling Star",
+   "type": "Attack",
+   "rarity": "Basic",
+   "cost": "0",
+   "text": "Deal 8 damage. Apply 1 Weak. Apply 1 Vulnerable.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 12 damage. Apply 1 Weak. Apply 1 Vulnerable.",
+   "keywords": [
+    "Weak",
+    "Vulnerable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "VENERATE": {
+   "name": "Venerate",
+   "type": "Skill",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Gain [star_icon.png][star_icon.png].",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain [star_icon.png][star_icon.png][star_icon.png].",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "COSMIC_INDIFFERENCE": {
+   "name": "Cosmic Indifference",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain 6 Block. Put a card from your Discard Pile on top of your Draw Pile.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 9 Block. Put a card from your Discard Pile on top of your Draw Pile.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "CLOAK_OF_STARS": {
+   "name": "Cloak of Stars",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "0",
+   "text": "Gain 7 Block.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Gain 10 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "STARDUST": {
+   "name": "Stardust",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Deal 5 damage to a random enemy X times.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 7 damage to a random enemy X times.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "COLLISION_COURSE": {
+   "name": "Collision Course",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "0",
+   "text": "Deal 11 damage. Add a Debris into your Hand.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 15 damage. Add a Debris into your Hand.",
+   "keywords": [
+    "Debris"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "CELESTIAL_MIGHT": {
+   "name": "Celestial Might",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "2",
+   "text": "Deal 6 damage 3 times.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Deal 6 damage 4 times.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "GUIDING_STAR": {
+   "name": "Guiding Star",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 12 damage. Draw 2 cards.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 13 damage. Draw 3 cards.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "DEBRIS": {
+   "name": "Debris",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "1",
+   "text": "Exhaust.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "ASTRAL_PULSE": {
+   "name": "Astral Pulse",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "0",
+   "text": "Deal 6 damage to ALL enemies twice.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 8 damage to ALL enemies twice.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "CHILD_OF_THE_STARS": {
+   "name": "Child of the Stars",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Whenever you spend [star_icon.png], gain 2 Block for each [star_icon.png] spent.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Whenever you spend [star_icon.png], gain 3 Block for each [star_icon.png] spent.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "GLITTERSTREAM": {
+   "name": "Glitterstream",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "2",
+   "text": "Gain 11 Block. Next turn, gain 5 Block.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Gain 13 Block. Next turn, gain 7 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "HIDDEN_CACHE": {
+   "name": "Hidden Cache",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain [star_icon.png]. Next turn, gain [star_icon.png][star_icon.png][star_icon.png].",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain [star_icon.png]. Next turn, gain [star_icon.png][star_icon.png][star_icon.png][star_icon.png].",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "REFINE_BLADE": {
+   "name": "Refine Blade",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Forge 9. Next turn, gain [regent_energy_icon.png].",
+   "cost_upgraded": "1",
+   "text_upgraded": "Forge 13. Next turn, gain [regent_energy_icon.png].",
+   "keywords": [
+    "Forge",
+    "Sovereign Blade",
+    "Retain"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "PHOTON_CUT": {
+   "name": "Photon Cut",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 10 damage. Draw 1 card. Put 1 card from your Hand on top of your Draw Pile.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 13 damage. Draw 2 cards. Put 1 card from your Hand on top of your Draw Pile.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "GLOW": {
+   "name": "Glow",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain [star_icon.png]. Draw 1 card. Next turn, draw 1 card.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain [star_icon.png][star_icon.png]. Draw 1 card. Next turn, draw 1 card.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "HEGEMONY": {
+   "name": "Hegemony",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Deal 15 damage. Next turn, gain [regent_energy_icon.png][regent_energy_icon.png].",
+   "cost_upgraded": "2",
+   "text_upgraded": "Deal 18 damage. Next turn, gain [regent_energy_icon.png][regent_energy_icon.png][regent_energy_icon.png].",
+   "keywords": [
+    "Energy"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "GAMMA_BLAST": {
+   "name": "Gamma Blast",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Deal 13 damage. Apply 2 Weak. Apply 2 Vulnerable.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 18 damage. Apply 2 Weak. Apply 2 Vulnerable.",
+   "keywords": [
+    "Weak",
+    "Vulnerable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "GLIMMER": {
+   "name": "Glimmer",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Draw 3 cards. Put 1 card from your Hand on top of your Draw Pile.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Draw 4 cards. Put 1 card from your Hand on top of your Draw Pile.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "GATHER_LIGHT": {
+   "name": "Gather Light",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain 8 Block. Gain [star_icon.png].",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 11 Block. Gain [star_icon.png].",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "MONARCHS_GAZE": {
+   "name": "Monarch's Gaze",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Whenever you attack an enemy, it loses 1 Strength this turn.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Whenever you attack an enemy, it loses 1 Strength this turn.",
+   "keywords": [
+    "Strength"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "DISCOVERY": {
+   "name": "Discovery",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Choose 1 of 3 random cards to add into your Hand. It's free to play this turn. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Choose 1 of 3 random cards to add into your Hand. It's free to play this turn.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": false
+  },
+  "ROLLING_BOULDER": {
+   "name": "Rolling Boulder",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "3",
+   "text": "At the start of your turn, deal 5 damage to ALL enemies and increase this damage by 5.",
+   "cost_upgraded": "3",
+   "text_upgraded": "At the start of your turn, deal 10 damage to ALL enemies and increase this damage by 5.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "CRESCENT_SPEAR": {
+   "name": "Crescent Spear",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 8 damage. Deals 2 additional damage for ALL your cards that have a [star_icon.png] cost.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 8 damage. Deals 3 additional damage for ALL your cards that have a [star_icon.png] cost.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "PILLAR_OF_CREATION": {
+   "name": "Pillar of Creation",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Whenever you create a card, gain 3 Block.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Whenever you create a card, gain 4 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "RAMPAGE": {
+   "name": "Rampage",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 9 damage. Increase this card's damage by 5 this combat.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 9 damage. Increase this card's damage by 9 this combat.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 4,
+    "times_won": 0,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "BLOODLETTING": {
+   "name": "Bloodletting",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "0",
+   "text": "Lose 3 HP. Gain [ironclad_energy_icon.png][ironclad_energy_icon.png].",
+   "cost_upgraded": "0",
+   "text_upgraded": "Lose 3 HP. Gain [ironclad_energy_icon.png][ironclad_energy_icon.png][ironclad_energy_icon.png].",
+   "keywords": [
+    "Energy"
+   ],
+   "exposure": {
+    "times_picked": 46,
+    "times_won": 1,
+    "times_lost": 36
+   },
+   "seen_in_runs": true
+  },
+  "BURNING_PACT": {
+   "name": "Burning Pact",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Exhaust 1 card. Draw 2 cards.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Exhaust 1 card. Draw 3 cards.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 15,
+    "times_won": 1,
+    "times_lost": 14
+   },
+   "seen_in_runs": true
+  },
+  "SECOND_WIND": {
+   "name": "Second Wind",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Exhaust all non-Attack cards in your Hand. Gain 5 Block for each card Exhausted.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Exhaust all non-Attack cards in your Hand. Gain 7 Block for each card Exhausted.",
+   "keywords": [
+    "Exhaust",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 14,
+    "times_won": 0,
+    "times_lost": 14
+   },
+   "seen_in_runs": true
+  },
+  "PERFECTED_STRIKE": {
+   "name": "Perfected Strike",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "2",
+   "text": "Deal 6 damage. Deals 2 additional damage for ALL your cards containing “Strike”.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Deal 6 damage. Deals 3 additional damage for ALL your cards containing “Strike”.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 1,
+    "times_lost": 3
+   },
+   "seen_in_runs": true
+  },
+  "PROLONG": {
+   "name": "Prolong",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Next turn, gain Block equal to your current Block. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Next turn, gain Block equal to your current Block.",
+   "keywords": [
+    "Block",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "FASTEN": {
+   "name": "Fasten",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain an additional 4 Block from Defend cards.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain an additional 6 Block from Defend cards.",
+   "keywords": [
+    "Block",
+    "Defend"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "MIRAGE": {
+   "name": "Mirage",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain Block equal to Poison on ALL enemies. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Gain Block equal to Poison on ALL enemies. Exhaust.",
+   "keywords": [
+    "Poison",
+    "Block",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "BACKSTAB": {
+   "name": "Backstab",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Innate. Deal 11 damage. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Innate. Deal 15 damage. Exhaust.",
+   "keywords": [
+    "Exhaust",
+    "Innate"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "POISONED_STAB": {
+   "name": "Poisoned Stab",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 6 damage. Apply 3 Poison.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 8 damage. Apply 4 Poison.",
+   "keywords": [
+    "Poison"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "DAGGER_SPRAY": {
+   "name": "Dagger Spray",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 4 damage to ALL enemies twice.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 6 damage to ALL enemies twice.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "PIERCING_WAIL": {
+   "name": "Piercing Wail",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "ALL enemies lose 6 Strength this turn. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "ALL enemies lose 8 Strength this turn. Exhaust.",
+   "keywords": [
+    "Strength",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "ENVENOM": {
+   "name": "Envenom",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Whenever an Attack deals unblocked damage, apply 1 Poison.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Whenever an Attack deals unblocked damage, apply 2 Poison.",
+   "keywords": [
+    "Poison"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "FLICK_FLACK": {
+   "name": "Flick-Flack",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Sly. Deal 6 damage to ALL enemies.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Sly. Deal 8 damage to ALL enemies.",
+   "keywords": [
+    "Sly"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "PINPOINT": {
+   "name": "Pinpoint",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "3",
+   "text": "Deal 15 damage. Costs 1 less [silent_energy_icon.png] for each Skill played this turn.",
+   "cost_upgraded": "3",
+   "text_upgraded": "Deal 19 damage. Costs 1 less [silent_energy_icon.png] for each Skill played this turn.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "BACKFLIP": {
+   "name": "Backflip",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain 5 Block. Draw 2 cards.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 8 Block. Draw 2 cards.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "DEFLECT": {
+   "name": "Deflect",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "0",
+   "text": "Gain 4 Block.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Gain 7 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "FOOTWORK": {
+   "name": "Footwork",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain 2 Dexterity.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 3 Dexterity.",
+   "keywords": [
+    "Dexterity"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "PANIC_BUTTON": {
+   "name": "Panic Button",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Gain 30 Block. You cannot gain Block from cards for 2 turns. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Gain 40 Block. You cannot gain Block from cards for 2 turns. Exhaust.",
+   "keywords": [
+    "Block",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "HIDDEN_GEM": {
+   "name": "Hidden Gem",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "A random card without Replay in your Draw Pile gains Replay 2.",
+   "cost_upgraded": "1",
+   "text_upgraded": "A random card without Replay in your Draw Pile gains Replay 3.",
+   "keywords": [
+    "Replay"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "STRIKE_NECROBINDER": {
+   "name": "Strike",
+   "type": "Attack",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Deal 6 damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 9 damage.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "DEFEND_NECROBINDER": {
+   "name": "Defend",
+   "type": "Skill",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Gain 5 Block.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 8 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "BODYGUARD": {
+   "name": "Bodyguard",
+   "type": "Skill",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Summon 5.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Summon 7.",
+   "keywords": [
+    "Summon 5"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "UNLEASH": {
+   "name": "Unleash",
+   "type": "Attack",
+   "rarity": "Basic",
+   "cost": "1",
+   "text": "Osty deals 6 damage. Deals additional damage equal to Osty's current HP.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Osty deals 9 damage. Deals additional damage equal to Osty's current HP.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "DEBILITATE": {
+   "name": "Debilitate",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 10 damage. Vulnerable and Weak are twice as effective against the enemy for the next 2 turns.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 12 damage. Vulnerable and Weak are twice as effective against the enemy for the next 3 turns.",
+   "keywords": [
+    "Vulnerable",
+    "Weak"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "REAP": {
+   "name": "Reap",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "3",
+   "text": "Retain. Deal 27 damage.",
+   "cost_upgraded": "3",
+   "text_upgraded": "Retain. Deal 33 damage.",
+   "keywords": [
+    "Retain"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "DEFY": {
+   "name": "Defy",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Ethereal. Gain 6 Block. Apply 1 Weak.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Ethereal. Gain 9 Block. Apply 1 Weak.",
+   "keywords": [
+    "Weak",
+    "Block",
+    "Ethereal",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "DANSE_MACABRE": {
+   "name": "Danse Macabre",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Whenever you play a card that costs [necrobinder_energy_icon.png][necrobinder_energy_icon.png] or more, gain 4 Block.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Whenever you play a card that costs [necrobinder_energy_icon.png][necrobinder_energy_icon.png] or more, gain 6 Block.",
+   "keywords": [
+    "Energy"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "LETHALITY": {
+   "name": "Lethality",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Ethereal. The first Attack each turn deals 50% additional damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Ethereal. The first Attack each turn deals 75% additional damage.",
+   "keywords": [
+    "Ethereal",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 2,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "DEFILE": {
+   "name": "Defile",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Ethereal. Deal 13 damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Ethereal. Deal 17 damage.",
+   "keywords": [
+    "Ethereal",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "FEAR": {
+   "name": "Fear",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Ethereal. Deal 7 damage. Apply 1 Vulnerable.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Ethereal. Deal 8 damage. Apply 2 Vulnerable.",
+   "keywords": [
+    "Vulnerable",
+    "Ethereal",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "DREDGE": {
+   "name": "Dredge",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Put 3 cards from your Discard Pile into your Hand. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Retain. Put 3 cards from your Discard Pile into your Hand. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "WISP": {
+   "name": "Wisp",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "0",
+   "text": "Gain [necrobinder_energy_icon.png]. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Retain. Gain [necrobinder_energy_icon.png]. Exhaust.",
+   "keywords": [
+    "Energy",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "SNAP": {
+   "name": "Snap",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Osty deals 7 damage. Add Retain to a card in your Hand.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Osty deals 10 damage. Add Retain to a card in your Hand.",
+   "keywords": [
+    "Retain"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "POKE": {
+   "name": "Poke",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "0",
+   "text": "Osty deals 6 damage.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Osty deals 9 damage.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "DRAIN_POWER": {
+   "name": "Drain Power",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 10 damage. Upgrade 2 random cards in your Discard Pile.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 12 damage. Upgrade 3 random cards in your Discard Pile.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "RATTLE": {
+   "name": "Rattle",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Osty deals 7 damage. Hits an additional time for each other time he has attacked this turn.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Osty deals 9 damage. Hits an additional time for each other time he has attacked this turn.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "PARSE": {
+   "name": "Parse",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Ethereal. Draw 3 cards.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Ethereal. Draw 4 cards.",
+   "keywords": [
+    "Ethereal",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "PULL_FROM_BELOW": {
+   "name": "Pull from Below",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 5 damage for each Ethereal card played this combat.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 7 damage for each Ethereal card played this combat.",
+   "keywords": [
+    "Ethereal"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "PULL_AGGRO": {
+   "name": "Pull Aggro",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "2",
+   "text": "Summon 4. Gain 7 Block.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Summon 5. Gain 9 Block.",
+   "keywords": [
+    "Summon 4",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "MELANCHOLY": {
+   "name": "Melancholy",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "3",
+   "text": "Gain 13 Block. Reduce this card's cost by [necrobinder_energy_icon.png] whenever ANYONE dies.",
+   "cost_upgraded": "3",
+   "text_upgraded": "Gain 17 Block. Reduce this card's cost by [necrobinder_energy_icon.png] whenever ANYONE dies.",
+   "keywords": [
+    "Energy",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "NEGATIVE_PULSE": {
+   "name": "Negative Pulse",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain 5 Block. Apply 7 Doom to ALL enemies.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 6 Block. Apply 11 Doom to ALL enemies.",
+   "keywords": [
+    "Doom",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "RESTLESSNESS": {
+   "name": "Restlessness",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Retain. If your Hand is empty, draw 2 cards and gain [colorless_energy_icon.png][colorless_energy_icon.png].",
+   "cost_upgraded": "0",
+   "text_upgraded": "Retain. If your Hand is empty, draw 3 cards and gain [colorless_energy_icon.png][colorless_energy_icon.png][colorless_energy_icon.png].",
+   "keywords": [
+    "Energy",
+    "Retain"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "PRODUCTION": {
+   "name": "Production",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Gain [colorless_energy_icon.png][colorless_energy_icon.png]. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Gain [colorless_energy_icon.png][colorless_energy_icon.png][colorless_energy_icon.png]. Exhaust.",
+   "keywords": [
+    "Energy",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "FEED": {
+   "name": "Feed",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "Deal 10 damage. If Fatal, raise your Max HP by 3. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 12 damage. If Fatal, raise your Max HP by 4. Exhaust.",
+   "keywords": [
+    "Fatal",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 4,
+    "times_won": 0,
+    "times_lost": 7
+   },
+   "seen_in_runs": true
+  },
+  "JUGGLING": {
+   "name": "Juggling",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Add a copy of the third Attack you play each turn into your Hand.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Innate. Add a copy of the third Attack you play each turn into your Hand.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 5,
+    "times_won": 0,
+    "times_lost": 5
+   },
+   "seen_in_runs": true
+  },
+  "HOWL_FROM_BEYOND": {
+   "name": "Howl from Beyond",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "3",
+   "text": "Deal 16 damage to ALL enemies. At the end of your turn, if this is in your Exhaust Pile, play it.",
+   "cost_upgraded": "3",
+   "text_upgraded": "Deal 21 damage to ALL enemies. At the end of your turn, if this is in your Exhaust Pile, play it.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "TWIN_STRIKE": {
+   "name": "Twin Strike",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 5 damage twice.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 7 damage twice.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 1,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "POMMEL_STRIKE": {
+   "name": "Pommel Strike",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 9 damage. Draw 1 card.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 10 damage. Draw 2 cards.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 55,
+    "times_won": 0,
+    "times_lost": 45
+   },
+   "seen_in_runs": true
+  },
+  "FEEL_NO_PAIN": {
+   "name": "Feel No Pain",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Whenever a card is Exhausted, gain 3 Block.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Whenever a card is Exhausted, gain 4 Block.",
+   "keywords": [
+    "Exhaust",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 12,
+    "times_won": 1,
+    "times_lost": 12
+   },
+   "seen_in_runs": true
+  },
+  "FORGOTTEN_RITUAL": {
+   "name": "Forgotten Ritual",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "If you Exhausted a card this turn, gain [ironclad_energy_icon.png][ironclad_energy_icon.png][ironclad_energy_icon.png]. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "If you Exhausted a card this turn, gain 4[ironclad_energy_icon.png]. Exhaust.",
+   "keywords": [
+    "Energy",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 17,
+    "times_won": 0,
+    "times_lost": 16
+   },
+   "seen_in_runs": true
+  },
+  "STAMPEDE": {
+   "name": "Stampede",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "At the end of your turn, 1 random Attack in your Hand is played against a random enemy.",
+   "cost_upgraded": "1",
+   "text_upgraded": "At the end of your turn, 1 random Attack in your Hand is played against a random enemy.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 15,
+    "times_won": 1,
+    "times_lost": 13
+   },
+   "seen_in_runs": true
+  },
+  "THINKING_AHEAD": {
+   "name": "Thinking Ahead",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Draw 2 cards. Put 1 card from your Hand on top of your Draw Pile. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Draw 2 cards. Put 1 card from your Hand on top of your Draw Pile.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "HEMOKINESIS": {
+   "name": "Hemokinesis",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Lose 2 HP. Deal 15 damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Lose 2 HP. Deal 20 damage.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 8,
+    "times_won": 0,
+    "times_lost": 8
+   },
+   "seen_in_runs": true
+  },
+  "BLUDGEON": {
+   "name": "Bludgeon",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "3",
+   "text": "Deal 32 damage.",
+   "cost_upgraded": "3",
+   "text_upgraded": "Deal 42 damage.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 6,
+    "times_won": 0,
+    "times_lost": 7
+   },
+   "seen_in_runs": true
+  },
+  "OMNISLICE": {
+   "name": "Omnislice",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Deal 8 damage. Damage ALL other enemies equal to the damage dealt.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 11 damage. Damage ALL other enemies equal to the damage dealt.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "SALVO": {
+   "name": "Salvo",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "Deal 12 damage. Retain your Hand this turn.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 16 damage. Retain your Hand this turn.",
+   "keywords": [
+    "Retain"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "SPOILS_MAP": {
+   "name": "Spoils Map",
+   "type": "Quest",
+   "rarity": "Quest",
+   "cost": "0",
+   "text": "Unplayable. Marks a site of 600 extra Gold in the next Act.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 14
+   },
+   "seen_in_runs": true
+  },
+  "STONE_ARMOR": {
+   "name": "Stone Armor",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain 4 Plating.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 6 Plating.",
+   "keywords": [
+    "Plating",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 4,
+    "times_won": 0,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "HEADBUTT": {
+   "name": "Headbutt",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 9 damage. Put a card from your Discard Pile on top of your Draw Pile.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 12 damage. Put a card from your Discard Pile on top of your Draw Pile.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "CONFLAGRATION": {
+   "name": "Conflagration",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "Deal 2 damage to ALL enemies 4 times.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 2 damage to ALL enemies 5 times.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 10,
+    "times_won": 0,
+    "times_lost": 10
+   },
+   "seen_in_runs": true
+  },
+  "HAVOC": {
+   "name": "Havoc",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Play the top card of your Draw Pile and Exhaust it.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Play the top card of your Draw Pile and Exhaust it.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "BARRICADE": {
+   "name": "Barricade",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "3",
+   "text": "Block is not removed at the start of your turn.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Block is not removed at the start of your turn.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "PURITY": {
+   "name": "Purity",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Retain. Exhaust up to 3 cards in your Hand. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Retain. Exhaust up to 5 cards in your Hand. Exhaust.",
+   "keywords": [
+    "Retain",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "VICIOUS": {
+   "name": "Vicious",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Whenever you apply Vulnerable, draw 1 card.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Whenever you apply Vulnerable, draw 2 cards.",
+   "keywords": [
+    "Vulnerable"
+   ],
+   "exposure": {
+    "times_picked": 20,
+    "times_won": 0,
+    "times_lost": 20
+   },
+   "seen_in_runs": true
+  },
+  "INFECTION": {
+   "name": "Infection",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "0",
+   "text": "Unplayable. At the end of your turn, if this is in your Hand, take 3 damage.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "WHIRLWIND": {
+   "name": "Whirlwind",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "X",
+   "text": "Deal 5 damage to ALL enemies X times.",
+   "cost_upgraded": "X",
+   "text_upgraded": "Deal 8 damage to ALL enemies X times.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 13,
+    "times_won": 0,
+    "times_lost": 12
+   },
+   "seen_in_runs": true
+  },
+  "SPITE": {
+   "name": "Spite",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Deal 5 damage. If you lost HP this turn, hits 2 times.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 5 damage. If you lost HP this turn, hits 3 times.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 12,
+    "times_won": 0,
+    "times_lost": 13
+   },
+   "seen_in_runs": true
+  },
+  "THRASH": {
+   "name": "Thrash",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "Deal 4 damage twice. Exhaust a random Attack in your Hand and add its damage to this card.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 6 damage twice. Exhaust a random Attack in your Hand and add its damage to this card.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 11,
+    "times_won": 0,
+    "times_lost": 9
+   },
+   "seen_in_runs": true
+  },
+  "COLOSSUS": {
+   "name": "Colossus",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain 5 Block. You receive 50% less damage from Vulnerable enemies this turn.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 8 Block. You receive 50% less damage from Vulnerable enemies this turn.",
+   "keywords": [
+    "Vulnerable",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 22,
+    "times_won": 1,
+    "times_lost": 20
+   },
+   "seen_in_runs": true
+  },
+  "BODY_SLAM": {
+   "name": "Body Slam",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal damage equal to your Block.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal damage equal to your Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "PILLAGE": {
+   "name": "Pillage",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 6 damage. Draw cards until you draw a non-Attack card.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 9 damage. Draw cards until you draw a non-Attack card.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 7,
+    "times_won": 1,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "JACK_OF_ALL_TRADES": {
+   "name": "Jack of All Trades",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Add 1 random Colorless card into your Hand. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Add 2 random Colorless cards into your Hand. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "SWORD_BOOMERANG": {
+   "name": "Sword Boomerang",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 3 damage to a random enemy 3 times.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 3 damage to a random enemy 4 times.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 3,
+    "times_won": 0,
+    "times_lost": 3
+   },
+   "seen_in_runs": false
+  },
+  "SPORE_MIND": {
+   "name": "Spore Mind",
+   "type": "Curse",
+   "rarity": "Curse",
+   "cost": "1",
+   "text": "Exhaust.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 3
+   },
+   "seen_in_runs": true
+  },
+  "JUGGERNAUT": {
+   "name": "Juggernaut",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Whenever you gain Block, deal 6 damage to a random enemy.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Whenever you gain Block, deal 8 damage to a random enemy.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 4,
+    "times_won": 0,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "BULLY": {
+   "name": "Bully",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Deal 4 damage. Deals 2 additional damage for each Vulnerable on the enemy.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 4 damage. Deals 3 additional damage for each Vulnerable on the enemy.",
+   "keywords": [
+    "Vulnerable"
+   ],
+   "exposure": {
+    "times_picked": 16,
+    "times_won": 0,
+    "times_lost": 15
+   },
+   "seen_in_runs": true
+  },
+  "UNRELENTING": {
+   "name": "Unrelenting",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Deal 14 damage. The next Attack you play costs 0 [ironclad_energy_icon.png].",
+   "cost_upgraded": "2",
+   "text_upgraded": "Deal 20 damage. The next Attack you play costs 0 [ironclad_energy_icon.png].",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "VOLLEY": {
+   "name": "Volley",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "X",
+   "text": "Deal 10 damage to a random enemy X times.",
+   "cost_upgraded": "X",
+   "text_upgraded": "Deal 14 damage to a random enemy X times.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": false
+  },
+  "MASTER_OF_STRATEGY": {
+   "name": "Master of Strategy",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "0",
+   "text": "Draw 3 cards. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Draw 4 cards. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "WOUND": {
+   "name": "Wound",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "0",
+   "text": "Unplayable.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "FLAME_BARRIER": {
+   "name": "Flame Barrier",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Gain 12 Block. Whenever you are attacked this turn, deal 4 damage back.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Gain 16 Block. Whenever you are attacked this turn, deal 6 damage back.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 18,
+    "times_won": 0,
+    "times_lost": 17
+   },
+   "seen_in_runs": true
+  },
+  "NOT_YET": {
+   "name": "Not Yet",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Heal 10 HP. Exhaust.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Heal 13 HP. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 5,
+    "times_won": 1,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "IMPERVIOUS": {
+   "name": "Impervious",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Gain 30 Block. Exhaust.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Gain 40 Block. Exhaust.",
+   "keywords": [
+    "Block",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 11,
+    "times_won": 0,
+    "times_lost": 11
+   },
+   "seen_in_runs": true
+  },
+  "OFFERING": {
+   "name": "Offering",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "0",
+   "text": "Lose 6 HP. Gain [ironclad_energy_icon.png][ironclad_energy_icon.png]. Draw 3 cards. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Lose 6 HP. Gain [ironclad_energy_icon.png][ironclad_energy_icon.png]. Draw 5 cards. Exhaust.",
+   "keywords": [
+    "Energy",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 10,
+    "times_won": 0,
+    "times_lost": 12
+   },
+   "seen_in_runs": true
+  },
+  "DAZED": {
+   "name": "Dazed",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "0",
+   "text": "Unplayable. Ethereal.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Ethereal",
+    "Exhaust",
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "RUPTURE": {
+   "name": "Rupture",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Whenever you lose HP on your turn, gain 1 Strength.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Whenever you lose HP on your turn, gain 2 Strength.",
+   "keywords": [
+    "Strength"
+   ],
+   "exposure": {
+    "times_picked": 8,
+    "times_won": 1,
+    "times_lost": 8
+   },
+   "seen_in_runs": true
+  },
+  "HAND_OF_GREED": {
+   "name": "Hand of Greed",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Deal 20 damage. If Fatal, gain 20 Gold.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Deal 25 damage. If Fatal, gain 25 Gold.",
+   "keywords": [
+    "Fatal"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "MOLTEN_FIST": {
+   "name": "Molten Fist",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 10 damage. Double the enemy's Vulnerable. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 14 damage. Double the enemy's Vulnerable. Exhaust.",
+   "keywords": [
+    "Vulnerable",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 20,
+    "times_won": 1,
+    "times_lost": 19
+   },
+   "seen_in_runs": true
+  },
+  "DOMINATE": {
+   "name": "Dominate",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Apply 1 Vulnerable. Gain 1 Strength for each Vulnerable on the enemy. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Apply 2 Vulnerable. Gain 1 Strength for each Vulnerable on the enemy. Exhaust.",
+   "keywords": [
+    "Strength",
+    "Vulnerable",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 23,
+    "times_won": 1,
+    "times_lost": 20
+   },
+   "seen_in_runs": true
+  },
+  "EXPECT_A_FIGHT": {
+   "name": "Expect a Fight",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Gain [ironclad_energy_icon.png] for each Attack in your Hand. You cannot gain additional [ironclad_energy_icon.png] this turn.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain [ironclad_energy_icon.png] for each Attack in your Hand. You cannot gain additional [ironclad_energy_icon.png] this turn.",
+   "keywords": [
+    "Energy"
+   ],
+   "exposure": {
+    "times_picked": 20,
+    "times_won": 0,
+    "times_lost": 17
+   },
+   "seen_in_runs": true
+  },
+  "FIGHT_ME": {
+   "name": "Fight Me!",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Deal 5 damage twice. Gain 3 Strength. The enemy gains 1 Strength.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Deal 6 damage twice. Gain 4 Strength. The enemy gains 1 Strength.",
+   "keywords": [
+    "Strength"
+   ],
+   "exposure": {
+    "times_picked": 6,
+    "times_won": 0,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "FISTICUFFS": {
+   "name": "Fisticuffs",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 7 damage. Gain Block equal to damage dealt.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 9 damage. Gain Block equal to damage dealt.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "AUTOMATION": {
+   "name": "Automation",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Every 10 cards you draw, gain [colorless_energy_icon.png].",
+   "cost_upgraded": "0",
+   "text_upgraded": "Every 10 cards you draw, gain [colorless_energy_icon.png].",
+   "keywords": [
+    "Energy"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "MAYHEM": {
+   "name": "Mayhem",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "At the start of your turn, play the top card of your Draw Pile.",
+   "cost_upgraded": "1",
+   "text_upgraded": "At the start of your turn, play the top card of your Draw Pile.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "ULTIMATE_DEFEND": {
+   "name": "Ultimate Defend",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain 11 Block.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 15 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 3
+   },
+   "seen_in_runs": true
+  },
+  "SECRET_WEAPON": {
+   "name": "Secret Weapon",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "0",
+   "text": "Put an Attack from your Draw Pile into your Hand. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Put an Attack from your Draw Pile into your Hand.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "CRIMSON_MANTLE": {
+   "name": "Crimson Mantle",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "At the start of your turn, lose 1 HP and gain 8 Block.",
+   "cost_upgraded": "1",
+   "text_upgraded": "At the start of your turn, lose 1 HP and gain 10 Block.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 9,
+    "times_won": 1,
+    "times_lost": 5
+   },
+   "seen_in_runs": true
+  },
+  "BOLAS": {
+   "name": "Bolas",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "0",
+   "text": "Deal 3 damage. At the start of your next turn, return this to your Hand.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 4 damage. At the start of your next turn, return this to your Hand.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "ONE_TWO_PUNCH": {
+   "name": "One-Two Punch",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "This turn, your next Attack is played an extra time.",
+   "cost_upgraded": "1",
+   "text_upgraded": "This turn, your next 2 Attacks are played an extra time.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "CRUELTY": {
+   "name": "Cruelty",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "Vulnerable enemies take an additional 25% damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Vulnerable enemies take an additional 50% damage.",
+   "keywords": [
+    "Vulnerable"
+   ],
+   "exposure": {
+    "times_picked": 3,
+    "times_won": 0,
+    "times_lost": 3
+   },
+   "seen_in_runs": true
+  },
+  "PRIMAL_FORCE": {
+   "name": "Primal Force",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "0",
+   "text": "Transform all Attacks in your Hand into Giant Rock.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Transform all Attacks in your Hand into Giant Rock+.",
+   "keywords": [
+    "Giant Rock"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "SHOCKWAVE": {
+   "name": "Shockwave",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Apply 3 Weak and Vulnerable to ALL enemies. Exhaust.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Apply 5 Weak and Vulnerable to ALL enemies. Exhaust.",
+   "keywords": [
+    "Weak",
+    "Vulnerable",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "GOLD_AXE": {
+   "name": "Gold Axe",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "Deal damage equal to the number of cards played this combat.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Retain. Deal damage equal to the number of cards played this combat.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "EVIL_EYE": {
+   "name": "Evil Eye",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain 8 Block. Gain another 8 Block if you have Exhausted a card this turn.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 11 Block. Gain another 11 Block if you have Exhausted a card this turn.",
+   "keywords": [
+    "Exhaust",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 23,
+    "times_won": 0,
+    "times_lost": 20
+   },
+   "seen_in_runs": true
+  },
+  "FIEND_FIRE": {
+   "name": "Fiend Fire",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Exhaust your Hand. Deal 7 damage for each card Exhausted. Exhaust.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Exhaust your Hand. Deal 10 damage for each card Exhausted. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 7,
+    "times_won": 0,
+    "times_lost": 8
+   },
+   "seen_in_runs": true
+  },
+  "DECAY": {
+   "name": "Decay",
+   "type": "Curse",
+   "rarity": "Curse",
+   "cost": "0",
+   "text": "Unplayable. At the end of your turn, if this is in your Hand, take 2 damage.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 3
+   },
+   "seen_in_runs": true
+  },
+  "CASCADE": {
+   "name": "Cascade",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "X",
+   "text": "Play the top X cards of your Draw Pile.",
+   "cost_upgraded": "X",
+   "text_upgraded": "Play the top X+1 cards of your Draw Pile.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 2,
+    "times_won": 1,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "TAUNT": {
+   "name": "Taunt",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain 7 Block. Apply 1 Vulnerable.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 8 Block. Apply 2 Vulnerable.",
+   "keywords": [
+    "Vulnerable",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 21,
+    "times_won": 1,
+    "times_lost": 18
+   },
+   "seen_in_runs": true
+  },
+  "DEMON_FORM": {
+   "name": "Demon Form",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "3",
+   "text": "At the start of your turn, gain 2 Strength.",
+   "cost_upgraded": "3",
+   "text_upgraded": "At the start of your turn, gain 3 Strength.",
+   "keywords": [
+    "Strength"
+   ],
+   "exposure": {
+    "times_picked": 2,
+    "times_won": 1,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "INFERNAL_BLADE": {
+   "name": "Infernal Blade",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Add a random Attack into your Hand. It's free to play this turn. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Add a random Attack into your Hand. It's free to play this turn. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 4,
+    "times_won": 0,
+    "times_lost": 4
+   },
+   "seen_in_runs": false
+  },
+  "SECRET_TECHNIQUE": {
+   "name": "Secret Technique",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "0",
+   "text": "Put a Skill from your Draw Pile into your Hand. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Put a Skill from your Draw Pile into your Hand.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "PECK": {
+   "name": "Peck",
+   "type": "Attack",
+   "rarity": "Event",
+   "cost": "1",
+   "text": "Deal 2 damage 3 times.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 2 damage 4 times.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "PANACHE": {
+   "name": "Panache",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Every time you play 5 cards in a single turn, deal 10 damage to ALL enemies.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Every time you play 5 cards in a single turn, deal 14 damage to ALL enemies.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "BRAND": {
+   "name": "Brand",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "0",
+   "text": "Lose 1 HP. Exhaust 1 card. Gain 1 Strength.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Lose 1 HP. Exhaust 1 card. Gain 2 Strength.",
+   "keywords": [
+    "Exhaust",
+    "Strength"
+   ],
+   "exposure": {
+    "times_picked": 8,
+    "times_won": 1,
+    "times_lost": 7
+   },
+   "seen_in_runs": true
+  },
+  "NORMALITY": {
+   "name": "Normality",
+   "type": "Curse",
+   "rarity": "Curse",
+   "cost": "0",
+   "text": "Unplayable. You cannot play more than 3 cards this turn.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 3
+   },
+   "seen_in_runs": true
+  },
+  "FLASH_OF_STEEL": {
+   "name": "Flash of Steel",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Deal 5 damage. Draw 1 card.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 8 damage. Draw 1 card.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 2,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "MIND_BLAST": {
+   "name": "Mind Blast",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Innate. Deal damage equal to the number of cards in your Draw Pile.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Innate. Deal damage equal to the number of cards in your Draw Pile.",
+   "keywords": [
+    "Innate"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "DRAMATIC_ENTRANCE": {
+   "name": "Dramatic Entrance",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Innate. Deal 11 damage to ALL enemies. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Innate. Deal 15 damage to ALL enemies. Exhaust.",
+   "keywords": [
+    "Exhaust",
+    "Innate"
+   ],
+   "exposure": {
+    "times_picked": 3,
+    "times_won": 0,
+    "times_lost": 3
+   },
+   "seen_in_runs": true
+  },
+  "FRANTIC_ESCAPE": {
+   "name": "Frantic Escape",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "1",
+   "text": "Get farther away. Increase Sandpit by 1. Increase the cost of this card by 1.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Sandpit"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "CLUMSY": {
+   "name": "Clumsy",
+   "type": "Curse",
+   "rarity": "Curse",
+   "cost": "0",
+   "text": "Unplayable. Ethereal.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable",
+    "Ethereal",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 10
+   },
+   "seen_in_runs": true
+  },
+  "POOR_SLEEP": {
+   "name": "Poor Sleep",
+   "type": "Curse",
+   "rarity": "Curse",
+   "cost": "0",
+   "text": "Unplayable. Retain.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable",
+    "Retain"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "HELLRAISER": {
+   "name": "Hellraiser",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Whenever you draw a card containing “Strike”, it is played against a random enemy.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Whenever you draw a card containing “Strike”, it is played against a random enemy.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 2,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "DARK_EMBRACE": {
+   "name": "Dark Embrace",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Whenever a card is Exhausted, draw 1 card.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Whenever a card is Exhausted, draw 1 card.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 8,
+    "times_won": 1,
+    "times_lost": 8
+   },
+   "seen_in_runs": true
+  },
+  "RELAX": {
+   "name": "Relax",
+   "type": "Skill",
+   "rarity": "Ancient",
+   "cost": "3",
+   "text": "Gain 15 Block. Next turn, draw 2 cards and gain [colorless_energy_icon.png][colorless_energy_icon.png]. Exhaust.",
+   "cost_upgraded": "3",
+   "text_upgraded": "Gain 17 Block. Next turn, draw 3 cards and gain [colorless_energy_icon.png][colorless_energy_icon.png][colorless_energy_icon.png]. Exhaust.",
+   "keywords": [
+    "Energy",
+    "Block",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "DARK_SHACKLES": {
+   "name": "Dark Shackles",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Enemy loses 9 Strength this turn. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Enemy loses 15 Strength this turn. Exhaust.",
+   "keywords": [
+    "Strength",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "ASHEN_STRIKE": {
+   "name": "Ashen Strike",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 6 damage. Deals 3 additional damage for each card in your Exhaust Pile.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 6 damage. Deals 4 additional damage for each card in your Exhaust Pile.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 15,
+    "times_won": 0,
+    "times_lost": 14
+   },
+   "seen_in_runs": true
+  },
+  "FINESSE": {
+   "name": "Finesse",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Gain 4 Block. Draw 1 card.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Gain 7 Block. Draw 1 card.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "THE_BOMB": {
+   "name": "The Bomb",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "At the end of 3 turns, deal 40 damage to ALL enemies.",
+   "cost_upgraded": "2",
+   "text_upgraded": "At the end of 3 turns, deal 50 damage to ALL enemies.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "STRATAGEM": {
+   "name": "Stratagem",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Whenever you shuffle your Draw Pile, choose a card from it to put into your Hand.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Whenever you shuffle your Draw Pile, choose a card from it to put into your Hand.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "ENTROPY": {
+   "name": "Entropy",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "At the start of your turn, Transform 1 card in your Hand.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Innate. At the start of your turn, Transform 1 card in your Hand.",
+   "keywords": [
+    "Transform"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 1,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "GUILTY": {
+   "name": "Guilty",
+   "type": "Curse",
+   "rarity": "Curse",
+   "cost": "0",
+   "text": "Unplayable. Removed from your Deck after 5 combats.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "MANGLE": {
+   "name": "Mangle",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "3",
+   "text": "Deal 15 damage. Enemy loses 10 Strength this turn.",
+   "cost_upgraded": "3",
+   "text_upgraded": "Deal 20 damage. Enemy loses 15 Strength this turn.",
+   "keywords": [
+    "Strength"
+   ],
+   "exposure": {
+    "times_picked": 2,
+    "times_won": 1,
+    "times_lost": 2
+   },
+   "seen_in_runs": true
+  },
+  "THRUMMING_HATCHET": {
+   "name": "Thrumming Hatchet",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 11 damage. At the start of your next turn, return this to your Hand.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 14 damage. At the start of your next turn, return this to your Hand.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "UNMOVABLE": {
+   "name": "Unmovable",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "The first time you gain Block from a card each turn, double the amount gained.",
+   "cost_upgraded": "1",
+   "text_upgraded": "The first time you gain Block from a card each turn, double the amount gained.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "SEEKER_STRIKE": {
+   "name": "Seeker Strike",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 9 damage. Choose 1 of 3 cards in your Draw Pile to add into your Hand.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 12 damage. Choose 1 of 3 cards in your Draw Pile to add into your Hand.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "ULTIMATE_STRIKE": {
+   "name": "Ultimate Strike",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 14 damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 20 damage.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": false
+  },
+  "EQUILIBRIUM": {
+   "name": "Equilibrium",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Gain 13 Block. Retain your Hand this turn.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Gain 16 Block. Retain your Hand this turn.",
+   "keywords": [
+    "Retain",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": true
+  },
+  "TOXIC": {
+   "name": "Toxic",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "1",
+   "text": "At the end of your turn, if this is in your Hand, take 5 damage. Exhaust.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "GREED": {
+   "name": "Greed",
+   "type": "Curse",
+   "rarity": "Curse",
+   "cost": "0",
+   "text": "Unplayable. Eternal.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Eternal",
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 10
+   },
+   "seen_in_runs": true
+  },
+  "AGGRESSION": {
+   "name": "Aggression",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "At the start of your turn, put a random Attack from your Discard Pile into your Hand and Upgrade it.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Innate. At the start of your turn, put a random Attack from your Discard Pile into your Hand and Upgrade it.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 4,
+    "times_won": 0,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "STOKE": {
+   "name": "Stoke",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "Exhaust your Hand. Add 1 random card into your Hand for each card Exhausted.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Exhaust your Hand. Add 1 random Upgraded card into your Hand for each card Exhausted.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 3,
+    "times_won": 0,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "THE_GAMBIT": {
+   "name": "The Gambit",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "0",
+   "text": "Gain 50 Block. If you take unblocked attack damage this combat, die.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Gain 75 Block. If you take unblocked attack damage this combat, die.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "DISINTEGRATION": {
+   "name": "Disintegration",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "0",
+   "text": "At the end of your turn, take 6 damage.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "MIND_ROT": {
+   "name": "Mind Rot",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "0",
+   "text": "Draw 1 fewer card each turn.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "SLOTH": {
+   "name": "Sloth",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "0",
+   "text": "You cannot play more than 3 cards each turn.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "NEOWS_FURY": {
+   "name": "Neow's Fury",
+   "type": "Attack",
+   "rarity": "Ancient",
+   "cost": "1",
+   "text": "Deal 10 damage. Put up to 2 cards from your Discard Pile into your Hand. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 14 damage. Put up to 3 cards from your Discard Pile into your Hand. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 1,
+    "times_lost": 5
+   },
+   "seen_in_runs": true
+  },
+  "METAMORPHOSIS": {
+   "name": "Metamorphosis",
+   "type": "Skill",
+   "rarity": "Event",
+   "cost": "2",
+   "text": "Add 3 random Attacks into your Draw Pile. They're free to play this combat. Exhaust.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Add 5 random Attacks into your Draw Pile. They're free to play this combat. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "APOTHEOSIS": {
+   "name": "Apotheosis",
+   "type": "Skill",
+   "rarity": "Ancient",
+   "cost": "2",
+   "text": "Innate. Upgrade ALL your cards. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Innate. Upgrade ALL your cards. Exhaust.",
+   "keywords": [
+    "Exhaust",
+    "Innate"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "DEBT": {
+   "name": "Debt",
+   "type": "Curse",
+   "rarity": "Curse",
+   "cost": "0",
+   "text": "Unplayable. At the end of your turn, if this is in your Hand, lose 10 Gold.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "CATASTROPHE": {
+   "name": "Catastrophe",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Play 2 random cards from your Draw Pile.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Play 3 random cards from your Draw Pile.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "BYRDONIS_EGG": {
+   "name": "Byrdonis Egg",
+   "type": "Quest",
+   "rarity": "Quest",
+   "cost": "0",
+   "text": "Unplayable. Can be hatched at a Rest Site.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 8
+   },
+   "seen_in_runs": true
+  },
+  "PYRE": {
+   "name": "Pyre",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Gain [ironclad_energy_icon.png] at the start of each turn.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Gain [ironclad_energy_icon.png][ironclad_energy_icon.png] at the start of each turn.",
+   "keywords": [
+    "Energy"
+   ],
+   "exposure": {
+    "times_picked": 4,
+    "times_won": 0,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "GIANT_ROCK": {
+   "name": "Giant Rock",
+   "type": "Attack",
+   "rarity": "Token",
+   "cost": "1",
+   "text": "Deal 16 damage.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 20 damage.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "BECKON": {
+   "name": "Beckon",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "1",
+   "text": "At the end of your turn, if this is in your Hand,  lose 6 HP.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "DRUM_OF_BATTLE": {
+   "name": "Drum of Battle",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Draw 2 cards. When this card is Exhausted, gain [ironclad_energy_icon.png][ironclad_energy_icon.png].",
+   "cost_upgraded": "1",
+   "text_upgraded": "Draw 2 cards. When this card is Exhausted, gain [ironclad_energy_icon.png][ironclad_energy_icon.png][ironclad_energy_icon.png].",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 5,
+    "times_won": 0,
+    "times_lost": 4
+   },
+   "seen_in_runs": true
+  },
+  "SLICE": {
+   "name": "Slice",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "0",
+   "text": "Deal 6 damage.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Deal 9 damage.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "INVOKE": {
+   "name": "Invoke",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Next turn, Summon 2 and gain [necrobinder_energy_icon.png][necrobinder_energy_icon.png].",
+   "cost_upgraded": "1",
+   "text_upgraded": "Next turn, Summon 3 and gain [necrobinder_energy_icon.png][necrobinder_energy_icon.png][necrobinder_energy_icon.png].",
+   "keywords": [
+    "Summon 2",
+    "Energy"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "WROUGHT_IN_WAR": {
+   "name": "Wrought in War",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 7 damage. Forge 7.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 9 damage. Forge 9.",
+   "keywords": [
+    "Forge",
+    "Sovereign Blade",
+    "Retain"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "TACTICIAN": {
+   "name": "Tactician",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "3",
+   "text": "Sly. Gain [silent_energy_icon.png].",
+   "cost_upgraded": "3",
+   "text_upgraded": "Sly. Gain [silent_energy_icon.png][silent_energy_icon.png].",
+   "keywords": [
+    "Energy",
+    "Sly"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "FUSION": {
+   "name": "Fusion",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Channel 1 Plasma. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Channel 1 Plasma.",
+   "keywords": [
+    "Channel",
+    "Plasma",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "IMPATIENCE": {
+   "name": "Impatience",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "If you have no Attacks in your Hand, draw 2 cards.",
+   "cost_upgraded": "0",
+   "text_upgraded": "If you have no Attacks in your Hand, draw 3 cards.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "INJURY": {
+   "name": "Injury",
+   "type": "Curse",
+   "rarity": "Curse",
+   "cost": "0",
+   "text": "Unplayable.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 3
+   },
+   "seen_in_runs": true
+  },
+  "PACTS_END": {
+   "name": "Pact's End",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "0",
+   "text": "If you have 3 or more cards in your Exhaust Pile, deal 17 damage to ALL enemies.",
+   "cost_upgraded": "0",
+   "text_upgraded": "If you have 3 or more cards in your Exhaust Pile, deal 23 damage to ALL enemies.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 7,
+    "times_won": 0,
+    "times_lost": 6
+   },
+   "seen_in_runs": true
+  },
+  "LUMINESCE": {
+   "name": "Luminesce",
+   "type": "Skill",
+   "rarity": "Token",
+   "cost": "0",
+   "text": "Retain. Gain [colorless_energy_icon.png][colorless_energy_icon.png]. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Retain. Gain [colorless_energy_icon.png][colorless_energy_icon.png][colorless_energy_icon.png]. Exhaust.",
+   "keywords": [
+    "Energy",
+    "Exhaust",
+    "Retain"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "SOOT": {
+   "name": "Soot",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "0",
+   "text": "Unplayable.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Unplayable"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": true
+  },
+  "EXTERMINATE": {
+   "name": "Exterminate",
+   "type": "Attack",
+   "rarity": "Event",
+   "cost": "1",
+   "text": "Deal 3 damage to ALL enemies 4 times.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 4 damage to ALL enemies 4 times.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 2
+   },
+   "seen_in_runs": false
+  },
+  "RESONANCE": {
+   "name": "Resonance",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain 1 Strength. ALL enemies lose 1 Strength.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 2 Strength. ALL enemies lose 1 Strength.",
+   "keywords": [
+    "Strength"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "REFLECT": {
+   "name": "Reflect",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Gain 15 Block. Blocked attack damage is reflected to your attacker this turn.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 20 Block. Blocked attack damage is reflected to your attacker this turn.",
+   "keywords": [
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "BULWARK": {
+   "name": "Bulwark",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Gain 12 Block. Forge 10.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Gain 15 Block. Forge 13.",
+   "keywords": [
+    "Forge",
+    "Sovereign Blade",
+    "Retain",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "KINGLY_PUNCH": {
+   "name": "Kingly Punch",
+   "type": "Attack",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Deal 8 damage. Whenever you draw this card, increase its damage by 4 this combat.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 10 damage. Whenever you draw this card, increase its damage by 6 this combat.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "CHARGE": {
+   "name": "CHARGE!!",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Choose 2 cards in your Draw Pile to Transform into Minion Dive Bombs.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Choose 2 cards in your Draw Pile to Transform into Minion Dive Bombs+.",
+   "keywords": [
+    "Minion Dive Bomb"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "DECISIONS_DECISIONS": {
+   "name": "Decisions, Decisions",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "0",
+   "text": "Draw 3 cards. Choose a Skill in your Hand and play it 3 times. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Draw 5 cards. Choose a Skill in your Hand and play it 3 times. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "BUNDLE_OF_JOY": {
+   "name": "Bundle of Joy",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "Add 3 random Colorless cards into your Hand. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Add 4 random Colorless cards into your Hand. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "DYING_STAR": {
+   "name": "Dying Star",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "Ethereal. Deal 9 damage to ALL enemies. ALL enemies lose 9 Strength this turn.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Ethereal. Deal 11 damage to ALL enemies. ALL enemies lose 11 Strength this turn.",
+   "keywords": [
+    "Strength",
+    "Ethereal",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "VOID_FORM": {
+   "name": "Void Form",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "3",
+   "text": "Ethereal. End your turn. The first 2 cards you play each turn are free to play.",
+   "cost_upgraded": "3",
+   "text_upgraded": "End your turn. The first 2 cards you play each turn are free to play.",
+   "keywords": [
+    "Ethereal",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "BOMBARDMENT": {
+   "name": "Bombardment",
+   "type": "Attack",
+   "rarity": "Rare",
+   "cost": "3",
+   "text": "Deal 18 damage. At the start of your turn, if this is in your Exhaust Pile, play it. Exhaust.",
+   "cost_upgraded": "3",
+   "text_upgraded": "Deal 24 damage. At the start of your turn, if this is in your Exhaust Pile, play it. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "HOLOGRAM": {
+   "name": "Hologram",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Gain 3 Block. Put a card from your Discard Pile into your Hand. Exhaust.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Gain 5 Block. Put a card from your Discard Pile into your Hand.",
+   "keywords": [
+    "Block",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "ANTICIPATE": {
+   "name": "Anticipate",
+   "type": "Skill",
+   "rarity": "Common",
+   "cost": "0",
+   "text": "Gain 2 Dexterity this turn.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Gain 3 Dexterity this turn.",
+   "keywords": [
+    "Dexterity"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "HAILSTORM": {
+   "name": "Hailstorm",
+   "type": "Power",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "At the end of your turn, if you have Frost, deal 6 damage to ALL enemies.",
+   "cost_upgraded": "1",
+   "text_upgraded": "At the end of your turn, if you have Frost, deal 8 damage to ALL enemies.",
+   "keywords": [
+    "Frost"
+   ],
+   "exposure": {
+    "times_picked": 1,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "LEADING_STRIKE": {
+   "name": "Leading Strike",
+   "type": "Attack",
+   "rarity": "Common",
+   "cost": "1",
+   "text": "Deal 3 damage. Add 2 Shivs into your Hand.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Deal 6 damage. Add 2 Shivs into your Hand.",
+   "keywords": [
+    "Shiv"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "SCARE": {
+   "name": "Scare",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "0",
+   "text": "Apply 1 Weak to ALL enemies. Exhaust.",
+   "cost_upgraded": "0",
+   "text_upgraded": "Apply 1 Weak to ALL enemies.",
+   "keywords": [
+    "Weak",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "BOUNCING_FLASK": {
+   "name": "Bouncing Flask",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Apply 3 Poison to a random enemy 3 times.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Apply 3 Poison to a random enemy 4 times.",
+   "keywords": [
+    "Poison"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "LEG_SWEEP": {
+   "name": "Leg Sweep",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "2",
+   "text": "Apply 2 Weak. Gain 11 Block.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Apply 3 Weak. Gain 14 Block.",
+   "keywords": [
+    "Weak",
+    "Block"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   },
+   "seen_in_runs": false
+  },
+  "EXPERTISE": {
+   "name": "Expertise",
+   "type": "Skill",
+   "rarity": "Uncommon",
+   "cost": "1",
+   "text": "Draw cards until you have 6 in your Hand.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Draw cards until you have 7 in your Hand.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "NIGHTMARE": {
+   "name": "Nightmare",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "3",
+   "text": "Choose a card. Next turn, add 3 copies of that card into your Hand. Exhaust.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Choose a card. Next turn, add 3 copies of that card into your Hand. Exhaust.",
+   "keywords": [
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "TRACKING": {
+   "name": "Tracking",
+   "type": "Power",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Weak enemies take double damage from Attacks.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Weak enemies take double damage from Attacks.",
+   "keywords": [
+    "Weak"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "KNIFE_TRAP": {
+   "name": "Knife Trap",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "2",
+   "text": "Play every Shiv in your Exhaust Pile on the enemy.",
+   "cost_upgraded": "2",
+   "text_upgraded": "Upgrade and play every Shiv in your Exhaust Pile on the enemy.",
+   "keywords": [
+    "Shiv"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "CORROSIVE_WAVE": {
+   "name": "Corrosive Wave",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "1",
+   "text": "Whenever you draw a card this turn, apply 2 Poison to ALL enemies.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Whenever you draw a card this turn, apply 3 Poison to ALL enemies.",
+   "keywords": [
+    "Poison"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "MALAISE": {
+   "name": "Malaise",
+   "type": "Skill",
+   "rarity": "Rare",
+   "cost": "X",
+   "text": "Enemy loses X Strength. Apply X Weak. Exhaust.",
+   "cost_upgraded": "X",
+   "text_upgraded": "Enemy loses X+1 Strength. Apply X+1 Weak. Exhaust.",
+   "keywords": [
+    "Strength",
+    "Weak",
+    "Exhaust"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  },
+  "WASTE_AWAY": {
+   "name": "Waste Away",
+   "type": "Status",
+   "rarity": "Status",
+   "cost": "0",
+   "text": "Gain 1 less [colorless_energy_icon.png] per turn.",
+   "cost_upgraded": null,
+   "text_upgraded": null,
+   "keywords": [
+    "Energy"
+   ],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 0
+   },
+   "seen_in_runs": false
+  }
+ },
+ "note": "character/color is not exposed by the mod; 'seen_in_runs' (harvested from our own run logs) marks the practical Ironclad+colorless working set"
+}
