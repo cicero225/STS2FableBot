@@ -669,3 +669,12 @@ def test_player_disintegration_counts_as_blockable_incoming() -> None:
     plan = d.rationale.split("[")[1].split("]")[0]
     assert "Defend" in plan  # block reserved for the end-of-turn tick
     assert d.scores["hp_loss"] == 0.0  # 6 end-damage fully soaked by the 8 block
+
+
+def test_sleeper_damage_is_a_complete_sim_noop() -> None:
+    # The partial deny leaked reward through _score's focus term (live: Volley/Tremble woke
+    # Lagavulin round 1, batch bnyka47dn) -- a non-killing hit on a sleeper must leave the
+    # sim enemy UNTOUCHED so no downstream term (focus, stun crossing) sees progress.
+    out = _apply_attack(_state(_enemy(asleep=True)), 0, _attack(30))
+    assert out.enemies[0].hp == 100  # no hp progress at all
+    assert out.damage_dealt == 0

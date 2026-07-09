@@ -376,9 +376,13 @@ def _apply_attack(
     if _ignorable_minion(e, state.has_summoner):
         return replace(state, enemies=tuple(enemies), self_damage=state.self_damage + thorns_taken)
     # Chipping a sleeper awake forfeits its remaining free setup turns (and Lagavulin sheds her
-    # Plating FOR you on wake) — deny offensive credit unless this attack kills it outright, so
-    # the planner spends sleep turns on powers/block/clears and bursts only when burst is lethal.
+    # Plating FOR you on wake) — the attack is a complete no-op in sim unless it kills outright:
+    # the HP change is NOT applied (a partial deny leaked reward through _score's focus term —
+    # live leak, batch bnyka47dn run 3: Volley/Tremble woke her on round 1), so the planner
+    # spends sleep turns on powers/block/clears. Conservative side effect: multi-card lethals
+    # THROUGH the sleep window must kill from full HP (acceptable — rare at boss HP).
     if e.asleep and not killed:
+        enemies[target_i] = e  # restore untouched: no hp/block progress to leak anywhere
         return replace(state, enemies=tuple(enemies), self_damage=state.self_damage + thorns_taken)
     return replace(
         state,
