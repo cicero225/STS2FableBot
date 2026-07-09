@@ -133,8 +133,9 @@ Highest-impact group to model first, **in the §5-C race estimate** (it changes 
   / 2 turns — kill all segments together), **Infested** (death-summon).
 - **Debuff-resist:** **Artifact** (negates 2 debuffs → my Vulnerable/Weak may whiff).
 - **Not enemy mechanics (ignore):** Dark Shackles, Shackling Potion, Debilitate (these are *our*
-  debuffs applied to enemies). **Low combat priority:** Thievery / Heist / Swipe (gold), Back Attack,
-  Surprise, Hatch.
+  debuffs applied to enemies). **Low combat priority:** Thievery / Heist / Swipe (gold),
+  Surprise, Hatch. *(Back Attack was initially filed here but turned out to matter — Kaiser Crab's
+  +50% facing mechanic, modeled 2026-06-26; see PLAN §8.4-B.)*
 
 **Implication for the estimate (Phase 0c):** extend `FightEnemy` with a small set of generic flags —
 `dmg_cap_per_turn`, `block_per_turn` (regen), `thorns`, `death_damage`, plus a `stun_threshold`

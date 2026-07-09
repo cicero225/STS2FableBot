@@ -38,7 +38,7 @@ corrected — history lives in git).*
 ┌──────────────────────────────  game side (C#)  ────────────────────────────────┐
 │  STS2MCP mod  (upstream binary for P0–P1; our fork from P2:                    │
 │  + SP ascension selector  + speed/timescale control  + master deck in state)   │
-│  Slay the Spire 2 · Godot 4.5/C# · release branch · bot plays profile slot 2/3 │
+│  Slay the Spire 2 · Godot 4.5/C# · release branch · bot plays modded profile 1 │
 └────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -71,7 +71,8 @@ external/                 gitignored clones for reference (STS2MCP)
 
 ## 3. Stack decisions
 
-- Python 3.14 (installed here), stdlib `venv` + pip, `pyproject.toml` (no uv on box).
+- Python 3.12+ (NFR-1; 3.14 on the original box, 3.13.2 since the 2026-07 machine move),
+  stdlib `venv` + pip, `pyproject.toml` (no uv on box).
 - **pydantic v2** for state models (validation = patch-drift detection per C5),
   **httpx** for the client, **typer** for CLI, **pytest**, **ruff**.
 - SQLite (stdlib) for run index; JSONL for decision logs (one file per run).
@@ -207,8 +208,9 @@ same estimate), and `deck_output` refinements (energy relics, X-cost, scaling ca
 - Commit per coherent step; config changes are separate commits (FR-3.4 auditability).
 - After each live milestone: short LOG.md entry (date, game version, what happened) —
   the project's lab notebook.
-- Re-clone reference repos when absent: `git clone --depth 1
-  https://github.com/Gennadiyev/STS2MCP external/STS2MCP`.
+- Re-clone the mod when absent: **our fork, `v107-fork` branch** — see CLAUDE.md for the
+  exact commands. (An earlier version of this line said to clone upstream `Gennadiyev/STS2MCP`;
+  doing that is the 2026-06-23 regression — upstream silently lacks `player.deck` etc.)
 - LLM usage: ledger from day one, even in dev (FR-5.4).
 
 ## 7. Open investigation items (rolling)
