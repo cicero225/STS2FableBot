@@ -839,6 +839,13 @@ class StandardRouter:
         quality = 0.0
         if (card.type or "") in ("Curse", "Status"):
             quality += w.curse_penalty
+            # Self-expiring curses (Guilty: auto-removes after 5 combats) are NOT worth a paid
+            # removal — the clock removes them free, so a basic beats them as the target (owner
+            # 2026-07-09; the end-of-Act-3 "clock won't finish" nuance is deliberately skipped).
+            # Deck-view cards carry no rules text, so match by name/id with a text fallback.
+            nid = f"{card.id or ''} {card.name or ''}".upper()
+            if "GUILTY" in nid or "removed from your deck" in (card.description or "").lower():
+                quality -= w.curse_penalty * 0.8  # mostly neutralize: above basics, below keepers
         if base in ("Strike", "Defend") and not card.is_upgraded:
             quality += w.basic_penalty
         if self.priors is not None:
@@ -854,6 +861,8 @@ class StandardRouter:
             return True
         for c in player.deck:
             if (c.type or "") in ("Curse", "Status"):
+                if "GUILTY" in f"{c.id or ''} {c.name or ''}".upper():
+                    continue  # self-expiring: not worth PAYING to remove (see _card_quality)
                 return True
             if (c.name or "").rstrip("+") in ("Strike", "Defend") and not c.is_upgraded:
                 return True

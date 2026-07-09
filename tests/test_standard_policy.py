@@ -2260,3 +2260,27 @@ def test_planner_blind_cards_get_docked_at_draft() -> None:
         15)
     assert parsed > blind
     assert generator > blind  # the exemption: its output is playable
+
+
+def test_guilty_not_worth_a_paid_removal() -> None:
+    """Owner 2026-07-09: Guilty auto-removes after 5 combats -- paying to remove it wastes the
+    removal. It ranks ABOVE a basic Strike as a removal target (the Strike goes first), and a
+    deck whose only 'bad' card is Guilty doesn't trigger paid removal at all."""
+    r = router()
+
+    class C:
+        def __init__(self, cid, name, typ, upgraded=False, desc=None):
+            self.id, self.name, self.type = cid, name, typ
+            self.is_upgraded, self.description = upgraded, desc
+
+    guilty = C("GUILTY", "Guilty", "Curse")
+    strike = C("STRIKE_IRONCLAD", "Strike", "Attack")
+    normal_curse = C("REGRET", "Regret", "Curse")
+    def q(c):
+        return r._card_quality(c, "IRONCLAD")
+    assert q(normal_curse) < q(strike) < q(guilty)  # real curse worst, then basic, then Guilty
+
+    class P:
+        def __init__(self):
+            self.deck = [guilty, C("BASH", "Bash", "Attack", upgraded=True)]
+    assert r._has_removable_card(P()) is False  # Guilty alone doesn't justify paying
