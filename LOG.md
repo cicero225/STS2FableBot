@@ -2,6 +2,34 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-09 (Fable 5, session 2 cont. 2) — Batch b8oazdsui: best act-reach of the week; owner live-watch catches 4 more bugs
+
+**Batch (10 clean runs, full fix stack): 0 wins, act-reach 1.50 (max 3) — week's best.**
+4 runs past Act 1 (Kaiser Crab f33, Knowledge Demon f33, Ovicopter f23, and an **Act-3
+push to f35**, deepest since the 06-26 win). Only **1 elite death** (Phrog f15 — the
+multi-body gap, filed). Elite take-rate 0.7/run of 3.8 offered — the pool gate being
+choosy as designed. Boss-entry HP 35–76.
+
+**Validation checks all green:** Cascade drafts **2 → 0** (planner-blind dock);
+Soul Fysh fight cleared 5 Beckons (entered at 71 HP, lost on deck power); Ovicopter
+targeting **7 hits leader / 0 minions** (race-the-leader clean).
+
+**Owner live-watch catches, all fixed+committed mid-batch (next batch validates):**
+- **Beetle Juice hail-mary death** (run 2, 4 HP vs Kaiser Crab): the hail-mary FIRED but
+  the drink errored — enemy-targeted debuff, category missed it, no target passed
+  ("Potion requires a target enemy") → died with the potion in the belt. drink() now
+  enforces targeting from the potion's own target_type; "%-less" text classifies debuff.
+- **Guilty removal waste**: self-expiring curse ranked below basics; now above (and a
+  Guilty-only deck doesn't trigger paid removal).
+- **Lethal with a heal in hand + spare energy**: the DFS credited [kill > Not Yet] equal
+  to [Not Yet > kill]; search now cuts at lethal states — heal-before-kill only.
+- **Slither-on-Strike enchant** (net loss): filed as the events/enchant pass anchor;
+  §8.5 order revised: enemies+cards → relics → events → potions. Pen Nib cross-combat
+  tick-storage filed under the relic pass.
+
+Knowledge Demon remains the Act-2 wall; its "Choose a Card" handler is next in line
+there. Pen Nib: still never rolled (~70 runs).
+
 ## 2026-07-09 (Fable 5, session 2 cont.) — Batch b8msts8jx: single-body elite deaths fixed; swarms are the residue
 
 **Batch (10 runs, clean, 0 stalls): 0 wins, act-reach 1.20** (Insatiable f33 deepest;
