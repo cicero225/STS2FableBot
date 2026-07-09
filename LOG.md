@@ -2,6 +2,39 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-09 (Fable 5, session 2) — Beckon fix VALIDATED live; owner-steered pricing + potion fixes; Soul Siphon captured
+
+Validation day for the Beckon-clearing fix, split 6+4 by a **Timeline-epoch interruption**
+(run scores crossed another unlock threshold → `IRONCLAD6_EPOCH` reveal blocked new runs;
+MANUAL rail stopped the batch cleanly; owner clicked, batch resumed under new config).
+
+**Headline — the Soul Fysh Beckon fix works live:** the continuation's Fysh fight cleared
+**10 Beckons** (vs 0 cleared / 11 wasted attacks-into-Intangible yesterday); only 3
+non-Beckon plays during Intangible turns. The fight was still a loss (entered at 64 HP
+with a weak deck) — behavior fixed, deck power still the war.
+
+**Owner-steered changes shipped mid-batch** (runs 1–6 = Beckon fix only; runs 7–10 add
+all of this under config `93676cd0fe72`):
+- **Conflagration parse bug** (owner-caught live: Bloodletting+ unplayed): "Deal 2 damage
+  to ALL enemies 4 times" read as 2×1. Hit counts now survive target clauses; Whirlwind's
+  "X times" resolves to its X-cost energy; "(Hits 6 times)" parentheticals trusted.
+- **Self-HP costs are tempo, not chip** (owner: "play Bloodletting+ as low as 15 hp...
+  unless it led to death"): flat-cheap above a projected-end-HP floor (15), scarcity below,
+  −500 wall on non-lethal death projection. BL+ line now plays at 30 HP, drops at 20.
+- **Card-gen potions (Skill/Attack/Power/Colorless) drop at boss start** — they were
+  category "other" → hail-mary-only, way too late (owner). New `card_gen` category.
+- **§8.5 priority ruling filed:** enemies+cards → relic pass → full potion pass → events.
+
+**Soul Siphon captured** (run 2's Lagavulin loss): −2 Str −2 Dex per cast, every 4th round
+post-wake, via her Debuff intent — the §8.4-A data-block is resolved, drain ready to
+implement (with the negative-Dexterity planner gap, done together).
+
+**Batch (10 real runs): 0 wins, 3× Act 2 (deepest f33 Kaiser Crab @56hp entry).** Act-1
+boss deaths: Ceremonial Beast, Lagavulin, Kin, Soul Fysh; elite deaths: Phrog f8, Terror
+Eel f7+f9 (the generic elite gate underrating real elites — known §8.4 item). Mixed-code
+halves, so read directionally only. Also fixed: batch_summary crash on error rows.
+Pen Nib: STILL never rolled.
+
 ## 2026-07-09 (Fable 5) — Batch bsmwhj26u: Underdocks pool live; Soul Fysh is the new Act-1 wall
 
 First batch with the restored Underdocks (10 runs, A0 Ironclad, clean, 0 stalls; config

@@ -94,7 +94,7 @@ def summarise(run_dirs: list[Path], label: str) -> None:
         bhp = _boss_entry_hp(recs)
         bhp_s = f" boss@{bhp}hp" if bhp is not None else ""
         print(
-            f"  A{out.get('act')} f{out.get('floor'):<2} "
+            f"  A{out.get('act') or '?'} f{out.get('floor') or '?':<2} "
             f"{'WIN ' if out.get('victory') else 'loss'} "
             f"relics={len(relics):<2} elites_fought={ef}{bhp_s}  "
             f"killed_by={kb}  [{','.join(relics)}]"
