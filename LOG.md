@@ -22,6 +22,10 @@ backup_saves taken.)
   confirmation of the harvest-pollution pattern: the owner's own Mangle card showed up as
   an "enemy status" on the Amalgam.
 - No Lagavulin → Soul Siphon stays data-blocked.
+- **Owner post-run commentary filed (PLAN §8.4):** the win leaned on four things the bot
+  can't execute — Stomp's dynamic in-turn cost, Neow's-Fury-as-tutor (fetch Bloodletting
+  for energy), Cascade's X-cost deck-autoplay, and Delicate Frond flipping potion policy
+  to spend-every-fight. A concrete human-baseline for the §8.3/§5-C work.
 
 **Near-miss:** ran `build_bestiary.py` to bank the new data — it rebuilds from scratch off
 `logs/runs/` and silently replaced the committed 75-enemy bestiary with a 46-enemy one

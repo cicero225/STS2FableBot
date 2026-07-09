@@ -1008,6 +1008,33 @@ covered including Frantic Escape. Remaining Act-2 work is the Knowledge Demon ch
     event-like vs custom — determines where the handler lives); (b) the §5-C estimate models none of
     the escalating Disintegration self-damage, the Ponder heal, or the Str ramp → it under-rates the
     fight; (c) high HP + self-heal ⇒ needs a genuine race deck.
+- **Human-baseline capability list from the recorded win** (owner commentary 2026-07-08, seed
+  `7Q4QCYQ09J` — "this run landed incredibly deep in the range of things the bot cannot currently
+  execute"). Four named mechanics that carried the win, with what each demands:
+  - **Stomp — dynamic in-turn cost** (3e, costs 1 less per Attack played this turn, *including
+    attacks played before it was drawn*). The planner reads live `card.cost` at plan time
+    ([combat.py:123]) and the loop replans per card, so the *discount itself* is visible on
+    replan — but the DFS plans a sequence off the cost snapshot, so it never **chooses to
+    front-load attacks to make Stomp cheap**; it can only stumble into the discount. Needs
+    within-sequence dynamic cost (same family as the free-draw-first sequencing items).
+  - **Neow's Fury as a tutor** — owner repeatedly played it to **fetch a specific card for this
+    turn's plan** (usually Bloodletting for the +2 energy). Two gaps: the planner doesn't value
+    search/fetch effects at all, and the resulting in-combat card-select screen would be answered
+    by the generic best-prior pick, not by *what this turn needs* (energy when energy-starved, a
+    finisher at lethal range). Context-aware in-combat select is the harder, more general half.
+  - **Cascade — X-cost autoplay from deck** (plays the top X cards of the deck). X already
+    resolves to current energy in the planner, but the *effect* is unparseable text → scores ~0;
+    real value needs draw-pile composition/order awareness (multi-turn / §5-C territory). NB the
+    pilotability discount (×0.45, session 4) already keeps the bot from over-drafting it — the
+    owner's run shows the ceiling that discount is protecting against, not a drafting bug.
+  - **Delicate Frond (Act-3 Ancient relic) — potions refill at the START of EVERY combat** →
+    optimal potion policy flips from "hoard for elites/bosses" to **"spend usefully every
+    fight"** (owner did exactly this). The potion taxonomy's thresholds are all
+    scarcity-shaped; needs a relic-conditional aggressiveness switch (belt is perpetually
+    full, so today's full-belt deploy would dribble low-value potions out, not *use* them).
+  - *Meta-note:* none of these four is individually filed work yet — they're the concrete
+    picture of what "winning execution depth" looks like vs the one-turn planner, and good
+    candidates for the §8.3 per-card special-case pass / §5-C consumers when those open.
 - **The Queen (Act-3 boss) — FIRST CAPTURE** (owner's manual recorded win, seed `7Q4QCYQ09J`,
   2026-07-08). **400 HP**, ramps Strength; fights alongside a **Torch Head Amalgam** carrying
   `MINION_POWER` (leader-kill ends the fight — existing minion logic applies). Division of labor:
