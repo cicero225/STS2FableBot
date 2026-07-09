@@ -2,6 +2,33 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-09 (Fable 5, session 2 cont. 5) — Batch boltv1gi4: KD handler VALIDATED; elite avoidance now near-total
+
+**Batch (10 clean): 0 wins, act-reach 1.30. Elites fought 0.1/run, ZERO elite deaths** —
+the death-class lane pricing works emphatically; flip side: **relics fell to 4.8/run**
+(weak decks now dodge elites entirely). The calibration question going forward: when the
+deck strengthens mid-act, does the gate reopen fast enough to bank relics? Watch
+relic-vs-depth in the next batches.
+
+**Knowledge Demon handler VALIDATED live** (run 8, f33): all THREE Curse-of-Knowledge
+rounds picked Disintegration deliberately — vs Mind Rot, vs Sloth, vs Waste Away (the
+whole preference table exercised) — and the planner blocked the tick (hp_loss 23→0 as
+Defends played with Disintegration 6 up). Free-this-turn subsidy also sighted (Pyre
+drafted from an in-combat pick and later upgraded).
+
+**Shipped this stretch (owner Q&A driven):**
+- **§5-C estimate**: Waterfall's ACCUMULATING kill explosion (+3/turn); KD regen
+  (Ponder ~7/turn, capped, post-turn) + averaged Disintegration load in its dps.
+- **Damage potions in lethal planning**: pseudo-cards in the DFS (0-cost, cap-exempt,
+  −18 reluctance, one-per-round shared bookkeeping) so card+potion lethals beat block
+  patterns; gated on threat-or-setup (a 1-turn horizon can't see a free slow win) —
+  which also enforces the owner's zero-threat HOLD in both the planner AND the finisher.
+- **Foul Potions thrown at merchants** (+100 gold each, before buying; bounded attempt —
+  the mod's use_potion at a shop should map to the game's own throw; live-verify).
+
+Still pending live rolls: sleeper no-op (no Lagavulin this batch), merchant throw,
+Pen Nib's actual double.
+
 ## 2026-07-09 (Fable 5, session 2 cont. 4 — day end) — Batch bn4v9mf75: PEN NIB ROLLED; elite-death forensics
 
 **Batch (10 clean): 0 wins, act-reach 1.40** (4× Act 2: Insatiable f33, Obscura f30,
