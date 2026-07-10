@@ -2475,9 +2475,10 @@ def test_combat_without_battle_block_waits_not_crashes() -> None:
     assert isinstance(d, Wait)  # loading: wait, never crash
 
 
-def test_retain_curse_not_picked_for_discard_but_taken_for_exhaust() -> None:
-    """Owner 2026-07-09: Retain curses (Poor Sleep) are better PARKED in hand than discarded
-    back into the deck cycle -- exempt from DISCARD picks; exhaust still removes them."""
+def test_retain_curse_discard_ranking() -> None:
+    """Owner 2026-07-09 (+ same-day refinement): a Retain curse's parking value is worth one
+    junk-tier, not immunity. Discard order: normal curses first, then the retain curse, then
+    playables. With only playables besides it, the retain curse IS the discard."""
     def hs_state(prompt):
         return parse_state({
             "state_type": "hand_select",
@@ -2493,10 +2494,35 @@ def test_retain_curse_not_picked_for_discard_but_taken_for_exhaust() -> None:
                        "relics": [], "potions": [], "max_potion_slots": 3},
         })
 
+    # rest of hand is playable -> the retain curse IS the right discard (owner refinement)
     d = router().decide(hs_state("Choose a card to Discard."), LoopContext())
     assert isinstance(d, Decision)
-    assert d.action.payload()["card_index"] == 1  # the Strike, NOT the parked curse
+    assert d.action.payload()["card_index"] == 0
 
     d2 = router().decide(hs_state("Choose a card to Exhaust."), LoopContext())
     assert isinstance(d2, Decision)
     assert d2.action.payload()["card_index"] == 0  # exhaust removes it: take the curse
+
+
+def test_normal_curse_discarded_before_retain_curse() -> None:
+    """The junk-tier ordering: a normal curse (pure junk, cycles regardless) is the discard
+    before the retain curse (which at least parks usefully)."""
+    state = parse_state({
+        "state_type": "hand_select",
+        "hand_select": {"prompt": "Choose a card to Discard.", "can_confirm": False, "cards": [
+            {"index": 0, "id": "POOR_SLEEP", "name": "Poor Sleep", "type": "Curse",
+             "cost": "0", "description": "Unplayable. Retain.", "can_play": False,
+             "is_upgraded": False, "keywords": []},
+            {"index": 1, "id": "REGRET", "name": "Regret", "type": "Curse", "cost": "0",
+             "description": "Unplayable.", "can_play": False, "is_upgraded": False,
+             "keywords": []},
+            {"index": 2, "id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack",
+             "cost": "1", "description": "Deal 6 damage.", "can_play": True,
+             "is_upgraded": False, "keywords": []}]},
+        "run": {"act": 1, "floor": 5, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "status": [],
+                   "relics": [], "potions": [], "max_potion_slots": 3},
+    })
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["card_index"] == 1  # Regret first; Poor Sleep parks another day

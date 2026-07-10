@@ -959,11 +959,13 @@ class StandardRouter:
         def quality(c):
             q = self._card_quality(c, character)
             # Retain curses (Poor Sleep) are better PARKED in hand than discarded back into
-            # the deck cycle (owner 2026-07-09: holding one keeps future draws clean) — exempt
-            # them from DISCARD picks only; exhaust/remove/transform still gladly take them.
+            # the deck cycle — but the parking is worth roughly one junk-tier, not immunity
+            # (owner refinement 2026-07-09): if the rest of the hand would actually be PLAYED,
+            # the retain curse IS the right discard. So it ranks above normal curses/statuses
+            # (ditch those first) but below basics/playables. Exhaust/remove still take it.
             if (prefer_worst and "discard" in prompt and (c.type or "") == "Curse"
                     and "retain" in (c.description or "").lower()):
-                q += 150.0
+                q += 30.0  # curse -100 -> -70: after junk, before anything playable
             return q
 
         chooser = min if prefer_worst else max
