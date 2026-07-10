@@ -715,6 +715,9 @@ def plan_combat_turn(
     # 3 cards this turn." Conservative: we can't source cards-already-played, so the cap is
     # taken as-is (the game's own can_play gates enforce the true remainder on replan) —
     # the win is that the DFS stops planning 5-card lines it can never finish (curses pass).
+    # NB (owner): Normality counts RETROACTIVELY — drawing into it mid-turn locks the turn at
+    # 3 total plays including cards already played. Unforeseeable at plan time (draws are
+    # random); the replan + can_play gates absorb it when it happens.
     for c in hand:
         if m := re.search(r"cannot play more than (\d+) cards", c.description or "",
                           re.IGNORECASE):

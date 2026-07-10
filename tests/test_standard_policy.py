@@ -2473,3 +2473,30 @@ def test_combat_without_battle_block_waits_not_crashes() -> None:
     })
     d = router().decide(state, LoopContext())
     assert isinstance(d, Wait)  # loading: wait, never crash
+
+
+def test_retain_curse_not_picked_for_discard_but_taken_for_exhaust() -> None:
+    """Owner 2026-07-09: Retain curses (Poor Sleep) are better PARKED in hand than discarded
+    back into the deck cycle -- exempt from DISCARD picks; exhaust still removes them."""
+    def hs_state(prompt):
+        return parse_state({
+            "state_type": "hand_select",
+            "hand_select": {"prompt": prompt, "can_confirm": False, "cards": [
+                {"index": 0, "id": "POOR_SLEEP", "name": "Poor Sleep", "type": "Curse",
+                 "cost": "0", "description": "Unplayable. Retain.", "can_play": False,
+                 "is_upgraded": False, "keywords": []},
+                {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack",
+                 "cost": "1", "description": "Deal 6 damage.", "can_play": True,
+                 "is_upgraded": False, "keywords": []}]},
+            "run": {"act": 1, "floor": 5, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "status": [],
+                       "relics": [], "potions": [], "max_potion_slots": 3},
+        })
+
+    d = router().decide(hs_state("Choose a card to Discard."), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["card_index"] == 1  # the Strike, NOT the parked curse
+
+    d2 = router().decide(hs_state("Choose a card to Exhaust."), LoopContext())
+    assert isinstance(d2, Decision)
+    assert d2.action.payload()["card_index"] == 0  # exhaust removes it: take the curse

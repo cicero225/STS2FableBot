@@ -956,6 +956,16 @@ class StandardRouter:
                 return (uv if uv is not None else 1.5, self._card_quality(c, character))
 
             return max(candidates, key=upgrade_key)
+        def quality(c):
+            q = self._card_quality(c, character)
+            # Retain curses (Poor Sleep) are better PARKED in hand than discarded back into
+            # the deck cycle (owner 2026-07-09: holding one keeps future draws clean) — exempt
+            # them from DISCARD picks only; exhaust/remove/transform still gladly take them.
+            if (prefer_worst and "discard" in prompt and (c.type or "") == "Curse"
+                    and "retain" in (c.description or "").lower()):
+                q += 150.0
+            return q
+
         chooser = min if prefer_worst else max
         if free_this_turn and not prefer_worst:
             # Card-gen potion / discovery picks show FULL printed cost but play free this turn
@@ -973,7 +983,7 @@ class StandardRouter:
                 mult = 2.0 if (c.type or "") == "Power" else 0.5
                 return self._card_quality(c, character) + cost * mult
             return max(candidates, key=free_key)
-        return chooser(candidates, key=lambda c: self._card_quality(c, character))
+        return chooser(candidates, key=quality)
 
     # Bounds so a non-progressing screen can never rail a run (run 2: a 'choose'
     # screen returned 'ok' but never resolved; the old await-confirm Wait stalled).
