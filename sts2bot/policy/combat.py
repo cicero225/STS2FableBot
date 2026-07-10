@@ -155,6 +155,9 @@ class SimState:
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
     pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
+    # True when the TURN began on counter 9: the game pre-doubles every attack's text, so
+    # attacks after the first must halve back to base (set once at plan start, never mutated)
+    pen_turn_started_at_nine: bool = False
     exhausted_this_turn: bool = False  # a card was Exhausted this turn (Evil Eye/Ritual gates)
     vuln_dmg_reduction: bool = False  # Colossus: 50% less damage from Vulnerable enemies
     potions_spent: int = 0  # pseudo-card potions drunk this plan (each pays w_potion_spend)
@@ -374,7 +377,8 @@ def _enemy_attacking(e: EnemySim) -> bool:
 
 
 def _apply_attack(
-    state: SimState, target_i: int, card: PlannedCard, pen_double: bool = False
+    state: SimState, target_i: int, card: PlannedCard, pen_double: bool = False,
+    pen_halve: bool = False
 ) -> SimState:
     enemies = list(state.enemies)
     e = enemies[target_i]
@@ -395,8 +399,12 @@ def _apply_attack(
     per_hit = base_damage + state.my_strength
     if card.dmg_per_target_vuln:  # Bully: +N per Vulnerable already on the target
         per_hit += card.dmg_per_target_vuln * e.vulnerable
+    if pen_halve:
+        # Pen Nib preview: at counter 9 the text shows doubled damage on EVERY attack, but
+        # only the first actually doubles — later attacks revert to base (text // 2).
+        per_hit = (base_damage + 1) // 2 + state.my_strength
     if pen_double:
-        per_hit *= 2  # Pen Nib's 10th attack: double the (post-Strength) per-hit damage
+        per_hit *= 2  # (kept for tests/simulation without preview text; unused live)
     if state.my_weak:
         per_hit = int(per_hit * WEAK_MULT)  # I'm Weak: my Attacks deal 25% less
     if e.vulnerable > 0:
@@ -481,10 +489,17 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         played=(*state.played, (card.index, target_id)),
     )
     # Pen Nib: count attack cards; the one whose counter rolls past a multiple of 10 doubles.
-    pen_double = False
+    # Pen Nib, LIVE-VALIDATED 2026-07-09 (owner's June gotcha confirmed): while the counter
+    # sits on 9 the game PRE-DOUBLES every attack's rules text ("Deal 12" on a base-6 Strike),
+    # but only the FIRST attack actually doubles. So at 9: the first attack keeps its parsed
+    # (already-doubled) damage untouched, and every LATER attack in the same plan halves back
+    # to base. Doubling per_hit ourselves on top of the doubled text was a 4x over-credit.
+    pen_halve = False
     if card.is_attack and s.pen_nib_counter is not None:
-        pen_double = (s.pen_nib_counter % _PEN_NIB_PERIOD) == _PEN_NIB_PERIOD - 1
+        at_nine = (s.pen_nib_counter % _PEN_NIB_PERIOD) == _PEN_NIB_PERIOD - 1
+        pen_halve = s.pen_turn_started_at_nine and not at_nine  # later attack: preview lies
         s = replace(s, pen_nib_counter=s.pen_nib_counter + 1)
+    pen_double = False  # never our own doubling — the text already carries it at 9
     # Resolve this card's debuffs against the target's Artifact: card-text order, one strip per
     # unique status (magnitude-blind), eaten debuffs don't land. So a debuff dumped into Artifact
     # scores ~0 (Dominate into Artifact 2 = waste); a multi-status card (Uppercut) strips two.
@@ -518,9 +533,11 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         if atk.fx.aoe:
             for i in range(len(s.enemies)):
                 if s.enemies[i].hp > 0:
-                    s = _apply_attack(s, i, atk, pen_double=pen_double)
+                    s = _apply_attack(s, i, atk, pen_double=pen_double,
+                                      pen_halve=pen_halve)
         elif target_i is not None:
-            s = _apply_attack(s, target_i, atk, pen_double=pen_double)
+            s = _apply_attack(s, target_i, atk, pen_double=pen_double,
+                              pen_halve=pen_halve)
     elif landed_vuln and target_i is not None:
         enemies = list(s.enemies)
         e = enemies[target_i]
@@ -856,6 +873,9 @@ def plan_combat_turn(
         has_summoner=any(e.summons for e in enemy_sims),
         heal_room=max(0, player.max_hp - player.hp),
         pen_nib_counter=pen_nib_counter,
+        pen_turn_started_at_nine=(pen_nib_counter is not None
+                                  and pen_nib_counter % _PEN_NIB_PERIOD
+                                  == _PEN_NIB_PERIOD - 1),
     )
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")

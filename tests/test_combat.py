@@ -379,13 +379,16 @@ def test_artifact_strips_one_per_unique_status_in_card_text_order() -> None:
     assert out.vuln_applied == 1 and out.enemies[0].vulnerable == 1  # Vulnerable then lands
 
 
-def test_pen_nib_doubles_the_tenth_attack_only() -> None:
-    # Counter at 9 -> the next attack is the 10th and doubles; the one after returns to normal.
-    s = SimState(energy=9, enemies=(_enemy(),), my_block=0, my_strength=0, pen_nib_counter=9)
-    s = _apply_card(s, _attack(10), 0)
-    assert s.damage_dealt == 20 and s.pen_nib_counter == 10  # doubled
-    s = _apply_card(s, _attack(10), 0)
-    assert s.damage_dealt == 30  # +10 only (counter 10 -> not a multiple-of-10 boundary)
+def test_pen_nib_preview_semantics_at_counter_nine() -> None:
+    # LIVE-VALIDATED 2026-07-09 (owner's June gotcha): at counter 9 the game PRE-DOUBLES every
+    # attack's rules text, so parsed damage already carries the double. The first attack keeps
+    # its parsed value untouched; later attacks in the same plan halve back to base.
+    s = SimState(energy=9, enemies=(_enemy(),), my_block=0, my_strength=0, pen_nib_counter=9,
+                 pen_turn_started_at_nine=True)
+    s = _apply_card(s, _attack(20), 0)  # "20" = the pre-doubled text of a base-10 attack
+    assert s.damage_dealt == 20 and s.pen_nib_counter == 10  # taken at face value (real double)
+    s = _apply_card(s, _attack(20), 0)  # same doubled TEXT, but the double is spent
+    assert s.damage_dealt == 30  # +10: the preview halves back to base
 
 
 def test_pen_nib_absent_relic_never_doubles() -> None:
