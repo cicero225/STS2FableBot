@@ -2,6 +2,34 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-09 (Fable 5, session 2 — night) — PEN NIB SAGA CLOSED; tranche C ships; the tripwire retires
+
+**Pen Nib, validated and corrected after ~130 runs** (batch b0j3rzhj1 run 1 drove the
+counter through 9): the owner's June gotcha was REAL — at counter 9 the game pre-doubles
+every attack's rules text (Strike "Deal 12", Salvo "Deal 24"), so our own pen_double on
+top of the doubled parse was a 4× over-credit, and later attacks parsed doubled without
+doubling. New model: a turn STARTING at 9 takes the first attack's parsed damage at face
+value and halves later attacks back to base (`pen_turn_started_at_nine`). Live compose
+sighted: `[Not Yet > Strike]` — heal first, then the doubled hit. **The TEMP tripwire is
+removed** (its fence's own condition met; its final act was surfacing this very bug).
+
+**Card-pass tranche C shipped** (6 clustered mechanics, 10 cards): per-target-Vulnerable
+scaling (Bully/Dominate), Molten Fist's vuln doubling, enemy-Str-down (Dark Shackles/
+Mangle → incoming reduction), the exhausted-this-turn flag gating Evil Eye + Forgotten
+Ritual (the DFS now sequences an exhauster first — the f44 Burning-Pact→Ritual line is
+plannable), Expect a Fight = energy per Attack in hand, Ashen Strike exhaust-pile
+scaling, Colossus' vuln-damage reduction in the score. Validates next batch.
+
+**Batch b0j3rzhj1 (10 clean): 0 wins, act-reach ~1.4** (Insatiable f33, Kaiser Crab f33;
+Soul Fysh ×2, Waterfall ×2, CB, Slumbering Beetle f24, Hunter-Killer f24, Crawlers f7).
+**Slumbering Beetle's THIRD run-kill** → its Slumber wake-accounting (decrements on HP
+loss OR turn; sheds Plating on wake) is promoted to the next enemies-pass item. Also
+2nd kill for Hunter-Killer (Tender). Owner live-caught during the stretch: Infernal
+Blade unplayed (attack-generator credit), the Phrog false-LETHAL (spawns_on_death),
+Retain-curse discard ranking + refinement, Normality retroactivity documented.
+
+Still unrolled live: Lagavulin post-leak-fix, merchant Foul-throw.
+
 ## 2026-07-09 (Fable 5, session 2 — evening) — Card pass lands; act-reach 1.62 (best ever); gate calibration answered
 
 **The card pass** (CARD_PASS.md): step 0 catalog (250 cards, full rules text from the
