@@ -2,6 +2,33 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-09 (Fable 5, session 2 — evening) — Card pass lands; act-reach 1.62 (best ever); gate calibration answered
+
+**The card pass** (CARD_PASS.md): step 0 catalog (250 cards, full rules text from the
+mod's own compendium+wiki, no scraping) → step 1 fan-out (13 subagents, EMPIRICAL parser
+checks per card) → 149 classified: **76 A verified / 22 B parser gaps / 40 C planner
+mechanics (pattern-clustered) / 11 D multi-turn filings** → `data/card_notes.json` is the
+checklist. **Tranche B shipped same evening**: 8 parser fixes covering 17 cards
+("Deals" companion damage, twice/thrice hits, compound debuffs, trigger-sentence scoping
+that also fixed the whenever-power over-credit class, retrieval-as-draw, Plating,
+splash-AoE, Shiv approximation). Owner live-catches folded in as they happened:
+Infernal Blade attack-generator credit, the Phrog false-LETHAL (spawns_on_death +
+unified _fight_over), the **curses pass done inline** (Normality hand-cap + all 9
+audited), Retain-curse discard ranking (+ same-day refinement: parking ≈ one junk-tier).
+One self-inflicted crash (potion bookkeeping vs the battle-less loading state) caught by
+the C5 rails and fixed with the raw transitional payload as a regression test.
+
+**Batch bxpnvd8ck (7 real runs + a Timeline block): 0 wins, act-reach 1.62 — best ever
+logged.** Two Act-3 runs: f45 (died to the KNIGHTS elite — the owner's f44 one-turn-kill
+pack; 43 floors toward the skill-gap benchmark) and f39. **Gate calibration ANSWERED**:
+the f45 run fought 3 elites and banked 12 relics — the pool gate reopens for a
+strengthened deck exactly as designed; weak decks still abstain (0.5 elites/run overall).
+**KD handler 2nd live exam: 7/7 Disintegration picks, 11 fully-blocked cursed
+decision-states.** Batch interrupted at run 9 by another Timeline epoch (DARV_EPOCH —
+the deep runs' scores crossed a threshold); 2 runs owed after the owner's click.
+
+Still unrolled: Lagavulin (sleeper no-op), merchant Foul-throw, Pen Nib counter 9.
+
 ## 2026-07-09 (Fable 5, session 2 cont. 5) — Batch boltv1gi4: KD handler VALIDATED; elite avoidance now near-total
 
 **Batch (10 clean): 0 wins, act-reach 1.30. Elites fought 0.1/run, ZERO elite deaths** —
