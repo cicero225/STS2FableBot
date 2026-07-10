@@ -770,8 +770,14 @@ def test_c_tranche_bully_scales_with_target_vulnerable() -> None:
     from sts2bot.policy.combat import _to_planned
 
     class C:
-        index = 0; id = "BULLY"; name = "Bully"; type = "Attack"; cost = "0"; can_play = True
-        target_type = "AnyEnemy"; is_upgraded = False
+        index = 0
+        id = "BULLY"
+        name = "Bully"
+        type = "Attack"
+        cost = "0"
+        can_play = True
+        target_type = "AnyEnemy"
+        is_upgraded = False
         description = "Deal 4 damage. Deals 2 additional damage for each Vulnerable on the enemy."
     from dataclasses import replace as dc_replace
     card = _to_planned(C(), 3)
@@ -799,8 +805,14 @@ def test_c_tranche_dark_shackles_reduces_incoming() -> None:
     from sts2bot.policy.combat import _to_planned
 
     class C:
-        index = 0; id = "DARK_SHACKLES"; name = "Dark Shackles"; type = "Skill"; cost = "0"; can_play = True
-        target_type = "AnyEnemy"; is_upgraded = False
+        index = 0
+        id = "DARK_SHACKLES"
+        name = "Dark Shackles"
+        type = "Skill"
+        cost = "0"
+        can_play = True
+        target_type = "AnyEnemy"
+        is_upgraded = False
         description = "Enemy loses 9 Strength this turn. Exhaust."
     from dataclasses import replace as dc_replace
     card = _to_planned(C(), 3)
@@ -816,8 +828,14 @@ def test_c_tranche_exhaust_gate_evil_eye_and_ritual() -> None:
     from sts2bot.policy.combat import _to_planned
 
     class EE:
-        index = 0; id = "EVIL_EYE"; name = "Evil Eye"; type = "Skill"; cost = "1"; can_play = True
-        target_type = "None"; is_upgraded = False
+        index = 0
+        id = "EVIL_EYE"
+        name = "Evil Eye"
+        type = "Skill"
+        cost = "1"
+        can_play = True
+        target_type = "None"
+        is_upgraded = False
         description = "Gain 8 Block. Gain another 8 Block if you have Exhausted a card this turn."
     ee = _to_planned(EE(), 3)
     cold = _apply_card(_state(_enemy()), ee, None)
@@ -826,8 +844,14 @@ def test_c_tranche_exhaust_gate_evil_eye_and_ritual() -> None:
     assert hot.my_block == 16  # gate open
 
     class FR:
-        index = 1; id = "FORGOTTEN_RITUAL"; name = "Forgotten Ritual"; type = "Skill"; cost = "1"; can_play = True
-        target_type = "None"; is_upgraded = False
+        index = 1
+        id = "FORGOTTEN_RITUAL"
+        name = "Forgotten Ritual"
+        type = "Skill"
+        cost = "1"
+        can_play = True
+        target_type = "None"
+        is_upgraded = False
         description = ("If you Exhausted a card this turn, gain [ironclad_energy_icon.png]"
                        "[ironclad_energy_icon.png][ironclad_energy_icon.png]. Exhaust.")
     fr = _to_planned(FR(), 3)
