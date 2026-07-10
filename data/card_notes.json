@@ -45,7 +45,7 @@
    "shared_pattern": "for-each-state-scaling",
    "evidence": "Parse: {damage: 6, conditional} — the '+3 per card in your Exhaust Pile' is dropped (the Fiend-Fire regex '(\\d+) damage for each card' does NOT match because of the word 'additional', so it is not misrouted, just flat 6). Mid-fight with 5 exhausted it's really 21; the exhaust-archetype payoff card is badly undervalued.",
    "proposal": "Planner rule keyed on 'for each card in your Exhaust Pile': damage += per_value * len(exhaust pile from game state) (+ cards exhausted this turn). Keep it distinct from _HAND_EXHAUST_DMG so Fiend Fire's hand-scaling isn't confused with pile-scaling.",
-   "status": "open"
+   "status": "fixed (tranche C, 2026-07-09)"
   },
   "ASTRAL_PULSE": {
    "name": "Astral Pulse",
@@ -195,7 +195,7 @@
    "shared_pattern": "for-each-state-scaling",
    "evidence": "Parse: {damage: 4, conditional} — the '+2 per Vulnerable on the enemy' scaling is dropped. Planner still plays it (0-cost 4 dmg) but undervalues it and won't prefer sequencing it AFTER applying Vulnerable; with 3 Vuln it's really 10 (upgraded 13).",
    "proposal": "Planner rule keyed on 'additional damage for each Vulnerable': in _apply_card add per_value * target's current Vulnerable stacks (state already tracks vuln applied this turn), giving correct post-Tremble sequencing.",
-   "status": "open"
+   "status": "fixed (tranche C, 2026-07-09)"
   },
   "BURNING_PACT": {
    "name": "Burning Pact",
@@ -285,7 +285,7 @@
    "shared_pattern": "reads-target-vuln",
    "evidence": "Parser: {'block': 5} only (up: 8) — the '50% less damage from Vulnerable enemies this turn' clause vanishes entirely (not even conditional-flagged, since the _CONDITIONAL regex misses this phrasing). The sim sees a strictly-worse Defend; the defensive halving needs the incoming tally in _score to scale each attacker's incoming by 0.5 when that enemy has vulnerable > 0.",
    "proposal": "_to_planned regex for 'receive 50% less damage from Vulnerable enemies this turn' sets a vuln_damage_reduction flag on SimState; _score halves incoming from enemies with vulnerable > 0 when set.",
-   "status": "open"
+   "status": "fixed (tranche C, 2026-07-09)"
   },
   "CONFLAGRATION": {
    "name": "Conflagration",
@@ -365,7 +365,7 @@
    "shared_pattern": "enemy-strength-down",
    "evidence": "Parse returned only {'conditional': True} — 'Enemy loses 9 Strength this turn' has no fx field at all (textparse only matches 'Gain N Strength' for self, line 34). The planner sees a 0-value card; since it's 0-cost the misprice means it never deliberately plays it to blunt a big multi-hit turn, wasting free flat mitigation (9-15 less per enemy hit).",
    "proposal": "Add an enemy_strength_down field parsed from r'Enemy loses (\\d+) Strength', and in _apply_card reduce the target's incoming by N per parsed intent hit (or conservatively by N flat) for this turn — analogous to the Weak incoming reduction at line 483.",
-   "status": "open"
+   "status": "fixed (tranche C, 2026-07-09)"
   },
   "DAZED": {
    "name": "Dazed",
@@ -475,7 +475,7 @@
    "shared_pattern": "reads-target-vuln",
    "evidence": "Parser: {'vulnerable': 1, 'strength': 1, 'conditional': True} — reads a flat 1 Strength, but the card grants 1 Str PER Vulnerable stack on the enemy (after its own application). conditional only affects draft priors (standard.py:751), never combat play, so the sim undervalues it whenever the target has vuln stacks (post-Bash it is really +3-4 Str) and cannot price the Bash-then-Dominate sequencing.",
    "proposal": "Planner rule in _to_planned/_apply_card: regex 'Gain N Strength for each Vulnerable' sets a per_vuln_strength scale; at play time credit strength = N * (target.vulnerable + this card's landed vuln), reading EnemySim.vulnerable like the Fiend Fire hand-scale pattern.",
-   "status": "open"
+   "status": "fixed (tranche C, 2026-07-09)"
   },
   "DRAMATIC_ENTRANCE": {
    "name": "Dramatic Entrance",
@@ -535,7 +535,7 @@
    "shared_pattern": "exhaust-this-turn-conditional",
    "evidence": "Parser: {'block': 8, 'conditional': True} (up: 11) — only the unconditional first half. The 'another 8 Block if you have Exhausted a card this turn' needs an exhausted-a-card-this-turn flag in SimState; nothing sets or reads one (only Fiend Fire's hand_exhaust_scale exists). Bot plays it as a plain 8-block Defend and never sequences an exhauster first.",
    "proposal": "Add exhausted_this_turn bool to SimState, set by cards whose text says 'Exhaust N card(s)'/'Exhaust your Hand' (and self-Exhaust plays); _to_planned regex 'Gain another N Block if you have Exhausted a card this turn' adds N block when the flag is set at play time.",
-   "status": "open"
+   "status": "fixed (tranche C, 2026-07-09)"
   },
   "EXPECT_A_FIGHT": {
    "name": "Expect a Fight",
@@ -545,7 +545,7 @@
    "shared_pattern": "for-each-state-scaling",
    "evidence": "Parse: {energy_gain: 1, conditional} — the single icon is counted as flat 1 energy. Real effect: energy per Attack in hand. At cost 2 the planner prices it as net -1 energy and will essentially never play it, when with 3+ attacks in hand it is net-positive and enabling. No 'for each Attack in your Hand' rule in combat.py.",
    "proposal": "_to_planned special case: if text matches 'for each Attack in your Hand', set energy_gain = count of Attack-type cards in hand (planner replans per card so hand is known). Also honor the 'cannot gain additional energy' lock by ordering other energy cards first.",
-   "status": "open"
+   "status": "fixed (tranche C, 2026-07-09)"
   },
   "FALLING_STAR": {
    "name": "Falling Star",
@@ -635,7 +635,7 @@
    "shared_pattern": "numbered-energy-icon",
    "evidence": "Base parses {energy_gain: 3} via the icon-run regex, but upgraded 'gain 4[ironclad_energy_icon.png]' parses to NOTHING (_ENERGY_ICON_RUN requires icons directly after 'Gain', textparse.py:30) — an upgraded copy is a dead card to the bot. Also the 'If you Exhausted a card this turn' gate is unmodeled: sim credits energy unconditionally (combat.py:519), so base is misplayed as +2 free energy even with no exhaust.",
    "proposal": "Extend the energy-icon regex to 'Gain (\\d+)\\s*\\[...energy...png\\]' (multiplier form). Separately gate energy_gain in the sim on an exhausted-this-turn flag (set by 'Exhaust.'-keyword cards and True Grit/Burning Pact plays).",
-   "status": "energy already parses; the exhaust-conditional joins the C-cluster exhaust-this-turn flag"
+   "status": "fixed (tranche C, 2026-07-09)"
   },
   "FRANTIC_ESCAPE": {
    "name": "Frantic Escape",
@@ -815,7 +815,7 @@
    "shared_pattern": "enemy-strength-down",
    "evidence": "Parse: {'damage': 15, 'hits': 1} (upgraded: damage 20) — 'Enemy loses 10 Strength this turn' is silently dropped, not even flagged conditional. The sim does model per-enemy incoming and already mutates it for Weak (combat.py 480-483), but there is no parser field or sim rule for enemy-strength-down, so the planner prices Mangle as a plain 3-cost 15-damage attack and ignores its (often larger) damage-prevention half.",
    "proposal": "Add an enemy_strength_down field (regex 'loses (\\d+) Strength') and a sim rule in _apply_attack/_enemy state reducing that enemy's incoming by N per hit this turn, parallel to the existing Weak handling.",
-   "status": "open"
+   "status": "fixed (tranche C, 2026-07-09)"
   },
   "MAYHEM": {
    "name": "Mayhem",
@@ -845,7 +845,7 @@
    "shared_pattern": "reads-target-vuln",
    "evidence": "Parser: {'damage': 10, 'conditional': True} (up: 14) — 'Double the enemy's Vulnerable' is not represented; the sim plays it as a vanilla 10-damage exhaust attack. Doubling needs the target's live vulnerable count (EnemySim.vulnerable), which parsing alone cannot express, and sequencing after a vuln applier goes unpriced.",
    "proposal": "Planner rule: _to_planned regex \"Double the enemy's Vulnerable\" sets a doubles_vuln flag; _apply_card sets target.vulnerable *= 2 after the hit and credits the added stacks to vuln_applied.",
-   "status": "open"
+   "status": "fixed (tranche C, 2026-07-09)"
   },
   "NEOWS_FURY": {
    "name": "Neow's Fury",

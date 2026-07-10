@@ -763,3 +763,88 @@ def test_decay_curse_counts_as_blockable_stranded_damage() -> None:
     plan = d.rationale.split("[")[1].split("]")[0]
     assert "Defend" in plan  # block reserved specifically for Decay's end-of-turn tick
     assert d.scores["hp_loss"] == 0.0
+
+
+def test_c_tranche_bully_scales_with_target_vulnerable() -> None:
+    # Bully: "Deal 4 damage. Deals 2 additional damage for each Vulnerable on the enemy."
+    from sts2bot.policy.combat import _to_planned
+
+    class C:
+        index = 0; id = "BULLY"; name = "Bully"; type = "Attack"; cost = "0"; can_play = True
+        target_type = "AnyEnemy"; is_upgraded = False
+        description = "Deal 4 damage. Deals 2 additional damage for each Vulnerable on the enemy."
+    from dataclasses import replace as dc_replace
+    card = _to_planned(C(), 3)
+    out = _apply_attack(_state(dc_replace(_enemy(), vulnerable=3)), 0, card)
+    # per-hit = 4 + 2*3 = 10, then VULN_MULT 1.5 -> 15
+    assert out.damage_dealt == 15
+
+
+def test_c_tranche_dominate_strength_per_vuln() -> None:
+    # Dominate: "Apply 1 Vulnerable. Gain 1 Strength for each Vulnerable on the enemy."
+    w = load_policy_config().combat
+    hand = [_bcard(0, "DOMINATE", "Dominate", 1,
+                   "Apply 1 Vulnerable. Gain 1 Strength for each Vulnerable on the enemy. "
+                   "Exhaust.", "Skill", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=100, hp=70)
+    st["battle"]["enemies"][0]["status"] = [
+        {"id": "VULNERABLE", "name": "Vulnerable", "amount": 2,
+         "description": "Receive 50% more damage from Attacks."}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload()["card_index"] == 0  # worth playing: 3 Str after its own vuln
+
+
+def test_c_tranche_dark_shackles_reduces_incoming() -> None:
+    # Dark Shackles: "Enemy loses 9 Strength this turn." -> incoming drops, hp_loss falls.
+    from sts2bot.policy.combat import _to_planned
+
+    class C:
+        index = 0; id = "DARK_SHACKLES"; name = "Dark Shackles"; type = "Skill"; cost = "0"; can_play = True
+        target_type = "AnyEnemy"; is_upgraded = False
+        description = "Enemy loses 9 Strength this turn. Exhaust."
+    from dataclasses import replace as dc_replace
+    card = _to_planned(C(), 3)
+    out = _apply_card(_state(dc_replace(_enemy(), incoming=14)), card, 0)
+    assert out.enemies[0].incoming == 5  # 14 - 9
+
+
+def test_c_tranche_exhaust_gate_evil_eye_and_ritual() -> None:
+    # Evil Eye's second 8 Block and Forgotten Ritual's energy fire only AFTER something
+    # was Exhausted this turn; the DFS orders an exhauster first to unlock them.
+    from dataclasses import replace as dc_replace
+
+    from sts2bot.policy.combat import _to_planned
+
+    class EE:
+        index = 0; id = "EVIL_EYE"; name = "Evil Eye"; type = "Skill"; cost = "1"; can_play = True
+        target_type = "None"; is_upgraded = False
+        description = "Gain 8 Block. Gain another 8 Block if you have Exhausted a card this turn."
+    ee = _to_planned(EE(), 3)
+    cold = _apply_card(_state(_enemy()), ee, None)
+    assert cold.my_block == 8  # gate closed
+    hot = _apply_card(dc_replace(_state(_enemy()), exhausted_this_turn=True), ee, None)
+    assert hot.my_block == 16  # gate open
+
+    class FR:
+        index = 1; id = "FORGOTTEN_RITUAL"; name = "Forgotten Ritual"; type = "Skill"; cost = "1"; can_play = True
+        target_type = "None"; is_upgraded = False
+        description = ("If you Exhausted a card this turn, gain [ironclad_energy_icon.png]"
+                       "[ironclad_energy_icon.png][ironclad_energy_icon.png]. Exhaust.")
+    fr = _to_planned(FR(), 3)
+    cold = _apply_card(_state(_enemy()), fr, None)
+    assert cold.energy == 2  # paid 1, gained 0 (gate closed)
+    hot = _apply_card(dc_replace(_state(_enemy()), exhausted_this_turn=True), fr, None)
+    assert hot.energy == 5  # paid 1, gained 3
+
+
+def test_c_tranche_expect_a_fight_scales_with_hand_attacks() -> None:
+    # Expect a Fight: "Gain [energy] for each Attack in your Hand."
+    w = load_policy_config().combat
+    hand = [_bcard(0, "EXPECT_A_FIGHT", "Expect a Fight", 2,
+                   "Gain [ironclad_energy_icon.png] for each Attack in your Hand. You cannot "
+                   "gain additional [ironclad_energy_icon.png] this turn.", "Skill", "None")]
+    hand += [_bcard(i, f"S{i}", f"Strike{i}", 1, "Deal 6 damage.", "Attack", "AnyEnemy")
+             for i in range(1, 5)]
+    d = plan_combat_turn(parse_state(_beckon_state(2, hand, enemy_hp=300, hp=70)), w)
+    plan = d.rationale.split("[")[1].split("]")[0]
+    assert "Expect a Fight" in plan  # 4 attacks in hand: nets +2, enabling more plays

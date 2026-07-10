@@ -36,6 +36,17 @@ _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 
 # matters. Treat any absurd HP as invincible so the planner stops chipping it.
 _INVINCIBLE_HP = 100_000_000
 _PEN_NIB_PERIOD = 10  # Pen Nib: every 10th attack deals double damage (counter persists per-run)
+# Card-pass C tranche (2026-07-09): clustered planner mechanics from the 149-card audit.
+_PER_VULN_DMG = re.compile(r"Deals? (\d+) additional damage for each Vulnerable", re.IGNORECASE)
+_PER_VULN_STR = re.compile(r"Gain (\d+) Strength for each Vulnerable", re.IGNORECASE)
+_DOUBLE_VULN = re.compile(r"Double the enemy's Vulnerable", re.IGNORECASE)
+_TARGET_STR_DOWN = re.compile(r"Enemy loses (\d+) Strength this turn", re.IGNORECASE)
+_BLOCK_IF_EXHAUSTED = re.compile(r"Gain another (\d+) Block if you have Exhausted", re.IGNORECASE)
+_IF_EXHAUSTED_GATE = re.compile(r"If you (?:have )?Exhausted a card this turn", re.IGNORECASE)
+_PER_HAND_ATTACK = re.compile(r"for each Attack in your Hand", re.IGNORECASE)
+_PER_EXHAUST_PILE = re.compile(
+    r"Deals? (\d+) additional damage for each card in your Exhaust Pile", re.IGNORECASE)
+_VULN_DMG_REDUCTION = re.compile(r"receive 50% less damage from Vulnerable", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -58,6 +69,18 @@ class PlannedCard:
     # debuff types this card applies to the *target* enemy, in card-TEXT order (Uppercut = Weak
     # then Vulnerable). Order matters for Artifact, which eats one debuff per unique status.
     debuff_order: tuple[str, ...] = ()
+    # C tranche: per-target-Vulnerable scaling (Bully dmg / Dominate Str), Molten Fist's vuln
+    # doubling, enemy Strength-down (Dark Shackles/Mangle -> incoming reduction), the
+    # exhausted-this-turn conditional pair (Evil Eye block / Forgotten Ritual energy), whether
+    # playing this card exhausts one (sets the flag), and Colossus' vuln-damage-reduction.
+    dmg_per_target_vuln: int = 0
+    str_per_target_vuln: int = 0
+    doubles_target_vuln: bool = False
+    target_str_down: int = 0
+    bonus_block_if_exhausted: int = 0
+    energy_requires_exhausted: bool = False
+    exhausts_a_card: bool = False
+    grants_vuln_reduction: bool = False
 
 
 @dataclass(frozen=True)
@@ -132,12 +155,15 @@ class SimState:
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
     pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
+    exhausted_this_turn: bool = False  # a card was Exhausted this turn (Evil Eye/Ritual gates)
+    vuln_dmg_reduction: bool = False  # Colossus: 50% less damage from Vulnerable enemies
     potions_spent: int = 0  # pseudo-card potions drunk this plan (each pays w_potion_spend)
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
 
-def _to_planned(card, energy: int) -> PlannedCard | None:
+def _to_planned(card, energy: int, hand_attacks: int = 0,
+                exhaust_pile: int = 0) -> PlannedCard | None:
     if not card.can_play:
         return None
     cost_str = card.cost or "0"
@@ -197,6 +223,18 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
         pos = low.find("weak")
         debuff_spots.append((pos if pos >= 0 else len(low), "weak"))
     debuff_order = tuple(t for _, t in sorted(debuff_spots))
+    # C tranche detections (against the audited real texts):
+    per_vuln_dmg = int(m.group(1)) if (m := _PER_VULN_DMG.search(desc)) else 0
+    per_vuln_str = int(m.group(1)) if (m := _PER_VULN_STR.search(desc)) else 0
+    target_str_down = int(m.group(1)) if (m := _TARGET_STR_DOWN.search(desc)) else 0
+    block_if_exh = int(m.group(1)) if (m := _BLOCK_IF_EXHAUSTED.search(desc)) else 0
+    energy_gated = bool(_IF_EXHAUSTED_GATE.search(desc)) and fx.energy_gain > 0
+    if _PER_HAND_ATTACK.search(desc):  # Expect a Fight: energy per Attack in hand
+        fx.energy_gain = hand_attacks
+        if "energy" not in fx.recognized:
+            fx.recognized.append("energy")
+    if m := _PER_EXHAUST_PILE.search(desc):  # Ashen Strike: +N per exhaust-pile card
+        fx.damage += int(m.group(1)) * exhaust_pile
     return PlannedCard(
         index=card.index,
         name=card.name,
@@ -210,6 +248,14 @@ def _to_planned(card, energy: int) -> PlannedCard | None:
         rage_block=rage_block,
         hand_exhaust_scale=hand_exhaust_scale,
         debuff_order=debuff_order,
+        dmg_per_target_vuln=per_vuln_dmg,
+        str_per_target_vuln=per_vuln_str,
+        doubles_target_vuln=bool(_DOUBLE_VULN.search(desc)),
+        target_str_down=target_str_down,
+        bonus_block_if_exhausted=block_if_exh,
+        energy_requires_exhausted=energy_gated,
+        exhausts_a_card="exhaust" in low,
+        grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
     )
 
 
@@ -347,6 +393,8 @@ def _apply_attack(
     if state.primal_active and card.is_attack:
         base_damage, hits = _PRIMAL_ROCK_DAMAGE, 1  # transformed into a Giant Rock
     per_hit = base_damage + state.my_strength
+    if card.dmg_per_target_vuln:  # Bully: +N per Vulnerable already on the target
+        per_hit += card.dmg_per_target_vuln * e.vulnerable
     if pen_double:
         per_hit *= 2  # Pen Nib's 10th attack: double the (post-Strength) per-hit damage
     if state.my_weak:
@@ -508,26 +556,51 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
                 for e in s.enemies
             ]
             s = replace(s, enemies=tuple(enemies))
+    # --- C-tranche target mechanics (after damage/debuffs have landed) ---
+    if target_i is not None and (card.str_per_target_vuln or card.doubles_target_vuln
+                                 or card.target_str_down):
+        enemies = list(s.enemies)
+        e = enemies[target_i]
+        if card.str_per_target_vuln and e.vulnerable > 0:  # Dominate: Str per Vuln stack
+            gained = card.str_per_target_vuln * e.vulnerable
+            s = replace(s, my_strength=s.my_strength + gained,
+                        strength_gained=s.strength_gained + gained)
+        if card.doubles_target_vuln and e.vulnerable > 0 and e.hp > 0:  # Molten Fist
+            enemies[target_i] = replace(e, vulnerable=e.vulnerable * 2)
+            s = replace(s, enemies=tuple(enemies),
+                        vuln_applied=s.vuln_applied + e.vulnerable)
+            e = enemies[target_i]
+        if card.target_str_down and e.incoming > 0:  # Dark Shackles/Mangle: -N Str this turn
+            enemies[target_i] = replace(e, incoming=max(0, e.incoming - card.target_str_down))
+            s = replace(s, enemies=tuple(enemies))
     # In-combat healing (Not Yet), capped at the turn's damage taken — no overheal credit.
     heal_applied = max(0, min(card.fx.heal, s.heal_room - s.healing)) if card.fx.heal else 0
     # Dexterity adds/subtracts per block-granting card — Soul Siphon drives it NEGATIVE, so a
     # drained Defend really grants less (the planner over-blocked-on-paper vs Lagavulin without
     # this). Then Frail cuts the result by 25% — the floor matches the game.
     base_block = card.fx.block
+    if card.bonus_block_if_exhausted and s.exhausted_this_turn:  # Evil Eye's second half
+        base_block += card.bonus_block_if_exhausted
     if base_block and s.my_dex:
         base_block = max(0, base_block + s.my_dex)
     block_gain = base_block + rage_bonus
     if s.my_frail and block_gain:
         block_gain = int(block_gain * FRAIL_MULT)
+    # Forgotten Ritual: the energy fires only if a card was Exhausted this turn
+    energy_gain = card.fx.energy_gain
+    if card.energy_requires_exhausted and not s.exhausted_this_turn:
+        energy_gain = 0
     return replace(
         s,
         my_block=s.my_block + block_gain,
         my_strength=s.my_strength + card.fx.strength,
         strength_gained=s.strength_gained + card.fx.strength,
         draws=s.draws + card.fx.draw,
-        energy=s.energy + card.fx.energy_gain,
+        energy=s.energy + energy_gain,
         self_damage=s.self_damage + card.fx.self_hp_cost,
         healing=s.healing + heal_applied,
+        exhausted_this_turn=s.exhausted_this_turn or card.exhausts_a_card,
+        vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,
     )
 
 
@@ -552,7 +625,10 @@ def _score(
     lethal_end = _fight_over(state.enemies)
     # A stunned enemy (dropped to/below its stun threshold this turn) skips its turn, so its
     # intent doesn't land — attacking down to the threshold can cancel an otherwise-lethal hit.
-    incoming = sum(e.incoming for e in state.enemies if _enemy_attacking(e))
+    incoming = sum(
+        (e.incoming // 2 if state.vuln_dmg_reduction and e.vulnerable > 0 else e.incoming)
+        for e in state.enemies if _enemy_attacking(e)
+    )  # Colossus: 50% less damage from Vulnerable enemies this turn
     # Stranded status cards (Beckon "lose N HP" / Toxic "take N damage") bite at end of turn
     # UNLESS played — so the penalty must live in the scored objective, not just the post-hoc
     # hp_loss diagnostic, or the search can never prefer spending energy to clear one (the
@@ -723,7 +799,12 @@ def plan_combat_turn(
                           re.IGNORECASE):
             card_cap = int(m.group(1)) if card_cap is None else min(card_cap, int(m.group(1)))
 
-    playable = [c for c in (_to_planned(card, energy) for card in hand) if c is not None]
+    hand_attacks = sum(1 for c in hand if (c.type or "") == "Attack")
+    exhaust_pile = getattr(player, "exhaust_pile_count", None) or 0
+    playable = [
+        c for c in (_to_planned(card, energy, hand_attacks, exhaust_pile) for card in hand)
+        if c is not None
+    ]
     # Damage potions as pseudo-cards: 0-cost, exempt from the card cap (potions aren't card
     # plays), negative index -(slot+1) mapped back to UsePotion below. is_attack stays False
     # (no Rage/Pen Nib interaction). Gated on SOMETHING threatening or setting up: at zero
