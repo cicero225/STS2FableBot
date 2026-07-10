@@ -711,6 +711,14 @@ def plan_combat_turn(
             my_frail = True
         if m := re.search(r"only play (\d+) card", p.description or "", re.IGNORECASE):
             card_cap = int(m.group(1)) if card_cap is None else min(card_cap, int(m.group(1)))
+    # Normality (curse) caps from the HAND, not a player status: "You cannot play more than
+    # 3 cards this turn." Conservative: we can't source cards-already-played, so the cap is
+    # taken as-is (the game's own can_play gates enforce the true remainder on replan) —
+    # the win is that the DFS stops planning 5-card lines it can never finish (curses pass).
+    for c in hand:
+        if m := re.search(r"cannot play more than (\d+) cards", c.description or "",
+                          re.IGNORECASE):
+            card_cap = int(m.group(1)) if card_cap is None else min(card_cap, int(m.group(1)))
 
     playable = [c for c in (_to_planned(card, energy) for card in hand) if c is not None]
     # Damage potions as pseudo-cards: 0-cost, exempt from the card cap (potions aren't card

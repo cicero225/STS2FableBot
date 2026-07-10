@@ -1253,6 +1253,13 @@ pass** (7).*
    killed 3 runs; synthesize swarms as multi-FightEnemy pools (Gardeners ≈ 3×31 HP w/ Skittish,
    Phrog + Wriggler treadmill) so both the gate and the route DP price them. Belongs to the
    enemies pass (item 2), noted here because the gate work exposed it.*
+6b. **Curses pass — DONE INLINE 2026-07-09** (owner: "low hanging, right after cards").
+   All 9 discovered curses audited: **Normality's** 3-card cap now read from the HAND
+   (conservative — the true remainder isn't sourceable, the game's can_play enforces it on
+   replan; the win is the DFS stops planning unfinishable lines); **Decay** verified riding
+   the stranded-Toxic machinery (blockable, unclearable); **Guilty** removal-ranking done
+   earlier; Clumsy/Poor Sleep/Greed/Injury/Spore Mind are combat-inert clog the sim already
+   experiences naturally; **Debt** (end-of-turn gold loss) noted, ignored as non-HP.
 7. **Full potion pass** (scheduled 2026-07-09, after relics — owner ruling). The taxonomy
    (§8.4) covers reactive/proactive/hail-mary/downside plus the 2026-07-09 quick fix
    (card-gen potions dropped at boss start); the full pass adds per-potion handlers,

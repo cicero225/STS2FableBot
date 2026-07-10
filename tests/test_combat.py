@@ -733,3 +733,33 @@ def test_killing_a_death_spawner_is_not_lethal() -> None:
         parse_state(_beckon_state(3, hand, enemy_hp=5, hp=50, enemy_status=infested)), w)
     assert d.action.payload()["card_index"] == 0  # still takes the kill
     assert "LETHAL" not in d.rationale  # but the fight is not declared over
+
+
+def test_normality_in_hand_caps_the_plan() -> None:
+    # Curses pass (owner 2026-07-09): Normality in HAND ("cannot play more than 3 cards this
+    # turn") caps the DFS -- with 5 affordable cards the plan holds to <=3 plays.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "NORMALITY", "Normality", 0,
+                   "Unplayable. You cannot play more than 3 cards this turn.", "Curse",
+                   "None", can_play=False)]
+    hand += [_bcard(i, f"S{i}", f"Strike{i}", 1, "Deal 6 damage.", "Attack", "AnyEnemy")
+             for i in range(1, 6)]
+    d = plan_combat_turn(parse_state(_beckon_state(5, hand, enemy_hp=300, hp=70)), w)
+    plan = d.rationale.split("[")[1].split("]")[0]
+    assert len(plan.split(" > ")) <= 3
+
+
+def test_decay_curse_counts_as_blockable_stranded_damage() -> None:
+    # Decay ("At the end of your turn, if this is in your Hand, take 2 damage") rides the
+    # existing stranded-Toxic machinery: blockable, unclearable (Unplayable).
+    w = load_policy_config().combat
+    hand = [_bcard(0, "DECAY", "Decay", 0,
+                   "Unplayable. At the end of your turn, if this is in your Hand, take 2 "
+                   "damage.", "Curse", "None", can_play=False)]
+    hand.append(_bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 8 Block.", "Skill", "None"))
+    st = _beckon_state(3, hand, enemy_hp=100, hp=40, incoming="0")
+    st["battle"]["enemies"][0]["intents"] = [{"type": "buff", "label": ""}]
+    d = plan_combat_turn(parse_state(st), w)
+    plan = d.rationale.split("[")[1].split("]")[0]
+    assert "Defend" in plan  # block reserved specifically for Decay's end-of-turn tick
+    assert d.scores["hp_loss"] == 0.0
