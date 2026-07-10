@@ -2,6 +2,28 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-09 (Fable 5, session 2 — close) — Batch bzgprtnae: tranche C validated in the wild; elite deaths are pure topology now
+
+**Batch (10 clean): 0 wins, act-reach 1.60, relics 6.6/run** — second-best depth ever,
+right behind yesterday's 1.62; six runs past Act 1, three f33 Act-2 boss runs (Kaiser
+Crab, Insatiable, Kin/CB at f17; Obscura f31, Beetle f28, Exoskeletons f23).
+
+**Tranche C is alive in the plans**: Bully in 84 plan lines, Ashen Strike 106, Colossus
+52, Dominate 21, Forgotten Ritual 12, Evil Eye 10, Mangle 11 — the new scaling visibly
+changed play. No regressions observed.
+
+**Elite forensics: the residual is pure map topology.** The Entomancer run's log is
+conclusive — the bot chose AGAINST elites at every real fork (Unknown 31.8 > Elite;
+Monster 24.7 > Elite; RestSite > Elite) and every fatal elite entry was a single-option
+row at hugely negative path value (−164/−136/−129/−158/−112: the death-class pricing
+screaming into a map with elite chokepoints). Phrog f9 likewise forced (−62). Nothing
+left to fix at the policy layer; this is variance.
+
+**Slumbering Beetle 4th death, exoneration RE-CONFIRMED**: zero attacks into the
+sleeper across the fight. Act-2 pack-vs-entry-HP remains the real storyline.
+
+Still unrolled: Lagavulin post-leak-fix, merchant Foul-throw, Pen Nib post-fix.
+
 ## 2026-07-09 (Fable 5, session 2 — night) — PEN NIB SAGA CLOSED; tranche C ships; the tripwire retires
 
 **Pen Nib, validated and corrected after ~130 runs** (batch b0j3rzhj1 run 1 drove the
