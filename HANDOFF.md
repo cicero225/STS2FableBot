@@ -45,8 +45,8 @@ pointer). Delete/refresh this when it goes stale.
   enrage + back-attack/facing (killing a claw is a *boon*, ends Surrounded) + Bug Sting Weak/Frail.
 
 ## TEMP code to remove later
-- `loop.py` **Artifact/Pen-Nib tripwire** (fenced `>>> TEMP TRIPWIRE <<<`) + its test in
-  `tests/test_mock_run.py`. Delete once **Pen Nib** is also validated live (Artifact is done).
+- ~~`loop.py` **Artifact/Pen-Nib tripwire**~~ — **REMOVED 2026-07-09**: Pen Nib validated
+  live (batch b0j3rzhj1; the owner's preview gotcha was real and is now modeled).
 
 ## Open / next (no particular order — see PLAN for full list)
 - **Knowledge Demon "Choose a Card"** debuff-selection policy (the one substantive Act-2 item left).

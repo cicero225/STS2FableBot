@@ -151,27 +151,6 @@ def test_observe_pause_fires_once_per_screen_entry() -> None:
             labels.append(label)
     # one pause each: first draft poll, first shop poll, first event, and the re-entered event
     assert labels == ["at card draft", "at shop", "at event", "at event"]
-
-
-def test_temp_mechanic_tripwire_detects_artifact_and_pen_nib() -> None:
-    # TEMP (delete with the tripwire): the rare-mechanic flagger must fire for both, so a small
-    # validation batch can't silently skip them. Guards against a wrong status-id / relic tag.
-    from sts2bot.client.models import parse_state
-    from sts2bot.orchestrator.loop import _temp_mechanic_sightings
-
-    state = parse_state({
-        "state_type": "monster", "run": {"act": 1, "floor": 5, "ascension": 0},
-        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "energy": 3,
-                   "relics": [{"id": "PEN_NIB", "name": "Pen Nib", "counter": 7}]},
-        "battle": {"round": 1, "turn": "player", "is_play_phase": True,
-                   "enemies": [{"entity_id": "e0", "name": "Brute", "hp": 40, "max_hp": 40,
-                                "status": [{"id": "ARTIFACT_POWER", "name": "Artifact",
-                                            "amount": 2}]}]},
-    })
-    keys = {k for k, _ in _temp_mechanic_sightings(state)}
-    assert keys == {"PEN_NIB", "ARTIFACT"}
-
-
 def test_record_session_observes_and_logs(tmp_path: Path) -> None:
     """The `record` command logs a state trace per run for human-vs-bot comparison, and never
     acts. A human advances the game, so the fake advances on each poll (not on act)."""
