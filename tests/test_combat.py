@@ -719,3 +719,17 @@ def test_used_potion_slots_excluded_from_planning() -> None:
     d = plan_combat_turn(parse_state(_fysh_with_potion(25, hand, pots)), w,
                          used_potion_slots=(0,))
     assert "(potion)" not in d.rationale  # already drunk this round: not re-planned
+
+
+def test_killing_a_death_spawner_is_not_lethal() -> None:
+    # Phrog Parasite (Infested: "Upon dying, summons... something") splits into 4 stunned
+    # Wrigglers mid-turn -- killing it must NOT read as LETHAL, so survival checks and
+    # stranded-card tallies stay live on the kill turn (owner question 2026-07-09).
+    w = load_policy_config().combat
+    infested = [{"id": "INFESTED_POWER", "name": "Infested", "amount": 1,
+                 "description": "Upon dying, summons... something."}]
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy")]
+    d = plan_combat_turn(
+        parse_state(_beckon_state(3, hand, enemy_hp=5, hp=50, enemy_status=infested)), w)
+    assert d.action.payload()["card_index"] == 0  # still takes the kill
+    assert "LETHAL" not in d.rationale  # but the fight is not declared over

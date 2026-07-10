@@ -90,6 +90,10 @@ class EnemySim:
     # NB deliberately NOT applied to Slumber (Beetle) — that stack decrements on HP loss too, so
     # chipping a Slumberer is a different (sometimes correct) call; per-enemy nuance later.
     asleep: bool = False
+    # Infested (Phrog Parasite): "Upon dying, summons..." — killing it does NOT end the fight
+    # (4 stunned Wrigglers spawn mid-turn). Suppresses the false LETHAL so survival checks and
+    # stranded-card tallies stay live on the kill turn (owner question 2026-07-09).
+    spawns_on_death: bool = False
     crab_rage: bool = False  # Kaiser Crab claw: when an ally dies, survivors get +6 Str +99 Block
     back_attack: bool = False  # Kaiser Crab: deals +50% from behind while you're Surrounded
 
@@ -224,6 +228,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         summons = False
         illusion = False
         asleep = False
+        spawns_on_death = False
         for p in e.status:
             if p.id.upper() == "VULNERABLE" and p.amount:
                 vuln = p.amount
@@ -245,6 +250,9 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 illusion = True
             if p.id.upper().startswith("ASLEEP"):  # Asleep only — Slumber wakes differently
                 asleep = True
+            low_desc = (p.description or "").lower()
+            if "INFESTED" in p.id.upper() or ("dying" in low_desc and "summon" in low_desc):
+                spawns_on_death = True
         for i in e.intents:
             text = f"{i.type or ''} {i.title or ''} {i.description or ''}".lower()
             if (i.type or "").lower() == "buff" and (
@@ -287,6 +295,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 crab_rage=crab_rage,
                 back_attack=back_attack,
                 asleep=asleep,
+                spawns_on_death=spawns_on_death,
             )
         )
     return tuple(sims)
@@ -522,6 +531,16 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     )
 
 
+def _fight_over(enemies) -> bool:
+    """All leaders dead AND no dead enemy spawns on death (Infested): the fight truly ends.
+    Minions flee with the leader; a dead spawner means a phase 2 is coming mid-turn."""
+    leaders = [e for e in enemies if not e.is_minion]
+    pool = leaders or list(enemies)
+    if any(e.hp > 0 for e in pool):
+        return False
+    return not any(e.hp <= 0 and e.spawns_on_death for e in enemies)
+
+
 def _score(
     state: SimState, w: CombatWeights, hp_pct: float = 1.0, power_horizon: float = 1.0,
     stranded_unblockable: dict[int, int] | None = None,
@@ -529,9 +548,8 @@ def _score(
     my_hp: int = 999,
 ) -> float:
     # Lethal end-state (all leaders dead): stranded penalties and the death wall don't apply —
-    # the fight ends before end of turn.
-    leaders = [e for e in state.enemies if not e.is_minion]
-    lethal_end = not any(e.hp > 0 for e in (leaders or state.enemies))
+    # the fight ends before end of turn. A dead SPAWNER (Infested) means the fight continues.
+    lethal_end = _fight_over(state.enemies)
     # A stunned enemy (dropped to/below its stun threshold this turn) skips its turn, so its
     # intent doesn't land — attacking down to the threshold can cancel an otherwise-lethal hit.
     incoming = sum(e.incoming for e in state.enemies if _enemy_attacking(e))
@@ -803,8 +821,7 @@ def plan_combat_turn(
         # the order-indifferent score credited [kill > Not Yet] the same as [Not Yet > kill],
         # and the bot took lethal with 2 spare energy while a heal sat in hand (owner-caught
         # 2026-07-09). Heal/setup-before-kill lines keep their credit; post-kill lines can't.
-        sim_leaders = [e for e in sim.enemies if not e.is_minion]
-        if not any(e.hp > 0 for e in (sim_leaders or sim.enemies)):
+        if _fight_over(sim.enemies):
             return
         for ci, card in enumerate(remaining):
             if card.cost > sim.energy:
@@ -850,8 +867,7 @@ def plan_combat_turn(
         match = next((c for c in playable if c.index == idx), None)
         plan_names.append(match.name if match else f"#{idx}")
     # Fight ends when the leaders die — Minion enemies flee, so they don't gate lethal.
-    leaders = [e for e in best_state.enemies if not e.is_minion]
-    lethal = all(e.hp <= 0 for e in (leaders or best_state.enemies))
+    lethal = _fight_over(best_state.enemies)
     # Projected HP loss if we follow this line (post-block, post-kill incoming) — lets
     # callers tell "survivable with our own cards" from "actually facing death" so they
     # don't panic-drink a potion the planned block already covers.
