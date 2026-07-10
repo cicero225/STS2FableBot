@@ -22,8 +22,11 @@ scaling, Colossus' vuln-damage reduction in the score. Validates next batch.
 
 **Batch b0j3rzhj1 (10 clean): 0 wins, act-reach ~1.4** (Insatiable f33, Kaiser Crab f33;
 Soul Fysh ×2, Waterfall ×2, CB, Slumbering Beetle f24, Hunter-Killer f24, Crawlers f7).
-**Slumbering Beetle's THIRD run-kill** → its Slumber wake-accounting (decrements on HP
-loss OR turn; sheds Plating on wake) is promoted to the next enemies-pass item. Also
+**Slumbering Beetle's THIRD run-kill** → trace-audited and EXONERATED (same night): the
+bot ignored the sleeper correctly (Slumber ticked on turns, hits went to the Bowlbugs);
+the deaths are route/entry-HP losses (18/80 into a 3-enemy pack) wearing the Beetle's
+name. No per-enemy model needed; the wake-turn under-block is the filed §5-C
+next-turn-horizon class. Also
 2nd kill for Hunter-Killer (Tender). Owner live-caught during the stretch: Infernal
 Blade unplayed (attack-generator credit), the Phrog false-LETHAL (spawns_on_death),
 Retain-curse discard ranking + refinement, Normality retroactivity documented.
