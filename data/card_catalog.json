@@ -174,7 +174,7 @@
     "times_won": 1,
     "times_lost": 9
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "IRON_WAVE": {
    "name": "Iron Wave",
@@ -228,7 +228,7 @@
     "times_won": 0,
     "times_lost": 0
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "STOMP": {
    "name": "Stomp",
@@ -737,7 +737,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "DEBRIS": {
    "name": "Debris",
@@ -982,7 +982,7 @@
     "times_won": 0,
     "times_lost": 2
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "ROLLING_BOULDER": {
    "name": "Rolling Boulder",
@@ -998,7 +998,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "CRESCENT_SPEAR": {
    "name": "Crescent Spear",
@@ -1157,7 +1157,7 @@
     "times_won": 0,
     "times_lost": 0
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "MIRAGE": {
    "name": "Mirage",
@@ -1374,7 +1374,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "HIDDEN_GEM": {
    "name": "Hidden Gem",
@@ -2333,7 +2333,7 @@
     "times_won": 0,
     "times_lost": 0
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "SWORD_BOOMERANG": {
    "name": "Sword Boomerang",
@@ -2349,7 +2349,7 @@
     "times_won": 0,
     "times_lost": 3
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "SPORE_MIND": {
    "name": "Spore Mind",
@@ -2435,7 +2435,7 @@
     "times_won": 0,
     "times_lost": 2
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "MASTER_OF_STRATEGY": {
    "name": "Master of Strategy",
@@ -2453,7 +2453,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "WOUND": {
    "name": "Wound",
@@ -2601,7 +2601,7 @@
     "times_won": 0,
     "times_lost": 0
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "MOLTEN_FIST": {
    "name": "Molten Fist",
@@ -2694,7 +2694,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "AUTOMATION": {
    "name": "Automation",
@@ -3012,7 +3012,7 @@
     "times_won": 0,
     "times_lost": 4
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "SECRET_TECHNIQUE": {
    "name": "Secret Technique",
@@ -3062,7 +3062,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "BRAND": {
    "name": "Brand",
@@ -3133,7 +3133,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "DRAMATIC_ENTRANCE": {
    "name": "Dramatic Entrance",
@@ -3420,7 +3420,7 @@
     "times_won": 0,
     "times_lost": 0
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "UNMOVABLE": {
    "name": "Unmovable",
@@ -3470,7 +3470,7 @@
     "times_won": 0,
     "times_lost": 2
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "EQUILIBRIUM": {
    "name": "Equilibrium",
@@ -3660,7 +3660,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "APOTHEOSIS": {
    "name": "Apotheosis",
@@ -3679,7 +3679,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "DEBT": {
    "name": "Debt",
@@ -3765,7 +3765,7 @@
     "times_won": 0,
     "times_lost": 0
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "BECKON": {
    "name": "Beckon",
@@ -3815,7 +3815,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "INVOKE": {
    "name": "Invoke",
@@ -3963,7 +3963,7 @@
     "times_won": 0,
     "times_lost": 0
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "SOOT": {
    "name": "Soot",
@@ -3997,7 +3997,7 @@
     "times_won": 0,
     "times_lost": 2
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "RESONANCE": {
    "name": "Resonance",
@@ -4181,7 +4181,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "HOLOGRAM": {
    "name": "Hologram",
@@ -4236,7 +4236,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "LEADING_STRIKE": {
    "name": "Leading Strike",
@@ -4310,7 +4310,7 @@
     "times_won": 0,
     "times_lost": 1
    },
-   "seen_in_runs": false
+   "seen_in_runs": true
   },
   "EXPERTISE": {
    "name": "Expertise",

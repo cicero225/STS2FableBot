@@ -2,6 +2,28 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-12 (Fable 5) — Reverse handoff COMPLETE: back on the main machine, full corpus restored
+
+Owner returned and moved everything back (no OneDrive involved — the path is legacy
+naming; the old `StS2bot` folder remains as archive-in-waiting). Spin-up verified:
+- Repo at 2eccfa5 (61 commits pushed from the laptop), venv **rebuilt on Python 3.14**
+  (laptop venv pointed at a 3.13 that isn't installed here), **280 tests + ruff green**,
+  config hash `93676cd0fe72` intact (the .gitattributes LF pin doing its job).
+- **logs/ MERGED: 345 runs** (June's ~110 + July's ~235). Rebuilt from the full corpus:
+  **bestiary 75→101 enemies** (all SIX Act-3 bosses incl. Queen/Aeonglass/Test Subject
+  #C10; the Knights trio; Entomancer; 62 statuses), **card_effects 284** texts,
+  **combat_stats** re-grounded (monster p75 15, elite 35, boss 41; n=1836/195/284),
+  catalog **seen-set 149→176**.
+- Game **v0.107.1 unchanged** → the June mod build is still valid, no rebuild.
+- **Profile verified: CUSTOM_AND_SEEDS_EPOCH revealed** — the seeded per-boss harness is
+  BACK — plus Underdocks/Undergrowth/Glory discovered, 4 wins, Steam Cloud OFF.
+- CLAUDE.md game dir re-pointed to `I:\SteamLibrary`; HANDOFF marked complete; the
+  seeded-harness memory corrected to AVAILABLE.
+
+Next up (from the 07-09 close): The Gambit death-rider gate + Osty companion model,
+then card-pass step 2 (the draft pass — its gate condition is met), then the relic
+trigger pass. And the first full 40-run win-rate batch once step 2 lands.
+
 ## 2026-07-09 (Fable 5, session 2 — close) — Batch bzgprtnae: tranche C validated in the wild; elite deaths are pure topology now
 
 **Batch (10 clean): 0 wins, act-reach 1.60, relics 6.6/run** — second-best depth ever,

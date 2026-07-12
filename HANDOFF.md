@@ -1,6 +1,15 @@
 # HANDOFF — "you are here" (2026-06-26)
 
-> **2026-07-09: REVERSE handoff pending — this (laptop) machine now has the NEWER state.**
+> **2026-07-12: REVERSE HANDOFF COMPLETE — back on the MAIN machine.** Repo pulled
+> (2eccfa5 + spin-up commits), venv rebuilt (Python 3.14), 280 tests green, logs MERGED
+> (345 runs), bestiary rebuilt (75→101 enemies incl. all Act-3 bosses), card_effects
+> 284, combat_stats re-grounded, catalog seen-set 149→176. Game v0.107.1 unchanged →
+> June mod build still valid. **Profile verified: custom mode + Underdocks + Undergrowth
+> unlocked, 4 wins — the seeded harness is BACK.** Steam Cloud confirmed OFF. The old
+> `StS2bot` folder remains as archive-in-waiting (owner will archive it later).
+> The checklist below is retained for reference:
+
+> **2026-07-09 (superseded): REVERSE handoff pending — this (laptop) machine now has the NEWER state.**
 > Owner returns to the MAIN machine evening of 2026-07-11. To move the project back:
 > 1. **Repo**: ~15 commits ahead of the 07-08 transplant (through the elite-pool gate /
 >    planner-blind dock work). Push to the remote if one exists, else copy the repo folder.

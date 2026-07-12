@@ -1,6 +1,37 @@
 {
- "source": "110 run logs",
+ "source": "345 run logs",
  "enemies": {
+  "Aeonglass": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 2,
+   "hp": [
+    512,
+    512
+   ],
+   "statuses": {
+    "ARTIFACT_POWER": {
+     "name": "Artifact",
+     "description": "Negates 3 debuffs."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 3."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WITHERING_PRESENCE_POWER": {
+     "name": "Withering Presence",
+     "description": "Every 6 cards you play, add a Wither to your Hand."
+    }
+   }
+  },
   "Assassin Raider": {
    "roles": [
     "monster"
@@ -8,7 +39,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 14,
+   "runs_seen": 28,
    "hp": [
     18,
     23
@@ -39,7 +70,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 10,
+   "runs_seen": 24,
    "hp": [
     20,
     22
@@ -48,6 +79,68 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 1 turn."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "Axebot": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    72,
+    78
+   ],
+   "statuses": {
+    "STOCK_POWER": {
+     "name": "Stock",
+     "description": "When killed, a new Axebot is summoned in its place."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 3."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    }
+   }
+  },
+  "Battle Friend V3.0": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 2,
+   "hp": [
+    300,
+    300
+   ],
+   "statuses": {
+    "BATTLEWORN_DUMMY_TIME_LIMIT_POWER": {
+     "name": "Time Limit",
+     "description": "You have 3 more turns to defeat the Battleworn Dummy."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -58,7 +151,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 8,
+   "runs_seen": 33,
    "hp": [
     21,
     22
@@ -67,6 +160,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -77,7 +174,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 11,
+   "runs_seen": 41,
    "hp": [
     35,
     38
@@ -90,6 +187,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -100,7 +201,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 16,
+   "runs_seen": 72,
    "hp": [
     45,
     48
@@ -109,6 +210,14 @@
     "IMBALANCED_POWER": {
      "name": "Imbalanced",
      "description": "If Bowlbug (Rock)'s attacks are fully blocked, it becomes Stunned."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
     },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
@@ -127,15 +236,23 @@
    "acts": [
     2
    ],
-   "runs_seen": 2,
+   "runs_seen": 35,
    "hp": [
     40,
-    41
+    43
    ],
    "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -146,7 +263,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 16,
+   "runs_seen": 32,
    "hp": [
     30,
     33
@@ -169,12 +286,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 4,
+   "runs_seen": 27,
    "hp": [
     127,
     127
    ],
    "statuses": {
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Bygone Effigy's Attacks deal 30% less damage for the next 4 turns."
+    },
     "SLOW_POWER": {
      "name": "Slow",
      "description": "Whenever you play a card, this enemy receives 10% more damage from Attacks this turn."
@@ -200,7 +321,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 9,
+   "runs_seen": 35,
    "hp": [
     81,
     84
@@ -235,7 +356,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 13,
+   "runs_seen": 62,
    "hp": [
     38,
     41
@@ -266,7 +387,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 14,
+   "runs_seen": 52,
    "hp": [
     252,
     252
@@ -287,6 +408,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 1 turn."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -297,9 +422,9 @@
    "acts": [
     2
    ],
-   "runs_seen": 2,
+   "runs_seen": 25,
    "hp": [
-    61,
+    60,
     64
    ],
    "statuses": {
@@ -307,9 +432,17 @@
      "name": "Artifact",
      "description": "Negates 2 debuffs."
     },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -320,7 +453,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 16,
+   "runs_seen": 98,
    "hp": [
     25,
     27
@@ -351,7 +484,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 19,
+   "runs_seen": 34,
    "hp": [
     18,
     21
@@ -378,7 +511,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 1,
+   "runs_seen": 17,
    "hp": [
     209,
     209
@@ -391,6 +524,18 @@
     "CRAB_RAGE_POWER": {
      "name": "Crab Rage",
      "description": "When an ally dies, Crusher gains 6 Strength and 99 Block."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 3 turns."
     }
    }
   },
@@ -399,9 +544,10 @@
     "monster"
    ],
    "acts": [
-    1
+    1,
+    3
    ],
-   "runs_seen": 22,
+   "runs_seen": 49,
    "hp": [
     65,
     65
@@ -432,7 +578,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 9,
+   "runs_seen": 34,
    "hp": [
     51,
     53
@@ -449,6 +595,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 3 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -459,7 +609,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 2,
+   "runs_seen": 7,
    "hp": [
     40,
     46
@@ -483,6 +633,37 @@
     }
    }
   },
+  "Devoted Sculptor": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 10,
+   "hp": [
+    162,
+    162
+   ],
+   "statuses": {
+    "RITUAL_POWER": {
+     "name": "Ritual",
+     "description": "At the end of its turn, gains 9 Strength."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 9."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 8 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
   "Entomancer": {
    "roles": [
     "elite"
@@ -490,7 +671,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 1,
+   "runs_seen": 7,
    "hp": [
     145,
     145
@@ -507,6 +688,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 3 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -517,7 +702,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 17,
+   "runs_seen": 66,
    "hp": [
     24,
     28
@@ -572,6 +757,52 @@
     }
    }
   },
+  "Eye with Teeth": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    1
+   ],
+   "runs_seen": 27,
+   "hp": [
+    6,
+    6
+   ],
+   "statuses": {
+    "ILLUSION_POWER": {
+     "name": "Illusion",
+     "description": "When this dies, it revives next turn at full HP."
+    },
+    "MINION_POWER": {
+     "name": "Minion",
+     "description": "Minions abandon combat without their leader."
+    }
+   }
+  },
+  "Fabricator": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    150,
+    150
+   ],
+   "statuses": {
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
+    }
+   }
+  },
   "Fat Gremlin": {
    "roles": [
     "monster"
@@ -579,15 +810,42 @@
    "acts": [
     1
    ],
-   "runs_seen": 4,
+   "runs_seen": 35,
    "hp": [
     13,
-    15
+    17
    ],
    "statuses": {
     "HEIST_POWER": {
      "name": "Heist",
      "description": "When killed, returns all the stolen Gold."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 3 turns."
+    }
+   }
+  },
+  "Flail Knight": {
+   "roles": [
+    "elite"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    101,
+    101
+   ],
+   "statuses": {
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -598,7 +856,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 34,
+   "runs_seen": 74,
    "hp": [
     47,
     49
@@ -629,7 +887,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 25,
+   "runs_seen": 54,
    "hp": [
     74,
     74
@@ -656,7 +914,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 6,
+   "runs_seen": 35,
    "hp": [
     51,
     53
@@ -673,6 +931,41 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 1 turn."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "Frog Knight": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 4,
+   "hp": [
+    191,
+    191
+   ],
+   "statuses": {
+    "PLATING_POWER": {
+     "name": "Plating",
+     "description": "At the end of your turn, gain 15 Block. Plating is reduced by 1 at the start of your turn."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 5."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 4 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -683,7 +976,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 67,
+   "runs_seen": 165,
    "hp": [
     55,
     57
@@ -718,7 +1011,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 7,
+   "runs_seen": 35,
    "hp": [
     7,
     7
@@ -730,6 +1023,37 @@
     }
    }
   },
+  "Globe Head": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 4,
+   "hp": [
+    148,
+    148
+   ],
+   "statuses": {
+    "GALVANIC_POWER": {
+     "name": "Galvanic",
+     "description": "Powers are afflicted with Galvanized."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
+    }
+   }
+  },
   "Gremlin Merc": {
    "roles": [
     "monster"
@@ -737,7 +1061,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 4,
+   "runs_seen": 35,
    "hp": [
     47,
     49
@@ -758,6 +1082,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -768,7 +1096,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 8,
+   "runs_seen": 23,
    "hp": [
     19,
     21
@@ -795,15 +1123,23 @@
    "acts": [
     1
    ],
-   "runs_seen": 5,
+   "runs_seen": 39,
    "hp": [
     63,
     63
    ],
    "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 1 turn."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -814,12 +1150,16 @@
    "acts": [
     2
    ],
-   "runs_seen": 5,
+   "runs_seen": 27,
    "hp": [
     121,
     121
    ],
    "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 3 turns."
@@ -830,6 +1170,33 @@
     }
    }
   },
+  "Infested Prism": {
+   "roles": [
+    "elite"
+   ],
+   "acts": [
+    2
+   ],
+   "runs_seen": 3,
+   "hp": [
+    161,
+    161
+   ],
+   "statuses": {
+    "VITAL_SPARK_POWER": {
+     "name": "Vital Spark",
+     "description": "ALL Skills are Tainted 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 3 turns."
+    }
+   }
+  },
   "Inklet": {
    "roles": [
     "monster"
@@ -837,7 +1204,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 18,
+   "runs_seen": 51,
    "hp": [
     11,
     17
@@ -864,7 +1231,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 20,
+   "runs_seen": 59,
    "hp": [
     58,
     59
@@ -895,7 +1262,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 20,
+   "runs_seen": 59,
    "hp": [
     190,
     190
@@ -930,12 +1297,16 @@
    "acts": [
     2
    ],
-   "runs_seen": 1,
+   "runs_seen": 11,
    "hp": [
     379,
     379
    ],
    "statuses": {
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Knowledge Demon's Attacks deal 30% less damage for the next 4 turns."
+    },
     "STRENGTH_POWER": {
      "name": "Strength",
      "description": "Increases attack damage by 2."
@@ -957,7 +1328,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 5,
+   "runs_seen": 29,
    "hp": [
     222,
     222
@@ -992,7 +1363,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 43,
+   "runs_seen": 115,
    "hp": [
     32,
     35
@@ -1019,12 +1390,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 62,
+   "runs_seen": 166,
    "hp": [
     11,
     15
    ],
    "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
@@ -1042,15 +1417,50 @@
    "acts": [
     1
    ],
-   "runs_seen": 7,
+   "runs_seen": 35,
    "hp": [
     80,
     80
    ],
    "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 3 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "Living Shield": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 6,
+   "hp": [
+    55,
+    55
+   ],
+   "statuses": {
+    "RAMPART_POWER": {
+     "name": "Rampart",
+     "description": "At the start of the player's turn, Turret Operator gains 25 Block."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 3."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
     }
    }
   },
@@ -1061,7 +1471,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 5,
+   "runs_seen": 24,
    "hp": [
     134,
     136
@@ -1070,6 +1480,10 @@
     "CURL_UP_POWER": {
      "name": "Curl Up",
      "description": "Gains 14 Block upon first being hit."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -1085,6 +1499,25 @@
     }
    }
   },
+  "Magi Knight": {
+   "roles": [
+    "elite"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    82,
+    82
+   ],
+   "statuses": {
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 1 turn."
+    }
+   }
+  },
   "Mawler": {
    "roles": [
     "monster"
@@ -1092,12 +1525,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 26,
+   "runs_seen": 55,
    "hp": [
     72,
     72
    ],
    "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
@@ -1108,6 +1545,29 @@
     }
    }
   },
+  "Mecha Knight": {
+   "roles": [
+    "elite"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    300,
+    300
+   ],
+   "statuses": {
+    "ARTIFACT_POWER": {
+     "name": "Artifact",
+     "description": "Negates 2 debuffs."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 5."
+    }
+   }
+  },
   "Myte": {
    "roles": [
     "monster"
@@ -1115,9 +1575,9 @@
    "acts": [
     2
    ],
-   "runs_seen": 3,
+   "runs_seen": 17,
    "hp": [
-    62,
+    61,
     67
    ],
    "statuses": {
@@ -1142,7 +1602,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 71,
+   "runs_seen": 162,
    "hp": [
     42,
     46
@@ -1170,6 +1630,25 @@
     }
    }
   },
+  "Noisebot": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    18,
+    20
+   ],
+   "statuses": {
+    "MINION_POWER": {
+     "name": "Minion",
+     "description": "Minions abandon combat without their leader."
+    }
+   }
+  },
   "Ovicopter": {
    "roles": [
     "monster"
@@ -1177,10 +1656,10 @@
    "acts": [
     2
    ],
-   "runs_seen": 9,
+   "runs_seen": 25,
    "hp": [
     124,
-    129
+    130
    ],
    "statuses": {
     "STRENGTH_POWER": {
@@ -1197,6 +1676,29 @@
     }
    }
   },
+  "Owl Magistrate": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 2,
+   "hp": [
+    231,
+    231
+   ],
+   "statuses": {
+    "SOAR_POWER": {
+     "name": "Soar",
+     "description": "Receives 50% less attack damage until it lands."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    }
+   }
+  },
   "Parafright": {
    "roles": [
     "monster"
@@ -1204,7 +1706,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 7,
+   "runs_seen": 30,
    "hp": [
     21,
     21
@@ -1239,7 +1741,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 3,
+   "runs_seen": 23,
    "hp": [
     26,
     31
@@ -1256,6 +1758,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 3 turns."
     }
    }
   },
@@ -1266,15 +1772,19 @@
    "acts": [
     1
    ],
-   "runs_seen": 4,
+   "runs_seen": 37,
    "hp": [
     61,
-    63
+    64
    ],
    "statuses": {
     "INFESTED_POWER": {
      "name": "Infested",
      "description": "Upon dying, summons... something."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
     },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
@@ -1291,9 +1801,10 @@
     "monster"
    ],
    "acts": [
-    1
+    1,
+    3
    ],
-   "runs_seen": 5,
+   "runs_seen": 36,
    "hp": [
     55,
     55
@@ -1310,6 +1821,33 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "Queen": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    400,
+    400
+   ],
+   "statuses": {
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 1 turn."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -1320,7 +1858,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 1,
+   "runs_seen": 17,
    "hp": [
     199,
     199
@@ -1348,6 +1886,37 @@
     }
    }
   },
+  "Scroll of Biting": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 8,
+   "hp": [
+    30,
+    37
+   ],
+   "statuses": {
+    "PAPER_CUTS_POWER": {
+     "name": "Paper Cuts",
+     "description": "Whenever Scroll of Biting deals unblocked attack damage to you, you lose 2 Max HP."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 4 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
   "Seapunk": {
    "roles": [
     "monster"
@@ -1355,7 +1924,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 15,
+   "runs_seen": 97,
    "hp": [
     44,
     46
@@ -1382,7 +1951,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 4,
+   "runs_seen": 24,
    "hp": [
     56,
     56
@@ -1399,6 +1968,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -1409,7 +1982,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 69,
+   "runs_seen": 167,
    "hp": [
     38,
     40
@@ -1440,10 +2013,10 @@
    "acts": [
     1
    ],
-   "runs_seen": 1,
+   "runs_seen": 21,
    "hp": [
     70,
-    70
+    75
    ],
    "statuses": {
     "HARDENED_SHELL_POWER": {
@@ -1457,6 +2030,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -1467,7 +2044,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 30,
+   "runs_seen": 60,
    "hp": [
     53,
     55
@@ -1494,7 +2071,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 13,
+   "runs_seen": 91,
    "hp": [
     37,
     39
@@ -1507,6 +2084,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -1517,7 +2098,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 1,
+   "runs_seen": 18,
    "hp": [
     86,
     86
@@ -1534,6 +2115,14 @@
     "STRENGTH_POWER": {
      "name": "Strength",
      "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -1544,7 +2133,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 26,
+   "runs_seen": 60,
    "hp": [
     31,
     33
@@ -1561,6 +2150,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 1 turn."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -1571,15 +2164,19 @@
    "acts": [
     1
    ],
-   "runs_seen": 4,
+   "runs_seen": 35,
    "hp": [
     10,
-    13
+    14
    ],
    "statuses": {
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -1590,7 +2187,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 6,
+   "runs_seen": 39,
    "hp": [
     211,
     211
@@ -1600,9 +2197,36 @@
      "name": "Intangible",
      "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."
     },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "Spectral Knight": {
+   "roles": [
+    "elite"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    93,
+    93
+   ],
+   "statuses": {
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 1 turn."
     }
    }
   },
@@ -1613,9 +2237,9 @@
    "acts": [
     2
    ],
-   "runs_seen": 8,
+   "runs_seen": 30,
    "hp": [
-    117,
+    116,
     119
    ],
    "statuses": {
@@ -1633,6 +2257,25 @@
     }
    }
   },
+  "Stabbot": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    21,
+    22
+   ],
+   "statuses": {
+    "MINION_POWER": {
+     "name": "Minion",
+     "description": "Minions abandon combat without their leader."
+    }
+   }
+  },
   "Terror Eel": {
    "roles": [
     "elite"
@@ -1640,7 +2283,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 2,
+   "runs_seen": 23,
    "hp": [
     140,
     140
@@ -1664,6 +2307,80 @@
     }
    }
   },
+  "Test Subject #C10": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    300
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C10 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "INTANGIBLE_POWER": {
+     "name": "Intangible",
+     "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."
+    },
+    "NEMESIS_POWER": {
+     "name": "Nemesis",
+     "description": "At the end of every other turn, gains Intangible 1."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    }
+   }
+  },
+  "The Forgotten": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 4,
+   "hp": [
+    106,
+    106
+   ],
+   "statuses": {
+    "DEXTERITY_POWER": {
+     "name": "Dexterity",
+     "description": "Increases Block gained from cards by 2."
+    },
+    "POSSESS_SPEED_POWER": {
+     "name": "Possess Speed",
+     "description": "When killed, return all stolen Dexterity to the player."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
+    }
+   }
+  },
   "The Insatiable": {
    "roles": [
     "boss"
@@ -1671,7 +2388,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 2,
+   "runs_seen": 16,
    "hp": [
     321,
     321
@@ -1688,6 +2405,37 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 1 turn."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "The Lost": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 4,
+   "hp": [
+    93,
+    93
+   ],
+   "statuses": {
+    "POSSESS_STRENGTH_POWER": {
+     "name": "Possess Strength",
+     "description": "When killed, return all stolen Strength to the player."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
     }
    }
   },
@@ -1698,7 +2446,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 7,
+   "runs_seen": 30,
    "hp": [
     123,
     123
@@ -1725,7 +2473,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 8,
+   "runs_seen": 43,
    "hp": [
     79,
     79
@@ -1738,6 +2486,10 @@
     "FLUTTER_POWER": {
      "name": "Flutter",
      "description": "Receives 50% less damage from Attacks. Deal attack damage 5 times to Stun it."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
     },
     "SWIPE_POWER": {
      "name": "Swipe",
@@ -1760,12 +2512,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 12,
+   "runs_seen": 87,
    "hp": [
     21,
     25
    ],
    "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "THORNS_POWER": {
      "name": "Thorns",
      "description": "When hit by an attack, deal 2 damage back."
@@ -1773,6 +2529,41 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "Torch Head Amalgam": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    199,
+    199
+   ],
+   "statuses": {
+    "MINION_POWER": {
+     "name": "Minion",
+     "description": "Minions abandon combat without their leader."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 3 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -1783,7 +2574,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 9,
+   "runs_seen": 25,
    "hp": [
     14,
     18
@@ -1810,7 +2601,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 16,
+   "runs_seen": 29,
    "hp": [
     21,
     25
@@ -1833,7 +2624,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 3,
+   "runs_seen": 45,
    "hp": [
     87,
     87
@@ -1843,9 +2634,44 @@
      "name": "Burrowed",
      "description": "Block is not removed at the start of Tunneler's turn. Stunned if all Block is removed."
     },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 1 turn."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "Turret Operator": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 6,
+   "hp": [
+    41,
+    41
+   ],
+   "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 3 turns."
     }
    }
   },
@@ -1856,7 +2682,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 48,
+   "runs_seen": 121,
    "hp": [
     26,
     28
@@ -1887,7 +2713,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 62,
+   "runs_seen": 166,
    "hp": [
     7,
     11
@@ -1910,7 +2736,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 7,
+   "runs_seen": 26,
    "hp": [
     17,
     21
@@ -1933,12 +2759,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 12,
+   "runs_seen": 38,
    "hp": [
     173,
     173
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
     "SLIPPERY_POWER": {
      "name": "Slippery",
      "description": "The next 9 times Vantom loses HP, it only loses 1 HP instead."
@@ -1964,7 +2794,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 21,
+   "runs_seen": 48,
    "hp": [
     61,
     61
@@ -1995,15 +2825,27 @@
    "acts": [
     1
    ],
-   "runs_seen": 3,
+   "runs_seen": 36,
    "hp": [
     240,
     999999999
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
+    "SHACKLING_POTION_POWER": {
+     "name": "Shackling Potion",
+     "description": "Lose 7 Strength until the end of this turn."
+    },
     "STEAM_ERUPTION_POWER": {
      "name": "Steam Eruption",
      "description": "When killed, deals 15 damage at the end of your next turn."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Decreases attack damage by 15."
     },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
@@ -2023,12 +2865,47 @@
    "acts": [
     1
    ],
-   "runs_seen": 11,
+   "runs_seen": 55,
    "hp": [
     17,
     21
    ],
    "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "Zapbot": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    23,
+    23
+   ],
+   "statuses": {
+    "HIGH_VOLTAGE_POWER": {
+     "name": "High Voltage",
+     "description": "At the end of Zapbot's turn, it gains 2 Strength."
+    },
+    "MINION_POWER": {
+     "name": "Minion",
+     "description": "Minions abandon combat without their leader."
+    },
     "STRENGTH_POWER": {
      "name": "Strength",
      "description": "Increases attack damage by 2."
