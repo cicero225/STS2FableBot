@@ -738,6 +738,10 @@ class StandardRouter:
     ) -> float:
         w = self.config.card_rewards
         fx = parse_card_description(card.description)
+        # Self-death-rider cards (The Gambit) are gated to never-play in the planner, so
+        # drafting one buys a permanent dead card — worse than skipping, below any threshold.
+        if fx.self_death_rider:
+            return -100.0
         score = {
             "Common": w.w_rarity_common,
             "Uncommon": w.w_rarity_uncommon,

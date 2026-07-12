@@ -151,7 +151,7 @@
    "shared_pattern": "osty-summon",
    "evidence": "parse: {} (only hits:1) — 'Summon 5.' matches no regex, and no parser field can express it. The card gives the Necrobinder's companion Osty 5 (7 upgraded) HP: tanking value plus fuel for Unleash's HP-scaled damage. grep of sts2bot/policy/ shows the planner has no player-companion concept at all (summon logic is enemy-side only), so the bot prices this Basic at zero and never summons.",
    "proposal": "Planner rule: track Osty HP in SimState (seed from combat state), map 'Summon N' to +N Osty HP, and value it as block-equivalent plus Unleash fuel; pair with the UNLEASH fix",
-   "status": "open"
+   "status": "partial-fix (2026-07-12): probe of 40 runs of logged states found NO osty/companion field in the mod's state payload, so the full SimState model is blocked on a mod-fork API addition (TODO filed in the proposal). Shipped approximation: 'Summon N' parses as +N block-equivalent (Bodyguard 5, Pull Aggro 4+7; Invoke's next-turn summon correctly deferred by the trigger strip). Unleash keeps its parsed base 6 without the HP-scaling bonus."
   },
   "BODY_SLAM": {
    "name": "Body Slam",
@@ -1321,7 +1321,7 @@
    "shared_pattern": "self-death-rider",
    "evidence": "Parser returns {block:50 (75 upgraded), conditional:True, recognized:['block']} — numerically complete, but the death rider 'If you take unblocked attack damage this combat, die.' is invisible to both parser and planner. Grep shows no player-card 'die' handling anywhere in sts2bot/policy (only enemy Sandpit death-timer logic in capability.py/standard.py). The planner therefore sees a 0-cost 50-block skill and will play it whenever block matters — then any chip damage on a later turn (which this bot takes constantly in Acts 1-2) is instant death. 'conditional' does not discount it; the misplay is playing it at all.",
    "proposal": "In _to_planned, add a self-death-rider gate: if the description matches r'\\byou\\b.*\\bdie\\b' (or simply r'\\bdie\\.?$' on a player card), return None so the card is never planned. Optimal use (guaranteed-full-block combats) needs cross-turn certainty the one-turn planner lacks, so a hard ban is the safe smallest change.",
-   "status": "open"
+   "status": "fixed (2026-07-12): fx.self_death_rider set from full text; _to_planned returns None (never played) and _card_score returns -100 (never drafted). Verified 'die' appears in no other card in the 250-card catalog."
   },
   "THINKING_AHEAD": {
    "name": "Thinking Ahead",

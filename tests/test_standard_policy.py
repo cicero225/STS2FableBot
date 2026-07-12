@@ -2262,6 +2262,22 @@ def test_planner_blind_cards_get_docked_at_draft() -> None:
     assert generator > blind  # the exemption: its output is playable
 
 
+def test_death_rider_card_never_drafted() -> None:
+    """The Gambit is gated to never-play in the planner, so drafting it buys a permanent
+    dead card: its draft score must sit below any plausible take threshold."""
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class C:
+        def __init__(self, cid, name, desc, rarity="Rare", typ="Skill", cost="0"):
+            self.id, self.name, self.description = cid, name, desc
+            self.rarity, self.type, self.cost = rarity, typ, cost
+
+    gambit = r._card_score(
+        C("THE_GAMBIT", "The Gambit",
+          "Gain 50 Block. If you take unblocked attack damage this combat, die."), 15)
+    assert gambit <= -100.0
+
+
 def test_guilty_not_worth_a_paid_removal() -> None:
     """Owner 2026-07-09: Guilty auto-removes after 5 combats -- paying to remove it wastes the
     removal. It ranks ABOVE a basic Strike as a removal target (the Strike goes first), and a

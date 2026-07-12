@@ -74,6 +74,14 @@ _TAKE_DAMAGE = re.compile(r"\b[Tt]ake (\d+) damage")
 _HEAL = re.compile(r"\bHeal (\d+) HP", re.IGNORECASE)
 # Fisticuffs: "Gain Block equal to damage dealt" — approximate block = damage (delta audit)
 _BLOCK_EQ_DAMAGE = re.compile(r"Gain Block equal to (?:the )?damage dealt", re.IGNORECASE)
+# The Gambit: "Gain 50 Block. If you take unblocked attack damage this combat, die." A
+# self-death rider no one-turn horizon can certify against — the card must never be
+# played or drafted by this pilot (delta audit, high impact).
+_SELF_DEATH_RIDER = re.compile(r"\byou\b[^.]*\bdie\b|,\s*die\.", re.IGNORECASE)
+# Bodyguard "Summon 5." / Pull Aggro "Summon 4. Gain 7 Block.": no companion state is
+# exposed by the mod, so summoned companion HP is approximated as ADDED block-equivalent
+# protection (it soaks hits like block; carryover between turns is upside we don't price).
+_SUMMON_N = re.compile(r"\bSummon (\d+)")
 # conditional/synergy language the one-turn planner cannot evaluate yet
 _CONDITIONAL = re.compile(
     r"\b(if |when |whenever |after you|for each|next turn|at the start|at the end"
@@ -99,6 +107,9 @@ class CardEffects:
     max_hp_cost: int = 0
     heal: int = 0
     conditional: bool = False  # has synergy/conditional language the planner can't price
+    # The Gambit-class: a rider that KILLS YOU under conditions no one-turn plan can certify
+    # against ("If you take unblocked attack damage this combat, die.") — never play/draft.
+    self_death_rider: bool = False
     recognized: list[str] = field(default_factory=list)
 
     @property
@@ -180,6 +191,11 @@ def parse_card_description(text: str | None) -> CardEffects:
     if _BLOCK_EQ_DAMAGE.search(text) and fx.damage and not fx.block:
         fx.block = fx.damage * fx.hits  # Fisticuffs-class: ~95% of the value in one regex
         fx.recognized.append("block")
+    if m := _SUMMON_N.search(text):
+        fx.block += int(m.group(1))  # companion HP ~ block-equivalent protection (Bodyguard)
+        if "block" not in fx.recognized:
+            fx.recognized.append("block")
+    fx.self_death_rider = bool(_SELF_DEATH_RIDER.search(full))
     fx.conditional = bool(_CONDITIONAL.search(full))  # flag reads the FULL text
     return fx
 

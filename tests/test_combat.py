@@ -789,6 +789,24 @@ def test_c_tranche_bully_scales_with_target_vulnerable() -> None:
     assert out.damage_dealt == 15
 
 
+def test_gambit_death_rider_never_planned() -> None:
+    # The Gambit: "Gain 50 Block. If you take unblocked attack damage this combat, die."
+    # A one-turn planner can't certify combat-long perfect blocking -> strictly unplayable.
+    from sts2bot.policy.combat import _to_planned
+
+    class C:
+        index = 0
+        id = "THE_GAMBIT"
+        name = "The Gambit"
+        type = "Skill"
+        cost = "0"
+        can_play = True
+        target_type = "None"
+        is_upgraded = False
+        description = "Gain 50 Block. If you take unblocked attack damage this combat, die."
+    assert _to_planned(C(), 3) is None
+
+
 def test_c_tranche_dominate_strength_per_vuln() -> None:
     # Dominate: "Apply 1 Vulnerable. Gain 1 Strength for each Vulnerable on the enemy."
     w = load_policy_config().combat

@@ -178,6 +178,11 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         except ValueError:
             return None
     fx = parse_card_description(card.description)
+    # The Gambit: "Gain 50 Block. If you take unblocked attack damage this combat, die."
+    # A one-turn planner can never certify combat-long perfect blocking, so a self-death
+    # rider makes the card strictly unplayable for this pilot (delta audit).
+    if fx.self_death_rider:
+        return None
     # Whirlwind & kin: "Deal N damage to ALL enemies X times" — X-cost resolves to current
     # energy (above), and the hit count is that same X; the parser can't know it, so set it
     # here. Without this Whirlwind read as one hit (4x+ under-valued at high energy).

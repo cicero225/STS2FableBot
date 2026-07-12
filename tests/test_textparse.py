@@ -32,7 +32,8 @@ def test_debuffs_and_costs() -> None:
 
 
 def test_unrecognized_text_is_inert() -> None:
-    fx = parse_card_description("Summon 1. Osty grows stronger.")
+    # "Summon N" now parses as block-equivalent, so use genuinely unparseable text here.
+    fx = parse_card_description("Osty grows stronger. Transform a card in your Hand.")
     assert not fx.has_any_effect and fx.total_damage == 0
 
 
@@ -151,6 +152,29 @@ def test_delta_audit_fixes() -> None:
     # Fisticuffs: "Gain Block equal to damage dealt" -> block ~= damage
     fx = p("Deal 7 damage. Gain Block equal to damage dealt.")
     assert (fx.damage, fx.block) == (7, 7)
+
+
+def test_self_death_rider_flagged() -> None:
+    # The Gambit: the block still parses, but the rider must be flagged so planner/draft
+    # gate it (the bot can never certify combat-long perfect blocking).
+    p = parse_card_description
+    fx = p("Gain 50 Block. If you take unblocked attack damage this combat, die.")
+    assert fx.self_death_rider and fx.block == 50
+    # no false positives: enemy-death and protective wording stay unflagged
+    assert not p("Deal 8 damage. If this kills the enemy, gain 10 gold.").self_death_rider
+    assert not p("Gain 12 Block.").self_death_rider
+
+
+def test_summon_as_block_equivalent() -> None:
+    # No companion state in the API: Summon N ~ N block-equivalent protection.
+    p = parse_card_description
+    fx = p("Summon 5.")  # Bodyguard
+    assert fx.block == 5 and fx.has_any_effect
+    fx = p("Summon 4. Gain 7 Block.")  # Pull Aggro: summon ADDS to real block
+    assert fx.block == 11
+    # Invoke: "Next turn, Summon 2..." is deferred -> no immediate credit
+    fx = p("Next turn, Summon 2 and gain [necrobinder_energy_icon.png].")
+    assert fx.block == 0
 
 
 def test_discovery_generator_credited() -> None:
