@@ -365,3 +365,18 @@ def test_knowledge_demon_regeneration_hardens_the_race() -> None:
     assert estimate_fight(80, marginal, kd_plain).win
     assert not estimate_fight(80, marginal, kd_real).win  # regen + dot load close the door
     assert estimate_fight(80, racer, kd_real).win
+
+
+def test_knights_compose_as_the_full_trio() -> None:
+    # Act-3 Knights fight together (276 HP; merged-bestiary confirmation 2026-07-12). Each
+    # member entry expands to the trio; Mecha Knight (a real 300-HP solo) must NOT match.
+    bestiary = {
+        "Flail Knight": {"hp": [101, 101], "statuses": {}},
+        "Spectral Knight": {"hp": [93, 93], "statuses": {}},
+        "Magi Knight": {"hp": [82, 82], "statuses": {}},
+        "Mecha Knight": {"hp": [300, 300], "statuses": {}},
+    }
+    trio = elite_fight_members("Flail Knight", bestiary["Flail Knight"], bestiary, dps=29)
+    assert len(trio) == 3 and sum(e.hp for e in trio) == 276
+    solo = elite_fight_members("Mecha Knight", bestiary["Mecha Knight"], bestiary, dps=29)
+    assert len(solo) == 1 and solo[0].hp == 300

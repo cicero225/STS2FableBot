@@ -293,6 +293,12 @@ _ELITE_COMPOSITIONS: dict[str, list[tuple[str, int]]] = {
     # Reattach's revive (25 HP after 2 turns unless killed together) is NOT modeled — the body
     # count alone fixes the gross underestimate; revive-HP is the ENEMY_PASS (B) refinement.
     "DECIMILLIPEDE": [("Decimillipede", 3)],
+    # The Act-3 Knights fight all three together (276 HP total; the owner's f44 one-turn-kill
+    # pack, confirmed by the merged bestiary 2026-07-12). Full names as keys — a bare "KNIGHT"
+    # would false-match Mecha Knight, a genuine 300-HP solo.
+    "FLAIL KNIGHT": [("Flail Knight", 1), ("Spectral Knight", 1), ("Magi Knight", 1)],
+    "SPECTRAL KNIGHT": [("Flail Knight", 1), ("Spectral Knight", 1), ("Magi Knight", 1)],
+    "MAGI KNIGHT": [("Flail Knight", 1), ("Spectral Knight", 1), ("Magi Knight", 1)],
 }
 
 
