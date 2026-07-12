@@ -875,3 +875,28 @@ def test_c_tranche_expect_a_fight_scales_with_hand_attacks() -> None:
     d = plan_combat_turn(parse_state(_beckon_state(2, hand, enemy_hp=300, hp=70)), w)
     plan = d.rationale.split("[")[1].split("]")[0]
     assert "Expect a Fight" in plan  # 4 attacks in hand: nets +2, enabling more plays
+
+
+def test_infernal_blade_credit_actually_lands() -> None:
+    # Delta audit (2026-07-12) harness-confirmed the 07-09 IB fix never landed: a
+    # non-targeting Skill's synthetic damage was dropped by _apply_card (no target, no AoE).
+    # The generator credit is now targetable, so 0-cost IB+ gets played.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "INFERNAL_BLADE", "Infernal Blade+", 0,
+                   "Add a random Attack into your Hand. It's free to play this turn. Exhaust.",
+                   "Skill", "None")]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=100, hp=60)), w)
+    assert isinstance(d.action, type(d.action)) and d.action.payload().get("card_index") == 0
+
+
+def test_apotheosis_flagged_power_like_and_played() -> None:
+    # Apotheosis (2e Skill, "Upgrade ALL your cards for the rest of combat") had no parseable
+    # effect and was never played; now it rides the power-horizon term (filed 2026-06-26,
+    # implemented via the delta audit 2026-07-12).
+    w = load_policy_config().combat
+    hand = [_bcard(0, "APOTHEOSIS", "Apotheosis", 2,
+                   "Upgrade ALL your cards for the rest of combat. Exhaust.", "Skill", "None"),
+            _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy")]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=200, hp=70)), w)
+    plan = d.rationale.split("[")[1].split("]")[0]
+    assert "Apotheosis" in plan  # banked early like a Power, not stranded

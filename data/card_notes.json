@@ -4,7 +4,13 @@
   "A_verified": 76,
   "B_parser": 22,
   "C_planner": 40,
-  "D_multiturn": 11
+  "D_multiturn": 11,
+  "delta_2026_07_12": {
+   "D": 3,
+   "A": 14,
+   "C": 6,
+   "B": 4
+  }
  },
  "cards": {
   "ACROBATICS": {
@@ -1494,6 +1500,276 @@
    "confidence": "high",
    "shared_pattern": null,
    "evidence": "Parse: {hits:1} only (no effects). Unplayable → filtered by can_play at combat.py:137; no end-of-turn text, no combat-relevant effect to price. Nothing to misplay.",
+   "proposal": "none",
+   "status": "verified"
+  },
+  "PANIC_BUTTON": {
+   "name": "Panic Button",
+   "class": "D",
+   "impact": "low",
+   "confidence": "med",
+   "shared_pattern": "block-lockout",
+   "evidence": "Parse: {block:30, hits:1, conditional:True, exhausts=True}. _to_planned confirms block=30 credited immediately, which is correct for THIS turn. But the card's defining clause 'You cannot gain Block from cards for 2 turns' is invisible to the one-turn planner: nothing zeroes block gain on subsequent turns, and if a block card is played in the SAME plan after Panic Button the sim still credits its block (game gives 0). Both are cross-turn effects.",
+   "proposal": "File as multi-turn class. The immediate 30/40 block prices correctly, so no forced fix; a future block-lockout flag could zero my_block gains for the lockout window, but that needs turn-crossing state the one-turn sim lacks.",
+   "status": "open"
+  },
+  "ROLLING_BOULDER": {
+   "name": "Rolling Boulder",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": "per-turn-power-ramp",
+   "evidence": "Parse: {hits:1, conditional:True} — no damage extracted. _to_planned sets is_power=True and per_turn_power (text has 'start of'), zeroing block/energy/strength/self_hp_cost; damage was never parsed so no immediate offense is credited. Correct: the 5/10 ALL-enemy damage fires at the START of future turns, not the turn played. It banks as a generic power via w_power.",
+   "proposal": "none — treated correctly as a generic ramping power; the escalating value is inherently multi-turn and shares the standard power-valuation limitation, not a misplay.",
+   "status": "verified"
+  },
+  "SLICE": {
+   "name": "Slice",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parse: {damage:6, hits:1, recognized:[damage]}. Upgraded 'Deal 9 damage' is structurally identical (damage:9). Vanilla single-hit attack; sim applies it exactly.",
+   "proposal": "none",
+   "status": "verified"
+  },
+  "SWORD_BOOMERANG": {
+   "name": "Sword Boomerang",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": "random-target-multihit",
+   "evidence": "Parse: {damage:3, hits:3} (upgraded hits:4). _to_planned confirms dmg=3 hits=3. Total damage and hit count captured correctly; single-target totals are exact. The only unmodeled detail is 'random enemy' distribution — in multi-enemy fights the planner applies all hits to the chosen target rather than spreading — but total damage is right and this is an accepted approximation shared with other random-target multihits.",
+   "proposal": "none — hits are parsed correctly; random spread is a targeting approximation, not a mispricing worth a rule.",
+   "status": "verified"
+  },
+  "THRUMMING_HATCHET": {
+   "name": "Thrumming Hatchet",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parse: {damage:11, hits:1, conditional:True}. _to_planned confirms dmg=11 hits=1. The 'conditional' flag comes from 'At the start of your next turn, return this to your Hand' — pure next-turn upside (a recurring free-ish attack). The turn it is played it deals exactly 11/14, which the sim prices correctly; the return is unmodeled upside, not a misplay.",
+   "proposal": "none — immediate damage is exact; the return-to-hand benefit is multi-turn upside the planner simply doesn't get credit for (slight undervalue, never a misplay).",
+   "status": "verified"
+  },
+  "ULTIMATE_STRIKE": {
+   "name": "Ultimate Strike",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parse: {damage:14, hits:1, recognized:[damage]}. Upgraded 'Deal 20 damage' identical structure. Vanilla single-hit attack, applied exactly by the sim.",
+   "proposal": "none",
+   "status": "verified"
+  },
+  "VOLLEY": {
+   "name": "Volley",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": "random-target-multihit",
+   "evidence": "Parse alone gives {damage:10, hits:1} — misses the X-times count. BUT _to_planned's X-cost special-case (line 184: cost==X and matches '\\bX times') fires: at energy=3 the planner returns cost=3, hits=3, so 10 dmg x 3 hits = 30. Confirmed empirically. Upgraded (14 dmg) same path. Correctly valued at all energy levels.",
+   "proposal": "none — already handled by the existing X-times planner mechanic. (Same 'random enemy' spread approximation as Sword Boomerang, immaterial to total damage.)",
+   "status": "verified"
+  },
+  "ANGER": {
+   "name": "Anger",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parser returns {damage: 6, hits: 1, conditional: True} (8 upgraded) — the damage half is fully priced. The 'Add a copy into your Discard Pile' clause is unmodeled, but the copy lands in the discard pile so it cannot be drawn or played this turn; a 0-cost 6-damage attack is always net-positive and the planner plays it. No one-turn misplay exists; the copy only matters for draft valuation / cross-turn deck density.",
+   "proposal": "none (optionally file the self-copy as a draft-side deck-eval note, not a combat-planner change)",
+   "status": "verified"
+  },
+  "APOTHEOSIS": {
+   "name": "Apotheosis",
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "shared_pattern": "power-like-skill",
+   "evidence": "Parser returns {hits: 1, conditional: True} — zero priced effects. Grep confirms no Apotheosis/upgrade special-case anywhere in combat.py; it is not a Power so it gets no w_power banking. A 2-cost Skill with no credited effect scores strictly negative in the sim (energy spent, nothing gained), so the planner will NEVER play it — the real effect (upgrade every card in the deck, immediately buffing this turn's remaining hand and all future turns) is entirely lost.",
+   "proposal": "In _to_planned, detect 'Upgrade ALL your cards' and mark the card power-like (credit via w_power x power_horizon like per-turn powers), so it gets played early; a later refinement could swap unplayed hand cards' fx to their upgraded texts on application.",
+   "status": "fixed (power-like flag -> horizon credit; filed since 2026-06-26)"
+  },
+  "BOMBARDMENT": {
+   "name": "Bombardment",
+   "class": "C",
+   "impact": "low",
+   "confidence": "med",
+   "shared_pattern": "recurring-replay",
+   "evidence": "Parser returns {damage: 18, hits: 1, conditional: True} — the trigger sentence 'At the start of your turn, if this is in your Exhaust Pile, play it' is correctly dropped by _TRIGGER_SENTENCE, so this turn's play is priced right (18 dmg for 3). But the recurring free 18-damage replay every subsequent turn is invisible, so the planner treats it as a mediocre 3-cost attack and may defer it indefinitely behind cheaper spends in long fights.",
+   "proposal": "In _to_planned, detect 'if this is in your Exhaust Pile, play it' and credit the recurrence via the existing w_power x power_horizon banking (same machinery used for per-turn powers), on top of the immediate damage.",
+   "status": "open"
+  },
+  "CINDER": {
+   "name": "Cinder",
+   "class": "C",
+   "impact": "low",
+   "confidence": "med",
+   "shared_pattern": "random-hand-exhaust",
+   "evidence": "Parser returns {damage: 18, hits: 1, conditional: True}; 'exhaust' in text sets exhausts_a_card=True (Evil Eye/Ritual gating credit — a plus). The unmodeled part is the COST: exhausting 1 random hand card. The sim assumes every other hand card stays playable, slightly over-crediting multi-card plans that sequence Cinder before other planned cards; live per-card replanning bounds the real loss to occasional suboptimal ordering.",
+   "proposal": "Model 'Exhaust N card(s) at random' in _apply_card by removing (or score-penalizing) one average-value unplayed hand card from the sim, or add a sequencing nudge to play such cards last among the turn's plays.",
+   "status": "open"
+  },
+  "DISCOVERY": {
+   "name": "Discovery",
+   "class": "B",
+   "impact": "low",
+   "confidence": "med",
+   "shared_pattern": "generate-card-to-hand",
+   "evidence": "Parser returns {hits: 1, conditional: True} — nothing priced. _RANDOM_ATTACK only matches 'Add a random Attack into your Hand' (the Infernal Blade fix at textparse.py:38-43), not 'Choose 1 of 3 random cards to add into your Hand', so Discovery scores zero and a 1-cost card with zero credit is never played — the exact 'sat unplayed at pure friction cost' failure mode that regex was added to fix. Replanning would see the real generated card immediately once it lands in hand.",
+   "proposal": "Extend the generator pattern to 'Choose \\d+ of \\d+ random cards to add into your Hand' (and 'Add N random ... card(s) into your Hand'), crediting an average-card EV like _RANDOM_ATTACK_DMG does, so free/cheap generators get played and the replan handles the actual card.",
+   "status": "fixed (generator credit, average-card EV)"
+  },
+  "EXTERMINATE": {
+   "name": "Exterminate",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parser returns {damage: 3, hits: 4, aoe: True} (4 dmg upgraded) — the _DAMAGE_TIMES regex with the optional 'to ALL enemies' clause captures the full 12/16 AoE damage (this phrasing was the earlier Conflagration B-fix, already landed). _apply_attack sims per-hit across all living enemies with block/vuln/slippery per hit.",
+   "proposal": "none",
+   "status": "verified"
+  },
+  "FASTEN": {
+   "name": "Fasten",
+   "class": "C",
+   "impact": "low",
+   "confidence": "med",
+   "shared_pattern": "block-per-card-played",
+   "evidence": "Parser returns {hits: 1} — no effects (correctly: 'Gain an additional 4 Block from Defend cards' does not match _BLOCK, so no false immediate block). As a Power it gets generic w_power x power_horizon banking, so it does get played, but the sim never adds +4 to Defends played after it this turn and the generic credit is blind to how many Defends the deck actually runs.",
+   "proposal": "Rage-shaped rule: detect 'additional (\\d+) Block from Defend' in _to_planned and, while active in the sim, add that bonus to each subsequent Defend's block in _apply_card (mirrors rage_block_active but keyed to Defend plays).",
+   "status": "open"
+  },
+  "FISTICUFFS": {
+   "name": "Fisticuffs",
+   "class": "B",
+   "impact": "med",
+   "confidence": "high",
+   "shared_pattern": "block-equal-to-damage",
+   "evidence": "Parser returns {damage: 7, hits: 1, recognized: ['damage']} — no block and not even flagged conditional. 'Gain Block equal to damage dealt' is silently dropped, so half the card's value (about 7-9 block, more with Strength/Vulnerable) is never credited: the bot mis-ranks it against pure Defends when it needs mitigation.",
+   "proposal": "Add a parser pattern 'Gain Block equal to damage dealt' setting fx.block = fx.damage as an approximation (exact value would hook dealt_total in _apply_attack, but the one-regex fix captures about 95% of the value).",
+   "status": "fixed (block = damage dealt approximation)"
+  },
+  "GIANT_ROCK": {
+   "name": "Giant Rock",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parser returns {damage: 16, hits: 1} (20 upgraded) — pure single-target damage, fully captured. The planner even has dedicated Primal Force handling (_PRIMAL_ROCK_DAMAGE) for the transformed-attack case that generates these tokens.",
+   "proposal": "none",
+   "status": "verified"
+  },
+  "GUIDING_STAR": {
+   "name": "Guiding Star",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parser returns {damage: 12, hits: 1, draw: 2} (13/3 upgraded parses identically in structure) — both effects captured; draws are credited via w_draw in _score and the live loop replans after each play so drawn cards become plannable immediately.",
+   "proposal": "none",
+   "status": "verified"
+  },
+  "PANACHE": {
+   "name": "Panache",
+   "class": "B",
+   "impact": "high",
+   "confidence": "high",
+   "shared_pattern": "trigger-sentence-strip",
+   "evidence": "Parser returned {damage: 10, hits: 1, aoe: True, recognized: ['damage']} for 'Every time you play 5 cards in a single turn, deal 10 damage to ALL enemies.' — the _TRIGGER_SENTENCE strip (textparse.py:53-54) only matches 'Every \\d', so 'Every time' slips through and the trigger damage is credited as immediate. _to_planned's per_turn_power tokens ('start of'/'each turn'/'every turn') also miss it, and per-turn zeroing wouldn't zero damage anyway. Planner harness CONFIRMED false lethal: hand [Panache, Defend] vs 10-HP enemy attacking for 20 → 'plan [Panache] score 90.2 LETHAL', Defend skipped. Real card deals nothing until 5 cards are played.",
+   "proposal": "Extend _TRIGGER_SENTENCE in textparse.py from 'Every \\d' to 'Every (\\d|time)' (or just 'Every\\b') so the whenever-trigger sentence is dropped; Panache then plays as a generic power via power_term, like Hailstorm does.",
+   "status": "fixed (trigger strip Every\b, 2026-07-12 — was a harness-confirmed FALSE LETHAL)"
+  },
+  "INFERNAL_BLADE": {
+   "name": "Infernal Blade",
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "shared_pattern": "hand-generator-credit",
+   "evidence": "Parser returns {damage: 8, hits: 1} via the deliberate _RANDOM_ATTACK heuristic (textparse.py:38-43, the 2026-07-09 live-catch fix). But the credit NEVER lands in the sim: IB is a non-targeting Skill, and _apply_card (combat.py:532-540) only applies damage when aoe or target_i is set; the DFS (combat.py:942) only assigns targets when target_type=='AnyEnemy'. Harness confirmed: 0-cost Infernal Blade+ alone in hand vs an attacker → 'no play improves the turn; end turn' — the exact stranding the fix was meant to cure. The existing IB fixes (test_standard_policy.py:1000, 2244) are draft-scorer-side only.",
+   "proposal": "In _to_planned, set targets_enemy=(card.target_type=='AnyEnemy' or (fx.damage>0 and not fx.aoe)) so credited generator damage picks a target and lands in _apply_attack; alternatively credit hand-generators as fx.draw (target-free) instead of damage.",
+   "status": "fixed properly (generator damage now targetable; the 07-09 credit never landed)"
+  },
+  "MIND_BLAST": {
+   "name": "Mind Blast",
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "shared_pattern": "pile-size-scaling",
+   "evidence": "Parser returned {hits: 1, conditional: True} — zero damage for 'Deal damage equal to the number of cards in your Draw Pile.' Harness: vs 15-HP enemy with draw_pile=20 (real damage 20 = lethal) it played it only as a reluctant filler ('score -19.4', no LETHAL flag) — the kill is never counted, so it can never be sequenced for lethal or preferred over blocking. State knows draw_pile_count at plan time; _to_planned already takes exhaust_pile for the identical Ashen Strike pattern (_PER_EXHAUST_PILE, combat.py:239).",
+   "proposal": "Pass draw_pile_count into _to_planned (like exhaust_pile) and add a regex for 'damage equal to the number of cards in your Draw Pile' setting fx.damage to that count.",
+   "status": "open"
+  },
+  "JACK_OF_ALL_TRADES": {
+   "name": "Jack of All Trades",
+   "class": "B",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": "hand-generator-credit",
+   "evidence": "Parser returned {hits: 1, conditional: True} — nothing credited for 'Add 1 random Colorless card into your Hand. Exhaust.' (_RANDOM_ATTACK requires 'random Attack'; this is 'random Colorless card'). Harness confirmed the 0-cost generator is stranded: alone in hand → 'no play improves the turn; end turn' — same pure-friction failure mode as pre-fix Infernal Blade+ (owner live-caught 2026-07-09).",
+   "proposal": "Generalize the generator pattern to 'Add N random ... card(s) into your Hand' and credit it as fx.draw += N — a draw credit lands without a target (w_draw in _score), fixing this card and de-stranding Infernal Blade/Discovery-style generators too.",
+   "status": "open"
+  },
+  "HAILSTORM": {
+   "name": "Hailstorm",
+   "class": "D",
+   "impact": "low",
+   "confidence": "med",
+   "shared_pattern": "turn-trigger-power-damage",
+   "evidence": "Parser returned {hits: 1, conditional: True} — the 'At the end...' sentence is correctly dropped by _TRIGGER_SENTENCE, so no false immediate damage (contrast Panache). Harness: hand [Hailstorm, Defend] → 'plan [Hailstorm > Defend]' — played early as a generic power via power_term, which is the right one-turn behavior. The unpriced part (end-of-turn 6 AoE if you have Frost, every turn) requires Frost-stack tracking that combat.py doesn't model at all (grep for 'frost' in combat.py: zero hits) plus cross-turn value.",
+   "proposal": "File: pricing needs a Frost resource model in SimState (stacks granted by other cards this turn) plus an end-of-turn conditional AoE tick; until Frost exists in the sim there is nothing to hook. Current generic-power handling is a safe fallback.",
+   "status": "open"
+  },
+  "METAMORPHOSIS": {
+   "name": "Metamorphosis",
+   "class": "D",
+   "impact": "low",
+   "confidence": "med",
+   "shared_pattern": "draw-pile-seeding",
+   "evidence": "Parser returned {hits: 1, conditional: True} — nothing credited ('into your Draw Pile' doesn't match the hand-generator regexes, correctly: the attacks arrive on future draws). Harness: with spare energy vs a non-attacker it still got played ('plan [Metamorphosis] score -0.8'), which is roughly right by accident; but its real value (3-5 free Attacks seeded into future draws) is pure cross-turn draw-pile reasoning the one-turn planner lacks by design.",
+   "proposal": "File as multi-turn: crediting draw-pile seeding needs a next-turn value model. Event rarity keeps exposure minimal; current behavior (plays it when energy is otherwise wasted) is acceptable.",
+   "status": "open"
+  },
+  "HAND_OF_GREED": {
+   "name": "Hand of Greed",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parser returned {damage: 20, hits: 1, conditional: True, recognized: ['damage']} — exact. The 'If Fatal, gain 20 Gold' rider is combat-irrelevant (gold isn't a combat resource; the conditional flag alone doesn't misplay it). Harness: vs 18-HP enemy → 'plan [Hand of Greed] score 52.5 LETHAL' with correct target.",
+   "proposal": "none",
+   "status": "verified"
+  },
+  "LEG_SWEEP": {
+   "name": "Leg Sweep",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parser returned {block: 11, weak: 2, recognized: ['block','weak']} (upgraded: block 14, weak 3) — exact. Harness: vs a 14-attack Brute → 'plan [Leg Sweep > Strike]', Leg Sweep sequenced first and targeted at the attacker; _apply_card lands Weak through Artifact resolution and applies WEAK_MULT to incoming.",
+   "proposal": "none",
+   "status": "verified"
+  },
+  "LUMINESCE": {
+   "name": "Luminesce",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parser returned {energy_gain: 2} base / {energy_gain: 3} upgraded via the _ENERGY_ICON_RUN icon-counting fix (textparse.py:56-61 names Luminesce; owner-caught 2026-06-26). Harness: at 0 energy with two Strikes and a 12-HP enemy → 'plan [Luminesce > Strike > Strike] score 45.0 LETHAL' — energy chained correctly. Retain only matters for cross-turn holding, and playing it for energy now is near-optimal for a 0-cost exhaust.",
+   "proposal": "none",
+   "status": "verified"
+  },
+  "MASTER_OF_STRATEGY": {
+   "name": "Master of Strategy",
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "shared_pattern": null,
+   "evidence": "Parser returned {draw: 3, recognized: ['draw']} (upgraded: draw 4) — exact. Draw is scored via w_draw (combat.py:743) and the loop replans after playing, so the real drawn cards are seen immediately. Harness: alone in hand it gets played ('plan [Master of Strategy] score -4.8; first: Master of Strategy') rather than stranded.",
    "proposal": "none",
    "status": "verified"
   }

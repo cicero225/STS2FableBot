@@ -208,6 +208,12 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
     # start of turn") don't fire the turn you play them; the text parser reads their numbers
     # as immediate, over-valuing them and mis-planning this turn's energy. Bank via w_power.
     per_turn_power = is_power and any(s in low for s in ("start of", "each turn", "every turn"))
+    # Power-like Skills (Apotheosis "Upgrade ALL your cards for the rest of combat"): a one-shot
+    # combat-long buff with no parseable this-turn effect scored strictly negative and was NEVER
+    # played (delta audit 2026-07-12; filed since 2026-06-26). Flag it power-like so it rides
+    # w_power x power_horizon and goes down early, exactly like a real Power.
+    if not is_power and "upgrade all your cards" in low:
+        is_power = True
     if per_turn_power:
         # also zero self_hp_cost: a per-turn power's "lose N HP" is a *next*-turn upkeep drain, not
         # damage you take the turn you play it (the parser reads it as immediate).
@@ -243,7 +249,12 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         name=card.name,
         cost=cost,
         fx=fx,
-        targets_enemy=(card.target_type == "AnyEnemy"),
+        # Synthetic generator damage (Shivs / Infernal Blade credit) must be targetable or
+        # _apply_card drops it on the floor -- harness-confirmed the IB fix never landed
+        # because a non-targeting Skill's damage applies only with a target or AoE (delta
+        # audit 2026-07-12). Real target choice is irrelevant; the credit just needs to land.
+        targets_enemy=(card.target_type == "AnyEnemy")
+        or (fx.damage > 0 and not fx.aoe),
         is_attack=(card.type == "Attack"),
         is_power=is_power,
         self_damage_power=self_damage_power,

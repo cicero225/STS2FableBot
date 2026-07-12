@@ -41,6 +41,10 @@ _SHIVS = re.compile(r"\bAdd (\d+|a) Shivs? (?:in)?to your Hand", re.IGNORECASE)
 # replan sees the real generated card immediately after.
 _RANDOM_ATTACK = re.compile(r"\bAdd (a|an|\d+) random Attacks? (?:in)?to your Hand", re.IGNORECASE)
 _RANDOM_ATTACK_DMG = 8
+# Discovery-class: "Choose 1 of 3 random cards to add into your Hand" — same
+# sat-unplayed-at-friction failure mode as Infernal Blade (delta audit 2026-07-12)
+_DISCOVER_CARD = re.compile(
+    r"\bChoose \d+ of \d+ random cards? to add (?:in)?to your Hand", re.IGNORECASE)
 # compound debuff: Shockwave "Apply 3 Weak and Vulnerable" — both get N
 _COMPOUND_DEBUFF = re.compile(
     r"\bApply (\d+) (Weak and Vulnerable|Vulnerable and Weak)", re.IGNORECASE
@@ -50,8 +54,10 @@ _COMPOUND_DEBUFF = re.compile(
 # "Next turn, draw 2..." credited the draw now; whenever-trigger Powers over-credited).
 # Sentences starting with these are dropped before effect parsing; the conditional flag is
 # still computed on the FULL text.
+# "Every\b" not "Every \d": Panache's "Every time you play 5 cards..." slipped the strip and
+# its 10 AoE credited as immediate — harness-confirmed FALSE LETHAL (delta audit 2026-07-12).
 _TRIGGER_SENTENCE = re.compile(
-    r"^\s*(When\b|Whenever\b|Every \d|Next turn\b|At the start\b|At the end\b)", re.IGNORECASE
+    r"^\s*(When\b|Whenever\b|Every\b|Next turn\b|At the start\b|At the end\b)", re.IGNORECASE
 )
 _ENERGY = re.compile(r"\bGain (\d+) Energy", re.IGNORECASE)
 # Some cards render gained energy as ICON tokens, not "N Energy" text (Luminesce: "Gain
@@ -66,6 +72,8 @@ _LOSE_HP = re.compile(r"\bLose (\d+) HP", re.IGNORECASE)
 _LOSE_MAX_HP = re.compile(r"\bLose (\d+) Max(?:imum)? HP", re.IGNORECASE)
 _TAKE_DAMAGE = re.compile(r"\b[Tt]ake (\d+) damage")
 _HEAL = re.compile(r"\bHeal (\d+) HP", re.IGNORECASE)
+# Fisticuffs: "Gain Block equal to damage dealt" — approximate block = damage (delta audit)
+_BLOCK_EQ_DAMAGE = re.compile(r"Gain Block equal to (?:the )?damage dealt", re.IGNORECASE)
 # conditional/synergy language the one-turn planner cannot evaluate yet
 _CONDITIONAL = re.compile(
     r"\b(if |when |whenever |after you|for each|next turn|at the start|at the end"
@@ -131,6 +139,9 @@ def parse_card_description(text: str | None) -> CardEffects:
         n = 1 if m.group(1).lower() in ("a", "an") else int(m.group(1))
         fx.damage, fx.hits = _RANDOM_ATTACK_DMG, n
         fx.recognized.append("damage")
+    elif _DISCOVER_CARD.search(text) and fx.damage == 0:  # Discovery: average-card EV
+        fx.damage = _RANDOM_ATTACK_DMG
+        fx.recognized.append("damage")
     if fx.damage and _ALL_ENEMIES.search(text):
         fx.aoe = True
     if m := _BLOCK.search(text):
@@ -166,6 +177,9 @@ def parse_card_description(text: str | None) -> CardEffects:
     if m := _HEAL.search(text):
         fx.heal = int(m.group(1))
         fx.recognized.append("heal")
+    if _BLOCK_EQ_DAMAGE.search(text) and fx.damage and not fx.block:
+        fx.block = fx.damage * fx.hits  # Fisticuffs-class: ~95% of the value in one regex
+        fx.recognized.append("block")
     fx.conditional = bool(_CONDITIONAL.search(full))  # flag reads the FULL text
     return fx
 

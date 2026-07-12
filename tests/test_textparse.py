@@ -140,3 +140,23 @@ def test_attack_generator_credited() -> None:
     fx = parse_card_description(
         "Add a random Attack into your Hand. It's free to play this turn. Exhaust.")
     assert fx.damage == 8 and fx.hits == 1 and fx.has_any_effect
+
+
+def test_delta_audit_fixes() -> None:
+    # Panache (harness-confirmed FALSE LETHAL): "Every time you play 5 cards in a single turn,
+    # deal 10 damage to ALL enemies." must parse to NO immediate damage.
+    p = parse_card_description
+    fx = p("Every time you play 5 cards in a single turn, deal 10 damage to ALL enemies.")
+    assert fx.damage == 0
+    # Fisticuffs: "Gain Block equal to damage dealt" -> block ~= damage
+    fx = p("Deal 7 damage. Gain Block equal to damage dealt.")
+    assert (fx.damage, fx.block) == (7, 7)
+
+
+def test_discovery_generator_credited() -> None:
+    # Discovery: "Choose 1 of 3 random cards to add into your Hand." parsed to nothing ->
+    # sat unplayed at friction cost (delta audit; same class as Infernal Blade).
+    fx = parse_card_description(
+        "Choose 1 of 3 random cards to add into your Hand. It's free to play this turn. "
+        "Exhaust.")
+    assert fx.damage == 8 and fx.has_any_effect
