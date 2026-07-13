@@ -2064,6 +2064,28 @@ def test_shop_buys_best_value_relic_and_skips_negative() -> None:
     assert d2.action.payload()["action"] == "proceed"  # negative-value relic not bought
 
 
+def test_last_shop_spend_down() -> None:
+    """Owner (2026-07-12, caught during the first-win run): the bot left an Act-3 shop
+    with ~500 gold. Gold has zero terminal value, so Act 3+ shops spend down: unknown
+    relics get bought (cheapest first), downside-text relics are skipped, and the same
+    shop in Act 1 keeps the normal value gates (proceeds)."""
+    base = json.loads(json.dumps(FIXTURES["shop"]))
+    base["player"]["gold"] = 500
+    base["run"] = {"act": 3, "floor": 45, "ascension": 0}
+    unknown = _shop_relic_item(0, "MYSTERY_TRINKET", "Mystery Trinket", 250)
+    downside = _shop_relic_item(1, "CURSED_IDOL", "Cursed Idol", 100)
+    downside["relic_description"] = "Whenever you rest, lose 5 HP and gain a Curse."
+    base["shop"]["items"] = [unknown, downside]
+    d = router().decide(parse_state(base), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload() == {"action": "shop_purchase", "index": 0}  # unknown, not cursed
+
+    act1 = json.loads(json.dumps(base))
+    act1["run"] = {"act": 1, "floor": 6, "ascension": 0}
+    d2 = router().decide(parse_state(act1), LoopContext())
+    assert d2.action.payload()["action"] == "proceed"  # normal gates hold mid-run
+
+
 def test_shop_buys_discount_relic_first() -> None:
     """Owner: Membership Card (-50%) / Courier (-20%) apply immediately, so buy them FIRST and
     let the rest of the shop come back discounted — even over a higher-value relic, and even

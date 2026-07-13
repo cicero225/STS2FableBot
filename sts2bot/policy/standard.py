@@ -1320,6 +1320,49 @@ class StandardRouter:
                     action=act.ShopPurchase(index=item.index),
                     rationale=f"buy {item.potion_name} ({price}g)",
                 )
+
+        # 4. Last-shop spend-down (owner 2026-07-12, caught during the FIRST-WIN run: the
+        #    bot left an Act-3 shop with ~500 gold and no shop ahead). Gold has zero
+        #    terminal value, so at the run's likely-last shop the reserve/value gates drop:
+        #    buy affordable relics (skipping known-negative WAR and downside-text relics
+        #    until the relic pass can price them) and fill the potion belt. Cards are
+        #    deliberately NOT bought here — a random card can dilute the boss deck.
+        #    Act>=3 approximates "last shop"; intended-path tracking is the filed upgrade.
+        act_now = state.run.act if state.run else 1
+        if act_now >= 3:
+            downside_markers = ("curse", "lose ", "can no longer", "cannot ", "no longer",
+                                "take 1 damage", "receive ")
+            spend_relics = []
+            for item in avail:
+                if item.category != "relic" or not item.can_afford:
+                    continue
+                v = self.shop_stats.relic_value(item.relic_id) if self.shop_stats else None
+                if v is not None and v < 0:
+                    continue  # known dud stays a dud even free
+                desc = (item.relic_description or "").lower()
+                if any(m in desc for m in downside_markers):
+                    continue
+                spend_relics.append(item)
+            if spend_relics:
+                item = min(spend_relics, key=lambda i: i.gold_price or 0)  # most items per gold
+                bought.append(item.index)
+                return Decision(
+                    action=act.ShopPurchase(index=item.index),
+                    rationale=f"last-shop spend-down: relic {item.relic_name} "
+                    f"({item.gold_price}g; gold is worthless past here)",
+                )
+            for item in avail:
+                if (
+                    item.category == "potion" and item.can_afford
+                    and player is not None
+                    and len(player.potions) < player.max_potion_slots
+                ):
+                    bought.append(item.index)
+                    return Decision(
+                        action=act.ShopPurchase(index=item.index),
+                        rationale=f"last-shop spend-down: potion {item.potion_name} "
+                        f"({item.gold_price}g)",
+                    )
         return Decision(action=act.Proceed(), rationale="done shopping")
 
     # ------------------------------------------------------------------ rewards (potion-aware)
