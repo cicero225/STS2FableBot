@@ -54,6 +54,13 @@ class GameClient(Protocol):
 class LoopConfig(BaseModel):
     poll_interval: float = 0.5
     stall_threshold: int = 60  # consecutive unchanged-state ticks before giving up
+    # Duplicate-submission debounce: after an ACCEPTED action, an unchanged state means
+    # the game hasn't applied it yet — resubmitting the identical action can wedge an
+    # engine hook (Owl Magistrate death 2026-07-13: a doubled Stampede+ play locked the
+    # hand as BlockedByHook for the rest of the turn and broke a computed lethal). Hold
+    # identical resubmits this many ticks; after that, one retry is allowed as a last
+    # resort (the 60-tick stall rail remains the backstop).
+    duplicate_debounce_ticks: int = 20
     manual_stall_threshold: int = 600  # generous rail while waiting on owner (MANUAL waits)
     error_streak_limit: int = 8  # consecutive rejected actions before giving up
     # the mod can briefly return an error-object (no state_type) mid event-transition (seen:
@@ -137,6 +144,9 @@ class AgentLoop:
         last_fp: str | None = None
         stall = 0
         error_streak = 0
+        last_act_fp: str | None = None  # fingerprint of the state the last accepted action saw
+        last_act_payload: dict | None = None
+        dup_hold = 0
         phase = "to_run"  # -> "post_over" -> done
         last_wait_reason: str | None = None
         manual_announced = False
@@ -240,6 +250,25 @@ class AgentLoop:
                     time.sleep(cfg.poll_interval)
                     continue
 
+                # Debounce: same state we already acted on + same action = the game is
+                # still applying the last submission; hammering it can wedge a hook.
+                payload = decision.action.payload()
+                if (
+                    fp == last_act_fp
+                    and payload == last_act_payload
+                    and dup_hold < cfg.duplicate_debounce_ticks
+                ):
+                    dup_hold += 1
+                    if dup_hold % 10 == 1:
+                        logger.log_decision(
+                            {"state_type": state.state_type}, None,
+                            f"debounce: holding duplicate {payload.get('action')} "
+                            f"(tick {dup_hold}); state unchanged since last accept",
+                            None,
+                        )
+                    time.sleep(cfg.poll_interval)
+                    continue
+
                 result = self.client.act(decision.action)
                 ctx.decisions += 1
                 if ctx.decisions % self.config.time_scale_reassert_every == 0:
@@ -253,6 +282,7 @@ class AgentLoop:
                 )
                 if result.ok:
                     error_streak = 0
+                    last_act_fp, last_act_payload, dup_hold = fp, payload, 0
                 elif (
                     "actions are currently disabled" in result.detail
                     or "already queued" in result.detail

@@ -107,6 +107,33 @@ def test_unexpected_action_errors_halt_the_loop(tmp_path: Path) -> None:
     assert outcome.error is not None and "consecutive action errors" in outcome.error
 
 
+def test_duplicate_submission_debounce(tmp_path: Path) -> None:
+    """Regression (Owl Magistrate death 2026-07-13): an ACCEPTED action whose state
+    hasn't applied yet must not be resubmitted every tick — a doubled play wedged an
+    engine hook and broke a computed lethal. With the state frozen after ok-results,
+    the loop holds duplicates (retrying only after duplicate_debounce_ticks) until the
+    stall rail ends the run: a handful of accepted acts, not one per tick."""
+    from mock_game import ScriptedGame, fixture
+
+    game = ScriptedGame(
+        states={"menu_main": fixture("menu_main")},
+        transitions={"menu_main": [({}, "menu_main")]},  # accept anything, never change
+        start="menu_main",
+    )
+    loop = AgentLoop(
+        client=FakeClient(game, compendium=COMPENDIUM),
+        router=TrivialRouter(),
+        log_root=tmp_path,
+        config=LoopConfig(poll_interval=0, stall_threshold=30,
+                          duplicate_debounce_ticks=20),
+    )
+    outcome = loop.play_one_run()
+    assert outcome.status == "error" and "state unchanged" in (outcome.error or "")
+    # without the debounce this is ~30 accepted duplicates; with it, the initial act
+    # plus at most one post-debounce retry
+    assert len(game.history) <= 3
+
+
 def test_pause_for_resume_returns_when_signal_present(tmp_path: Path) -> None:
     """The resume mechanism: _pause_for_resume blocks until the signal file appears,
     then consumes it. With the signal already present it returns immediately."""
