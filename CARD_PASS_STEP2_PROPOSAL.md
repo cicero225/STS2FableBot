@@ -112,6 +112,40 @@ capability delta). They are additive adjustments, not replacements.
     it as a plain 10-damage exhaust; never sequences it as the killing blow). Open
     C-class item with a proposal — queue as a quick single alongside step-2 work.
 
+**Enabler/boss-dependent/SCALE/OK sweep — owner refinements:**
+22. *Lethality (audit overridden — severely underrated)*: Ethereal only forces play the
+    turn drawn (else self-exhausts, which is FREE FODDER for Ironclad exhaust payoffs).
+    Pays for itself in ~2 turns even on plain strikes. Penalty removed; mild bonus with
+    big_single_hit stands; note the ethereal-exhaust/exhaust_payoff synergy.
+23. *Headbutt*: mostly right; add — better with 0-cost cards in deck (a 0-energy pull
+    is always some value even without a premium target).
+24. *Dark Shackles (audit overridden)*: one-turn effect, so boss STR-SCALING is nearly
+    irrelevant. Real key: MULTI-ATTACK enemies (-9 Str applies per hit). Min value ~9
+    damage mitigation; whiffs vs artifact carriers (Aeonglass).
+25. *Mangle*: drop the ramper framing (same one-turn logic). It IS an enabler for
+    expensive-attack payoffs despite modest damage — introduce `expensive_attack` tag
+    (provides: Mangle, Bludgeon, Stomp-class; needed by: Stampede, Unrelenting,
+    Bloodletting-class energy sinks). Owner's Stampede point formalized.
+26. *Stone Armor*: Plating procs Juggernaut-class per-proc payoffs every turn — its
+    block_engine tag correctly feeds item 12's per-proc counting.
+27. *Fight Me! (pulled from OK for its own row)*: "Deal 5 damage twice. Gain 3
+    Strength. The enemy gains 1 Strength." — symmetric-buff nuance: your +3 wants
+    multi_hit/attack density to cash; the enemy's +1 compounds in LONG fights, so mild
+    caution vs high-HP bosses; net-favorable in short/kill-fast decks.
+28. *Flame Barrier*: the thorns rider ("deal 4 back per hit") scales with incoming
+    attack COUNT — same multi-attack-profile axis as Dark Shackles. Low-priority
+    enemy-profile bonus; worth one look when boss/enemy-profile conditionals land.
+29. *Production*: checked — text is "Gain [E][E]. Exhaust." (plain burst; the
+    per-10-cards card is Automation, already covered). OK stands.
+30. *Pyre*: upgrade drops cost 2 -> 1 (owner) — joins the upgrade-notes set (True Grit,
+    Stampede, Armaments, Apotheosis).
+31. *Survivor / Cloak and Dagger*: Silent cards — leave Ironclad-adequate analyses
+    as-is; the Silent discard package is out of scope until multi-character support.
+32. *Tag-necessity decision (delegated to implementer)*: KEEP `big_single_hit` (7+
+    payoffs key on it) and ADD `expensive_attack` (item 25). Verified: Hemokinesis /
+    Offering / Bloodletting all carry self_hp_loss_source in the tag table — Rupture's
+    enabler counting is correctly fed from OK-listed cards.
+
 ## Vulnerable package (9 cards)
 
 | Card (rarity/cost) | Text | Proposed conditional | Strength | Impact/Conf |
@@ -273,4 +307,4 @@ capability delta). They are additive adjustments, not replacements.
 
 ## OK (context-free scoring adequate)
 
-Acrobatics, Astral Pulse, Bash, Blood Wall, Bludgeon, Bodyguard, Breakthrough, Crimson Mantle, Dagger Throw, Defend, Defend, Defend, Defend, Discovery, Dredge, Falling Star, Fight Me!, Finesse, Flame Barrier, Flash of Steel, Giant Rock, Glitterstream, Guiding Star, Hand of Greed, Hemokinesis, Impervious, Infernal Blade, Iron Wave, Jack of All Trades, Leg Sweep, Luminesce, Master of Strategy, Neow's Fury, Neutralize, Not Yet, Offering, Pommel Strike, Production, Pyre, Reap, Relax, Salvo, Shiv, Shockwave, Shrug It Off, Slice, Strike, Strike, Strike, Strike, Survivor, Taunt, Thinking Ahead, Thrumming Hatchet, Thunderclap, Ultimate Defend, Ultimate Strike, Unleash, Uppercut, Venerate, Wisp
+Acrobatics, Astral Pulse, Bash, Blood Wall, Bludgeon, Bodyguard, Breakthrough, Crimson Mantle, Dagger Throw, Defend (x4 class variants), Discovery, Dredge, Falling Star, Fight Me! (see review log #27), Finesse, Flame Barrier (see #28), Flash of Steel, Giant Rock, Glitterstream, Guiding Star, Hand of Greed, Hemokinesis, Impervious, Infernal Blade, Iron Wave, Jack of All Trades, Leg Sweep, Luminesce, Master of Strategy, Neow's Fury, Neutralize, Not Yet, Offering, Pommel Strike, Production, Pyre, Reap, Relax, Salvo, Shiv, Shockwave, Shrug It Off, Slice, Strike (x4 class variants), Survivor, Taunt, Thinking Ahead, Thrumming Hatchet, Thunderclap, Ultimate Defend, Ultimate Strike, Unleash, Uppercut, Venerate, Wisp
