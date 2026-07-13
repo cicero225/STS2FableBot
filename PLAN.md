@@ -1223,6 +1223,16 @@ the owner's projected-impact ranking within it:
 4. **Card-by-card examination** — a systematic pass over the full Ironclad list flagging cards the
    generic planner can't reason about (Anger, Fiend Fire, scaling/conditional cards), then encode
    per-card handlers/annotations (§8.3 "per-card special-case pass").
+   **→ DONE in two steps (CARD_PASS.md): step 1 (play) shipped tranches B/C/delta 07-09..12;
+   step 2 (draft) SHIPPED 2026-07-12** — owner-reviewed tag machinery
+   (`policy/drafttags.py` + `data/card_draft_tags.json`, CARD_PASS_STEP2_PROPOSAL.md review
+   log is the authority). This also delivers a big piece of item 1 (deck-synergy drafting)
+   without the co-occurrence data. *Deferred from step 2, filed here:* boss/enemy-profile
+   draft conditionals (Dark Shackles/Mangle/Flame Barrier vs multi-attack profiles;
+   Hellraiser vs Kaiser Crab back-attack), Feed/Dramatic-Entrance act-decay, Metamorphosis
+   inverse-density, deck-size conditionals (Rampage/Mind Blast/Stratagem), Thrash large-deck
+   dock. *For the relic pass (6):* block-gaining relics feed Juggernaut-class payoffs;
+   per-N-attacks relics (Pen Nib) feed Anger-class attack flooding.
 5. **Event analysis** — mostly already covered by event-choice WAR; only a few events carry nuance
    (Byrdonis Egg, §8.4). *Promoted 2026-07-09 (owner: "matters around the edges", now ranked after
    relics, before potions) with a concrete anchor case: the bot **enchanted a Strike with Slither**

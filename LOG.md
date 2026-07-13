@@ -2,6 +2,29 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-12 (Fable 5, session 2) — CARD-PASS STEP 2 SHIPS: deck-context drafting (owner-reviewed same evening)
+
+The draft pass, end to end in one evening: 12-agent audit of all 157 draftable cards
+(3 min, wf_1c79ed42-a44) -> proposal doc -> live owner review (32 review-log items,
+several audit rows factually overridden: Prolong snapshots block, Lethality underrated,
+Dark Shackles is multi-attack-profile not boss-scaling, Havoc plays Powers fine) ->
+implementation shipped (737d128 + 5f554dd).
+
+What landed: `policy/drafttags.py` (weighted provides/needs tags; bonus per met need;
+penalties ONLY for pure payoffs at zero providers with an Act-1 speculative discount;
+anti-synergy docks; copy caps; controlled-exhaust thinning; upgrade-awareness) +
+`data/card_draft_tags.json` (127 cards, curated via scripts/build_draft_tags.py) +
+removal policy reading the same table (Fasten protects Defends, Perfected Strike
+protects Strikes) + Ancient/Event rarity fix + Feed on-fatal kill-sequencing credit.
+Owner's structural principles baked in: chicken-and-egg (enablers stay pickable),
+self-provision (Dominate), stack-magnitude weights (Tremble 3 > Bash 2), per-proc
+autoblock (Stone Armor). 305 tests, replay clean over 107k states.
+
+Deferred (filed in PLAN §8.5.4): boss/enemy-profile conditionals, act-decay riders,
+deck-size conditionals; two relic-pass pointers banked. Elite gate deliberately NOT
+touched (owner: fundamentals before parameter tweaks; the tension is real until the
+bot can actually win elite fights).
+
 ## 2026-07-12 (Fable 5, session 2) — Batch bk9xif371 (post-_POWER-fix): act-reach 1.70, 7/10 to Act 2, but ZERO elites fought
 
 First batch with player Strength / cross-turn Vulnerable / Colossus halving actually
