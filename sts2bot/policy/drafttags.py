@@ -1,0 +1,144 @@
+"""Deck-context draft scoring — the card-pass step-2 tag machinery.
+
+One mechanism, not 93 micro-rules (CARD_PASS_STEP2_PROPOSAL.md, owner-reviewed
+2026-07-12): each card `provides` weighted archetype tags and may `need` tags at a
+threshold. Two generic rules produce the score adjustment:
+
+- bonus: a need met (weighted providers vs threshold) earns a strength-scaled bonus,
+  ramping linearly from zero providers to the threshold (smooth, not a cliff).
+- penalty: ONLY cards marked as pure payoffs (near-blank without support) are docked
+  when a need has zero providers — enablers with baseline value are bonus-only, so
+  they stay pickable as archetype seeds (owner's chicken-and-egg principle). The dock
+  is discounted in Act 1 (speculative window: Rupture/Unmovable-class cards are worth
+  taking while the deck is still malleable).
+
+Structural rules from the review: a card counts ITSELF as a provider (Dominate provides
+the Vulnerable it needs -> never docked); provider weights carry magnitude (Tremble's
+3 stacks beat Bash's 2); per-proc autoblock (Plating) is pre-weighted in the table.
+
+Pure functions only — the tag table is loaded by the kb layer and injected.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+_STRENGTH_MULT = {"mild": 0.5, "moderate": 1.0, "strong": 1.6}
+
+_TAGS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "card_draft_tags.json"
+
+
+def load_draft_tags(path: Path | str | None = None) -> dict[str, dict]:
+    """id -> {provides, needs, copy_cap, ...} from data/card_draft_tags.json
+    (scripts/build_draft_tags.py). Empty if absent — drafting then runs context-free."""
+    p = Path(path) if path else _TAGS_PATH
+    if not p.is_file():
+        return {}
+    return json.loads(p.read_text(encoding="utf-8")).get("tags", {})
+
+
+def deck_tag_weights(deck) -> dict[str, float]:
+    """Weighted provides-counts for a deck, plus pseudo-tags computed from deck state
+    (__unupgraded / __strike_named / __defends / __basics) so density rules like
+    Apotheosis (unupgraded count) and Perfected Strike (name-contains-Strike) ride the
+    same machinery. Tag table lookups happen in score_adjustment; this only needs card
+    ids/names/upgrade flags."""
+    counts: dict[str, float] = {}
+    n_unupgraded = 0
+    n_strike_named = 0
+    n_defends = 0
+    n_basics = 0
+    for c in deck:
+        cid = (getattr(c, "id", "") or "").upper()
+        name = (getattr(c, "name", "") or "").lower()
+        if not getattr(c, "is_upgraded", False):
+            n_unupgraded += 1
+        if "strike" in name or "STRIKE" in cid:
+            n_strike_named += 1
+        if cid.startswith("DEFEND_"):
+            n_defends += 1
+        if cid.startswith(("STRIKE_", "DEFEND_")):
+            n_basics += 1
+    counts["__unupgraded"] = float(n_unupgraded)
+    counts["__strike_named"] = float(n_strike_named)
+    counts["__defends"] = float(n_defends)
+    counts["__basics"] = float(n_basics)
+    return counts
+
+
+def _providers(tag: str, deck_counts: dict[str, float], deck, tags: dict) -> float:
+    """Weighted provider count for a tag: pseudo-tags come from deck_tag_weights;
+    real tags are summed from the tag table over the actual deck."""
+    if tag.startswith("__"):
+        return deck_counts.get(tag, 0.0)
+    total = 0.0
+    for c in deck:
+        entry = tags.get((getattr(c, "id", "") or "").upper())
+        if entry:
+            total += float((entry.get("provides") or {}).get(tag, 0.0))
+    return total
+
+
+def score_adjustment(
+    card_id: str,
+    deck,
+    tags: dict,
+    w,
+    act: int = 1,
+    is_upgraded: bool = False,
+) -> float:
+    """The deck-context adjustment for offering `card_id` to `deck`. Additive on top of
+    the base _card_score (rarity/prior/planner-blind/etc.) — never a replacement."""
+    entry = tags.get((card_id or "").upper())
+    if not entry:
+        return 0.0
+    deck_counts = deck_tag_weights(deck)
+    own_provides = entry.get("provides") or {}
+    adj = 0.0
+
+    for need in entry.get("needs") or []:
+        tag = need.get("tag", "")
+        threshold = max(1.0, float(need.get("threshold", 1)))
+        mult = _STRENGTH_MULT.get(need.get("strength", "moderate"), 1.0)
+        have = _providers(tag, deck_counts, deck, tags)
+        # self-provision: the candidate joins the deck it is scored for
+        have += float(own_provides.get(tag, 0.0))
+        met_frac = min(1.0, have / threshold)
+        adj += w.w_tag_bonus * mult * met_frac
+        if need.get("penalty") and have <= 0:
+            act_factor = w.tag_act1_penalty_mult if act <= 1 else 1.0
+            adj += w.w_tag_penalty * mult * act_factor
+
+    # anti-synergy: dock when a tag is ALREADY well-represented (Battle Trance's
+    # draw-lock collides with stacked draw; Panic Button locks out block plans)
+    for anti in entry.get("anti") or []:
+        tag = anti.get("tag", "")
+        threshold = max(1.0, float(anti.get("threshold", 1)))
+        mult = _STRENGTH_MULT.get(anti.get("strength", "moderate"), 1.0)
+        if _providers(tag, deck_counts, deck, tags) >= threshold:
+            adj += w.w_tag_penalty * mult * 0.5  # anti docks run at half penalty weight
+
+    # copy cap: a second copy of a non-stacking card (Barricade) is dead weight
+    if entry.get("copy_cap"):
+        cid = (card_id or "").upper()
+        if any((getattr(c, "id", "") or "").upper() == cid for c in deck):
+            adj += w.w_copy_cap
+
+    # controlled exhaust = thinning value in its own right (owner): scaled by remaining
+    # thinnable basics, damped when the deck already thins itself. "upgraded" marks
+    # cards whose exhaust only becomes targeted on upgrade (True Grit).
+    ce = entry.get("controlled_exhaust")
+    if ce and (ce is True or (ce == "upgraded" and is_upgraded)):
+        basics = deck_counts.get("__basics", 0.0)
+        thinning = _providers("deck_thinning", deck_counts, deck, tags)
+        damp = 0.5 if thinning > 0 else 1.0
+        adj += w.w_controlled_exhaust * min(1.0, basics / 6.0) * damp
+
+    # upgrade-awareness: the upgrade crosses a class boundary (True Grit's targeted
+    # exhaust, Armaments' all-hand, Apotheosis/Stampede/Pyre cost drops) — a mild
+    # anticipation bonus unupgraded, since a campfire converts it
+    if entry.get("upgrade_unlocks") and not is_upgraded:
+        adj += w.w_upgrade_unlocks
+
+    return adj

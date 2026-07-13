@@ -1,1172 +1,1350 @@
 {
- "note": "PROPOSED card-pass step 2 tag table -- not yet consumed by code; ships only after owner review (CARD_PASS_STEP2_PROPOSAL.md)",
+ "note": "card-pass step 2 tag table (owner-reviewed 2026-07-12; CARD_PASS_STEP2_PROPOSAL.md review log is the authority). Rebuild: scripts/build_draft_tags.py",
  "tags": {
   "ACROBATICS": {
-   "needs": [],
-   "provides": [
-    "draw_engine"
-   ]
+   "provides": {
+    "draw_engine": 1.0
+   }
   },
   "AGGRESSION": {
+   "provides": {
+    "attack_density_payoff": 1.0
+   },
    "needs": [
-    "attack_density"
-   ],
-   "provides": [
-    "attack_density_payoff",
-    "draw_engine"
+    {
+     "tag": "big_single_hit",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "ANGER": {
-   "needs": [],
-   "provides": [
-    "attack_generator",
-    "front_load"
-   ]
+   "provides": {
+    "attack_density_payoff": 1.0
+   }
   },
   "APOTHEOSIS": {
-   "needs": [],
-   "provides": [
-    "mass_upgrade"
-   ]
+   "needs": [
+    {
+     "tag": "__unupgraded",
+     "threshold": 8,
+     "strength": "strong",
+     "penalty": false
+    }
+   ],
+   "upgrade_unlocks": true
   },
   "ARMAMENTS": {
-   "needs": [],
-   "provides": [
-    "block_engine",
-    "upgrade_source"
-   ]
+   "provides": {
+    "block_engine": 1.0
+   },
+   "needs": [
+    {
+     "tag": "__unupgraded",
+     "threshold": 8,
+     "strength": "mild",
+     "penalty": false
+    }
+   ],
+   "upgrade_unlocks": true
   },
   "ASHEN_STRIKE": {
+   "provides": {
+    "exhaust_payoff": 1.0
+   },
    "needs": [
-    "exhaust_enabler"
-   ],
-   "provides": [
-    "exhaust_payoff"
-   ]
-  },
-  "ASTRAL_PULSE": {
-   "needs": [],
-   "provides": [
-    "aoe",
-    "front_load",
-    "multi_hit"
+    {
+     "tag": "exhaust_enabler",
+     "threshold": 3,
+     "strength": "strong",
+     "penalty": false
+    }
    ]
   },
   "AUTOMATION": {
+   "provides": {
+    "energy_source": 1.0
+   },
    "needs": [
-    "draw_engine"
-   ],
-   "provides": [
-    "energy_source",
-    "power_setup"
+    {
+     "tag": "draw_engine",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "BARRICADE": {
+   "provides": {
+    "block_payoff": 1.0,
+    "power_setup": 1.0
+   },
    "needs": [
-    "block_engine"
+    {
+     "tag": "block_engine",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    }
    ],
-   "provides": [
-    "block_payoff"
-   ]
+   "copy_cap": true
   },
   "BASH": {
-   "needs": [],
-   "provides": [
-    "vulnerable_source"
-   ]
+   "provides": {
+    "vulnerable_source": 2.0,
+    "expensive_attack": 1.0
+   }
   },
   "BATTLE_TRANCE": {
-   "needs": [],
-   "provides": [
-    "draw_engine",
-    "front_load"
+   "provides": {
+    "draw_engine": 1.0
+   },
+   "anti": [
+    {
+     "tag": "draw_engine",
+     "threshold": 2,
+     "strength": "mild"
+    }
    ]
   },
   "BLOODLETTING": {
-   "needs": [],
-   "provides": [
-    "energy_source",
-    "self_hp_loss_source"
+   "provides": {
+    "self_hp_loss_source": 1.0,
+    "energy_source": 1.0
+   },
+   "needs": [
+    {
+     "tag": "expensive_attack",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "BLOOD_WALL": {
-   "needs": [],
-   "provides": [
-    "block_engine",
-    "self_hp_loss_source"
-   ]
+   "provides": {
+    "block_engine": 1.0,
+    "self_hp_loss_source": 1.0
+   }
   },
   "BLUDGEON": {
-   "needs": [],
-   "provides": [
-    "big_single_hit"
-   ]
+   "provides": {
+    "big_single_hit": 1.0,
+    "expensive_attack": 1.0
+   }
   },
   "BODYGUARD": {
-   "needs": [],
-   "provides": [
-    "block_source",
-    "summon_source"
-   ]
+   "provides": {
+    "summon_source": 1.0
+   }
   },
   "BODY_SLAM": {
+   "provides": {
+    "block_payoff": 1.0
+   },
    "needs": [
-    "block_engine"
-   ],
-   "provides": [
-    "big_single_hit",
-    "block_payoff"
+    {
+     "tag": "block_engine",
+     "threshold": 4,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "BOLAS": {
+   "provides": {
+    "multi_hit": 1.0
+   },
    "needs": [
-    "attack_density_payoff",
-    "strength_source"
-   ],
-   "provides": [
-    "attack_density",
-    "front_load"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "BOMBARDMENT": {
+   "provides": {
+    "expensive_attack": 1.0
+   },
    "needs": [
-    "exhaust_payoff"
-   ],
-   "provides": [
-    "big_single_hit",
-    "exhaust_enabler"
+    {
+     "tag": "exhaust_enabler",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "BRAND": {
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "strength_source": 1.0,
+    "deck_thinning": 1.0
+   },
    "needs": [
-    "exhaust_payoff",
-    "multi_hit"
+    {
+     "tag": "exhaust_payoff",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ],
-   "provides": [
-    "exhaust_enabler",
-    "self_hp_loss_source",
-    "strength_source"
-   ]
-  },
-  "BREAKTHROUGH": {
-   "needs": [],
-   "provides": [
-    "aoe",
-    "self_hp_loss_source"
-   ]
+   "controlled_exhaust": true
   },
   "BULLY": {
+   "provides": {
+    "vulnerable_payoff": 1.0
+   },
    "needs": [
-    "vulnerable_source"
-   ],
-   "provides": [
-    "vulnerable_payoff"
+    {
+     "tag": "vulnerable_source",
+     "threshold": 3,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "BURNING_PACT": {
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "draw_engine": 1.0,
+    "deck_thinning": 1.0
+   },
    "needs": [
-    "exhaust_payoff"
+    {
+     "tag": "exhaust_payoff",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ],
-   "provides": [
-    "draw_engine",
-    "exhaust_enabler"
-   ]
+   "controlled_exhaust": true
   },
   "CASCADE": {
    "needs": [
-    "attack_density"
-   ],
-   "provides": []
-  },
-  "CATASTROPHE": {
-   "needs": [],
-   "provides": [
-    "energy_source"
+    {
+     "tag": "__attacks",
+     "threshold": 10,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "CELESTIAL_MIGHT": {
+   "provides": {
+    "multi_hit": 1.0,
+    "expensive_attack": 1.0
+   },
    "needs": [
-    "strength_source"
-   ],
-   "provides": [
-    "multi_hit"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "CINDER": {
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "big_single_hit": 1.0,
+    "expensive_attack": 1.0
+   },
    "needs": [
-    "exhaust_payoff"
-   ],
-   "provides": [
-    "big_single_hit",
-    "exhaust_enabler"
+    {
+     "tag": "exhaust_payoff",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "CLOAK_AND_DAGGER": {
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "block_engine": 1.0
+   },
    "needs": [
-    "attack_density_payoff"
-   ],
-   "provides": [
-    "attack_generator",
-    "block_engine",
-    "exhaust_enabler"
+    {
+     "tag": "attack_density_payoff",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "COLLISION_COURSE": {
-   "needs": [],
-   "provides": [
-    "front_load",
-    "status_source"
+   "needs": [
+    {
+     "tag": "status_cards_payoff",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "COLOSSUS": {
    "needs": [
-    "vulnerable_source"
-   ],
-   "provides": [
-    "vulnerable_payoff"
+    {
+     "tag": "vulnerable_source",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "CONFLAGRATION": {
+   "provides": {
+    "multi_hit": 1.0,
+    "aoe": 1.0
+   },
    "needs": [
-    "strength_source"
-   ],
-   "provides": [
-    "aoe",
-    "multi_hit"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "COSMIC_INDIFFERENCE": {
+   "provides": {
+    "block_engine": 1.0
+   },
    "needs": [
-    "big_single_hit"
-   ],
-   "provides": [
-    "block_engine",
-    "card_recursion"
+    {
+     "tag": "big_single_hit",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "CRESCENT_SPEAR": {
    "needs": [
-    "star_cost_source"
-   ],
-   "provides": []
-  },
-  "CRIMSON_MANTLE": {
-   "needs": [],
-   "provides": [
-    "block_engine",
-    "self_hp_loss_source"
+    {
+     "tag": "star_cost_source",
+     "threshold": 3,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "CRUELTY": {
+   "provides": {
+    "vulnerable_payoff": 1.0
+   },
    "needs": [
-    "vulnerable_source"
-   ],
-   "provides": [
-    "vulnerable_payoff"
-   ]
-  },
-  "DAGGER_THROW": {
-   "needs": [],
-   "provides": [
-    "front_load"
+    {
+     "tag": "vulnerable_source",
+     "threshold": 3,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "DARK_EMBRACE": {
+   "provides": {
+    "exhaust_payoff": 1.0,
+    "draw_engine": 1.0
+   },
    "needs": [
-    "exhaust_enabler"
-   ],
-   "provides": [
-    "draw_engine",
-    "exhaust_payoff"
+    {
+     "tag": "exhaust_enabler",
+     "threshold": 3,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "DARK_SHACKLES": {
-   "needs": [],
-   "provides": [
-    "front_load"
-   ]
+   "provides": {
+    "front_load": 1.0
+   }
   },
   "DEBILITATE": {
+   "provides": {
+    "vulnerable_source": 1.0
+   },
    "needs": [
-    "vulnerable_source"
-   ],
-   "provides": [
-    "vulnerable_payoff"
-   ]
-  },
-  "DEFEND_IRONCLAD": {
-   "needs": [],
-   "provides": [
-    "block_source"
-   ]
-  },
-  "DEFEND_NECROBINDER": {
-   "needs": [],
-   "provides": [
-    "block_source"
-   ]
-  },
-  "DEFEND_REGENT": {
-   "needs": [],
-   "provides": [
-    "block_source"
-   ]
-  },
-  "DEFEND_SILENT": {
-   "needs": [],
-   "provides": [
-    "block_source"
+    {
+     "tag": "vulnerable_source",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": false
+    }
    ]
   },
   "DEMON_FORM": {
-   "needs": [],
-   "provides": [
-    "power_setup",
-    "strength_source"
-   ]
+   "provides": {
+    "strength_source": 1.0,
+    "power_setup": 1.0
+   }
   },
   "DISCOVERY": {
-   "needs": [],
-   "provides": [
-    "card_generator"
-   ]
+   "provides": {
+    "attack_generator": 1.0
+   }
   },
   "DISMANTLE": {
+   "provides": {
+    "vulnerable_payoff": 1.0
+   },
    "needs": [
-    "vulnerable_source"
-   ],
-   "provides": [
-    "multi_hit",
-    "vulnerable_payoff"
+    {
+     "tag": "vulnerable_source",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "DOMINATE": {
+   "provides": {
+    "vulnerable_source": 1.0,
+    "strength_source": 1.0
+   },
    "needs": [
-    "vulnerable_payoff",
-    "vulnerable_source"
-   ],
-   "provides": [
-    "strength_source",
-    "vulnerable_source"
+    {
+     "tag": "vulnerable_source",
+     "threshold": 3,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "DRAMATIC_ENTRANCE": {
-   "needs": [],
-   "provides": [
-    "aoe",
-    "front_load"
-   ]
-  },
-  "DREDGE": {
-   "needs": [],
-   "provides": [
-    "draw_engine"
-   ]
+   "provides": {
+    "aoe": 1.0,
+    "front_load": 1.0
+   }
   },
   "DRUM_OF_BATTLE": {
+   "provides": {
+    "draw_engine": 1.0
+   },
    "needs": [
-    "exhaust_enabler"
-   ],
-   "provides": [
-    "draw_engine"
+    {
+     "tag": "exhaust_enabler",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "ENVENOM": {
+   "provides": {
+    "attack_density_payoff": 1.0,
+    "poison_source": 1.0
+   },
    "needs": [
-    "multi_hit"
-   ],
-   "provides": [
-    "attack_density_payoff"
+    {
+     "tag": "multi_hit",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "EQUILIBRIUM": {
+   "provides": {
+    "block_engine": 1.0,
+    "retain": 1.0
+   },
    "needs": [
-    "big_single_hit"
-   ],
-   "provides": [
-    "retain"
+    {
+     "tag": "big_single_hit",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "EVIL_EYE": {
+   "provides": {
+    "exhaust_payoff": 1.0,
+    "block_engine": 1.0
+   },
    "needs": [
-    "exhaust_enabler"
-   ],
-   "provides": [
-    "exhaust_payoff"
+    {
+     "tag": "exhaust_enabler",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "EXPECT_A_FIGHT": {
+   "provides": {
+    "energy_source": 1.0
+   },
    "needs": [
-    "attack_density"
+    {
+     "tag": "__attacks",
+     "threshold": 10,
+     "strength": "moderate",
+     "penalty": true
+    }
    ],
-   "provides": [
-    "attack_density_payoff",
-    "energy_source"
+   "anti": [
+    {
+     "tag": "energy_source",
+     "threshold": 1,
+     "strength": "mild"
+    }
    ]
   },
   "EXTERMINATE": {
+   "provides": {
+    "multi_hit": 1.0,
+    "aoe": 1.0
+   },
    "needs": [
-    "strength_source"
-   ],
-   "provides": [
-    "aoe",
-    "multi_hit"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "FALLING_STAR": {
-   "needs": [],
-   "provides": [
-    "front_load",
-    "vulnerable_source",
-    "weak_source"
-   ]
+   "provides": {
+    "vulnerable_source": 1.0,
+    "weak_source": 1.0,
+    "front_load": 1.0
+   }
   },
   "FASTEN": {
+   "provides": {
+    "block_payoff": 1.0,
+    "power_setup": 1.0
+   },
    "needs": [
-    "basic_defend_density"
-   ],
-   "provides": [
-    "block_engine"
-   ]
-  },
-  "FEED": {
-   "needs": [],
-   "provides": [
-    "maxhp_engine"
+    {
+     "tag": "__defends",
+     "threshold": 4,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "FEEL_NO_PAIN": {
+   "provides": {
+    "exhaust_payoff": 1.0,
+    "block_engine": 2.0
+   },
    "needs": [
-    "exhaust_enabler"
-   ],
-   "provides": [
-    "block_engine",
-    "exhaust_payoff"
+    {
+     "tag": "exhaust_enabler",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "FIEND_FIRE": {
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "big_single_hit": 1.0,
+    "expensive_attack": 1.0
+   },
    "needs": [
-    "draw_engine",
-    "exhaust_payoff"
-   ],
-   "provides": [
-    "big_single_hit",
-    "exhaust_enabler"
+    {
+     "tag": "draw_engine",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "FIGHT_ME": {
-   "needs": [],
-   "provides": [
-    "multi_hit",
-    "strength_source"
-   ]
-  },
-  "FINESSE": {
-   "needs": [],
-   "provides": [
-    "front_load"
+   "provides": {
+    "strength_source": 1.0,
+    "multi_hit": 1.0,
+    "expensive_attack": 1.0
+   },
+   "needs": [
+    {
+     "tag": "multi_hit",
+     "threshold": 2,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "FISTICUFFS": {
+   "provides": {
+    "block_engine": 1.0
+   },
    "needs": [
-    "strength_source"
-   ],
-   "provides": [
-    "block_engine"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "FLAME_BARRIER": {
-   "needs": [],
-   "provides": [
-    "block_engine"
-   ]
-  },
-  "FLASH_OF_STEEL": {
-   "needs": [],
-   "provides": [
-    "front_load"
-   ]
+   "provides": {
+    "block_engine": 1.0
+   }
   },
   "FORGOTTEN_RITUAL": {
+   "provides": {
+    "exhaust_payoff": 1.0,
+    "energy_source": 1.0
+   },
    "needs": [
-    "exhaust_enabler"
-   ],
-   "provides": [
-    "energy_source",
-    "exhaust_payoff"
+    {
+     "tag": "exhaust_enabler",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "GIANT_ROCK": {
-   "needs": [],
-   "provides": [
-    "big_single_hit"
-   ]
-  },
-  "GLITTERSTREAM": {
-   "needs": [],
-   "provides": [
-    "block_engine"
-   ]
-  },
-  "GUIDING_STAR": {
-   "needs": [],
-   "provides": [
-    "draw_engine",
-    "front_load"
-   ]
+   "provides": {
+    "big_single_hit": 1.0
+   }
   },
   "HAILSTORM": {
    "needs": [
-    "frost_source"
-   ],
-   "provides": [
-    "aoe"
+    {
+     "tag": "frost_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "HAND_OF_GREED": {
-   "needs": [],
-   "provides": [
-    "big_single_hit"
-   ]
+   "provides": {
+    "expensive_attack": 1.0
+   }
   },
   "HAVOC": {
    "needs": [
-    "attack_density"
-   ],
-   "provides": [
-    "exhaust_enabler"
+    {
+     "tag": "__attacks",
+     "threshold": 12,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "HEADBUTT": {
    "needs": [
-    "big_single_hit"
-   ],
-   "provides": [
-    "card_recursion"
+    {
+     "tag": "big_single_hit",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
+  },
+  "HEGEMONY": {
+   "provides": {
+    "expensive_attack": 1.0
+   }
   },
   "HELLRAISER": {
+   "provides": {
+    "self_hp_loss_source": 1.0
+   },
    "needs": [
-    "strike_density"
-   ],
-   "provides": []
-  },
-  "HEMOKINESIS": {
-   "needs": [],
-   "provides": [
-    "front_load",
-    "self_hp_loss_source"
+    {
+     "tag": "__strike_named",
+     "threshold": 4,
+     "strength": "strong",
+     "penalty": true
+    },
+    {
+     "tag": "draw_engine",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
+  "HEMOKINESIS": {
+   "provides": {
+    "self_hp_loss_source": 1.0,
+    "front_load": 1.0
+   }
+  },
   "HOWL_FROM_BEYOND": {
+   "provides": {
+    "expensive_attack": 1.0
+   },
    "needs": [
-    "exhaust_enabler"
-   ],
-   "provides": [
-    "aoe",
-    "exhaust_payoff"
+    {
+     "tag": "exhaust_enabler",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "IMPERVIOUS": {
-   "needs": [],
-   "provides": [
-    "block_engine"
-   ]
+   "provides": {
+    "block_engine": 1.0
+   }
   },
   "INFERNAL_BLADE": {
-   "needs": [],
-   "provides": [
-    "attack_generator"
-   ]
+   "provides": {
+    "attack_generator": 1.0
+   }
   },
   "INFLAME": {
+   "provides": {
+    "strength_source": 1.0
+   },
    "needs": [
-    "multi_hit"
-   ],
-   "provides": [
-    "power_setup",
-    "strength_source"
+    {
+     "tag": "multi_hit",
+     "threshold": 2,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "IRON_WAVE": {
-   "needs": [],
-   "provides": [
-    "block_engine"
-   ]
+   "provides": {
+    "block_engine": 1.0
+   }
   },
   "JUGGERNAUT": {
+   "provides": {
+    "block_payoff": 1.0,
+    "power_setup": 1.0
+   },
    "needs": [
-    "block_engine"
-   ],
-   "provides": [
-    "block_payoff"
+    {
+     "tag": "block_engine",
+     "threshold": 3,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "JUGGLING": {
+   "provides": {
+    "attack_density_payoff": 1.0
+   },
    "needs": [
-    "attack_density"
-   ],
-   "provides": [
-    "attack_density_payoff"
+    {
+     "tag": "__cheap_attacks",
+     "threshold": 8,
+     "strength": "moderate",
+     "penalty": true
+    }
    ]
   },
-  "LEG_SWEEP": {
-   "needs": [],
-   "provides": [
-    "block_engine"
-   ]
+  "KINGLY_PUNCH": {
+   "provides": {
+    "big_single_hit": 1.0
+   }
   },
   "LETHALITY": {
+   "provides": {
+    "exhaust_enabler": 1.0
+   },
    "needs": [
-    "big_single_hit"
-   ],
-   "provides": []
+    {
+     "tag": "big_single_hit",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
+   ]
   },
   "LUMINESCE": {
-   "needs": [],
-   "provides": [
-    "energy_source",
-    "front_load",
-    "retain"
-   ]
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "energy_source": 1.0
+   }
   },
   "MANGLE": {
-   "needs": [],
-   "provides": [
-    "big_single_hit"
-   ]
+   "provides": {
+    "big_single_hit": 1.0,
+    "expensive_attack": 1.0
+   }
   },
   "MASTER_OF_STRATEGY": {
-   "needs": [],
-   "provides": [
-    "draw_engine",
-    "front_load"
-   ]
+   "provides": {
+    "draw_engine": 1.0,
+    "front_load": 1.0
+   }
   },
   "METAMORPHOSIS": {
-   "needs": [],
-   "provides": [
-    "attack_generator"
-   ]
-  },
-  "MIND_BLAST": {
-   "needs": [],
-   "provides": [
-    "front_load"
-   ]
+   "provides": {
+    "attack_generator": 1.0
+   }
   },
   "MIRAGE": {
    "needs": [
-    "poison_source"
-   ],
-   "provides": []
+    {
+     "tag": "poison_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "MOLTEN_FIST": {
+   "provides": {
+    "vulnerable_source": 1.0
+   },
    "needs": [
-    "vulnerable_payoff",
-    "vulnerable_source"
-   ],
-   "provides": [
-    "vulnerable_source"
-   ]
-  },
-  "NEOWS_FURY": {
-   "needs": [],
-   "provides": [
-    "discard_recursion",
-    "front_load"
-   ]
-  },
-  "NEUTRALIZE": {
-   "needs": [],
-   "provides": [
-    "front_load",
-    "weak_source"
+    {
+     "tag": "vulnerable_source",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": false
+    }
    ]
   },
   "OFFERING": {
-   "needs": [],
-   "provides": [
-    "draw_engine",
-    "energy_source",
-    "front_load",
-    "self_hp_loss_source"
-   ]
+   "provides": {
+    "self_hp_loss_source": 1.0,
+    "energy_source": 1.0,
+    "draw_engine": 1.0,
+    "front_load": 1.0
+   }
   },
   "OMNISLICE": {
+   "provides": {
+    "aoe": 1.0
+   },
    "needs": [
-    "strength_source"
-   ],
-   "provides": [
-    "aoe",
-    "front_load"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "ONE_TWO_PUNCH": {
+   "provides": {
+    "attack_density_payoff": 1.0
+   },
    "needs": [
-    "big_single_hit"
-   ],
-   "provides": []
+    {
+     "tag": "big_single_hit",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
   },
   "PACTS_END": {
+   "provides": {
+    "exhaust_payoff": 1.0,
+    "aoe": 1.0
+   },
    "needs": [
-    "exhaust_enabler"
-   ],
-   "provides": [
-    "aoe",
-    "exhaust_payoff"
+    {
+     "tag": "exhaust_enabler",
+     "threshold": 4,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "PANACHE": {
+   "provides": {
+    "attack_density_payoff": 1.0,
+    "aoe": 1.0
+   },
    "needs": [
-    "draw_engine",
-    "energy_source"
-   ],
-   "provides": [
-    "aoe"
+    {
+     "tag": "draw_engine",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "PANIC_BUTTON": {
-   "needs": [],
-   "provides": [
-    "front_load"
+   "provides": {
+    "front_load": 1.0
+   },
+   "anti": [
+    {
+     "tag": "block_engine",
+     "threshold": 2,
+     "strength": "moderate"
+    }
    ]
   },
   "PECK": {
+   "provides": {
+    "multi_hit": 1.0
+   },
    "needs": [
-    "strength_source"
-   ],
-   "provides": [
-    "attack_density",
-    "multi_hit"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "PERFECTED_STRIKE": {
+   "provides": {
+    "expensive_attack": 1.0
+   },
    "needs": [
-    "strike_cards"
-   ],
-   "provides": [
-    "big_single_hit",
-    "strike_cards"
+    {
+     "tag": "__strike_named",
+     "threshold": 5,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "PILLAGE": {
    "needs": [
-    "attack_density"
-   ],
-   "provides": [
-    "attack_density_payoff",
-    "draw_engine"
+    {
+     "tag": "__attacks",
+     "threshold": 10,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
+  "PINPOINT": {
+   "provides": {
+    "expensive_attack": 1.0
+   }
+  },
   "POMMEL_STRIKE": {
-   "needs": [],
-   "provides": [
-    "draw_engine",
-    "front_load",
-    "strike_cards"
-   ]
+   "provides": {
+    "draw_engine": 1.0
+   }
   },
   "PRIMAL_FORCE": {
    "needs": [
-    "attack_density"
-   ],
-   "provides": [
-    "attack_generator",
-    "big_single_hit"
+    {
+     "tag": "__basics",
+     "threshold": 5,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "PRODUCTION": {
-   "needs": [],
-   "provides": [
-    "energy_source",
-    "front_load"
-   ]
+   "provides": {
+    "energy_source": 1.0
+   }
   },
   "PROLONG": {
+   "provides": {
+    "block_payoff": 1.0
+   },
    "needs": [
-    "block_engine"
-   ],
-   "provides": [
-    "block_payoff"
+    {
+     "tag": "block_engine",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
+  },
+  "PULL_AGGRO": {
+   "provides": {
+    "summon_source": 1.0,
+    "block_engine": 1.0
+   }
   },
   "PYRE": {
-   "needs": [],
-   "provides": [
-    "energy_source",
-    "power_setup"
-   ]
+   "provides": {
+    "energy_source": 1.0,
+    "power_setup": 1.0
+   },
+   "upgrade_unlocks": true
   },
   "RAGE": {
+   "provides": {
+    "attack_density_payoff": 1.0,
+    "block_engine": 2.0
+   },
    "needs": [
-    "attack_density"
-   ],
-   "provides": [
-    "attack_density_payoff"
-   ]
-  },
-  "RAMPAGE": {
-   "needs": [
-    "deck_thinning",
-    "draw_engine"
-   ],
-   "provides": [
-    "big_single_hit"
+    {
+     "tag": "__cheap_attacks",
+     "threshold": 8,
+     "strength": "moderate",
+     "penalty": true
+    }
    ]
   },
   "RATTLE": {
+   "provides": {
+    "companion_attack": 1.0,
+    "multi_hit": 1.0
+   },
    "needs": [
-    "companion_attack"
-   ],
-   "provides": [
-    "companion_attack",
-    "multi_hit"
+    {
+     "tag": "companion_attack",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "REAP": {
-   "needs": [],
-   "provides": [
-    "big_single_hit",
-    "retain"
-   ]
+   "provides": {
+    "expensive_attack": 1.0
+   }
   },
   "RELAX": {
-   "needs": [],
-   "provides": [
-    "block_source",
-    "energy_source"
-   ]
+   "provides": {
+    "energy_source": 1.0,
+    "block_engine": 1.0
+   }
   },
-  "ROLLING_BOULDER": {
-   "needs": [],
-   "provides": [
-    "aoe",
-    "power_setup"
-   ]
+  "RICOCHET": {
+   "provides": {
+    "expensive_attack": 1.0
+   }
   },
   "RUPTURE": {
+   "provides": {
+    "power_setup": 1.0
+   },
    "needs": [
-    "self_hp_loss_source"
-   ],
-   "provides": [
-    "self_hp_loss_payoff",
-    "strength_source"
-   ]
-  },
-  "SALVO": {
-   "needs": [],
-   "provides": [
-    "front_load",
-    "retain"
+    {
+     "tag": "self_hp_loss_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "SECOND_WIND": {
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "block_engine": 1.0
+   },
    "needs": [
-    "exhaust_payoff"
-   ],
-   "provides": [
-    "block_engine",
-    "exhaust_enabler",
-    "status_cards_payoff"
+    {
+     "tag": "exhaust_payoff",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
+  "SECRET_WEAPON": {
+   "provides": {
+    "attack_generator": 1.0
+   }
+  },
+  "SEEKER_STRIKE": {
+   "provides": {
+    "big_single_hit": 1.0
+   }
+  },
   "SETUP_STRIKE": {
+   "provides": {
+    "strength_source": 1.0
+   },
    "needs": [
-    "attack_density_payoff",
-    "multi_hit"
-   ],
-   "provides": [
-    "front_load",
-    "strength_source",
-    "strike_name"
+    {
+     "tag": "multi_hit",
+     "threshold": 2,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "SHIV": {
-   "needs": [],
-   "provides": [
-    "exhaust_enabler",
-    "front_load"
-   ]
+   "provides": {
+    "exhaust_enabler": 1.0
+   }
   },
   "SHOCKWAVE": {
-   "needs": [],
-   "provides": [
-    "aoe",
-    "vulnerable_source"
-   ]
+   "provides": {
+    "vulnerable_source": 1.0,
+    "weak_source": 3.0,
+    "aoe": 1.0
+   }
   },
   "SHRUG_IT_OFF": {
-   "needs": [],
-   "provides": [
-    "block_engine"
-   ]
-  },
-  "SLICE": {
-   "needs": [],
-   "provides": [
-    "front_load"
-   ]
+   "provides": {
+    "block_engine": 1.0,
+    "draw_engine": 1.0
+   }
   },
   "SNAP": {
-   "needs": [
-    "summon_source"
-   ],
-   "provides": [
-    "retain"
-   ]
+   "provides": {
+    "companion_attack": 1.0,
+    "retain": 1.0
+   }
   },
   "SPITE": {
    "needs": [
-    "self_hp_loss_source"
-   ],
-   "provides": [
-    "self_hp_loss_payoff"
+    {
+     "tag": "self_hp_loss_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": true
+    }
    ]
   },
   "STAMPEDE": {
+   "provides": {
+    "attack_density_payoff": 1.0
+   },
    "needs": [
-    "attack_density"
+    {
+     "tag": "__attacks",
+     "threshold": 10,
+     "strength": "moderate",
+     "penalty": true
+    },
+    {
+     "tag": "expensive_attack",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ],
-   "provides": [
-    "attack_density_payoff"
-   ]
+   "upgrade_unlocks": true
   },
   "STOKE": {
+   "provides": {
+    "exhaust_enabler": 1.0
+   },
    "needs": [
-    "exhaust_payoff"
-   ],
-   "provides": [
-    "exhaust_enabler"
+    {
+     "tag": "exhaust_payoff",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "STOMP": {
+   "provides": {
+    "aoe": 1.0,
+    "expensive_attack": 1.0
+   },
    "needs": [
-    "attack_density"
-   ],
-   "provides": [
-    "aoe",
-    "attack_density_payoff"
+    {
+     "tag": "__cheap_attacks",
+     "threshold": 6,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "STONE_ARMOR": {
-   "needs": [],
-   "provides": [
-    "block_engine",
-    "power_setup"
-   ]
-  },
-  "STRATAGEM": {
-   "needs": [
-    "deck_thinning"
-   ],
-   "provides": [
-    "draw_engine"
-   ]
-  },
-  "STRIKE_IRONCLAD": {
-   "needs": [],
-   "provides": [
-    "strike_name"
-   ]
-  },
-  "STRIKE_NECROBINDER": {
-   "needs": [],
-   "provides": [
-    "strike_name"
-   ]
-  },
-  "STRIKE_REGENT": {
-   "needs": [],
-   "provides": [
-    "strike_name"
-   ]
-  },
-  "STRIKE_SILENT": {
-   "needs": [],
-   "provides": [
-    "front_load",
-    "strike_name"
-   ]
-  },
-  "SURVIVOR": {
-   "needs": [],
-   "provides": [
-    "block_engine"
-   ]
+   "provides": {
+    "block_engine": 3.0,
+    "power_setup": 1.0
+   }
   },
   "SWORD_BOOMERANG": {
+   "provides": {
+    "multi_hit": 1.0
+   },
    "needs": [
-    "strength_source"
-   ],
-   "provides": [
-    "multi_hit"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "TAUNT": {
-   "needs": [],
-   "provides": [
-    "vulnerable_source"
-   ]
-  },
-  "THE_GAMBIT": {
-   "needs": [],
-   "provides": [
-    "block_engine",
-    "front_load"
-   ]
-  },
-  "THINKING_AHEAD": {
-   "needs": [],
-   "provides": [
-    "front_load"
-   ]
+   "provides": {
+    "vulnerable_source": 1.0
+   }
   },
   "THRASH": {
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "multi_hit": 1.0
+   },
    "needs": [
-    "attack_density"
-   ],
-   "provides": [
-    "big_single_hit",
-    "exhaust_enabler",
-    "multi_hit"
-   ]
-  },
-  "THRUMMING_HATCHET": {
-   "needs": [],
-   "provides": [
-    "attack_generator"
+    {
+     "tag": "big_single_hit",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "THUNDERCLAP": {
-   "needs": [],
-   "provides": [
-    "aoe",
-    "vulnerable_source"
-   ]
+   "provides": {
+    "vulnerable_source": 1.0,
+    "aoe": 1.0
+   }
   },
   "TREMBLE": {
+   "provides": {
+    "vulnerable_source": 3.0
+   },
    "needs": [
-    "attack_density_payoff",
-    "big_single_hit",
-    "vulnerable_payoff"
-   ],
-   "provides": [
-    "exhaust_enabler",
-    "vulnerable_source"
+    {
+     "tag": "vulnerable_payoff",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "TRUE_GRIT": {
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "block_engine": 1.0
+   },
    "needs": [
-    "exhaust_payoff"
+    {
+     "tag": "exhaust_payoff",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ],
-   "provides": [
-    "block_engine",
-    "deck_thinning",
-    "exhaust_enabler"
-   ]
+   "controlled_exhaust": "upgraded",
+   "upgrade_unlocks": true
   },
   "TWIN_STRIKE": {
+   "provides": {
+    "multi_hit": 1.0
+   },
    "needs": [
-    "strength_source"
-   ],
-   "provides": [
-    "multi_hit",
-    "strike_name"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "ULTIMATE_DEFEND": {
-   "needs": [],
-   "provides": [
-    "block_payoff"
-   ]
+   "provides": {
+    "block_engine": 1.0
+   }
   },
   "ULTIMATE_STRIKE": {
-   "needs": [],
-   "provides": [
-    "front_load",
-    "strike_card"
-   ]
+   "provides": {
+    "big_single_hit": 1.0
+   }
   },
   "UNLEASH": {
-   "needs": [],
-   "provides": [
-    "big_single_hit"
-   ]
+   "provides": {
+    "companion_attack": 1.0
+   }
   },
   "UNMOVABLE": {
+   "provides": {
+    "block_payoff": 1.0
+   },
    "needs": [
-    "block_engine"
-   ],
-   "provides": [
-    "block_payoff",
-    "power_setup"
+    {
+     "tag": "block_engine",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": true
+    }
    ]
   },
   "UNRELENTING": {
+   "provides": {
+    "expensive_attack": 1.0
+   },
    "needs": [
-    "big_single_hit"
-   ],
-   "provides": [
-    "energy_source"
+    {
+     "tag": "expensive_attack",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
    ]
   },
   "UPPERCUT": {
-   "needs": [],
-   "provides": [
-    "front_load",
-    "vulnerable_source"
-   ]
+   "provides": {
+    "vulnerable_source": 1.0,
+    "weak_source": 1.0,
+    "expensive_attack": 1.0
+   }
   },
   "UP_MY_SLEEVE": {
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "multi_hit": 1.0
+   },
    "needs": [
-    "attack_density_payoff",
-    "strength_source"
-   ],
-   "provides": [
-    "attack_density_payoff",
-    "attack_generator",
-    "multi_hit"
-   ]
-  },
-  "VENERATE": {
-   "needs": [],
-   "provides": [
-    "star_energy_source"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "VICIOUS": {
+   "provides": {
+    "vulnerable_payoff": 1.0,
+    "draw_engine": 1.0
+   },
    "needs": [
-    "vulnerable_source"
-   ],
-   "provides": [
-    "draw_engine",
-    "vulnerable_payoff"
+    {
+     "tag": "vulnerable_source",
+     "threshold": 3,
+     "strength": "strong",
+     "penalty": true
+    }
    ]
   },
   "VOLLEY": {
+   "provides": {
+    "multi_hit": 1.0
+   },
    "needs": [
-    "energy_source",
-    "strength_source"
-   ],
-   "provides": [
-    "multi_hit"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    },
+    {
+     "tag": "energy_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   },
   "WHIRLWIND": {
+   "provides": {
+    "multi_hit": 1.0,
+    "aoe": 1.0
+   },
    "needs": [
-    "energy_source",
-    "strength_source"
-   ],
-   "provides": [
-    "aoe",
-    "multi_hit"
-   ]
-  },
-  "WISP": {
-   "needs": [],
-   "provides": [
-    "energy_source"
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    },
+    {
+     "tag": "energy_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
    ]
   }
  }

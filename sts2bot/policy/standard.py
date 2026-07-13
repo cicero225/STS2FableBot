@@ -43,6 +43,7 @@ from sts2bot.policy.capability import (
     load_card_descriptions,
 )
 from sts2bot.policy.combat import plan_combat_turn
+from sts2bot.policy.drafttags import load_draft_tags, score_adjustment
 from sts2bot.policy.textparse import parse_card_description, parse_hp_cost, parse_intent_damage
 from sts2bot.policy.trivial import TrivialRouter
 
@@ -81,6 +82,7 @@ class StandardRouter:
         shop_stats: ShopStats | None = None,
         event_stats: EventStats | None = None,
         bestiary: dict | None = None,
+        draft_tags: dict | None = None,
     ):
         self.config = config or load_policy_config()
         self.priors = priors if priors is not None else CardPriors.load()
@@ -90,6 +92,8 @@ class StandardRouter:
         self.card_effects = load_card_descriptions()  # id|upgrade -> text, for §5-C deck pricing
         # enemy name -> HP + status text, for per-boss/elite estimates (injectable for tests)
         self.bestiary = bestiary if bestiary is not None else load_bestiary()
+        # card-pass step 2: deck-context provides/needs table (injectable for tests)
+        self.draft_tags = draft_tags if draft_tags is not None else load_draft_tags()
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
@@ -734,7 +738,8 @@ class StandardRouter:
     # ------------------------------------------------------------------ card rewards
 
     def _card_score(
-        self, card, deck_size: int, character: str | None = None, act: int = 1
+        self, card, deck_size: int, character: str | None = None, act: int = 1,
+        deck: list | None = None,
     ) -> float:
         w = self.config.card_rewards
         fx = parse_card_description(card.description)
@@ -796,6 +801,13 @@ class StandardRouter:
             pass
         if deck_size > 25:
             score += w.penalty_deck_over_25
+        # card-pass step 2: deck-context tag adjustment (enabler/density/anti/copy-cap),
+        # additive on top of everything above (owner-reviewed 2026-07-12)
+        if deck is not None and self.draft_tags:
+            score += score_adjustment(
+                card.id or "", deck, self.draft_tags, w, act,
+                is_upgraded=bool(getattr(card, "is_upgraded", False)),
+            )
         return score
 
     def _upcoming_boss(self, ctx: LoopContext, act: int) -> list[FightEnemy]:
@@ -856,7 +868,8 @@ class StandardRouter:
         # §5-C: value each card by how much it improves the estimate vs the *real* upcoming boss
         cap = self._capability_deltas(deck, cr.cards, max_hp, self._upcoming_boss(ctx, run_act))
         scored = [
-            (self._card_score(c, deck_size, character, run_act) + cap.get(c.index, 0.0), c)
+            (self._card_score(c, deck_size, character, run_act, deck=deck)
+             + cap.get(c.index, 0.0), c)
             for c in cr.cards
         ]
         scored.sort(key=lambda sc: -sc[0])

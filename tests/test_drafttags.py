@@ -1,0 +1,127 @@
+"""Card-pass step 2: the deck-context tag machinery (owner-reviewed 2026-07-12).
+
+Uses the real data/card_draft_tags.json so the tests validate the shipped table,
+mirroring how policy tests use the real policy config.
+"""
+
+from sts2bot.kb.config import load_policy_config
+from sts2bot.policy.drafttags import load_draft_tags, score_adjustment
+
+W = load_policy_config().card_rewards
+TAGS = load_draft_tags()
+
+
+class C:
+    def __init__(self, cid, name=None, typ="Attack", cost="1", upgraded=False):
+        self.id = cid
+        self.name = name or cid.replace("_", " ").title()
+        self.type = typ
+        self.cost = cost
+        self.is_upgraded = upgraded
+
+
+def _starter(strikes=5, defends=4):
+    deck = [C("STRIKE_IRONCLAD", "Strike") for _ in range(strikes)]
+    deck += [C("DEFEND_IRONCLAD", "Defend", typ="Skill") for _ in range(defends)]
+    deck.append(C("BASH", "Bash", cost="2"))
+    return deck
+
+
+def test_table_loaded() -> None:
+    assert TAGS, "data/card_draft_tags.json missing or empty"
+    assert "provides" in TAGS["BASH"] and TAGS["BASH"]["provides"]["vulnerable_source"] == 2.0
+
+
+def test_weighted_sources_feed_payoff_bonus() -> None:
+    # Bully needs vulnerable_source at threshold 3 (weighted): starter Bash provides 2
+    # -> partial bonus; adding Tremble (3 stacks) crosses the threshold -> larger bonus.
+    base = score_adjustment("BULLY", _starter(), TAGS, W)
+    with_tremble = score_adjustment("BULLY", [*_starter(), C("TREMBLE", typ="Skill")], TAGS, W)
+    assert 0 < base < with_tremble
+
+
+def test_pure_payoff_docked_at_zero_with_act1_window() -> None:
+    # Rupture with NO self-HP-loss source: docked, but Act 1 runs at the speculative
+    # discount (owner: Rupture-class cards are often worth taking in Act 1 anyway).
+    act1 = score_adjustment("RUPTURE", _starter(), TAGS, W, act=1)
+    act2 = score_adjustment("RUPTURE", _starter(), TAGS, W, act=2)
+    assert act2 < act1 < 0
+    # with an enabler the dock vanishes and the bonus applies
+    fed = score_adjustment("RUPTURE", [*_starter(), C("BLOODLETTING", typ="Skill", cost="0")],
+                           TAGS, W, act=2)
+    assert fed > 0
+
+
+def test_self_provision_keeps_enabler_pickable() -> None:
+    # Dominate provides the vulnerable it needs: never docked even in an empty deck.
+    assert score_adjustment("DOMINATE", [], TAGS, W, act=2) > 0
+    # Tremble (bonus-only enabler per review #3): no dock without payoffs either
+    assert score_adjustment("TREMBLE", [], TAGS, W, act=2) >= 0
+
+
+def test_copy_cap_barricade() -> None:
+    without = score_adjustment("BARRICADE", _starter(), TAGS, W)
+    with_copy = score_adjustment("BARRICADE", [*_starter(), C("BARRICADE", typ="Power")],
+                                 TAGS, W)
+    assert with_copy <= without + W.w_copy_cap + 2.0  # dock applied (allow bonus drift)
+    assert with_copy < without
+
+
+def test_controlled_exhaust_thinning_value() -> None:
+    # Brand in a basics-heavy deck earns the thinning bonus (review #4)...
+    heavy = score_adjustment("BRAND", _starter(strikes=5, defends=4), TAGS, W)
+    thin = score_adjustment("BRAND", [C("BLUDGEON", cost="3")], TAGS, W)
+    assert heavy > thin
+    # ...and True Grit's exhaust is only controlled once UPGRADED (review #5)
+    tg_base = score_adjustment("TRUE_GRIT", _starter(), TAGS, W, is_upgraded=False)
+    tg_up = score_adjustment("TRUE_GRIT", _starter(), TAGS, W, is_upgraded=True)
+    # unupgraded gets the anticipation bonus instead; upgraded gets the real thing
+    assert tg_up > tg_base - W.w_upgrade_unlocks
+
+
+def test_upgrade_unlocks_anticipation() -> None:
+    up = score_adjustment("APOTHEOSIS", _starter(), TAGS, W, is_upgraded=True)
+    base = score_adjustment("APOTHEOSIS", _starter(), TAGS, W, is_upgraded=False)
+    assert base == up + W.w_upgrade_unlocks  # same needs, plus anticipation when unupgraded
+
+
+def test_pseudo_tag_strike_density() -> None:
+    # Perfected Strike counts name-contains-Strike (review #16): starter (5 Strikes +
+    # Bash) scores the __strike_named bonus higher than a strike-less deck.
+    many = score_adjustment("PERFECTED_STRIKE", _starter(strikes=5), TAGS, W)
+    none = score_adjustment("PERFECTED_STRIKE",
+                            [C("IMPERVIOUS", typ="Skill") for _ in range(9)], TAGS, W)
+    assert many > none
+
+
+def test_anti_synergy_battle_trance() -> None:
+    # two draw engines in deck -> Battle Trance's draw-lock dock fires (review item)
+    draws = [C("SHRUG_IT_OFF", typ="Skill"), C("ACROBATICS", typ="Skill")]
+    with_draw = score_adjustment("BATTLE_TRANCE", _starter() + draws, TAGS, W)
+    without = score_adjustment("BATTLE_TRANCE", _starter(), TAGS, W)
+    assert with_draw < without
+
+
+def test_untagged_card_is_neutral() -> None:
+    assert score_adjustment("NOT_A_CARD", _starter(), TAGS, W) == 0.0
+
+
+def test_router_integration_rupture_pick() -> None:
+    # End-to-end through _card_score: Rupture scores materially higher when the deck
+    # holds a self-HP-loss enabler (act 2, past the speculative window).
+    from sts2bot.policy.standard import StandardRouter
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class Card:
+        id = "RUPTURE"
+        name = "Rupture"
+        type = "Power"
+        cost = "1"
+        rarity = "Uncommon"
+        is_upgraded = False
+        description = "Whenever you lose HP on your turn, gain 1 Strength."
+
+    bare = r._card_score(Card(), 12, "The Ironclad", act=2, deck=_starter())
+    fed = r._card_score(Card(), 12, "The Ironclad", act=2,
+                        deck=[*_starter(), C("HEMOKINESIS")])
+    assert fed > bare

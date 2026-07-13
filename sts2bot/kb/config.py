@@ -132,6 +132,16 @@ class CardRewardWeights(_Section):
     # damage-starved one values damage). Added on top of the Elo/heuristic score, not replacing it.
     capability_weight: float = 0.4  # score per +1 projected boss-survival HP the card adds
     capability_win_flip_bonus: float = 6.0  # extra if the card flips the boss estimate lose->win
+    # Card-pass step 2 (owner-reviewed 2026-07-12): deck-context tag machinery
+    # (sts2bot/policy/drafttags.py + data/card_draft_tags.json). Bonus per met need
+    # (x strength mult x met fraction); penalty ONLY for pure payoffs with zero
+    # providers, discounted in Act 1 (the speculative window).
+    w_tag_bonus: float = 2.0
+    w_tag_penalty: float = -4.0
+    tag_act1_penalty_mult: float = 0.4
+    w_copy_cap: float = -8.0  # a second Barricade-class copy is dead weight
+    w_controlled_exhaust: float = 1.5  # targeted exhaust = thinning value (x basics/6)
+    w_upgrade_unlocks: float = 1.0  # upgrade crosses a class boundary (True Grit+)
 
 
 class RestWeights(_Section):
