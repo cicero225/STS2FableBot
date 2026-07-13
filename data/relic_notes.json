@@ -46,7 +46,7 @@
     "counter_persists_across_combats": false
    },
    "notes": "\"If you do not play any Attacks during your turn, gain an additional [energy] next turn.\" A whole-turn-plan condition (zero attacks played) with a next-turn payoff \u2014 not a per-N counter; the one-turn planner would need to credit attack-free plans.",
-   "status": "open"
+   "status": "modeled (R2, 2026-07-13)"
   },
   "ASTROLABE": {
    "class": "A",
@@ -314,7 +314,7 @@
     "counter_persists_across_combats": false
    },
    "notes": "\"At the end of your turn, gain 1 Block for each card in your Hand.\" End-of-turn effect scaling with retained hand size \u2014 rewards NOT playing cards, inverting the planner's usual spend-everything bias; needs bespoke end-of-turn hand accounting (interacts with which cards would be discarded/retained).",
-   "status": "open"
+   "status": "modeled (R2, 2026-07-13)"
   },
   "CURSED_PEARL": {
    "class": "A",
@@ -596,7 +596,7 @@
     "counter_persists_across_combats": false
    },
    "notes": "\"Energy is now conserved between turns.\" Not a mid-turn trigger but a plan-valuation change: unspent energy is banked instead of wasted, so the planner's implicit 'spend it all' bias is wrong. Leftover energy does show up in next turn's polled state, but the current-turn plan should value floating energy.",
-   "status": "open"
+   "status": "modeled (R2, 2026-07-13)"
   },
   "INTIMIDATING_HELMET": {
    "class": "C",
@@ -965,7 +965,7 @@
     "counter_persists_across_combats": false
    },
    "notes": "\"If you end your turn without Block, gain 6 Block.\" End-of-turn conditional on block==0 \u2014 not in the trigger vocabulary; changes whether playing a marginal small block card is worth it (blocking 1-5 can be strictly worse than blocking 0).",
-   "status": "open"
+   "status": "modeled (R2, 2026-07-13)"
   },
   "ORNAMENTAL_FAN": {
    "class": "B",
@@ -1019,7 +1019,7 @@
     "counter_persists_across_combats": false
    },
    "notes": "\"If you end your turn with unspent [energy], gain an additional [energy][energy] next turn.\" Not a counter: it is an end-of-turn condition on remaining energy, so the one-turn planner must value LEAVING 1+ energy floating (a plan-scoring term, not a card trigger) \u2014 outside the generic kind vocabulary.",
-   "status": "open"
+   "status": "modeled (R2, 2026-07-13)"
   },
   "PAELS_TOOTH": {
    "class": "A",
@@ -1074,7 +1074,7 @@
     "counter_persists_across_combats": false
    },
    "notes": "\"If you end a turn with at least 10 Block, deal 6 damage to a random enemy.\" End-of-turn threshold conditional (block>=10), random target \u2014 outside the vocabulary; occasionally tips a block-10-vs-9 decision or a lethal count.",
-   "status": "open"
+   "status": "modeled (R2, 2026-07-13)"
   },
   "PEAR": {
    "class": "A",
@@ -1159,7 +1159,7 @@
     "counter_persists_across_combats": false
    },
    "notes": "\"Whenever you play 3 or fewer cards during your turn, draw 3 additional cards at the start of your next turn.\" An inverted whole-turn condition (total cards played <= 3) with a cross-turn payoff \u2014 not a per-N counter; the planner would need to weigh short turns. counter_seen likely just tracks cards played this turn, not a persistent bank.",
-   "status": "open"
+   "status": "modeled (R2, 2026-07-13)"
   },
   "POMANDER": {
    "class": "A",
@@ -1393,7 +1393,7 @@
     "counter_persists_across_combats": false
    },
    "notes": "\"If you end your turn with no cards in your Hand, deal 20 damage to ALL enemies.\" End-of-turn conditional on final hand state -- a direct function of the whole play sequence (dump/exhaust the hand to cash 20 AOE), with no matching kind in the generic vocabulary. Never held in ~380 runs, so exposure-weighted impact is low despite being plan-warping when held.",
-   "status": "open"
+   "status": "modeled (R2, 2026-07-13)"
   },
   "SCROLL_BOXES": {
    "class": "A",
@@ -1425,7 +1425,7 @@
     "counter_persists_across_combats": false
    },
    "notes": "\"Whenever you lose HP in combat, gain 3 Block next turn.\" Fires on any HP loss including self-damage the bot inflicts mid-turn; payoff is next-turn block, so the one-turn planner should credit self-HP-loss plays. Expressible as on_self_hp_loss with a deferred block effect.",
-   "status": "open"
+   "status": "modeled (R2, 2026-07-13)"
   },
   "SHOVEL": {
    "class": "A",
@@ -1558,7 +1558,7 @@
     "counter_persists_across_combats": false
    },
    "notes": "\"Up to 10 Block persists across turns.\" Not a play-trigger: it changes end-of-turn valuation \u2014 up to 10 excess Block is no longer wasted, so overblocking gains value. Needs a bespoke tweak to how the planner scores leftover Block rather than any counter kind.",
-   "status": "open"
+   "status": "modeled (R2, 2026-07-13)"
   },
   "SWORD_OF_STONE": {
    "class": "A",

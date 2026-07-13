@@ -25,6 +25,10 @@ class CombatWeights(_Section):
     # Armaments-class "Upgrade card(s) in your Hand" rider, per card upgraded: enough to
     # beat play friction when targets exist, not enough to displace block/lethal needs.
     w_hand_upgrade: float = 2.5
+    # Relic pass R2: next-turn value credits for end-of-turn conditional relics
+    # (Pael's Tears banked energy, Pocketwatch's deferred draw, Art of War).
+    w_next_turn_energy: float = 2.0
+    w_next_turn_draw: float = 1.0
     w_focus: float = 9.0
     w_overkill: float = -0.3
     # Block is valued both directly here AND via the avoided hp_loss below, which double-counts it

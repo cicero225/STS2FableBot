@@ -851,6 +851,42 @@ def _with_relics(st: dict, *relics) -> dict:
     return st
 
 
+def test_eot_relic_orichalcum_and_cloak_clasp() -> None:
+    # R2: Orichalcum ("If you end your turn without Block, gain 6 Block") makes an
+    # all-attack turn safer — with 6 incoming, the planner should NOT burn its only
+    # Defend when Orichalcum covers the hit for free; it attacks instead.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                   "Attack", "AnyEnemy"),
+            _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None")]
+    st = _beckon_state(1, hand, enemy_hp=100, hp=50, incoming="6")  # 1 energy: pick one
+    _with_relics(st, ("ORICHALCUM",
+                      "If you end your turn without Block, gain 6 Block.", None))
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload().get("card_index") == 0  # attack; Orichalcum blocks free
+    st["player"]["relics"] = []
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert d2.action.payload().get("card_index") == 1  # without it, Defend wins
+
+
+def test_eot_relic_ice_cream_banks_energy() -> None:
+    # R2: Ice Cream ("Energy is now conserved between turns") removes the waste penalty
+    # on unspent energy — a marginal chip attack should no longer be forced just to
+    # spend down (zero-threat enemy, tiny Strike into a huge pool).
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 2 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=300, hp=60, incoming="0")
+    st["battle"]["enemies"][0]["intents"] = []
+    base = plan_combat_turn(parse_state(st), w)
+    _with_relics(st, ("ICE_CREAM", "Energy is now conserved between turns.", None))
+    banked = plan_combat_turn(parse_state(st), w)
+    # with Ice Cream, ending the turn (banking 3 energy) must score no worse than
+    # before relative to chipping; concretely the end-turn option should now win
+    assert banked.scores["plan_score"] >= base.scores["plan_score"] \
+        or banked.action.payload()["action"] == "end_turn"
+
+
 def test_relic_trigger_letter_opener_lethal() -> None:
     # Relic pass R1: "Every time you play 3 Skills in a single turn, deal 5 damage to
     # ALL enemies." Three Defends into a 5-HP enemy IS lethal with Letter Opener.

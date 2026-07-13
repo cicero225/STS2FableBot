@@ -90,6 +90,14 @@ _RELIC_TRIGGERS: dict[str, RelicTrigger] = {
     "TUNING_FORK": RelicTrigger(kind="skill", cadence=10, per_turn=False, block=7),
 }
 
+# Relic pass R2: end-of-turn conditional relics — no mid-turn firing; _score evaluates
+# them on the plan's END state (Orichalcum's free block, Cloak Clasp's per-retained-card
+# block, Sturdy Clamp's persisting block, Ice Cream's banked energy, ...).
+_EOT_RELICS = frozenset({
+    "ORICHALCUM", "PARRYING_SHIELD", "CLOAK_CLASP", "SCREAMING_FLAGON", "PAELS_TEARS",
+    "ART_OF_WAR", "POCKETWATCH", "SELF_FORMING_CLAY", "STURDY_CLAMP", "ICE_CREAM",
+})
+
 
 def _trigger_fires(trig: RelicTrigger, before: int, after: int) -> int:
     """How many times a cadence counter fires as its count moves before -> after."""
@@ -332,6 +340,9 @@ class SimState:
     n_skills_played: int = 0
     cent_puzzle_armed: bool = False  # Centennial Puzzle unfired (approx: entered at full HP)
     demon_tongue_armed: bool = False  # Demon Tongue: first self-HP-loss this turn heals it
+    # relic pass R2: end-of-turn conditional relics held (ids), evaluated in _score on
+    # the plan's END state (Orichalcum, Cloak Clasp, Sturdy Clamp, Ice Cream, ...)
+    eot_relics: tuple = ()
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
@@ -893,16 +904,28 @@ def _score(
                 back, key=lambda e: e.incoming
             )
             incoming += int(0.5 * sum(e.incoming for e in back if e is not faced))
+    # Relic pass R2: end-of-turn conditionals evaluate on the plan's END state.
+    eot = state.eot_relics
+    # retained hand size at end of turn (potions aren't hand cards)
+    retained = max(0, state.hand_size - (len(state.played) - state.potions_spent))
+    my_block_eff = state.my_block
+    if eot and not lethal_end:
+        if "CLOAK_CLASP" in eot:  # "gain 1 Block for each card in your Hand" at end of turn
+            my_block_eff += retained
+        if "ORICHALCUM" in eot and my_block_eff == 0:  # "end without Block -> gain 6"
+            my_block_eff = 6
     if state.barricade:
-        blocked = state.my_block  # persistent block is all future-useful
+        blocked = my_block_eff  # persistent block is all future-useful
         excess = 0
     else:
-        blocked = min(state.my_block, incoming)
-        excess = max(0, state.my_block - incoming)
+        blocked = min(my_block_eff, incoming)
+        excess = max(0, my_block_eff - incoming)
+        if "STURDY_CLAMP" in eot:  # "up to 10 Block persists" — that much is never waste
+            excess = max(0, excess - 10)
     # Healing offsets HP lost (Not Yet); net it against the loss so both ride the same scarcity
     # curve — a heal is worth ~nothing at full HP and a lot when low, symmetric with Offering.
     # Stranded Beckon-type damage is unblockable: straight into the loss, past the block math.
-    external_loss = (incoming - min(state.my_block, incoming)
+    external_loss = (incoming - min(my_block_eff, incoming)
                      - state.healing + stranded_unb)
     # HP is cheap when full, precious when low (owner: Offering should be played
     # freely when healthy, shelved when hurt)
@@ -943,8 +966,27 @@ def _score(
         if crab and any(e.hp <= 0 for e in crab) and any(e.hp > 0 for e in crab)
         else 0.0
     )
+    # Relic pass R2: remaining end-of-turn conditional credits (small, next-turn value)
+    eot_term = 0.0
+    if eot and not lethal_end:
+        if "PARRYING_SHIELD" in eot and my_block_eff >= 10:  # "end with >=10 Block: 6 dmg"
+            eot_term += w.w_damage * 6
+        if "SCREAMING_FLAGON" in eot and retained == 0:  # "empty hand: 20 dmg to ALL"
+            eot_term += w.w_damage * 20
+        if "PAELS_TEARS" in eot and state.energy > 0:  # unspent energy -> +2 next turn
+            eot_term += w.w_next_turn_energy * 2
+        if "ART_OF_WAR" in eot and state.n_attacks_played == 0:  # no attacks -> +1 energy
+            eot_term += w.w_next_turn_energy
+        if "POCKETWATCH" in eot and (len(state.played) - state.potions_spent) <= 3:
+            eot_term += w.w_next_turn_draw * 3  # "<=3 cards played: draw 3 next turn"
+        if "SELF_FORMING_CLAY" in eot and (state.self_damage > 0 or external_loss > 0):
+            eot_term += w.w_next_turn_draw  # ~3 block next turn, tiny flat credit
+    # Ice Cream: energy is conserved between turns, so leftover energy is banked, not wasted
+    energy_waste_term = (0.0 if "ICE_CREAM" in eot
+                         else w.w_energy_waste * max(0, state.energy))
     return (
-        crab_split
+        eot_term
+        + crab_split
         + w.w_focus * focus
         + w.w_damage * state.damage_dealt
         + w.w_kill * state.kills
@@ -960,7 +1002,7 @@ def _score(
         + w.w_weak * state.weak_applied
         + w.w_strength * state.strength_gained
         + w.w_draw * state.draws
-        + w.w_energy_waste * max(0, state.energy)
+        + energy_waste_term
         + w.w_play_friction * len(state.played)
         + power_term
         + w.w_rage_sequence * state.rage_block_granted
@@ -1101,9 +1143,12 @@ def plan_combat_turn(
     # Relic pass R1: build the held relics' mid-turn triggers; lifetime counters
     # (Nunchaku/Tuning Fork) continue from the live counter, Pen Nib-style.
     relic_triggers = []
+    eot_relics = []
     cent_armed = demon_armed = False
     for r in player.relics:
         rid = (r.id or r.name or "").upper().replace(" ", "_")
+        if rid in _EOT_RELICS:  # R2: end-of-turn conditionals, evaluated in _score
+            eot_relics.append(rid)
         trig = _RELIC_TRIGGERS.get(rid)
         if trig is not None:
             if not trig.per_turn:
@@ -1148,6 +1193,7 @@ def plan_combat_turn(
         relic_triggers=tuple(relic_triggers),
         cent_puzzle_armed=cent_armed,
         demon_tongue_armed=demon_armed,
+        eot_relics=tuple(eot_relics),
     )
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")

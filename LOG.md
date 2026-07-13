@@ -2,6 +2,26 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-13 (Fable 5, session 3) — R2 ships; batch bb6qu53b2 1.70; ELITE FINDING: route-then-swerve
+
+**Relic pass R2 shipped** (same session as R1): the ten end-of-turn conditional relics
+evaluated on the plan's END state in _score — Orichalcum (planner stops burning Defends
+the relic covers), Cloak Clasp, Sturdy Clamp, Ice Cream (banked energy, no waste
+penalty), Parrying Shield / Screaming Flagon damage credits, Pael's Tears / Art of War /
+Pocketwatch next-turn credits. Runic Pyramid deliberately skipped with reasoning
+(retention does NOT defuse Beckons). Pass status: R1+R2 = 28 relics modeled + Pen Nib.
+
+**Morning batch bb6qu53b2 (pre-R1 code): 0/10, act-reach 1.70, relics 6.8, elites
+0.1/22.** Usual kill list (KD x2, Insatiable, Kin, CB, Lagavulin Matriarch; Hunter
+Killer x2, Slumbering Beetle x2 in hallways).
+
+**Elite finding (probe, last 20 runs): the gate is NOT the bottleneck — routing
+stability is.** 27 'route to Elite' decisions were made, but ~2 elite fights happened:
+the bot plans a path TOWARD an elite, then re-plans away as per-floor projections
+shift. Nearly all path values run negative (-54..-253) in late acts — death-class
+pricing dominates the map. Filed for a dedicated routing-stability look (owner
+philosophy question: commitment vs re-planning).
+
 ## 2026-07-13 (Fable 5, session 3) — RELIC TRIGGER PASS R1 SHIPS: 18 relics modeled in one morning
 
 The §8.5.6 pass, card-pass playbook applied to relics: corpus harvest (180 relics,

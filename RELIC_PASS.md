@@ -34,13 +34,17 @@ Tuning Fork (+ Pen Nib pre-existing). Plus two non-trigger passives: **Paper Phr
 (Vulnerable 75% — rides the Cruelty `vuln_mult_bonus` lane) and **Velvet Choker**
 (6-card cap — rides the Ringing/Normality card-cap machinery, swept from relic text).
 
-## Tranche R2 — end-of-turn conditionals (open)
+## Tranche R2 — end-of-turn conditionals — SHIPPED 2026-07-13
 
-Evaluate at the plan's end state inside `_score` (which already prices leftover
-block/energy): Orichalcum, Parrying Shield, Cloak Clasp, Screaming Flagon, Pael's
-Tears, Art of War, Pocketwatch, Self-Forming Clay, Sturdy Clamp (overblock no longer
-waste), Ice Cream (unspent energy no longer waste), Runic Pyramid / Ringing Triangle
-(retained hand: stranded-card penalties don't apply).
+Evaluated at the plan's end state inside `_score`: Orichalcum (free 6 block on
+blockless turns — the planner stops burning Defends the relic covers), Cloak Clasp
+(+1 block per retained card), Sturdy Clamp (10 block of overblock is never waste),
+Ice Cream (unspent energy banked, waste penalty waived), Parrying Shield / Screaming
+Flagon (end-state damage credits), Pael's Tears / Art of War / Pocketwatch /
+Self-Forming Clay (next-turn value credits via w_next_turn_energy/draw).
+*Runic Pyramid / Ringing Triangle intentionally skipped*: retention does NOT defuse
+Beckon-type stranded penalties (a retained Beckon still fires — it stays in hand),
+and no current score term penalizes ordinary discards; nothing to adjust yet.
 
 ## Tranche R3 — first-per-combat latches (open, needs arming heuristic)
 
