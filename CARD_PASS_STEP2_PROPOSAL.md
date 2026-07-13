@@ -51,6 +51,29 @@ Magnitudes below are hints (mild/moderate/strong), to be mapped to 2-3 config we
    full controlled_exhaust treatment when offered/held upgraded. True Grit+ is
    "definitely takeable" (owner).
 
+**Attack-density package — owner refinements:**
+6. *Stampede*: also improves with high-cost/high-damage attacks (free end-of-turn play
+   of what you couldn't afford) — bonus keys on big/expensive attacks too, not just
+   attack fraction. Upgrade (2 -> 1 energy) is a considerable jump: upgrade-aware note.
+7. *Thrash (audit overridden)*: big_single_hit attacks are GREAT fodder (exhaust a
+   30-damage attack -> next Thrash deals 34x2), not a hazard. Real cautions: attacks
+   with riders/accumulators (early Ashen Strike) get eaten, and large decks without
+   tutors rarely redraw Thrash in time -> dock scales with deck size.
+8. *Aggression*: attack QUALITY over quantity — repeatedly returning one premium attack
+   is enough if the deck is energy-rich or the attack is 0-cost. Density threshold
+   softened; quality/energy condition instead.
+9. *Cascade*: also value the deck's energy-cost profile — expensive cards that "scoot
+   out of the way" after autoplay (powers, Exhaust cards) make X-autoplay safer/better.
+10. *Cloak and Dagger*: Silent card — analysis fine for Ironclad exposure, flawed if
+    ever scored for Silent. Caveat noted for future character support.
+11. *Havoc (audit partially overridden)*: playing a Power via Havoc is FINE — powers
+    vanish on play, nothing is exhausted. Remaining caution is situational skills only;
+    synergy note: card generation pairs well.
+
+**Owner question, answered**: yes — all conditionals land ON TOP of the existing score
+(rarity base + Spirebird prior + planner-blind dock + cost/deck-size penalties +
+capability delta). They are additive adjustments, not replacements.
+
 ## Vulnerable package (9 cards)
 
 | Card (rarity/cost) | Text | Proposed conditional | Strength | Impact/Conf |
