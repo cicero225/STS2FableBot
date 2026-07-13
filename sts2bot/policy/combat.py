@@ -84,6 +84,11 @@ class PlannedCard:
     # Feed-class "If Fatal, ..." rider: landing the KILL with this card pays a permanent
     # bonus, so _score nudges sequencing toward it (step-1 audit, owner-confirmed 07-12)
     on_fatal_bonus: bool = False
+    # The game's own target_type says a click-target is REQUIRED — independent of the
+    # aoe damage model. Omnislice ("Damage ALL other enemies...") is aoe in the sim but
+    # target_type=AnyEnemy in the game; submitting it targetless C5-halted a batch
+    # (2026-07-13, Louse Progenitor f29).
+    requires_target: bool = False
 
 
 @dataclass(frozen=True)
@@ -283,6 +288,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         exhausts_a_card="exhaust" in low,
         grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
         on_fatal_bonus=bool(re.search(r"\bIf Fatal\b", desc, re.IGNORECASE)),
+        requires_target=(card.target_type == "AnyEnemy"),
     )
 
 
@@ -1010,7 +1016,10 @@ def plan_combat_turn(
     first_index, first_target = best_state.played[0]
     chosen = next(c for c in playable if c.index == first_index)
     target = first_target if (chosen.targets_enemy and not chosen.fx.aoe) else None
-    if chosen.targets_enemy and not chosen.fx.aoe and target is None:
+    # Splash-AoE cards (Omnislice) are aoe in the sim but still need a click-target:
+    # honor the game's target_type whenever the plan didn't produce one.
+    if (chosen.requires_target or (chosen.targets_enemy and not chosen.fx.aoe)) \
+            and target is None:
         alive = [e for e in start.enemies if e.hp > 0]
         target = alive[0].entity_id if alive else None
 

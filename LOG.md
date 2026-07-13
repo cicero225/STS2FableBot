@@ -2,6 +2,28 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-13 (Fable 5, session 2 cont.) — Batch btc3g1ycl HALTED at 8 (C5): two new bug classes surfaced, both fixed same night
+
+The everything-live batch (spend-down + Cruelty + Replay + elite gate 0.50): **0 wins,
+six A1 f17 boss deaths, one A3 f45, then a C5 halt on run 8.** Cold on the surface, but
+the batch earned its keep by surfacing two latent bugs:
+
+1. **Owl Magistrate wedge (run 2, owner-caught live)**: a stale state poll made the loop
+   resubmit an accepted Stampede+ play; the duplicate wedged an engine hook, the hand
+   locked as BlockedByHook, and a COMPUTED LETHAL (Ashen Strike math checks out: ~28
+   into 21 HP) died on the vine at 4 HP. Fix: duplicate-submission debounce in the
+   orchestrator (94cdba6) — identical decision on an unchanged fingerprint holds up to
+   20 ticks. Old logs show duplicate spam was routine; only hook-carrying powers punish it.
+2. **Omnislice targeting (run 8, the C5 halt)**: splash-AoE ("Damage ALL other
+   enemies...") is aoe in the sim but target_type=AnyEnemy in the game — submitted
+   targetless, rejected 8x, error rail halted the batch. First-ever Omnislice draft
+   (the step-2 tags picked it), so the latent bug had never fired. Fix: PlannedCard
+   carries requires_target from the game's own target_type.
+
+The f17 streak (6 deaths, boss entries at 40-83hp, mostly 0 elites fought) is the known
+Act-1 boss-competence wall, not the new elite gate — engagement rose only to 0.2/run.
+Elite gate 0.50 + Ancient-uncommon + debounce + Omnislice fix all land for the NEXT batch.
+
 ## 2026-07-12 (Fable 5, session 2) — Batch b0qaobh7g (step-2 drafting live): 1 WIN, act-reach 1.90 — best batch ever
 
 First batch with deck-context drafting: **1/10 WIN (the first ever), act-reach 1.90**

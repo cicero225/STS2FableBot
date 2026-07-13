@@ -842,6 +842,20 @@ def test_preexisting_vulnerable_power_credited() -> None:
     assert d.scores["lethal"] == 1.0
 
 
+def test_splash_aoe_omnislice_gets_a_target() -> None:
+    # C5 halt (2026-07-13, Louse Progenitor f29): Omnislice is aoe in the sim ("Damage
+    # ALL other enemies...") but target_type=AnyEnemy in the game — the planner submitted
+    # it targetless and the game rejected it 8 times. The action must carry a target.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "OMNISLICE", "Omnislice", 0,
+                   "Deal 8 damage. Damage ALL other enemies equal to the damage dealt.",
+                   "Attack", "AnyEnemy")]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=50, hp=40)), w)
+    payload = d.action.payload()
+    assert payload["action"] == "play_card" and payload["card_index"] == 0
+    assert payload.get("target") == "s0"  # the click-target is REQUIRED
+
+
 def test_cruelty_boosts_vulnerable_multiplier() -> None:
     # Cruelty (power): "Vulnerable enemies take an additional 25% damage" — additive with
     # Vulnerable's 50% (owner 2026-07-12; hover preview shows it). 10 dmg -> 17, not 15:
