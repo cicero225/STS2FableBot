@@ -789,6 +789,59 @@ def test_c_tranche_bully_scales_with_target_vulnerable() -> None:
     assert out.damage_dealt == 15
 
 
+_VULN_POWER = {"id": "VULNERABLE_POWER", "name": "Vulnerable", "amount": 4,
+               "description": "Receive 50% more damage from Attacks for 4 turns."}
+_RINGING_POWER = {"id": "RINGING_POWER", "name": "Ringing", "amount": 1,
+                  "description": "You can only play 1 card this turn."}
+
+
+def test_power_suffix_colossus_ringing_regression() -> None:
+    # Owner live-caught (2026-07-12, Ceremonial Beast boss): on a Ringing turn (1-card cap)
+    # with the beast Vulnerable(4) and a 15 attack telegraphed, the bot cast Defend over
+    # Colossus. Root cause: live status ids carry a _POWER suffix (VULNERABLE_POWER) and the
+    # sim matched `== "VULNERABLE"`, so pre-existing stacks were invisible and Colossus'
+    # halving never fired. This test uses the exact live id shapes.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block. Ringing.",
+                   "Skill", "None"),
+            _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 10 damage. Ringing.",
+                   "Attack", "AnyEnemy"),
+            _bcard(2, "COLOSSUS", "Colossus", 1,
+                   "Gain 5 Block. You receive 50% less damage from Vulnerable enemies "
+                   "this turn. Ringing.", "Skill", "None")]
+    st = _beckon_state(5, hand, enemy_hp=100, hp=57,
+                       enemy_status=[dict(_VULN_POWER)], incoming="15")
+    st["player"]["status"] = [dict(_RINGING_POWER)]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload()["card_index"] == 2  # Colossus, not Defend
+    assert d.scores["hp_loss"] == 2.0  # 15 halved to 7, minus 5 block
+
+
+def test_player_strength_power_credited() -> None:
+    # Live id STRENGTH_POWER: exact-match zeroed player Strength in every live plan.
+    # Strength 4 + "Deal 6 damage." = 10 -> lethal on a 10-HP enemy.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=10, hp=40, incoming="5")
+    st["player"]["status"] = [{"id": "STRENGTH_POWER", "name": "Strength", "amount": 4,
+                               "description": "Increases attack damage by 4."}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores["lethal"] == 1.0
+
+
+def test_preexisting_vulnerable_power_credited() -> None:
+    # Cross-turn Vulnerable (applied a previous turn, arriving as VULNERABLE_POWER in the
+    # payload) must grant the 1.5x credit: "Deal 6 damage." into Vulnerable = 9 -> lethal.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=9, hp=40,
+                       enemy_status=[dict(_VULN_POWER)], incoming="5")
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores["lethal"] == 1.0
+
+
 def test_gambit_death_rider_never_planned() -> None:
     # The Gambit: "Gain 50 Block. If you take unblocked attack damage this combat, die."
     # A one-turn planner can't certify combat-long perfect blocking -> strictly unplayable.

@@ -2,6 +2,41 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-12 (Fable 5, session 2) — The _POWER-suffix bug family: player Strength was NEVER credited live
+
+Owner live-caught (run 1 of the first main-machine batch, Ceremonial Beast boss, a
+**Ringing** turn — RINGING_POWER "You can only play 1 card this turn."): beast
+Vulnerable(4), 15 attack telegraphed, and the bot cast Defend (5 block) over Colossus
+(5 block + halve damage from Vulnerable enemies). Strictly dominated choice.
+
+Forensics (decisions.jsonl has the full state; the round-6 record reproduced the miss
+offline exactly): `_enemy_sims` matched `p.id.upper() == "VULNERABLE"` but live status
+ids carry a `_POWER` suffix (`VULNERABLE_POWER`) — pre-existing Vulnerable was invisible,
+so Colossus' halving never fired. The same exact-match pattern hid two bigger truths:
+
+- **`pid == "STRENGTH"` (player): Strength has NEVER been credited in a live plan.**
+  Every Demon Form / Strength-potion / Anger deck under-estimated its own damage; all
+  conservative (real damage ≥ planned), which is why 345 runs never surfaced it.
+- **`pid == "BARRICADE"`: block carryover never detected.**
+- Cross-turn Vulnerable (applied last turn) also lost its 1.5x attack credit — only
+  same-turn Bash→follow-up synergy worked, because the sim tracks its own applications.
+
+Fix: `startswith()` on all three (safe vs a hypothetical INVULNERABLE). Also mirrored
+the Colossus halving into the reported `hp_loss` diagnostic (hail-mary reads it). Tests
+now use the live `_POWER` id shapes — the old fixtures used bare ids, which is exactly
+how this family passed 292 tests while failing live. Repro confirms Colossus wins the
+Ringing turn (4.7 vs −12.5). 292 tests, replay 101k states clean.
+
+**Lesson recorded**: status-id fixtures must copy the live payload shape verbatim.
+Batch bq4bppl4y (runs 1–7+ at this point) ran on the OLD code — it stays a valid
+baseline for the delta fixes; the Strength credit lands for the NEXT batch.
+
+## 2026-07-12 (Fable 5, session 2) — Gambit gate + Summon-as-block ship (70bd4a5)
+
+The two queued quick singles: The Gambit (self-death rider → never play, never draft;
+"die" appears in no other catalog card) and Summon N → +N block-equivalent (no companion
+state in the mod API — probed 40 runs; full Osty model filed as mod-fork TODO).
+
 ## 2026-07-12 (Fable 5) — Reverse handoff COMPLETE: back on the main machine, full corpus restored
 
 Owner returned and moved everything back (no OneDrive involved — the path is legacy

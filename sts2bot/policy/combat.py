@@ -295,7 +295,11 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         asleep = False
         spawns_on_death = False
         for p in e.status:
-            if p.id.upper() == "VULNERABLE" and p.amount:
+            # live ids carry a _POWER suffix (VULNERABLE_POWER); startswith, not ==, or
+            # pre-existing stacks are invisible (the owner-caught Colossus/Ringing miss —
+            # exact match also kept the cross-turn 1.5x vuln credit dead since day one).
+            # startswith stays safe against a hypothetical INVULNERABLE id.
+            if p.id.upper().startswith("VULNERABLE") and p.amount:
                 vuln = p.amount
             if "ARTIFACT" in p.id.upper() and p.amount:
                 artifact = p.amount
@@ -800,7 +804,9 @@ def plan_combat_turn(
     self_end_damage = 0
     for p in player.status:
         pid = p.id.upper()
-        if pid == "STRENGTH" and p.amount:
+        # live id is STRENGTH_POWER — exact match silently zeroed player Strength in every
+        # live plan (same _POWER-suffix bug family as the enemy VULNERABLE miss)
+        if pid.startswith("STRENGTH") and p.amount:
             my_strength = p.amount
         if "DEXTER" in pid and p.amount:  # DEXTERITY_POWER; negative under Soul Siphon
             my_dex = p.amount
@@ -808,7 +814,7 @@ def plan_combat_turn(
         # PLAYER status. Parse the amount from the text so escalation (6->7->8) tracks live.
         if m := re.search(r"end of your turn, take (\d+) damage", p.description or "", re.I):
             self_end_damage += int(m.group(1))
-        if pid == "BARRICADE":
+        if pid.startswith("BARRICADE"):  # live id BARRICADE_POWER
             barricade = True
         if "SURROUND" in pid:  # Kaiser Crab: a claw behind me deals +50% (back-attack)
             my_surrounded = True
@@ -999,7 +1005,11 @@ def plan_combat_turn(
     # Projected HP loss if we follow this line (post-block, post-kill incoming) — lets
     # callers tell "survivable with our own cards" from "actually facing death" so they
     # don't panic-drink a potion the planned block already covers.
-    proj_incoming = sum(e.incoming for e in best_state.enemies if _enemy_attacking(e))
+    proj_incoming = sum(
+        (e.incoming // 2 if best_state.vuln_dmg_reduction and e.vulnerable > 0
+         else e.incoming)
+        for e in best_state.enemies if _enemy_attacking(e)
+    )  # mirror _score's Colossus halving — hail-mary callers read this number
     # Status cards stranded in hand hit you at end of turn; the incoming/block tally misses them.
     # Beckon "lose N HP" is unblockable (added straight to hp_loss); Toxic "take N damage" is
     # blockable (joins the incoming pool so leftover block soaks it). Count the *unplayed* ones so
