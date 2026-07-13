@@ -36,6 +36,21 @@ Magnitudes below are hints (mild/moderate/strong), to be mapped to 2-3 config we
    are BONUS-ONLY — speculatively pickable to seed the archetype while Bash-class
    starter sources remain. The audit's Tremble penalty row is overridden accordingly.
 
+**Exhaust package — owner refinements (Brand / Burning Pact / True Grit):**
+4. *Controlled exhaust = thinning value in its own right.* Exhausting Strikes/Defends is
+   itself valuable, and StS's draw-5/3-energy pattern blunts the "card disadvantage"
+   argument. New tag `controlled_exhaust` (Brand, Burning Pact — cards that CHOOSE the
+   exhaust target, vs random/awkward exhausters like base True Grit, Thrash, Cinder):
+   mild-to-moderate bonus scaled by thinnable-basics count (Strikes/Defends remaining —
+   already computed for the weak-deck threshold) and damped when the deck already has
+   deck_thinning. The audit's Brand row ("raw card disadvantage" without payoffs) is
+   overridden: baseline thinning value stands in basic-heavy decks.
+5. *Upgrade-awareness (True Grit)*: the upgrade makes the exhaust targeted — a class
+   jump, not a stat bump. Mechanism: a per-card `upgrade_unlocks` flag -> mild
+   anticipation bonus when offered unupgraded (campfire upgrade makes it controlled),
+   full controlled_exhaust treatment when offered/held upgraded. True Grit+ is
+   "definitely takeable" (owner).
+
 ## Vulnerable package (9 cards)
 
 | Card (rarity/cost) | Text | Proposed conditional | Strength | Impact/Conf |
