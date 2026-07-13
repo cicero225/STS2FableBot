@@ -106,6 +106,40 @@ def test_untagged_card_is_neutral() -> None:
     assert score_adjustment("NOT_A_CARD", _starter(), TAGS, W) == 0.0
 
 
+def test_fasten_protects_defends_from_removal() -> None:
+    # Review #16/#17: a basics-keyed payoff in deck flips basics from removal fodder to
+    # enablers — Defend's removal-quality rises when Fasten is present.
+    from sts2bot.policy.standard import StandardRouter
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class Defend:
+        id = "DEFEND_IRONCLAD"
+        name = "Defend"
+        type = "Skill"
+        cost = "1"
+        is_upgraded = False
+        description = "Gain 5 Block."
+
+    plain = r._card_quality(Defend(), "The Ironclad", deck=_starter())
+    protected = r._card_quality(Defend(), "The Ironclad",
+                                deck=[*_starter(), C("FASTEN", typ="Power")])
+    assert protected > plain
+    # Strikes stay unprotected by Fasten (it keys __defends, not __strike_named)
+    class Strike(Defend):
+        id = "STRIKE_IRONCLAD"
+        name = "Strike"
+        type = "Attack"
+        description = "Deal 6 damage."
+    s_plain = r._card_quality(Strike(), "The Ironclad", deck=_starter())
+    s_fasten = r._card_quality(Strike(), "The Ironclad",
+                               deck=[*_starter(), C("FASTEN", typ="Power")])
+    assert s_fasten == s_plain
+    # ...but Perfected Strike protects them
+    s_ps = r._card_quality(Strike(), "The Ironclad",
+                           deck=[*_starter(), C("PERFECTED_STRIKE")])
+    assert s_ps > s_plain
+
+
 def test_router_integration_rupture_pick() -> None:
     # End-to-end through _card_score: Rupture scores materially higher when the deck
     # holds a self-HP-loss enabler (act 2, past the speculative window).

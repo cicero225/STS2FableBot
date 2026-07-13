@@ -842,6 +842,20 @@ def test_preexisting_vulnerable_power_credited() -> None:
     assert d.scores["lethal"] == 1.0
 
 
+def test_feed_preferred_for_the_killing_blow() -> None:
+    # Feed's "If Fatal, raise your Max HP by 3" was invisible: with two ways to kill,
+    # the planner never preferred landing Feed (step-1 audit, owner-confirmed 07-12).
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 10 damage.",
+                   "Attack", "AnyEnemy"),
+            _bcard(1, "FEED", "Feed", 1,
+                   "Deal 10 damage. If Fatal, raise your Max HP by 3. Exhaust.",
+                   "Attack", "AnyEnemy")]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=8, hp=40)), w)
+    assert d.action.payload()["card_index"] == 1  # Feed lands the kill, not Strike
+    assert d.scores["lethal"] == 1.0
+
+
 def test_gambit_death_rider_never_planned() -> None:
     # The Gambit: "Gain 50 Block. If you take unblocked attack damage this combat, die."
     # A one-turn planner can't certify combat-long perfect blocking -> strictly unplayable.

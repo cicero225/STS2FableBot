@@ -751,6 +751,11 @@ class StandardRouter:
             "Common": w.w_rarity_common,
             "Uncommon": w.w_rarity_uncommon,
             "Rare": w.w_rarity_rare,
+            # audit find (step 2): these fell through to the COMMON base. Ancient
+            # (Apotheosis/Neow's Fury/Relax) is rare-tier or better; Event cards
+            # (Peck/Exterminate/Metamorphosis) price like uncommons.
+            "Ancient": w.w_rarity_rare,
+            "Event": w.w_rarity_uncommon,
         }.get(card.rarity or "", w.w_rarity_common)
         if self.priors is not None:
             prior = self.priors.score(card.id, character)
@@ -895,7 +900,7 @@ class StandardRouter:
 
     # -------------------------------------------------------- card selection overlay
 
-    def _card_quality(self, card, character: str | None) -> float:
+    def _card_quality(self, card, character: str | None, deck: list | None = None) -> float:
         """Higher = better card to KEEP; lower = better to remove. Curses sink below
         un-upgraded basics, which sink below everything else; Spirebird prior on top."""
         w = self.config.deck
@@ -912,6 +917,17 @@ class StandardRouter:
                 quality -= w.curse_penalty * 0.8  # mostly neutralize: above basics, below keepers
         if base in ("Strike", "Defend") and not card.is_upgraded:
             quality += w.basic_penalty
+            # Step-2 review (#16/#17): a drafted payoff keyed on basics flips them from
+            # removal fodder to enablers — Fasten wants Defends kept; Perfected Strike /
+            # Hellraiser want Strike-named cards. Mostly neutralize the basic penalty
+            # while such a payoff is in deck (its tag-table needs reference the pseudo-tag).
+            if deck and self.draft_tags:
+                pseudo = "__defends" if base == "Defend" else "__strike_named"
+                for c in deck:
+                    entry = self.draft_tags.get((c.id or "").upper()) or {}
+                    if any(n.get("tag") == pseudo for n in entry.get("needs") or []):
+                        quality -= w.basic_penalty * 0.8
+                        break
         if self.priors is not None:
             prior = self.priors.score(card.id, character)
             if prior is not None:
@@ -945,7 +961,7 @@ class StandardRouter:
     _DEBUFF_PREFERENCE = ("DISINTEGRATION", "MIND_ROT", "SLOTH", "WASTE_AWAY")
 
     def _pick_target(self, cs, prefer_worst: bool, character, exclude=(),
-                     free_this_turn: bool = False):
+                     free_this_turn: bool = False, deck: list | None = None):
         prompt = (cs.prompt or "").lower()
         candidates = [c for c in cs.cards if c.index not in exclude]
         # All options are Status-type = a forced pick-your-poison, not a reward: choose the
@@ -974,7 +990,7 @@ class StandardRouter:
 
             return max(candidates, key=upgrade_key)
         def quality(c):
-            q = self._card_quality(c, character)
+            q = self._card_quality(c, character, deck=deck)
             # Retain curses (Poor Sleep) are better PARKED in hand than discarded back into
             # the deck cycle — but the parking is worth roughly one junk-tier, not immunity
             # (owner refinement 2026-07-09): if the rest of the hand would actually be PLAYED,
@@ -1043,7 +1059,8 @@ class StandardRouter:
         # turn despite showing full cost — the pick scorer subsidizes printed cost there.
         in_combat = state.player is not None and bool(state.player.in_combat)
         if resolves_on_select:
-            target = self._pick_target(cs, prefer_worst, character, free_this_turn=in_combat)
+            target = self._pick_target(cs, prefer_worst, character, free_this_turn=in_combat,
+                                       deck=state.player.deck if state.player else None)
             if mem["tries"] < self._CHOOSE_RETRIES and target is not None:
                 mem["tries"] += 1
                 return Decision(
@@ -1062,7 +1079,8 @@ class StandardRouter:
         # until `needed` are picked — even though can_confirm goes True after the first pick.
         if cs.cards and len(picked) < needed:
             target = self._pick_target(cs, prefer_worst, character, exclude=picked,
-                                       free_this_turn=in_combat)
+                                       free_this_turn=in_combat,
+                                       deck=state.player.deck if state.player else None)
             if target is not None:
                 picked.append(target.index)
                 kind = "worst" if prefer_worst else "best"
@@ -1122,7 +1140,8 @@ class StandardRouter:
         prompt = (hs.prompt or "").lower()
         prefer_worst = any(v in prompt for v in ("exhaust", "discard", "remove", "destroy"))
         character = state.player.character if state.player else None
-        target = self._pick_target(hs, prefer_worst, character)
+        target = self._pick_target(hs, prefer_worst, character,
+                                   deck=state.player.deck if state.player else None)
         if target is None:
             return Wait(reason="hand_select: no candidates")
         kind = "worst" if prefer_worst else "best"

@@ -81,6 +81,9 @@ class PlannedCard:
     energy_requires_exhausted: bool = False
     exhausts_a_card: bool = False
     grants_vuln_reduction: bool = False
+    # Feed-class "If Fatal, ..." rider: landing the KILL with this card pays a permanent
+    # bonus, so _score nudges sequencing toward it (step-1 audit, owner-confirmed 07-12)
+    on_fatal_bonus: bool = False
 
 
 @dataclass(frozen=True)
@@ -161,6 +164,7 @@ class SimState:
     exhausted_this_turn: bool = False  # a card was Exhausted this turn (Evil Eye/Ritual gates)
     vuln_dmg_reduction: bool = False  # Colossus: 50% less damage from Vulnerable enemies
     potions_spent: int = 0  # pseudo-card potions drunk this plan (each pays w_potion_spend)
+    fatal_bonuses: int = 0  # kills landed by "If Fatal, ..." cards (Feed) this plan
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
@@ -275,6 +279,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         energy_requires_exhausted=energy_gated,
         exhausts_a_card="exhaust" in low,
         grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
+        on_fatal_bonus=bool(re.search(r"\bIf Fatal\b", desc, re.IGNORECASE)),
     )
 
 
@@ -483,6 +488,7 @@ def _apply_attack(
         vuln_applied=state.vuln_applied + (card.fx.vulnerable if hp > 0 else 0),
         ramp_damage=state.ramp_damage + (dealt_total if e.gains_strength else 0),
         self_damage=state.self_damage + thorns_taken,
+        fatal_bonuses=state.fatal_bonuses + (1 if killed and card.on_fatal_bonus else 0),
     )
 
 
@@ -751,6 +757,7 @@ def _score(
         + w.w_focus * focus
         + w.w_damage * state.damage_dealt
         + w.w_kill * state.kills
+        + w.w_on_fatal_bonus * state.fatal_bonuses  # Feed lands the kill -> permanent payoff
         + w.w_overkill * state.overkill
         + w.w_block_useful * blocked
         + w.w_block_excess * excess

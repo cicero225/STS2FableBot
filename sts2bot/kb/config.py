@@ -19,6 +19,9 @@ class _Section(BaseModel):
 class CombatWeights(_Section):
     w_damage: float = 1.0
     w_kill: float = 25.0
+    # Feed-class "If Fatal" rider: extra credit when THAT card lands the kill, enough to
+    # win sequencing ties (vs another killer) but not to delay a safe lethal.
+    w_on_fatal_bonus: float = 8.0
     w_focus: float = 9.0
     w_overkill: float = -0.3
     # Block is valued both directly here AND via the avoided hp_loss below, which double-counts it
