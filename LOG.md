@@ -2,6 +2,23 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-12 (Fable 5, session 2) — Batch bk9xif371 (post-_POWER-fix): act-reach 1.70, 7/10 to Act 2, but ZERO elites fought
+
+First batch with player Strength / cross-turn Vulnerable / Colossus halving actually
+credited. **0 wins, act-reach 1.70 (= baseline), relics 5.8/run, elites 0.0/19 offered.**
+Shape shifted: more consistent (7/10 reached Act 2 vs 6/10, five f33 boss deaths), less
+top-end (max A2 vs the baseline's f48). Deaths: KD x2, Kaiser Crab x2, Insatiable,
+Lagavulin Matriarch (A1 boss variant, post-leak-fix data), Soul Fysh, Hunter Killer f25,
+Exoskeletons f31, Ruby Raiders f8.
+
+Read: the Strength fix can't move act-reach much in one 10-run sample, and the f33
+deck-power wall stands. The louder signal is **elites_fought 0.0** (baseline 0.4, June
+~0.7): zero elite relics -> relics 5.8 vs 6.9 -> thinner decks at the wall. Yesterday's
+f48 run fought 2 elites and rode the relic engine. The death-class elite pricing may now
+be over-tight — worth revisiting elite_gate_pool_win_frac (0.67) or the pool math,
+especially since the capability estimate still ignores the planner's new damage credits.
+Flagged for owner before touching config (policy-config changes get their own commits).
+
 ## 2026-07-12 (Fable 5, session 2) — Batch bq4bppl4y: act-reach 1.70 (best of the July batches); f48 Aeonglass run
 
 First live batch on the main machine, 10/10 clean at 4x, zero stalls. **0 wins,
