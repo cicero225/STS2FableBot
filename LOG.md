@@ -2,6 +2,23 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-13 (Fable 5, session 3) — RELIC TRIGGER PASS R1 SHIPS: 18 relics modeled in one morning
+
+The §8.5.6 pass, card-pass playbook applied to relics: corpus harvest (180 relics,
+live text, 23 live counters) -> 12-agent audit in 96s (132 A / 14 B / 31 C / 3 D) ->
+RELIC_PASS.md -> tranche R1 implemented. Key audit insight: class A is huge because
+anything materializing as visible status/energy in the polled state needs NO modeling
+— the blind spots are triggers fired mid-turn by the bot's own sequencing.
+
+R1: the RelicTrigger engine — per-turn counters as pure functions of play counts;
+lifetime counters (Nunchaku/Tuning Fork) continue the mod's live counter, Pen Nib
+pattern. Letter Opener/Lost Wisp trigger damage participates in LETHALITY (3 Defends
+now kill a 5-HP enemy through Letter Opener); Gremlin Horn's kill->energy+draw chains;
+Shuriken/Kunai mid-plan Str/Dex affect later cards. Paper Phrog rides yesterday's
+Cruelty vuln lane (75%); Velvet Choker rides the Ringing card-cap machinery from relic
+text. Centennial Puzzle armed-at-full-HP (under-credits, never over). R2 (end-of-turn
+conditionals) and R3 (first-per-combat latches) filed in RELIC_PASS.md.
+
 ## 2026-07-13 (Fable 5, session 3) — Bowlbug pin RESOLVED by corpus forensics: no guard mechanic (owner right)
 
 Instead of the seed replay, scanned all 91 Bowlbug fights in the corpus (917 attack

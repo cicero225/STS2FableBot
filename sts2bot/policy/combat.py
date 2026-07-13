@@ -45,6 +45,144 @@ _PEN_NIB_PERIOD = 10  # Pen Nib: every 10th attack deals double damage (counter 
 # duplicate-submission race (see LoopConfig.duplicate_debounce_ticks). The table stays
 # EMPTY; the machinery is kept tested-but-dormant in case a real guard enemy ships.
 _GUARD_PAIRS: dict[str, str] = {}
+
+
+@dataclass(frozen=True)
+class RelicTrigger:
+    """A relic's mid-turn trigger (relic pass R1, audit wf_d0019428-929). Per-turn
+    counters fire on every `cadence`-th event this turn; lifetime counters (Nunchaku /
+    Tuning Fork — Pen Nib's siblings) continue the live relic counter across combats."""
+    kind: str  # attack | skill | power | kill | potion | exhaust
+    #          | first_hp_loss_combat | first_self_hp_loss_turn
+    cadence: int = 1
+    per_turn: bool = True
+    counter_start: int = 0  # live relic counter at plan start (lifetime kinds only)
+    block: int = 0
+    damage: int = 0  # single-target chip (random target -> applied to first living)
+    aoe: bool = False  # damage hits ALL living enemies
+    draw: int = 0
+    energy: int = 0
+    strength: int = 0
+    dexterity: int = 0
+    heal_eq_self_loss: bool = False  # Demon Tongue: heal = the HP just lost
+
+
+# Trigger table keyed by relic id (live ids from data/relic_catalog.json). Class-B set
+# plus the on-Power family and the two lifetime counters; first-per-combat latches
+# (Vambrace, Unsettling Lamp, Permafrost, Ruined Helmet, Burning Sticks) are DEFERRED —
+# the mod exposes no fired-flag, so they need a conservative arming heuristic first.
+_RELIC_TRIGGERS: dict[str, RelicTrigger] = {
+    "ORNAMENTAL_FAN": RelicTrigger(kind="attack", cadence=3, block=4),
+    "SHURIKEN": RelicTrigger(kind="attack", cadence=3, strength=1),
+    "KUNAI": RelicTrigger(kind="attack", cadence=3, dexterity=1),
+    "KUSARIGAMA": RelicTrigger(kind="attack", cadence=3, damage=6),
+    "DAUGHTER_OF_THE_WIND": RelicTrigger(kind="attack", cadence=1, block=1),
+    "LETTER_OPENER": RelicTrigger(kind="skill", cadence=3, damage=5, aoe=True),
+    "LOST_WISP": RelicTrigger(kind="power", cadence=1, damage=8, aoe=True),
+    "GAME_PIECE": RelicTrigger(kind="power", cadence=1, draw=1),
+    "GREMLIN_HORN": RelicTrigger(kind="kill", energy=1, draw=1),
+    "REPTILE_TRINKET": RelicTrigger(kind="potion", strength=3),
+    "FORGOTTEN_SOUL": RelicTrigger(kind="exhaust", damage=1),
+    "CHARONS_ASHES": RelicTrigger(kind="exhaust", damage=3, aoe=True),
+    "CENTENNIAL_PUZZLE": RelicTrigger(kind="first_hp_loss_combat", draw=3),
+    "DEMON_TONGUE": RelicTrigger(kind="first_self_hp_loss_turn", heal_eq_self_loss=True),
+    "NUNCHAKU": RelicTrigger(kind="attack", cadence=10, per_turn=False, energy=1),
+    "TUNING_FORK": RelicTrigger(kind="skill", cadence=10, per_turn=False, block=7),
+}
+
+
+def _trigger_fires(trig: RelicTrigger, before: int, after: int) -> int:
+    """How many times a cadence counter fires as its count moves before -> after."""
+    if trig.per_turn:
+        return after // trig.cadence - before // trig.cadence
+    return ((trig.counter_start + after) // trig.cadence
+            - (trig.counter_start + before) // trig.cadence)
+
+
+def _apply_trigger_fx(s: SimState, trig: RelicTrigger, times: int,
+                      self_loss: int = 0) -> SimState:
+    """Apply a fired trigger's effects. Trigger damage is simple block-then-HP chip
+    (no Slippery/cap nuance — bounded approximation); AoE hits all living enemies,
+    single-target hits the first living one (the game rolls randomly)."""
+    if times <= 0:
+        return s
+    heal = 0
+    if trig.heal_eq_self_loss and self_loss > 0:
+        heal = max(0, min(self_loss, s.heal_room - s.healing))
+    s = replace(
+        s,
+        my_block=s.my_block + trig.block * times,
+        draws=s.draws + trig.draw * times,
+        energy=s.energy + trig.energy * times,
+        my_strength=s.my_strength + trig.strength * times,
+        my_dex=s.my_dex + trig.dexterity * times,
+        healing=s.healing + heal,
+    )
+    if trig.damage:
+        enemies = list(s.enemies)
+        dealt = 0
+        kills = 0
+        targets = (range(len(enemies)) if trig.aoe
+                   else [next((i for i, e in enumerate(enemies) if e.hp > 0), None)])
+        for i in targets:
+            if i is None or enemies[i].hp <= 0 or enemies[i].invincible:
+                continue
+            e = enemies[i]
+            total = trig.damage * times
+            absorbed = min(e.block, total)
+            hp_loss = total - absorbed
+            new_hp = max(0, e.hp - hp_loss)
+            if new_hp == 0 < e.hp:
+                kills += 1
+            dealt += min(hp_loss, e.hp)
+            enemies[i] = replace(e, hp=new_hp, block=e.block - absorbed,
+                                 hp_lost_this_turn=e.hp_lost_this_turn + hp_loss)
+        s = replace(s, enemies=tuple(enemies), damage_dealt=s.damage_dealt + dealt,
+                    kills=s.kills + kills)
+    return s
+
+
+def _fire_relic_triggers(pre: SimState, post: SimState, card: PlannedCard) -> SimState:
+    """Run the relic trigger pass for one played card: update play-kind counters, then
+    fire every armed trigger the play crossed. Strength/Dexterity gained here correctly
+    affects LATER cards in the same plan (SimState carries it forward)."""
+    if not post.relic_triggers:
+        return post
+    is_potion = card.potion_slot is not None
+    is_attack = card.is_attack
+    is_power = card.is_power
+    is_skill = not (is_attack or is_power or is_potion)
+    n_att = post.n_attacks_played + (1 if is_attack else 0)
+    n_sk = post.n_skills_played + (1 if is_skill else 0)
+    kills_delta = post.kills - pre.kills
+    self_loss = card.fx.self_hp_cost
+    s = replace(post, n_attacks_played=n_att, n_skills_played=n_sk)
+    for trig in s.relic_triggers:
+        times = 0
+        if trig.kind == "attack":
+            times = _trigger_fires(trig, n_att - (1 if is_attack else 0), n_att)
+        elif trig.kind == "skill":
+            times = _trigger_fires(trig, n_sk - (1 if is_skill else 0), n_sk)
+        elif trig.kind == "power":
+            times = _trigger_fires(trig, s.powers_played - (1 if is_power else 0),
+                                   s.powers_played)
+        elif trig.kind == "kill":
+            times = kills_delta
+        elif trig.kind == "potion":
+            times = 1 if is_potion else 0
+        elif trig.kind == "exhaust":
+            times = 1 if card.exhausts_a_card else 0  # Fiend Fire multi-exhaust: 1 (floor)
+        elif (trig.kind == "first_hp_loss_combat"
+              and self_loss > 0 and s.cent_puzzle_armed):
+            times = 1
+            s = replace(s, cent_puzzle_armed=False)
+        elif (trig.kind == "first_self_hp_loss_turn"
+              and self_loss > 0 and s.demon_tongue_armed):
+            times = 1
+            s = replace(s, demon_tongue_armed=False)
+        if times:
+            s = _apply_trigger_fx(s, trig, times, self_loss)
+    return s
 # Card-pass C tranche (2026-07-09): clustered planner mechanics from the 149-card audit.
 _PER_VULN_DMG = re.compile(r"Deals? (\d+) additional damage for each Vulnerable", re.IGNORECASE)
 _PER_VULN_STR = re.compile(r"Gain (\d+) Strength for each Vulnerable", re.IGNORECASE)
@@ -188,6 +326,12 @@ class SimState:
     # top of Vulnerable's 50% (owner-confirmed the game previews it; 1.5 -> 1.75)
     vuln_mult_bonus: float = 0.0
     hand_upgrades: int = 0  # cards upgraded in hand this plan (Armaments-class rider)
+    # relic pass R1: the held relics' mid-turn triggers + this plan's play-kind counters
+    relic_triggers: tuple = ()
+    n_attacks_played: int = 0
+    n_skills_played: int = 0
+    cent_puzzle_armed: bool = False  # Centennial Puzzle unfired (approx: entered at full HP)
+    demon_tongue_armed: bool = False  # Demon Tongue: first self-HP-loss this turn heals it
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
@@ -676,7 +820,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     energy_gain = card.fx.energy_gain
     if card.energy_requires_exhausted and not s.exhausted_this_turn:
         energy_gain = 0
-    return replace(
+    nxt = replace(
         s,
         my_block=s.my_block + block_gain,
         my_strength=s.my_strength + card.fx.strength,
@@ -689,6 +833,9 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,
         hand_upgrades=s.hand_upgrades + card.upgrades_in_hand,
     )
+    # relic pass R1: fire mid-turn relic triggers this play crossed (counters, on-kill,
+    # on-exhaust, on-potion, first-HP-loss). `state` is the pre-play snapshot.
+    return _fire_relic_triggers(state, nxt, card)
 
 
 def _fight_over(enemies) -> bool:
@@ -951,6 +1098,33 @@ def plan_combat_turn(
          and "NIB" in (r.id or r.name or "").upper().replace(" ", "")),
         None,
     )
+    # Relic pass R1: build the held relics' mid-turn triggers; lifetime counters
+    # (Nunchaku/Tuning Fork) continue from the live counter, Pen Nib-style.
+    relic_triggers = []
+    cent_armed = demon_armed = False
+    for r in player.relics:
+        rid = (r.id or r.name or "").upper().replace(" ", "_")
+        trig = _RELIC_TRIGGERS.get(rid)
+        if trig is not None:
+            if not trig.per_turn:
+                trig = replace(trig, counter_start=r.counter or 0)
+            relic_triggers.append(trig)
+            if trig.kind == "first_hp_loss_combat":
+                # armed only if provably unfired: entered THIS combat at full HP and
+                # untouched so far (under-credits after any chip; never over-credits)
+                cent_armed = player.hp == player.max_hp
+            if trig.kind == "first_self_hp_loss_turn":
+                demon_armed = True
+        # Paper Phrog: "Enemies with Vulnerable take 75% more damage rather than 50%."
+        # — rides the Cruelty vuln_mult_bonus lane (additive on VULN_MULT)
+        if m := re.search(r"take (\d+)% more damage rather than 50%",
+                          r.description or ""):
+            vuln_mult_bonus += (int(m.group(1)) - 50) / 100.0
+        # Velvet Choker-class: a play cap carried in RELIC text joins the card cap
+        if m := re.search(r"cannot play more than (\d+) cards", r.description or "",
+                          re.IGNORECASE):
+            cap = int(m.group(1))
+            card_cap = cap if card_cap is None else min(card_cap, cap)
     enemy_sims = _enemy_sims(state.battle.enemies)
     start = SimState(
         energy=energy,
@@ -971,6 +1145,9 @@ def plan_combat_turn(
         pen_turn_started_at_nine=(pen_nib_counter is not None
                                   and pen_nib_counter % _PEN_NIB_PERIOD
                                   == _PEN_NIB_PERIOD - 1),
+        relic_triggers=tuple(relic_triggers),
+        cent_puzzle_armed=cent_armed,
+        demon_tongue_armed=demon_armed,
     )
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")

@@ -1,0 +1,1791 @@
+{
+ "source": "relic trigger pass audit wf_d0019428-929 (2026-07-13)",
+ "relics": {
+  "AKABEKO": {
+   "class": "A",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "StS2 text: \"At the start of each combat, gain 8 Vigor\" -- NOT the StS1 first-attack-bonus wording. Start-of-combat, so it arrives as a visible Vigor status in the polled state; no relic trigger to model. Caveat: correct first-attack damage credit then depends on the planner modeling the Vigor STATUS (consumed by the next Attack), which is a status-modeling question, not a relic one.",
+   "status": "n/a (class A)"
+  },
+  "AMETHYST_AUBERGINE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Enemies drop 15 additional Gold.\" Pure economy; no combat-plan effect.",
+   "status": "n/a (class A)"
+  },
+  "ANCHOR": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Start each combat with 10 Block.\" Arrives as ordinary visible Block before turn 1's plan; nothing to model.",
+   "status": "n/a (class A)"
+  },
+  "ARCANE_SCROLL": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, obtain a random Rare Card\" \u2014 one-shot deck economy at acquisition; zero combat-turn impact.",
+   "status": "n/a (class A)"
+  },
+  "ART_OF_WAR": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "energy": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"If you do not play any Attacks during your turn, gain an additional [energy] next turn.\" A whole-turn-plan condition (zero attacks played) with a next-turn payoff \u2014 not a per-N counter; the one-turn planner would need to credit attack-free plans.",
+   "status": "open"
+  },
+  "ASTROLABE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Transform 3 cards, then Upgrade them\" \u2014 one-shot deck edit at pickup; deck contents are already visible thereafter.",
+   "status": "n/a (class A)"
+  },
+  "BAG_OF_MARBLES": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each combat, apply 1 Vulnerable to ALL enemies.\" The Vulnerable lands before the first plan and shows up as an ordinary enemy status in the polled state; no mid-turn trigger.",
+   "status": "n/a (class A)"
+  },
+  "BAG_OF_PREPARATION": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each combat, draw 2 additional cards.\" Fires before the first planner call; the extra cards are simply in the visible hand. No modeling needed.",
+   "status": "n/a (class A)"
+  },
+  "BELLOWS": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"The first Hand you draw each combat is Upgraded.\" The upgraded cards arrive in the polled hand state before the first plan is made \u2014 already visible, nothing to model mid-turn.",
+   "status": "n/a (class A)"
+  },
+  "BELT_BUCKLE": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": {
+    "kind": "on_potion",
+    "cadence": null,
+    "effect": {
+     "dexterity": 2,
+     "condition_no_potions": true
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"While you have no potions, you have 2 additional Dexterity.\" Normally materializes as visible Dexterity in the polled state, BUT the condition can flip MID-TURN as a function of the bot's own play: drinking the last potion (potions are pseudo-cards in the plan) grants +2 Dex to later Block cards in the same plan. Conditional stateful edge beyond the counter vocabulary. Never held (shop only).",
+   "status": "open"
+  },
+  "BIG_MUSHROOM": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"raise your Max HP by 20. At the start of each combat, draw 2 fewer cards.\" Both halves materialize in polled state (max HP, smaller starting hand) before the planner runs.",
+   "status": "n/a (class A)"
+  },
+  "BIIIG_HUG": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "add_soot_to_draw_pile": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you shuffle your Draw Pile, add a Soot into your Draw Pile.\" Shuffles can occur mid-turn during draws, and shuffle triggers are not in the vocabulary \u2014 but the effect (junk added to a stochastic draw pile) almost never changes a one-turn plan. Flagging as C for completeness; effect object approximated since 'add Soot' has no schema key.",
+   "status": "open"
+  },
+  "BING_BONG": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you add a card to your Deck, add one additional copy\" \u2014 deck-building event outside combat; no in-combat trigger.",
+   "status": "n/a (class A)"
+  },
+  "BLOOD_VIAL": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each combat, heal 2 HP.\" Fires before the first poll; HP is already reflected in state. (Slight relevance to rest/path policy, none to the turn planner.)",
+   "status": "n/a (class A)"
+  },
+  "BONE_TEA": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of the next 0 combats, Upgrade your starting hand.\" Live text shows the charge already depleted (0), and even when charged it's a start-of-combat effect whose result (upgraded cards) is visible in the polled hand. No mid-turn planning impact.",
+   "status": "n/a (class A)"
+  },
+  "BOOK_OF_FIVE_RINGS": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Every 5 cards you add to your Deck, heal 20 HP.\" Persistent counter (counter_seen=true) but it counts card PICKUPS, not combat plays \u2014 relevant to draft/reward policy, invisible to and irrelevant for the one-turn combat sim.",
+   "status": "n/a (class A)"
+  },
+  "BOOMING_CONCH": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of Elite combats, draw 2 additional cards and gain [energy].\" Both the cards and the energy are in the polled state at first plan. (Marginal relevance to elite-path valuation, none mid-turn.)",
+   "status": "n/a (class A)"
+  },
+  "BOUND_PHYLACTERY": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": null,
+   "notes": "\"At the start of your turn, Summon 1.\" Turn-start effect firing before the poll; the summoned ally should appear as ordinary visible combat state, Happy-Flower-style. Med confidence only because it depends on the mod surfacing player summons.",
+   "status": "n/a (class A)"
+  },
+  "BOWLER_HAT": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Gain 25% additional Gold.\" Pure economy.",
+   "status": "n/a (class A)"
+  },
+  "BREAD": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of your first turn, lose [energy][energy]. At the start of all other turns, gain [energy].\" Pure turn-start energy delta, already reflected in polled energy before planning.",
+   "status": "n/a (class A)"
+  },
+  "BRIMSTONE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of your turn, gain 2 Strength and ALL enemies gain 1 Strength\" \u2014 fires before the plan, so both player and enemy Strength are in the polled state. Matters for a multi-turn forward model (race incentive), not the one-turn pass.",
+   "status": "n/a (class A)"
+  },
+  "BRONZE_SCALES": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Start each combat with 3 Thorns.\" Materializes as a visible player status at combat start; any Thorns handling belongs to generic status modeling, not a relic trigger pass.",
+   "status": "n/a (class A)"
+  },
+  "BURNING_BLOOD": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the end of combat, heal 6 HP.\" Fires after combat ends; never changes a one-turn plan. Held in effectively every run (starter) but zero mid-turn surface.",
+   "status": "n/a (class A)"
+  },
+  "BURNING_STICKS": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_exhaust",
+    "cadence": null,
+    "effect": {
+     "copy_exhausted_skill_to_hand": 1,
+     "once_per_combat": true
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"The first time each combat you Exhaust a Skill, add a copy of it into your Hand.\" The effect is card-identity-dependent (a copy of that exact Skill appears mid-turn and is then playable), plus a once-per-combat flag and Skill-only filter \u2014 beyond the generic effect vocabulary.",
+   "status": "open"
+  },
+  "CANDELABRA": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of your 2nd turn, gain [energy][energy].\" Fires before the turn like Happy Flower \u2014 the extra energy is already in the polled energy pool when the planner runs. (Could matter to a multi-turn model; not to the one-turn pass.)",
+   "status": "n/a (class A)"
+  },
+  "CAPTAINS_WHEEL": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of your 3rd turn, gain 18 Block.\" Fires at turn start, so it materializes as ordinary player block in the polled state before the plan runs \u2014 Horn Cleat-class, already visible.",
+   "status": "n/a (class A)"
+  },
+  "CAULDRON": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, brews 5 random potions.\" Pickup one-shot; the resulting potions are visible inventory the planner already treats as pseudo-cards.",
+   "status": "n/a (class A)"
+  },
+  "CENTENNIAL_PUZZLE": {
+   "class": "B",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_first_hp_loss_each_combat",
+    "cadence": null,
+    "effect": {
+     "draw": 3
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"The first time you lose HP each combat, draw 3 cards\" \u2014 mid-turn when the bot's own self-HP-loss cards trigger it: playing a self-damage card while the trigger is armed yields 3 extra cards this turn, which changes sequencing. Per-combat flag, not a persistent counter.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "CHANDELIER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of your 3rd turn, gain [energy]x3\" \u2014 turn-start energy shows up as visible energy when it fires; nothing mid-turn.",
+   "status": "n/a (class A)"
+  },
+  "CHARONS_ASHES": {
+   "class": "B",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_exhaust",
+    "cadence": null,
+    "effect": {
+     "damage_aoe": 3
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you Exhaust a card, deal 3 damage to ALL enemies.\" Mid-turn trigger fully dependent on the bot's own exhaust sequencing; maps directly to the on_exhaust kind (SimState already tracks exhausted_this_turn, so the hook point exists).",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "CHEMICAL_X": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "low",
+   "trigger": null,
+   "notes": "\"The effects of your cost X cards are increased by 2.\" Static modifier on X-cost cards, no mid-turn trigger; if the game bakes it into the X card's displayed text (as it does for Pen Nib doubling) it is already visible. Timing/visibility unverified and X-card valuation itself is fuzzy -- low confidence; if preview does NOT reflect it, this would be a C-grade valuation gap.",
+   "status": "n/a (class A)"
+  },
+  "CHOSEN_CHEESE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the end of combat, gain 1 Max HP.\" End-of-combat economy; no in-turn effect.",
+   "status": "n/a (class A)"
+  },
+  "CLOAK_CLASP": {
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "block_per_card_in_hand": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"At the end of your turn, gain 1 Block for each card in your Hand.\" End-of-turn effect scaling with retained hand size \u2014 rewards NOT playing cards, inverting the planner's usual spend-everything bias; needs bespoke end-of-turn hand accounting (interacts with which cards would be discarded/retained).",
+   "status": "open"
+  },
+  "CURSED_PEARL": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, receive Greed. Gain 333 Gold.\" Pickup one-shot; the Greed curse it adds is visible deck content handled by card knowledge, not relic modeling.",
+   "status": "n/a (class A)"
+  },
+  "DAUGHTER_OF_THE_WIND": {
+   "class": "B",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_attack_count",
+    "cadence": 1,
+    "effect": {
+     "block": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you play an Attack, gain 1 Block.\" Per-attack (cadence 1) mid-turn trigger; fires on every attack, shifting the attack-vs-block tradeoff on every turn it is held, but exposure is only 4 runs.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "DEMON_TONGUE": {
+   "class": "B",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": {
+    "kind": "on_self_hp_loss",
+    "cadence": null,
+    "effect": {
+     "heal_equal_to_hp_lost": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"The first time you lose HP on your turn, heal HP equal to the amount lost.\" Mid-turn self-HP-loss trigger (first per player turn), heal magnitude equals the loss \u2014 matters when sequencing self-damage cards. Text says 'on your turn', so per-turn first, not per-combat.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "DINGY_RUG": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Card rewards can now contain Colorless cards.\" Reward-pool modifier; no combat-turn impact.",
+   "status": "n/a (class A)"
+  },
+  "DIVINE_RIGHT": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "low",
+   "trigger": null,
+   "notes": "\"At the start of each combat, gain [star_icon]x3\" \u2014 combat-start grant, so whatever the star resource is it should appear in the polled state before turn 1 planning. The resource itself is unidentified from text (star_icon.png), so what the planner does with it is a separate question.",
+   "status": "n/a (class A)"
+  },
+  "DOLLYS_MIRROR": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, obtain an additional copy of a card in your Deck.\" Pickup one-shot; deck state is already visible to the planner.",
+   "status": "n/a (class A)"
+  },
+  "DRAGON_FRUIT": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you gain Gold, raise your Max HP by 1.\" Economy-to-HP conversion outside the turn plan; results visible in state.",
+   "status": "n/a (class A)"
+  },
+  "ECTOPLASM": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"You can no longer gain Gold. Gain [energy] at the start of each turn.\" Energy fires turn-start before the poll (visible), gold clause is economy.",
+   "status": "n/a (class A)"
+  },
+  "ELECTRIC_SHRYMP": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Enchant a Skill with Imbued.\" One-shot pickup effect; the enchanted card's behavior is part of the card data the planner already reads.",
+   "status": "n/a (class A)"
+  },
+  "EMPTY_CAGE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, remove 2 cards from your Deck.\" One-shot pickup effect.",
+   "status": "n/a (class A)"
+  },
+  "ETERNAL_FEATHER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"For every 5 cards in your Deck, heal 3 HP whenever you enter a Rest Site\" \u2014 rest-site economy, no combat-turn impact.",
+   "status": "n/a (class A)"
+  },
+  "FISHING_ROD": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Every 3 normal combats, Upgrade a random card in your Deck.\" Cross-combat counter (counter_seen) but the payoff is a between-combats deck upgrade, already visible in polled card data; no in-turn effect.",
+   "status": "n/a (class A)"
+  },
+  "FORGOTTEN_SOUL": {
+   "class": "B",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_exhaust",
+    "cadence": null,
+    "effect": {
+     "damage": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you Exhaust a card, deal 1 damage to a random enemy.\" Fires on every exhaust \u2014 fits the generic on_exhaust kind; random target and tiny magnitude, so it rarely flips a plan.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "FRAGRANT_MUSHROOM": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, lose 15 HP and Upgrade 2 random cards.\" Pickup one-shot; consequences already reflected in polled HP/deck.",
+   "status": "n/a (class A)"
+  },
+  "FROZEN_EGG": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you add a Power into your Deck, Upgrade it.\" Deck-acquisition modifier; the upgraded card is what the planner sees later. No combat trigger.",
+   "status": "n/a (class A)"
+  },
+  "GAMBLING_CHIP": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": null,
+   "notes": "\"At the start of each combat, discard any number of cards then draw that many.\" Start-of-combat interactive choice; by the time the one-turn planner runs, the resulting hand is the polled hand. (It does need a choice handler somewhere, but that is outside the turn-sim pass.)",
+   "status": "n/a (class A)"
+  },
+  "GAME_PIECE": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": 1,
+    "effect": {
+     "draw": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you play a Power, draw 1 card.\" Mid-turn draw trigger, but keyed to POWER plays \u2014 the generic vocabulary has attack/skill/card counters and no power-count kind, so it needs a bespoke (if tiny) hook. Low exposure (5 runs) and few Powers per turn.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "GHOST_SEED": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": null,
+   "notes": "\"Strikes and Defends gain Ethereal.\" Not a relic trigger \u2014 it rewrites card properties, so the Ethereal keyword should show on the polled cards themselves; the planner's card layer (not the relic pass) must respect it. Med confidence: if the mod's card payload does NOT carry the added Ethereal, this becomes an invisible end-of-turn exhaust and would need escalation.",
+   "status": "n/a (class A)"
+  },
+  "GIRYA": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"You can now gain Strength at Rest Sites. (3 times max)\" Rest-site option; gained Strength arrives as visible player status. Counter tracks lifts remaining, no combat trigger.",
+   "status": "n/a (class A)"
+  },
+  "GLASS_EYE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, obtain 2 Common cards, 2 Uncommon cards, and 1 Rare card.\" One-shot pickup effect.",
+   "status": "n/a (class A)"
+  },
+  "GNARLED_HAMMER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Enchant up to 3 Attacks with Sharp 3.\" One-shot pickup; the combat effect lives on the enchanted cards' own text/damage, not as a relic trigger the sim must model.",
+   "status": "n/a (class A)"
+  },
+  "GOLDEN_PEARL": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, gain 150 Gold.\" Pure economy one-shot.",
+   "status": "n/a (class A)"
+  },
+  "GORGET": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each combat, gain 4 Plating\" \u2014 materializes as a visible player status (Plating) in the polled state; no mid-turn trigger.",
+   "status": "n/a (class A)"
+  },
+  "GREMLIN_HORN": {
+   "class": "B",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_kill",
+    "cadence": null,
+    "effect": {
+     "energy": 1,
+     "draw": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever an enemy dies, gain [energy] and draw 1 card.\" Mid-turn on_kill trigger, directly in the vocabulary. Changes sequencing meaningfully: killing the low-HP enemy FIRST funds and fuels the rest of the turn (extra energy + draw), which the current sim never credits.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "HAPPY_FLOWER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Every 3 turns, gain [energy]\" \u2014 fires at turn start BEFORE the planner polls, so the energy is already in the visible energy pool. Counter exists (counter_seen) but is turn-cadence, not play-sequencing; no one-turn planning impact.",
+   "status": "n/a (class A)"
+  },
+  "HEFTY_TABLET": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, choose 1 of 3 Rare cards... and add 1 Injury to your Deck.\" Pickup one-shot; deck contents already reflect it.",
+   "status": "n/a (class A)"
+  },
+  "HISTORY_COURSE": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "replay_last_attack_or_skill_next_turn_start": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"At the start of your turn, play a copy of your last played Attack or Skill.\" The replay itself resolves before the poll (visible), but it creates a bespoke sequencing incentive the vocabulary can't express: the LAST card played this turn is replayed free next turn, so plan ordering should end on the strongest Attack/Skill. Cross-turn, not counter-based.",
+   "status": "open"
+  },
+  "HORN_CLEAT": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of your 2nd turn, gain 14 Block\" \u2014 fires at turn start before the poll, so the block is already visible when planning turn 2. (Would matter for a multi-turn forward model deciding how much to block on turn 1, but not for the one-turn pass.)",
+   "status": "n/a (class A)"
+  },
+  "ICE_CREAM": {
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "energy_conserved_between_turns": true
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Energy is now conserved between turns.\" Not a mid-turn trigger but a plan-valuation change: unspent energy is banked instead of wasted, so the planner's implicit 'spend it all' bias is wrong. Leftover energy does show up in next turn's polled state, but the current-turn plan should value floating energy.",
+   "status": "open"
+  },
+  "INTIMIDATING_HELMET": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "block": 4,
+     "condition_card_cost_at_least": 2
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you play a card that costs [2 energy] or more, gain 4 Block.\" Fires mid-turn per card played, but gated on a card property (cost >= 2), not a plain count -- the generic per-N counter vocabulary has no cost-condition slot, so it needs a bespoke per-card predicate. Biases plans toward expensive cards for free Block.",
+   "status": "open"
+  },
+  "JEWELRY_BOX": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, add 1 Apotheosis to your Deck\" \u2014 pickup one-shot; the card is visible in the deck afterward.",
+   "status": "n/a (class A)"
+  },
+  "JUZU_BRACELET": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Regular enemy combats are no longer encountered in ? rooms.\" Pure map/pathing effect; zero combat-turn relevance.",
+   "status": "n/a (class A)"
+  },
+  "KALEIDOSCOPE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, obtain 2 card rewards from other characters.\" Pickup one-shot, no combat presence.",
+   "status": "n/a (class A)"
+  },
+  "KIFUDA": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Enchant up to 3 cards with Adroit\" \u2014 pickup one-shot; effect lives on the cards, which carry their own text.",
+   "status": "n/a (class A)"
+  },
+  "KUNAI": {
+   "class": "B",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_attack_count",
+    "cadence": 3,
+    "effect": {
+     "dexterity": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Every time you play 3 Attacks in a single turn, gain 1 Dexterity.\" Classic per-turn per-3-attacks counter; resets each turn per explicit 'in a single turn'. Dex gained mid-turn boosts Block cards played afterward, so it rewards attack-before-block ordering.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "KUSARIGAMA": {
+   "class": "B",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_attack_count",
+    "cadence": 3,
+    "effect": {
+     "damage": 6,
+     "target": "random"
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Every time you play 3 Attacks in a single turn, deal 6 damage to a random enemy.\" Classic per-3-attacks-per-turn counter (counter_seen confirms live counter); random targeting makes the damage unreliable for lethal math but the trigger itself is generic.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "LANTERN": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Start each combat with an additional [energy]\" \u2014 the extra energy is already present in the polled energy count on turn 1; nothing mid-turn to model.",
+   "status": "n/a (class A)"
+  },
+  "LARGE_CAPSULE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, obtain 2 random Relics. Add an additional Strike and Defend to your Deck.\" Pickup one-shot (the granted relics get their own classification when seen).",
+   "status": "n/a (class A)"
+  },
+  "LASTING_CANDY": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Every other combat, your card rewards gain an additional Power.\" Pure reward economy; counter_seen tracks the every-other-combat cadence but nothing fires mid-turn.",
+   "status": "n/a (class A)"
+  },
+  "LAVA_LAMP": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the end of combat, Upgrade all card rewards if you took no damage\" \u2014 end-of-combat reward modifier. It does create a soft incentive to block perfectly, but that is a combat-level objective tweak, not a mid-turn trigger.",
+   "status": "n/a (class A)"
+  },
+  "LAVA_ROCK": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"The Act 1 Boss drops 2 Relics\" \u2014 pure reward/map economy; no combat-sim relevance.",
+   "status": "n/a (class A)"
+  },
+  "LEAD_PAPERWEIGHT": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, choose 1 of 2 Colorless cards to add to your Deck.\" Pickup one-shot (a draft decision, not a combat trigger).",
+   "status": "n/a (class A)"
+  },
+  "LEES_WAFFLE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, raise your Max HP by 7 and heal all of your HP\" \u2014 pickup one-shot, reflected in visible HP.",
+   "status": "n/a (class A)"
+  },
+  "LETTER_OPENER": {
+   "class": "B",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_skill_count",
+    "cadence": 3,
+    "effect": {
+     "damage_aoe": 5
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Every time you play 3 Skills in a single turn, deal 5 damage to ALL enemies.\" Classic per-turn skill counter; 'in a single turn' means the counter resets each turn, so the mod's live counter is turn-scoped, not banked. Free AoE can flip lethal/kill-order decisions and rewards front-loading skills.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "LIZARD_TAIL": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "heal_to_percent_max_hp": 50
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"When your HP would be reduced to 0, heal to 50% of your Max HP instead (works once).\" Not a play-sequencing trigger, but a one-shot death safeguard that changes the planner's lethal-risk math; bespoke if ever modeled. One lifetime charge, no visible counter.",
+   "status": "open"
+  },
+  "LOST_COFFER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, gain 1 card reward and procure 1 random potion.\" One-shot pickup; no combat presence.",
+   "status": "n/a (class A)"
+  },
+  "LOST_WISP": {
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": 1,
+    "effect": {
+     "damage_aoe": 8
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you play a Power, deal 8 damage to ALL enemies.\" Fires mid-turn per Power played, but the schema's kinds have no on-Power trigger (only attack/skill/card counters), so it needs a small vocabulary extension rather than bespoke sim logic. Effectively a cadence-1 Power counter.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "LUCKY_FYSH": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you add a card to your Deck, gain 15 Gold.\" Economy-only, out-of-combat trigger.",
+   "status": "n/a (class A)"
+  },
+  "MANGO": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, raise your Max HP by 14.\" Pickup one-shot; materializes as visible max HP.",
+   "status": "n/a (class A)"
+  },
+  "MEAL_TICKET": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you enter a shop room, heal 15 HP\" \u2014 map economy, no combat impact.",
+   "status": "n/a (class A)"
+  },
+  "MEAT_ON_THE_BONE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"If your HP is at or below 50% at the end of combat, heal 12 HP.\" End-of-combat heal; no mid-turn planning impact (at most a marginal rest/path consideration).",
+   "status": "n/a (class A)"
+  },
+  "MEMBERSHIP_CARD": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"50% discount on all products!\" Shop economy only; no combat presence.",
+   "status": "n/a (class A)"
+  },
+  "MERCURY_HOURGLASS": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of your turn, deal 3 damage to ALL enemies.\" Fires before the turn is planned, so enemy HP in the polled state already reflects it. Only matters for multi-turn lethal projection, not the one-turn pass.",
+   "status": "n/a (class A)"
+  },
+  "MINIATURE_TENT": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"You may choose any number of options at Rest Sites.\" Rest-site economy only; affects rest policy, not the turn planner.",
+   "status": "n/a (class A)"
+  },
+  "MOLTEN_EGG": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you add an Attack card to your Deck, Upgrade it.\" Deck-building economy; no combat presence.",
+   "status": "n/a (class A)"
+  },
+  "MR_STRUGGLES": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of your turn, deal damage equal to the turn number to ALL enemies\" \u2014 resolves before planning, so enemy HP in the polled state already includes it. Only a multi-turn lethal forecast would need to model the future ticks.",
+   "status": "n/a (class A)"
+  },
+  "MUMMIFIED_HAND": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "random_hand_card_cost_zero": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you play a Power, a random card in your Hand is free to play that turn.\" Mid-turn trigger whose effect is a RANDOM cost-zeroing of a hand card \u2014 needs bespoke handling (randomness over remaining hand, energy accounting), beyond the counter vocabulary.",
+   "status": "open"
+  },
+  "MYSTIC_LIGHTER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "low",
+   "trigger": null,
+   "notes": "\"Enchanted Attacks deal 9 additional damage.\" Static additive on a fixed card subset, not a sequencing-dependent trigger; per the Pen Nib precedent the game bakes modifiers into card preview text, so the planner's parsed damage should already include it. Confidence low because that preview assumption is unverified for Enchant.",
+   "status": "n/a (class A)"
+  },
+  "NEOWS_TALISMAN": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Upgrade 1 of your Strikes and 1 of your Defends.\" Pickup one-shot.",
+   "status": "n/a (class A)"
+  },
+  "NEOWS_TORMENT": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, add 1 Neow's Fury to your Deck.\" Pickup one-shot; the added card is what matters and it is visible deck content.",
+   "status": "n/a (class A)"
+  },
+  "NEW_LEAF": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Transform 1 card.\" One-shot pickup effect; no combat presence.",
+   "status": "n/a (class A)"
+  },
+  "NUNCHAKU": {
+   "class": "D",
+   "impact": "med",
+   "confidence": "med",
+   "trigger": {
+    "kind": "on_attack_count",
+    "cadence": 10,
+    "effect": {
+     "energy": 1
+    },
+    "counter_persists_across_combats": true
+   },
+   "notes": "\"Every time you play 10 Attacks, gain [energy].\" No per-turn/per-combat qualifier and counter_seen=true, so the counter appears to be a lifetime bank like Pen Nib: attack #10 mid-turn grants energy, and ending fights near the threshold has carry-over value. Persistence inferred, not stated \u2014 flag, do not solve.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "NUTRITIOUS_OYSTER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, raise your Max HP by 11.\" One-shot pickup; visible in max_hp.",
+   "status": "n/a (class A)"
+  },
+  "NUTRITIOUS_SOUP": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Enchant all Strikes... with Tezcatara's Ember.\" One-shot deck modification; the resulting card text should already be visible in the polled state.",
+   "status": "n/a (class A)"
+  },
+  "ODDLY_SMOOTH_STONE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Start each combat with 1 Dexterity.\" Materializes as visible player Dexterity in the polled state; already priced into block math with no modeling.",
+   "status": "n/a (class A)"
+  },
+  "OLD_COIN": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, gain 300 Gold.\" Pickup one-shot economy; zero combat relevance.",
+   "status": "n/a (class A)"
+  },
+  "ORICHALCUM": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "block": 6
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"If you end your turn without Block, gain 6 Block.\" End-of-turn conditional on block==0 \u2014 not in the trigger vocabulary; changes whether playing a marginal small block card is worth it (blocking 1-5 can be strictly worse than blocking 0).",
+   "status": "open"
+  },
+  "ORNAMENTAL_FAN": {
+   "class": "B",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_attack_count",
+    "cadence": 3,
+    "effect": {
+     "block": 4
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Every time you play 3 Attacks in a single turn, gain 4 Block.\" Canonical per-N-attacks counter; \"in a single turn\" means the counter resets each turn even though the mod exposes it live, so no cross-combat banking. Changes block-vs-attack ordering in attack-heavy turns.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "ORRERY": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, gain 5 card rewards.\" Pickup one-shot draft economy; no combat impact.",
+   "status": "n/a (class A)"
+  },
+  "PAELS_FLESH": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Gain an additional [energy] at the start of your 3rd turn, and every turn after that.\" Turn-start energy, visible in the polled pool before planning; the exposed counter is just the turn tracker.",
+   "status": "n/a (class A)"
+  },
+  "PAELS_HORN": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, add 2 Relax to your Deck.\" Pickup one-shot; the added cards are ordinary deck contents the planner sees.",
+   "status": "n/a (class A)"
+  },
+  "PAELS_TEARS": {
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "energy": 2
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"If you end your turn with unspent [energy], gain an additional [energy][energy] next turn.\" Not a counter: it is an end-of-turn condition on remaining energy, so the one-turn planner must value LEAVING 1+ energy floating (a plan-scoring term, not a card trigger) \u2014 outside the generic kind vocabulary.",
+   "status": "open"
+  },
+  "PAELS_TOOTH": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, remove 5 cards... After each combat, randomly add 1 back Upgraded.\" Post-combat deck economy; counter_seen tracks devoured cards, no mid-turn effect.",
+   "status": "n/a (class A)"
+  },
+  "PANDORAS_BOX": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Transform ALL Strikes and Defends.\" Pickup one-shot; transformed deck is visible.",
+   "status": "n/a (class A)"
+  },
+  "PANTOGRAPH": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each Boss combat, heal 25 HP.\" Start-of-combat heal already reflected in polled HP; matters for rest/path planning, not the turn sim.",
+   "status": "n/a (class A)"
+  },
+  "PAPER_PHROG": {
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "vulnerable_multiplier_pct": 75
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Enemies with Vulnerable take 75% more damage rather than 50%.\" Not a trigger at all \u2014 a passive constant change to the Vulnerable multiplier in the damage formula; without it every damage/lethal estimate vs Vulnerable enemies is ~17% low. Trivial to model but bespoke to _apply_attack.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "PARRYING_SHIELD": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "damage": 6,
+     "block_threshold": 10
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"If you end a turn with at least 10 Block, deal 6 damage to a random enemy.\" End-of-turn threshold conditional (block>=10), random target \u2014 outside the vocabulary; occasionally tips a block-10-vs-9 decision or a lethal count.",
+   "status": "open"
+  },
+  "PEAR": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, raise your Max HP by 10.\" Pickup one-shot; already visible in polled max HP.",
+   "status": "n/a (class A)"
+  },
+  "PENDULUM": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Every 3 turns, draw 1 card\" \u2014 turn-start draw that lands before the planner polls, so the card is already in the visible hand. Counter_seen is a turn counter, not a play counter; no mid-turn sequencing effect.",
+   "status": "n/a (class A)"
+  },
+  "PEN_NIB": {
+   "class": "D",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_attack_count",
+    "cadence": 10,
+    "effect": {
+     "damage_multiplier": 2
+    },
+    "counter_persists_across_combats": true
+   },
+   "notes": "\"Every 10th Attack you play deals double damage.\" ALREADY MODELED \u2014 SimState.pen_nib_counter increments per attack in _apply_card, with the started-at-nine preview pre-doubling handled (later attacks halve back). Lifetime counter persists across combats, so ending fights near 9 banks value; the reference implementation for class D.",
+   "status": "modeled (pre-pass, live-validated 2026-07-09)"
+  },
+  "PERMAFROST": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "block": 7
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"The first time you play a Power each combat, gain 7 Block.\" Mid-turn trigger, but the vocabulary has no play-a-Power kind and no once-per-combat latch; needs a card-type filter plus a combat-scoped fired flag. Small bespoke work, small payoff (7 Block once).",
+   "status": "open"
+  },
+  "PETRIFIED_TOAD": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each combat, procure a Potion-Shaped Rock.\" The potion appears in visible inventory at combat start; whether/when to drink it is ordinary potion policy, not a relic trigger.",
+   "status": "n/a (class A)"
+  },
+  "PHIAL_HOLSTER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, gain 1 potion slot and procure 2 random potions.\" Pickup one-shot; potions appear as visible inventory.",
+   "status": "n/a (class A)"
+  },
+  "PLANISPHERE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you enter a ? room, heal 5 HP.\" Map/room economy; relevant to pathing weights at most, never to a combat turn.",
+   "status": "n/a (class A)"
+  },
+  "POCKETWATCH": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "draw": 3
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you play 3 or fewer cards during your turn, draw 3 additional cards at the start of your next turn.\" An inverted whole-turn condition (total cards played <= 3) with a cross-turn payoff \u2014 not a per-N counter; the planner would need to weigh short turns. counter_seen likely just tracks cards played this turn, not a persistent bank.",
+   "status": "open"
+  },
+  "POMANDER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Upgrade a card.\" Pickup one-shot.",
+   "status": "n/a (class A)"
+  },
+  "POTION_BELT": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, gain 2 potion slots\" \u2014 pickup one-shot, no combat modeling.",
+   "status": "n/a (class A)"
+  },
+  "PRAYER_WHEEL": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Normal enemies drop an additional card reward.\" Reward economy; no combat-turn effect.",
+   "status": "n/a (class A)"
+  },
+  "PRECARIOUS_SHEARS": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, remove 2 cards from your Deck and lose 16 HP.\" Pickup one-shot; deck and HP consequences are fully reflected in state by combat time.",
+   "status": "n/a (class A)"
+  },
+  "PRECISE_SCISSORS": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, remove 1 card from your Deck.\" Pickup one-shot; deck change is already reflected in polled state.",
+   "status": "n/a (class A)"
+  },
+  "PRESERVED_FOG": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, remove 3 cards from your Deck. Add Folly to your Deck.\" Pickup one-shot; the Folly card itself is a card-KB concern, not a relic trigger.",
+   "status": "n/a (class A)"
+  },
+  "PUNCH_DAGGER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": null,
+   "notes": "\"Upon pickup, Enchant an Attack with Momentum 5.\" One-shot pickup that permanently modifies one card; the enchantment presumably lives on the card's own text/keywords thereafter, which the card parser sees (or fails to see -- a card-modeling question, not a relic trigger).",
+   "status": "n/a (class A)"
+  },
+  "RADIANT_PEARL": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each combat, add 1 Luminesce into your Hand.\" The card is in the polled hand before planning; it is modeled as a normal card, no trigger needed.",
+   "status": "n/a (class A)"
+  },
+  "RAINBOW_RING": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "strength": 1,
+     "dexterity": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"The first time you play an Attack, Skill, and Power each turn, gain 1 Strength and 1 Dexterity\" \u2014 a compound per-turn condition (one of EACH type played this turn), not a per-N counter, so it needs bespoke tracking of which types have been seen this turn; sequencing matters because the Strength should land before remaining attacks. No counter exposed (counter_seen false), consistent with per-turn reset.",
+   "status": "open"
+  },
+  "RAZOR_TOOTH": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": {
+    "kind": "on_card_count",
+    "cadence": 1,
+    "effect": {
+     "upgrade_played_card": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Every time you play an Attack or Skill, Upgrade it for the remainder of combat.\" Mid-turn card-mutation, not a counter: the played card's future instances get upgraded values. Within a single turn this only matters if the same card is replayed (rare); across turns the upgrade shows up in the polled hand, so residual blind spot is small but not expressible in the counter vocabulary.",
+   "status": "open"
+  },
+  "RED_MASK": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each combat, apply 1 Weak to ALL enemies\" \u2014 arrives as a visible Weak status on enemies before the first poll; planner sees it for free.",
+   "status": "n/a (class A)"
+  },
+  "RED_SKULL": {
+   "class": "C",
+   "impact": "med",
+   "confidence": "med",
+   "trigger": {
+    "kind": "on_self_hp_loss",
+    "cadence": null,
+    "effect": {
+     "strength": 3
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"While your HP is at or below 50%, you have 3 additional Strength.\" Threshold-conditional, not a play counter: the +3 Strength presumably arrives as visible status when active, but a plan that crosses 50% MID-TURN (Ironclad self-HP-loss cards, thorns) flips it on/off inside the sim \u2014 bespoke conditional logic. Impact real given Ironclad self-damage archetypes the planner already tracks.",
+   "status": "open"
+  },
+  "REGAL_PILLOW": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you Rest, heal an additional 15 HP.\" Rest-site economy only; irrelevant to the one-turn combat planner (matters to rest/path policy, not this pass).",
+   "status": "n/a (class A)"
+  },
+  "REPTILE_TRINKET": {
+   "class": "B",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_potion",
+    "cadence": null,
+    "effect": {
+     "strength": 3
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you use a potion, gain 3 Strength this turn.\" Clean on_potion trigger; Strength is explicitly this-turn-only, so it matters for sequencing (potion before attacks) but should expire at end of the simulated turn. Low frequency: potion uses are rare relative to turns.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "RINGING_TRIANGLE": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "retain_hand_turn_1": true
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Retain your Hand on the first turn of combat.\" No mid-turn trigger fires, but on turn 1 the end-of-turn cost of NOT playing a card drops to zero \u2014 a plan-valuation tweak the generic trigger vocabulary can't express. Only ever matters on the first turn.",
+   "status": "open"
+  },
+  "RING_OF_THE_SNAKE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each combat, draw 2 additional cards\" \u2014 the extra cards are simply in the visible hand at turn-1 planning.",
+   "status": "n/a (class A)"
+  },
+  "ROYAL_STAMP": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, choose an Attack or Skill... to Enchant with Royally Approved.\" One-shot pickup; the enchanted card's live text is what the planner sees.",
+   "status": "n/a (class A)"
+  },
+  "RUINED_HELMET": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "double_first_strength_gain": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"The first time you gain Strength each combat, double the amount gained.\" First-per-combat conditional that doubles a variable magnitude \u2014 sequencing your biggest Strength gain first matters, but there is no strength-gain kind in the vocabulary and the doubling is stateful per combat.",
+   "status": "open"
+  },
+  "RUNIC_PYRAMID": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "retain_hand": true
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"At the end of your turn, you no longer discard your Hand\" \u2014 not a trigger at all but a rules change to end-of-turn semantics: unplayed cards are retained, which changes the planner's terminal valuation of holding cards (and of hand-size-sensitive effects). Needs bespoke handling in the end-turn evaluation, outside the counter/trigger vocabulary.",
+   "status": "open"
+  },
+  "SAI": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of your turn, gain 7 Block.\" Fires before the planner polls; arrives as ordinary visible my_block. No mid-turn component.",
+   "status": "n/a (class A)"
+  },
+  "SAND_CASTLE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Upgrade 6 random cards.\" One-shot pickup effect; the upgraded cards arrive as ordinary card data in state.",
+   "status": "n/a (class A)"
+  },
+  "SCREAMING_FLAGON": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "damage_aoe": 20,
+     "condition_end_turn_empty_hand": true
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"If you end your turn with no cards in your Hand, deal 20 damage to ALL enemies.\" End-of-turn conditional on final hand state -- a direct function of the whole play sequence (dump/exhaust the hand to cash 20 AOE), with no matching kind in the generic vocabulary. Never held in ~380 runs, so exposure-weighted impact is low despite being plan-warping when held.",
+   "status": "open"
+  },
+  "SCROLL_BOXES": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, lose all Gold and choose 1 of 2 packs of cards\" \u2014 pickup one-shot, no combat-turn impact.",
+   "status": "n/a (class A)"
+  },
+  "SEA_GLASS": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"See 15 cards from The Regent. Choose any number... to add to your Deck.\" (Named Venom Glass in-game.) Pickup drafting one-shot; no combat effect.",
+   "status": "n/a (class A)"
+  },
+  "SELF_FORMING_CLAY": {
+   "class": "B",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": {
+    "kind": "on_self_hp_loss",
+    "cadence": null,
+    "effect": {
+     "block": 3,
+     "timing": "next_turn"
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you lose HP in combat, gain 3 Block next turn.\" Fires on any HP loss including self-damage the bot inflicts mid-turn; payoff is next-turn block, so the one-turn planner should credit self-HP-loss plays. Expressible as on_self_hp_loss with a deferred block effect.",
+   "status": "open"
+  },
+  "SHOVEL": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"You can now dig at Rest Sites to obtain a random Relic.\" Pure rest-site economy; zero combat presence.",
+   "status": "n/a (class A)"
+  },
+  "SHURIKEN": {
+   "class": "B",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_attack_count",
+    "cadence": 3,
+    "effect": {
+     "strength": 1
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Every time you play 3 Attacks in a single turn, gain 1 Strength.\" Per-turn per-3-attacks counter (explicit 'in a single turn'). Strength gained mid-turn amplifies every subsequent attack, so trigger order within the plan matters more than Kunai's dex; exposure is still only 5 runs.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "SIGNET_RING": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, gain 999 Gold.\" Pure pickup one-shot economy.",
+   "status": "n/a (class A)"
+  },
+  "SILVER_CRUCIBLE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"The first 3 card rewards you see are Upgraded. The first Treasure Chest you open is empty.\" Reward/map economy with a persistent counter (counter_seen), but nothing touches combat turns. The empty-chest clause could matter to pathing policy, not the combat planner.",
+   "status": "n/a (class A)"
+  },
+  "SLING_OF_COURAGE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Start each Elite combat with 2 Strength.\" Start-of-combat buff that arrives as visible Strength status; already covered by the planner's my_strength.",
+   "status": "n/a (class A)"
+  },
+  "SMALL_CAPSULE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, obtain a random Relic.\" Pickup one-shot.",
+   "status": "n/a (class A)"
+  },
+  "SPARKLING_ROUGE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of your 3rd turn, gain 1 Strength and 1 Dexterity.\" Fires BEFORE the turn is planned, so it lands as visible player status by poll time -- same category as Happy Flower. No mid-turn sequencing interaction.",
+   "status": "n/a (class A)"
+  },
+  "STONE_CALENDAR": {
+   "class": "B",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": {
+    "kind": "other",
+    "cadence": 7,
+    "effect": {
+     "damage_aoe": 52
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"At the end of turn 7, deal 52 damage to ALL enemies.\" Fixed-schedule, play-independent AOE \u2014 but on turn 7 it is free lethal damage the planner should count before spending resources. counter_seen is the turn tracker; resets per combat.",
+   "status": "open"
+  },
+  "STONE_CRACKER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each combat, Upgrade 2 random cards in your Draw Pile for the rest of combat.\" Start-of-combat, already resolved; upgraded cards show their upgraded text when drawn.",
+   "status": "n/a (class A)"
+  },
+  "STONE_HUMIDIFIER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you Rest at a Rest Site, raise your Max HP by 5.\" Rest-site economy only.",
+   "status": "n/a (class A)"
+  },
+  "STORYBOOK": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, add 1 Brightest Flame to your Deck.\" Pickup one-shot.",
+   "status": "n/a (class A)"
+  },
+  "STRAWBERRY": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, raise your Max HP by 7.\" Pickup one-shot; the max HP is already reflected in polled state.",
+   "status": "n/a (class A)"
+  },
+  "STRIKE_DUMMY": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": null,
+   "notes": "\"Cards containing 'Strike' deal 3 additional damage\" \u2014 a static passive modifier, not a sequencing trigger. Per the Pen Nib preview lesson, the +3 almost certainly appears in the live card rules text the planner parses, so it is already visible; if the planner ever uses static KB damage instead, it would under-credit Strikes by 3 (hence med confidence, not high).",
+   "status": "n/a (class A)"
+  },
+  "STURDY_CLAMP": {
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "block_retained_cap": 10
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Up to 10 Block persists across turns.\" Not a play-trigger: it changes end-of-turn valuation \u2014 up to 10 excess Block is no longer wasted, so overblocking gains value. Needs a bespoke tweak to how the planner scores leftover Block rather than any counter kind.",
+   "status": "open"
+  },
+  "SWORD_OF_STONE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Transforms into a powerful Relic after defeating 5 Elites.\" Cross-combat elite-kill counter (counter_seen), but affects pathing/relic economy, not turn play. The post-transform relic is unknown from this text and will need its own audit when it appears.",
+   "status": "n/a (class A)"
+  },
+  "TEA_OF_DISCOURTESY": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of the next combat, shuffle 2 Dazed into your Draw Pile.\" Resolves at combat start; the Dazed appear in the visible draw pile before any planning happens.",
+   "status": "n/a (class A)"
+  },
+  "THE_ABACUS": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "block": 6
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you shuffle your Draw Pile, gain 6 Block.\" Fires mid-turn when a draw effect empties the draw pile \u2014 requires tracking draw-pile depletion/shuffle inside the sim, which is outside the generic counter vocabulary.",
+   "status": "open"
+  },
+  "THE_COURIER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"The merchant no longer runs out... prices are reduced by 20%.\" Pure shop economy; no combat presence at all.",
+   "status": "n/a (class A)"
+  },
+  "TOOLBOX": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"At the start of each combat, choose 1 of 3 random Colorless cards and add the chosen card into your Hand.\" The chosen card sits in the visible hand by planning time. The choice screen itself is a pre-combat decision surface (outside the one-turn planner), worth handling elsewhere.",
+   "status": "n/a (class A)"
+  },
+  "TOXIC_EGG": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you add a Skill into your Deck, Upgrade it.\" Deck-building pickup effect; the upgraded card arrives visible in state.",
+   "status": "n/a (class A)"
+  },
+  "TUNING_FORK": {
+   "class": "D",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": {
+    "kind": "on_skill_count",
+    "cadence": 10,
+    "effect": {
+     "block": 7
+    },
+    "counter_persists_across_combats": true
+   },
+   "notes": "\"Every time you play 10 Skills, gain 7 Block.\" No 'in a single turn' qualifier and counter_seen=true \u2014 phrasing matches the Nunchaku/Pen Nib lifetime-counter family, so the counter likely banks across combats (ending a fight near 10 has carry value). Timing not 100% explicit in text, hence med confidence.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "UNCEASING_TOP": {
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "draw": 1,
+     "condition": "hand_empty_during_turn"
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Whenever you have no cards in Hand during your turn, draw a card.\" Fires mid-turn as a function of hand emptiness and can chain (play the drawn card, hand empty again, draw again) \u2014 a stateful loop the per-N-counter vocabulary can't capture, and it strongly rewards emptying the hand. Strong per-fight impact but only 3 runs of exposure.",
+   "status": "open"
+  },
+  "UNSETTLING_LAMP": {
+   "class": "C",
+   "impact": "med",
+   "confidence": "high",
+   "trigger": {
+    "kind": "other",
+    "cadence": null,
+    "effect": {
+     "debuff_multiplier": 2
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Each combat, the first time you play a card that Debuffs an enemy, double its effect.\" Bespoke: needs a per-combat fired flag (state not exposed as a counter), a which-cards-debuff predicate, and effect-doubling on the debuff magnitudes -- interacts with the planner's existing Artifact-strip logic. Ordering-sensitive: the bot should spend the doubling on its biggest debuff and not waste it into Artifact.",
+   "status": "open"
+  },
+  "VAJRA": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Start each combat with 1 Strength\" \u2014 arrives as visible Strength status; already reflected in polled state and card damage text.",
+   "status": "n/a (class A)"
+  },
+  "VAMBRACE": {
+   "class": "C",
+   "impact": "med",
+   "confidence": "med",
+   "trigger": {
+    "kind": "on_block_gain",
+    "cadence": null,
+    "effect": {
+     "block_multiplier": 2
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"The first time you gain Block from a card each combat, double the amount gained\" \u2014 a multiplicative effect on a variable, card-dependent amount (optimal play: sequence the largest block card first while armed), which the fixed-effect counter vocabulary cannot express. Also carries the Pen Nib-style risk that the game pre-doubles the block preview text on the armed card, so bespoke sim work plus a live preview check is needed.",
+   "status": "open"
+  },
+  "VELVET_CHOKER": {
+   "class": "C",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": {
+    "kind": "on_card_count",
+    "cadence": 6,
+    "effect": {
+     "card_play_cap": 6
+    },
+    "counter_persists_across_combats": false
+   },
+   "notes": "\"Gain [energy] at the start of each turn. You cannot play more than 6 cards per turn.\" The energy half arrives as visible energy before planning (class A on its own); the 6-card cap is a mid-turn LEGALITY CONSTRAINT on the bot's own sequencing, not a trigger -- the planner could emit an illegal 7th play. counter_seen=true is almost certainly the per-turn cards-played count (resets each turn, does not persist). Only 1 run held, but when held every long turn is at risk.",
+   "status": "modeled (R1, 2026-07-13)"
+  },
+  "VENERABLE_TEA_SET": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you enter a Rest Site, start the next combat with an additional [energy][energy].\" The bonus energy is present in the polled energy total on turn 1, so the planner sees it for free. (Rest/path policy could exploit it, but no mid-turn trigger.)",
+   "status": "n/a (class A)"
+  },
+  "VERY_HOT_COCOA": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Start each combat with an additional 4 [energy].\" Start-of-combat energy is already in the polled energy field when turn 1 is planned.",
+   "status": "n/a (class A)"
+  },
+  "WAR_HAMMER": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Whenever you kill an Elite, Upgrade 4 random cards.\" Post-combat deck economy; on_kill exists in the vocabulary but the effect has zero in-combat consequence, so no turn-plan modeling is needed.",
+   "status": "n/a (class A)"
+  },
+  "WAR_PAINT": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Upgrade 2 random Skills.\" Pickup one-shot; upgraded cards arrive as ordinary card data.",
+   "status": "n/a (class A)"
+  },
+  "WHETSTONE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Upgrade 2 random Attacks\" \u2014 pickup one-shot; the upgraded cards are just normal visible cards afterward.",
+   "status": "n/a (class A)"
+  },
+  "WHISPERING_EARRING": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "med",
+   "trigger": null,
+   "notes": "\"Gain [energy] at the start of each turn\" arrives as visible energy before planning. \"Vakuu plays your first turn for you\" is odd: turn 1 is out of the bot's hands entirely (likely actions_disabled during it), but it is not a mid-turn trigger of the bot's own sequencing \u2014 worth a live sanity check that the client doesn't try to act during the auto-played turn.",
+   "status": "n/a (class A)"
+  },
+  "WHITE_BEAST_STATUE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Potions always appear in combat rewards.\" Reward economy only; no in-combat effect.",
+   "status": "n/a (class A)"
+  },
+  "WINGED_BOOTS": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"You may ignore paths when choosing the next rooms... 3 times.\" Map/pathing only; the counter_seen is the remaining-uses charge, irrelevant to combat turns.",
+   "status": "n/a (class A)"
+  },
+  "WING_CHARM": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"A random card in each card reward is Enchanted with Swift 1.\" Reward-screen economy; enchant is visible on the card afterwards.",
+   "status": "n/a (class A)"
+  },
+  "WONGOS_MYSTERY_TICKET": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Receive 3 random Relics after 5 combats.\" Cross-combat counter (counter_seen true) but purely economy \u2014 no in-combat or sequencing impact, so not D-class banking.",
+   "status": "n/a (class A)"
+  },
+  "YUMMY_COOKIE": {
+   "class": "A",
+   "impact": "low",
+   "confidence": "high",
+   "trigger": null,
+   "notes": "\"Upon pickup, Upgrade 4 cards.\" One-shot pickup effect, visible via the deck.",
+   "status": "n/a (class A)"
+  }
+ }
+}

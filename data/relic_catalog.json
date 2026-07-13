@@ -1,0 +1,1725 @@
+{
+ "source": "run-log corpus (live rules text)",
+ "relics": {
+  "AKABEKO": {
+   "name": "Akabeko",
+   "description": "At the start of each combat, gain 8 Vigor.",
+   "counter_seen": false,
+   "runs_held": 9,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "AMETHYST_AUBERGINE": {
+   "name": "Amethyst Aubergine",
+   "description": "Enemies drop 15 additional Gold.",
+   "counter_seen": false,
+   "runs_held": 12,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "ANCHOR": {
+   "name": "Anchor",
+   "description": "Start each combat with 10 Block.",
+   "counter_seen": false,
+   "runs_held": 12,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "ARCANE_SCROLL": {
+   "name": "Arcane Scroll",
+   "description": "Upon pickup, obtain a random Rare Card to add to your Deck.",
+   "counter_seen": false,
+   "runs_held": 8,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "ART_OF_WAR": {
+   "name": "Art of War",
+   "description": "If you do not play any Attacks during your turn, gain an additional [ironclad_energy_icon.png] next turn.",
+   "counter_seen": false,
+   "runs_held": 4,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "ASTROLABE": {
+   "name": "Astrolabe",
+   "description": "Upon pickup, Transform 3 cards, then Upgrade them.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "BAG_OF_MARBLES": {
+   "name": "Bag of Marbles",
+   "description": "At the start of each combat, apply 1 Vulnerable to ALL enemies.",
+   "counter_seen": false,
+   "runs_held": 17,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "BAG_OF_PREPARATION": {
+   "name": "Bag of Preparation",
+   "description": "At the start of each combat, draw 2 additional cards.",
+   "counter_seen": false,
+   "runs_held": 31,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "BELLOWS": {
+   "name": "Bellows",
+   "description": "The first Hand you draw each combat is Upgraded.",
+   "counter_seen": false,
+   "runs_held": 8,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "BELT_BUCKLE": {
+   "name": "Belt Buckle",
+   "description": "While you have no potions, you have 2 additional Dexterity.",
+   "counter_seen": false,
+   "runs_held": 0,
+   "seen_in": [
+    "shop"
+   ]
+  },
+  "BIG_MUSHROOM": {
+   "name": "Big Mushroom",
+   "description": "Upon pickup, raise your Max HP by 20. At the start of each combat, draw 2 fewer cards.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "BIIIG_HUG": {
+   "name": "Biiig Hug",
+   "description": "Upon pickup, remove 4 cards from your Deck. Whenever you shuffle your Draw Pile, add a Soot into your Draw Pile.",
+   "counter_seen": false,
+   "runs_held": 13,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "BING_BONG": {
+   "name": "Bing Bong",
+   "description": "Whenever you add a card to your Deck, add one additional copy.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "BLOOD_VIAL": {
+   "name": "Blood Vial",
+   "description": "At the start of each combat, heal 2 HP.",
+   "counter_seen": false,
+   "runs_held": 8,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "BONE_TEA": {
+   "name": "Bone Tea",
+   "description": "At the start of the next 0 combats, Upgrade your starting hand.",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "BOOK_OF_FIVE_RINGS": {
+   "name": "Book of Five Rings",
+   "description": "Every 5 cards you add to your Deck, heal 20 HP.",
+   "counter_seen": true,
+   "runs_held": 8,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "BOOMING_CONCH": {
+   "name": "Booming Conch",
+   "description": "At the start of Elite combats, draw 2 additional cards and gain [ironclad_energy_icon.png].",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "BOUND_PHYLACTERY": {
+   "name": "Bound Phylactery",
+   "description": "At the start of your turn, Summon 1.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "BOWLER_HAT": {
+   "name": "Bowler Hat",
+   "description": "Gain 25% additional Gold.",
+   "counter_seen": false,
+   "runs_held": 8,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "BREAD": {
+   "name": "Bread",
+   "description": "At the start of your first turn, lose [ironclad_energy_icon.png][ironclad_energy_icon.png]. At the start of all other turns, gain [ironclad_energy_icon.png].",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "BRIMSTONE": {
+   "name": "Brimstone",
+   "description": "At the start of your turn, gain 2 Strength and ALL enemies gain 1 Strength.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "BRONZE_SCALES": {
+   "name": "Bronze Scales",
+   "description": "Start each combat with 3 Thorns.",
+   "counter_seen": false,
+   "runs_held": 12,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "BURNING_BLOOD": {
+   "name": "Burning Blood",
+   "description": "At the end of combat, heal 6 HP.",
+   "counter_seen": false,
+   "runs_held": 384,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "BURNING_STICKS": {
+   "name": "Burning Sticks",
+   "description": "The first time each combat you Exhaust a Skill, add a copy of it into your Hand.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "CANDELABRA": {
+   "name": "Candelabra",
+   "description": "At the start of your 2nd turn, gain [ironclad_energy_icon.png][ironclad_energy_icon.png].",
+   "counter_seen": false,
+   "runs_held": 8,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "CAPTAINS_WHEEL": {
+   "name": "Captain's Wheel",
+   "description": "At the start of your 3rd turn, gain 18 Block.",
+   "counter_seen": false,
+   "runs_held": 4,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "CAULDRON": {
+   "name": "Cauldron",
+   "description": "Upon pickup, brews 5 random potions.",
+   "counter_seen": false,
+   "runs_held": 0,
+   "seen_in": [
+    "shop"
+   ]
+  },
+  "CENTENNIAL_PUZZLE": {
+   "name": "Centennial Puzzle",
+   "description": "The first time you lose HP each combat, draw 3 cards.",
+   "counter_seen": false,
+   "runs_held": 20,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "CHANDELIER": {
+   "name": "Chandelier",
+   "description": "At the start of your 3rd turn, gain [ironclad_energy_icon.png][ironclad_energy_icon.png][ironclad_energy_icon.png].",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "CHARONS_ASHES": {
+   "name": "Charon's Ashes",
+   "description": "Whenever you Exhaust a card, deal 3 damage to ALL enemies.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "CHEMICAL_X": {
+   "name": "Chemical X",
+   "description": "The effects of your cost X cards are increased by 2.",
+   "counter_seen": false,
+   "runs_held": 0,
+   "seen_in": [
+    "shop"
+   ]
+  },
+  "CHOSEN_CHEESE": {
+   "name": "The Chosen Cheese",
+   "description": "At the end of combat, gain 1 Max HP.",
+   "counter_seen": false,
+   "runs_held": 66,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "CLOAK_CLASP": {
+   "name": "Cloak Clasp",
+   "description": "At the end of your turn, gain 1 Block for each card in your Hand.",
+   "counter_seen": false,
+   "runs_held": 6,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "CURSED_PEARL": {
+   "name": "Cursed Pearl",
+   "description": "Upon pickup, receive Greed. Gain 333 Gold.",
+   "counter_seen": false,
+   "runs_held": 24,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "DAUGHTER_OF_THE_WIND": {
+   "name": "Daughter of the Wind",
+   "description": "Whenever you play an Attack, gain 1 Block.",
+   "counter_seen": false,
+   "runs_held": 4,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "DEMON_TONGUE": {
+   "name": "Demon Tongue",
+   "description": "The first time you lose HP on your turn, heal HP equal to the amount lost.",
+   "counter_seen": false,
+   "runs_held": 4,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "DINGY_RUG": {
+   "name": "Dingy Rug",
+   "description": "Card rewards can now contain Colorless cards.",
+   "counter_seen": false,
+   "runs_held": 0,
+   "seen_in": [
+    "shop"
+   ]
+  },
+  "DIVINE_RIGHT": {
+   "name": "Divine Right",
+   "description": "At the start of each combat, gain [star_icon.png][star_icon.png][star_icon.png].",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "DOLLYS_MIRROR": {
+   "name": "Dolly's Mirror",
+   "description": "Upon pickup, obtain an additional copy of a card in your Deck.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "DRAGON_FRUIT": {
+   "name": "Dragon Fruit",
+   "description": "Whenever you gain Gold, raise your Max HP by 1.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "ECTOPLASM": {
+   "name": "Ectoplasm",
+   "description": "You can no longer gain Gold. Gain [ironclad_energy_icon.png] at the start of each turn.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "ELECTRIC_SHRYMP": {
+   "name": "Electric Shrymp",
+   "description": "Upon pickup, Enchant a Skill with Imbued.",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "EMPTY_CAGE": {
+   "name": "Empty Cage",
+   "description": "Upon pickup, remove 2 cards from your Deck.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "ETERNAL_FEATHER": {
+   "name": "Eternal Feather",
+   "description": "For every 5 cards in your Deck, heal 3 HP whenever you enter a Rest Site.",
+   "counter_seen": false,
+   "runs_held": 19,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "FISHING_ROD": {
+   "name": "Fishing Rod",
+   "description": "Every 3 normal combats, Upgrade a random card in your Deck.",
+   "counter_seen": true,
+   "runs_held": 26,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "FORGOTTEN_SOUL": {
+   "name": "Forgotten Soul",
+   "description": "Whenever you Exhaust a card, deal 1 damage to a random enemy.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "FRAGRANT_MUSHROOM": {
+   "name": "Fragrant Mushroom",
+   "description": "Upon pickup, lose 15 HP and Upgrade 2 random cards.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "FROZEN_EGG": {
+   "name": "Frozen Egg",
+   "description": "Whenever you add a Power into your Deck, Upgrade it.",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "GAMBLING_CHIP": {
+   "name": "Gambling Chip",
+   "description": "At the start of each combat, discard any number of cards then draw that many.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "GAME_PIECE": {
+   "name": "Game Piece",
+   "description": "Whenever you play a Power, draw 1 card.",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "GHOST_SEED": {
+   "name": "Ghost Seed",
+   "description": "Strikes and Defends gain Ethereal.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "GIRYA": {
+   "name": "Girya",
+   "description": "You can now gain Strength at Rest Sites. (3 times max)",
+   "counter_seen": true,
+   "runs_held": 6,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "GLASS_EYE": {
+   "name": "Glass Eye",
+   "description": "Upon pickup, obtain 2 Common cards, 2 Uncommon cards, and 1 Rare card.",
+   "counter_seen": false,
+   "runs_held": 8,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "GNARLED_HAMMER": {
+   "name": "Gnarled Hammer",
+   "description": "Upon pickup, Enchant up to 3 Attacks with Sharp 3.",
+   "counter_seen": false,
+   "runs_held": 4,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "GOLDEN_PEARL": {
+   "name": "Golden Pearl",
+   "description": "Upon pickup, gain 150 Gold.",
+   "counter_seen": false,
+   "runs_held": 33,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "GORGET": {
+   "name": "Gorget",
+   "description": "At the start of each combat, gain 4 Plating.",
+   "counter_seen": false,
+   "runs_held": 21,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "GREMLIN_HORN": {
+   "name": "Gremlin Horn",
+   "description": "Whenever an enemy dies, gain [ironclad_energy_icon.png] and draw 1 card.",
+   "counter_seen": false,
+   "runs_held": 9,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "HAPPY_FLOWER": {
+   "name": "Happy Flower",
+   "description": "Every 3 turns, gain [ironclad_energy_icon.png].",
+   "counter_seen": true,
+   "runs_held": 21,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "HEFTY_TABLET": {
+   "name": "Hefty Tablet",
+   "description": "Upon pickup, choose 1 of 3 Rare cards to add to your Deck, and add 1 Injury to your Deck.",
+   "counter_seen": false,
+   "runs_held": 13,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "HISTORY_COURSE": {
+   "name": "History Course",
+   "description": "At the start of your turn, play a copy of your last played Attack or Skill.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "HORN_CLEAT": {
+   "name": "Horn Cleat",
+   "description": "At the start of your 2nd turn, gain 14 Block.",
+   "counter_seen": false,
+   "runs_held": 19,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "ICE_CREAM": {
+   "name": "Ice Cream",
+   "description": "Energy is now conserved between turns.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "INTIMIDATING_HELMET": {
+   "name": "Intimidating Helmet",
+   "description": "Whenever you play a card that costs [ironclad_energy_icon.png][ironclad_energy_icon.png] or more, gain 4 Block.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "JEWELRY_BOX": {
+   "name": "Jewelry Box",
+   "description": "Upon pickup, add 1 Apotheosis to your Deck.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "JUZU_BRACELET": {
+   "name": "Juzu Bracelet",
+   "description": "Regular enemy combats are no longer encountered in ? rooms.",
+   "counter_seen": false,
+   "runs_held": 12,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "KALEIDOSCOPE": {
+   "name": "Kaleidoscope",
+   "description": "Upon pickup, obtain 2 card rewards from other characters.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "KIFUDA": {
+   "name": "Kifuda",
+   "description": "Upon pickup, Enchant up to 3 cards with Adroit.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "KUNAI": {
+   "name": "Kunai",
+   "description": "Every time you play 3 Attacks in a single turn, gain 1 Dexterity.",
+   "counter_seen": true,
+   "runs_held": 5,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "KUSARIGAMA": {
+   "name": "Kusarigama",
+   "description": "Every time you play 3 Attacks in a single turn, deal 6 damage to a random enemy.",
+   "counter_seen": true,
+   "runs_held": 4,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "LANTERN": {
+   "name": "Lantern",
+   "description": "Start each combat with an additional [ironclad_energy_icon.png].",
+   "counter_seen": false,
+   "runs_held": 24,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "LARGE_CAPSULE": {
+   "name": "Large Capsule",
+   "description": "Upon pickup, obtain 2 random Relics. Add an additional Strike and Defend to your Deck.",
+   "counter_seen": false,
+   "runs_held": 13,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "LASTING_CANDY": {
+   "name": "Lasting Candy",
+   "description": "Every other combat, your card rewards gain an additional Power.",
+   "counter_seen": true,
+   "runs_held": 7,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "LAVA_LAMP": {
+   "name": "Lava Lamp",
+   "description": "At the end of combat, Upgrade all card rewards if you took no damage.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "LAVA_ROCK": {
+   "name": "Lava Rock",
+   "description": "The Act 1 Boss drops 2 Relics.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "LEAD_PAPERWEIGHT": {
+   "name": "Lead Paperweight",
+   "description": "Upon pickup, choose 1 of 2 Colorless cards to add to your Deck.",
+   "counter_seen": false,
+   "runs_held": 27,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "LEES_WAFFLE": {
+   "name": "Lee's Waffle",
+   "description": "Upon pickup, raise your Max HP by 7 and heal all of your HP.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "LETTER_OPENER": {
+   "name": "Letter Opener",
+   "description": "Every time you play 3 Skills in a single turn, deal 5 damage to ALL enemies.",
+   "counter_seen": true,
+   "runs_held": 10,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "LIZARD_TAIL": {
+   "name": "Lizard Tail",
+   "description": "When your HP would be reduced to 0, heal to 50% of your Max HP instead (works once).",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "LOST_COFFER": {
+   "name": "Lost Coffer",
+   "description": "Upon pickup, gain 1 card reward and procure 1 random potion.",
+   "counter_seen": false,
+   "runs_held": 9,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "LOST_WISP": {
+   "name": "Lost Wisp",
+   "description": "Whenever you play a Power, deal 8 damage to ALL enemies.",
+   "counter_seen": false,
+   "runs_held": 15,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "LUCKY_FYSH": {
+   "name": "Lucky Fysh",
+   "description": "Whenever you add a card to your Deck, gain 15 Gold.",
+   "counter_seen": false,
+   "runs_held": 10,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "MANGO": {
+   "name": "Mango",
+   "description": "Upon pickup, raise your Max HP by 14.",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "MEAL_TICKET": {
+   "name": "Meal Ticket",
+   "description": "Whenever you enter a shop room, heal 15 HP.",
+   "counter_seen": false,
+   "runs_held": 19,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "MEAT_ON_THE_BONE": {
+   "name": "Meat on the Bone",
+   "description": "If your HP is at or below 50% at the end of combat, heal 12 HP.",
+   "counter_seen": false,
+   "runs_held": 4,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "MEMBERSHIP_CARD": {
+   "name": "Membership Card",
+   "description": "50% discount on all products!",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "MERCURY_HOURGLASS": {
+   "name": "Mercury Hourglass",
+   "description": "At the start of your turn, deal 3 damage to ALL enemies.",
+   "counter_seen": false,
+   "runs_held": 10,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "MINIATURE_TENT": {
+   "name": "Miniature Tent",
+   "description": "You may choose any number of options at Rest Sites.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "MOLTEN_EGG": {
+   "name": "Molten Egg",
+   "description": "Whenever you add an Attack card to your Deck, Upgrade it.",
+   "counter_seen": false,
+   "runs_held": 6,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "MR_STRUGGLES": {
+   "name": "Mr. Struggles",
+   "description": "At the start of your turn, deal damage equal to the turn number to ALL enemies.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "MUMMIFIED_HAND": {
+   "name": "Mummified Hand",
+   "description": "Whenever you play a Power, a random card in your Hand is free to play that turn.",
+   "counter_seen": false,
+   "runs_held": 4,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "MYSTIC_LIGHTER": {
+   "name": "Mystic Lighter",
+   "description": "Enchanted Attacks deal 9 additional damage.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "NEOWS_TALISMAN": {
+   "name": "Neow's Talisman",
+   "description": "Upon pickup, Upgrade 1 of your Strikes and 1 of your Defends.",
+   "counter_seen": false,
+   "runs_held": 29,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "NEOWS_TORMENT": {
+   "name": "Neow's Torment",
+   "description": "Upon pickup, add 1 Neow's Fury to your Deck.",
+   "counter_seen": false,
+   "runs_held": 30,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "NEW_LEAF": {
+   "name": "New Leaf",
+   "description": "Upon pickup, Transform 1 card.",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "NUNCHAKU": {
+   "name": "Nunchaku",
+   "description": "Every time you play 10 Attacks, gain [ironclad_energy_icon.png].",
+   "counter_seen": true,
+   "runs_held": 8,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "NUTRITIOUS_OYSTER": {
+   "name": "Nutritious Oyster",
+   "description": "Upon pickup, raise your Max HP by 11.",
+   "counter_seen": false,
+   "runs_held": 10,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "NUTRITIOUS_SOUP": {
+   "name": "Nutritious Soup",
+   "description": "Upon pickup, Enchant all Strikes in your Deck with Tezcatara's Ember.",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "ODDLY_SMOOTH_STONE": {
+   "name": "Oddly Smooth Stone",
+   "description": "Start each combat with 1 Dexterity.",
+   "counter_seen": false,
+   "runs_held": 17,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "OLD_COIN": {
+   "name": "Old Coin",
+   "description": "Upon pickup, gain 300 Gold.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "ORICHALCUM": {
+   "name": "Orichalcum",
+   "description": "If you end your turn without Block, gain 6 Block.",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "ORNAMENTAL_FAN": {
+   "name": "Ornamental Fan",
+   "description": "Every time you play 3 Attacks in a single turn, gain 4 Block.",
+   "counter_seen": true,
+   "runs_held": 14,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "ORRERY": {
+   "name": "Orrery",
+   "description": "Upon pickup, gain 5 card rewards.",
+   "counter_seen": false,
+   "runs_held": 0,
+   "seen_in": [
+    "shop"
+   ]
+  },
+  "PAELS_FLESH": {
+   "name": "Pael's Flesh",
+   "description": "Gain an additional [ironclad_energy_icon.png] at the start of your 3rd turn, and every turn after that.",
+   "counter_seen": true,
+   "runs_held": 8,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "PAELS_HORN": {
+   "name": "Pael's Horn",
+   "description": "Upon pickup, add 2 Relax to your Deck.",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "PAELS_TEARS": {
+   "name": "Pael's Tears",
+   "description": "If you end your turn with unspent [ironclad_energy_icon.png], gain an additional [ironclad_energy_icon.png][ironclad_energy_icon.png] next turn.",
+   "counter_seen": false,
+   "runs_held": 9,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "PAELS_TOOTH": {
+   "name": "Pael's Tooth",
+   "description": "Upon pickup, remove 5 cards from your Deck. After each combat, randomly add 1 back Upgraded.\n\nCards devoured:\n- Defend\n- Strike\n- Strike\n- Strike\n- Strike",
+   "counter_seen": true,
+   "runs_held": 7,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "PANDORAS_BOX": {
+   "name": "Pandora's Box",
+   "description": "Transform ALL Strikes and Defends.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "PANTOGRAPH": {
+   "name": "Pantograph",
+   "description": "At the start of each Boss combat, heal 25 HP.",
+   "counter_seen": false,
+   "runs_held": 6,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "PAPER_PHROG": {
+   "name": "Paper Phrog",
+   "description": "Enemies with Vulnerable take 75% more damage rather than 50%.",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "PARRYING_SHIELD": {
+   "name": "Parrying Shield",
+   "description": "If you end a turn with at least 10 Block, deal 6 damage to a random enemy.",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "PEAR": {
+   "name": "Pear",
+   "description": "Upon pickup, raise your Max HP by 10.",
+   "counter_seen": false,
+   "runs_held": 14,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "PENDULUM": {
+   "name": "Pendulum",
+   "description": "Every 3 turns, draw 1 card.",
+   "counter_seen": true,
+   "runs_held": 18,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "PEN_NIB": {
+   "name": "Pen Nib",
+   "description": "Every 10th Attack you play deals double damage.",
+   "counter_seen": true,
+   "runs_held": 5,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "PERMAFROST": {
+   "name": "Permafrost",
+   "description": "The first time you play a Power each combat, gain 7 Block.",
+   "counter_seen": false,
+   "runs_held": 11,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "PETRIFIED_TOAD": {
+   "name": "Petrified Toad",
+   "description": "At the start of each combat, procure a Potion-Shaped Rock.",
+   "counter_seen": false,
+   "runs_held": 8,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "PHIAL_HOLSTER": {
+   "name": "Phial Holster",
+   "description": "Upon pickup, gain 1 potion slot and procure 2 random potions.",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "PLANISPHERE": {
+   "name": "Planisphere",
+   "description": "Whenever you enter a ? room, heal 5 HP.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "POCKETWATCH": {
+   "name": "Pocketwatch",
+   "description": "Whenever you play 3 or fewer cards during your turn, draw 3 additional cards at the start of your next turn.",
+   "counter_seen": true,
+   "runs_held": 4,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "POMANDER": {
+   "name": "Pomander",
+   "description": "Upon pickup, Upgrade a card.",
+   "counter_seen": false,
+   "runs_held": 31,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "POTION_BELT": {
+   "name": "Potion Belt",
+   "description": "Upon pickup, gain 2 potion slots.",
+   "counter_seen": false,
+   "runs_held": 20,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "PRAYER_WHEEL": {
+   "name": "Prayer Wheel",
+   "description": "Normal enemies drop an additional card reward.",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "PRECARIOUS_SHEARS": {
+   "name": "Precarious Shears",
+   "description": "Upon pickup, remove 2 cards from your Deck and lose 16 HP.",
+   "counter_seen": false,
+   "runs_held": 14,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "PRECISE_SCISSORS": {
+   "name": "Precise Scissors",
+   "description": "Upon pickup, remove 1 card from your Deck.",
+   "counter_seen": false,
+   "runs_held": 35,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "PRESERVED_FOG": {
+   "name": "Preserved Fog",
+   "description": "Upon pickup, remove 3 cards from your Deck. Add Folly to your Deck.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "PUNCH_DAGGER": {
+   "name": "Punch Dagger",
+   "description": "Upon pickup, Enchant an Attack with Momentum 5.",
+   "counter_seen": false,
+   "runs_held": 0,
+   "seen_in": [
+    "shop"
+   ]
+  },
+  "RADIANT_PEARL": {
+   "name": "Radiant Pearl",
+   "description": "At the start of each combat, add 1 Luminesce into your Hand.",
+   "counter_seen": false,
+   "runs_held": 8,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "RAINBOW_RING": {
+   "name": "Rainbow Ring",
+   "description": "The first time you play an Attack, Skill, and Power each turn, gain 1 Strength and 1 Dexterity.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "RAZOR_TOOTH": {
+   "name": "Razor Tooth",
+   "description": "Every time you play an Attack or Skill, Upgrade it for the remainder of combat.",
+   "counter_seen": false,
+   "runs_held": 6,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "RED_MASK": {
+   "name": "Red Mask",
+   "description": "At the start of each combat, apply 1 Weak to ALL enemies.",
+   "counter_seen": false,
+   "runs_held": 24,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "RED_SKULL": {
+   "name": "Red Skull",
+   "description": "While your HP is at or below 50%, you have 3 additional Strength.",
+   "counter_seen": false,
+   "runs_held": 6,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "REGAL_PILLOW": {
+   "name": "Regal Pillow",
+   "description": "Whenever you Rest, heal an additional 15 HP.",
+   "counter_seen": false,
+   "runs_held": 17,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "REPTILE_TRINKET": {
+   "name": "Reptile Trinket",
+   "description": "Whenever you use a potion, gain 3 Strength this turn.",
+   "counter_seen": false,
+   "runs_held": 9,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "RINGING_TRIANGLE": {
+   "name": "Ringing Triangle",
+   "description": "Retain your Hand on the first turn of combat.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "RING_OF_THE_SNAKE": {
+   "name": "Ring of the Snake",
+   "description": "At the start of each combat, draw 2 additional cards.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "ROYAL_STAMP": {
+   "name": "Royal Stamp",
+   "description": "Upon pickup, choose an Attack or Skill in your Deck to Enchant with Royally Approved.",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "RUINED_HELMET": {
+   "name": "Ruined Helmet",
+   "description": "The first time you gain Strength each combat, double the amount gained.",
+   "counter_seen": false,
+   "runs_held": 4,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "RUNIC_PYRAMID": {
+   "name": "Runic Pyramid",
+   "description": "At the end of your turn, you no longer discard your Hand.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "SAI": {
+   "name": "Sai",
+   "description": "At the start of your turn, gain 7 Block.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "SAND_CASTLE": {
+   "name": "Sand Castle",
+   "description": "Upon pickup, Upgrade 6 random cards.",
+   "counter_seen": false,
+   "runs_held": 12,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "SCREAMING_FLAGON": {
+   "name": "Screaming Flagon",
+   "description": "If you end your turn with no cards in your Hand, deal 20 damage to ALL enemies.",
+   "counter_seen": false,
+   "runs_held": 0,
+   "seen_in": [
+    "shop"
+   ]
+  },
+  "SCROLL_BOXES": {
+   "name": "Scroll Boxes",
+   "description": "Upon pickup, lose all Gold and choose 1 of 2 packs of cards to add to your Deck.",
+   "counter_seen": false,
+   "runs_held": 23,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "SEA_GLASS": {
+   "name": "Venom Glass",
+   "description": "See 15 cards from The Regent. Choose any number of them to add to your Deck.",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "SELF_FORMING_CLAY": {
+   "name": "Self-Forming Clay",
+   "description": "Whenever you lose HP in combat, gain 3 Block next turn.",
+   "counter_seen": false,
+   "runs_held": 4,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "SHOVEL": {
+   "name": "Shovel",
+   "description": "You can now dig at Rest Sites to obtain a random Relic.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "SHURIKEN": {
+   "name": "Shuriken",
+   "description": "Every time you play 3 Attacks in a single turn, gain 1 Strength.",
+   "counter_seen": true,
+   "runs_held": 5,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "SIGNET_RING": {
+   "name": "Signet Ring",
+   "description": "Upon pickup, gain 999 Gold.",
+   "counter_seen": false,
+   "runs_held": 4,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "SILVER_CRUCIBLE": {
+   "name": "Silver Crucible",
+   "description": "The first 3 card rewards you see are Upgraded. The first Treasure Chest you open is empty.",
+   "counter_seen": true,
+   "runs_held": 28,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "SLING_OF_COURAGE": {
+   "name": "Sling of Courage",
+   "description": "Start each Elite combat with 2 Strength.",
+   "counter_seen": false,
+   "runs_held": 0,
+   "seen_in": [
+    "shop"
+   ]
+  },
+  "SMALL_CAPSULE": {
+   "name": "Small Capsule",
+   "description": "Upon pickup, obtain a random Relic.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "SPARKLING_ROUGE": {
+   "name": "Sparkling Rouge",
+   "description": "At the start of your 3rd turn, gain 1 Strength and 1 Dexterity.",
+   "counter_seen": false,
+   "runs_held": 11,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "STONE_CALENDAR": {
+   "name": "Stone Calendar",
+   "description": "At the end of turn 7, deal 52 damage to ALL enemies.",
+   "counter_seen": true,
+   "runs_held": 2,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "STONE_CRACKER": {
+   "name": "Stone Cracker",
+   "description": "At the start of each combat, Upgrade 2 random cards in your Draw Pile for the rest of combat.",
+   "counter_seen": false,
+   "runs_held": 11,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "STONE_HUMIDIFIER": {
+   "name": "Stone Humidifier",
+   "description": "Whenever you Rest at a Rest Site, raise your Max HP by 5.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "STORYBOOK": {
+   "name": "Storybook",
+   "description": "Upon pickup, add 1 Brightest Flame to your Deck.",
+   "counter_seen": false,
+   "runs_held": 7,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "STRAWBERRY": {
+   "name": "Strawberry",
+   "description": "Upon pickup, raise your Max HP by 7.",
+   "counter_seen": false,
+   "runs_held": 17,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "STRIKE_DUMMY": {
+   "name": "Strike Dummy",
+   "description": "Cards containing \u201cStrike\u201d deal 3 additional damage.",
+   "counter_seen": false,
+   "runs_held": 20,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "STURDY_CLAMP": {
+   "name": "Sturdy Clamp",
+   "description": "Up to 10 Block persists across turns.",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "SWORD_OF_STONE": {
+   "name": "Sword of Stone",
+   "description": "Transforms into a powerful Relic after defeating 5 Elites.",
+   "counter_seen": true,
+   "runs_held": 70,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "TEA_OF_DISCOURTESY": {
+   "name": "Tea of Discourtesy",
+   "description": "At the start of the next combat, shuffle 2 Dazed into your Draw Pile.",
+   "counter_seen": false,
+   "runs_held": 28,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "THE_ABACUS": {
+   "name": "The Abacus",
+   "description": "Whenever you shuffle your Draw Pile, gain 6 Block.",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "THE_COURIER": {
+   "name": "The Courier",
+   "description": "The merchant no longer runs out of cards, relics, or potions and his prices are reduced by 20%.",
+   "counter_seen": false,
+   "runs_held": 5,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "TOOLBOX": {
+   "name": "Toolbox",
+   "description": "At the start of each combat, choose 1 of 3 random Colorless cards and add the chosen card into your Hand.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "TOXIC_EGG": {
+   "name": "Toxic Egg",
+   "description": "Whenever you add a Skill into your Deck, Upgrade it.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "TUNING_FORK": {
+   "name": "Tuning Fork",
+   "description": "Every time you play 10 Skills, gain 7 Block.",
+   "counter_seen": true,
+   "runs_held": 6,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "UNCEASING_TOP": {
+   "name": "Unceasing Top",
+   "description": "Whenever you have no cards in Hand during your turn, draw a card.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "UNSETTLING_LAMP": {
+   "name": "Unsettling Lamp",
+   "description": "Each combat, the first time you play a card that Debuffs an enemy, double its effect.",
+   "counter_seen": false,
+   "runs_held": 10,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "VAJRA": {
+   "name": "Vajra",
+   "description": "Start each combat with 1 Strength.",
+   "counter_seen": false,
+   "runs_held": 19,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "VAMBRACE": {
+   "name": "Vambrace",
+   "description": "The first time you gain Block from a card each combat, double the amount gained.",
+   "counter_seen": false,
+   "runs_held": 20,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "VELVET_CHOKER": {
+   "name": "Velvet Choker",
+   "description": "Gain [ironclad_energy_icon.png] at the start of each turn. You cannot play more than 6 cards per turn.",
+   "counter_seen": true,
+   "runs_held": 1,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "VENERABLE_TEA_SET": {
+   "name": "Venerable Tea Set",
+   "description": "Whenever you enter a Rest Site, start the next combat with an additional [ironclad_energy_icon.png][ironclad_energy_icon.png].",
+   "counter_seen": false,
+   "runs_held": 13,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "VERY_HOT_COCOA": {
+   "name": "Very Hot Cocoa",
+   "description": "Start each combat with an additional 4[ironclad_energy_icon.png].",
+   "counter_seen": false,
+   "runs_held": 11,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "WAR_HAMMER": {
+   "name": "War Hammer",
+   "description": "Whenever you kill an Elite, Upgrade 4 random cards.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "WAR_PAINT": {
+   "name": "War Paint",
+   "description": "Upon pickup, Upgrade 2 random Skills.",
+   "counter_seen": false,
+   "runs_held": 34,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "WHETSTONE": {
+   "name": "Whetstone",
+   "description": "Upon pickup, Upgrade 2 random Attacks.",
+   "counter_seen": false,
+   "runs_held": 19,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "WHISPERING_EARRING": {
+   "name": "Whispering Earring",
+   "description": "Gain [ironclad_energy_icon.png] at the start of each turn. Vakuu plays your first turn for you.",
+   "counter_seen": false,
+   "runs_held": 3,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "WHITE_BEAST_STATUE": {
+   "name": "White Beast Statue",
+   "description": "Potions always appear in combat rewards.",
+   "counter_seen": false,
+   "runs_held": 1,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "WINGED_BOOTS": {
+   "name": "Winged Boots",
+   "description": "You may ignore paths when choosing the next rooms to travel to 3 times.",
+   "counter_seen": true,
+   "runs_held": 5,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "WING_CHARM": {
+   "name": "Wing Charm",
+   "description": "A random card in each card reward is Enchanted with Swift 1.",
+   "counter_seen": false,
+   "runs_held": 2,
+   "seen_in": [
+    "held",
+    "shop"
+   ]
+  },
+  "WONGOS_MYSTERY_TICKET": {
+   "name": "Wongo's Mystery Ticket",
+   "description": "Receive 3 random Relics after 5 combats.",
+   "counter_seen": true,
+   "runs_held": 2,
+   "seen_in": [
+    "held"
+   ]
+  },
+  "YUMMY_COOKIE": {
+   "name": "Yummy Cookie",
+   "description": "Upon pickup, Upgrade 4 cards.",
+   "counter_seen": false,
+   "runs_held": 12,
+   "seen_in": [
+    "held"
+   ]
+  }
+ }
+}

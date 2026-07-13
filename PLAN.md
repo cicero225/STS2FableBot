@@ -1244,7 +1244,12 @@ the owner's projected-impact ranking within it:
 first, then the relic pass (6), then **events/enchants** (5), then the **full potion
 pass** (7).*
 
-6. **Relic combat-trigger pass** (added 2026-07-08, owner: "worth parsing through the list of
+6. **Relic combat-trigger pass** — **STARTED 2026-07-13, tranche R1 SHIPPED: see
+   [RELIC_PASS.md](RELIC_PASS.md)** (180 relics audited: 132 A / 14 B / 31 C / 3 D;
+   the RelicTrigger engine models 18 relics incl. Letter Opener, Lost Wisp, Gremlin
+   Horn, Nunchaku/Tuning Fork lifetime counters, Paper Phrog, Velvet Choker; R2 =
+   end-of-turn conditionals, R3 = first-per-combat latches, both filed there).
+   (Original framing, 2026-07-08, owner: "worth parsing through the list of
    relics, which unfortunately adds a lot of complication"). The f44 one-turn-kill analysis
    ([combat_notes_2026-07-08-f44-knights.markdown](combat_notes_2026-07-08-f44-knights.markdown))
    showed trigger relics doing load-bearing work the planner can't see — **Letter Opener** (3

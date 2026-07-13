@@ -842,6 +842,86 @@ def test_preexisting_vulnerable_power_credited() -> None:
     assert d.scores["lethal"] == 1.0
 
 
+def _with_relics(st: dict, *relics) -> dict:
+    st["player"]["relics"] = [
+        {"id": rid, "name": rid.title().replace("_", " "),
+         "description": desc, "counter": counter}
+        for rid, desc, counter in relics
+    ]
+    return st
+
+
+def test_relic_trigger_letter_opener_lethal() -> None:
+    # Relic pass R1: "Every time you play 3 Skills in a single turn, deal 5 damage to
+    # ALL enemies." Three Defends into a 5-HP enemy IS lethal with Letter Opener.
+    w = load_policy_config().combat
+    hand = [_bcard(i, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None")
+            for i in range(3)]
+    st = _beckon_state(3, hand, enemy_hp=5, hp=60, incoming="10")
+    _with_relics(st, ("LETTER_OPENER",
+                      "Every time you play 3 Skills in a single turn, deal 5 damage "
+                      "to ALL enemies.", None))
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores["lethal"] == 1.0
+    # without the relic the same hand cannot kill
+    st["player"]["relics"] = []
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert d2.scores["lethal"] == 0.0
+
+
+def test_relic_trigger_nunchaku_lifetime_counter() -> None:
+    # Nunchaku ("Every time you play 10 Attacks, gain [E]") banks its counter across
+    # combats like Pen Nib: at counter 9, the FIRST attack this turn pays the energy —
+    # here it funds a second Strike that completes lethal on a 20-HP enemy.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 10 damage.",
+                   "Attack", "AnyEnemy"),
+            _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 10 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(1, hand, enemy_hp=20, hp=60, incoming="10")  # 1 energy!
+    _with_relics(st, ("NUNCHAKU", "Every time you play 10 Attacks, gain [energy].", 9))
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores["lethal"] == 1.0
+    # at counter 3 no trigger fires: only one Strike is affordable -> not lethal
+    st["player"]["relics"][0]["counter"] = 3
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert d2.scores["lethal"] == 0.0
+
+
+def test_paper_phrog_boosts_vuln_multiplier() -> None:
+    # "Enemies with Vulnerable take 75% more damage rather than 50%." — rides the
+    # Cruelty lane: 10 dmg into Vulnerable = 17 (1.75x), lethal on a 17-HP enemy.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 10 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=17, hp=40,
+                       enemy_status=[dict(_VULN_POWER)], incoming="5")
+    _with_relics(st, ("PAPER_PHROG",
+                      "Enemies with Vulnerable take 75% more damage rather than 50%.",
+                      None))
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores["lethal"] == 1.0
+    st["player"]["relics"] = []
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert d2.scores["lethal"] == 0.0  # int(10*1.5)=15 < 17
+
+
+def test_velvet_choker_card_cap_from_relic() -> None:
+    # "Gain [E] at the start of each turn. You cannot play more than 6 cards per turn."
+    # The cap half must join the card-cap machinery from RELIC text.
+    from sts2bot.policy.combat import _RELIC_TRIGGERS  # noqa: F401 (import sanity)
+    w = load_policy_config().combat
+    hand = [_bcard(i, "STRIKE_IRONCLAD", "Strike", 0, "Deal 2 damage.",
+                   "Attack", "AnyEnemy") for i in range(8)]
+    st = _beckon_state(3, hand, enemy_hp=100, hp=60, incoming="0")
+    _with_relics(st, ("VELVET_CHOKER",
+                      "Gain [energy] at the start of each turn. You cannot play more "
+                      "than 6 cards per turn.", None))
+    d = plan_combat_turn(parse_state(st), w)
+    plan_part = d.rationale.split("]")[0].split("[", 1)[1]
+    assert len(plan_part.split(" > ")) <= 6  # plan never exceeds the cap
+
+
 def test_self_lethal_hp_cost_vetoed() -> None:
     # Owner-caught (2026-07-13): at 3 HP the bot played Bloodletting (Lose 3 HP) — both
     # branches sat on the projected-death wall, so the energy bonus broke the tie into
