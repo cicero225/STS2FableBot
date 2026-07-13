@@ -2,13 +2,17 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
-## 2026-07-12 (Fable 5, session 2) — Batch bq4bppl4y: FIRST ACT-3 RUN in a batch; act-reach 1.70 (new best)
+## 2026-07-12 (Fable 5, session 2) — Batch bq4bppl4y: act-reach 1.70 (best of the July batches); f48 Aeonglass run
 
 First live batch on the main machine, 10/10 clean at 4x, zero stalls. **0 wins,
-act-reach 1.70 (prev best 1.62), relics 6.9/run — and the first Act 3 in any batch:**
-f48, died to Aeonglass with 17 relics (Pandora's Box + Kusarigama/Candelabra engine),
-entered the boss at 85hp. Kill list: Kaiser Crab, Soul Fysh, Ceremonial Beast, Knowledge
-Demon x2, Slumbering Beetle, Aeonglass, Ovicopter, Kin, Vantom.
+act-reach 1.70 (July batches ran 1.60-1.62), relics 6.9/run.** Deepest run: f48, died
+to Aeonglass with 17 relics (Pandora's Box + Kusarigama/Candelabra engine), entered the
+boss at 85hp. Kill list: Kaiser Crab, Soul Fysh, Ceremonial Beast, Knowledge Demon x2,
+Slumbering Beetle, Aeonglass, Ovicopter, Kin, Vantom.
+
+*(Correction, owner-caught: I first logged this as "first Act-3 run in a batch" — wrong.
+The 355-run corpus holds 13 Act-3+ runs (June batches included), and one victory is in
+the books: the owner's recorded manual run of 2026-07-08. The bot itself is still 0-for.)*
 
 Caveats and reads:
 - Ran on PRE-fix code for the _POWER family (below) — this is the baseline; the player-
