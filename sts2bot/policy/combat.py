@@ -36,6 +36,15 @@ _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 
 # matters. Treat any absurd HP as invincible so the planner stops chipping it.
 _INVINCIBLE_HP = 100_000_000
 _PEN_NIB_PERIOD = 10  # Pen Nib: every 10th attack deals double damage (counter persists per-run)
+# Empirical guard pairs: single-target attacks aimed at the guarded enemy redirect to
+# its guard while the guard lives; Skills/debuffs and AoE are NOT redirected. Keys and
+# values match on entity_id prefix. PINNED EMPTY (owner 2026-07-13): one trace suggested
+# BOWLBUG_NECTAR is guarded by BOWLBUG_ROCK (run 20260713-010846 seq759: Ashen Strike+
+# aimed at 2-HP Nectar damaged Rock instead), but the owner has never seen such a
+# mechanic — rival hypotheses are a mod-side target-resolution bug or stale-state
+# misattribution. Verify by seed replay of that run before adding the pair (epoch
+# permitting); the redirect machinery below is tested and ready.
+_GUARD_PAIRS: dict[str, str] = {}
 # Card-pass C tranche (2026-07-09): clustered planner mechanics from the 149-card audit.
 _PER_VULN_DMG = re.compile(r"Deals? (\d+) additional damage for each Vulnerable", re.IGNORECASE)
 _PER_VULN_STR = re.compile(r"Gain (\d+) Strength for each Vulnerable", re.IGNORECASE)
@@ -428,6 +437,19 @@ def _apply_attack(
 ) -> SimState:
     enemies = list(state.enemies)
     e = enemies[target_i]
+    # Guard redirect (Bowlbug pair): a single-target attack into the guarded enemy hits
+    # the living guard instead — the sim must price the redirect or it plans phantom
+    # kills into an untouchable target (owner-caught death, 2026-07-13).
+    if not card.fx.aoe:
+        guard_prefix = next(
+            (g for k, g in _GUARD_PAIRS.items() if e.entity_id.startswith(k)), None)
+        if guard_prefix is not None:
+            gi = next(
+                (i for i, en in enumerate(enemies)
+                 if en.entity_id.startswith(guard_prefix) and en.hp > 0), None)
+            if gi is not None and gi != target_i:
+                target_i = gi
+                e = enemies[target_i]
     # Invincible (Waterfall Giant mid-explosion): damage is wasted — it dies on its own after the
     # eruption. Charge the energy (already spent by the caller) but credit no progress so the
     # planner spends its cards on block/mitigation instead of chipping an unkillable wall.
@@ -888,6 +910,11 @@ def plan_combat_turn(
             for card in hand
         )
         if c is not None
+        # Absolute veto: a self-HP cost that kills us outright is never playable — at
+        # death's-door the projected-death wall hits ALL branches equally, so the tie
+        # broke on Bloodletting's energy bonus and the bot suicided (owner-caught
+        # 2026-07-13). Certain self-death loses now; the enemy turn at least has variance.
+        and not (c.fx.self_hp_cost > 0 and c.fx.self_hp_cost >= player.hp)
     ]
     # Damage potions as pseudo-cards: 0-cost, exempt from the card cap (potions aren't card
     # plays), negative index -(slot+1) mapped back to UsePotion below. is_attack stays False

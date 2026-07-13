@@ -2,6 +2,29 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-13 (Fable 5, session 2 cont.) — Batch bfawc8h74 (everything live + new potion epoch): 10/10 clean, act-reach 1.80
+
+First batch with the full stack (debounce, Omnislice targeting, Ancient-uncommon,
+spend-down, Cruelty, Replay, elite gate 0.50): **0 wins, act-reach 1.80, relics 6.4,
+elites 0.3/21 — and zero infrastructure incidents** (the previous batch's two bug
+classes did not recur). Max depth A3 f38; three Vantom f17 boss deaths (Vantom is
+heavily represented in the Act-1 roster lately); one death TO a Decimillipede elite.
+
+Owner catches during the batch, both shipped same-session:
+- **Armaments+ stranded** when block was moot -> hand-upgrade rider credit
+  (w_hand_upgrade per actual unupgraded target; 22878f3).
+- **Bowlbug "guard redirect"** (run 8, seed 9LM6ALXZAQ): an attack aimed at the 2-HP
+  Nectar damaged the Rock instead -> modeled, then PINNED at owner direction (never
+  seen such a mechanic in play; rival hypotheses: mod-side target-resolution bug,
+  stale-state misattribution). Machinery ships tested but DORMANT (_GUARD_PAIRS empty);
+  verify by seed replay of 9LM6ALXZAQ before enabling (epoch permitting).
+Also filed: Imbalanced (Bowlbug Rock) block-to-stun is an exploitable enemy-pass item;
+hail-mary potion standalone-usefulness check still queued.
+- **Bloodletting suicide (run 10, owner-caught)**: at 3 HP both branches sat on the
+  projected-death wall, so the energy bonus broke the tie into a self-kill. Fix:
+  self-lethal HP costs are an ABSOLUTE VETO in the playable filter, not a scored
+  preference (certain self-death loses now; the enemy turn at least has variance).
+
 ## 2026-07-13 (Fable 5, session 2 cont.) — Batch btc3g1ycl HALTED at 8 (C5): two new bug classes surfaced, both fixed same night
 
 The everything-live batch (spend-down + Cruelty + Replay + elite gate 0.50): **0 wins,

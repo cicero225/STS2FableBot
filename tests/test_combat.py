@@ -842,6 +842,55 @@ def test_preexisting_vulnerable_power_credited() -> None:
     assert d.scores["lethal"] == 1.0
 
 
+def test_self_lethal_hp_cost_vetoed() -> None:
+    # Owner-caught (2026-07-13): at 3 HP the bot played Bloodletting (Lose 3 HP) — both
+    # branches sat on the projected-death wall, so the energy bonus broke the tie into
+    # suicide. Self-lethal HP costs are an absolute veto, not a scored preference.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "BLOODLETTING", "Bloodletting", 0,
+                   "Lose 3 HP. Gain [ironclad_energy_icon.png][ironclad_energy_icon.png].",
+                   "Skill", "None")]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=50, hp=3,
+                                                   incoming="20")), w)
+    assert d.action.payload()["action"] == "end_turn"  # never the suicide play
+    # at 4 HP the same card is legal again (floor pricing governs, not the veto)
+    d2 = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=50, hp=4,
+                                                    incoming="20")), w)
+    assert d2 is not None  # merely must not crash; the veto no longer filters it
+
+
+def test_guard_redirect_machinery(monkeypatch) -> None:
+    # Guard-pair redirect machinery (traced 2026-07-13 vs Bowlbugs, PINNED pending seed
+    # verification — the table ships empty; this test injects a pair). Attacks aimed at
+    # the guarded enemy hit the living guard; once the guard dies, the target is real.
+    from dataclasses import replace as dc_replace
+
+    import sts2bot.policy.combat as combat_mod
+    from sts2bot.policy.combat import _to_planned
+    monkeypatch.setattr(combat_mod, "_GUARD_PAIRS", {"BOWLBUG_NECTAR": "BOWLBUG_ROCK"})
+
+    class C:
+        index = 0
+        id = "STRIKE_IRONCLAD"
+        name = "Strike"
+        type = "Attack"
+        cost = "1"
+        can_play = True
+        target_type = "AnyEnemy"
+        is_upgraded = False
+        description = "Deal 6 damage."
+    card = _to_planned(C(), 3)
+    rock = dc_replace(_enemy(), entity_id="BOWLBUG_ROCK_0", hp=17)
+    nectar = dc_replace(_enemy(), entity_id="BOWLBUG_NECTAR_0", hp=2)
+    st = SimState(energy=3, enemies=(rock, nectar), my_block=0, my_strength=0)
+    out = _apply_attack(st, 1, card)  # aim at Nectar
+    assert out.enemies[0].hp == 11 and out.enemies[1].hp == 2  # Rock took it
+    dead_rock = dc_replace(rock, hp=0)
+    st2 = SimState(energy=3, enemies=(dead_rock, nectar), my_block=0, my_strength=0)
+    out2 = _apply_attack(st2, 1, card)
+    assert out2.enemies[1].hp == 0  # guard down -> Nectar dies for real
+
+
 def test_armaments_plus_played_for_the_upgrade_rider() -> None:
     # Owner-caught (2026-07-13): Armaments+ ("Gain 5 Block. Upgrade ALL cards in your
     # hand.") sat unplayed when block wasn't needed — the rider was invisible. With
