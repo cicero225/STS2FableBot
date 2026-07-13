@@ -177,6 +177,21 @@ def test_summon_as_block_equivalent() -> None:
     assert fx.block == 0
 
 
+def test_replay_enchant_scales_effects() -> None:
+    # Live shape (2026-07-12): Spiral-enchanted Strike reads "Deal 6 damage. Replay 1."
+    # Replay N = played N ADDITIONAL times: all effects scale by N+1.
+    p = parse_card_description
+    fx = p("Deal 6 damage. Replay 1.")
+    assert fx.total_damage == 12
+    fx = p("Deal 2 damage 4 times. Replay 1.")  # multi-hit: hits double, per-hit stays
+    assert (fx.damage, fx.hits) == (2, 8)
+    fx = p("Gain 5 Block. Replay 2.")
+    assert fx.block == 15
+    fx = p("Lose 2 HP. Deal 15 damage. Replay 1.")  # costs repeat too
+    assert (fx.self_hp_cost, fx.total_damage) == (4, 30)
+    assert p("Deal 6 damage.").total_damage == 6  # no enchant, no scaling
+
+
 def test_discovery_generator_credited() -> None:
     # Discovery: "Choose 1 of 3 random cards to add into your Hand." parsed to nothing ->
     # sat unplayed at friction cost (delta audit; same class as Infernal Blade).

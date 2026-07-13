@@ -842,6 +842,26 @@ def test_preexisting_vulnerable_power_credited() -> None:
     assert d.scores["lethal"] == 1.0
 
 
+def test_cruelty_boosts_vulnerable_multiplier() -> None:
+    # Cruelty (power): "Vulnerable enemies take an additional 25% damage" — additive with
+    # Vulnerable's 50% (owner 2026-07-12; hover preview shows it). 10 dmg -> 17, not 15:
+    # enough to flip lethal on a 16-HP Vulnerable enemy.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 10 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=16, hp=40,
+                       enemy_status=[dict(_VULN_POWER)], incoming="5")
+    st["player"]["status"] = [
+        {"id": "CRUELTY_POWER", "name": "Cruelty", "amount": 25,
+         "description": "Vulnerable enemies take an additional 25% damage."}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores["lethal"] == 1.0  # int(10 * 1.75) = 17 >= 16
+    # without Cruelty the same swing is int(10 * 1.5) = 15 -> not lethal
+    st["player"]["status"] = []
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert d2.scores["lethal"] == 0.0
+
+
 def test_feed_preferred_for_the_killing_blow() -> None:
     # Feed's "If Fatal, raise your Max HP by 3" was invisible: with two ways to kill,
     # the planner never preferred landing Feed (step-1 audit, owner-confirmed 07-12).

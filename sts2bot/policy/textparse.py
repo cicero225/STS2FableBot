@@ -82,6 +82,10 @@ _SELF_DEATH_RIDER = re.compile(r"\byou\b[^.]*\bdie\b|,\s*die\.", re.IGNORECASE)
 # exposed by the mod, so summoned companion HP is approximated as ADDED block-equivalent
 # protection (it soaks hits like block; carryover between turns is upside we don't price).
 _SUMMON_N = re.compile(r"\bSummon (\d+)")
+# Replay N (Spiral/Glam enchants, Soldier's Stew): "Deal 6 damage. Replay 1." — the card
+# is played N ADDITIONAL times for the same cost, so every effect scales by N+1. Live
+# shape captured 2026-07-12 (enchants are appended as a trailing sentence).
+_REPLAY = re.compile(r"\bReplay (\d+)\b")
 # conditional/synergy language the one-turn planner cannot evaluate yet
 _CONDITIONAL = re.compile(
     r"\b(if |when |whenever |after you|for each|next turn|at the start|at the end"
@@ -196,6 +200,21 @@ def parse_card_description(text: str | None) -> CardEffects:
         if "block" not in fx.recognized:
             fx.recognized.append("block")
     fx.self_death_rider = bool(_SELF_DEATH_RIDER.search(full))
+    # Replay N: the whole card resolves N+1 times — scale every effect, costs included
+    # (self-HP riders repeat too). Damage scales via hits so multi-hit stays per-hit.
+    if m := _REPLAY.search(text):
+        n = 1 + int(m.group(1))
+        fx.hits *= n
+        fx.block *= n
+        fx.draw *= n
+        fx.energy_gain *= n
+        fx.vulnerable *= n
+        fx.weak *= n
+        fx.strength *= n
+        fx.heal *= n
+        fx.self_hp_cost *= n
+        if "replay" not in fx.recognized:
+            fx.recognized.append("replay")
     fx.conditional = bool(_CONDITIONAL.search(full))  # flag reads the FULL text
     return fx
 

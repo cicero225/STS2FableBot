@@ -2,6 +2,18 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-12 (Fable 5, session 2) — Batch b0qaobh7g (step-2 drafting live): 1 WIN, act-reach 1.90 — best batch ever
+
+First batch with deck-context drafting: **1/10 WIN (the first ever), act-reach 1.90**
+(day's progression: 1.60 -> 1.70 -> 1.70 -> 1.90), relics 7.2, TWO Act-3 runs (f48 win
++ f42 loss to Lost and Forgotten with 13 relics), five Act-2 runs, three A1 boss deaths
+(Waterfall Giant x2, Lagavulin Matriarch). Elites: 0.0/17 again — the gate stands
+over-tight (owner: fundamentals first; revisit after the pass ladder).
+
+Same-evening owner catches during the batch: the 500g/1423g last-shop leaks (fix
+shipped 0c12c64, next batch), Cruelty's +25%-vs-Vulnerable not modeled (fixed below),
+Replay-N enchant unmodeled (no live capture in 365 runs — awaiting exact wording).
+
 ## 2026-07-12 (Fable 5, session 2) — ★ FIRST BOT WIN ★ (run 3 of batch b0qaobh7g, seed FSD4ZEBD4Z)
 
 **The bot won a full Act-1-through-Act-3 run** — first victory in ~365 logged runs, on

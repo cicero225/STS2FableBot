@@ -165,6 +165,9 @@ class SimState:
     vuln_dmg_reduction: bool = False  # Colossus: 50% less damage from Vulnerable enemies
     potions_spent: int = 0  # pseudo-card potions drunk this plan (each pays w_potion_spend)
     fatal_bonuses: int = 0  # kills landed by "If Fatal, ..." cards (Feed) this plan
+    # Cruelty (power): "Vulnerable enemies take an additional 25% damage" — additive on
+    # top of Vulnerable's 50% (owner-confirmed the game previews it; 1.5 -> 1.75)
+    vuln_mult_bonus: float = 0.0
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
@@ -433,7 +436,7 @@ def _apply_attack(
     if state.my_weak:
         per_hit = int(per_hit * WEAK_MULT)  # I'm Weak: my Attacks deal 25% less
     if e.vulnerable > 0:
-        per_hit = int(per_hit * VULN_MULT)
+        per_hit = int(per_hit * (VULN_MULT + state.vuln_mult_bonus))
     for _ in range(hits):
         if hp <= 0:
             break
@@ -809,6 +812,7 @@ def plan_combat_turn(
     card_cap = None  # "You can only play N cards this turn" (Ringing): spend it on the best play
     my_dex = 0
     self_end_damage = 0
+    vuln_mult_bonus = 0.0
     for p in player.status:
         pid = p.id.upper()
         # live id is STRENGTH_POWER — exact match silently zeroed player Strength in every
@@ -821,6 +825,12 @@ def plan_combat_turn(
         # PLAYER status. Parse the amount from the text so escalation (6->7->8) tracks live.
         if m := re.search(r"end of your turn, take (\d+) damage", p.description or "", re.I):
             self_end_damage += int(m.group(1))
+        # Cruelty (power): "Vulnerable enemies take an additional 25% damage" — additive
+        # with Vulnerable's own 50% (the game's hover preview confirms; owner 2026-07-12).
+        # Text-parsed so any future +%-vs-Vulnerable power rides the same lane.
+        if m := re.search(r"Vulnerable enemies take an additional (\d+)% damage",
+                          p.description or "", re.I):
+            vuln_mult_bonus += int(m.group(1)) / 100.0
         if pid.startswith("BARRICADE"):  # live id BARRICADE_POWER
             barricade = True
         if "SURROUND" in pid:  # Kaiser Crab: a claw behind me deals +50% (back-attack)
@@ -894,6 +904,7 @@ def plan_combat_turn(
         my_strength=my_strength,
         my_dex=my_dex,
         self_end_damage=self_end_damage,
+        vuln_mult_bonus=vuln_mult_bonus,
         barricade=barricade,
         my_weak=my_weak,
         my_frail=my_frail,
