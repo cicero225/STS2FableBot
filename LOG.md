@@ -2,6 +2,22 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-12 (Fable 5, session 2) — ★ FIRST BOT WIN ★ (run 3 of batch b0qaobh7g, seed FSD4ZEBD4Z)
+
+**The bot won a full Act-1-through-Act-3 run** — first victory in ~365 logged runs, on
+the FIRST batch with step-2 deck-context drafting live (plus today's _POWER fix). Act 3
+f48, 753 decisions, killed the QUEEN round 6 and survived at 11/79. Owner watched live.
+
+The deck is a textbook tag-machinery deck — the Vulnerable package (Bash, Tremble,
+Dominate++, Molten Fist++, Taunt++ x2) feeding Sword Boomerang x3 + Inflame, and the
+self-HP-loss package (Bloodletting x3, Offering x2, Feed): exactly the archetype
+coherence the step-2 conditionals were built to produce. Bosses beaten en route:
+Lagavulin Matriarch (A1), The Insatiable (A2), Queen + Torch Head Amalgam (A3).
+Relics: Runic Pyramid, Centennial Puzzle, War/Gnarled Hammer, Happy Flower (14).
+
+Owner-caught during the same run: left the last Act-3 shop with ~500 gold unspent —
+last-shop spend-down filed and implemented right after (gold has zero terminal value).
+
 ## 2026-07-12 (Fable 5, session 2) — CARD-PASS STEP 2 SHIPS: deck-context drafting (owner-reviewed same evening)
 
 The draft pass, end to end in one evening: 12-agent audit of all 157 draftable cards
