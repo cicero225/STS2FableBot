@@ -20,6 +20,22 @@ Produced by the 12-agent audit of all 157 draftable Ironclad/colorless cards
 Magnitudes below are hints (mild/moderate/strong), to be mapped to 2-3 config weights
 -- not per-card numbers. Impact/conf are the audit's estimates.
 
+## Review log (owner, 2026-07-12)
+
+**Vulnerable package — approved with three refinements:**
+1. *Magnitude-weighted sources* (Bully): tag table carries stack weights
+   (`vulnerable_source: 2` for Bash, 3 for Tremble), density rules count weighted
+   stacks, not cards. Owner left feasibility to implementer judgment — it is cheap.
+2. *Self-provision* (Dominate): when evaluating `needs`, the candidate card counts
+   itself as a deck member. Any self-providing card keeps baseline value and its
+   conditional becomes bonus-only. Also: Dominate's Strength payload synergizes with
+   multi_hit (Twin Strike class) — reflected in the Strength package both ways.
+3. *Chicken-and-egg principle (structural, applies to ALL packages)*: unmet-PENALTIES
+   are reserved for pure payoffs (Vicious/Rupture/Forgotten Ritual class — near-blank
+   without support). Enabler-side cards with decent baseline value (Dominate, Tremble)
+   are BONUS-ONLY — speculatively pickable to seed the archetype while Bash-class
+   starter sources remain. The audit's Tremble penalty row is overridden accordingly.
+
 ## Vulnerable package (9 cards)
 
 | Card (rarity/cost) | Text | Proposed conditional | Strength | Impact/Conf |
