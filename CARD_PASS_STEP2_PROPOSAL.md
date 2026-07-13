@@ -91,6 +91,27 @@ capability delta). They are additive adjustments, not replacements.
     pure payoffs get an ACT-1 DISCOUNT (mild early, full strength Act 2+). Spirebird
     priors may partly cover this, but the act-scaling makes it explicit.
 
+**Other groups — owner refinements:**
+15. *Armaments*: upgrades to "Upgrade ALL cards in your hand" — pro advice: generally
+    only worth picking AS Armaments+ (slow otherwise). Joins the upgrade_unlocks set
+    (True Grit, Stampede, Apotheosis: 2 -> 1 energy on upgrade).
+16. *Perfected Strike*: strike_name counting must include ALL cards with "Strike" in
+    the name (Pommel/Twin/Setup/Seeker/Ultimate/Leading Strike, itself) — name-contains
+    count, not just starter Strikes.
+17. *Fasten*: good early power, priors should carry it. Subnote — its PRESENCE makes
+    removing Defends worse: removal-target scoring should read the tag table (Fasten
+    provides a basic-Defend payoff -> Defends stop being removal fodder). Same
+    machinery, applied to removal policy instead of drafting.
+18. *Hellraiser*: better with strong card draw (draw_engine bonus); boss-dependent
+    hazard — random Strike autoplay is dangerous vs Kaiser Crab (back-attack punish).
+19. *Anger*: relic-pass pointer #2 — per-N-attacks relics (Pen Nib class) synergize
+    with attack-copy flooding.
+20. *Mayhem*: softened — unplayable curses are harmless via Mayhem (played -> just
+    discarded); the caution is only genuinely situational cards (defensive timing).
+21. *Feed*: step-1 audit confirms the on-fatal rider is invisible to the planner (plays
+    it as a plain 10-damage exhaust; never sequences it as the killing blow). Open
+    C-class item with a proposal — queue as a quick single alongside step-2 work.
+
 ## Vulnerable package (9 cards)
 
 | Card (rarity/cost) | Text | Proposed conditional | Strength | Impact/Conf |
