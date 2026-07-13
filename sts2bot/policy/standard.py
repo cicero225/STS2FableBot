@@ -751,10 +751,11 @@ class StandardRouter:
             "Common": w.w_rarity_common,
             "Uncommon": w.w_rarity_uncommon,
             "Rare": w.w_rarity_rare,
-            # audit find (step 2): these fell through to the COMMON base. Ancient
-            # (Apotheosis/Neow's Fury/Relax) is rare-tier or better; Event cards
-            # (Peck/Exterminate/Metamorphosis) price like uncommons.
-            "Ancient": w.w_rarity_rare,
+            # audit find (step 2): these fell through to the COMMON base. Ancient at
+            # UNCOMMON tier (owner 2026-07-13, after a double Relax draft at rare-tier
+            # 8.0): the trio varies too much for a flat premium — Apotheosis earns its
+            # real value through the __unupgraded tag bonus + upgrade-awareness instead.
+            "Ancient": w.w_rarity_uncommon,
             "Event": w.w_rarity_uncommon,
         }.get(card.rarity or "", w.w_rarity_common)
         if self.priors is not None:
