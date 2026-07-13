@@ -2,6 +2,23 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-12 (Fable 5, session 2) — Batch bq4bppl4y: FIRST ACT-3 RUN in a batch; act-reach 1.70 (new best)
+
+First live batch on the main machine, 10/10 clean at 4x, zero stalls. **0 wins,
+act-reach 1.70 (prev best 1.62), relics 6.9/run — and the first Act 3 in any batch:**
+f48, died to Aeonglass with 17 relics (Pandora's Box + Kusarigama/Candelabra engine),
+entered the boss at 85hp. Kill list: Kaiser Crab, Soul Fysh, Ceremonial Beast, Knowledge
+Demon x2, Slumbering Beetle, Aeonglass, Ovicopter, Kin, Vantom.
+
+Caveats and reads:
+- Ran on PRE-fix code for the _POWER family (below) — this is the baseline; the player-
+  Strength credit lands next batch.
+- Four A1 f17 boss deaths (entered at 52-80hp) — Act-1 boss variance, not a route issue.
+- elites_fought 0.4/run of 18 offered (prev 0.7/36): consistent with death-class pricing;
+  the f48 run fought 2 and banked the relic engine that carried it.
+- The Gambit was never offered, so the draft gate stays live-unvalidated (harness-tested).
+- Owner live-caught the Colossus/Ringing miss mid-batch (run 1) -> the _POWER forensics.
+
 ## 2026-07-12 (Fable 5, session 2) — The _POWER-suffix bug family: player Strength was NEVER credited live
 
 Owner live-caught (run 1 of the first main-machine batch, Ceremonial Beast boss, a
