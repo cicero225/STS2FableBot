@@ -101,7 +101,10 @@ class MapWeights(_Section):
     # The node's elite is a random draw from the act's bestiary pool: chase only if the deck
     # clears (win + HP floor) at least this fraction of the pool's real members (2026-07-09:
     # the generic 90-HP profile flattered Terror Eel & co -> 3 elite deaths in one batch).
-    elite_gate_pool_win_frac: float = 0.67
+    # 0.67 -> 0.50 (owner 2026-07-12, after three straight 0-elite batches: "we can
+    # definitely fight more elites now" — the damage model gained Strength credit,
+    # cross-turn Vulnerable, Cruelty, and coherent step-2 decks since 0.67 was set).
+    elite_gate_pool_win_frac: float = 0.50
 
 
 class CardRewardWeights(_Section):
