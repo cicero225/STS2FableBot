@@ -74,6 +74,23 @@ Magnitudes below are hints (mild/moderate/strong), to be mapped to 2-3 config we
 (rarity base + Spirebird prior + planner-blind dock + cost/deck-size penalties +
 capability delta). They are additive adjustments, not replacements.
 
+**Block package — owner refinements:**
+12. *Juggernaut*: block-gaining RELICS make it better than it looks (defer full
+    relic-card interaction modeling to the relic pass, but remember it there). Also:
+    per-proc autoblock counts — Plating and Feel No Pain's block each trigger it every
+    proc, so block_engine counting must include recurring autoblock sources, which are
+    high-frequency triggers, not one block card.
+13. *Prolong (audit factually overridden)*: does NOT need surplus block standing at end
+    of turn — it snapshots current Block when played; even if the enemy then consumes
+    the block, next turn still grants the snapshot (owner example: 10 block -> Prolong
+    -> hit for 10 -> still +10 next turn). Condition softens to "deck produces a decent
+    block turn at all" — near-dead penalty removed.
+14. *Speculative window (extends the chicken-and-egg principle to PAYOFFS)*: cards like
+    Rupture and Unmovable are literally nothing alone yet often worth taking in Act 1
+    anyway — the deck is still malleable and enablers arrive later. Unmet-penalties on
+    pure payoffs get an ACT-1 DISCOUNT (mild early, full strength Act 2+). Spirebird
+    priors may partly cover this, but the act-scaling makes it explicit.
+
 ## Vulnerable package (9 cards)
 
 | Card (rarity/cost) | Text | Proposed conditional | Strength | Impact/Conf |
