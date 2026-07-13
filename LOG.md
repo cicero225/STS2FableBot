@@ -2,6 +2,18 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-13 (Fable 5, session 3) — Bowlbug pin RESOLVED by corpus forensics: no guard mechanic (owner right)
+
+Instead of the seed replay, scanned all 91 Bowlbug fights in the corpus (917 attack
+plays) comparing submitted target vs which enemy actually lost HP: **662 normal, 3
+"redirect"-pattern (0.3%), and Nectar was hit normally dozens of times with Rocks
+alive.** No guard mechanic — the fatal trace was a stale-state/interleaving anomaly
+(same family as the duplicate-submission race; all 3 events are from the 4x era, and
+the new debounce should suppress the cause). _GUARD_PAIRS stays empty; the redirect
+machinery remains tested-but-dormant for any future genuinely-guarding enemy.
+Method note: corpus forensics beat a live seed replay — faster, no divergence risk,
+and 917 data points instead of one.
+
 ## 2026-07-13 (Fable 5, session 2 cont.) — Batch bfawc8h74 (everything live + new potion epoch): 10/10 clean, act-reach 1.80
 
 First batch with the full stack (debounce, Omnislice targeting, Ancient-uncommon,

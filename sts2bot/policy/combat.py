@@ -38,12 +38,12 @@ _INVINCIBLE_HP = 100_000_000
 _PEN_NIB_PERIOD = 10  # Pen Nib: every 10th attack deals double damage (counter persists per-run)
 # Empirical guard pairs: single-target attacks aimed at the guarded enemy redirect to
 # its guard while the guard lives; Skills/debuffs and AoE are NOT redirected. Keys and
-# values match on entity_id prefix. PINNED EMPTY (owner 2026-07-13): one trace suggested
-# BOWLBUG_NECTAR is guarded by BOWLBUG_ROCK (run 20260713-010846 seq759: Ashen Strike+
-# aimed at 2-HP Nectar damaged Rock instead), but the owner has never seen such a
-# mechanic — rival hypotheses are a mod-side target-resolution bug or stale-state
-# misattribution. Verify by seed replay of that run before adding the pair (epoch
-# permitting); the redirect machinery below is tested and ready.
+# values match on entity_id prefix. VERDICT (2026-07-13 corpus forensics, owner
+# skepticism confirmed): NO such mechanic exists — Nectar was hit normally dozens of
+# times across 91 Bowlbug fights; the "redirect" appeared in 3/917 attack plays, all in
+# the 4x-speed era — a stale-state/interleaving anomaly in the same family as the
+# duplicate-submission race (see LoopConfig.duplicate_debounce_ticks). The table stays
+# EMPTY; the machinery is kept tested-but-dormant in case a real guard enemy ships.
 _GUARD_PAIRS: dict[str, str] = {}
 # Card-pass C tranche (2026-07-09): clustered planner mechanics from the 149-card audit.
 _PER_VULN_DMG = re.compile(r"Deals? (\d+) additional damage for each Vulnerable", re.IGNORECASE)
