@@ -22,6 +22,9 @@ class CombatWeights(_Section):
     # Feed-class "If Fatal" rider: extra credit when THAT card lands the kill, enough to
     # win sequencing ties (vs another killer) but not to delay a safe lethal.
     w_on_fatal_bonus: float = 8.0
+    # Armaments-class "Upgrade card(s) in your Hand" rider, per card upgraded: enough to
+    # beat play friction when targets exist, not enough to displace block/lethal needs.
+    w_hand_upgrade: float = 2.5
     w_focus: float = 9.0
     w_overkill: float = -0.3
     # Block is valued both directly here AND via the avoided hp_loss below, which double-counts it

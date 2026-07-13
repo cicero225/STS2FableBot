@@ -842,6 +842,30 @@ def test_preexisting_vulnerable_power_credited() -> None:
     assert d.scores["lethal"] == 1.0
 
 
+def test_armaments_plus_played_for_the_upgrade_rider() -> None:
+    # Owner-caught (2026-07-13): Armaments+ ("Gain 5 Block. Upgrade ALL cards in your
+    # hand.") sat unplayed when block wasn't needed — the rider was invisible. With
+    # unupgraded cards in hand it must now be worth playing; with none, it stays a
+    # plain block card (no phantom credit).
+    w = load_policy_config().combat
+    hand = [_bcard(0, "ARMAMENTS", "Armaments+", 1,
+                   "Gain 5 Block. Upgrade ALL cards in your hand.", "Skill", "None"),
+            _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                   "Attack", "AnyEnemy"),
+            _bcard(2, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=100, hp=70, incoming="0")
+    st["battle"]["enemies"][0]["intents"] = []  # no threat: block itself is worthless
+    d = plan_combat_turn(parse_state(st), w)
+    assert "Armaments+" in d.rationale  # the rider earns it a place in the plan
+    # all-upgraded hand: the rider is worthless, so nothing forces a play
+    st["player"]["hand"] = [dict(hand[0]), dict(hand[1])]
+    st["player"]["hand"][0]["is_upgraded"] = True
+    st["player"]["hand"][1]["is_upgraded"] = True
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert "Armaments+" not in (d2.rationale or "") or "end turn" in d2.rationale
+
+
 def test_splash_aoe_omnislice_gets_a_target() -> None:
     # C5 halt (2026-07-13, Louse Progenitor f29): Omnislice is aoe in the sim ("Damage
     # ALL other enemies...") but target_type=AnyEnemy in the game — the planner submitted

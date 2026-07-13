@@ -89,6 +89,11 @@ class PlannedCard:
     # target_type=AnyEnemy in the game; submitting it targetless C5-halted a batch
     # (2026-07-13, Louse Progenitor f29).
     requires_target: bool = False
+    # Armaments-class "Upgrade a card / ALL cards in your Hand": number of hand cards
+    # this play would upgrade (computed at plan time) — otherwise the rider is invisible
+    # and the card sits unplayed at friction cost (owner-caught 2026-07-13). The actual
+    # upgraded effects materialize via replan; this credit just gets it PLAYED.
+    upgrades_in_hand: int = 0
 
 
 @dataclass(frozen=True)
@@ -173,12 +178,13 @@ class SimState:
     # Cruelty (power): "Vulnerable enemies take an additional 25% damage" — additive on
     # top of Vulnerable's 50% (owner-confirmed the game previews it; 1.5 -> 1.75)
     vuln_mult_bonus: float = 0.0
+    hand_upgrades: int = 0  # cards upgraded in hand this plan (Armaments-class rider)
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
 
 def _to_planned(card, energy: int, hand_attacks: int = 0,
-                exhaust_pile: int = 0) -> PlannedCard | None:
+                exhaust_pile: int = 0, unupgraded_in_hand: int = 0) -> PlannedCard | None:
     if not card.can_play:
         return None
     cost_str = card.cost or "0"
@@ -214,6 +220,11 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         hand_exhaust_scale = int(m.group(1))
     is_power = card.type == "Power"
     low = desc.lower()
+    # Armaments-class hand-upgrade rider: 1 target (base) or the whole hand (+)
+    upgrades_in_hand = 0
+    if m := re.search(r"Upgrade (a card|ALL cards) in your Hand", desc, re.IGNORECASE):
+        upgrades_in_hand = (min(1, unupgraded_in_hand) if m.group(1).lower() == "a card"
+                            else unupgraded_in_hand)
     # Stranded-status text ("End of your turn, if in your Hand, lose 6 HP" — Beckon/Toxic) is a
     # penalty for NOT playing the card; playing it just discards it. The parser reads the loss
     # as an immediate self-cost, which would exactly cancel the clearing credit in _score (the
@@ -289,6 +300,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
         on_fatal_bonus=bool(re.search(r"\bIf Fatal\b", desc, re.IGNORECASE)),
         requires_target=(card.target_type == "AnyEnemy"),
+        upgrades_in_hand=upgrades_in_hand,
     )
 
 
@@ -653,6 +665,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         healing=s.healing + heal_applied,
         exhausted_this_turn=s.exhausted_this_turn or card.exhausts_a_card,
         vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,
+        hand_upgrades=s.hand_upgrades + card.upgrades_in_hand,
     )
 
 
@@ -767,6 +780,7 @@ def _score(
         + w.w_damage * state.damage_dealt
         + w.w_kill * state.kills
         + w.w_on_fatal_bonus * state.fatal_bonuses  # Feed lands the kill -> permanent payoff
+        + w.w_hand_upgrade * state.hand_upgrades  # Armaments-class rider (owner 07-13)
         + w.w_overkill * state.overkill
         + w.w_block_useful * blocked
         + w.w_block_excess * excess
@@ -863,8 +877,16 @@ def plan_combat_turn(
 
     hand_attacks = sum(1 for c in hand if (c.type or "") == "Attack")
     exhaust_pile = getattr(player, "exhaust_pile_count", None) or 0
+    # upgrade targets for Armaments-class riders: unupgraded OTHERS (the played card
+    # leaves the hand before the upgrade resolves)
+    unupgraded_in_hand = sum(1 for c in hand if not getattr(c, "is_upgraded", False))
     playable = [
-        c for c in (_to_planned(card, energy, hand_attacks, exhaust_pile) for card in hand)
+        c for c in (
+            _to_planned(card, energy, hand_attacks, exhaust_pile,
+                        max(0, unupgraded_in_hand
+                            - (0 if getattr(card, "is_upgraded", False) else 1)))
+            for card in hand
+        )
         if c is not None
     ]
     # Damage potions as pseudo-cards: 0-cost, exempt from the card cap (potions aren't card
