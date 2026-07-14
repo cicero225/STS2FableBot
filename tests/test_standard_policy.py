@@ -177,11 +177,16 @@ def test_full_belt_discard_keeps_value_potions_ditches_junk() -> None:
 
     belt = [
         pot(0, "CURE_ALL", "Cure All", "Gain energy. Draw 2 cards."),  # value
-        pot(1, "FOUL_POTION", "Foul Potion", "Deal 12 damage to ALL (incl. you)."),  # downside
+        pot(1, "FOUL_POTION", "Foul Potion", "Deal 12 damage to ALL (incl. you)."),  # ~100g
         pot(2, "STRENGTH_POTION", "Strength Potion", "Gain 2 Strength."),  # buff
     ]
     victim = router()._worst_potion(belt)
-    assert victim is not None and victim.id == "FOUL_POTION"  # ditch the junk, keep Cure All
+    # In a STRONG belt the Foul (rank 3: merchant money, not junk) is still the right
+    # cut — but it must outrank true junk (see the reward-comparison test).
+    assert victim is not None and victim.id == "FOUL_POTION"
+    belt[0] = pot(0, "MYSTERY_BREW", "Mystery Brew", "Swirls mysteriously.")  # unknown, rank 1
+    victim2 = router()._worst_potion(belt)
+    assert victim2 is not None and victim2.id == "MYSTERY_BREW"  # junk goes before Foul
 
 
 def test_plays_offering_when_healthy() -> None:
@@ -1742,17 +1747,28 @@ def test_rest_recognizes_live_heal_smith_ids() -> None:
 
 
 def test_full_belt_discards_for_potion_reward() -> None:
+    # Since 2026-07-13 the discard fires only for a genuine upgrade: give the reward a
+    # strong description (heal, rank 6) and expect the lowest-value belt potion to go.
     payload = json.loads(json.dumps(FIXTURES["rewards"]))
     payload["player"]["potions"] = [
-        {"id": "BLOCK_POTION", "name": "Block Potion", "slot": 0},
-        {"id": "DEX_POTION", "name": "Dexterity Potion", "slot": 1},
-        {"id": "FLEX_POTION", "name": "Flex Potion", "slot": 2},
+        {"id": "BLOCK_POTION", "name": "Block Potion", "slot": 0,
+         "description": "Gain 12 Block."},
+        {"id": "DEX_POTION", "name": "Dexterity Potion", "slot": 1,
+         "description": "Gain 2 Dexterity."},
+        {"id": "FLEX_POTION", "name": "Flex Potion", "slot": 2,
+         "description": "Gain 4 Strength this turn."},
     ]
     payload["player"]["max_potion_slots"] = 3
+    for item in payload["rewards"]["items"]:
+        if item.get("type") == "potion":
+            item["potion_description"] = "Heal 20 HP."  # rank 6: a clear upgrade
     state = parse_state(payload)
     decision = router().decide(state, LoopContext())
     assert isinstance(decision, Decision)
-    assert decision.action.payload() == {"action": "discard_potion", "slot": 0}
+    payload_out = decision.action.payload()
+    assert payload_out["action"] == "discard_potion"
+    # victim = the lowest keep-value potion (Block=3 ties Dex? ranks decide; never a heal)
+    assert payload_out["slot"] in (0, 1, 2)
 
 
 def _sc_card(index, name, ctype="Attack", rarity="Common", upgraded=False, cid=None):
@@ -2288,6 +2304,47 @@ def test_planner_blind_cards_get_docked_at_draft() -> None:
         15)
     assert parsed > blind
     assert generator > blind  # the exemption: its output is playable
+
+
+def test_reward_discard_compares_values_and_protects_foul() -> None:
+    """Owner 2026-07-13 (live): a belt Foul Potion (100g at the next merchant) was
+    discarded for an ordinary reward potion before ever meeting a shop. The reward
+    discard now compares incoming value vs worst-in-belt, and Foul ranks as gold
+    value, not combat 'downside'."""
+    def payload(belt, reward_name, reward_desc):
+        return {
+            "state_type": "rewards",
+            "rewards": {"items": [
+                {"index": 0, "type": "potion", "potion_id": reward_name.upper().replace(" ", "_"),
+                 "potion_name": reward_name, "potion_description": reward_desc},
+            ], "can_proceed": True},
+            "run": {"act": 1, "floor": 5, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 50, "max_hp": 80,
+                       "status": [], "relics": [], "max_potion_slots": 2,
+                       "potions": belt},
+        }
+
+    foul = {"slot": 0, "id": "FOUL_POTION", "name": "Foul Potion",
+            "description": "Lose 5 HP."}
+    weakest = {"slot": 1, "id": "SPEED_POTION", "name": "Speed Potion",
+               "description": "Gain 2 Dexterity this turn."}
+    # full belt with a Foul: an ordinary reward potion must NOT evict it (nor the buff);
+    # the weakest belt potion (buff, rank 5) still outranks... the incoming debuff (3)
+    st = payload([dict(foul), dict(weakest)], "Weak Potion",
+                 "Apply 3 Weak to target enemy.")
+    d = router().decide(parse_state(st), LoopContext())
+    p = d.action.payload()
+    # the Foul (slot 0) must never be the victim of an ordinary reward
+    assert p.get("action") != "discard_potion" or p.get("slot") != 0
+    # a genuinely better reward (Fruit Juice, rank 7) evicts the WEAKEST (never the Foul)
+    st2 = payload([dict(foul), dict(weakest)], "Fruit Juice", "Gain 5 Max HP.")
+    d2 = router().decide(parse_state(st2), LoopContext())
+    p2 = d2.action.payload()
+    assert p2.get("action") == "discard_potion" and p2.get("slot") == 1
+    # and a junk/unknown reward doesn't evict ANYTHING from a Foul+junk belt
+    st3 = payload([dict(foul), dict(weakest)], "Mystery Brew", "Swirls mysteriously.")
+    d3 = router().decide(parse_state(st3), LoopContext())
+    assert d3.action.payload().get("action") != "discard_potion"
 
 
 def test_death_rider_card_never_drafted() -> None:

@@ -2,7 +2,28 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
-## 2026-07-13 (Fable 5, session 3) — R2 ships; batch bb6qu53b2 1.70; ELITE FINDING: route-then-swerve
+## 2026-07-13 (Fable 5, session 3 cont.) — capability routing ships; Foul saga; R1+R2 batch cold at 1.40
+
+**Capability-aware routing (owner pick (a), 9e8ca68)**: elite/boss nodes project the
+current deck's §5-C estimate (median over the act's real elite pool; _upcoming_boss for
+the boss); monsters use the mean not p75. The routing-test fixture got honest:
+Strikes+Bludgeons prices at ~46 HP/elite (2.6 block/turn) and correctly isn't worth a
+relic chase — HP-gating tests now use an elite-ready deck. Act 2/3 elite sub-pass ARMED
+in ENEMY_PASS (owner): fires if elites_fought AND elite-death share both rise.
+
+**Foul Potion saga (owner watched one live)**: claimed from Grab Potions (discarding a
+Speed Potion for it — belt-room logic didn't compare values), then DISCARDED for an
+ordinary reward potion before ever meeting a merchant (rank 'downside' = first out).
+Fix: Foul ranks 3 (~100g, above junk, below real combat potions) and reward discards
+now fire only for a genuine upgrade (incoming rank > worst-in-belt, from the reward's
+live description — RewardItem now parses potion_description). The merchant throw
+remains live-unvalidated: the next Foul should survive to a shop.
+
+**R1+R2 validation batch bow305spn: 0/10, act-reach 1.40 (cold) — SEVEN Act-1 boss
+deaths** (Soul Fysh x2, Lagavulin x2, Vantom, CB, Waterfall Giant; entries 42-62hp),
+one f48 Queen loss, elites 0.4/11. Ten runs can't judge R1+R2; what it shouts is the
+f17 wall again — ENEMY_PASS Phase-1 per-boss handlers (Kin, CB low-HP Ringing phase,
+Soul Fysh block-bypass) are the standing open items this keeps pointing at.
 
 **Relic pass R2 shipped** (same session as R1): the ten end-of-turn conditional relics
 evaluated on the plan's END state in _score — Orichalcum (planner stops burning Defends

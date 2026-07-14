@@ -267,6 +267,7 @@ class RewardItem(ApiModel):
     gold_amount: int | None = None
     potion_id: str | None = None
     potion_name: str | None = None
+    potion_description: str | None = None  # live payloads carry it (Soldier's Stew capture)
 
 
 class Rewards(ApiModel):

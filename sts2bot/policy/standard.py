@@ -1398,11 +1398,21 @@ class StandardRouter:
             potion_items = [i for i in state.rewards.items if i.type == "potion"]
             if potion_items and not ctx.screen_mem.get("discarded_for_reward"):
                 victim = self._worst_potion(player.potions)
-                if victim is not None:
+                # Discard only for a genuine upgrade (owner 2026-07-13: the belt's Foul
+                # — 100g at the next merchant — was ditched for an ordinary reward).
+                # Rank the incoming reward potion by the same keep-value scale.
+                class _RewardPotion:
+                    id = potion_items[0].potion_id
+                    name = potion_items[0].potion_name
+                    description = potion_items[0].potion_description
+                reward_rank = self._potion_rank(_RewardPotion())
+                if victim is not None and reward_rank > self._potion_rank(victim):
                     ctx.screen_mem["discarded_for_reward"] = True
                     return Decision(
                         action=act.DiscardPotion(slot=victim.slot),
-                        rationale=f"discard {victim.name} to make room for reward potion",
+                        rationale=f"discard {victim.name} (rank "
+                        f"{self._potion_rank(victim)}) for better reward potion "
+                        f"(rank {reward_rank})",
                     )
         decision = self._fallback.decide(state, ctx)
         if isinstance(decision, Decision) and decision.action.payload().get("action") == "proceed":
@@ -1434,6 +1444,18 @@ class StandardRouter:
         "damage": 4, "aoe_damage": 4, "card_gen": 4, "buff": 5, "heal": 6, "fruit_juice": 7,
     }
 
+    def _potion_rank(self, potion) -> int:
+        """Keep-value rank for belt decisions. Foul is NOT its combat category: it is
+        100 gold at the next merchant (the shop-throw feature), so it ranks like a
+        strong potion instead of auto-discard fodder (live 2026-07-13: a Foul was
+        discarded for a reward potion before ever meeting a shop)."""
+        nid = f"{potion.id or ''} {potion.name or ''}".upper()
+        if "FOUL" in nid:
+            # ~100g: clearly above junk/unknown (never auto-discard fodder), but below
+            # real combat potions — in a strong belt the Foul is still the right cut.
+            return 3
+        return self._DISCARD_RANK.get(self._potion_category(potion), 2)
+
     def _worst_potion(self, potions: list[Potion]) -> Potion | None:
         if not potions:
             return None
@@ -1444,5 +1466,4 @@ class StandardRouter:
                     return potion
         # else discard the lowest-value potion by category — was arbitrarily potions[0],
         # which threw away a Cure All when the cascade landed it in slot 0 (live B04BGZEDRN).
-        return min(potions, key=lambda p: (self._DISCARD_RANK.get(self._potion_category(p), 2),
-                                           p.slot))
+        return min(potions, key=lambda p: (self._potion_rank(p), p.slot))
