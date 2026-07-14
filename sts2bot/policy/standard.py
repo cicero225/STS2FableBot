@@ -517,6 +517,8 @@ class StandardRouter:
         # pool's real members. Known limitation: swarm elites (Phantasmal Gardeners) harvest as
         # one small body and fall below the pool's HP floor — the swarm is under-represented.
         can_win_elite = False
+        est_elite_loss: float | None = None
+        est_boss_loss: float | None = None
         if hp_aware and player is not None and player.deck:
             cur_act = state.run.act if state.run else 1
             ehp, edps, eramp = _GENERIC_ELITE.get(cur_act, _GENERIC_ELITE[1])
@@ -541,14 +543,36 @@ class StandardRouter:
                 ]
                 won = [o for o in outcomes if o.win and o.exp_end_hp >= floor_hp]
                 can_win_elite = len(won) >= len(pool) * w.elite_gate_pool_win_frac
+                # capability-aware projection loss (owner 2026-07-13): median projected
+                # HP cost of THIS deck vs the act's real elite pool — a losing estimate
+                # projects the whole pool (death-priced downstream)
+                losses = sorted((max_hp - o.exp_end_hp) if o.win else max_hp
+                                for o in outcomes)
+                est_elite_loss = losses[len(losses) // 2]
             else:  # bestiary empty for this act: fall back to the generic profile
                 outcome = estimate_fight(
                     int(max_hp), deck_out, [FightEnemy(hp=ehp, dps=edps, str_ramp=eramp)]
                 )
                 can_win_elite = outcome.win and outcome.exp_end_hp >= floor_hp
+                est_elite_loss = (max_hp - outcome.exp_end_hp) if outcome.win else max_hp
+            boss_members = self._upcoming_boss(ctx, cur_act)
+            if boss_members:
+                bo = estimate_fight(int(max_hp), deck_out, boss_members)
+                est_boss_loss = (max_hp - bo.exp_end_hp) if bo.win else max_hp
 
         def fight_loss(key: str) -> float:
-            est = self.combat_stats.expected_loss(key) if self.combat_stats else None
+            # Owner 2026-07-13 (route-then-swerve forensics): the p75-of-own-history
+            # projection is poisoned by dying runs — a full act projected 120+ HP of
+            # loss, so every path saturated at the death penalty and elite lanes
+            # flipped on HP noise. Elite/boss nodes now project the CURRENT deck's
+            # §5-C estimate ("can this deck beat it" made literal); monsters use the
+            # mean (the p75 tail double-counts the same disasters).
+            if key == "elite" and est_elite_loss is not None:
+                return float(est_elite_loss)
+            if key == "boss" and est_boss_loss is not None:
+                return float(est_boss_loss)
+            est = (self.combat_stats.expected_loss(key, stat="mean")
+                   if self.combat_stats else None)
             return float(est) if est is not None else _loss_default[key]
 
         def project(node_type: str | None, row: int, hp: float) -> tuple[float, float]:

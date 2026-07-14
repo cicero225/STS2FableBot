@@ -1150,6 +1150,7 @@ _ROUTING_CARD_EFFECTS = {
     "DEFEND_IRONCLAD|0": "Gain 5 Block.",
     "BASH|0": "Deal 8 damage. Apply 2 Vulnerable.",
     "BLUDGEON|0": "Deal 32 damage.",
+    "SHRUG_IT_OFF|0": "Gain 8 Block. Draw 1 card.",
 }
 
 
@@ -1175,6 +1176,11 @@ def _deck(*specs: tuple[str, str, int, int]) -> list[dict]:
 _STARTER_DECK = _deck(("STRIKE_IRONCLAD", "Attack", 1, 5), ("DEFEND_IRONCLAD", "Skill", 1, 4),
                       ("BASH", "Attack", 2, 1))
 _STRONG_DECK = [*_STARTER_DECK, *_deck(("BLUDGEON", "Attack", 3, 4))]
+# Elite-READY: damage AND defense. Since capability-aware routing (2026-07-13), the
+# projection prices elites for the actual deck — a Strikes+Bludgeons pile pays ~46 HP
+# per elite (honest: 2.6 block/turn), so HP-gating tests need a deck whose projected
+# elite cost is modest, or they test deck quality instead of HP.
+_ELITE_READY_DECK = [*_STRONG_DECK, *_deck(("SHRUG_IT_OFF", "Skill", 1, 4))]
 
 
 def _router_for_routing() -> StandardRouter:
@@ -1327,7 +1333,7 @@ def test_map_path_planning_weighs_forced_elite_lane_by_hp() -> None:
                 "relics": [],
                 "potions": [],
                 "max_potion_slots": 3,
-                "deck": _STRONG_DECK,  # can win the elite, so the gate is about HP, not deck power
+                "deck": _ELITE_READY_DECK,  # elite-ready, so the gate is about HP, not deck power
             },
         }
 

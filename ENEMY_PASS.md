@@ -76,6 +76,10 @@ universal micro-rules. Per-enemy handlers are for the genuinely specific only.
 - **Phase 2 — Act-2/3 bosses:** Knowledge Demon, The Insatiable, Test Subject #C8 (Adaptable), …
 - **Phase 3 — Elites:** Bygone Effigy (3), Phrog Parasite (2 — spawns ramping Wrigglers), Terror Eel,
   Decimillipede, Phantasmal Gardeners (hard Undergrowth elite), …
+  **Act 2/3 elite sub-pass ARMED (owner 2026-07-13):** capability-aware routing now sends the bot
+  INTO elites it projects winnable — if the next batches show elites_fought up AND elite-death share
+  up, run the per-mechanic pass for Act 2/3 elites specifically (Act 1's got Lagavulin sleep / Phrog
+  split / Knights trio / compositions; Act 2/3 elites still ride the generic estimate + status text).
 - **Phase 4 — Normals:** scan for unusual mechanics; most are generic — flag the exceptions
   (Slithering Strangler DoT, Ovicopter summon, The Obscura, Fogmog, Nibbits, Overgrowth Crawlers, …).
 
