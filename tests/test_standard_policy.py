@@ -1952,8 +1952,11 @@ def test_hand_select_exhausts_curse_over_basic() -> None:
 
 
 def test_choose_screen_skips_when_stuck() -> None:
-    """Run 2 stalled: a 'choose' screen returned ok but never resolved and the
-    handler waited forever. Bounded retries, then skip — never an indefinite wait."""
+    """Run 2 stalled: a 'choose' screen returned ok but never resolved and the handler
+    waited forever. Bounded retries, then skip — never an indefinite wait. Retries raised
+    3 -> 8 (owner-caught 2026-07-14): the Toolbox overlay ACCEPTS the pick but takes
+    several polls to close, and cancelling forfeited the relic's free card every combat.
+    Patience first; the cancel valve stays as the last resort."""
     cards = [
         _sc_card(0, "Panic Button", "Skill"),
         _sc_card(1, "The Gambit", "Skill", rarity="Uncommon"),
@@ -1962,12 +1965,79 @@ def test_choose_screen_skips_when_stuck() -> None:
     state = _card_select_state("choose", "Choose a card.", cards)
     r = router()
     ctx = LoopContext()
-    for _ in range(3):  # re-presses the pick a few times
+    for _ in range(r._CHOOSE_RETRIES):  # re-presses the pick, patiently
         d = r.decide(state, ctx)
         assert isinstance(d, Decision) and d.action.payload()["action"] == "select_card"
-    final = r.decide(state, ctx)  # gives up -> skip, not a Wait
+    final = r.decide(state, ctx)  # only THEN gives up -> skip, not a Wait
     assert isinstance(final, Decision)
     assert final.action.payload()["action"] == "cancel_selection"
+
+
+def test_exhaust_prefers_replay_from_exhaust_cards() -> None:
+    """Owner 2026-07-14: Howl from Beyond ("...if this is in your Exhaust Pile, play it")
+    WANTS to be exhausted — it becomes a free recurring AoE. It ranked below basics, so
+    the bot burned Strikes instead. On EXHAUST prompts it must be chosen over basics but
+    still after curses; on REMOVE/upgrade prompts the rule must NOT fire (deleting the
+    engine permanently would be a disaster)."""
+    howl = _sc_card(0, "Howl from Beyond", "Attack", cid="HOWL_FROM_BEYOND")
+    howl["description"] = ("Deal 16 damage to ALL enemies. At the end of your turn, if "
+                           "this is in your Exhaust Pile, play it.")
+    strike = _sc_card(1, "Strike", "Attack", cid="STRIKE_IRONCLAD")
+    strike["description"] = "Deal 6 damage."
+    curse = _sc_card(2, "Clumsy", "Curse", cid="CLUMSY")
+    curse["description"] = "Unplayable."
+    r = router()
+
+    # EXHAUST prompt: Howl beats the Strike as the target...
+    st = _card_select_state("select", "Choose a card to Exhaust.", [howl, strike])
+    d = r.decide(st, LoopContext())
+    assert d.action.payload()["index"] == 0  # Howl
+
+    # ...but a curse still goes first
+    st2 = _card_select_state("select", "Choose a card to Exhaust.", [howl, strike, curse])
+    d2 = r.decide(st2, LoopContext())
+    assert d2.action.payload()["index"] == 2  # Clumsy
+
+    # REMOVE prompt (permanent!): never sacrifice the engine — the Strike goes
+    st3 = _card_select_state("select", "Choose a card to Remove.", [howl, strike])
+    d3 = r.decide(st3, LoopContext())
+    assert d3.action.payload()["index"] == 1  # Strike
+
+    # Same rule, other family (owner 2026-07-14): Drum of Battle pays energy ON exhaust,
+    # so the on-exhaust rider makes it a prime exhaust target too. One text rule covers
+    # both families — and any future card, in any class, with an on-exhaust payoff.
+    drum = _sc_card(0, "Drum of Battle", "Skill", cid="DRUM_OF_BATTLE")
+    drum["description"] = ("Draw 2 cards. When this card is Exhausted, gain "
+                           "[ironclad_energy_icon.png][ironclad_energy_icon.png].")
+    st4 = _card_select_state("select", "Choose a card to Exhaust.", [drum, strike])
+    d4 = r.decide(st4, LoopContext())
+    assert d4.action.payload()["index"] == 0  # Drum, not the Strike
+
+
+def test_choose_retry_budget_resets_between_screens() -> None:
+    """Owner-caught 2026-07-14 (Discovery failed 3/3 live): the choose-screen retry
+    counter lived in screen_mem keyed by PROMPT and was never cleared when a screen
+    resolved, so it accumulated across the run — an early Toolbox screen burned the
+    budget and the next 'Choose a card.' (Discovery) got ONE try before cancelling,
+    forfeiting the card (a 0-cost exhaust for nothing). Leaving the screen must reset it."""
+    cards = [_sc_card(0, "Pillage", "Skill"), _sc_card(1, "Fiend Fire", "Attack"),
+             _sc_card(2, "Crimson Mantle", "Skill")]
+    screen = _card_select_state("choose", "Choose a card.", cards)
+    combat = make_combat(hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+                         enemies=[enemy("E_0", 40)], energy=3)
+    r = router()
+    ctx = LoopContext()
+
+    # screen 1 (e.g. Toolbox): burn some of the retry budget
+    for _ in range(3):
+        d = r.decide(screen, ctx)
+        assert d.action.payload()["action"] == "select_card"
+    # the screen resolves -> we're back in combat
+    r.decide(combat, ctx)
+    # screen 2 (Discovery): must get a FULL budget, not one try then cancel
+    for i in range(r._CHOOSE_RETRIES):
+        d = r.decide(screen, ctx)
+        assert d.action.payload()["action"] == "select_card", f"cancelled at try {i}"
 
 
 def test_card_select_no_confirm_screen_reselects_not_awaits() -> None:

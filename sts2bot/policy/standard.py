@@ -72,6 +72,16 @@ _GENERIC_ELITE = {
 _GENERIC_BOSS = (170, 24, 2)
 _ACT_BOSS = {1: (24, 2), 2: (30, 2), 3: (36, 3)}  # (dps, str_ramp) estimate for the act's boss
 _BIG_HIT_DAMAGE = 12  # "real hit" threshold for the first-big-hit draft switch (owner)
+# Cards that WANT to be exhausted (owner 2026-07-14). Two families, one text rule —
+# class-agnostic by design, so any future card with an on-exhaust payoff is covered:
+#   * replay-from-exhaust: Howl from Beyond, Bombardment ("...if this is in your Exhaust
+#     Pile, play it") — exhausting turns it into a free recurring attack;
+#   * on-exhaust rider: Drum of Battle ("When this card is Exhausted, gain [E][E]") —
+#     the payoff only fires BY exhausting it (and beats the draw it otherwise gives).
+# (Silent's Sly — "played free when discarded" — is the same idea on the DISCARD axis;
+# filed for the Silent pass, it needs discard-priority handling, not exhaust.)
+_WANTS_EXHAUST_RE = re.compile(
+    r"in your Exhaust Pile, play it|When this card is Exhausted", re.IGNORECASE)
 
 
 class StandardRouter:
@@ -98,6 +108,15 @@ class StandardRouter:
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
+        # Card-select retry counters live in screen_mem keyed by prompt, and were never
+        # cleared when a screen RESOLVED — so they accumulated across the whole run: an
+        # early Toolbox screen burned the budget, and the next "Choose a card." (Discovery!)
+        # got one attempt before cancelling, silently forfeiting the card every time
+        # (owner-caught 2026-07-14: Discovery failed 3/3 — a 0-cost exhaust for nothing).
+        # Leaving the screen is the resolve signal: drop the counters here.
+        if state.state_type != "card_select":
+            for k in [k for k in ctx.screen_mem if k.startswith("cardsel:")]:
+                ctx.screen_mem.pop(k, None)
         handler = getattr(self, f"_{state.state_type}", None)
         if handler is not None:
             return handler(state, ctx)
@@ -1049,8 +1068,21 @@ class StandardRouter:
                 return (uv if uv is not None else 1.5, self._card_quality(c, character))
 
             return max(candidates, key=upgrade_key)
+        # Cards that WANT to be exhausted (owner 2026-07-14): Howl/Bombardment replay from
+        # the exhaust pile; Drum of Battle pays energy ON exhaust. Exhausting one is a GAIN,
+        # not a loss — but they ranked at -3 (below basics at -50), so the bot burned Strikes
+        # and never fed the engine. Strictly scoped to true EXHAUST prompts: on a REMOVE
+        # screen (permanent) or an upgrade screen this must not fire, or the bot would delete
+        # its own engine. Curses still go first (owner).
+        is_exhaust_prompt = "exhaust" in prompt and not any(
+            v in prompt for v in ("remove", "destroy", "transform")
+        )
+
         def quality(c):
             q = self._card_quality(c, character, deck=deck)
+            if (is_exhaust_prompt and prefer_worst
+                    and _WANTS_EXHAUST_RE.search(c.description or "")):
+                q -= 60.0  # below basics (-50), above curses (-100)
             # Retain curses (Poor Sleep) are better PARKED in hand than discarded back into
             # the deck cycle — but the parking is worth roughly one junk-tier, not immunity
             # (owner refinement 2026-07-09): if the rest of the hand would actually be PLAYED,
@@ -1082,7 +1114,12 @@ class StandardRouter:
 
     # Bounds so a non-progressing screen can never rail a run (run 2: a 'choose'
     # screen returned 'ok' but never resolved; the old await-confirm Wait stalled).
-    _CHOOSE_RETRIES = 3
+    # Raised 3 -> 8 (owner-caught 2026-07-14, Toolbox): the mod ACCEPTS the pick
+    # ("Choosing card: Forgotten Ritual") but the overlay takes several polls to close,
+    # so 3 tries expired and the handler CANCELLED — forfeiting the relic's free card
+    # every combat. Selection is idempotent (re-picking the same index is harmless), so
+    # patience is cheap; the loop's 60-tick stall rail remains the real backstop.
+    _CHOOSE_RETRIES = 8
     _AWAIT_CONFIRM_POLLS = 8
 
     def _card_select(self, state: CardSelectState, ctx: LoopContext) -> Decision | Wait:
@@ -1128,6 +1165,10 @@ class StandardRouter:
                     rationale=f"choose {target.name} for: {cs.prompt}",
                 )
             ctx.screen_mem.pop(mem_key, None)
+            # Cancelling FORFEITS the card (Toolbox: a free colorless card every combat),
+            # so it stays the LAST resort — but it stays: a screen that never resolves
+            # would otherwise hang the run (the original run-2 stall). The fix for the
+            # Toolbox loss is patience (_CHOOSE_RETRIES 3 -> 8), not removing the valve.
             if cs.can_skip or cs.can_cancel:
                 return Decision(
                     action=act.CancelSelection(), rationale="choose not resolving; skip"

@@ -58,7 +58,13 @@ def _player_turn_states(path: str):
         scored = [d for d in cur if (d.get("scores") or {}).get("hp_loss") is not None]
         if not scored:
             continue
-        yield scored[-1], cur[0], nxt[0]
+        # Two different decisions are the right yardstick for the two channels:
+        #  * HP: the LAST plan of the turn — it knows the final block/played state.
+        #  * DAMAGE: the FIRST plan — its plan_damage covers the WHOLE intended turn,
+        #    while later re-plans only cover the cards still unplayed (pairing those
+        #    against the turn's total enemy HP loss made everything read "MORE than
+        #    predicted" — a measurement artifact, not a model error).
+        yield scored[-1], scored[0], cur[0], nxt[0]
 
 
 def audit(paths, min_n: int):
@@ -71,7 +77,7 @@ def audit(paths, min_n: int):
             pairs = list(_player_turn_states(path))
         except (OSError, KeyError):
             continue
-        for last, first, nxt in pairs:
+        for last, first_plan, first, nxt in pairs:
             sc = last.get("scores") or {}
             pred_loss = sc.get("hp_loss")
             if pred_loss is None:
@@ -96,12 +102,15 @@ def audit(paths, min_n: int):
                 if statuses:
                     hp_buckets[("status", statuses)].append((pred_loss, actual_loss))
 
-            # --- DAMAGE check: what the plan expected to deal vs what the enemies lost
-            pred_dmg = sc.get("plan_damage")
+            # --- DAMAGE check: the FIRST plan of the turn covers the whole turn
+            pred_dmg = (first_plan.get("scores") or {}).get("plan_damage")
             if pred_dmg is None:
                 continue
-            actual_dmg = sum(max(0, e0[k]["hp"] - e1.get(k, {}).get("hp", 0))
-                             for k in e0 if k in e1)
+            # A killed enemy DROPS OUT of the next state's list, so `k not in e1` means we
+            # dealt its full remaining HP (skipping those under-counted our own damage —
+            # it read as the Nibbit "-18.6 less than predicted" artifact).
+            actual_dmg = sum(max(0, e0[k]["hp"] - e1[k]["hp"]) if k in e1 else e0[k]["hp"]
+                             for k in e0)
             if abs(actual_dmg - pred_dmg) <= TOL:
                 totals["dmg_ok"] += 1
             else:
