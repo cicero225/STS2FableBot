@@ -296,6 +296,24 @@ class SimState:
     my_block: int
     my_strength: int
     my_dex: int = 0  # Dexterity: +/- block per block card (Soul Siphon drives it NEGATIVE)
+    # PRE-BAKED MODIFIERS (2026-07-14, trace-verified — the Pen Nib lesson generalized):
+    # the mod's card text is a fully-RESOLVED preview. At Str 1 a Strike reads "Deal 7
+    # damage"; at Dex 2 a Defend reads "Gain 7 Block" (an Unmovable-doubled Defend+ read
+    # 26 = (8+5)x2). So the turn-start Strength/Dex are ALREADY in fx.damage / fx.block:
+    # adding my_strength/my_dex again double-counts. Only strength/dex gained DURING this
+    # plan (Inflame, Dominate, Shuriken/Kunai triggers) is unbaked and must be applied.
+    # These fields hold the baked-in turn-start values; the sim adds only (current - start).
+    my_strength_start: int = 0
+    my_dex_start: int = 0
+
+    @property
+    def str_unbaked(self) -> int:
+        """Strength gained mid-plan (not yet in the card text preview)."""
+        return self.my_strength - self.my_strength_start
+
+    @property
+    def dex_unbaked(self) -> int:
+        return self.my_dex - self.my_dex_start
     # end-of-MY-turn blockable self-damage from player statuses (Knowledge Demon's
     # Disintegration: "At the end of your turn, take N damage") — joins the incoming pool
     # so the planner reserves block for it; skipped on lethal (fight ends first).
@@ -619,13 +637,13 @@ def _apply_attack(
     base_damage, hits = card.fx.damage, card.fx.hits
     if state.primal_active and card.is_attack:
         base_damage, hits = _PRIMAL_ROCK_DAMAGE, 1  # transformed into a Giant Rock
-    per_hit = base_damage + state.my_strength
+    per_hit = base_damage + state.str_unbaked  # text already carries turn-start Strength
     if card.dmg_per_target_vuln:  # Bully: +N per Vulnerable already on the target
         per_hit += card.dmg_per_target_vuln * e.vulnerable
     if pen_halve:
         # Pen Nib preview: at counter 9 the text shows doubled damage on EVERY attack, but
         # only the first actually doubles — later attacks revert to base (text // 2).
-        per_hit = (base_damage + 1) // 2 + state.my_strength
+        per_hit = (base_damage + 1) // 2 + state.str_unbaked
     if pen_double:
         per_hit *= 2  # (kept for tests/simulation without preview text; unused live)
     if state.my_weak:
@@ -822,8 +840,8 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     base_block = card.fx.block
     if card.bonus_block_if_exhausted and s.exhausted_this_turn:  # Evil Eye's second half
         base_block += card.bonus_block_if_exhausted
-    if base_block and s.my_dex:
-        base_block = max(0, base_block + s.my_dex)
+    if base_block and s.dex_unbaked:  # text already carries turn-start Dexterity
+        base_block = max(0, base_block + s.dex_unbaked)
     block_gain = base_block + rage_bonus
     if s.my_frail and block_gain:
         block_gain = int(block_gain * FRAIL_MULT)
@@ -1177,6 +1195,9 @@ def plan_combat_turn(
         my_block=player.block,
         my_strength=my_strength,
         my_dex=my_dex,
+        # already baked into the card text preview — the sim adds only mid-plan gains
+        my_strength_start=my_strength,
+        my_dex_start=my_dex,
         self_end_damage=self_end_damage,
         vuln_mult_bonus=vuln_mult_bonus,
         barricade=barricade,

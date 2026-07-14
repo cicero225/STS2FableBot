@@ -817,17 +817,50 @@ def test_power_suffix_colossus_ringing_regression() -> None:
     assert d.scores["hp_loss"] == 2.0  # 15 halved to 7, minus 5 block
 
 
-def test_player_strength_power_credited() -> None:
-    # Live id STRENGTH_POWER: exact-match zeroed player Strength in every live plan.
-    # Strength 4 + "Deal 6 damage." = 10 -> lethal on a 10-HP enemy.
+def test_strength_is_prebaked_in_card_text_not_double_counted() -> None:
+    """CRITICAL (2026-07-14, trace-verified): the mod's card text is a RESOLVED preview —
+    at Strength 4 a Strike already READS "Deal 10 damage". Adding my_strength on top
+    double-counts (the _POWER fix of 07-13 introduced this; the old exact-match bug had
+    masked it). The sim must use the text as-is, adding only MID-PLAN strength gains."""
     w = load_policy_config().combat
-    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+    # live-shaped: Str 4, and the text already shows the boosted 10
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 10 damage.",
                    "Attack", "AnyEnemy")]
     st = _beckon_state(3, hand, enemy_hp=10, hp=40, incoming="5")
     st["player"]["status"] = [{"id": "STRENGTH_POWER", "name": "Strength", "amount": 4,
                                "description": "Increases attack damage by 4."}]
     d = plan_combat_turn(parse_state(st), w)
+    assert d.scores["lethal"] == 1.0  # 10 kills 10 — exactly, no phantom +4
+    # ...and it must NOT claim lethal on a 13-HP enemy (the old double-count made it 14)
+    st2 = _beckon_state(3, hand, enemy_hp=13, hp=40, incoming="5")
+    st2["player"]["status"] = list(st["player"]["status"])
+    d2 = plan_combat_turn(parse_state(st2), w)
+    assert d2.scores["lethal"] == 0.0
+
+
+def test_midplan_strength_gain_is_added() -> None:
+    """The other half: strength gained DURING the plan (Inflame) is NOT in the text
+    preview of cards drawn/held this turn, so it MUST be added to later attacks."""
+    w = load_policy_config().combat
+    hand = [_bcard(0, "INFLAME", "Inflame", 1, "Gain 2 Strength.", "Power", "Self"),
+            _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=8, hp=40, incoming="5")
+    d = plan_combat_turn(parse_state(st), w)
+    # Inflame first (+2 Str), then Strike hits for 6+2=8 -> lethal on 8 HP
+    assert d.action.payload()["card_index"] == 0
     assert d.scores["lethal"] == 1.0
+
+
+def test_dexterity_is_prebaked_in_block_text() -> None:
+    # Same pre-bake for Dexterity: at Dex 2 a Defend already reads "Gain 7 Block".
+    w = load_policy_config().combat
+    hand = [_bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 7 Block.", "Skill", "None")]
+    st = _beckon_state(3, hand, enemy_hp=100, hp=40, incoming="7")
+    st["player"]["status"] = [{"id": "DEXTERITY_POWER", "name": "Dexterity", "amount": 2,
+                               "description": "Gain 2 additional Block from cards."}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores["hp_loss"] == 0.0  # 7 block vs 7 incoming — not 9 vs 7
 
 
 def test_preexisting_vulnerable_power_credited() -> None:

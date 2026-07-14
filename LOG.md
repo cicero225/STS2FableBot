@@ -2,6 +2,36 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-14 (Opus 4.8) — ★ Act-1 boss audit: 21/24 deaths are DECK POWER — and it caught a Strength DOUBLE-COUNT I shipped yesterday
+
+Six agents, one per Act-1 boss, four death traces each (24 total), audited against the
+CURRENT planner code. Two findings, one of them a self-inflicted regression.
+
+**1. CRITICAL: the mod's card text is a fully-RESOLVED preview** (the Pen Nib lesson,
+generalized — and I failed to generalize it). Trace-verified: at Strength 1 a Strike
+READS "Deal 7 damage"; at Dex 2 a Defend READS "Gain 7 Block" (an Unmovable-doubled
+Defend+ read 26 = (8+5)x2 — even the relic doubling is baked in). So yesterday's
+_POWER-suffix fix (a516867), which made my_strength populate for the first time,
+introduced a DOUBLE-COUNT: text damage + my_strength again. The old exact-match bug had
+been masking it — two bugs cancelling. Fix: SimState carries my_strength_start /
+my_dex_start (the baked-in values) and the sim adds only the UNBAKED delta — strength
+gained mid-plan (Inflame, Dominate, Shuriken/Kunai triggers) is real and still applies.
+Every plan since a516867 over-estimated its own damage whenever Str/Dex != 0 — i.e.
+exactly the strong-deck fights. Regression tests use live-shaped pre-baked text.
+**Lesson (again): the mod previews EVERYTHING. Never re-apply a modifier the text can
+already show — verify against a trace first.**
+
+**2. The Act-1 wall is DECK POWER, not mechanics: 21/24 deaths.** Kin 4/4 deck_power
+(correct leader targeting, correct race line — one run died with the Priest at 27/190).
+Soul Fysh 4/4. Ceremonial Beast 4/4. Vantom 4/4 (slippery/ramp/nuke all modeled and
+priced; the bot SEES the 28-damage nuke and cannot block it). Lagavulin and Waterfall
+Giant "mixed" — 4 mechanic findings total: the Str double-count (above), Waterfall's
+unmodeled periodic heal (capability _EMPIRICAL_MOVES gap -> over-rates the matchup),
+and Vantom's Wound-shuffle deck pollution (second-order). NO per-boss handlers proposed
+by the audit for Kin/Fysh/CB — the fights are played correctly and simply lost on
+arithmetic. This RETIRES the "Phase-1 per-boss handlers" hypothesis as the top lever:
+the lever is deck power (drafting), which the A/B pilot independently showed.
+
 ## 2026-07-14 (Fable 5, session 3 cont.) — A/B pilot verdict + draw/block draft rework (config hash CHANGES)
 
 **The human-vs-bot A/B on seed CJN9M609YW** (owner piloted, `sts2bot record`): the

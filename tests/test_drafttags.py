@@ -130,6 +130,34 @@ def test_draw_penalized_without_energy_source() -> None:
     assert with_energy - no_energy == 2.0  # exactly the configured penalty
 
 
+def test_first_big_hit_switch() -> None:
+    """Owner 2026-07-14: until the deck holds any >=12-damage card, offered big hits get
+    a strong one-time bonus — a starter deck's first job is acquiring a real hit. The
+    switch flips the CJN9M609YW f2 pick (Hemokinesis over Pommel) and self-extinguishes
+    once a big hit is in deck."""
+    from sts2bot.policy.standard import StandardRouter
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class Cd:
+        def __init__(self, cid, name, desc, rarity="Common"):
+            self.id, self.name, self.description = cid, name, desc
+            self.type, self.cost, self.rarity = "Attack", "1", rarity
+            self.is_upgraded = False
+
+    pommel = Cd("POMMEL_STRIKE", "Pommel Strike", "Deal 9 damage. Draw 1 card.")
+    hemo = Cd("HEMOKINESIS", "Hemokinesis", "Lose 2 HP. Deal 15 damage.", "Uncommon")
+    starter = _starter()
+
+    s_pommel = r._card_score(pommel, 11, "The Ironclad", act=1, deck=starter)
+    s_hemo = r._card_score(hemo, 11, "The Ironclad", act=1, deck=starter)
+    assert s_hemo > s_pommel  # the switch outweighs the community-prior gap
+
+    # once a big hit is in deck the switch extinguishes: same offer, bonus gone
+    with_hit = [*starter, C("HEMOKINESIS")]
+    s_hemo_after = r._card_score(hemo, 12, "The Ironclad", act=1, deck=with_hit)
+    assert s_hemo - s_hemo_after == r.config.card_rewards.w_first_big_hit
+
+
 def test_block_bonus_is_act1_scoped() -> None:
     # Owner 2026-07-14: block earns its (lesser) bonus in Act 1 only; later acts price
     # block via the capability delta instead of a flat heuristic.

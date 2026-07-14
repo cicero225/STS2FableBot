@@ -71,6 +71,7 @@ _GENERIC_ELITE = {
 # harvested), paired with the bestiary's real HP + throttling.
 _GENERIC_BOSS = (170, 24, 2)
 _ACT_BOSS = {1: (24, 2), 2: (30, 2), 3: (36, 3)}  # (dps, str_ramp) estimate for the act's boss
+_BIG_HIT_DAMAGE = 12  # "real hit" threshold for the first-big-hit draft switch (owner)
 
 
 class StandardRouter:
@@ -761,6 +762,21 @@ class StandardRouter:
 
     # ------------------------------------------------------------------ card rewards
 
+    def _deck_has_big_hit(self, deck) -> bool:
+        """True once the deck holds any >=12-damage card (by the card-effects KB text —
+        deck payloads carry no descriptions) or a tagged big_single_hit provider. Turns
+        the first-big-hit draft switch off."""
+        for c in deck:
+            cid = (getattr(c, "id", "") or "").upper()
+            entry = self.draft_tags.get(cid) or {}
+            if (entry.get("provides") or {}).get("big_single_hit"):
+                return True
+            desc = self.card_effects.get(
+                f"{cid}|{1 if getattr(c, 'is_upgraded', False) else 0}")
+            if desc and parse_card_description(desc).total_damage >= _BIG_HIT_DAMAGE:
+                return True
+        return False
+
     def _card_score(
         self, card, deck_size: int, character: str | None = None, act: int = 1,
         deck: list | None = None,
@@ -827,6 +843,14 @@ class StandardRouter:
         generates_attack = "random attack" in desc_l or ("add" in desc_l and "attack" in desc_l)
         if act <= 1 and (fx.total_damage > 0 or generates_attack):
             score += w.early_damage_bonus
+        # One-time "take SOMETHING with big damage" switch (owner 2026-07-14, from the
+        # CJN9M609YW A/B: Pommel over Hemokinesis was the community-prior pick, but a
+        # starter deck's first job is acquiring a real hit). Until the deck holds any
+        # >=12-damage card, offered big hits earn a strong bonus; self-extinguishing.
+        if (act <= 1 and deck is not None
+                and fx.total_damage >= _BIG_HIT_DAMAGE
+                and not self._deck_has_big_hit(deck)):
+            score += w.w_first_big_hit
         # Planner-blind penalty (owner-approved 2026-07-09, after two Cascade draft-and-upgrades):
         # a card whose parsed effects are EMPTY is one the combat planner literally cannot use
         # yet, so the community prior prices a pilot we aren't — flat dock on top of the upside

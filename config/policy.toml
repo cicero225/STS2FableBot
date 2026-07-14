@@ -111,6 +111,9 @@ bonus_energy = 4.0
 # Block bonus is Act-1-scoped and lesser than the damage bonus.
 early_block_bonus = 1.5
 penalty_draw_no_energy = -2.0
+# one-time Act-1 "take SOMETHING with big damage" switch (owner 2026-07-14):
+# bonus for >=12-damage offers until the deck holds one; then it turns off.
+w_first_big_hit = 4.0
 
 [rest]
 rest_below_hp_pct = 0.60     # general campfire: rest below this fraction of max HP, else smith

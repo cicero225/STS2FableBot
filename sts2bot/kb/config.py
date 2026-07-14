@@ -145,6 +145,10 @@ class CardRewardWeights(_Section):
     early_damage_bonus: float = 2.5  # Act 1: nudge toward damage to clear early fights (owner)
     early_block_bonus: float = 1.5  # Act 1: lesser nudge toward block (owner 2026-07-14)
     penalty_draw_no_energy: float = -2.0  # draw without an energy_source in deck
+    # Owner 2026-07-14 ("take SOMETHING with big damage"): one-time Act-1 switch — until
+    # the deck holds any >=12-damage hit (or big_single_hit provider), offered big hits
+    # get this bonus; self-extinguishes on the first one acquired.
+    w_first_big_hit: float = 4.0
     # capability-aware drafting (§5-C): value a card by how much it improves estimate_fight vs a
     # generic Act-1 boss in the *current deck's* context (a block-starved deck values block, a
     # damage-starved one values damage). Added on top of the Elo/heuristic score, not replacing it.
