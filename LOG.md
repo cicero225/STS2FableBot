@@ -2,6 +2,26 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-13 (Fable 5, session 3 cont.) — Routing batch bfm3sv4yj VERDICT: swerve cured, avoidance now honest; the wall is boss competence
+
+**0/10, act-reach 1.40, elites 0.1/17 — but the mechanism changed completely: ZERO
+'route to Elite' decisions all batch (vs 27 per 20 runs pre-fix).** The
+route-then-swerve pathology is gone; the capability projection prices elites for the
+actual deck from floor 1 and consistently declines. Given SIX Act-1 boss deaths in
+the same batch (Soul Fysh, Vantom x2, Lagavulin@75, WG, Kin — the decks can't beat
+REGULAR bosses), that refusal is probably TRUE, not timid.
+
+Causality now legible: weak boss-fight competence -> capability gate correctly closed
+-> no elite relics -> weak f33+ decks. The unlock is NOT the gate or its knobs — it is
+making the fights winnable (ENEMY_PASS Phase-1 per-boss handlers + deck quality); the
+same gate then opens by itself. Options (b) hysteresis / (c) boss-need shelved as
+moot for now: there is nothing to stabilize when no elite route exists, and boss-need
+modulation without fight competence just schedules deaths.
+
+Next: the owner pilots seed CJN9M609YW (the Soul Fysh @56hp loss) via `sts2bot record`
+for the human-vs-bot A/B — draft/route drift + the Soul Fysh counter-play as the
+Phase-1 handler spec.
+
 ## 2026-07-13 (Fable 5, session 3 cont.) — capability routing ships; Foul saga; R1+R2 batch cold at 1.40
 
 **Capability-aware routing (owner pick (a), 9e8ca68)**: elite/boss nodes project the
