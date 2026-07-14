@@ -646,8 +646,10 @@ def _apply_attack(
         per_hit = (base_damage + 1) // 2 + state.str_unbaked
     if pen_double:
         per_hit *= 2  # (kept for tests/simulation without preview text; unused live)
-    if state.my_weak:
-        per_hit = int(per_hit * WEAK_MULT)  # I'm Weak: my Attacks deal 25% less
+    # NB: the player's own Weak is PRE-BAKED into the card text (a Strike under Weak
+    # reads "Deal 4 damage", 6 x 0.75 — trace-verified 2026-07-14). Applying WEAK_MULT
+    # here would double-apply it, so we do NOT. (Enemy Weak that WE apply mid-plan is a
+    # different thing and is still modeled — see the landed_weak block in _apply_card.)
     if e.vulnerable > 0:
         per_hit = int(per_hit * (VULN_MULT + state.vuln_mult_bonus))
     for _ in range(hits):
@@ -843,8 +845,8 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     if base_block and s.dex_unbaked:  # text already carries turn-start Dexterity
         base_block = max(0, base_block + s.dex_unbaked)
     block_gain = base_block + rage_bonus
-    if s.my_frail and block_gain:
-        block_gain = int(block_gain * FRAIL_MULT)
+    # Frail is likewise PRE-BAKED into the text (a Defend under Frail reads "Gain 3
+    # Block", 5 x 0.75 — trace-verified 2026-07-14): do NOT re-apply FRAIL_MULT.
     # Forgotten Ritual: the energy fires only if a card was Exhausted this turn
     energy_gain = card.fx.energy_gain
     if card.energy_requires_exhausted and not s.exhausted_this_turn:
@@ -1362,5 +1364,10 @@ def plan_combat_turn(
             "explored": float(visited),
             "lethal": 1.0 if lethal else 0.0,
             "hp_loss": float(hp_loss),
+            # Prediction-vs-reality harness (owner 2026-07-14): what this plan expects
+            # to DEAL this turn. scripts/predict_audit.py diffs it against the enemy HP
+            # actually lost — systematic gaps are unmodeled mechanics. (The Strength
+            # double-count was exactly this class of error.) Diagnostic only.
+            "plan_damage": float(best_state.damage_dealt),
         },
     )

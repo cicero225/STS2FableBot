@@ -2,6 +2,35 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-14 (Opus 4.8) — ★★ THE PREDICTION HARNESS (owner idea) — and the pre-bake bug FAMILY it exposed
+
+**Owner's idea**: flag when end-of-turn HP isn't what the planner expected — "a fairly
+reliable signal for potential planner issues". Built as `scripts/predict_audit.py`:
+POST-HOC over the logs (zero runtime cost, no policy contamination, audits the whole
+130k-state corpus retroactively). Two channels: predicted hp_loss vs actual HP delta,
+and (new `plan_damage` score field) predicted damage vs enemy HP actually lost.
+Noise handled by AGGREGATION — bucket by enemy/status/relic, rank by frequency x
+magnitude; a one-off is noise, a recurring signature is a bug.
+
+**It paid for itself within minutes.** First run over 60 runs / 538 turns: only 42% of
+HP predictions land within +-2, and the top signatures were diagnostic:
+- `STRENGTH_POWER n=13, +9.4 HP worse than predicted` — the double-count I shipped
+  yesterday, visible in the pre-fix corpus. The harness detected a known bug: validated.
+- `FRAIL_POWER n=17, -5.2` and `WEAK_POWER n=13, -4.2` — SAME BUG CLASS, unknown until
+  now. Trace-verified: a Defend under Frail READS "Gain 3 Block" (5 x 0.75); a Strike
+  under Weak READS "Deal 4 damage" (6 x 0.75). The sim was multiplying them AGAIN.
+  Fixed: FRAIL_MULT/WEAK_MULT no longer applied to the player's own turn-start Weak/Frail
+  (enemy Weak that we apply mid-plan is unaffected and still modeled).
+
+**THE RULE, now paid for three times (Pen Nib, Str/Dex, Frail/Weak): the mod's card text
+is a FULLY-RESOLVED PREVIEW. Never re-apply any modifier the text can already show —
+verify against a trace first.**
+
+Still open from the harness (evidence logged, not yet fixed): Leaf Slime (+8.8, n=19),
+Damp Cultist (+9.6, n=7), Kin Priest (-12.1, n=8), Waterfall Giant (-8.6, n=11 — matches
+the audit's unmodeled-heal finding), PLATING end-of-turn block (+3.7, n=15), player
+VULNERABLE (+8.7, n=6 — is the enemy intent label boosted or not? needs a trace check).
+
 ## 2026-07-14 (Opus 4.8) — ★ Act-1 boss audit: 21/24 deaths are DECK POWER — and it caught a Strength DOUBLE-COUNT I shipped yesterday
 
 Six agents, one per Act-1 boss, four death traces each (24 total), audited against the
