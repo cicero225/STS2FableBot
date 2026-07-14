@@ -106,6 +106,51 @@ def test_untagged_card_is_neutral() -> None:
     assert score_adjustment("NOT_A_CARD", _starter(), TAGS, W) == 0.0
 
 
+def test_draw_penalized_without_energy_source() -> None:
+    """Owner model rework (2026-07-14): StS2 energy is scarce — pure draw / strike+draw
+    is a weak speculative draft. No flat draw bonus; a draw card is PENALIZED when the
+    deck has no energy_source, neutral when one exists. Spirebird is not overridden."""
+    from sts2bot.policy.standard import StandardRouter
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class Pommel:
+        id = "POMMEL_STRIKE"
+        name = "Pommel Strike"
+        type = "Attack"
+        cost = "1"
+        rarity = "Common"
+        is_upgraded = False
+        description = "Deal 9 damage. Draw 1 card."
+
+    starter = _starter()
+    no_energy = r._card_score(Pommel(), 10, "The Ironclad", act=1, deck=starter)
+    with_energy = r._card_score(Pommel(), 10, "The Ironclad", act=1,
+                                deck=[*starter, C("BLOODLETTING", typ="Skill", cost="0")])
+    assert with_energy > no_energy  # the penalty lifts once an energy source exists
+    assert with_energy - no_energy == 2.0  # exactly the configured penalty
+
+
+def test_block_bonus_is_act1_scoped() -> None:
+    # Owner 2026-07-14: block earns its (lesser) bonus in Act 1 only; later acts price
+    # block via the capability delta instead of a flat heuristic.
+    from sts2bot.policy.standard import StandardRouter
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class Shrug:
+        id = "SHRUG_IT_OFF"
+        name = "Shrug It Off"
+        type = "Skill"
+        cost = "1"
+        rarity = "Common"
+        is_upgraded = False
+        description = "Gain 8 Block."  # block only: isolates the block bonus
+
+    deck = [*_starter(), C("BLOODLETTING", typ="Skill", cost="0")]  # energy: no draw term
+    act1 = r._card_score(Shrug(), 10, "The Ironclad", act=1, deck=deck)
+    act2 = r._card_score(Shrug(), 10, "The Ironclad", act=2, deck=deck)
+    assert act1 > act2  # includes act-tilt too, but the 1.5 early bonus dominates
+
+
 def test_fasten_protects_defends_from_removal() -> None:
     # Review #16/#17: a basics-keyed payoff in deck flips basics from removal fodder to
     # enablers — Defend's removal-quality rises when Fasten is present.

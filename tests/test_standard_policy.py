@@ -999,7 +999,10 @@ def test_early_damage_bias_lifts_damage_cards_in_act1() -> None:
         return r._card_score(c, deck_size=10, character="The Ironclad", act=a)
 
     assert abs((s(dmg, 1) - s(dmg, 3)) - bonus) < 1e-6  # damage card gets the Act-1 lift
-    assert abs(s(blk, 1) - s(blk, 3)) < 1e-6  # block skill gets none
+    # 2026-07-14 rework: block now gets its own LESSER Act-1 lift (owner model)
+    blk_bonus = r.config.card_rewards.early_block_bonus
+    assert abs((s(blk, 1) - s(blk, 3)) - blk_bonus) < 1e-6
+    assert blk_bonus < bonus  # damage-first, block-second in Act 1
 
 
 def test_infernal_blade_gets_early_damage_bias_as_attack_generator() -> None:
@@ -1019,7 +1022,9 @@ def test_infernal_blade_gets_early_damage_bias_as_attack_generator() -> None:
         return r._card_score(c, deck_size=10, character="The Ironclad", act=a)
 
     assert abs((s(blade, 1) - s(blade, 3)) - bonus) < 1e-6  # attack-generator gets the Act-1 lift
-    assert abs(s(plain, 1) - s(plain, 3)) < 1e-6  # a plain block skill does not
+    # the plain block skill gets only the (lesser) Act-1 block lift, not the damage one
+    assert abs((s(plain, 1) - s(plain, 3))
+               - r.config.card_rewards.early_block_bonus) < 1e-6
 
 
 def _ev_opt(index, title, desc, is_proceed=False, relic_name=None):
@@ -1384,9 +1389,11 @@ def test_card_reward_takes_good_skips_bad() -> None:
 
 
 def test_weak_starter_deck_takes_card_a_polished_deck_skips() -> None:
-    """8.1d: the same modest, parseable card (Common Skill, score 3.0 < base bar 4.0) is TAKEN by a
-    starter-heavy deck (a real card beats keeping a basic) but SKIPPED once the deck is polished.
-    In the 0/5 batch the bot skipped good cards (Molten Fist x4) holding a 9-starter deck."""
+    """8.1d: the same modest, parseable card is TAKEN by a starter-heavy deck (a real card
+    beats keeping a basic) but SKIPPED once the deck is polished. (Fixture recalibrated
+    2026-07-14 after the draw/block bonus rework: cost 2 keeps the take/skip margins on
+    both sides of the weak-deck-adjusted threshold.) In the 0/5 batch the bot skipped
+    good cards (Molten Fist x4) holding a 9-starter deck."""
     def reward(deck_ids):
         deck = [{"index": i, "id": cid, "name": cid.title(), "type": "Attack", "cost": "1",
                  "description": "Deal 6 damage.", "rarity": "Basic", "is_upgraded": False}
@@ -1394,7 +1401,7 @@ def test_weak_starter_deck_takes_card_a_polished_deck_skips() -> None:
         return parse_state({
             "state_type": "card_reward",
             "card_reward": {"cards": [
-                {"index": 0, "id": "MYSTERY_SKILL", "name": "Modest", "type": "Skill", "cost": "3",
+                {"index": 0, "id": "MYSTERY_SKILL", "name": "Modest", "type": "Skill", "cost": "2",
                  "description": "Gain 5 Block.", "rarity": "Common", "is_upgraded": False,
                  "keywords": []}], "can_skip": True},
             "run": {"act": 1, "floor": 5, "ascension": 0},

@@ -105,9 +105,12 @@ w_power = 3.0
 penalty_cost_3plus = -2.5
 penalty_deck_over_25 = -3.0
 bonus_aoe = 3.0
-bonus_block = 2.0
-bonus_draw = 2.0
 bonus_energy = 4.0
+# owner model rework 2026-07-14: draw bonus removed (StS2 energy is scarce — pure draw
+# is a weak speculative draft); draw is penalized without an energy source instead.
+# Block bonus is Act-1-scoped and lesser than the damage bonus.
+early_block_bonus = 1.5
+penalty_draw_no_energy = -2.0
 
 [rest]
 rest_below_hp_pct = 0.60     # general campfire: rest below this fraction of max HP, else smith

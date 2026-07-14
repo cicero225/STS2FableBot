@@ -802,10 +802,21 @@ class StandardRouter:
         }.get(card.type or "", 0.0)
         if fx.aoe:
             score += w.bonus_aoe
-        if fx.block:
-            score += w.bonus_block
-        if fx.draw:
-            score += w.bonus_draw
+        # Owner model rework (2026-07-14): the flat draw bonus is GONE — StS2 energy is
+        # scarcer and deck-cycling pressure lower, so pure draw / strike+draw is a weak
+        # speculative draft (Pommel Strike "nowhere near as good as the last game").
+        # Draw is instead PENALIZED when the deck has no energy source to spend it with;
+        # Spirebird stays authoritative otherwise (deliberately NOT overridden).
+        if fx.draw and deck is not None and self.draft_tags:
+            from sts2bot.policy.drafttags import _providers, deck_tag_weights
+            energy_sources = _providers("energy_source", deck_tag_weights(deck), deck,
+                                        self.draft_tags)
+            if energy_sources <= 0:
+                score += w.penalty_draw_no_energy
+        # Block earns its bonus in ACT 1 only (lesser than the damage bonus below —
+        # owner 2026-07-14); later acts price block via the §5-C capability delta.
+        if fx.block and act <= 1:
+            score += w.early_block_bonus
         if fx.energy_gain:
             score += w.bonus_energy
         # Early-damage bias (owner, Run-2/3): Act 1 favors cards that deliver damage, to get

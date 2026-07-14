@@ -136,10 +136,15 @@ class CardRewardWeights(_Section):
     penalty_cost_3plus: float = -2.5
     penalty_deck_over_25: float = -3.0
     bonus_aoe: float = 3.0
-    bonus_block: float = 2.0
-    bonus_draw: float = 2.0
     bonus_energy: float = 4.0
+    # Owner model rework 2026-07-14 (StS2 economics: energy scarcer, less cycling
+    # pressure than StS1). bonus_draw REMOVED — pure draw is a weak speculative draft;
+    # instead draw is penalized when the deck has no energy_source to power it.
+    # bonus_block replaced by an Act-1-scoped bonus, lesser than the damage one;
+    # later acts price block via the §5-C capability delta.
     early_damage_bonus: float = 2.5  # Act 1: nudge toward damage to clear early fights (owner)
+    early_block_bonus: float = 1.5  # Act 1: lesser nudge toward block (owner 2026-07-14)
+    penalty_draw_no_energy: float = -2.0  # draw without an energy_source in deck
     # capability-aware drafting (§5-C): value a card by how much it improves estimate_fight vs a
     # generic Act-1 boss in the *current deck's* context (a block-starved deck values block, a
     # damage-starved one values damage). Added on top of the Elo/heuristic score, not replacing it.

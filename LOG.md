@@ -2,6 +2,33 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-14 (Fable 5, session 3 cont.) — A/B pilot verdict + draw/block draft rework (config hash CHANGES)
+
+**The human-vs-bot A/B on seed CJN9M609YW** (owner piloted, `sts2bot record`): the
+bot's Soul Fysh f17 loss was decided at the DRAFT TABLE, not in the fight. Owner
+assembled Inferno+Juggernaut fed by Stone Armor Plating — damage ACCELERATED
+18/26/33/53 per turn, 211-HP Fysh dead in ~9 rounds at 63-74hp throughout; the bot's
+flat ~12/turn chip could never close. Bot's in-fight play was fine (Beckon clears,
+Intangible respect); its picks were not: Pommel over Hemokinesis at f2, a SECOND
+Pommel over Ashen Strike at f4, FNP with zero enablers; 16-card/7-nonbasic deck vs
+the owner's 21/11. Boss entry 56 vs 74 hp. (Owner also LOST the seed in late Act 2
+after deliberately gambling a 3-elite lane — the seed is genuinely hard.)
+
+**Score forensics**: Pommel 9.62 vs Hemokinesis 2.23 = a 7.4-pt gap driven by the
+Spirebird prior swing (+1.0 vs -2.8, x1.8) plus our flat bonus_draw 2.0.
+
+**Owner model rework (SHIPPED — policy.toml changed, hash 93676cd0fe72 ->
+cf7e1362a3b4)**: StS2 energy is scarcer and cycling pressure lower than StS1 — pure
+draw / strike+draw is a weak speculative draft, and tutors are weaker too. Changes:
+- bonus_draw REMOVED; draw now PENALIZED (-2.0) when the deck has no energy_source
+  (tag machinery); neutral once one exists.
+- bonus_block replaced by early_block_bonus 1.5, ACT-1-SCOPED and deliberately lesser
+  than early_damage_bonus 2.5 (damage-first, block-second in Act 1); later acts price
+  block via the §5-C capability delta.
+- Spirebird deliberately NOT overridden (owner: "the hope is that Spirebird knows
+  better than our ability to express my vague card opinions").
+Also filed from the A/B: duplicate-copy dampening (the Pommel x2 pattern) — pending
+owner review.
 ## 2026-07-13 (Fable 5, session 3 cont.) — Routing batch bfm3sv4yj VERDICT: swerve cured, avoidance now honest; the wall is boss competence
 
 **0/10, act-reach 1.40, elites 0.1/17 — but the mechanism changed completely: ZERO
