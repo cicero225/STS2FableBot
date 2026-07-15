@@ -2,6 +2,46 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-14 (Opus 4.8) — A/B #2: seed J48A843QK0 (Ceremonial Beast). Same offers, different decks: the bot drafts GLASS
+
+Owner piloted the seed the bot lost (CB @80/80 f17). Two human attempts: run 1 lost CB
+(self-noted heal-vs-upgrade misplay); run 2 WON CB at 2 hp, died at the Act-2 boss.
+CAVEAT up front: the human matched their OWN run-1 drafting, not the bot's, and routes
+diverged after ~f6 — so this compares DRAFTING+piloting, not piloting in isolation
+(the clean isolation experiment is the stop_at_floor manual-takeover: let the bot build
+its deck to the boss, hand over the fight — deferred). Offers were seed-identical while
+routes matched (verified: f1 Shrinker Beetle + first 4 offers byte-identical).
+
+Decks at Ceremonial Beast:
+- BOT (17 cards, 80/80 -> LOST r10, beast still at 61): Bash, 4 Defend, 4 Strike, Pommel
+  Strike, Whirlwind, Expect a Fight++, Taunt++, Offering, Pact's End + TWO curses
+  (Clumsy, Guilty). An offense/combo lean (Whirlwind + Expect-a-Fight energy) a
+  starter-heavy deck can't reliably assemble, and no survival tools.
+- HUMAN r2 (20 cards, 70/92 -> WON r13 @2hp): Bash, 5 Strike, 4 Defend, Taunt++,
+  Offering, Pact's End, Blood Wall, Colossus, Feel No Pain, Feed, Tremble, Breakthrough
+  + ONE curse. A defensive grind package + max-HP (Feed -> 92).
+
+Provable per-offer divergences (identical offers): f6 (Blood Wall / Body Slam /
+Whirlwind) bot->Whirlwind, human->Blood Wall; f3 (Breakthrough / Expect a Fight /
+Setup Strike) bot->Expect a Fight, human->Breakthrough. NB: this bot run was on code
+that ALREADY had the draw/block rework + first-big-hit switch, and STILL took Whirlwind
+over Blood Wall — the +1.5 early-block nudge didn't overcome Whirlwind's Spirebird prior
+(Whirlwind's X-cost parses as low base damage, so the >=12 big-hit switch never fired
+for it). Weight-tuning question for the owner, not obviously a bug.
+
+Damage rates were SIMILAR (~20/turn; the bot was actually AHEAD on damage — beast at 129
+by r6 vs the human's 167). The bot lost on SURVIVABILITY: 80 max HP vs 92 (Feed), and no
+defensive package. Standout drafting insight: the human's Colossus + Tremble is a
+boss-specific defensive synergy — stacking Vulnerable on the beast both raises your
+damage AND (via Colossus, "50% less damage from Vulnerable enemies") halves the beast's
+hits. That boss-context value is exactly what the step-2 tags don't yet capture (filed
+under the deferred boss-profile conditionals).
+
+Bottom line: reinforces A/B #1 and the boss audit — the lever is DRAFTING/deck power, and
+the bot's specific failure mode is drafting GLASS (over-weights offense/combo, under-weights
+survival). But the seed is genuinely hard: the human also lost it (Act-2 boss), so the
+bot's CB loss is weak evidence of a bot flaw next to the deck-shape divergence itself.
+
 ## 2026-07-14 (Opus 4.8) — ★★ THE PREDICTION HARNESS (owner idea) — and the pre-bake bug FAMILY it exposed
 
 **Owner's idea**: flag when end-of-turn HP isn't what the planner expected — "a fairly
