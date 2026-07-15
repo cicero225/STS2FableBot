@@ -41,10 +41,16 @@ divergences):
   have made it close without" the LATER Offering/Colossus. So the seed is hard and the
   CB loss is weak evidence of a bot flaw.
 
-PROPOSED (owner's call, config-hash change, exact analog of the approved draw-without-
-energy penalty): penalize X-cost scaling-AoE (Whirlwind class) early without an
-energy_source (flip its energy need to penalty=True + suppress bonus_aoe for
-unrealized-X AoE). Turns early-unsupported Whirlwind from ~neutral to a skip.
+PROPOSED (owner's call, config-hash change) — REFINED by the owner's follow-up
+(2026-07-15): the axis is EARLY-vs-LATE, not "energy source in deck". Whirlwind IS AoE,
+but INEFFICIENT AoE (every dedicated AoE does more dmg/energy — the tell that AoE alone
+doesn't redeem it). Its real payoff is (a) card efficiency — one card slot dumping the
+whole energy bar into damage-to-all — and (b) spending SURPLUS energy at high X. Both
+are late-game conditions (thick deck / energy economy above card costs), rarely true
+early. So the fix is: (1) don't grant the full flat bonus_aoe to X-cost "spend-energy"
+AoE (Whirlwind/Volley class) — it's not efficient AoE; (2) dock it in ACT 1 specifically
+(the payoff is late); energy_source in deck stays a positive modifier, not the hinge.
+Turns early Whirlwind from ~neutral to a skip while leaving it a fine LATE pick.
 
 Damage rates were SIMILAR (~20/turn; the bot was actually AHEAD on damage — beast at 129
 by r6 vs the human's 167). The bot lost on SURVIVABILITY: 80 max HP vs 92 (Feed), and no
