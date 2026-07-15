@@ -21,13 +21,30 @@ Decks at Ceremonial Beast:
   Offering, Pact's End, Blood Wall, Colossus, Feel No Pain, Feed, Tremble, Breakthrough
   + ONE curse. A defensive grind package + max-HP (Feed -> 92).
 
-Provable per-offer divergences (identical offers): f6 (Blood Wall / Body Slam /
-Whirlwind) bot->Whirlwind, human->Blood Wall; f3 (Breakthrough / Expect a Fight /
-Setup Strike) bot->Expect a Fight, human->Breakthrough. NB: this bot run was on code
-that ALREADY had the draw/block rework + first-big-hit switch, and STILL took Whirlwind
-over Blood Wall — the +1.5 early-block nudge didn't overcome Whirlwind's Spirebird prior
-(Whirlwind's X-cost parses as low base damage, so the >=12 big-hit switch never fired
-for it). Weight-tuning question for the owner, not obviously a bug.
+Per-offer picks (identical offers): f6 (Blood Wall / Body Slam / Whirlwind)
+bot->Whirlwind, human->Blood Wall; f3 (Breakthrough / Expect a Fight / Setup Strike)
+bot->Expect a Fight, human->Breakthrough.
+
+OWNER READ (2026-07-14, sharpens the above — the earlier framing over-counted the
+divergences):
+- The ONE dubious bot pick is WHIRLWIND EARLY. X-cost multi-hit AoE is BELOW a Strike's
+  efficiency without energy/strength support — a card the owner "simply wouldn't pick
+  first/early." How the logic lets it through: Whirlwind parses as a 5-dmg AoE (X
+  unknown at draft), so it collects the flat bonus_aoe (+3) + its Spirebird prior, while
+  the tag machinery's energy/strength needs are BONUS-ONLY (penalty=False) — nothing
+  docks it. The +1.5 early-block nudge on Blood Wall didn't overcome that.
+- f3 is NOT a divergence/error: GIVEN Whirlwind, Expect a Fight is the correct
+  follow-up (Whirlwind needs the energy). The human's Breakthrough was a different valid
+  call (wanting some AoE). The two bot picks are one coherent plan, not two mistakes.
+- Blood Wall itself is ambiguous (owner took it only out of a weak offer set); the whole
+  draft was "desperate, not great choices" from poor offers, and the human "would never
+  have made it close without" the LATER Offering/Colossus. So the seed is hard and the
+  CB loss is weak evidence of a bot flaw.
+
+PROPOSED (owner's call, config-hash change, exact analog of the approved draw-without-
+energy penalty): penalize X-cost scaling-AoE (Whirlwind class) early without an
+energy_source (flip its energy need to penalty=True + suppress bonus_aoe for
+unrealized-X AoE). Turns early-unsupported Whirlwind from ~neutral to a skip.
 
 Damage rates were SIMILAR (~20/turn; the bot was actually AHEAD on damage — beast at 129
 by r6 vs the human's 167). The bot lost on SURVIVABILITY: 80 max HP vs 92 (Feed), and no
@@ -38,9 +55,11 @@ hits. That boss-context value is exactly what the step-2 tags don't yet capture 
 under the deferred boss-profile conditionals).
 
 Bottom line: reinforces A/B #1 and the boss audit — the lever is DRAFTING/deck power, and
-the bot's specific failure mode is drafting GLASS (over-weights offense/combo, under-weights
-survival). But the seed is genuinely hard: the human also lost it (Act-2 boss), so the
-bot's CB loss is weak evidence of a bot flaw next to the deck-shape divergence itself.
+the bot's tendency is toward GLASS (offense over survival). But with the owner's nuance
+this is a WEAKER data point than A/B #1: mostly a bad offer set both players struggled
+with, one genuinely dubious pick (Whirlwind-early), and a human win that hinged on late
+Offering/Colossus luck. The concrete, generalizable takeaway is the Whirlwind-class
+proposal above; the rest is "hard seed, mediocre cards."
 
 ## 2026-07-14 (Opus 4.8) — ★★ THE PREDICTION HARNESS (owner idea) — and the pre-bake bug FAMILY it exposed
 
