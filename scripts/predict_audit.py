@@ -43,16 +43,26 @@ def _player_turn_states(path: str):
                 continue
             rows.append(d)
 
-    # a turn = the LAST scored decision of round R, matched against the first state of R+1
-    by_round: dict[int, list] = defaultdict(list)
+    # a turn = the LAST scored decision of round R, matched against the first state of
+    # R+1 — WITHIN one fight. Rounds reset to 1 each combat, so group by (fight, round):
+    # a round number lower than the previous row's marks a NEW fight (2026-07-16 bug:
+    # grouping by round alone paired predictions from one fight with outcomes from
+    # another, contaminating every metric).
+    by_round: dict[tuple[int, int], list] = defaultdict(list)
+    fight = 0
+    prev_rnd = None
     for d in rows:
         b = d["state"]["battle"]
         rnd = b.get("round")
-        if rnd is not None:
-            by_round[rnd].append(d)
-    for rnd in sorted(by_round):
-        cur = by_round[rnd]
-        nxt = by_round.get(rnd + 1)
+        if rnd is None:
+            continue
+        if prev_rnd is not None and rnd < prev_rnd:
+            fight += 1
+        prev_rnd = rnd
+        by_round[(fight, rnd)].append(d)
+    for (fid, rnd) in sorted(by_round):
+        cur = by_round[(fid, rnd)]
+        nxt = by_round.get((fid, rnd + 1))
         if not nxt:
             continue
         scored = [d for d in cur if (d.get("scores") or {}).get("hp_loss") is not None]
@@ -144,13 +154,58 @@ def audit(paths, min_n: int):
     report("DAMAGE DEALT", dmg_buckets)
 
 
+def drill(paths, enemy_name: str, max_rows: int = 12) -> None:
+    """Show the divergent turns for one enemy: prediction, actual, intents, block,
+    player statuses — the raw material for diagnosing an unmodeled mechanic."""
+    shown = 0
+    for path in paths:
+        if shown >= max_rows:
+            break
+        try:
+            pairs = list(_player_turn_states(path))
+        except (OSError, KeyError):
+            continue
+        for last, _first_plan, first, nxt in pairs:
+            if shown >= max_rows:
+                break
+            e0 = first["state"]["battle"].get("enemies") or []
+            if not any(enemy_name.lower() in (e.get("name") or "").lower() for e in e0):
+                continue
+            sc = last.get("scores") or {}
+            pl0, pl1 = first["state"]["player"], nxt["state"]["player"]
+            pred = sc.get("hp_loss")
+            if pred is None or pl0.get("hp") is None or pl1.get("hp") is None:
+                continue
+            actual = pl0["hp"] - pl1["hp"]
+            if abs(actual - pred) <= TOL:
+                continue
+            shown += 1
+            run = os.path.basename(os.path.dirname(path))
+            rnd = first["state"]["battle"].get("round")
+            es = "; ".join(
+                f"{e.get('name')} {e.get('hp')}hp "
+                f"i={[(i.get('type'), i.get('label')) for i in e.get('intents') or []]} "
+                f"s={[(s.get('id'), s.get('amount')) for s in e.get('status') or []]}"
+                for e in e0)
+            pst = [(s.get("id"), s.get("amount")) for s in (pl0.get("status") or [])]
+            print(f"{run} r{rnd}: pred={pred} actual={actual} "
+                  f"(hp {pl0['hp']}->{pl1['hp']}, start blk={pl0.get('block')})")
+            print(f"    {es}")
+            print(f"    my status: {pst}  last plan: {str(last.get('rationale'))[:90]}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=60, help="most recent N runs")
     ap.add_argument("--min-n", type=int, default=5)
+    ap.add_argument("--enemy", type=str, default=None,
+                    help="drill into divergent turns vs this enemy instead of the summary")
     args = ap.parse_args()
     paths = sorted(glob.glob(os.path.join(ROOT, "logs", "runs", "*", "decisions.jsonl")),
                    key=os.path.getmtime, reverse=True)[: args.limit]
+    if args.enemy:
+        drill(paths, args.enemy)
+        return
     print(f"auditing {len(paths)} runs\n")
     audit(paths, args.min_n)
 

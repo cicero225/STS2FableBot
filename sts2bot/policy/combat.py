@@ -352,6 +352,9 @@ class SimState:
     # top of Vulnerable's 50% (owner-confirmed the game previews it; 1.5 -> 1.75)
     vuln_mult_bonus: float = 0.0
     hand_upgrades: int = 0  # cards upgraded in hand this plan (Armaments-class rider)
+    # Plating (player status): end-of-turn block, lands before the enemy turn — soaks
+    # incoming like played block (harness signature n=31, 2026-07-16)
+    end_turn_block: int = 0
     # relic pass R1: the held relics' mid-turn triggers + this plan's play-kind counters
     relic_triggers: tuple = ()
     n_attacks_played: int = 0
@@ -929,6 +932,8 @@ def _score(
     # retained hand size at end of turn (potions aren't hand cards)
     retained = max(0, state.hand_size - (len(state.played) - state.potions_spent))
     my_block_eff = state.my_block
+    if state.end_turn_block and not lethal_end:  # Plating lands before the enemy turn
+        my_block_eff += state.end_turn_block
     if eot and not lethal_end:
         if "CLOAK_CLASP" in eot:  # "gain 1 Block for each card in your Hand" at end of turn
             my_block_eff += retained
@@ -1064,6 +1069,7 @@ def plan_combat_turn(
     my_dex = 0
     self_end_damage = 0
     vuln_mult_bonus = 0.0
+    end_turn_block = 0  # Plating: end-of-turn block that soaks this turn's incoming
     for p in player.status:
         pid = p.id.upper()
         # live id is STRENGTH_POWER — exact match silently zeroed player Strength in every
@@ -1082,6 +1088,13 @@ def plan_combat_turn(
         if m := re.search(r"Vulnerable enemies take an additional (\d+)% damage",
                           p.description or "", re.I):
             vuln_mult_bonus += int(m.group(1)) / 100.0
+        # Plating (Gorget / Stone Armor): "At the end of your turn, gain N Block" — that
+        # block lands BEFORE the enemy turn, so it soaks incoming exactly like played
+        # block. The harness's dominant clean signature (2026-07-16, n=31): hp_loss
+        # over-predicted by ~Plating every turn it was up. Parse N from the text.
+        if pid.startswith("PLATING") and (
+                m := re.search(r"gain (\d+) Block", p.description or "", re.I)):
+            end_turn_block += int(m.group(1))
         if pid.startswith("BARRICADE"):  # live id BARRICADE_POWER
             barricade = True
         if "SURROUND" in pid:  # Kaiser Crab: a claw behind me deals +50% (back-attack)
@@ -1202,6 +1215,7 @@ def plan_combat_turn(
         my_dex_start=my_dex,
         self_end_damage=self_end_damage,
         vuln_mult_bonus=vuln_mult_bonus,
+        end_turn_block=end_turn_block,
         barricade=barricade,
         my_weak=my_weak,
         my_frail=my_frail,
@@ -1347,7 +1361,9 @@ def plan_combat_turn(
             v for i, v in stranded_blockable.items() if i not in played_idx
         )
     end_dmg = 0 if lethal else best_state.self_end_damage  # Disintegration, blockable
-    hp_loss = (max(0, proj_incoming + extra_blockable + end_dmg - best_state.my_block)
+    # Plating's end-of-turn block joins the pool (mirrors _score; harness n=31)
+    block_pool = best_state.my_block + (0 if lethal else best_state.end_turn_block)
+    hp_loss = (max(0, proj_incoming + extra_blockable + end_dmg - block_pool)
                + best_state.self_damage + extra_unblockable - best_state.healing)
     first_action = (
         act.UsePotion(slot=chosen.potion_slot, target=target)

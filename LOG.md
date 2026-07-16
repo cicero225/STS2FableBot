@@ -2,6 +2,34 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-16 (Fable 5, session 4) — Whirlwind dock ships; harness FIGHT-BOUNDARY bug; Plating modeled (real accuracy: 79%/64%)
+
+**Whirlwind-class early dock shipped (8a7853d, hash -> f0e54b35df1b)** per the owner's
+refined spec: X-cost spend-energy damage gets no flat AoE bonus, no early-damage bonus
+(granting it exactly canceled the dock — caught in test), and a -2.5 Act-1 dock; late
+acts untouched. Conflagration (dedicated AoE) is the tested control.
+
+**Harness bug (found drilling into "Sludge Spinner -8.6")**: turns were grouped by
+round number PER FILE, but rounds reset each combat — so round R of fight A paired with
+round R+1 of fight B, contaminating every metric and dropping most turns (87 audited
+where 371 exist in 10 runs). REAL
+numbers: **HP prediction 79% within +-2, damage 64%** (the earlier "42%/47%" was the
+artifact). Fight boundary detection: round number decreasing = new combat.
+The pre-bake findings stand (verified by direct trace, and their signatures vanished
+post-fix in both groupings). The "Sludge Spinner" signature was pure contamination.
+
+**Plating modeled (the dominant CLEAN signature, n=31)**: "At the end of your turn,
+gain N Block" lands BEFORE the enemy turn, soaking incoming like played block — but
+hp_loss ignored it, over-predicting losses by ~Plating every turn it was up (and
+over-blocking in response: Gorget/Stone Armor decks were double-spending on defense).
+Parsed from status text into SimState.end_turn_block; joins the block pool in _score
+and the hp_loss diagnostic, lethal-gated.
+
+Remaining clean signatures (backlog, n>=4 in 10 runs): Tunneler -4.6 (n=11),
+Parafright/Obscura -7.3, Ceremonial Beast -4.2 (n=10, the Plow cycle?), Corpse Slug
+-9.0, residual STRENGTH_POWER -4.8 (n=6, post-prebake — needs a look), Nibbit -5.8.
+All "less than predicted" — the bot is systematically pessimistic now, which beats
+optimistic but wastes block/potions.
 ## 2026-07-14 (Opus 4.8) — A/B #2: seed J48A843QK0 (Ceremonial Beast). Same offers, different decks: the bot drafts GLASS
 
 Owner piloted the seed the bot lost (CB @80/80 f17). Two human attempts: run 1 lost CB

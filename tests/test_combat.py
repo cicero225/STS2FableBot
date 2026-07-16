@@ -1082,6 +1082,25 @@ def test_splash_aoe_omnislice_gets_a_target() -> None:
     assert payload.get("target") == "s0"  # the click-target is REQUIRED
 
 
+def test_plating_end_of_turn_block_soaks_incoming() -> None:
+    # Harness signature n=31 (2026-07-16): Plating's end-of-turn block lands BEFORE the
+    # enemy turn, so hp_loss must count it — the planner over-predicted its own losses
+    # by ~Plating every turn it was up (and over-blocked in response).
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=100, hp=50, incoming="4")
+    st["player"]["status"] = [
+        {"id": "PLATING_POWER", "name": "Plating", "amount": 5,
+         "description": "At the end of your turn, gain 4 Block. Plating is reduced "
+                        "by 1 at the start of your turn."}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores["hp_loss"] == 0.0  # 4 incoming vs 4 Plating block — fully soaked
+    st["player"]["status"] = []
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert d2.scores["hp_loss"] == 4.0  # without Plating the 4 lands
+
+
 def test_cruelty_boosts_vulnerable_multiplier() -> None:
     # Cruelty (power): "Vulnerable enemies take an additional 25% damage" — additive with
     # Vulnerable's 50% (owner 2026-07-12; hover preview shows it). 10 dmg -> 17, not 15:
