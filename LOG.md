@@ -2,7 +2,22 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
-## 2026-07-16 (Fable 5, session 4) — Whirlwind dock ships; harness FIGHT-BOUNDARY bug; Plating modeled (real accuracy: 79%/64%)
+## 2026-07-16 (Fable 5, session 4 cont.) — Batch bjqlx8sjo: cold (1.20) but the MODEL is the story: HP prediction 79% -> 86%
+
+**Batch (first with card-select retry fix, Howl exhaust, Whirlwind dock, Plating): 0/10,
+act-reach 1.20, relics 4.4** — cold: six f17 boss deaths (Kin x2, WG x2, Lagavulin, CB),
+an f5 Cultists death and an f14 Sewer Clam death (both thin 2-3-relic starts), two f33s.
+WATCH ITEM: three-batch act-reach trend 1.50 -> 1.40 -> 1.20 since the draft rework
+wave — could be 10-run noise (the f48s/win era had the same code twice), but if the
+next batch stays under ~1.4, audit the draft changes' interaction (draw penalty +
+Whirlwind dock + block scoping may be over-tightening Act-1 picks together).
+
+**Harness verdict on the same runs: HP prediction 86% within +-2 (from 79%), and the
+Plating signature is effectively GONE** (residual +2.3 n=6, slight over-credit — maybe
+decay timing; watch). Corpse Slug -4.5 persists as expected (the Ravenous fix landed
+mid-batch, not in this batch's process). Remaining full backlog: tiny residuals only
+(STRENGTH +2.4 n=5, FRAIL -0.6). The model now predicts its own turns at 86%/64% —
+from 42%/32% apparent (79%/64% real) two days ago.
 
 **Whirlwind-class early dock shipped (8a7853d, hash -> f0e54b35df1b)** per the owner's
 refined spec: X-cost spend-energy damage gets no flat AoE bonus, no early-damage bonus
