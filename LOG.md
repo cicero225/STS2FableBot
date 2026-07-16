@@ -30,6 +30,24 @@ Parafright/Obscura -7.3, Ceremonial Beast -4.2 (n=10, the Plow cycle?), Corpse S
 -9.0, residual STRENGTH_POWER -4.8 (n=6, post-prebake — needs a look), Nibbit -5.8.
 All "less than predicted" — the bot is systematically pessimistic now, which beats
 optimistic but wastes block/potions.
+
+**Same session, two of those closed via the --enemy drill (both EXPLOITABLE stuns the
+bot had been triggering by accident):**
+- **Tunneler / BURROWED**: "Block is not removed at the start of Tunneler's turn.
+  Stunned if all Block is removed." -> block-strip = attack cancelled. Modeled as a
+  BLOCK-based stun next to the Plow HP-threshold stun; the planner can now aim for it
+  (test: breaking 5 block cancels a 23 hit and beats defending).
+- **Corpse Slug / RAVENOUS**: "When an enemy dies, Corpse Slug immediately eats it,
+  becoming Stunned and gaining 4 Strength." -> killing ONE slug cancels the surviving
+  pack's whole turn. Modeled as a crab-rage-style kill reaction (stun all living
+  ravenous allies); the +4 Str arrives pre-resolved in next turn's intent labels.
+- Parafright/Obscura CLOSED (owner co-debugged live): no mechanic at all — the entire
+  signature was the Plating gap in a second costume. A stale mid-turn poll (read
+  between two Stone Armor+ plays) faked a Plating inconsistency; with the true end-of-
+  turn Plating (12, decaying to 11 next turn per the -1 rule the owner flagged), every
+  number closes exactly: r2 22 incoming - 12 Plating = 10 taken; r3 26 - 13 block - 11
+  Plating = 2 taken. The Obscura's dual intent fires BOTH halves (owner confirmed).
+  Already fixed by this morning's Plating modeling.
 ## 2026-07-14 (Opus 4.8) — A/B #2: seed J48A843QK0 (Ceremonial Beast). Same offers, different decks: the bot drafts GLASS
 
 Owner piloted the seed the bot lost (CB @80/80 f17). Two human attempts: run 1 lost CB

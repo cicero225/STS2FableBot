@@ -287,6 +287,14 @@ class EnemySim:
     spawns_on_death: bool = False
     crab_rage: bool = False  # Kaiser Crab claw: when an ally dies, survivors get +6 Str +99 Block
     back_attack: bool = False  # Kaiser Crab: deals +50% from behind while you're Surrounded
+    # Tunneler: "Block is not removed at the start of Tunneler's turn. Stunned if all
+    # Block is removed." — stripping its block to 0 CANCELS its attack (harness-found
+    # 2026-07-16: pred 23 -> actual 0 whenever the bot happened to break its block).
+    burrowed: bool = False
+    # Corpse Slug: "When an enemy dies, Corpse Slug immediately eats it, becoming
+    # Stunned and gaining 4 Strength." — killing ONE slug cancels the surviving pack's
+    # whole turn (at +4 Str each, priced via ramp next turn). Harness-found 2026-07-16.
+    ravenous: bool = False
 
 
 @dataclass(frozen=True)
@@ -505,6 +513,8 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         illusion = False
         asleep = False
         spawns_on_death = False
+        burrowed = False
+        ravenous = False
         for p in e.status:
             # live ids carry a _POWER suffix (VULNERABLE_POWER); startswith, not ==, or
             # pre-existing stacks are invisible (the owner-caught Colossus/Ringing miss —
@@ -530,6 +540,10 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 illusion = True
             if p.id.upper().startswith("ASLEEP"):  # Asleep only — Slumber wakes differently
                 asleep = True
+            if p.id.upper().startswith("BURROWED"):  # Tunneler: block-strip = stun
+                burrowed = True
+            if p.id.upper().startswith("RAVENOUS"):  # Corpse Slug: ally-death = self-stun
+                ravenous = True
             low_desc = (p.description or "").lower()
             if "INFESTED" in p.id.upper() or ("dying" in low_desc and "summon" in low_desc):
                 spawns_on_death = True
@@ -576,6 +590,8 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 back_attack=back_attack,
                 asleep=asleep,
                 spawns_on_death=spawns_on_death,
+                burrowed=burrowed,
+                ravenous=ravenous,
             )
         )
     return tuple(sims)
@@ -682,6 +698,10 @@ def _apply_attack(
     stunned = e.stunned_this_turn or bool(
         e.stun_threshold and e.hp > e.stun_threshold and hp <= e.stun_threshold
     )
+    # Burrowed (Tunneler): "Stunned if all Block is removed" — stripping its block to 0
+    # cancels its attack, a BLOCK-based stun the planner can aim for deliberately.
+    if e.burrowed and e.block > 0 and block <= 0:
+        stunned = True
     enemies[target_i] = replace(
         e, hp=hp, block=block, vulnerable=e.vulnerable + card.fx.vulnerable,
         hp_lost_this_turn=lost, stunned_this_turn=stunned, slippery_stacks=slip,
@@ -817,6 +837,19 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
                 replace(e, block=e.block + 99, incoming=e.incoming + 6)
                 if (e.crab_rage and e.hp > 0)
                 else e
+                for e in s.enemies
+            ]
+            s = replace(s, enemies=tuple(enemies))
+    # Ravenous (Corpse Slug): "When an enemy dies, Corpse Slug immediately eats it,
+    # becoming Stunned and gaining 4 Strength." Any death this card stuns every living
+    # ravenous ally — killing ONE slug cancels the surviving pack's whole turn. The +4
+    # Str shows up in next turn's intent labels (pre-resolved), so no ramp bookkeeping.
+    if any(e.ravenous for e in s.enemies):
+        pre_r = {e.entity_id: e.hp for e in state.enemies}
+        died_any = any(e.hp <= 0 < pre_r.get(e.entity_id, 0) for e in s.enemies)
+        if died_any:
+            enemies = [
+                replace(e, stunned_this_turn=True) if (e.ravenous and e.hp > 0) else e
                 for e in s.enemies
             ]
             s = replace(s, enemies=tuple(enemies))

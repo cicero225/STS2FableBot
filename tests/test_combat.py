@@ -1082,6 +1082,47 @@ def test_splash_aoe_omnislice_gets_a_target() -> None:
     assert payload.get("target") == "s0"  # the click-target is REQUIRED
 
 
+_BURROWED = {"id": "BURROWED_POWER", "name": "Burrowed", "amount": 1,
+             "description": "Block is not removed at the start of Tunneler's turn. "
+                            "Stunned if all Block is removed."}
+_RAVENOUS = {"id": "RAVENOUS_POWER", "name": "Ravenous", "amount": 4,
+             "description": "When an enemy dies, Corpse Slug immediately eats it, "
+                            "becoming Stunned and gaining 4 Strength."}
+
+
+def test_burrowed_block_strip_stuns_tunneler() -> None:
+    # Harness-found (2026-07-16): stripping a Burrowed Tunneler's block to 0 STUNS it —
+    # its telegraphed 23-attack never lands. The planner should prefer breaking the
+    # block over plain defending when that cancels the hit.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=60, hp=30, incoming="23",
+                       enemy_status=[dict(_BURROWED)])
+    st["battle"]["enemies"][0]["block"] = 5  # one Strike strips it
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload()["card_index"] == 0  # attack to break the block
+    assert d.scores["hp_loss"] == 0.0  # the 23 is cancelled by the stun
+
+
+def test_ravenous_pack_kill_cancels_their_turn() -> None:
+    # Corpse Slugs: killing ONE makes the survivors eat it (self-stun) — the whole
+    # pack's attacks cancel. Killing the 5-HP slug beats defending against the pack.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=5, hp=30, incoming="6",
+                       enemy_status=[dict(_RAVENOUS)])
+    st["battle"]["enemies"].append(
+        {"entity_id": "s1", "name": "Corpse Slug", "hp": 26, "max_hp": 30, "block": 0,
+         "status": [dict(_RAVENOUS)],
+         "intents": [{"type": "attack", "label": "14"}]})
+    d = plan_combat_turn(parse_state(st), w)
+    p = d.action.payload()
+    assert p["card_index"] == 0 and p.get("target") == "s0"  # kill the weak slug
+    assert d.scores["hp_loss"] == 0.0  # survivor eats -> its 14 never lands
+
+
 def test_plating_end_of_turn_block_soaks_incoming() -> None:
     # Harness signature n=31 (2026-07-16): Plating's end-of-turn block lands BEFORE the
     # enemy turn, so hp_loss must count it — the planner over-predicted its own losses
