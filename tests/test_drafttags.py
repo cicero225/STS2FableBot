@@ -130,6 +130,37 @@ def test_draw_penalized_without_energy_source() -> None:
     assert with_energy - no_energy == 2.0  # exactly the configured penalty
 
 
+def test_xcost_damage_docked_early_not_late() -> None:
+    """Owner 2026-07-15 (A/B #2): Whirlwind-class X-cost damage is INEFFICIENT early —
+    its payoffs (card efficiency, surplus energy) are late-game. Act-1 dock + no flat
+    AoE bonus; a dedicated AoE (Conflagration) is the control and keeps its bonus."""
+    from sts2bot.policy.standard import StandardRouter
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class Cd:
+        def __init__(self, cid, name, desc, cost, rarity="Uncommon"):
+            self.id, self.name, self.description = cid, name, desc
+            self.type, self.cost, self.rarity = "Attack", cost, rarity
+            self.is_upgraded = False
+
+    whirl = Cd("WHIRLWIND", "Whirlwind", "Deal 5 damage to ALL enemies X times.", "X")
+    confl = Cd("CONFLAGRATION", "Conflagration", "Deal 2 damage to ALL enemies 4 times.",
+               "1", rarity="Rare")
+    w = r.config.card_rewards
+    deck = _starter()
+
+    early = r._card_score(whirl, 11, "The Ironclad", act=1, deck=deck)
+    late = r._card_score(whirl, 11, "The Ironclad", act=2, deck=deck)
+    # the Act-1 dock applies early and lifts later (act-tilt aside, the dock dominates)
+    assert late - early >= abs(w.penalty_xcost_damage_early) - 1e-6
+
+    # control: Conflagration keeps the flat AoE bonus; Whirlwind never gets it.
+    # Compare like-for-like by stripping each card's other terms via a same-cost twin:
+    twin = Cd("CONFLAGRATION", "Conflagration", "Deal 8 damage.", "1", rarity="Rare")
+    assert (r._card_score(confl, 11, "The Ironclad", act=2, deck=deck)
+            - r._card_score(twin, 11, "The Ironclad", act=2, deck=deck)) >= w.bonus_aoe - 1e-6
+
+
 def test_first_big_hit_switch() -> None:
     """Owner 2026-07-14: until the deck holds any >=12-damage card, offered big hits get
     a strong one-time bonus — a starter deck's first job is acquiring a real hit. The

@@ -835,8 +835,18 @@ class StandardRouter:
             "Skill": w.w_skill,
             "Power": w.w_power,
         }.get(card.type or "", 0.0)
-        if fx.aoe:
+        # X-cost "spend-energy" damage (Whirlwind/Volley class) — owner 2026-07-15:
+        # Whirlwind IS AoE but INEFFICIENT AoE (every dedicated AoE does more dmg/energy
+        # — the tell that AoE alone doesn't redeem it). Its real payoffs are card
+        # efficiency (one slot dumping the whole energy bar) and spending SURPLUS energy
+        # at high X — both LATE-game conditions, rarely true early. So: no flat AoE
+        # bonus (it isn't efficient AoE), and an Act-1 dock. energy_source in deck stays
+        # a positive modifier via the tag table, not the hinge.
+        is_xcost_damage = (card.cost or "").upper() == "X" and fx.total_damage > 0
+        if fx.aoe and not is_xcost_damage:
             score += w.bonus_aoe
+        if is_xcost_damage and act <= 1:
+            score += w.penalty_xcost_damage_early
         # Owner model rework (2026-07-14): the flat draw bonus is GONE — StS2 energy is
         # scarcer and deck-cycling pressure lower, so pure draw / strike+draw is a weak
         # speculative draft (Pommel Strike "nowhere near as good as the last game").
@@ -860,7 +870,9 @@ class StandardRouter:
         # (Deck-aware drafting, e.g. Vulnerable only once Vicious is drafted, is deferred.)
         desc_l = (card.description or "").lower()
         generates_attack = "random attack" in desc_l or ("add" in desc_l and "attack" in desc_l)
-        if act <= 1 and (fx.total_damage > 0 or generates_attack):
+        # ...but X-cost spend-energy damage is NOT effective early damage (the whole
+        # point of the owner's Whirlwind read), so it earns neither this bonus nor AoE's.
+        if act <= 1 and (fx.total_damage > 0 or generates_attack) and not is_xcost_damage:
             score += w.early_damage_bonus
         # One-time "take SOMETHING with big damage" switch (owner 2026-07-14, from the
         # CJN9M609YW A/B: Pommel over Hemokinesis was the community-prior pick, but a

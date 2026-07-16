@@ -114,6 +114,9 @@ penalty_draw_no_energy = -2.0
 # one-time Act-1 "take SOMETHING with big damage" switch (owner 2026-07-14):
 # bonus for >=12-damage offers until the deck holds one; then it turns off.
 w_first_big_hit = 4.0
+# X-cost spend-energy damage (Whirlwind/Volley) is an inefficient EARLY pick
+# (owner 2026-07-15): Act-1 dock; these cards also skip the flat AoE bonus.
+penalty_xcost_damage_early = -2.5
 
 [rest]
 rest_below_hp_pct = 0.60     # general campfire: rest below this fraction of max HP, else smith

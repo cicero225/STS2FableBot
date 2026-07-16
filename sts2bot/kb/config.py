@@ -149,6 +149,10 @@ class CardRewardWeights(_Section):
     # the deck holds any >=12-damage hit (or big_single_hit provider), offered big hits
     # get this bonus; self-extinguishes on the first one acquired.
     w_first_big_hit: float = 4.0
+    # Owner 2026-07-15 (A/B #2, Whirlwind-early): X-cost spend-energy damage is an
+    # inefficient early pick — its payoffs (card efficiency, surplus energy) are late-
+    # game conditions. Act-1 dock; such cards also skip the flat bonus_aoe.
+    penalty_xcost_damage_early: float = -2.5
     # capability-aware drafting (§5-C): value a card by how much it improves estimate_fight vs a
     # generic Act-1 boss in the *current deck's* context (a block-starved deck values block, a
     # damage-starved one values damage). Added on top of the Elo/heuristic score, not replacing it.
