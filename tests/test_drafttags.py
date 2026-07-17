@@ -339,3 +339,43 @@ def test_underdocks_region_swaps_early_bonuses() -> None:
     a2_og = r._card_score(atk, 11, "The Ironclad", act=2, deck=deck)
     a2_ud = r._card_score(atk, 11, "The Ironclad", act=2, deck=deck, region="underdocks")
     assert abs(a2_og - a2_ud) < 1e-9
+
+
+def test_matriarch_boss_rule_premiums_big_instances() -> None:
+    """Owner 2026-07-17 — first boss-specific draft rule. Lagavulin Matriarch's
+    Strategic cycle stacks -2 Str/-2 Dex (a per-INSTANCE tax): forensics showed a
+    deck of 8-damage chips zeroed out over 19 rounds while 15/17-damage hits killed
+    her before the second debuff. Big hits and big blocks earn a premium when she is
+    the cached act boss; chip instances and X-cost damage do not."""
+    from sts2bot.policy.standard import StandardRouter, _boss_draft_rule
+
+    assert _boss_draft_rule("Lagavulin Matriarch") is not None
+    assert _boss_draft_rule("The Kin") is None
+    assert _boss_draft_rule(None) is None
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    rule = _boss_draft_rule("Lagavulin Matriarch")
+
+    class Cd:
+        def __init__(self, cid, name, desc, typ="Attack", cost="2"):
+            self.id, self.name, self.description = cid, name, desc
+            self.type, self.cost, self.rarity = typ, cost, "Common"
+            self.is_upgraded = False
+
+    deck = _starter()
+    big = Cd("BLUDGEON", "Bludgeon", "Deal 32 damage.")
+    chip = Cd("SWORD_BOOMERANG", "Sword Boomerang",
+              "Deal 3 damage to a random enemy 3 times.", cost="1")
+    wall = Cd("BLOOD_WALL", "Blood Wall", "Lose 2 HP. Gain 16 Block.", typ="Skill")
+    dfd = Cd("IRON_DEFENSE", "Iron Defense", "Gain 5 Block.", typ="Skill", cost="1")
+
+    def delta(card):
+        with_rule = r._card_score(card, 11, "The Ironclad", act=1, deck=deck,
+                                  boss_rule=rule)
+        without = r._card_score(card, 11, "The Ironclad", act=1, deck=deck)
+        return with_rule - without
+
+    assert delta(big) >= rule["hit_bonus"] - 1e-6
+    assert abs(delta(chip)) < 1e-9      # 3-per-hit chip earns nothing
+    assert delta(wall) >= rule["block_bonus"] - 1e-6
+    assert abs(delta(dfd)) < 1e-9       # 5-block earns nothing

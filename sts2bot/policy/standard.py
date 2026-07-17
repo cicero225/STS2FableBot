@@ -89,6 +89,27 @@ _UNKNOWN_BOON_CAP = 5.0
 _UNDERDOCKS_BOSSES = ("LAGAVULIN", "SOUL FYSH", "WATERFALL")
 _OVERGROWTH_BOSSES = ("CEREMONIAL", "KIN", "VANTOM")
 
+# Boss-specific draft premiums (owner 2026-07-17 — the FIRST boss-conditional drafting
+# rule). Keyed by substring of the cached act-boss name; values are per-INSTANCE
+# thresholds and bonuses. Lagavulin Matriarch: her Strategic cycle stacks -2 Str/-2 Dex
+# on the player every 4 turns — a tax on instances, not totals. Forensics over the 4
+# clean-build fights: a deck of 8-damage hits went 19 rounds and got zeroed at -8/-8;
+# the one deck with 15/17-damage hits killed her before the second debuff even landed.
+# Big blocks matter the same way (four 5-block Defends at -4 Dex block 4 total).
+# Extensible: Colossus x Vulnerable and Dark Shackles multi-attack notes are filed as
+# future entries.
+_BOSS_DRAFT_RULES: dict[str, dict] = {
+    "LAGAVULIN": {"min_hit": 12, "hit_bonus": 2.5, "min_block": 9, "block_bonus": 2.0},
+}
+
+
+def _boss_draft_rule(boss_name: str | None) -> dict | None:
+    up = (boss_name or "").upper()
+    for key, rule in _BOSS_DRAFT_RULES.items():
+        if key in up:
+            return rule
+    return None
+
 
 def _act1_region(boss_name: str | None) -> str | None:
     up = (boss_name or "").upper()
@@ -898,7 +919,7 @@ class StandardRouter:
     def _card_score(
         self, card, deck_size: int, character: str | None = None, act: int = 1,
         deck: list | None = None, relics: list | None = None,
-        region: str | None = None,
+        region: str | None = None, boss_rule: dict | None = None,
     ) -> float:
         w = self.config.card_rewards
         fx = parse_card_description(card.description)
@@ -976,6 +997,13 @@ class StandardRouter:
         eff_damage_bonus = w.ud_early_damage_bonus if ud else w.early_damage_bonus
         if fx.block and act <= 1:
             score += eff_block_bonus
+        # Boss-specific per-instance premium (_BOSS_DRAFT_RULES): vs a Str/Dex-taxing
+        # boss (Lagavulin Matriarch) big single instances hold value; chip does not.
+        if boss_rule:
+            if fx.damage >= boss_rule["min_hit"] and not is_xcost_damage:
+                score += boss_rule["hit_bonus"]
+            if fx.block >= boss_rule["min_block"]:
+                score += boss_rule["block_bonus"]
         if fx.energy_gain:
             score += w.bonus_energy
         # Early-damage bias (owner, Run-2/3): Act 1 favors cards that deliver damage, to get
@@ -1087,9 +1115,10 @@ class StandardRouter:
         cap = self._capability_deltas(deck, cr.cards, max_hp, self._upcoming_boss(ctx, run_act))
         relics = state.player.relics if (state.player and state.player.relics) else None
         region = _act1_region(ctx.screen_mem.get("act_boss_name")) if run_act <= 1 else None
+        boss_rule = _boss_draft_rule(ctx.screen_mem.get("act_boss_name"))
         scored = [
             (self._card_score(c, deck_size, character, run_act, deck=deck, relics=relics,
-                              region=region)
+                              region=region, boss_rule=boss_rule)
              + cap.get(c.index, 0.0), c)
             for c in cr.cards
         ]
