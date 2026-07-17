@@ -2,6 +2,34 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-17 (Fable 5, session 6) — Boss-rule era opens: Matriarch rule bites (1/4), Vantom rule shipped, arrival streak 30/30; the second wall is f33
+
+**Batch bgni3z63s (region + Matriarch rule + Spoils Map + Normality live): 0/10,
+act-reach 1.50.** Arrival **30/30 across the clean build** — pre-boss survival is a
+solved problem for now. Past-f17 5/10; the killer board: Lagavulin Matriarch ×3 (f17),
+Kin ×2 (f17), and an emerging **f33 wall**: Knowledge Demon ×2, Insatiable, Kaiser Crab
+(4 Act-2 boss deaths — the Demon is at 4 lifetime and unbeaten since the heal-race fix
+hasn't been live-validated against him... it WAS live this batch; still lost twice).
+
+**Matriarch rule verdict: WORKING, INSUFFICIENT ALONE.** Big-instance takes 3/3, 2/4,
+2/4, 3/4 in her four runs; entry decks now carry 12/17/24-damage instances where the
+pre-rule era carried none; one of four beat her (the 24+25 burst deck, reached f33).
+The offer stream is the binding constraint — 135659's entire damage suite was four 8s
+and a 17. **Filed lever: boss-aware rest-site upgrades** (an 8→12 Smith crosses her
+threshold; Smith targeting is currently boss-blind).
+
+**Vantom rule shipped mid-batch (2255c44, next batch)**: forensics confirmed the
+owner's theory exactly — Slippery 9 ate five rounds of single-hit attacks in
+zero-multi-hit decks, and the rigid 26/28/30 cycle-nuke landed on zero block every
+time. VANTOM premiums hits≥2 (+2.0) and block≥9 (+2.0) — the OPPOSITE attack profile
+from LAGAVULIN, vindicating the boss-keyed table design.
+
+**Region weights, two batches in**: UD past-f17 1/5 → 3/6 (incl. a Matriarch kill);
+OG 2/5 → 2/4. Direction right, sample still thin; magnitudes untouched.
+
+Next: Waterfall Giant + Insatiable audits (boss-rule candidates), Knowledge Demon f33
+recheck (heal-race was live and still lost ×2 — trace whether racing happened),
+boss-aware Smith targeting, then the events pass.
 ## 2026-07-17 (Fable 5, session 5 close #2) — Region-weights batch runs cold (1.30); arrival streak hits 20/20; the wall is now the f17 fight itself
 
 **Batch bini668vh (region weights + Normality fix live): 0/10, act-reach 1.30** — a hard
