@@ -2,6 +2,50 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-16 (Fable 5, session 4 close) — A/B #3 (MY60EQE85L): owner WINS the bot's death seed; skip-hypothesis REFUTED, fight competence indicted
+
+**Setup**: seed picked as the tightest-draft specimen of batch bskhaw1re (bot: 12 takes /
+5 reward-screen skips, died f33 to The Insatiable, Act-1 boss entry 80hp). Owner piloted
+blind (no knowledge of the bot's picks) via `sts2bot record` on profile 1. Validity
+confirmed: the first six reward screens are byte-identical across runs; the epoch flip
+(COLORLESS2_EPOCH, 3 new colorless cards) was unlocked BY the owner's win at run end, so
+the whole run was played on the old epoch. **All pre-existing seeds are now stale.**
+
+**Result: owner won the entire run** (Act 3, f48, beat the final boss at ~50/87hp).
+Same seed the bot died on at f33.
+
+**The skip hypothesis died on contact with evidence:**
+- Aligned early offers: **5/6 identical picks** (Bully, Taunt, Dismantle, Aggression,
+  Colossus; sole divergence Armaments > Sword Boomerang for the owner).
+- Late offers: owner skipped **5 of their last 6** (took only Cruelty at f33); the bot
+  skipped 5 of its last 6. Heavy Act-2/3 skipping is *what the human does too*.
+- Relic income at the bot's death floor: **owner 9 vs bot 8** — parity. The owner's 17
+  total came from Act-3 shop conversion of banked gold (740g at f33 → two big sprees).
+  The era relic decline (7 → 5.3) is confounded by run length: shorter runs mechanically
+  collect fewer relics. Deck size too: owner ended at 25 cards (with a curse!) vs bot 20
+  — "arriving thin" was never the problem.
+
+**What actually diverged:**
+1. **Engine composition.** After the offer streams split (~f11), the owner assembled a
+   coherent tank-scaling package: Barricade+ / Unmovable+ / Colossus+ / Taunt+ with
+   Dominate ×2 (both upgraded) as payoff and Bloodletting / Battle Trance+ as fuel. The
+   bot took attack-density goodstuff: Fight Me!, One-Two Punch, Unrelenting. Emblematic:
+   at f17 the bot chose **One-Two Punch over Barricade** from the same screen. (Also
+   validates the owner's June steer that Dominate is a real engine — they took it twice.)
+2. **Fight competence.** The bot entered the Insatiable at 49/80 with a fine deck
+   (20 cards, 13 upgrades) and bled out 49→31→21→7 over ~4 turns, blocking 8–19 while
+   taking 10–18. The owner won the same fight entering at ~25–51hp. Same seed, same
+   income tier — the gap is multi-turn play and deck shape, not tempo or resources.
+
+**Queue implications (audit re-scoped, not cancelled):**
+- Draft-tightening audit **de-scoped from "loosen skips"** — the 22% skip rate is
+  human-plausible. Remaining draft item: engine-line valuation (Barricade-class tags,
+  double-Dominate copy behavior) — a card-pass follow-up, not a weight rollback.
+- The **multi-turn combat forward model gains evidence**: a human beat the bot's death
+  fight from half the HP. This is now the best-attested gap in the project.
+- Era act-reach regression (1.78 → 1.38) needs a non-drafting explanation — rerun the
+  era comparison with per-floor-normalized relic/skip stats before touching weights.
+
 ## 2026-07-16 (Fable 5, session 4 close) — Batch bskhaw1re: HP prediction hits 92%; the era gap is REAL and the draft audit fires
 
 **Batch: 0/10, act-reach 1.40, relics 5.3, elites 0.3** (f17 x5 incl. Soul Fysh x2 /
