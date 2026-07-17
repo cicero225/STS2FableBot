@@ -2,6 +2,31 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-16 (Fable 5, session 4 close) — Batch bskhaw1re: HP prediction hits 92%; the era gap is REAL and the draft audit fires
+
+**Batch: 0/10, act-reach 1.40, relics 5.3, elites 0.3** (f17 x5 incl. Soul Fysh x2 /
+Vantom x2 / Kin, one Bygone Effigy ELITE death at f15 — the gate took a fight and lost
+it — two f33s, f24, f22). Burrowed/Ravenous/ramp-stall all live with no incidents.
+
+**Harness: HP prediction 92% within +-2 (79 -> 86 -> 92 in three days).** Plating
+residual GONE (0.2), Corpse Slug signature CLEARED (Ravenous fix validated live).
+Remaining: Soul Fysh +2.4 (n=7, small — possibly Beckon chip), and one single-run
+damage bucket (Centennial Puzzle deck +12.7 n=15) parked.
+
+**The era gap is now firm at batch granularity**: win-era (07-12/13) averaged ~1.78
+act-reach over 4 batches; post-rework (07-14+) averages ~1.38 over 4. Two quantified
+suspects: (a) draft skip-rate 16% -> 22% (the rework wave tightening: draw penalty +
+Whirlwind dock + block scoping + Ancient retier); (b) relics ~7 -> ~5.3/run (capability
+routing declines most elites -> relic starvation -> weaker f33 decks). A third,
+subtler: the pre-bake fixes REMOVED phantom damage credit — two cancelling bugs had
+been accidentally encouraging aggression; correct estimates may have swung the
+block/race balance conservative (ramp-stall partially counters).
+
+**DECISION (watch item fires): the draft-tightening audit jumps the queue** — before
+the events pass. Scope: per-change ablation over the logged offers (re-score the era's
+skipped cards under each weight subset), check the skip-rate against the owner's
+"weak decks take almost anything" principle, and revisit elite_relic_value vs the
+honest gate (relic starvation is a ROUTING income problem, not just drafting).
 ## 2026-07-16 (Fable 5, session 4 cont.) — Batch bjqlx8sjo: cold (1.20) but the MODEL is the story: HP prediction 79% -> 86%
 
 **Batch (first with card-select retry fix, Howl exhaust, Whirlwind dock, Plating): 0/10,
