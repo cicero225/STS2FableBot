@@ -45,7 +45,8 @@ BOONS: dict[str, dict] = {
         value=2.5, note="Transform 2 basics at -10 Max HP; the HP is real money."),
     "Lost Coffer": dict(value=3.5, note="Card reward + potion."),
     "Neow's Torment": dict(
-        value=2.5, uncertain=True, note="Neow's Fury card unknown."),
+        value=3.5, note="Neow's Fury (KB): 10 dmg + return 2 discards to hand, "
+        "Exhaust — a solid free card."),
     "New Leaf": dict(value=2.0, note="Transform 1; low impact."),
     "Nutritious Oyster": dict(value=4.0, note="+11 Max HP."),
     "Pomander": dict(value=3.5, note="Upgrade a card (Bash+ early)."),
@@ -54,7 +55,8 @@ BOONS: dict[str, dict] = {
         "in _event covers the cost side."),
     "Precise Scissors": dict(value=3.0, note="Remove 1."),
     "Scroll Boxes": dict(
-        value=2.5, uncertain=True, note="Pack contents unknown; loses all gold."),
+        value=3.0, note="Owner: 1-of-2 packs of 3 class cards (1 uncommon + 2 "
+        "commons, non-repeating), unskippable; costs all gold (~99 at Neow)."),
     "Silver Crucible": dict(
         value=4.0, note="3 upgraded rewards vs one empty chest; fine trade."),
     "Small Capsule": dict(value=4.0, note="Random relic."),
@@ -64,20 +66,29 @@ BOONS: dict[str, dict] = {
     "Alchemical Coffer": dict(
         value=5.0, note="4 potion slots + potions; potion pass made these count."),
     "Archaic Tooth": dict(
-        value=4.5, uncertain=True,
-        note="Bash→Break (ancient starter); Break's text unknown but starter "
-        "upgrades are usually strict wins."),
+        value=6.5, provides={"vulnerable_source": 2.0, "big_single_hit": 1.0},
+        note="Owner: Break = 1 energy, 20 dmg, 5 Vulnerable — a massive strict "
+        "Bash upgrade. Provides are a proxy (BREAK has no tags/KB entry yet, so "
+        "§5-C deck pricing is blind to it — filed)."),
     "Driftwood": dict(
         value=5.0, note="Reroll every card reward once — selection quality all run."),
     "Electric Shrymp": dict(
-        value=2.5, uncertain=True, note="Imbued enchant unknown."),
+        value=5.0, note="Owner: Imbued = the Skill auto-plays (tutored free) at "
+        "the start of every combat. Strong with any good Skill; the enchant "
+        "screen should prefer the deck's best scaling Skill."),
     "Glass Eye": dict(
         value=3.5, note="5 cards at once; free quality but real bloat risk."),
     "Prismatic Gem": dict(
         value=8.0, provides=dict(ENERGY),
-        note="+1 energy/turn; reward-pool dilution is the only tax. Energy is king."),
+        note="+1 energy/turn; reward-pool dilution is the only tax. Energy is "
+        "king. NB drafting sees off-class/colorless offers without Spirebird "
+        "priors or tags (text-parse + rarity only) → systematically undervalued "
+        "vs in-class; conservative but safe. Cross-class prior lookup (priors "
+        "table has all 5 classes) is the cheap fix if we ever value the pool."),
     "Radiant Pearl": dict(
-        value=3.5, uncertain=True, note="Luminesce card unknown."),
+        value=5.5, provides={"energy_source": 1.0},
+        note="Luminesce (KB): Retain, +2 energy, Exhaust — in hand every combat "
+        "= ~2 flexible energy per fight."),
     "Touch of Orobas": dict(
         value=5.5, uncertain=True,
         note="Burning Blood → Black Blood; if the StS1 analog holds (bigger "
@@ -88,7 +99,9 @@ BOONS: dict[str, dict] = {
         note="Passive +1 draw/turn — costs no card slot, so the drafted-draw "
         "energy caveat only half-applies."),
     "Pael's Claw": dict(
-        value=2.5, uncertain=True, note="Goopy enchant unknown."),
+        value=3.5, note="Owner: Goopy = the Defend gains +1 Block permanently "
+        "per play, but Exhausts on play — one use per fight, grows forever. "
+        "Slow compounding for a real tempo tax."),
     "Pael's Eye": dict(
         value=2.0, note="Skip-turn tech the single-turn planner will never "
         "trigger deliberately; dead weight for the bot today."),
@@ -96,10 +109,14 @@ BOONS: dict[str, dict] = {
         value=8.5, provides=dict(ENERGY),
         note="+1 energy from turn 3 on — the strongest common Pael offer."),
     "Pael's Growth": dict(
-        value=3.5, uncertain=True, note="Clone enchant unknown."),
+        value=1.5, note="Owner: Clone unlocks a rest-site action duplicating "
+        "ALL Clone cards (1→2→4→8 with dedication). Bot-aware LOW: the rest "
+        "handler is blind to non-standard campfire actions (Girya/Lift class, "
+        "§8.4) — until it learns Clone, the enchant does nothing for us. Raise "
+        "when the rest handler grows action awareness."),
     "Pael's Horn": dict(
-        value=2.5, uncertain=True,
-        note="2 Relax cards; owner rated it average. Relax text unknown."),
+        value=3.0, note="Relax (KB): 3 energy, 16 Block, next turn +2 draw "
+        "+2 energy, Exhaust — real but unexciting cards; owner rated average."),
     "Pael's Legion": dict(
         value=6.0,
         deck_bonus=[{"tag": "block_engine", "per": 0.35, "cap": 2.5}],
@@ -120,13 +137,16 @@ BOONS: dict[str, dict] = {
         "our high skip rate: skips become income."),
     # -------------------------------------------------------------- TEZCATARA (Act 2)
     "Biiig Hug": dict(
-        value=4.0, uncertain=True,
-        note="Remove 4 for Soot-on-shuffle; Soot's text unknown."),
+        value=4.0, note="Remove 4 for Soot-on-shuffle (Soot = unplayable "
+        "Status). Thinning with a tax that grows as the deck thins (more "
+        "shuffles) — self-limiting but net fine."),
     "Golden Compass": dict(
         value=2.5, uncertain=True,
         note="Single special Act-2 path; removes routing agency, path unknown."),
     "Nutritious Soup": dict(
-        value=3.0, uncertain=True, note="Tezcatara's Ember enchant unknown."),
+        value=5.0, note="Owner: Ember = Strikes cost 0, +3 dmg, Eternal. "
+        "0-cost 9-dmg Strikes are real tempo; Eternal locks them in the deck "
+        "forever (anti-thinning tax on late-game quality)."),
     "Pumpkin Candle": dict(
         value=6.0, provides=dict(ENERGY),
         note="+1 energy/turn, temporary (5 combats, kindle at rests / to Act 3 "
@@ -136,13 +156,16 @@ BOONS: dict[str, dict] = {
         note="Energy for 5g/turn — cheap tax at bot gold curves. (Log-only boon; "
         "wikis miss it.)"),
     "Storybook": dict(
-        value=3.0, uncertain=True, note="Brightest Flame card unknown."),
+        value=7.5, provides={"energy_source": 1.0},
+        note="Brightest Flame (KB): gain 2 energy, draw 2, lose 1 Max HP — "
+        "owner: 'by far one of the strongest picks from Tezcatara'."),
     "Toasty Mittens": dict(
         value=5.0, provides={"strength_source": 1.5},
         note="+1 Strength/turn for top-deck exhaust; steady ramp, mild mill tax."),
     "Toy Box": dict(
-        value=4.0, uncertain=True,
-        note="4 melting Wax relics; front-loaded value, contents random."),
+        value=4.5, note="Owner: melt = leftmost goes permanently inactive every "
+        "3 combats — but on-pickup-effect relics lose nothing to melting, so "
+        "expected value is better than it reads."),
     "Very Hot Cocoa": dict(
         value=7.5, provides=dict(ENERGY),
         note="+4 energy on turn 1 every combat — huge tempo; slightly below "
@@ -150,7 +173,8 @@ BOONS: dict[str, dict] = {
     "Yummy Cookie": dict(value=6.0, note="Upgrade 4 now; always-good."),
     # -------------------------------------------------------------- NONUPEIPE (Act 3)
     "Beautiful Bracelet": dict(
-        value=3.5, uncertain=True, note="Swift 3 enchant unknown."),
+        value=4.5, note="Owner: Swift 3 = first play each combat draws 3. "
+        "Three enchanted cards = solid recurring velocity."),
     "Blessed Antler": dict(
         value=5.5, provides=dict(ENERGY),
         note="Energy minus 3 Dazed/combat draw pollution."),
@@ -164,7 +188,8 @@ BOONS: dict[str, dict] = {
     "Fur Coat": dict(
         value=5.5, note="7 marked combats at 1 HP — free Act-3 normals."),
     "Glitter": dict(
-        value=3.5, uncertain=True, note="Glam enchant unknown."),
+        value=5.0, note="Owner: Glam = first play each combat plays twice. "
+        "Every future draft arrives pre-improved; compounds with pick quality."),
     "Jewelry Box": dict(
         value=5.0, note="Apotheosis into deck; mass-upgrade payoff."),
     "Looming Fruit": dict(value=6.0, note="+31 Max HP in Act 3 is a real buffer."),
@@ -179,7 +204,10 @@ BOONS: dict[str, dict] = {
     "Iron Club": dict(
         value=4.0, provides={"draw_engine": 0.5}, note="Draw per 4 plays."),
     "Meat Cleaver": dict(
-        value=3.0, uncertain=True, note="Cook mechanic unknown."),
+        value=2.5, note="Owner: Cook = rest action, remove 2 cards + 9 Max HP "
+        "— strong in principle, but the rest handler is blind to non-standard "
+        "campfire actions (Girya class, §8.4), so it's dead weight for the bot "
+        "until that lands. Raise then."),
     "Sai": dict(
         value=6.5, note="Passive 7 block/turn — pure survival, no play needed."),
     "Spiked Gauntlets": dict(
@@ -192,14 +220,17 @@ BOONS: dict[str, dict] = {
         value=5.5, deck_bonus=[{"tag": "big_single_hit", "per": 0.5, "cap": 2.0}],
         note="First card each combat played twice; scales with a big opener."),
     "Tri-Boomerang": dict(
-        value=3.5, uncertain=True, note="Instinct enchant unknown."),
+        value=6.0, deck_bonus=[{"tag": "big_single_hit", "per": 0.5, "cap": 2.0}],
+        note="Owner: Instinct = doubles the card's attack damage — on your 3 "
+        "best attacks. Scales with the deck's top-end."),
     "War Hammer": dict(
         value=4.5, note="Elite kill → 4 upgrades; the honest elite gate caps "
         "uptime until deck power rises."),
     # ------------------------------------------------------------------ VAKUU (Act 3)
     "Blood-Soaked Rose": dict(
-        value=6.5, uncertain=True, provides=dict(ENERGY),
-        note="Energy + Enthralled card; Enthralled's tax unknown."),
+        value=6.5, provides=dict(ENERGY),
+        note="Owner: Enthralled = 2-cost must-play-first Exhaust curse — a "
+        "once-per-combat 2-energy tax when drawn, cheap rent on +1 energy/turn."),
     "Choices Paradox": dict(
         value=4.5, note="1-of-5 retained card each combat; flexible value."),
     "Distinguished Cape": dict(
@@ -217,8 +248,9 @@ BOONS: dict[str, dict] = {
     "Music Box": dict(
         value=5.5, note="Ethereal copy of first attack each turn."),
     "Preserved Fog": dict(
-        value=4.0, uncertain=True,
-        note="Remove 3, add Folly; Folly unknown. (Log-only boon.)"),
+        value=4.0, note="Remove 3 for Folly (KB: unplayable Innate Ethereal "
+        "Eternal curse) — permanently eats one turn-1 hand slot; the thinning "
+        "usually still wins. (Log-only boon.)"),
     "Sere Talon": dict(
         value=2.5, uncertain=True, note="2 curses + 3 Wishes; Wishes unknown."),
     "Whispering Earring": dict(
