@@ -1065,6 +1065,12 @@ def _score(
         + power_term
         + w.w_rage_sequence * state.rage_block_granted
         + w.w_ramp_damage * state.ramp_damage
+        # turtling a ramper loses (Damp Cultist 2026-07-16: four all-block turns vs a
+        # +5/turn Ritual, died at full-HP enemy) — damageless turns pay while one lives
+        + (w.w_ramp_stall
+           if (state.damage_dealt == 0 and not lethal_end
+               and any(e.gains_strength and e.hp > 0 for e in state.enemies))
+           else 0.0)
         + w.w_potion_spend * state.potions_spent
     )
 

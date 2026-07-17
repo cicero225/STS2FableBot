@@ -22,6 +22,11 @@ class CombatWeights(_Section):
     # Feed-class "If Fatal" rider: extra credit when THAT card lands the kill, enough to
     # win sequencing ties (vs another killer) but not to delay a safe lethal.
     w_on_fatal_bonus: float = 8.0
+    # Ramp-stall (owner 2026-07-16, Damp Cultist turtle-death): vs a strength-ramping
+    # enemy, a zero-damage turn is a losing equilibrium the one-turn horizon can't see —
+    # block caps, the ramp doesn't. Flat penalty on damageless plans while a living
+    # ramper exists; a one-turn approximation of the multi-turn race until §5-C in-fight.
+    w_ramp_stall: float = -8.0
     # Armaments-class "Upgrade card(s) in your Hand" rider, per card upgraded: enough to
     # beat play friction when targets exist, not enough to displace block/lethal needs.
     w_hand_upgrade: float = 2.5

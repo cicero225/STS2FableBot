@@ -1090,6 +1090,27 @@ _RAVENOUS = {"id": "RAVENOUS_POWER", "name": "Ravenous", "amount": 4,
                             "becoming Stunned and gaining 4 Strength."}
 
 
+def test_ramp_stall_penalty_forces_the_race() -> None:
+    # Damp Cultist turtle-death (2026-07-16): vs a +5/turn Ritual ramper, four straight
+    # all-block turns each looked locally optimal (take 1 now vs take 6 now). The
+    # ramp-stall penalty prices the stalled turn's future cost: the Strike line must win.
+    w = load_policy_config().combat
+    hand = [_bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            _bcard(2, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            _bcard(3, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                   "Attack", "AnyEnemy")]
+    st = _beckon_state(3, hand, enemy_hp=53, hp=40, incoming="16")
+    st["battle"]["enemies"][0]["status"] = [
+        {"id": "RITUAL_POWER", "name": "Ritual", "amount": 5,
+         "description": "At the end of its turn, gains 5 Strength."},
+        {"id": "STRENGTH_POWER", "name": "Strength", "amount": 15,
+         "description": "Increases attack damage by 15."}]
+    d = plan_combat_turn(parse_state(st), w)
+    plan_part = d.rationale.split("]")[0]
+    assert "Strike" in plan_part  # the race line, not triple-Defend
+
+
 def test_burrowed_block_strip_stuns_tunneler() -> None:
     # Harness-found (2026-07-16): stripping a Burrowed Tunneler's block to 0 STUNS it —
     # its telegraphed 23-attack never lands. The planner should prefer breaking the
