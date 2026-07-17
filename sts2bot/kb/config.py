@@ -159,6 +159,11 @@ class CardRewardWeights(_Section):
     # pays in full below this many non-basic damage picks, half AT it, zero beyond.
     early_damage_sat_start: int = 2
     early_block_bonus: float = 1.5  # Act 1: lesser nudge toward block (owner 2026-07-14)
+    # Underdocks overrides (owner 2026-07-17, magnitudes provisional — "will require
+    # tweaking"): the region rewards defense/scaling; the damage-first tilt fits only
+    # the Overgrowth (arrival flip: OG 72→90%, UD 87→77% at the 07-14 rework).
+    ud_early_damage_bonus: float = 1.0
+    ud_early_block_bonus: float = 2.5
     penalty_draw_no_energy: float = -2.0  # draw without an energy_source in deck
     # Owner 2026-07-14 ("take SOMETHING with big damage"): one-time Act-1 switch — until
     # the deck holds any >=12-damage hit (or big_single_hit provider), offered big hits

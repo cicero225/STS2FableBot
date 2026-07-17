@@ -299,3 +299,43 @@ def test_early_damage_bonus_saturates_with_damage_picks() -> None:
     # full -> half -> zero, within the block-bonus offset shared by both comparisons
     assert d_fresh - d_two >= 0.5 * w.early_damage_bonus - 1e-6
     assert d_two - d_three >= 0.5 * w.early_damage_bonus - 1e-6
+
+
+def test_underdocks_region_swaps_early_bonuses() -> None:
+    """Owner 2026-07-17 (region retrospective): the Underdocks rewards defense/scaling —
+    the damage-first Act-1 tilt fits only the Overgrowth (arrival flipped OG 72->90%,
+    UD 87->77% at the 07-14 rework). Region comes from the region-exclusive boss name."""
+    from sts2bot.policy.standard import StandardRouter, _act1_region
+
+    assert _act1_region("Soul Fysh") == "underdocks"
+    assert _act1_region("Lagavulin Matriarch") == "underdocks"
+    assert _act1_region("The Kin") == "overgrowth"
+    assert _act1_region("Vantom") == "overgrowth"
+    assert _act1_region(None) is None
+    assert _act1_region("Some Future Boss") is None
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    w = r.config.card_rewards
+
+    class Cd:
+        def __init__(self, cid, name, desc, typ="Attack"):
+            self.id, self.name, self.description = cid, name, desc
+            self.type, self.cost, self.rarity = typ, "1", "Common"
+            self.is_upgraded = False
+
+    atk = Cd("SWORD_BOOMERANG", "Sword Boomerang", "Deal 3 damage to a random enemy 3 times.")
+    blk = Cd("IRON_DEFENSE", "Iron Defense", "Gain 8 Block.", typ="Skill")
+    deck = _starter()
+
+    d_og = r._card_score(atk, 11, "The Ironclad", act=1, deck=deck)
+    d_ud = r._card_score(atk, 11, "The Ironclad", act=1, deck=deck, region="underdocks")
+    assert d_og - d_ud >= (w.early_damage_bonus - w.ud_early_damage_bonus) - 1e-6
+
+    b_og = r._card_score(blk, 11, "The Ironclad", act=1, deck=deck)
+    b_ud = r._card_score(blk, 11, "The Ironclad", act=1, deck=deck, region="underdocks")
+    assert b_ud - b_og >= (w.ud_early_block_bonus - w.early_block_bonus) - 1e-6
+
+    # act 2+: region must be irrelevant (later acts price via capability delta)
+    a2_og = r._card_score(atk, 11, "The Ironclad", act=2, deck=deck)
+    a2_ud = r._card_score(atk, 11, "The Ironclad", act=2, deck=deck, region="underdocks")
+    assert abs(a2_og - a2_ud) < 1e-9

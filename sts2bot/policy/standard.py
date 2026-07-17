@@ -81,6 +81,22 @@ _BIG_HIT_DAMAGE = 12  # "real hit" threshold for the first-big-hit draft switch 
 # Uncatalogued ancient boons compete at their generic-heuristic value clamped to this
 # (catalog scale: relic ~ 6; the raw heuristic runs far hotter and must not hijack)
 _UNKNOWN_BOON_CAP = 5.0
+# Act-1 region by boss (bosses are region-exclusive; co-occurrence clustering over 451
+# logged runs split the enemy pools cleanly, 2026-07-17). Owner + community read:
+# damage drafts play in the Overgrowth, defense/scaling in the Underdocks — and the
+# 07-14 damage-first rework flipped our arrival rates (Overgrowth 72→90%, Underdocks
+# 87→77%). The boss name is known from floor 1 (map cache), so drafting can condition.
+_UNDERDOCKS_BOSSES = ("LAGAVULIN", "SOUL FYSH", "WATERFALL")
+_OVERGROWTH_BOSSES = ("CEREMONIAL", "KIN", "VANTOM")
+
+
+def _act1_region(boss_name: str | None) -> str | None:
+    up = (boss_name or "").upper()
+    if any(b in up for b in _UNDERDOCKS_BOSSES):
+        return "underdocks"
+    if any(b in up for b in _OVERGROWTH_BOSSES):
+        return "overgrowth"
+    return None
 # Cards that WANT to be exhausted (owner 2026-07-14). Two families, one text rule —
 # class-agnostic by design, so any future card with an on-exhaust payoff is covered:
 #   * replay-from-exhaust: Howl from Beyond, Bombardment ("...if this is in your Exhaust
@@ -882,6 +898,7 @@ class StandardRouter:
     def _card_score(
         self, card, deck_size: int, character: str | None = None, act: int = 1,
         deck: list | None = None, relics: list | None = None,
+        region: str | None = None,
     ) -> float:
         w = self.config.card_rewards
         fx = parse_card_description(card.description)
@@ -950,8 +967,15 @@ class StandardRouter:
                 score += w.penalty_draw_no_energy
         # Block earns its bonus in ACT 1 only (lesser than the damage bonus below —
         # owner 2026-07-14); later acts price block via the §5-C capability delta.
+        # Region-conditional (owner 2026-07-17, magnitudes provisional): the Underdocks
+        # rewards defense/scaling over damage, and the post-rework arrival flip
+        # (Overgrowth 72→90%, Underdocks 87→77%) says our damage-first tilt fits only
+        # the Overgrowth. Underdocks swaps the bonus magnitudes.
+        ud = region == "underdocks"
+        eff_block_bonus = w.ud_early_block_bonus if ud else w.early_block_bonus
+        eff_damage_bonus = w.ud_early_damage_bonus if ud else w.early_damage_bonus
         if fx.block and act <= 1:
-            score += w.early_block_bonus
+            score += eff_block_bonus
         if fx.energy_gain:
             score += w.bonus_energy
         # Early-damage bias (owner, Run-2/3): Act 1 favors cards that deliver damage, to get
@@ -969,7 +993,7 @@ class StandardRouter:
             n_dmg = self._deck_damage_picks(deck) if deck is not None else 0
             sat = w.early_damage_sat_start
             factor = 1.0 if n_dmg < sat else (0.5 if n_dmg == sat else 0.0)
-            score += w.early_damage_bonus * factor
+            score += eff_damage_bonus * factor
         # One-time "take SOMETHING with big damage" switch (owner 2026-07-14, from the
         # CJN9M609YW A/B: Pommel over Hemokinesis was the community-prior pick, but a
         # starter deck's first job is acquiring a real hit). Until the deck holds any
@@ -1062,14 +1086,17 @@ class StandardRouter:
         # §5-C: value each card by how much it improves the estimate vs the *real* upcoming boss
         cap = self._capability_deltas(deck, cr.cards, max_hp, self._upcoming_boss(ctx, run_act))
         relics = state.player.relics if (state.player and state.player.relics) else None
+        region = _act1_region(ctx.screen_mem.get("act_boss_name")) if run_act <= 1 else None
         scored = [
-            (self._card_score(c, deck_size, character, run_act, deck=deck, relics=relics)
+            (self._card_score(c, deck_size, character, run_act, deck=deck, relics=relics,
+                              region=region)
              + cap.get(c.index, 0.0), c)
             for c in cr.cards
         ]
         scored.sort(key=lambda sc: -sc[0])
         best_score, best = scored[0]
         score_map = {c.name: round(s, 2) for s, c in scored}
+        region_tag = f", {region}" if region else ""
         # 8.1d: lower the take bar for an unrefined deck (lots of basic Strikes/Defends) — a weak
         # deck profits from almost any real card, and top players rarely skip early picks.
         basics = sum(1 for c in deck if (c.id or "").upper().startswith(("STRIKE_", "DEFEND_")))
@@ -1079,12 +1106,13 @@ class StandardRouter:
             return Decision(
                 action=act.SelectCardReward(card_index=best.index),
                 rationale=f"take {best.name} (score {best_score:.1f} >= thr {threshold:.1f}, "
-                f"{weak_frac:.0%} basic)",
+                f"{weak_frac:.0%} basic{region_tag})",
                 scores=score_map,
             )
         return Decision(
             action=act.SkipCardReward(),
-            rationale=f"skip: best {best.name} scored {best_score:.1f} < thr {threshold:.1f}",
+            rationale=f"skip: best {best.name} scored {best_score:.1f} < thr "
+            f"{threshold:.1f}{region_tag}",
             scores=score_map,
         )
 
