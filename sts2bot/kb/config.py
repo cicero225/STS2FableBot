@@ -97,6 +97,10 @@ class MapWeights(_Section):
     score_boss: float = 0.0
     rest_bonus_per_missing_hp_pct: float = 0.45
     shop_bonus_per_100_gold: float = 6.0
+    # Shops are valued at PROJECTED gold-on-arrival (owner's late-shop loop practice,
+    # A/B #3: 740g -> two Act-3 sprees -> 8 relics): expected income per map row
+    # between the current position and the shop node, so late shops outscore early ones.
+    shop_gold_income_per_row: float = 12.0
     lookahead_discount: float = 0.35
     path_step_discount: float = 0.80
     # §8.2 HP-aware routing (active only when combat_stats is loaded). The DP projects HP along

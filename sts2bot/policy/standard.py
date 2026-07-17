@@ -508,7 +508,9 @@ class StandardRouter:
             hp_missing_pct = 100.0 * (1.0 - player.hp / max(1, player.max_hp))
             gold = player.gold
 
-        def type_score(node_type: str | None) -> float:
+        next_row = min(o.row for o in opts)
+
+        def type_score(node_type: str | None, row: int | None = None) -> float:
             t = (node_type or "unknown").lower()
             base = {
                 "monster": w.score_monster,
@@ -525,7 +527,13 @@ class StandardRouter:
             if t in ("restsite", "rest_site"):
                 base += w.rest_bonus_per_missing_hp_pct * hp_missing_pct
             if t == "shop":
-                base += w.shop_bonus_per_100_gold * (gold / 100.0)
+                # Value a shop by the gold we'll HOLD on arrival, not today's wallet —
+                # fights along the way keep paying. This is the owner's practice of
+                # looping a LATE shop into the act (A/B #3: 740g -> two Act-3 sprees
+                # -> 8 relics); with current-gold scoring, early and late shops tied.
+                rows_ahead = max(0, (row - next_row)) if row is not None else 0
+                projected = gold + w.shop_gold_income_per_row * rows_ahead
+                base += w.shop_bonus_per_100_gold * (projected / 100.0)
             return base
 
         # Act-level path value: DP over the full map DAG so options are judged by the best
@@ -654,7 +662,7 @@ class StandardRouter:
                 (path_value(c_col, c_row, hp_after) for c_col, c_row in node.children),
                 default=0.0,
             )
-            value = type_score(node.type) + adj + w.path_step_discount * future
+            value = type_score(node.type, row) + adj + w.path_step_discount * future
             memo[key] = value
             return value
 
@@ -672,7 +680,7 @@ class StandardRouter:
                     (path_value(c_col, c_row, hp_after) for c_col, c_row in node.children),
                     default=0.0,
                 )
-            score = type_score(opt.type) + adj + w.path_step_discount * future
+            score = type_score(opt.type, opt.row) + adj + w.path_step_discount * future
             scored[f"{opt.index}:{opt.type}"] = round(score, 2)
             if score > best_score:
                 best_score, best = score, opt

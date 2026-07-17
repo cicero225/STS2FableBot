@@ -1360,6 +1360,51 @@ def test_map_path_planning_weighs_forced_elite_lane_by_hp() -> None:
     assert hurt.scores["1:Monster"] > hurt.scores["0:Monster"]
 
 
+def test_map_rich_wallet_routes_toward_late_shop() -> None:
+    """Owner's late-shop loop (A/B #3: 740g -> two Act-3 sprees -> 8 relics): a rich
+    bot must bend the route toward a shop-bearing lane, valuing the shop at PROJECTED
+    gold-on-arrival (income accrues along the way); a poor bot keeps fighting."""
+
+    def payload(gold: int) -> dict:
+        return {
+            "state_type": "map",
+            "map": {
+                "current_position": {"col": 2, "row": 0, "type": "Start"},
+                "visited": [],
+                "next_options": [
+                    {"index": 0, "col": 1, "row": 1, "type": "Monster",
+                     "leads_to": [{"col": 1, "row": 2, "type": "Monster"}]},
+                    {"index": 1, "col": 3, "row": 1, "type": "Monster",
+                     "leads_to": [{"col": 3, "row": 2, "type": "Shop"}]},
+                ],
+                "nodes": [
+                    {"col": 2, "row": 0, "type": "Start", "children": [[1, 1], [3, 1]]},
+                    {"col": 1, "row": 1, "type": "Monster", "children": [[1, 2]]},
+                    {"col": 3, "row": 1, "type": "Monster", "children": [[3, 2]]},
+                    {"col": 1, "row": 2, "type": "Monster", "children": [[2, 3]]},
+                    {"col": 3, "row": 2, "type": "Shop", "children": [[2, 3]]},
+                    {"col": 2, "row": 3, "type": "Monster", "children": []},
+                ],
+                "boss": {"col": 2, "row": 4, "id": "B", "name": "Boss"},
+                "bosses": [],
+            },
+            "run": {"act": 3, "floor": 40, "ascension": 0},
+            "player": {
+                "character": "The Ironclad", "hp": 70, "max_hp": 80, "gold": gold,
+                "status": [], "relics": [], "potions": [], "max_potion_slots": 3,
+                "deck": _ELITE_READY_DECK,
+            },
+        }
+
+    rich = _router_for_routing().decide(parse_state(payload(500)), LoopContext())
+    assert isinstance(rich, Decision)
+    assert rich.action.payload()["index"] == 1  # 500g: the shop lane dominates
+
+    poor = _router_for_routing().decide(parse_state(payload(15)), LoopContext())
+    assert isinstance(poor, Decision)
+    assert poor.action.payload()["index"] == 0  # 15g: nothing to convert; keep fighting
+
+
 def test_card_reward_takes_good_skips_bad() -> None:
     payload = json.loads(json.dumps(FIXTURES["card_reward"]))
     state = parse_state(payload)
