@@ -46,6 +46,10 @@ _PEN_NIB_PERIOD = 10  # Pen Nib: every 10th attack deals double damage (counter 
 # EMPTY; the machinery is kept tested-but-dormant in case a real guard enemy ships.
 _GUARD_PAIRS: dict[str, str] = {}
 
+# Enemies whose player-debuff is removed when they die (owner 2026-07-17): kill-priority
+# in multi-enemy fights via the carrier_damage lane. Matched on entity_id substring.
+_DEBUFF_CARRIERS = ("SHRINKER",)
+
 
 @dataclass(frozen=True)
 class RelicTrigger:
@@ -261,6 +265,9 @@ class EnemySim:
     incoming: int  # this enemy's attack damage this turn (0 if not attacking)
     is_minion: bool = False  # "Minion" status: flees when its leader dies, so ignorable
     gains_strength: bool = False  # ramping (Strength buff / Empower intent): race to kill it
+    # Its player-debuff dies with it (owner 2026-07-17: Shrinker Beetle's big damage
+    # debuff lifts on its death) — racing it down pays while OTHER enemies still live.
+    debuff_carrier: bool = False
     summons: bool = False  # has a Summon intent — its minions are replaceable, so race it
     illusion: bool = False  # "Illusion": revives at full HP when killed — grinding it is futile
     # damage-throttling (ENEMY_PASS): first HP-loss/turn -> 1 (Slippery); a hard per-turn HP-loss
@@ -345,6 +352,7 @@ class SimState:
     powers_played: int = 0  # Power cards played this turn (banked permanent buffs)
     self_damage_powers_played: int = 0  # of those, per-turn self-HP-cost powers (Inferno)
     ramp_damage: int = 0  # damage dealt to strength-gaining enemies (rewarded: race them)
+    carrier_damage: int = 0  # damage to debuff carriers while others live (their death lifts it)
     primal_active: bool = False  # Primal Force played: later Attacks are 16-dmg Giant Rocks
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
@@ -577,6 +585,9 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 incoming=incoming,
                 is_minion=is_minion,
                 gains_strength=gains_strength,
+                debuff_carrier=any(
+                    k in (e.entity_id or "").upper() for k in _DEBUFF_CARRIERS
+                ),
                 summons=summons,
                 illusion=illusion,
                 slippery_stacks=slippery_stacks,
@@ -728,6 +739,12 @@ def _apply_attack(
         overkill=state.overkill + overkill_amt,
         vuln_applied=state.vuln_applied + (card.fx.vulnerable if hp > 0 else 0),
         ramp_damage=state.ramp_damage + (dealt_total if e.gains_strength else 0),
+        carrier_damage=state.carrier_damage + (
+            dealt_total
+            if e.debuff_carrier
+            and any(x.hp > 0 for j, x in enumerate(enemies) if j != target_i)
+            else 0
+        ),
         self_damage=state.self_damage + thorns_taken,
         fatal_bonuses=state.fatal_bonuses + (1 if killed and card.on_fatal_bonus else 0),
     )
@@ -1065,6 +1082,7 @@ def _score(
         + power_term
         + w.w_rage_sequence * state.rage_block_granted
         + w.w_ramp_damage * state.ramp_damage
+        + w.w_carrier_damage * state.carrier_damage
         # turtling a ramper loses (Damp Cultist 2026-07-16: four all-block turns vs a
         # +5/turn Ritual, died at full-HP enemy) — damageless turns pay while one lives
         + (w.w_ramp_stall

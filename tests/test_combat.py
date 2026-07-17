@@ -1326,3 +1326,45 @@ def test_apotheosis_flagged_power_like_and_played() -> None:
     d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=200, hp=70)), w)
     plan = d.rationale.split("[")[1].split("]")[0]
     assert "Apotheosis" in plan  # banked early like a Power, not stranded
+
+
+def _two_enemy_fight(target_hp: int = 40) -> dict:
+    """Shrinker Beetle + a twin bystander, identical stats: only the carrier lane
+    should break the targeting tie."""
+    enemy = {"hp": target_hp, "max_hp": 40, "block": 0, "status": [],
+             "intents": [{"type": "attack", "label": "8"}]}
+    return {"state_type": "monster", "run": {"act": 1, "floor": 6, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 0,
+                       "energy": 1, "status": [],
+                       "hand": [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1,
+                                       "Deal 6 damage.", "Attack", "AnyEnemy")]},
+            "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                       "enemies": [
+                           dict(enemy, entity_id="b0", name="Bowlbug"),
+                           dict(enemy, entity_id="SHRINKER_BEETLE_0",
+                                name="Shrinker Beetle"),
+                       ]}}
+
+
+def test_carrier_damage_accrues_only_with_bystanders() -> None:
+    # accumulator: damage to a carrier counts while another enemy lives...
+    carrier = _enemy(debuff_carrier=True)
+    other = EnemySim(entity_id="o", hp=50, max_hp=50, block=0, vulnerable=0, incoming=0)
+    st = SimState(energy=3, enemies=(carrier, other), my_block=0, my_strength=0)
+    out = _apply_attack(st, 0, _attack(10))
+    assert out.carrier_damage == 10
+    # ...but not when the carrier is the LAST enemy (killing it ends the fight anyway)
+    alone = SimState(energy=3, enemies=(_enemy(debuff_carrier=True),),
+                     my_block=0, my_strength=0)
+    assert _apply_attack(alone, 0, _attack(10)).carrier_damage == 0
+    # ...and never for a non-carrier
+    st2 = SimState(energy=3, enemies=(other, carrier), my_block=0, my_strength=0)
+    assert _apply_attack(st2, 0, _attack(10)).carrier_damage == 0
+
+
+def test_planner_prioritizes_shrinker_beetle_in_multi_enemy_fight() -> None:
+    """Owner 2026-07-17: Shrinker Beetle's big player-debuff is removed by its death, so
+    with a bystander present the planner must aim at the beetle over an identical twin."""
+    w = load_policy_config().combat
+    d = plan_combat_turn(parse_state(_two_enemy_fight()), w)
+    assert d.action.payload()["target"] == "SHRINKER_BEETLE_0"

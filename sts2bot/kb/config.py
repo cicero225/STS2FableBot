@@ -69,6 +69,9 @@ class CombatWeights(_Section):
     w_potion_spend: float = -18.0
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     w_ramp_damage: float = 1.5  # extra value for damaging strength-gaining enemies (race them)
+    # Extra value for damaging a debuff CARRIER (Shrinker Beetle) while other enemies
+    # live — its death lifts the player-debuff for the rest of the fight (owner 2026-07-17)
+    w_carrier_damage: float = 1.5
     w_crab_rage_split: float = -20.0  # small penalty for a 1-claw-dead split (1-turn enrage stall)
     max_sequences: int = 4000
     survival_status_threshold: int = 2
