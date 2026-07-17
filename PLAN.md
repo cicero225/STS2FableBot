@@ -1233,6 +1233,15 @@ the owner's projected-impact ranking within it:
    inverse-density, deck-size conditionals (Rampage/Mind Blast/Stratagem), Thrash large-deck
    dock. *For the relic pass (6):* block-gaining relics feed Juggernaut-class payoffs;
    per-N-attacks relics (Pen Nib) feed Anger-class attack flooding.
+5a. **ANCIENTS pass** (owner 2026-07-16): the Act-2-start choice of 3 ancient boons
+   (delivered as ancient relics or unusual/powerful cards) — two choices per run,
+   "enormously impactful". Current handling is essentially UNVALUED: ancient relics
+   miss the Spirebird WAR table (relic_select scores them neutral 0), and ancient
+   cards ride ordinary _card_score (Ancient rarity at uncommon-tier since 07-16 —
+   the double-Relax incident WAS an ancient boon pick). The pass: harvest the boon
+   pool from logs/compendium, value per-boon (the card-pass playbook), and make the
+   relic-vs-card cross-choice explicit. Doesn't touch Act 1, so it ranks after the
+   events pass while the f17 wall stands — but before the fundamentals lane.
 5. **Event analysis** — mostly already covered by event-choice WAR; only a few events carry nuance
    (Byrdonis Egg, §8.4). *Promoted 2026-07-09 (owner: "matters around the edges", now ranked after
    relics, before potions) with a concrete anchor case: the bot **enchanted a Strike with Slither**
