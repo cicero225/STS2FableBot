@@ -1368,3 +1368,25 @@ def test_planner_prioritizes_shrinker_beetle_in_multi_enemy_fight() -> None:
     w = load_policy_config().combat
     d = plan_combat_turn(parse_state(_two_enemy_fight()), w)
     assert d.action.payload()["target"] == "SHRINKER_BEETLE_0"
+
+
+def test_normality_live_remainder_caps_the_plan() -> None:
+    """Owner-caught live (b1i49b9k0 f45): STS2 Normality text carries '(N cards left)' —
+    a 3-card lethal was planned with 1 play left, Bloodletting spent it, the gate ate the
+    actual kill. The planner must trust the live remainder over the static cap."""
+    w = load_policy_config().combat
+    norm = "Unplayable. You cannot play more than 3 cards this turn. (1 card left)"
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            _bcard(2, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            _bcard(3, "NORMALITY", "Normality", 0, norm, "Curse", "None", can_play=False)]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=100, hp=70)), w)
+    plan = d.rationale.split("[")[1].split("]")[0]
+    assert plan.count(">") + 1 == 1  # exactly one play planned, not three
+
+    # full remainder: the static cap still allows 3
+    hand[3]["description"] = ("Unplayable. You cannot play more than 3 cards "
+                              "this turn. (3 cards left)")
+    d3 = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=100, hp=70)), w)
+    plan3 = d3.rationale.split("[")[1].split("]")[0]
+    assert plan3.count(">") + 1 == 3

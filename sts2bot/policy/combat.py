@@ -1170,16 +1170,18 @@ def plan_combat_turn(
         if m := re.search(r"only play (\d+) card", p.description or "", re.IGNORECASE):
             card_cap = int(m.group(1)) if card_cap is None else min(card_cap, int(m.group(1)))
     # Normality (curse) caps from the HAND, not a player status: "You cannot play more than
-    # 3 cards this turn." Conservative: we can't source cards-already-played, so the cap is
-    # taken as-is (the game's own can_play gates enforce the true remainder on replan) —
-    # the win is that the DFS stops planning 5-card lines it can never finish (curses pass).
-    # NB (owner): Normality counts RETROACTIVELY — drawing into it mid-turn locks the turn at
-    # 3 total plays including cards already played. Unforeseeable at plan time (draws are
-    # random); the replan + can_play gates absorb it when it happens.
+    # 3 cards this turn. (N cards left)" — the STS2 text carries the LIVE remainder (the
+    # pre-bake rule: displays are fully resolved), which covers the retroactive case too:
+    # draw into Normality after 2 plays and "(1 card left)" is the truth, not the static 3.
+    # Ignoring it planned a 3-card LETHAL with 1 play left — Bloodletting went through, the
+    # gate ate Conflagration, run died (f45, batch b1i49b9k0, owner-caught live).
     for c in hand:
         if m := re.search(r"cannot play more than (\d+) cards", c.description or "",
                           re.IGNORECASE):
-            card_cap = int(m.group(1)) if card_cap is None else min(card_cap, int(m.group(1)))
+            cap = int(m.group(1))
+            if m2 := re.search(r"\((\d+) cards? left\)", c.description or "", re.IGNORECASE):
+                cap = min(cap, int(m2.group(1)))
+            card_cap = cap if card_cap is None else min(card_cap, cap)
 
     hand_attacks = sum(1 for c in hand if (c.type or "") == "Attack")
     exhaust_pile = getattr(player, "exhaust_pile_count", None) or 0
