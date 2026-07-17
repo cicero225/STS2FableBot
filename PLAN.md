@@ -1233,15 +1233,21 @@ the owner's projected-impact ranking within it:
    inverse-density, deck-size conditionals (Rampage/Mind Blast/Stratagem), Thrash large-deck
    dock. *For the relic pass (6):* block-gaining relics feed Juggernaut-class payoffs;
    per-N-attacks relics (Pen Nib) feed Anger-class attack flooding.
-5a. **ANCIENTS pass** (owner 2026-07-16): the Act-2-start choice of 3 ancient boons
-   (delivered as ancient relics or unusual/powerful cards) — two choices per run,
-   "enormously impactful". Current handling is essentially UNVALUED: ancient relics
-   miss the Spirebird WAR table (relic_select scores them neutral 0), and ancient
-   cards ride ordinary _card_score (Ancient rarity at uncommon-tier since 07-16 —
-   the double-Relax incident WAS an ancient boon pick). The pass: harvest the boon
-   pool from logs/compendium, value per-boon (the card-pass playbook), and make the
-   relic-vs-card cross-choice explicit. Doesn't touch Act 1, so it ranks after the
-   events pass while the f17 wall stands — but before the fundamentals lane.
+5a. **ANCIENTS pass** — ✅ v1 shipped 2026-07-16 (jumped ahead of the events pass after
+   A/B #3 proved the f18 PAEL choice separated a human win from the bot's death on the
+   same seed). Shipped: `data/ancient_boons.json` (scripts/build_ancient_boons.py; 88
+   boons = full 8-Ancient pool from 459-run log harvest ∪ wiki, incl. log-only boons the
+   wikis miss), catalog-first scoring for `is_ancient` events in `_event` (the generic
+   heuristic was BAITED: Pael's Tooth "+5 for remove" beat the run-winning Legion),
+   choice-time `deck_bonus` fit (Legion scales with block providers), and owned boons as
+   drafting context via `boon_relic_context` — `provides` count toward tag needs (energy
+   boons lift the draw penalty) and `draft_bonus` steers offers toward the boon's engine
+   (Legion → block_engine, the owner's boon-then-Barricade causality). Uncatalogued
+   titles fall back to the generic heuristic (new epochs degrade gracefully).
+   **Open:** 25/88 boons flagged `uncertain` (unknown StS2 keywords: Goopy, Imbued,
+   Maul, Relax, Apparition...) pending owner review; Pael's-Tooth remove-screen
+   prefer-best flip (§8.4 backlog); relic-catalog provides (Kettle etc.) could ride the
+   same `boon_relic_context` mechanism in the relic R3 pass.
 5. **Event analysis** — mostly already covered by event-choice WAR; only a few events carry nuance
    (Byrdonis Egg, §8.4). *Promoted 2026-07-09 (owner: "matters around the edges", now ranked after
    relics, before potions) with a concrete anchor case: the bot **enchanted a Strike with Slither**

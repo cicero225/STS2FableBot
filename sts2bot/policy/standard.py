@@ -43,7 +43,12 @@ from sts2bot.policy.capability import (
     load_card_descriptions,
 )
 from sts2bot.policy.combat import plan_combat_turn
-from sts2bot.policy.drafttags import load_draft_tags, score_adjustment
+from sts2bot.policy.drafttags import (
+    boon_relic_context,
+    load_ancient_boons,
+    load_draft_tags,
+    score_adjustment,
+)
 from sts2bot.policy.textparse import parse_card_description, parse_hp_cost, parse_intent_damage
 from sts2bot.policy.trivial import TrivialRouter
 
@@ -94,6 +99,7 @@ class StandardRouter:
         event_stats: EventStats | None = None,
         bestiary: dict | None = None,
         draft_tags: dict | None = None,
+        ancient_boons: dict | None = None,
     ):
         self.config = config or load_policy_config()
         self.priors = priors if priors is not None else CardPriors.load()
@@ -105,6 +111,11 @@ class StandardRouter:
         self.bestiary = bestiary if bestiary is not None else load_bestiary()
         # card-pass step 2: deck-context provides/needs table (injectable for tests)
         self.draft_tags = draft_tags if draft_tags is not None else load_draft_tags()
+        # Ancients pass (§8.5.5a): boon catalog for is_ancient events + owned-boon
+        # tag context in drafting (injectable for tests)
+        self.ancient_boons = (
+            ancient_boons if ancient_boons is not None else load_ancient_boons()
+        )
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
@@ -715,6 +726,36 @@ class StandardRouter:
             vs = self.event_stats.option_vs(eid, o.title) if self.event_stats else None
             scored.append((o, heur, vs))
 
+        # Ancients pass (§8.5.5a): boon offers get catalog values instead of the generic
+        # gains/costs heuristic, which is actively baited by boon text (A/B #3: "Pael's
+        # Tooth: REMOVE 5 cards..." earned +5 while the run-winning Legion parsed to ~0).
+        # Catalog value + deck-fit bonus; uncatalogued options keep their heuristic value
+        # so a new epoch's boons degrade gracefully rather than being invisible.
+        if ev.is_ancient and self.ancient_boons and scored:
+            deck = player.deck if (player and player.deck) else []
+            best_o, best_v, best_known = None, float("-inf"), False
+            for o, heur, _vs in scored:
+                entry = self.ancient_boons.get(o.title or "")
+                if entry:
+                    val = float(entry.get("value", 0.0))
+                    val += self._boon_deck_fit(entry, deck)
+                else:
+                    val = heur
+                if val > best_v:
+                    best_o, best_v, best_known = o, val, bool(entry)
+            if best_o is not None and best_known:
+                return Decision(
+                    action=act.ChooseEventOption(index=best_o.index),
+                    rationale=f"ancient boon: '{best_o.title}' (catalog {best_v:.1f})",
+                    scores={
+                        (o.title or "?"): round(
+                            float(self.ancient_boons[o.title]["value"])
+                            + self._boon_deck_fit(self.ancient_boons[o.title], deck)
+                            if o.title in self.ancient_boons else heur, 2)
+                        for o, heur, _vs in scored
+                    },
+                )
+
         rated = [s for s in scored if s[2] is not None]
         if len(rated) >= 2:
             o, heur, vs = max(rated, key=lambda s: s[2])
@@ -749,6 +790,20 @@ class StandardRouter:
             action=act.ChooseEventOption(index=cheapest.index),
             rationale=f"event: least-cost '{cheapest.title}'",
         )
+
+    def _boon_deck_fit(self, entry: dict, deck) -> float:
+        """Choice-time deck-fit for a boon: + per weighted provider of each deck_bonus
+        tag, capped (Pael's Legion is worth more to a deck that already generates
+        block; Throwing Axe to one with a big opener)."""
+        if not deck or not self.draft_tags:
+            return 0.0
+        from sts2bot.policy.drafttags import _providers, deck_tag_weights
+        counts = deck_tag_weights(deck)
+        fit = 0.0
+        for db in entry.get("deck_bonus") or []:
+            have = _providers(db.get("tag", ""), counts, deck, self.draft_tags)
+            fit += min(float(db.get("cap", 0.0)), have * float(db.get("per", 0.0)))
+        return fit
 
     def _event_option_value(self, option, hp: int, max_hp: int) -> float:
         """Net value of an event option (gains - costs), recognizing the gains the card-text
@@ -798,7 +853,7 @@ class StandardRouter:
 
     def _card_score(
         self, card, deck_size: int, character: str | None = None, act: int = 1,
-        deck: list | None = None,
+        deck: list | None = None, relics: list | None = None,
     ) -> float:
         w = self.config.card_rewards
         fx = parse_card_description(card.description)
@@ -852,10 +907,17 @@ class StandardRouter:
         # speculative draft (Pommel Strike "nowhere near as good as the last game").
         # Draw is instead PENALIZED when the deck has no energy source to spend it with;
         # Spirebird stays authoritative otherwise (deliberately NOT overridden).
+        # Owned boons/relics count as tag providers (Ancients pass): an energy boon
+        # (Pael's Flesh, Very Hot Cocoa...) lifts the draw penalty like a drafted
+        # energy card would, and engine boons steer offers via draft_bonus below.
+        relic_provides, relic_draft_bonus = (
+            boon_relic_context(relics, self.ancient_boons)
+            if relics and self.ancient_boons else ({}, {})
+        )
         if fx.draw and deck is not None and self.draft_tags:
             from sts2bot.policy.drafttags import _providers, deck_tag_weights
             energy_sources = _providers("energy_source", deck_tag_weights(deck), deck,
-                                        self.draft_tags)
+                                        self.draft_tags, relic_provides)
             if energy_sources <= 0:
                 score += w.penalty_draw_no_energy
         # Block earns its bonus in ACT 1 only (lesser than the damage bonus below —
@@ -903,6 +965,8 @@ class StandardRouter:
             score += score_adjustment(
                 card.id or "", deck, self.draft_tags, w, act,
                 is_upgraded=bool(getattr(card, "is_upgraded", False)),
+                relic_provides=relic_provides,
+                relic_draft_bonus=relic_draft_bonus,
             )
         return score
 
@@ -963,8 +1027,9 @@ class StandardRouter:
         max_hp = state.player.max_hp if (state.player and state.player.max_hp) else 80
         # §5-C: value each card by how much it improves the estimate vs the *real* upcoming boss
         cap = self._capability_deltas(deck, cr.cards, max_hp, self._upcoming_boss(ctx, run_act))
+        relics = state.player.relics if (state.player and state.player.relics) else None
         scored = [
-            (self._card_score(c, deck_size, character, run_act, deck=deck)
+            (self._card_score(c, deck_size, character, run_act, deck=deck, relics=relics)
              + cap.get(c.index, 0.0), c)
             for c in cr.cards
         ]

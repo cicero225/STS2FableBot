@@ -1,0 +1,772 @@
+{
+ "_meta": {
+  "source": "scripts/build_ancient_boons.py (Ancients pass, PLAN §8.5.5a)",
+  "scale": "event-heuristic units (relic ≈ 6.0)",
+  "n_boons": 88,
+  "n_uncertain": 25
+ },
+ "boons": {
+  "Fishing Rod": {
+   "value": 5.0,
+   "note": "Every 3 combats upgrade a random card — live-validated (both A/B #3 runs carried it to good effect).",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Arcane Scroll": {
+   "value": 4.0,
+   "note": "Random Rare; solid average.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Booming Conch": {
+   "value": 2.5,
+   "note": "Elite-combat draw; bot declines most elites, low uptime.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Cursed Pearl": {
+   "value": 3.0,
+   "note": "333g minus a curse; gold engine needs shop skill we lack.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Golden Pearl": {
+   "value": 3.5,
+   "note": "150g flat.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Large Capsule": {
+   "value": 5.5,
+   "note": "2 relics for mild deck bloat — best Neow economy.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Lava Rock": {
+   "value": 4.5,
+   "note": "2 boss relics, delayed but real.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Lead Paperweight": {
+   "value": 3.0,
+   "note": "1-of-2 colorless; average.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Leafy Poultice": {
+   "value": 2.5,
+   "note": "Transform 2 basics at -10 Max HP; the HP is real money.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Lost Coffer": {
+   "value": 3.5,
+   "note": "Card reward + potion.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Neow's Torment": {
+   "value": 2.5,
+   "uncertain": true,
+   "note": "Neow's Fury card unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "New Leaf": {
+   "value": 2.0,
+   "note": "Transform 1; low impact.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Nutritious Oyster": {
+   "value": 4.0,
+   "note": "+11 Max HP.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Pomander": {
+   "value": 3.5,
+   "note": "Upgrade a card (Bash+ early).",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Precarious Shears": {
+   "value": 4.0,
+   "note": "Remove 2 for 13 damage; thinning is premium, hp-gate in _event covers the cost side.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Precise Scissors": {
+   "value": 3.0,
+   "note": "Remove 1.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Scroll Boxes": {
+   "value": 2.5,
+   "uncertain": true,
+   "note": "Pack contents unknown; loses all gold.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Silver Crucible": {
+   "value": 4.0,
+   "note": "3 upgraded rewards vs one empty chest; fine trade.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Small Capsule": {
+   "value": 4.0,
+   "note": "Random relic.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Stone Humidifier": {
+   "value": 4.5,
+   "note": "+5 Max HP per rest, compounds; bot rests often.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Alchemical Coffer": {
+   "value": 5.0,
+   "note": "4 potion slots + potions; potion pass made these count.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Archaic Tooth": {
+   "value": 4.5,
+   "uncertain": true,
+   "note": "Bash→Break (ancient starter); Break's text unknown but starter upgrades are usually strict wins.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Driftwood": {
+   "value": 5.0,
+   "note": "Reroll every card reward once — selection quality all run.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Electric Shrymp": {
+   "value": 2.5,
+   "uncertain": true,
+   "note": "Imbued enchant unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Glass Eye": {
+   "value": 3.5,
+   "note": "5 cards at once; free quality but real bloat risk.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Prismatic Gem": {
+   "value": 8.0,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "+1 energy/turn; reward-pool dilution is the only tax. Energy is king.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Radiant Pearl": {
+   "value": 3.5,
+   "uncertain": true,
+   "note": "Luminesce card unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Touch of Orobas": {
+   "value": 5.5,
+   "uncertain": true,
+   "note": "Burning Blood → Black Blood; if the StS1 analog holds (bigger post-combat heal) it's strong attrition relief for the bot.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Pael's Blood": {
+   "value": 6.0,
+   "provides": {
+    "draw_engine": 1.5
+   },
+   "note": "Passive +1 draw/turn — costs no card slot, so the drafted-draw energy caveat only half-applies.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Pael's Claw": {
+   "value": 2.5,
+   "uncertain": true,
+   "note": "Goopy enchant unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Pael's Eye": {
+   "value": 2.0,
+   "note": "Skip-turn tech the single-turn planner will never trigger deliberately; dead weight for the bot today.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Pael's Flesh": {
+   "value": 8.5,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "+1 energy from turn 3 on — the strongest common Pael offer.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Pael's Growth": {
+   "value": 3.5,
+   "uncertain": true,
+   "note": "Clone enchant unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Pael's Horn": {
+   "value": 2.5,
+   "uncertain": true,
+   "note": "2 Relax cards; owner rated it average. Relax text unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Pael's Legion": {
+   "value": 6.0,
+   "deck_bonus": [
+    {
+     "tag": "block_engine",
+     "per": 0.35,
+     "cap": 2.5
+    }
+   ],
+   "provides": {
+    "block_payoff": 2.0
+   },
+   "draft_bonus": {
+    "block_engine": 1.2
+   },
+   "note": "Doubles a card's block every 2 turns. A/B #3's decisive boon: the owner picked it sensing a block-light deck, then drafted Barricade to bank the doubled block (93 banked in the Insatiable win).",
+   "uncertain": false
+  },
+  "Pael's Tears": {
+   "value": 4.0,
+   "note": "Energy banking; the greedy planner rarely ends turns with surplus, so uptime is low for the bot.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Pael's Tooth": {
+   "value": 4.5,
+   "note": "Remove 5, return upgraded over combats — genuine thinning+upgrades. (The old event heuristic's '+5 for remove' bait overrated it vs Legion, but it isn't a bad boon.)",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Pael's Wing": {
+   "value": 4.5,
+   "note": "Card-reward sacrifices → relic per 2. Synergizes with our high skip rate: skips become income.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Biiig Hug": {
+   "value": 4.0,
+   "uncertain": true,
+   "note": "Remove 4 for Soot-on-shuffle; Soot's text unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Golden Compass": {
+   "value": 2.5,
+   "uncertain": true,
+   "note": "Single special Act-2 path; removes routing agency, path unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Nutritious Soup": {
+   "value": 3.0,
+   "uncertain": true,
+   "note": "Tezcatara's Ember enchant unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Pumpkin Candle": {
+   "value": 6.0,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "+1 energy/turn, temporary (5 combats, kindle at rests / to Act 3 per variant); even temporary energy wins fights now.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Seal of Gold": {
+   "value": 5.0,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "Energy for 5g/turn — cheap tax at bot gold curves. (Log-only boon; wikis miss it.)",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Storybook": {
+   "value": 3.0,
+   "uncertain": true,
+   "note": "Brightest Flame card unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Toasty Mittens": {
+   "value": 5.0,
+   "provides": {
+    "strength_source": 1.5
+   },
+   "note": "+1 Strength/turn for top-deck exhaust; steady ramp, mild mill tax.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Toy Box": {
+   "value": 4.0,
+   "uncertain": true,
+   "note": "4 melting Wax relics; front-loaded value, contents random.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Very Hot Cocoa": {
+   "value": 7.5,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "+4 energy on turn 1 every combat — huge tempo; slightly below Flesh in long fights, above it in short ones.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Yummy Cookie": {
+   "value": 6.0,
+   "note": "Upgrade 4 now; always-good.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Beautiful Bracelet": {
+   "value": 3.5,
+   "uncertain": true,
+   "note": "Swift 3 enchant unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Blessed Antler": {
+   "value": 5.5,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "Energy minus 3 Dazed/combat draw pollution.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Brilliant Scarf": {
+   "value": 4.0,
+   "note": "5th card free; needs velocity the bot only sometimes has.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Delicate Frond": {
+   "value": 6.0,
+   "note": "Full potion refill every combat — enormous with the potion policy actually drinking them.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Diamond Diadem": {
+   "value": 2.5,
+   "note": "≤2 plays → half damage; fights the planner's nature.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Fur Coat": {
+   "value": 5.5,
+   "note": "7 marked combats at 1 HP — free Act-3 normals.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Glitter": {
+   "value": 3.5,
+   "uncertain": true,
+   "note": "Glam enchant unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Jewelry Box": {
+   "value": 5.0,
+   "note": "Apotheosis into deck; mass-upgrade payoff.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Looming Fruit": {
+   "value": 6.0,
+   "note": "+31 Max HP in Act 3 is a real buffer.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Signet Ring": {
+   "value": 6.0,
+   "note": "999g — the A/B winner converted banked gold into 8 relics in Act 3. Requires shop competence; ours is adequate.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Claws": {
+   "value": 3.0,
+   "uncertain": true,
+   "note": "Maul card unknown; up-to-6 transform.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Crossbow": {
+   "value": 5.0,
+   "note": "Free random attack in hand each turn.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Iron Club": {
+   "value": 4.0,
+   "provides": {
+    "draw_engine": 0.5
+   },
+   "note": "Draw per 4 plays.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Meat Cleaver": {
+   "value": 3.0,
+   "uncertain": true,
+   "note": "Cook mechanic unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Sai": {
+   "value": 6.5,
+   "note": "Passive 7 block/turn — pure survival, no play needed.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Spiked Gauntlets": {
+   "value": 7.5,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "+1 energy, Powers cost 1 more — mild tax. Owner picked it in the A/B #3 win.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Tanx's Whistle": {
+   "value": 3.0,
+   "uncertain": true,
+   "note": "Whistle card unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Throwing Axe": {
+   "value": 5.5,
+   "deck_bonus": [
+    {
+     "tag": "big_single_hit",
+     "per": 0.5,
+     "cap": 2.0
+    }
+   ],
+   "note": "First card each combat played twice; scales with a big opener.",
+   "uncertain": false,
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Tri-Boomerang": {
+   "value": 3.5,
+   "uncertain": true,
+   "note": "Instinct enchant unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "War Hammer": {
+   "value": 4.5,
+   "note": "Elite kill → 4 upgrades; the honest elite gate caps uptime until deck power rises.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Blood-Soaked Rose": {
+   "value": 6.5,
+   "uncertain": true,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "Energy + Enthralled card; Enthralled's tax unknown.",
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Choices Paradox": {
+   "value": 4.5,
+   "note": "1-of-5 retained card each combat; flexible value.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Distinguished Cape": {
+   "value": 4.5,
+   "uncertain": true,
+   "note": "-9 Max HP for 3 Apparitions; if Apparition = StS1 Intangible this is underpriced — confirm.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Fiddle": {
+   "value": 5.0,
+   "provides": {
+    "draw_engine": 2.0
+   },
+   "note": "+2 draw/turn but no in-turn draw — anti-synergy with drafted draw.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Jeweled Mask": {
+   "value": 4.0,
+   "deck_bonus": [
+    {
+     "tag": "power_setup",
+     "per": 0.5,
+     "cap": 2.0
+    }
+   ],
+   "note": "Free random Power at combat start; scales with Power count.",
+   "uncertain": false,
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Lord's Parasol": {
+   "value": 6.0,
+   "note": "Entire merchant inventory free at next shop.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Music Box": {
+   "value": 5.5,
+   "note": "Ethereal copy of first attack each turn.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Preserved Fog": {
+   "value": 4.0,
+   "uncertain": true,
+   "note": "Remove 3, add Folly; Folly unknown. (Log-only boon.)",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Sere Talon": {
+   "value": 2.5,
+   "uncertain": true,
+   "note": "2 curses + 3 Wishes; Wishes unknown.",
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Whispering Earring": {
+   "value": 5.5,
+   "uncertain": true,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "Energy, but Vakuu hijacks turn 1 — unpredictable for the planner.",
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Astrolabe": {
+   "value": 5.5,
+   "note": "Transform 3 + upgrade them.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Black Star": {
+   "value": 5.0,
+   "note": "Elites drop 2 relics; pairs with routing income work — value rises when the elite gate opens up.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Calling Bell": {
+   "value": 5.0,
+   "note": "3 relics for one unique curse; usually worth it.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Dusty Tome": {
+   "value": 4.5,
+   "deck_bonus": [
+    {
+     "tag": "exhaust_payoff",
+     "per": 0.5,
+     "cap": 2.0
+    }
+   ],
+   "note": "Ironclad: Corruption+ — archetype-defining with exhaust payoffs (Feel No Pain), risky without.",
+   "uncertain": false,
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Ectoplasm": {
+   "value": 5.5,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "Energy for a gold lock; hurts Act-3 shop conversion but energy wins the fights that get you there. (Log-only boon.)",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Empty Cage": {
+   "value": 4.5,
+   "note": "Remove 2, clean thinning.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Pandora's Box": {
+   "value": 3.5,
+   "note": "Transform ALL basics — high variance mid-run when basics still carry the defense.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Runic Pyramid": {
+   "value": 6.0,
+   "note": "Hand retention; even the single-turn planner benefits from bigger effective hands.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Snecko Eye": {
+   "value": 2.0,
+   "note": "Draw 2 + Confused: randomized costs BREAK the planner's cost model — mispriced until the sim learns Confused. Deliberately low for the bot, not a statement about the relic.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Velvet Choker": {
+   "value": 6.5,
+   "provides": {
+    "energy_source": 1.5
+   },
+   "note": "Energy at ≤6 plays/turn; combat.py already models the card cap. (Log-only for DARV pool.)",
+   "uncertain": false,
+   "deck_bonus": [],
+   "draft_bonus": {}
+  }
+ }
+}

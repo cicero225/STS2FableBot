@@ -27,6 +27,7 @@ from pathlib import Path
 _STRENGTH_MULT = {"mild": 0.5, "moderate": 1.0, "strong": 1.6}
 
 _TAGS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "card_draft_tags.json"
+_BOONS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "ancient_boons.json"
 
 
 def load_draft_tags(path: Path | str | None = None) -> dict[str, dict]:
@@ -36,6 +37,37 @@ def load_draft_tags(path: Path | str | None = None) -> dict[str, dict]:
     if not p.is_file():
         return {}
     return json.loads(p.read_text(encoding="utf-8")).get("tags", {})
+
+
+def load_ancient_boons(path: Path | str | None = None) -> dict[str, dict]:
+    """title -> {value, deck_bonus, provides, draft_bonus, note, uncertain} from
+    data/ancient_boons.json (scripts/build_ancient_boons.py). Empty if absent —
+    ancient events then fall back to the generic event heuristic."""
+    p = Path(path) if path else _BOONS_PATH
+    if not p.is_file():
+        return {}
+    return json.loads(p.read_text(encoding="utf-8")).get("boons", {})
+
+
+def boon_relic_context(relics, boons: dict) -> tuple[dict[str, float], dict[str, float]]:
+    """(provides, draft_bonus) merged over owned relics that match catalog boons.
+
+    Boons picked at Ancient events land in player.relics under their boon title
+    (verified: Pael's Legion in the A/B #3 record), so drafting can see them: an
+    owned energy boon lifts the draw penalty, and an engine boon (Legion) both
+    meets card needs (`provides`) and steers offers toward its archetype
+    (`draft_bonus`)."""
+    provides: dict[str, float] = {}
+    bonus: dict[str, float] = {}
+    for r in relics or []:
+        entry = boons.get(getattr(r, "name", None) or getattr(r, "id", "") or "")
+        if not entry:
+            continue
+        for tag, wgt in (entry.get("provides") or {}).items():
+            provides[tag] = provides.get(tag, 0.0) + float(wgt)
+        for tag, b in (entry.get("draft_bonus") or {}).items():
+            bonus[tag] = max(bonus.get(tag, 0.0), float(b))
+    return provides, bonus
 
 
 def deck_tag_weights(deck) -> dict[str, float]:
@@ -67,12 +99,16 @@ def deck_tag_weights(deck) -> dict[str, float]:
     return counts
 
 
-def _providers(tag: str, deck_counts: dict[str, float], deck, tags: dict) -> float:
+def _providers(
+    tag: str, deck_counts: dict[str, float], deck, tags: dict,
+    extra: dict[str, float] | None = None,
+) -> float:
     """Weighted provider count for a tag: pseudo-tags come from deck_tag_weights;
-    real tags are summed from the tag table over the actual deck."""
+    real tags are summed from the tag table over the actual deck, plus `extra`
+    (relic/boon-provided tags — Ancients pass)."""
     if tag.startswith("__"):
         return deck_counts.get(tag, 0.0)
-    total = 0.0
+    total = float((extra or {}).get(tag, 0.0))
     for c in deck:
         entry = tags.get((getattr(c, "id", "") or "").upper())
         if entry:
@@ -87,9 +123,14 @@ def score_adjustment(
     w,
     act: int = 1,
     is_upgraded: bool = False,
+    relic_provides: dict[str, float] | None = None,
+    relic_draft_bonus: dict[str, float] | None = None,
 ) -> float:
     """The deck-context adjustment for offering `card_id` to `deck`. Additive on top of
-    the base _card_score (rarity/prior/planner-blind/etc.) — never a replacement."""
+    the base _card_score (rarity/prior/planner-blind/etc.) — never a replacement.
+    `relic_provides`/`relic_draft_bonus` carry owned boon/relic tags (Ancients pass):
+    provides count toward needs/anti like deck cards; draft_bonus adds a flat bonus
+    when the offered card provides a tag the boon wants fed (Legion → block_engine)."""
     entry = tags.get((card_id or "").upper())
     if not entry:
         return 0.0
@@ -97,11 +138,15 @@ def score_adjustment(
     own_provides = entry.get("provides") or {}
     adj = 0.0
 
+    for tag, b in (relic_draft_bonus or {}).items():
+        if float(own_provides.get(tag, 0.0)) > 0:
+            adj += float(b)
+
     for need in entry.get("needs") or []:
         tag = need.get("tag", "")
         threshold = max(1.0, float(need.get("threshold", 1)))
         mult = _STRENGTH_MULT.get(need.get("strength", "moderate"), 1.0)
-        have = _providers(tag, deck_counts, deck, tags)
+        have = _providers(tag, deck_counts, deck, tags, relic_provides)
         # self-provision: the candidate joins the deck it is scored for
         have += float(own_provides.get(tag, 0.0))
         met_frac = min(1.0, have / threshold)
@@ -116,7 +161,7 @@ def score_adjustment(
         tag = anti.get("tag", "")
         threshold = max(1.0, float(anti.get("threshold", 1)))
         mult = _STRENGTH_MULT.get(anti.get("strength", "moderate"), 1.0)
-        if _providers(tag, deck_counts, deck, tags) >= threshold:
+        if _providers(tag, deck_counts, deck, tags, relic_provides) >= threshold:
             adj += w.w_tag_penalty * mult * 0.5  # anti docks run at half penalty weight
 
     # copy cap: a second copy of a non-stacking card (Barricade) is dead weight
