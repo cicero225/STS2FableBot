@@ -103,14 +103,35 @@ def test_flesh_tops_the_pael_pool() -> None:
     assert d.action.index == 0  # energy is king
 
 
-def test_unknown_boons_fall_back_to_generic() -> None:
-    """A future epoch's uncatalogued boons must not wedge the event handler."""
+def test_all_unknown_boons_fall_back_to_generic() -> None:
+    """A screen of exclusively uncatalogued boons must not wedge the handler."""
     r = router()
     st = ancient_event([("Mystery Bauble", "Gain 20 Gold."),
                         ("Odd Trinket", "Upgrade a card.")])
     d = r.decide(st, LoopContext())
     assert isinstance(d, Decision)
     assert "ancient boon" not in d.rationale  # generic path handled it
+
+
+def test_unknown_boon_cannot_hijack_catalog_screen() -> None:
+    """Live 2026-07-16 (Silken Tress): a mixed screen must stay on the catalog path,
+    with the unknown option's hot raw heuristic clamped — a '+31 Max HP' parse (46.5)
+    must not beat Pael's Flesh (8.5), and the screen must not fall back to generic."""
+    r = router()
+    st = ancient_event([PAEL_FLESH,
+                        ("Weird Fruit", "Gain 31 Max HP.")])  # raw heuristic 46.5
+    d = r.decide(st, LoopContext())
+    assert isinstance(d, Decision)
+    assert "ancient boon" in d.rationale
+    assert d.action.index == 0  # Flesh (8.5) over the clamped unknown (5.0)
+
+    # but a mediocre catalog option loses to a decent unknown (clamped, still ranked)
+    st2 = ancient_event([PAEL_HORN,  # catalog 3.0
+                         ("Weird Fruit", "Gain 31 Max HP.")])
+    d2 = r.decide(st2, LoopContext())
+    assert isinstance(d2, Decision)
+    assert d2.action.index == 1
+    assert "unknown, heur-capped" in d2.rationale
 
 
 def test_non_ancient_event_never_uses_catalog() -> None:
@@ -157,6 +178,60 @@ def test_energy_boon_lifts_draw_penalty() -> None:
     with_boon = r._card_score(pommel, len(deck), "The Ironclad", act=1, deck=deck,
                               relics=[R("Pael's Flesh")])
     assert with_boon - without >= abs(w.penalty_draw_no_energy) - 1e-6
+
+
+def bundle_state(bundles, preview_showing=False, can_cancel=True):
+    return parse_state({
+        "state_type": "bundle_select",
+        "bundle_select": {
+            "screen_type": "bundle", "prompt": "Choose a bundle.",
+            "preview_showing": preview_showing, "can_confirm": preview_showing,
+            "can_cancel": can_cancel,
+            "bundles": [
+                {"index": i, "card_count": len(cards), "cards": [
+                    {"index": j, "id": cid, "name": name, "type": typ,
+                     "cost": cost, "star_cost": None, "description": desc,
+                     "rarity": "Common", "is_upgraded": False, "keywords": []}
+                    for j, (cid, name, typ, cost, desc) in enumerate(cards)
+                ]}
+                for i, cards in enumerate(bundles)
+            ],
+        },
+        "run": {"act": 1, "floor": 1, "ascension": 0},
+        "player": {
+            "character": "The Ironclad", "hp": 80, "max_hp": 80, "block": 0,
+            "gold": 99, "status": [], "relics": [], "potions": [],
+            "max_potion_slots": 3,
+            "deck": [],
+        },
+    })
+
+
+def test_bundle_select_scores_contents() -> None:
+    """Regression (run 1, 2026-07-16): the Neow pack screen was taken blind ('preview
+    first bundle') and delivered Havoc, a planner-dead card the reward scorer docks to
+    -9.8. Bundles are now scored by summed card value — the Havoc bundle must lose."""
+    r = router()
+    havoc_bundle = [
+        ("BLOOD_WALL", "Blood Wall", "Skill", "2", "Lose 2 HP. Gain 16 Block."),
+        ("HAVOC", "Havoc", "Skill", "1",
+         "Play the top card of your Draw Pile and Exhaust it."),
+    ]
+    good_bundle = [
+        ("POMMEL_STRIKE", "Pommel Strike", "Attack", "1", "Deal 9 damage. Draw 1 card."),
+        ("IRON_WAVE", "Iron Wave", "Attack", "1", "Gain 5 Block. Deal 5 damage."),
+    ]
+    d = r.decide(bundle_state([havoc_bundle, good_bundle]), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.index == 1
+    assert "select bundle 1" in d.rationale
+
+    # confirm follows once the preview we opened is showing
+    ctx = LoopContext()
+    ctx.screen_mem["bundle_picked"] = 1
+    d2 = r.decide(bundle_state([havoc_bundle, good_bundle], preview_showing=True), ctx)
+    assert isinstance(d2, Decision)
+    assert "confirm" in d2.rationale
 
 
 def test_legion_steers_drafting_toward_block() -> None:

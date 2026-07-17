@@ -57,6 +57,10 @@ BOONS: dict[str, dict] = {
     "Scroll Boxes": dict(
         value=3.0, note="Owner: 1-of-2 packs of 3 class cards (1 uncommon + 2 "
         "commons, non-repeating), unskippable; costs all gold (~99 at Neow)."),
+    "Silken Tress": dict(
+        value=2.5, note="Lose all gold; Glam-enchant the first card reward "
+        "(you keep ONE of its cards — one twice-a-combat card for ~99g). "
+        "New-epoch boon, harvested live 2026-07-16."),
     "Silver Crucible": dict(
         value=4.0, note="3 upgraded rewards vs one empty chest; fine trade."),
     "Small Capsule": dict(value=4.0, note="Random relic."),

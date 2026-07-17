@@ -2,7 +2,7 @@
  "_meta": {
   "source": "scripts/build_ancient_boons.py (Ancients pass, PLAN §8.5.5a)",
   "scale": "event-heuristic units (relic ≈ 6.0)",
-  "n_boons": 88,
+  "n_boons": 89,
   "n_uncertain": 0
  },
  "boons": {
@@ -137,6 +137,14 @@
   "Scroll Boxes": {
    "value": 3.0,
    "note": "Owner: 1-of-2 packs of 3 class cards (1 uncommon + 2 commons, non-repeating), unskippable; costs all gold (~99 at Neow).",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Silken Tress": {
+   "value": 2.5,
+   "note": "Lose all gold; Glam-enchant the first card reward (you keep ONE of its cards — one twice-a-combat card for ~99g). New-epoch boon, harvested live 2026-07-16.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},

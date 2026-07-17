@@ -51,6 +51,15 @@ class GameClient(Protocol):
     def act(self, action: Action) -> ActionResult: ...
 
 
+# Selection-overlay actions whose resubmission is the designed retry path — never
+# debounced (see the debounce block in run(); Cruelty forfeit 2026-07-16).
+_DEBOUNCE_EXEMPT = frozenset({
+    "select_card", "confirm_selection", "cancel_selection",
+    "select_bundle", "confirm_bundle_selection", "cancel_bundle_selection",
+    "select_relic",
+})
+
+
 class LoopConfig(BaseModel):
     poll_interval: float = 0.5
     stall_threshold: int = 60  # consecutive unchanged-state ticks before giving up
@@ -252,10 +261,16 @@ class AgentLoop:
 
                 # Debounce: same state we already acted on + same action = the game is
                 # still applying the last submission; hammering it can wedge a hook.
+                # EXEMPT selection-screen actions: their retry-on-unchanged-screen IS
+                # the designed recovery mechanism (Discovery/Toolbox fix 2026-07-14),
+                # and no engine-hook wedge class exists for UI overlays. Holding them
+                # starved the policy's retry budget on decides-without-submits and
+                # forfeited a Power-Potion Cruelty at the choose screen (2026-07-16).
                 payload = decision.action.payload()
                 if (
                     fp == last_act_fp
                     and payload == last_act_payload
+                    and payload.get("action") not in _DEBOUNCE_EXEMPT
                     and dup_hold < cfg.duplicate_debounce_ticks
                 ):
                     dup_hold += 1

@@ -13,6 +13,7 @@ from typing import ClassVar
 
 from sts2bot.client import actions as act
 from sts2bot.client.models import (
+    BundleSelectState,
     CardRewardState,
     CardSelectState,
     CombatState,
@@ -77,6 +78,9 @@ _GENERIC_ELITE = {
 _GENERIC_BOSS = (170, 24, 2)
 _ACT_BOSS = {1: (24, 2), 2: (30, 2), 3: (36, 3)}  # (dps, str_ramp) estimate for the act's boss
 _BIG_HIT_DAMAGE = 12  # "real hit" threshold for the first-big-hit draft switch (owner)
+# Uncatalogued ancient boons compete at their generic-heuristic value clamped to this
+# (catalog scale: relic ~ 6; the raw heuristic runs far hotter and must not hijack)
+_UNKNOWN_BOON_CAP = 5.0
 # Cards that WANT to be exhausted (owner 2026-07-14). Two families, one text rule —
 # class-agnostic by design, so any future card with an on-exhaust payoff is covered:
 #   * replay-from-exhaust: Howl from Beyond, Bombardment ("...if this is in your Exhaust
@@ -729,31 +733,32 @@ class StandardRouter:
         # Ancients pass (§8.5.5a): boon offers get catalog values instead of the generic
         # gains/costs heuristic, which is actively baited by boon text (A/B #3: "Pael's
         # Tooth: REMOVE 5 cards..." earned +5 while the run-winning Legion parsed to ~0).
-        # Catalog value + deck-fit bonus; uncatalogued options keep their heuristic value
-        # so a new epoch's boons degrade gracefully rather than being invisible.
+        # Uncatalogued options (new epochs) stay in the ranking at their heuristic value
+        # CLAMPED into catalog scale — raw heuristics run hot (a "+31 Max HP" parse hits
+        # 46) and an inflated unknown must not hijack the screen (live 2026-07-16: the
+        # new-epoch Silken Tress fell the whole screen back to the generic path, which
+        # took Scroll Boxes at a baited 7.0 over Lava Rock).
         if ev.is_ancient and self.ancient_boons and scored:
             deck = player.deck if (player and player.deck) else []
-            best_o, best_v, best_known = None, float("-inf"), False
-            for o, heur, _vs in scored:
-                entry = self.ancient_boons.get(o.title or "")
-                if entry:
-                    val = float(entry.get("value", 0.0))
-                    val += self._boon_deck_fit(entry, deck)
-                else:
-                    val = heur
-                if val > best_v:
-                    best_o, best_v, best_known = o, val, bool(entry)
-            if best_o is not None and best_known:
+            known_any = any(self.ancient_boons.get(o.title or "") for o, _h, _v in scored)
+            if known_any:
+                vals = {}
+                for o, heur, _vs in scored:
+                    entry = self.ancient_boons.get(o.title or "")
+                    if entry:
+                        vals[o.index] = (float(entry.get("value", 0.0))
+                                         + self._boon_deck_fit(entry, deck))
+                    else:
+                        vals[o.index] = min(heur, _UNKNOWN_BOON_CAP)
+                best_o = max(scored, key=lambda s: vals[s[0].index])[0]
+                known = bool(self.ancient_boons.get(best_o.title or ""))
                 return Decision(
                     action=act.ChooseEventOption(index=best_o.index),
-                    rationale=f"ancient boon: '{best_o.title}' (catalog {best_v:.1f})",
-                    scores={
-                        (o.title or "?"): round(
-                            float(self.ancient_boons[o.title]["value"])
-                            + self._boon_deck_fit(self.ancient_boons[o.title], deck)
-                            if o.title in self.ancient_boons else heur, 2)
-                        for o, heur, _vs in scored
-                    },
+                    rationale=(f"ancient boon: '{best_o.title}' "
+                               f"({'catalog' if known else 'unknown, heur-capped'} "
+                               f"{vals[best_o.index]:.1f})"),
+                    scores={(o.title or "?"): round(vals[o.index], 2)
+                            for o, _h, _v in scored},
                 )
 
         rated = [s for s in scored if s[2] is not None]
@@ -1051,6 +1056,54 @@ class StandardRouter:
         return Decision(
             action=act.SkipCardReward(),
             rationale=f"skip: best {best.name} scored {best_score:.1f} < thr {threshold:.1f}",
+            scores=score_map,
+        )
+
+    # ------------------------------------------------------------ bundle selection
+
+    def _bundle_select(self, state: BundleSelectState, ctx: LoopContext) -> Decision | Wait:
+        """Score bundles by their contents instead of taking the first blind (run 1
+        2026-07-16: an unscored Neow pack delivered Havoc — a planner-dead card the
+        reward scorer docks to -9.8). Each bundle = sum of _card_score over its cards
+        with full deck/relic context; select best, then confirm."""
+        bs = state.bundle_select
+        if bs.preview_showing:
+            if ctx.screen_mem.get("bundle_picked") is not None or not bs.can_cancel:
+                ctx.screen_mem.pop("bundle_picked", None)
+                return Decision(
+                    action=act.ConfirmBundleSelection(),
+                    rationale="confirm bundle selection",
+                )
+            # a preview we didn't open (screen defaults) — back out and score first
+            return Decision(
+                action=act.CancelBundleSelection(),
+                rationale="cancel default bundle preview to score options",
+            )
+        if not bs.bundles:
+            return Wait(reason="bundle select pending preview/confirm availability")
+        deck = state.player.deck if (state.player and state.player.deck) else []
+        relics = state.player.relics if (state.player and state.player.relics) else None
+        character = state.player.character if state.player else None
+        run_act = state.run.act if state.run else 1
+        best, best_score = None, float("-inf")
+        score_map = {}
+        for b in bs.bundles:
+            if not b.cards:  # contents hidden: neutral, only beats a negative bundle
+                total = 0.0
+            else:
+                total = sum(
+                    self._card_score(c, len(deck), character, run_act,
+                                     deck=deck, relics=relics)
+                    for c in b.cards
+                )
+            label = ", ".join(c.name or "?" for c in b.cards) or f"bundle {b.index}"
+            score_map[label[:60]] = round(total, 2)
+            if total > best_score:
+                best, best_score = b, total
+        ctx.screen_mem["bundle_picked"] = best.index
+        return Decision(
+            action=act.SelectBundle(index=best.index),
+            rationale=f"select bundle {best.index} (score {best_score:.1f})",
             scores=score_map,
         )
 

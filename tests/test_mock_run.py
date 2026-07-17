@@ -134,6 +134,34 @@ def test_duplicate_submission_debounce(tmp_path: Path) -> None:
     assert len(game.history) <= 3
 
 
+def test_selection_actions_exempt_from_debounce(tmp_path: Path) -> None:
+    """Regression (Cruelty forfeit 2026-07-16): a card_select choose the game hasn't
+    applied yet must keep RESUBMITTING — selection-screen retry is the designed
+    recovery path (Discovery/Toolbox 2026-07-14), and the debounce was starving it:
+    the policy's retry budget burned on decides-without-submits, hit its cap in ~4s,
+    and the cancel valve forfeited a Power-Potion Cruelty. Selection actions bypass
+    the debounce; the stall rail remains the backstop."""
+    from mock_game import ScriptedGame, fixture
+
+    game = ScriptedGame(
+        states={"card_select_transform": fixture("card_select_transform")},
+        transitions={"card_select_transform": [({}, "card_select_transform")]},
+        start="card_select_transform",
+    )
+    loop = AgentLoop(
+        client=FakeClient(game, compendium=COMPENDIUM),
+        router=TrivialRouter(),
+        log_root=tmp_path,
+        config=LoopConfig(poll_interval=0, stall_threshold=30,
+                          duplicate_debounce_ticks=20),
+    )
+    loop.play_one_run()
+    # selection submissions must NOT be held to <=3 like the debounced menu case
+    assert len(game.history) > 3
+    assert all((payload.get("action") or "").startswith(("select_", "confirm_", "cancel_"))
+               for _state, payload in game.history)
+
+
 def test_pause_for_resume_returns_when_signal_present(tmp_path: Path) -> None:
     """The resume mechanism: _pause_for_resume blocks until the signal file appears,
     then consumes it. With the signal already present it returns immediately."""
