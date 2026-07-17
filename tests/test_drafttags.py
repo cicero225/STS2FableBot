@@ -384,3 +384,36 @@ def test_matriarch_boss_rule_premiums_big_instances() -> None:
     rupture = Cd("RUPTURE", "Rupture",
                  "Whenever you lose HP from a card, gain 1 Strength.", typ="Power")
     assert delta(rupture) >= rule["power_bonus"] - 1e-6
+
+
+def test_vantom_boss_rule_premiums_multihit_and_big_block() -> None:
+    """Vantom forensics (4 clean-build fights): Slippery 9 wasted five rounds of
+    single-hit attacks in zero-multi-hit decks, and his 26/28/30 cycle-nuke landed on
+    zero block every time. His rule premiums multi-hit chip and big blocks — the
+    OPPOSITE attack profile from the Matriarch's big-instance rule."""
+    from sts2bot.policy.standard import StandardRouter, _boss_draft_rule
+
+    rule = _boss_draft_rule("Vantom")
+    assert rule is not None and "multihit_bonus" in rule
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class Cd:
+        def __init__(self, cid, name, desc, typ="Attack", cost="1"):
+            self.id, self.name, self.description = cid, name, desc
+            self.type, self.cost, self.rarity = typ, cost, "Common"
+            self.is_upgraded = False
+
+    deck = _starter()
+    boomer = Cd("SWORD_BOOMERANG", "Sword Boomerang",
+                "Deal 3 damage to a random enemy 3 times.")
+    single = Cd("BLUDGEON", "Bludgeon", "Deal 32 damage.", cost="3")
+    wall = Cd("BLOOD_WALL", "Blood Wall", "Lose 2 HP. Gain 16 Block.", typ="Skill")
+
+    def delta(card):
+        return (r._card_score(card, 11, "The Ironclad", act=1, deck=deck,
+                              boss_rule=rule)
+                - r._card_score(card, 11, "The Ironclad", act=1, deck=deck))
+
+    assert delta(boomer) >= rule["multihit_bonus"] - 1e-6  # multi-hit strips Slippery
+    assert abs(delta(single)) < 1e-9  # Vantom's rule has no big-hit premium
+    assert delta(wall) >= rule["block_bonus"] - 1e-6  # blocks the 26-30 nuke
