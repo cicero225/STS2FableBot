@@ -83,16 +83,18 @@ BOONS: dict[str, dict] = {
         note="+1 energy/turn; reward-pool dilution is the only tax. Energy is "
         "king. NB drafting sees off-class/colorless offers without Spirebird "
         "priors or tags (text-parse + rarity only) → systematically undervalued "
-        "vs in-class; conservative but safe. Cross-class prior lookup (priors "
-        "table has all 5 classes) is the cheap fix if we ever value the pool."),
+        "vs in-class; conservative but safe (owner: 'probably for the best' — "
+        "cross-class Spirebird samples are abysmal anyway). Deep-future: busted "
+        "cross-class combos lurk (Shiv/Ethereal generators + Feel No Pain + "
+        "Ashen Strike — owner)."),
     "Radiant Pearl": dict(
         value=5.5, provides={"energy_source": 1.0},
         note="Luminesce (KB): Retain, +2 energy, Exhaust — in hand every combat "
         "= ~2 flexible energy per fight."),
     "Touch of Orobas": dict(
-        value=5.5, uncertain=True,
-        note="Burning Blood → Black Blood; if the StS1 analog holds (bigger "
-        "post-combat heal) it's strong attrition relief for the bot."),
+        value=6.0, note="Owner-confirmed: Black Blood = heal 12 post-combat, "
+        "a strict Burning Blood upgrade — +6/combat is major attrition relief "
+        "for a bot that bleeds every fight."),
     # ---------------------------------------------------------------- PAEL (Act 2)
     "Pael's Blood": dict(
         value=6.0, provides={"draw_engine": 1.5},
@@ -141,8 +143,9 @@ BOONS: dict[str, dict] = {
         "Status). Thinning with a tax that grows as the deck thins (more "
         "shuffles) — self-limiting but net fine."),
     "Golden Compass": dict(
-        value=2.5, uncertain=True,
-        note="Single special Act-2 path; removes routing agency, path unknown."),
+        value=5.0, note="Owner: a single guaranteed GOOD Act-2 route, 2 rooms "
+        "longer (extra chest + fight), no choices. Bot-aware BONUS: a curated "
+        "path sidesteps our own routing weaknesses entirely and adds income."),
     "Nutritious Soup": dict(
         value=5.0, note="Owner: Ember = Strikes cost 0, +3 dmg, Eternal. "
         "0-cost 9-dmg Strikes are real tempo; Eternal locks them in the deck "
@@ -198,7 +201,10 @@ BOONS: dict[str, dict] = {
         "relics in Act 3. Requires shop competence; ours is adequate."),
     # ------------------------------------------------------------------- TANX (Act 3)
     "Claws": dict(
-        value=3.0, uncertain=True, note="Maul card unknown; up-to-6 transform."),
+        value=5.0, deck_bonus=[{"tag": "strength_source", "per": 0.4, "cap": 1.6}],
+        note="Owner: Maul = 1 energy, 5x2 dmg, ALL Mauls +1 dmg this combat — "
+        "up to 6 self-ramping multi-hits from junk basics; multiplies with "
+        "Strength. (MAUL still a KB gap for deck pricing.)"),
     "Crossbow": dict(
         value=5.0, note="Free random attack in hand each turn."),
     "Iron Club": dict(
@@ -215,7 +221,9 @@ BOONS: dict[str, dict] = {
         note="+1 energy, Powers cost 1 more — mild tax. Owner picked it in the "
         "A/B #3 win."),
     "Tanx's Whistle": dict(
-        value=3.0, uncertain=True, note="Whistle card unknown."),
+        value=4.0, note="Owner: Whistle = 3 energy, 33(44) dmg, Stun (delays "
+        "the intent one turn; not a status — ignores Artifact; doesn't stack), "
+        "Exhaust. One big tempo nuke per fight; best vs elites/bosses."),
     "Throwing Axe": dict(
         value=5.5, deck_bonus=[{"tag": "big_single_hit", "per": 0.5, "cap": 2.0}],
         note="First card each combat played twice; scales with a big opener."),
@@ -234,9 +242,11 @@ BOONS: dict[str, dict] = {
     "Choices Paradox": dict(
         value=4.5, note="1-of-5 retained card each combat; flexible value."),
     "Distinguished Cape": dict(
-        value=4.5, uncertain=True,
-        note="-9 Max HP for 3 Apparitions; if Apparition = StS1 Intangible "
-        "this is underpriced — confirm."),
+        value=3.5, note="Owner: Apparition = StS1's (1 energy, Ethereal, gain "
+        "1 Intangible; upgrade drops Ethereal). Premium for a human — but the "
+        "combat sim doesn't model Intangible, so the planner scores it ~0 and "
+        "lets it rot; bot-aware LOW until the sim learns Intangible, then "
+        "reprice toward 6+."),
     "Fiddle": dict(
         value=5.0, provides={"draw_engine": 2.0},
         note="+2 draw/turn but no in-turn draw — anti-synergy with drafted draw."),
@@ -252,10 +262,14 @@ BOONS: dict[str, dict] = {
         "Eternal curse) — permanently eats one turn-1 hand slot; the thinning "
         "usually still wins. (Log-only boon.)"),
     "Sere Talon": dict(
-        value=2.5, uncertain=True, note="2 curses + 3 Wishes; Wishes unknown."),
+        value=4.0, note="Owner: Wish = 0-cost chosen tutor from draw pile, "
+        "Exhaust (upgrade: Retain). 3 tutors vs 2 random curses — better the "
+        "spikier the deck's best card."),
     "Whispering Earring": dict(
-        value=5.5, uncertain=True, provides=dict(ENERGY),
-        note="Energy, but Vakuu hijacks turn 1 — unpredictable for the planner."),
+        value=5.5, provides=dict(ENERGY),
+        note="Owner: Vakuu spams your cards left-to-right until energy runs "
+        "out (capped vs infinites). A dumb-but-energy-spending turn 1 as rent "
+        "on +1 energy/turn — mild quality tax, worth it."),
     # ------------------------------------------------------------- DARV (Acts 2 & 3)
     "Astrolabe": dict(value=5.5, note="Transform 3 + upgrade them."),
     "Black Star": dict(
