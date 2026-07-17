@@ -2,6 +2,29 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-17 (Fable 5, session 5 close #2) — Region-weights batch runs cold (1.30); arrival streak hits 20/20; the wall is now the f17 fight itself
+
+**Batch bini668vh (region weights + Normality fix live): 0/10, act-reach 1.30** — a hard
+swing from 2.00. Seven f17 boss deaths (Vantom ×3, Waterfall Giant ×2, Lagavulin
+Matriarch, Soul Fysh), Insatiable f33, Spiny Toad f23, Decimillipede elite f29.
+
+**Region verdict: NOT YET.** The ud_* weights demonstrably fired (6-8 region-tagged
+drafts per UD run, 0 prior; entry HP 62→60) but past-f17 fell in BOTH regions (UD
+3/6→1/5, OG 3/4→2/5 — three Vantom deaths in the unchanged region). n=5/cell = boss
+variance, no tweak yet; bank 2-3 more batches (owner: "keep an eye on this").
+
+**What held: f17 arrival is 20/20 across the clean build** — the pre-boss bleeding
+that defined the regression era looks CURED (era average was 85%). The binding
+constraint moved to the Act-1 boss fight: 9/20 past f17 at decent entry HP (36-70).
+Clean-build killer board: **Lagavulin Matriarch 4** (harness: we over-fear her sleep
+by 3.4/turn — likely blocking through the setup window), Vantom 3, Waterfall Giant 2,
+Soul Fysh 2. Also of note: Slumbering Beetle took ANOTHER run (f29) and the
+Insatiable remains unlearned since A/B #3.
+
+Next: **Lagavulin Matriarch sleep model** (top killer + known harness signature) →
+boss-fight competence generally (the multi-turn forward model's case strengthens as
+knowledge patches saturate) → events pass. Spoils Map handling (7f0a0c6) debuts next
+batch.
 ## 2026-07-17 (Fable 5, session 5 close) — WIN #2 and act-reach 2.00: the clean build delivers
 
 **Batch b1i49b9k0 (first on the fixed build): 1 WIN, act-reach 2.00 — PROJECT RECORD**
