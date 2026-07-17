@@ -25,24 +25,40 @@ Same seed the bot died on at f33.
   collect fewer relics. Deck size too: owner ended at 25 cards (with a curse!) vs bot 20
   — "arriving thin" was never the problem.
 
-**What actually diverged:**
-1. **Engine composition.** After the offer streams split (~f11), the owner assembled a
-   coherent tank-scaling package: Barricade+ / Unmovable+ / Colossus+ / Taunt+ with
-   Dominate ×2 (both upgraded) as payoff and Bloodletting / Battle Trance+ as fuel. The
-   bot took attack-density goodstuff: Fight Me!, One-Two Punch, Unrelenting. Emblematic:
-   at f17 the bot chose **One-Two Punch over Barricade** from the same screen. (Also
-   validates the owner's June steer that Dominate is a real engine — they took it twice.)
-2. **Fight competence.** The bot entered the Insatiable at 49/80 with a fine deck
-   (20 cards, 13 upgrades) and bled out 49→31→21→7 over ~4 turns, blocking 8–19 while
-   taking 10–18. The owner won the same fight entering at ~25–51hp. Same seed, same
-   income tier — the gap is multi-turn play and deck shape, not tempo or resources.
+**What actually diverged (owner commentary sharpened all three):**
+1. **THE ANCIENT CHOICE WAS THE ROOT.** Both runs hit the same PAEL Ancient at f18
+   (Act 2 start): Pael's Horn / Pael's Tooth / **Pael's Legion** ("doubles Block gained
+   from a card, then sleeps 2 turns"). The owner picked Legion *because they sensed the
+   deck lacked block*, then drafted Barricade the very next floor (f20) explicitly to
+   bank the doubled block across turns — the whole tank engine (Barricade+ / Unmovable+ /
+   Colossus+ / Taunt+, Dominate ×2 payoff) grew from the boon. The bot, which scores
+   ancient relics neutral-0, took Pael's Tooth and built nothing. Engine drafting is
+   downstream of boon awareness: tags need relic/boon providers (Legion ⇒ block-engine
+   need), not just card-to-card synergy.
+2. **Fight competence, boon-powered.** Owner entered the Insatiable at 51/87 (not ~25 —
+   earlier read was the post-fight poll) and exited 25/87. In-fight the Legion engine is
+   visible in the trace: block banked 40→52→64→77→84→**93** while hp held 25→22→19. The
+   boss threw ~26/turn; the bot (entered 49/80, same deck-quality tier) blocked 8–19/turn
+   and bled out 49→31→21→7 in ~4 turns. No single-turn planner beats that fight without
+   the engine — but the engine was *choosable at f18*.
+3. **One true misdraft (owner-flagged): Sword Boomerang over Armaments at offer 3.**
+   Scores: SwordBoom 11.09 / Spite 8.70 / Armaments 2.03. The Act-1 damage-first stack
+   (early_damage_bonus + attack tags on a 75%-basic deck) kept paying with Bully+Taunt
+   already in deck — a desperation-damage pick with no saturation check. Owner: skip or
+   Armaments ("a Defend that upgrades" has real early value) were both fine; an average
+   attack was not. Lever filed: **taper early_damage_bonus by non-basic damage-card
+   count** (full at ≤1, decayed by 2–3+), mirroring the first-big-hit switch.
 
 **Queue implications (audit re-scoped, not cancelled):**
 - Draft-tightening audit **de-scoped from "loosen skips"** — the 22% skip rate is
-  human-plausible. Remaining draft item: engine-line valuation (Barricade-class tags,
-  double-Dominate copy behavior) — a card-pass follow-up, not a weight rollback.
-- The **multi-turn combat forward model gains evidence**: a human beat the bot's death
-  fight from half the HP. This is now the best-attested gap in the project.
+  human-plausible. Concrete draft items instead: early-damage saturation taper;
+  relic/boon-conditional engine tags (Barricade-class); double-Dominate copy behavior.
+- **The Ancients pass (PLAN §8.5.5a) is now live-validated as decisive** — the single
+  f18 choice separated a win from a death. Recommend it jump ahead of the events pass
+  (small pool, huge leverage; PAEL options captured in both records as a starter corpus).
+- The **multi-turn forward model** keeps its evidence but the sequencing softens: the
+  human won this fight *via the boon engine*, not micro alone. Knowledge-first still
+  holds.
 - Era act-reach regression (1.78 → 1.38) needs a non-drafting explanation — rerun the
   era comparison with per-floor-normalized relic/skip stats before touching weights.
 
