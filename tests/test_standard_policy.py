@@ -2749,3 +2749,33 @@ def test_normal_curse_discarded_before_retain_curse() -> None:
     d = router().decide(state, LoopContext())
     assert isinstance(d, Decision)
     assert d.action.payload()["card_index"] == 1  # Regret first; Poor Sleep parks another day
+
+
+def test_spoils_map_is_exhaust_fodder_but_never_removed() -> None:
+    """Owner 2026-07-17 (live): the bot exhausted basic commons over the Spoils Map — a
+    type=Quest pseudocurse (unplayable in combat, redeems for 600g at the Act-3 chest,
+    no description in the payload). Exhaust is per-fight, so the Map is prime fodder;
+    remove/transform screens must protect it (deleting it deletes the payoff)."""
+    spoils = _sc_card(0, "Spoils Map", "Quest", cid="SPOILS_MAP")
+    spoils["description"] = None
+    strike = _sc_card(1, "Strike", "Attack", cid="STRIKE_IRONCLAD")
+    strike["description"] = "Deal 6 damage."
+    curse = _sc_card(2, "Clumsy", "Curse", cid="CLUMSY")
+    curse["description"] = "Unplayable."
+    r = router()
+
+    # EXHAUST: the Map beats the Strike...
+    st = _card_select_state("select", "Choose a card to Exhaust.", [spoils, strike])
+    assert r.decide(st, LoopContext()).action.payload()["index"] == 0
+
+    # ...a true curse still goes first
+    st2 = _card_select_state("select", "Choose a card to Exhaust.", [spoils, strike, curse])
+    assert r.decide(st2, LoopContext()).action.payload()["index"] == 2
+
+    # REMOVE: never delete the coupon — the Strike goes
+    st3 = _card_select_state("select", "Choose a card to Remove.", [spoils, strike])
+    assert r.decide(st3, LoopContext()).action.payload()["index"] == 1
+
+    # TRANSFORM: same protection
+    st4 = _card_select_state("select", "Choose a card to Transform.", [spoils, strike])
+    assert r.decide(st4, LoopContext()).action.payload()["index"] == 1

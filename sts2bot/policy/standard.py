@@ -1270,6 +1270,18 @@ class StandardRouter:
             if (is_exhaust_prompt and prefer_worst
                     and _WANTS_EXHAUST_RE.search(c.description or "")):
                 q -= 60.0  # below basics (-50), above curses (-100)
+            # Quest pseudo-curses (Spoils Map, owner 2026-07-17): unplayable dead weight
+            # in combat, so prime exhaust/discard fodder — exhaust is per-fight and the
+            # card returns for its Act-3 redemption (600g at the main chest). But on
+            # PERMANENT screens (remove/transform/destroy) it must be protected:
+            # deleting it deletes the payoff. (Type "Quest", no description — type is
+            # the only hook the payload gives us.)
+            if (c.type or "") == "Quest" and prefer_worst:
+                if is_exhaust_prompt or "discard" in prompt:
+                    q -= 58.0  # after curses (-100) and Howl-class engines (~-63),
+                    #            before basics (-50)
+                elif any(v in prompt for v in ("remove", "destroy", "transform")):
+                    q += 150.0  # never delete the coupon
             # Retain curses (Poor Sleep) are better PARKED in hand than discarded back into
             # the deck cycle — but the parking is worth roughly one junk-tier, not immunity
             # (owner refinement 2026-07-09): if the rest of the hand would actually be PLAYED,
