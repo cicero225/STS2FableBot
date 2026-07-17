@@ -2,6 +2,56 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-17 (Fable 5, session 5) — Ancients pass validates live; era mystery flips to CONTENT; three live catches fixed mid-batch
+
+**Batch byupfrv22: 0/10, act-reach 1.30** (f17 boss ×5: Vantom, Lagavulin Matriarch ×2,
+Kin ×2; Knowledge Demon f33 ×2; Infested Prisms elite f29; and two NORMAL-fight deaths —
+Mawler f9, Sewer Clam f15). HP prediction 82% batch-scope (down from 92%: new-boss mix).
+Owner live-watched: "the current run in Act 2 is impressive... barely scraped by half of
+act 2, but *still scraped by*" — micro reads as genuinely improved; the losses are walls,
+not blunders.
+
+**Ancients pass: live-validated on its first outing.** Neow went catalog-driven
+(Precarious Shears / Silver Crucible / Arcane Scroll — all sensible), and both observed
+f18 picks were textbook: **Storybook 7.5** (owner's Brightest Flame steer) over
+Cookie/Candle, **Pael's Flesh 8.5** over Claw/Eye. No remove-bait picks anywhere.
+
+**Live-catch trio (owner eyes on the stream), all fixed same-night (95f741d):**
+1. *Power Potion Cruelty forfeit*: the orchestrator debounce (Owl fix) held selection
+   resubmits while the policy retry budget burned on decides-without-submits — 8
+   "retries" in ~4s, one real submission, cancel valve fired. Selection-overlay actions
+   (select_/confirm_/cancel_) are now debounce-exempt; play_card stays debounced.
+   (Planner exonerated: w_power_played already values Powers; Cruelty never reached hand.)
+2. *Havoc via blind bundle*: reward offers dock Havoc -9.79; it snuck in through the
+   unscored Neow bundle screen (Trivial fallback takes #1). StandardRouter now scores
+   bundles by summed deck-aware card value.
+3. *Silken Tress hijack*: an uncatalogued new-epoch boon's hot heuristic knocked the
+   whole Neow screen back to the generic path (→ baited Scroll Boxes 7.0 over Lava
+   Rock). Unknown boons now rank clamped at 5.0 inside the catalog path; Tress catalogued.
+
+Also shipped: **late-shop-loop routing** (b6e9801, owner's practice, A/B #3-validated):
+shop nodes priced at projected gold-on-arrival (+12g/row); rich wallets bend routes
+toward shops. Known limit: path_step_discount still prefers the earlier of two shops.
+
+**THE ERA MYSTERY FLIPS.** Act-1-scoped comparison (run-length confound removed):
+- Act-1 skip rate 13% → 15% — the draft-tightening story is dead in Act 1 too.
+- f17 entry stats near-identical: hp 62→59, relics 4.2→3.8, deck 16.1→17.0, upgrades equal.
+- What DID change: f17 arrival 100% → 85% (pre-boss deaths were UNHEARD OF in the win
+  era), and f17 win-given-arrival 53% → 40%.
+- The killers are largely NEW enemies (Mawler, Sewer Clam, Lagavulin Matriarch,
+  Knowledge Demon, Infested Prisms — all post-epoch content, all in the bestiary via
+  harvest but none with tuned mechanics), and the epoch timeline brackets the era
+  boundary (RELIC1 + COLORLESS2 obtained mid-July). **Leading theory: the "regression"
+  is substantially a content-difficulty shift, not a policy own-goal** — the win era
+  fought a softer, known pool. The draft-audit-as-rollback is CANCELLED; the
+  saturation taper stays (it's just correct); the enemy pass gains two anchors:
+  **Knowledge Demon (we over-predict our own damage by 11.3/turn, n=10 — something
+  eats our output; killed both f33 runs)** and Lagavulin Matriarch (we over-predict
+  its threat 3.4/turn — sleep phase, likely mild).
+
+Next: new-enemy mechanics mini-pass (Knowledge Demon first), early-damage saturation
+taper, then events pass. Fixes from tonight (debounce/bundles/clamp/shop-loop) are all
+post-batch — next batch runs the new build.
 ## 2026-07-16 (Fable 5, session 4 close) — A/B #3 (MY60EQE85L): owner WINS the bot's death seed; skip-hypothesis REFUTED, fight competence indicted
 
 **Setup**: seed picked as the tightest-draft specimen of batch bskhaw1re (bot: 12 takes /
