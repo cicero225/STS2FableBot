@@ -849,6 +849,21 @@ class StandardRouter:
 
     # ------------------------------------------------------------------ card rewards
 
+    def _deck_damage_picks(self, deck) -> int:
+        """Non-basic cards that deal damage (by KB text or big-hit tag) — the owner's
+        damage-saturation principle (A/B #3 Sword Boomerang misdraft): once a couple of
+        real damage picks are in, the Act-1 damage-first bias should stop paying."""
+        n = 0
+        for c in deck:
+            cid = (getattr(c, "id", "") or "").upper()
+            if cid.startswith(("STRIKE_", "DEFEND_", "BASH")):
+                continue
+            desc = self.card_effects.get(
+                f"{cid}|{1 if getattr(c, 'is_upgraded', False) else 0}")
+            if desc and parse_card_description(desc).total_damage > 0:
+                n += 1
+        return n
+
     def _deck_has_big_hit(self, deck) -> bool:
         """True once the deck holds any >=12-damage card (by the card-effects KB text —
         deck payloads carry no descriptions) or a tagged big_single_hit provider. Turns
@@ -947,8 +962,14 @@ class StandardRouter:
         generates_attack = "random attack" in desc_l or ("add" in desc_l and "attack" in desc_l)
         # ...but X-cost spend-energy damage is NOT effective early damage (the whole
         # point of the owner's Whirlwind read), so it earns neither this bonus nor AoE's.
+        # ...tapered by damage saturation (owner, A/B #3: Sword Boomerang over Armaments
+        # with Bully+Taunt already in deck was a "desperation damage pick" — an average
+        # attack shouldn't keep earning the early bonus once real damage picks are in).
         if act <= 1 and (fx.total_damage > 0 or generates_attack) and not is_xcost_damage:
-            score += w.early_damage_bonus
+            n_dmg = self._deck_damage_picks(deck) if deck is not None else 0
+            sat = w.early_damage_sat_start
+            factor = 1.0 if n_dmg < sat else (0.5 if n_dmg == sat else 0.0)
+            score += w.early_damage_bonus * factor
         # One-time "take SOMETHING with big damage" switch (owner 2026-07-14, from the
         # CJN9M609YW A/B: Pommel over Hemokinesis was the community-prior pick, but a
         # starter deck's first job is acquiring a real hit). Until the deck holds any

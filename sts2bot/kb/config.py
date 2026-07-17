@@ -155,6 +155,9 @@ class CardRewardWeights(_Section):
     # bonus_block replaced by an Act-1-scoped bonus, lesser than the damage one;
     # later acts price block via the §5-C capability delta.
     early_damage_bonus: float = 2.5  # Act 1: nudge toward damage to clear early fights (owner)
+    # Damage saturation (owner, A/B #3 Sword Boomerang misdraft): the early-damage bonus
+    # pays in full below this many non-basic damage picks, half AT it, zero beyond.
+    early_damage_sat_start: int = 2
     early_block_bonus: float = 1.5  # Act 1: lesser nudge toward block (owner 2026-07-14)
     penalty_draw_no_energy: float = -2.0  # draw without an energy_source in deck
     # Owner 2026-07-14 ("take SOMETHING with big damage"): one-time Act-1 switch — until

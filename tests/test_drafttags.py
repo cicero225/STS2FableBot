@@ -263,3 +263,39 @@ def test_router_integration_rupture_pick() -> None:
     fed = r._card_score(Card(), 12, "The Ironclad", act=2,
                         deck=[*_starter(), C("HEMOKINESIS")])
     assert fed > bare
+
+
+def test_early_damage_bonus_saturates_with_damage_picks() -> None:
+    """Owner (A/B #3 Sword Boomerang misdraft): the Act-1 damage-first bias must stop
+    paying once real damage picks are in — full below sat_start non-basic damage cards,
+    half at it, zero beyond. Same offer, three deck states."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class Cd:
+        def __init__(self, cid, name, desc, rarity="Common"):
+            self.id, self.name, self.description = cid, name, desc
+            self.type, self.cost, self.rarity = "Attack", "1", rarity
+            self.is_upgraded = False
+
+    offer = Cd("SWORD_BOOMERANG", "Sword Boomerang", "Deal 3 damage to a random enemy 3 times.")
+    w = r.config.card_rewards
+    fresh = _starter()  # 0 damage picks -> full bonus
+    # BULLY + DISMANTLE are real KB damage cards; TAUNT is not (control that non-damage
+    # picks don't count toward saturation)
+    two = [*_starter(), C("BULLY"), C("TAUNT", typ="Skill"), C("DISMANTLE")]
+    three = [*two, C("POMMEL_STRIKE")]
+
+    s_fresh = r._card_score(offer, len(fresh), "The Ironclad", act=1, deck=fresh)
+    s_two = r._card_score(offer, len(two), "The Ironclad", act=1, deck=two)
+    s_three = r._card_score(offer, len(three), "The Ironclad", act=1, deck=three)
+    # isolate the taper: deduct the tag adjustment differences by comparing against a
+    # non-damage twin offered to the same decks
+    twin = Cd("SWORD_BOOMERANG", "Sword Boomerang", "Gain 3 Block.")
+    d_fresh = s_fresh - r._card_score(twin, len(fresh), "The Ironclad", act=1, deck=fresh)
+    d_two = s_two - r._card_score(twin, len(two), "The Ironclad", act=1, deck=two)
+    d_three = s_three - r._card_score(twin, len(three), "The Ironclad", act=1, deck=three)
+    # full -> half -> zero, within the block-bonus offset shared by both comparisons
+    assert d_fresh - d_two >= 0.5 * w.early_damage_bonus - 1e-6
+    assert d_two - d_three >= 0.5 * w.early_damage_bonus - 1e-6
