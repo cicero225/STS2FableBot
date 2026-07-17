@@ -379,3 +379,8 @@ def test_matriarch_boss_rule_premiums_big_instances() -> None:
     assert abs(delta(chip)) < 1e-9      # 3-per-hit chip earns nothing
     assert delta(wall) >= rule["block_bonus"] - 1e-6
     assert abs(delta(dfd)) < 1e-9       # 5-block earns nothing
+
+    # Powers earn the sleep-window setup bonus (owner: 3 free turns amortize them)
+    rupture = Cd("RUPTURE", "Rupture",
+                 "Whenever you lose HP from a card, gain 1 Strength.", typ="Power")
+    assert delta(rupture) >= rule["power_bonus"] - 1e-6

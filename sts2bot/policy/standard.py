@@ -99,7 +99,11 @@ _OVERGROWTH_BOSSES = ("CEREMONIAL", "KIN", "VANTOM")
 # Extensible: Colossus x Vulnerable and Dark Shackles multi-attack notes are filed as
 # future entries.
 _BOSS_DRAFT_RULES: dict[str, dict] = {
-    "LAGAVULIN": {"min_hit": 12, "hit_bonus": 2.5, "min_block": 9, "block_bonus": 2.0},
+    # power_bonus (owner): her 3-turn sleep window is free setup time — Powers
+    # (Rupture, Juggernaut...) get their cost amortized before she even wakes,
+    # and even won fights run 7+ rounds, so the payoff horizon is guaranteed.
+    "LAGAVULIN": {"min_hit": 12, "hit_bonus": 2.5, "min_block": 9, "block_bonus": 2.0,
+                  "power_bonus": 1.5},
 }
 
 
@@ -1004,6 +1008,8 @@ class StandardRouter:
                 score += boss_rule["hit_bonus"]
             if fx.block >= boss_rule["min_block"]:
                 score += boss_rule["block_bonus"]
+            if (card.type or "") == "Power":
+                score += boss_rule.get("power_bonus", 0.0)
         if fx.energy_gain:
             score += w.bonus_energy
         # Early-damage bias (owner, Run-2/3): Act 1 favors cards that deliver damage, to get
