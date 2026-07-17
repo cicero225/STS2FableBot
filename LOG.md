@@ -2,6 +2,37 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-17 (Fable 5, session 5 close) — WIN #2 and act-reach 2.00: the clean build delivers
+
+**Batch b1i49b9k0 (first on the fixed build): 1 WIN, act-reach 2.00 — PROJECT RECORD**
+(win-era peak was 1.78; the previous batch 1.30). Four runs into Act 3 (f38 / f43 /
+f46 / f48-WIN), f17 arrival **10/10** (first zero-pre-boss-bleed batch of the era),
+f17 boss win 6/10 = 60% (win-era: 53%). HP prediction 85% on deep-content mix; sole
+systematic residual: player THORNS over-predicts our loss by 6.7 (n=9) — filed.
+
+**Win #2: seed 8WJBRSSHG7, Overgrowth (The Kin), f48.** The Ancients pass carried it
+(owner live-read agrees): Pael's Flesh (8.5) at f18 + Whispering Earring (5.5) at f34 —
+a double-energy-boon run — and the boon→draft steering visibly fired: Battle Trance ×2
++ Bloodletting+ ×2 drafted BECAUSE owned energy boons lift the draw penalty. 15 relics
+(late-shop routing live), Juggernaut+/Colossus/Taunt+ block seasoning. A coherent deck,
+not goodstuff.
+
+**Live-catch validations**: zero "not resolving; skip" across the batch (the debounce
+exemption ended select-screen forfeits); 20 catalog ancient picks incl. 4 unknown-boon
+clamps (new-epoch options handled gracefully); no bundle screens rolled (scoring
+untested live). **Normality remainder** caught by the owner mid-batch: STS2's text
+carries "(N cards left)" and we read only the static 3 — f45 planned a 3-card LETHAL
+with 1 play left, spent it on Bloodletting, and run 7 (f46, Act 3) died the next fight.
+Fixed same hour (15e4cf8); plausibly cost this batch a SECOND win.
+
+**Region watch (weights not yet live this batch)**: the four f17 deaths split 3
+Underdocks (Soul Fysh, Lagavulin Matriarch ×2) / 1 Overgrowth — same signature as the
+retrospective. The ud_* draft weights (90bc951) debut next batch; track arrival by
+region.
+
+Next: next batch (region weights + Normality fix live) → Lagavulin Matriarch sleep
+model → events pass. The fight-competence lane keeps its place behind knowledge
+patches — this batch is strong evidence the knowledge-first philosophy is paying.
 ## 2026-07-17 (Fable 5, session 5 cont.) — REGION SPLIT: the owner's Overgrowth/Underdocks hypothesis lands; "new content" claim corrected
 
 Owner hypothesis: Act 1 has two enemy-disjoint regions, elite players draft damage in
