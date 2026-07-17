@@ -561,6 +561,11 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 "empower" in (i.title or "").lower() or "strength" in (i.description or "").lower()
             ):
                 gains_strength = True
+            # A healer is a racer: every slow turn refunds its HP (Knowledge Demon healed
+            # ~30/cycle and out-healed a 29-damage plan, byupfrv22 f33 x2 — the race lane's
+            # ramp_damage/ramp_stall incentives are exactly right for it too).
+            if (i.type or "").lower() == "heal":
+                gains_strength = True
             if "summon" in text:
                 summons = True
         # Count damage from Attack AND DeathBlow intents. The Waterfall Giant's Steam-Eruption

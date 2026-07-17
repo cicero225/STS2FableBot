@@ -116,6 +116,12 @@ def audit(paths, min_n: int):
             pred_dmg = (first_plan.get("scores") or {}).get("plan_damage")
             if pred_dmg is None:
                 continue
+            # A Heal intent makes the HP-delta channel lie (Knowledge Demon healed ~30/
+            # cycle: a 29-damage turn read as -16 "dealt") — those turns are accounting
+            # noise, not model error; skip them rather than pollute the buckets.
+            if any((i.get("type") or "").lower() == "heal"
+                   for e in e0.values() for i in (e.get("intents") or [])):
+                continue
             # A killed enemy DROPS OUT of the next state's list, so `k not in e1` means we
             # dealt its full remaining HP (skipping those under-counted our own damage —
             # it read as the Nibbit "-18.6 less than predicted" artifact).
