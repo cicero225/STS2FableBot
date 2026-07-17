@@ -2,6 +2,33 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-17 (Fable 5, session 5 cont.) — REGION SPLIT: the owner's Overgrowth/Underdocks hypothesis lands; "new content" claim corrected
+
+Owner hypothesis: Act 1 has two enemy-disjoint regions, elite players draft damage in
+the **Overgrowth** and defense/scaling in the **Underdocks**, and our woes might be new
+Underdocks enemies + an Overgrowth-tuned policy. Retro over 451 runs (enemy
+co-occurrence union-find — no internet needed):
+- **Clean 2-component split**, bosses region-exclusive: OG = Ceremonial Beast / The Kin /
+  Vantom; UD = Lagavulin Matriarch / Soul Fysh / Waterfall Giant.
+- **"New enemies" half REFUTED** (correcting the previous entry's claim): first-seen
+  dates put the entire Act-1 roster before the win era. Act-1 killers are not new
+  content. (Knowledge Demon / Act 2+ newness still unverified.)
+- **Policy-fit half CONFIRMED**: arrival-at-f17 flipped exactly at the 07-14
+  damage-first rework — Overgrowth 72%→90%, **Underdocks 87%→77%** (n≈20/cell,
+  directional). The pre-boss bleeding is an Underdocks phenomenon; boss-fight win
+  rates fell region-agnostically (that part stays with the fight-competence lane).
+
+**Shipped (90bc951)**: region-conditional Act-1 draft bonuses. Region derived from the
+f1-cached boss name (`_act1_region`); Underdocks swaps the early bonuses (damage
+2.5→1.0, block 1.5→2.5 via `ud_*` weights — magnitudes provisional, owner: "will
+require tweaking"). Draft rationales now carry a region tag for per-batch eyeballing.
+**Watch item: track arrival-by-region in subsequent batches** (region_split.py in the
+session scratchpad does the retro; fold into a script/ tool if it earns its keep).
+
+Also this session, pre-batch fixes (see commits): Shrinker Beetle carrier lane
+(8fcbddf), Knowledge Demon = heal-race + harness noise not a damage-model bug
+(7dc9a29), early-damage saturation taper (0eead94). Batch b1i49b9k0 (running) carries
+everything EXCEPT the region weights, which debut next batch.
 ## 2026-07-17 (Fable 5, session 5) — Ancients pass validates live; era mystery flips to CONTENT; three live catches fixed mid-batch
 
 **Batch byupfrv22: 0/10, act-reach 1.30** (f17 boss ×5: Vantom, Lagavulin Matriarch ×2,
