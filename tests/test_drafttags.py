@@ -417,3 +417,27 @@ def test_vantom_boss_rule_premiums_multihit_and_big_block() -> None:
     assert delta(boomer) >= rule["multihit_bonus"] - 1e-6  # multi-hit strips Slippery
     assert abs(delta(single)) < 1e-9  # Vantom's rule has no big-hit premium
     assert delta(wall) >= rule["block_bonus"] - 1e-6  # blocks the 26-30 nuke
+
+
+def test_matriarch_rule_card_bonus_primal_force() -> None:
+    """A/B #4 (owner): Primal Force is named Matriarch tech — it converts a chip
+    deck's 8s into 16-damage Giant Rocks, mass-crossing her instance threshold."""
+    from sts2bot.policy.standard import StandardRouter, _boss_draft_rule
+
+    rule = _boss_draft_rule("Lagavulin Matriarch")
+    assert rule["card_bonus"]["PRIMAL_FORCE"] > 0
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class Cd:
+        def __init__(self):
+            self.id, self.name = "PRIMAL_FORCE", "Primal Force"
+            self.description = "Transform ALL Attacks you play this combat into Giant Rocks."
+            self.type, self.cost, self.rarity = "Power", "2", "Uncommon"
+            self.is_upgraded = False
+
+    deck = _starter()
+    with_rule = r._card_score(Cd(), 11, "The Ironclad", act=1, deck=deck, boss_rule=rule)
+    without = r._card_score(Cd(), 11, "The Ironclad", act=1, deck=deck)
+    # earns the named-card bonus ON TOP of the generic power bonus
+    assert with_rule - without >= (rule["card_bonus"]["PRIMAL_FORCE"]
+                                   + rule["power_bonus"]) - 1e-6

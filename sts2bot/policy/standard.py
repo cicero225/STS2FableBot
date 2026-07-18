@@ -102,8 +102,11 @@ _BOSS_DRAFT_RULES: dict[str, dict] = {
     # power_bonus (owner): her 3-turn sleep window is free setup time — Powers
     # (Rupture, Juggernaut...) get their cost amortized before she even wakes,
     # and even won fights run 7+ rounds, so the payoff horizon is guaranteed.
+    # card_bonus: owner-named tech for this boss (A/B #4: Primal Force converts a chip
+    # deck's 8s into 16-damage Giant Rocks — mass threshold-crossing; the sim already
+    # models primal_active in-fight).
     "LAGAVULIN": {"min_hit": 12, "hit_bonus": 2.5, "min_block": 9, "block_bonus": 2.0,
-                  "power_bonus": 1.5},
+                  "power_bonus": 1.5, "card_bonus": {"PRIMAL_FORCE": 2.5}},
     # Vantom (owner theory, forensics-confirmed on the 4 clean-build fights): Slippery 9
     # ate FIVE rounds of single-hit attacks (173→165 hp) in decks with zero multi-hits,
     # while his rigid cycle (small → x2 → 26/28/30+StatusCard → Empower) landed the big
@@ -1023,6 +1026,7 @@ class StandardRouter:
                 score += boss_rule.get("power_bonus", 0.0)
             if fx.hits >= boss_rule.get("min_hits", 10**6) and not is_xcost_damage:
                 score += boss_rule["multihit_bonus"]
+            score += (boss_rule.get("card_bonus") or {}).get((card.id or "").upper(), 0.0)
         if fx.energy_gain:
             score += w.bonus_energy
         # Early-damage bias (owner, Run-2/3): Act 1 favors cards that deliver damage, to get
