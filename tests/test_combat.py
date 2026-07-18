@@ -1413,3 +1413,29 @@ def test_primal_force_protects_keeper_attacks() -> None:
     assert set(plan) == {"Primal Force", "Strike", "Uppercut"}
     assert plan.index("Uppercut") < plan.index("Primal Force")
     assert plan.index("Strike") > plan.index("Primal Force")  # strike takes the upgrade
+
+
+def test_planner_focuses_rocket_in_kaiser_fight() -> None:
+    """Kaiser Crab forensics (2026-07-18): Rocket's escalating 27/33/49 nukes killed
+    all four f33 runs while the bot burst the tamer Crusher. Rocket is now a
+    kill-priority target — identical stats, the planner aims at ROCKET_0."""
+    w = load_policy_config().combat
+    enemy = {"hp": 60, "max_hp": 199, "block": 0, "status": [],
+             "intents": [{"type": "attack", "label": "10"}]}
+    state = {"state_type": "boss", "run": {"act": 2, "floor": 33, "ascension": 0},
+             "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                        "block": 0, "energy": 1, "status": [],
+                        "hand": [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1,
+                                        "Deal 6 damage.", "Attack", "AnyEnemy")]},
+             "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                        "enemies": [dict(enemy, entity_id="CRUSHER_0", name="Crusher"),
+                                    dict(enemy, entity_id="ROCKET_0", name="Rocket")]}}
+    d = plan_combat_turn(parse_state(state), w)
+    assert d.action.payload()["target"] == "ROCKET_0"
+
+
+def test_kaiser_boss_rule_exists() -> None:
+    from sts2bot.policy.standard import _boss_draft_rule
+
+    rule = _boss_draft_rule("Kaiser Crab")
+    assert rule and rule["min_block"] == 9 and rule["rest_loss_bonus"] > 0

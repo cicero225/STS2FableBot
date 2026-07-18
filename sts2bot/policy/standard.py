@@ -124,6 +124,11 @@ _BOSS_DRAFT_RULES: dict[str, dict] = {
     # levers are big block instances to absorb ~40 and entry HP to survive the ride
     # (both f17 deaths: all-5-block decks, killed him naked at ≤10 HP).
     "WATERFALL": {"min_block": 9, "block_bonus": 2.0, "rest_loss_bonus": 10.0},
+    # Kaiser Crab (forensics 2026-07-18, 4 f33 deaths): Rocket's escalating 27/33/49
+    # nukes landed on 0 block every time (all-small-block decks at f33), entries at
+    # 54-65 HP all died. Big blocks at draft + a healthier entry; the focus-Rocket
+    # targeting fix lives in combat.py's kill-priority lane.
+    "KAISER": {"min_block": 9, "block_bonus": 2.0, "rest_loss_bonus": 10.0},
 }
 
 

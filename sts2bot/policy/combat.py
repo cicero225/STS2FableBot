@@ -46,9 +46,13 @@ _PEN_NIB_PERIOD = 10  # Pen Nib: every 10th attack deals double damage (counter 
 # EMPTY; the machinery is kept tested-but-dormant in case a real guard enemy ships.
 _GUARD_PAIRS: dict[str, str] = {}
 
-# Enemies whose player-debuff is removed when they die (owner 2026-07-17): kill-priority
-# in multi-enemy fights via the carrier_damage lane. Matched on entity_id substring.
-_DEBUFF_CARRIERS = ("SHRINKER",)
+# Kill-priority targets in multi-enemy fights, matched on entity_id substring — extra
+# credit for damage into them while others live (the carrier_damage lane). Two cases:
+# SHRINKER (owner 2026-07-17): its player-debuff dies with it. ROCKET (Kaiser Crab
+# forensics 2026-07-18, 4 f33 deaths): the nuke claw escalates 27→33→49 single hits
+# that landed on 0 block in every loss while the bot burst the tamer Crusher instead —
+# removing Rocket removes the nukes.
+_DEBUFF_CARRIERS = ("SHRINKER", "ROCKET")
 
 
 @dataclass(frozen=True)
