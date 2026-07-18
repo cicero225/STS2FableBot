@@ -1439,3 +1439,32 @@ def test_kaiser_boss_rule_exists() -> None:
 
     rule = _boss_draft_rule("Kaiser Crab")
     assert rule and rule["min_block"] == 9 and rule["rest_loss_bonus"] > 0
+
+
+def test_intangible_enemy_reduces_every_instance_to_one() -> None:
+    """Soul Fysh forensics (2026-07-18): his periodic Intangible turns reduce every
+    damage instance to 1 — the sim was blind and planned two Strikes into one for 2
+    total damage while Beckons piled up. Attacks into Intangible now score ~nothing,
+    so the planner spends those turns blocking / clearing Beckons instead."""
+    out = _apply_attack(_state(_enemy(intangible=True)), 0, _attack(30))
+    assert out.damage_dealt == 1
+    out2 = _apply_attack(_state(_enemy(intangible=True)), 0, _attack(8, hits=3))
+    assert out2.damage_dealt == 3  # 1 per instance
+
+    # plan level: enemy Intangible + a Beckon in hand -> clear the Beckon, don't attack
+    w = load_policy_config().combat
+    intang = [{"id": "INTANGIBLE_POWER", "name": "Intangible", "amount": 1,
+               "description": "Reduce all damage taken and HP loss to 1."}]
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack",
+                   "AnyEnemy"),
+            _bcard(1, "BECKON", "Beckon", 1, _BECKON_DESC, "Status", "None")]
+    d = plan_combat_turn(parse_state(_beckon_state(1, hand, enemy_hp=100,
+                                                   enemy_status=intang)), w)
+    assert d.action.payload()["card_index"] == 1  # the Beckon clear wins the energy
+
+
+def test_soul_fysh_boss_rule_exists() -> None:
+    from sts2bot.policy.standard import _boss_draft_rule
+
+    rule = _boss_draft_rule("Soul Fysh")
+    assert rule and rule["min_block"] == 9

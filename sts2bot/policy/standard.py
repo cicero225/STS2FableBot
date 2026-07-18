@@ -129,6 +129,10 @@ _BOSS_DRAFT_RULES: dict[str, dict] = {
     # 54-65 HP all died. Big blocks at draft + a healthier entry; the focus-Rocket
     # targeting fix lives in combat.py's kill-priority lane.
     "KAISER": {"min_block": 9, "block_bonus": 2.0, "rest_loss_bonus": 10.0},
+    # Soul Fysh (forensics 2026-07-18): Beckon-flood action tax + periodic Intangible
+    # turns (now modeled in the sim) + escalating 24-hit turns on small blocks. Big
+    # blocks premiumed; the Intangible/Beckon play fixes live in combat.py.
+    "SOUL FYSH": {"min_block": 9, "block_bonus": 2.0},
 }
 
 

@@ -283,6 +283,10 @@ class EnemySim:
     # prices the block-up turn. Killing ASAP is correct (smaller stack); no same-turn
     # debt coupling (tried and reverted — it made the planner stall on kill turns).
     # The remaining levers are draft-side: WATERFALL boss rule + rest-gate bump.
+    # Intangible: all damage instances into it become 1 (Soul Fysh's periodic shield
+    # turns, 2026-07-18: two Strikes into it dealt 2 total while Beckons piled up —
+    # the planner now spends those turns blocking/clearing instead of attacking).
+    intangible: bool = False
     summons: bool = False  # has a Summon intent — its minions are replaceable, so race it
     illusion: bool = False  # "Illusion": revives at full HP when killed — grinding it is futile
     # damage-throttling (ENEMY_PASS): first HP-loss/turn -> 1 (Slippery); a hard per-turn HP-loss
@@ -548,6 +552,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         spawns_on_death = False
         burrowed = False
         ravenous = False
+        intangible = False
         for p in e.status:
             # live ids carry a _POWER suffix (VULNERABLE_POWER); startswith, not ==, or
             # pre-existing stacks are invisible (the owner-caught Colossus/Ringing miss —
@@ -577,6 +582,8 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 burrowed = True
             if p.id.upper().startswith("RAVENOUS"):  # Corpse Slug: ally-death = self-stun
                 ravenous = True
+            if p.id.upper().startswith("INTANGIBLE") and (p.amount or 0) > 0:
+                intangible = True
             low_desc = (p.description or "").lower()
             if "INFESTED" in p.id.upper() or ("dying" in low_desc and "summon" in low_desc):
                 spawns_on_death = True
@@ -618,6 +625,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 debuff_carrier=any(
                     k in (e.entity_id or "").upper() for k in _DEBUFF_CARRIERS
                 ),
+                intangible=intangible,
                 summons=summons,
                 illusion=illusion,
                 slippery_stacks=slippery_stacks,
@@ -720,6 +728,8 @@ def _apply_attack(
         block -= absorbed
         dealt = per_hit - absorbed
         if dealt > 0:
+            if e.intangible:  # Soul Fysh shield turn: every HP-loss instance becomes 1
+                dealt = 1
             if slip > 0:  # Slippery: this HP-loss instance drops to 1 and spends a charge
                 dealt = 1
                 slip -= 1
