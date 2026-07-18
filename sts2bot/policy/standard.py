@@ -118,6 +118,12 @@ _BOSS_DRAFT_RULES: dict[str, dict] = {
     # 379 HP + the Disintegration clock (6→13→21/turn), which the generic Act-2 boss
     # dps estimate can't see. rest_loss_bonus lifts the pre-boss rest gate's demand.
     "KNOWLEDGE": {"rest_loss_bonus": 15.0},
+    # Waterfall Giant (owner-confirmed 2026-07-18): dying, he ALWAYS erupts for his
+    # Steam stack 1-2 turns later — telegraphed DeathBlow, blockable, surviving = the
+    # win. The in-fight turn is priced by the existing DeathBlow-intent lane; the
+    # levers are big block instances to absorb ~40 and entry HP to survive the ride
+    # (both f17 deaths: all-5-block decks, killed him naked at ≤10 HP).
+    "WATERFALL": {"min_block": 9, "block_bonus": 2.0, "rest_loss_bonus": 10.0},
 }
 
 

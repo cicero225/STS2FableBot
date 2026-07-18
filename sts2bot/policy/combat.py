@@ -268,6 +268,12 @@ class EnemySim:
     # Its player-debuff dies with it (owner 2026-07-17: Shrinker Beetle's big damage
     # debuff lifts on its death) — racing it down pays while OTHER enemies still live.
     debuff_carrier: bool = False
+    # Waterfall Giant death-eruption (owner-confirmed 2026-07-18): at 0 HP he always
+    # erupts for his Steam stack — but 1-2 turns LATER, telegraphed as a DeathBlow
+    # intent from the invincible phase, so the EXISTING DeathBlow-intent incoming lane
+    # prices the block-up turn. Killing ASAP is correct (smaller stack); no same-turn
+    # debt coupling (tried and reverted — it made the planner stall on kill turns).
+    # The remaining levers are draft-side: WATERFALL boss rule + rest-gate bump.
     summons: bool = False  # has a Summon intent — its minions are replaceable, so race it
     illusion: bool = False  # "Illusion": revives at full HP when killed — grinding it is futile
     # damage-throttling (ENEMY_PASS): first HP-loss/turn -> 1 (Slippery); a hard per-turn HP-loss

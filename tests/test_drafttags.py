@@ -441,3 +441,15 @@ def test_matriarch_rule_card_bonus_primal_force() -> None:
     # earns the named-card bonus ON TOP of the generic power bonus
     assert with_rule - without >= (rule["card_bonus"]["PRIMAL_FORCE"]
                                    + rule["power_bonus"]) - 1e-6
+
+
+def test_waterfall_rule_premiums_big_blocks_and_rest() -> None:
+    """Waterfall Giant (owner-confirmed): the death-eruption lands 1-2 turns after the
+    kill as a telegraphed DeathBlow — the fight-side lane exists; the draft/route
+    levers are big block instances (absorb ~40) and entry HP (rest_loss_bonus)."""
+    from sts2bot.policy.standard import _boss_draft_rule
+
+    rule = _boss_draft_rule("Waterfall Giant")
+    assert rule is not None
+    assert rule["min_block"] == 9 and rule["rest_loss_bonus"] > 0
+    assert "min_hit" not in rule  # no big-hit premium: kill-ASAP works at any size
