@@ -2,6 +2,30 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-18 (Fable 5, session 8) — Kaiser Crab + Soul Fysh audited; enemy Intangible lands in the sim
+
+**Kaiser Crab (4 f33 deaths, cdd6257)**: the fight is Crusher+Rocket, and Rocket
+decided every loss — escalating 27→33→49 nukes onto 0 block while the bot burst the
+tamer Crusher (one fight: Crusher 209→39 as Rocket wound up the killing 49). ROCKET
+joins the kill-priority lane (focus him while both claws live); KAISER rule: block≥9
++2.0 at draft, rest +10 (54-65hp entries all died).
+
+**Soul Fysh (2 f17 deaths, 5c6d091)**: three-axis squeeze — Beckon flood (2/cycle;
+mid-fight the bot spends 1-3 plays/turn on garbage disposal; one death turn held FOUR),
+periodic **INTANGIBLE turns the sim was blind to** (two Strikes into one dealt 2 total
+damage), escalating 16→24 hits on small blocks. **Enemy Intangible now modeled**: every
+damage instance → 1, so the planner naturally spends shield turns clearing Beckons and
+blocking. Likely closes the ancient +2.4 Soul Fysh harness residual. SOUL FYSH rule:
+block≥9 +2.0. (Player-side Intangible / Apparition play value still unmodeled — the
+Distinguished Cape reprice trigger stays open.)
+
+**Boss-rule table complete for all observed repeat killers**: LAGAVULIN, VANTOM,
+KNOWLEDGE, WATERFALL, KAISER, SOUL FYSH + kill-priority (SHRINKER, ROCKET). Recurring
+meta-signature across five bosses: chronic lack of BIG BLOCK INSTANCES — if it persists
+next batch, promote to a global draft term instead of per-boss premiums.
+
+Next batch validates focus-Rocket + KAISER + SOUL FYSH live. Then: new-epoch triage,
+recorder bug, events pass.
 ## 2026-07-18 (Fable 5, session 7 close) — Validation batch 1.80 (win-era level); Underdocks climbing; Kaiser Crab is the wall
 
 **Batch bw8aag1aa (Vantom rule + Smith targeting + rest bumps + Primal Force pkg +
