@@ -350,7 +350,7 @@ def test_matriarch_boss_rule_premiums_big_instances() -> None:
     from sts2bot.policy.standard import StandardRouter, _boss_draft_rule
 
     assert _boss_draft_rule("Lagavulin Matriarch") is not None
-    assert _boss_draft_rule("The Kin") is None
+    assert _boss_draft_rule("Ceremonial Beast") is None  # no rule for him (yet)
     assert _boss_draft_rule(None) is None
 
     r = StandardRouter(combat_stats=None, bestiary={})
@@ -453,3 +453,31 @@ def test_waterfall_rule_premiums_big_blocks_and_rest() -> None:
     assert rule is not None
     assert rule["min_block"] == 9 and rule["rest_loss_bonus"] > 0
     assert "min_hit" not in rule  # no big-hit premium: kill-ASAP works at any size
+
+
+def test_kin_rule_premiums_aoe() -> None:
+    """The Kin (2 Followers + 190-HP Priest): AoE is the axis — the one death-deck
+    with Conflagration cleared the Followers by r5 and nearly won from 52hp. X-cost
+    spend-energy damage (Whirlwind) stays excluded per the owner's standing read."""
+    from sts2bot.policy.standard import StandardRouter, _boss_draft_rule
+
+    rule = _boss_draft_rule("The Kin")
+    assert rule and rule["aoe_bonus"] > 0
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    class Cd:
+        def __init__(self, cid, name, desc, cost="1"):
+            self.id, self.name, self.description = cid, name, desc
+            self.type, self.cost, self.rarity = "Attack", cost, "Rare"
+            self.is_upgraded = False
+
+    deck = _starter()
+    confl = Cd("CONFLAGRATION", "Conflagration", "Deal 2 damage to ALL enemies 4 times.")
+    whirl = Cd("WHIRLWIND", "Whirlwind", "Deal 5 damage to ALL enemies X times.", "X")
+
+    def delta(card):
+        return (r._card_score(card, 11, "The Ironclad", act=1, deck=deck, boss_rule=rule)
+                - r._card_score(card, 11, "The Ironclad", act=1, deck=deck))
+
+    assert delta(confl) >= rule["aoe_bonus"] - 1e-6
+    assert abs(delta(whirl)) < 1e-9  # X-cost exclusion holds

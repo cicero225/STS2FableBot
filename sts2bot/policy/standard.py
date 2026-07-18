@@ -133,6 +133,11 @@ _BOSS_DRAFT_RULES: dict[str, dict] = {
     # turns (now modeled in the sim) + escalating 24-hit turns on small blocks. Big
     # blocks premiumed; the Intangible/Beckon play fixes live in combat.py.
     "SOUL FYSH": {"min_block": 9, "block_bonus": 2.0},
+    # The Kin (forensics 2026-07-18, ~5 lifetime): 2 Followers + a 190-HP Priest =
+    # 307 aggregate HP with permanent Frail/Weak cycling. AoE is the axis (the one
+    # deck with Conflagration cleared the Followers by r5 and nearly won from a
+    # 52hp entry); entries at 38/52 both died — the fight costs ~55.
+    "THE KIN": {"aoe_bonus": 2.0, "rest_loss_bonus": 10.0},
 }
 
 
@@ -1041,6 +1046,8 @@ class StandardRouter:
                 score += boss_rule.get("power_bonus", 0.0)
             if fx.hits >= boss_rule.get("min_hits", 10**6) and not is_xcost_damage:
                 score += boss_rule["multihit_bonus"]
+            if fx.aoe and not is_xcost_damage:  # multi-body boss (The Kin)
+                score += boss_rule.get("aoe_bonus", 0.0)
             score += (boss_rule.get("card_bonus") or {}).get((card.id or "").upper(), 0.0)
         if fx.energy_gain:
             score += w.bonus_energy
