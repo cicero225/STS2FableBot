@@ -223,6 +223,11 @@ class PlannedCard:
     is_power: bool = False  # Power card: playing it banks a permanent buff (play eagerly)
     self_damage_power: bool = False  # per-turn self-HP power (Inferno): no front-load at low HP
     primal_force: bool = False  # Primal Force: transforms later Attacks into 16-dmg Giant Rocks
+    # Safe to feed to an active Primal Force (owner 2026-07-18: the transform is a
+    # PERMANENT deck rewrite — "upgrade your strikes, but not the attack cards you
+    # actually want to keep around"). Strikes and rider-less small attacks are fodder;
+    # anything with debuffs/draw/block riders or big base damage is a keeper.
+    primal_fodder: bool = False
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
     # debuff types this card applies to the *target* enemy, in card-TEXT order (Uppercut = Weak
@@ -360,6 +365,7 @@ class SimState:
     ramp_damage: int = 0  # damage dealt to strength-gaining enemies (rewarded: race them)
     carrier_damage: int = 0  # damage to debuff carriers while others live (their death lifts it)
     primal_active: bool = False  # Primal Force played: later Attacks are 16-dmg Giant Rocks
+    keepers_rocked: int = 0  # keeper attacks fed to an active Primal Force (permanent downgrade)
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
     pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
@@ -494,6 +500,15 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         is_power=is_power,
         self_damage_power=self_damage_power,
         primal_force=primal_force,
+        # fodder = Strikes, or rider-less attacks a 16-dmg Rock strictly upgrades
+        primal_fodder=(
+            (card.id or "").upper().startswith("STRIKE_")
+            or (card.type == "Attack"
+                and fx.damage * max(1, fx.hits) <= _PRIMAL_ROCK_DAMAGE
+                and not (fx.vulnerable or fx.weak or fx.block or fx.draw
+                         or fx.strength or fx.energy_gain or per_vuln_dmg
+                         or per_vuln_str or target_str_down))
+        ),
         rage_block=rage_block,
         hand_exhaust_scale=hand_exhaust_scale,
         debuff_order=debuff_order,
@@ -780,6 +795,10 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             state.self_damage_powers_played + (1 if card.self_damage_power else 0)
         ),
         primal_active=state.primal_active or card.primal_force,
+        keepers_rocked=state.keepers_rocked + (
+            1 if (state.primal_active and card.is_attack and not card.primal_fodder)
+            else 0
+        ),
         facing=facing,
         played=(*state.played, (card.index, target_id)),
     )
@@ -1094,6 +1113,7 @@ def _score(
         + w.w_rage_sequence * state.rage_block_granted
         + w.w_ramp_damage * state.ramp_damage
         + w.w_carrier_damage * state.carrier_damage
+        + w.w_primal_keeper * state.keepers_rocked
         # turtling a ramper loses (Damp Cultist 2026-07-16: four all-block turns vs a
         # +5/turn Ritual, died at full-HP enemy) — damageless turns pay while one lives
         + (w.w_ramp_stall

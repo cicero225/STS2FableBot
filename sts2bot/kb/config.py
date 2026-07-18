@@ -72,6 +72,10 @@ class CombatWeights(_Section):
     # Extra value for damaging a debuff CARRIER (Shrinker Beetle) while other enemies
     # live — its death lifts the player-debuff for the rest of the fight (owner 2026-07-17)
     w_carrier_damage: float = 1.5
+    # Keeper attack played while Primal Force is active = PERMANENT downgrade to a
+    # 16-dmg Giant Rock (owner 2026-07-18: "upgrade your strikes, not the attacks you
+    # want to keep"). The DFS discovers keeper-BEFORE-PF ordering from this penalty.
+    w_primal_keeper: float = -6.0
     w_crab_rage_split: float = -20.0  # small penalty for a 1-claw-dead split (1-turn enrage stall)
     max_sequences: int = 4000
     survival_status_threshold: int = 2

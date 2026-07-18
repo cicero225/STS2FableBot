@@ -1390,3 +1390,26 @@ def test_normality_live_remainder_caps_the_plan() -> None:
     d3 = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=100, hp=70)), w)
     plan3 = d3.rationale.split("[")[1].split("]")[0]
     assert plan3.count(">") + 1 == 3
+
+
+def test_primal_force_protects_keeper_attacks() -> None:
+    """Owner 2026-07-18 ('very finicky card'): Primal Force's transform is a PERMANENT
+    deck rewrite — Strikes upgrade into 16-dmg Giant Rocks, but keeper attacks (riders,
+    big hits) get destroyed. The keeper penalty makes the DFS discover the right
+    ordering on its own: keepers BEFORE Primal Force, Strikes after."""
+    w = load_policy_config().combat
+    pf = _bcard(0, "PRIMAL_FORCE", "Primal Force", 1,
+                "Transform ALL Attacks you play this combat into Giant Rocks.",
+                "Power", "None")
+    strike = _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack",
+                    "AnyEnemy")
+    upper = _bcard(2, "UPPERCUT", "Uppercut", 1,
+                   "Deal 13 damage. Apply 1 Weak. Apply 1 Vulnerable.", "Attack",
+                   "AnyEnemy")
+    state = _beckon_state(3, [pf, strike, upper], enemy_hp=200, hp=70)
+    d = plan_combat_turn(parse_state(state), w)
+    plan = d.rationale.split("[")[1].split("]")[0].split(" > ")
+    # all three played, keeper never after Primal Force
+    assert set(plan) == {"Primal Force", "Strike", "Uppercut"}
+    assert plan.index("Uppercut") < plan.index("Primal Force")
+    assert plan.index("Strike") > plan.index("Primal Force")  # strike takes the upgrade
