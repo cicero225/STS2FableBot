@@ -2,6 +2,25 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-18 (Fable 5, session 7 close) — Validation batch 1.80 (win-era level); Underdocks climbing; Kaiser Crab is the wall
+
+**Batch bw8aag1aa (Vantom rule + Smith targeting + rest bumps + Primal Force pkg +
+Waterfall rule all live): 0/10 but act-reach 1.80** — win-era average, second-best
+batch ever. **Arrival 40/40** across the clean build. Run 9 died AT THE ACT-3 BOSS
+(f48, "Test Subject" — new-epoch content, deepest loss on record); run 6 f44.
+
+**Boss-rule scoreboard**: Lagavulin Matriarch down to 1 f17 kill (was 3) with her full
+package live; Underdocks past-f17 climbing 1/5 → 3/6 → **4/7** across the three
+region-weight batches. No Waterfall rolls (rule untested). **Kaiser Crab ×3 at f33**
+(4 lifetime) — clearly the next audit; Soul Fysh ×2 f17 also unstudied.
+HP prediction 84%; new residual: player STRENGTH_POWER bucket takes 7.3 MORE than
+predicted (n=7 — possibly the Matriarch's negative-Strength display; file with THORNS).
+
+New-epoch names seen: Test Subject (Act-3 boss), The Lost and Forgotten (Act-3
+normal). Bestiary harvest picks them up automatically; boon triage still pending.
+
+Next: Kaiser Crab audit → Soul Fysh audit → events pass. Primal Force keeper
+protection (24f3ea2) shipped this session: DFS discovers keepers-before-PF unaided.
 ## 2026-07-18 (Fable 5, session 7) — A/B #4 (Matriarch): the region weights make the owner's pick; boss-rule round 2 ships
 
 **A/B #4, seed Q9R71WZ58T** (bot's 135659 f17 death, 68hp entry, four 8s + one 17):
