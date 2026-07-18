@@ -5,7 +5,10 @@
 ## 2026-07-18 (Fable 5, session 7) — A/B #4 (Matriarch): the region weights make the owner's pick; boss-rule round 2 ships
 
 **A/B #4, seed Q9R71WZ58T** (bot's 135659 f17 death, 68hp entry, four 8s + one 17):
-owner piloted blind, went deep into Act 3.
+owner piloted blind and **WON the run** — humans are now 2-for-2 on bot death seeds
+(A/B #3, #4). The win toggled ANOTHER epoch: **all seeds stale again; new-content
+triage next session.** (Recorder bug filed: outcome meta came back all-null despite a
+normal win + the game staying open — the extraction failed silently this time.)
 - **Convergence headline: at the f2 offer [Anger, Stone Armor, Twin Strike] the bot's
   new machinery made the owner's exact pick** — Stone Armor at 13.0, underdocks-tagged
   — a pick the owner called "breaking my own damage-early rule" (Anger is actively bad
