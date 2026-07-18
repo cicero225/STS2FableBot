@@ -2,6 +2,43 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-18 (Fable 5, session 7) — A/B #4 (Matriarch): the region weights make the owner's pick; boss-rule round 2 ships
+
+**A/B #4, seed Q9R71WZ58T** (bot's 135659 f17 death, 68hp entry, four 8s + one 17):
+owner piloted blind, went deep into Act 3.
+- **Convergence headline: at the f2 offer [Anger, Stone Armor, Twin Strike] the bot's
+  new machinery made the owner's exact pick** — Stone Armor at 13.0, underdocks-tagged
+  — a pick the owner called "breaking my own damage-early rule" (Anger is actively bad
+  vs the Matriarch; 4 early Plating is real). Region weights turning expert judgment
+  into the top score, on the same reasoning.
+- Owner divergences: Plating as a deck THEME (Stone Armor ×3 + upgrade), **Primal
+  Force at f9 as dedicated Matriarch tech** (converts chip 8s into 16-dmg Giant Rocks
+  — mass threshold-crossing; needs piloting to avoid transforming keeper attacks; our
+  sim's primal_active already sequences within-turn), entry at 88hp vs the bot's 68,
+  potion usage "at the edges" of her fight.
+- **Act 3 ceiling demo: Delicate Frond + 5 potion slots = most potions played every
+  fight** — "a bonanza of stuff the bot currently cannot do" (edge-casey, but the
+  relic-conditional potion-aggressiveness switch from §8.5.4 notes just got a live
+  exhibit).
+
+**Shipped this session (boss-rule round 2 + 3):**
+- Knowledge Demon: heal-race EXONERATED by trace (33/turn, +26 through his heal); the
+  deaths were 52-56hp entries. KNOWLEDGE rest_loss_bonus +15 lifts the pre-boss gate
+  ~66→82 (5feb164).
+- Boss-aware Smith targeting: upgrades crossing the act boss's instance threshold
+  (Headbutt 6→12) earn +2.0 on the upgrade key — second lever vs the Matriarch's
+  offer-stream constraint (5feb164).
+- Primal Force card_bonus (+2.5 vs LAGAVULIN) via new per-boss named-tech dict (454ee92).
+- **Waterfall Giant solved** (owner mechanics: eruption = death mechanic, fires 1-2
+  turns after 0 HP as a telegraphed DeathBlow, blockable, surviving = winning). First
+  same-turn debt model REVERTED after owner's timing clarification (it made the
+  planner stall on kill turns — the sim caught it before it shipped); the existing
+  DeathBlow-intent lane already prices the block-up turn, and kill-ASAP is correct.
+  WATERFALL rule: block≥9 +2.0, rest_loss_bonus +10 (575c315).
+
+Boss-rule table now: LAGAVULIN (hits/blocks/powers/Primal Force), VANTOM (multi-hit/
+blocks), KNOWLEDGE (rest), WATERFALL (blocks/rest). Remaining audits: Insatiable ×2,
+Kaiser Crab. Then the events pass.
 ## 2026-07-17 (Fable 5, session 6) — Boss-rule era opens: Matriarch rule bites (1/4), Vantom rule shipped, arrival streak 30/30; the second wall is f33
 
 **Batch bgni3z63s (region + Matriarch rule + Spoils Map + Normality live): 0/10,
