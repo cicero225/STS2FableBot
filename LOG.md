@@ -2,6 +2,25 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-18 (Fable 5, session 8 close) — Batch bwvwblkf9: fixes verified live (1.60); the wall rotates to the UNSTUDIED (Kin, Insatiable)
+
+**0/10, act-reach 1.60.** Arrival streak ended at 41 (f15 Snapping Jaxfruit normal —
+first pre-boss death in five batches). Second consecutive batch to reach the ACT-3
+BOSS: f48 vs Queen (win #1's boss). f17 deaths ×6: Kin ×2, Matriarch, Soul Fysh,
+Waterfall Giant (his rule's first live roll — lost), plus the f15.
+
+**Fix validation (grep-confirmed live)**: Kaiser targeting now favors Rocket (4:1,
+11:7 ratios; 1 Kaiser death, was 3); Soul Fysh Intangible turns flipped to non-attack
+plans (3:1, 3:0, 5:1 non-attack-first). The audit → rule → validate loop is tight.
+
+**Killer board rotation — the studied bosses recede, the UNSTUDIED lead**: The Kin ×2
+this batch (~5 lifetime, never audited — multi-creature boss, the §5-C bestiary
+composition case), The Insatiable f33 (3 lifetime, A/B #3's boss, never audited).
+These two are the next forensics targets. Waterfall rule needs more rolls to judge.
+
+Next session: Kin audit → Insatiable audit → new-epoch triage → recorder bug →
+events pass. Watch: big-block scarcity (global-term candidate), region weights
+(4 batches of data now), THORNS/STRENGTH_POWER harness residuals.
 ## 2026-07-18 (Fable 5, session 8) — Kaiser Crab + Soul Fysh audited; enemy Intangible lands in the sim
 
 **Kaiser Crab (4 f33 deaths, cdd6257)**: the fight is Crusher+Rocket, and Rocket
