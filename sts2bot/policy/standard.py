@@ -110,6 +110,11 @@ _BOSS_DRAFT_RULES: dict[str, dict] = {
     # hit on zero block every time (largest block instance in all four decks: 5).
     # Opposite attack profile from the Matriarch — which is why the table is boss-keyed.
     "VANTOM": {"min_block": 9, "block_bonus": 2.0, "min_hits": 2, "multihit_bonus": 2.0},
+    # Knowledge Demon (f33 recheck 2026-07-18): the heal-race plays him RIGHT (33/turn
+    # in one loss, +26 net through his heal) — the deaths were entries at 52-56 HP vs
+    # 379 HP + the Disintegration clock (6→13→21/turn), which the generic Act-2 boss
+    # dps estimate can't see. rest_loss_bonus lifts the pre-boss rest gate's demand.
+    "KNOWLEDGE": {"rest_loss_bonus": 15.0},
 }
 
 
@@ -1270,7 +1275,8 @@ class StandardRouter:
     _DEBUFF_PREFERENCE = ("DISINTEGRATION", "MIND_ROT", "SLOTH", "WASTE_AWAY")
 
     def _pick_target(self, cs, prefer_worst: bool, character, exclude=(),
-                     free_this_turn: bool = False, deck: list | None = None):
+                     free_this_turn: bool = False, deck: list | None = None,
+                     boss_rule: dict | None = None):
         prompt = (cs.prompt or "").lower()
         candidates = [c for c in cs.cards if c.index not in exclude]
         # All options are Status-type = a forced pick-your-poison, not a reward: choose the
@@ -1293,9 +1299,26 @@ class StandardRouter:
         if is_upgrade:
             # Upgrade the card that GAINS the most (Spirebird upgraded-vs-base delta),
             # tie-broken by base quality; missing deltas default to a typical gain.
+            # Boss-aware Smith (owner lever 2026-07-17): an upgrade that pushes an
+            # instance ACROSS the act boss's threshold (Headbutt 6→12 vs the
+            # Matriarch's Str/Dex clock) is worth more than its generic delta says —
+            # the offer stream is the binding constraint; Smithing widens it.
             def upgrade_key(c):
                 uv = self.priors.upgrade_value(c.id, character) if self.priors else None
-                return (uv if uv is not None else 1.5, self._card_quality(c, character))
+                uv = uv if uv is not None else 1.5
+                if boss_rule and self.card_effects:
+                    cid = (c.id or "").upper()
+                    base_fx = parse_card_description(
+                        self.card_effects.get(f"{cid}|0") or "")
+                    up_fx = parse_card_description(
+                        self.card_effects.get(f"{cid}|1") or "")
+                    mh = boss_rule.get("min_hit")
+                    if mh and base_fx.damage < mh <= up_fx.damage:
+                        uv += 2.0
+                    mb = boss_rule.get("min_block")
+                    if mb and base_fx.block < mb <= up_fx.block:
+                        uv += 1.5
+                return (uv, self._card_quality(c, character))
 
             return max(candidates, key=upgrade_key)
         # Cards that WANT to be exhausted (owner 2026-07-14): Howl/Bombardment replay from
@@ -1399,7 +1422,9 @@ class StandardRouter:
         in_combat = state.player is not None and bool(state.player.in_combat)
         if resolves_on_select:
             target = self._pick_target(cs, prefer_worst, character, free_this_turn=in_combat,
-                                       deck=state.player.deck if state.player else None)
+                                       deck=state.player.deck if state.player else None,
+                                       boss_rule=_boss_draft_rule(
+                                           ctx.screen_mem.get("act_boss_name")))
             if mem["tries"] < self._CHOOSE_RETRIES and target is not None:
                 mem["tries"] += 1
                 return Decision(
@@ -1423,7 +1448,9 @@ class StandardRouter:
         if cs.cards and len(picked) < needed:
             target = self._pick_target(cs, prefer_worst, character, exclude=picked,
                                        free_this_turn=in_combat,
-                                       deck=state.player.deck if state.player else None)
+                                       deck=state.player.deck if state.player else None,
+                                       boss_rule=_boss_draft_rule(
+                                           ctx.screen_mem.get("act_boss_name")))
             if target is not None:
                 picked.append(target.index)
                 kind = "worst" if prefer_worst else "best"
@@ -1521,6 +1548,11 @@ class StandardRouter:
             est = self.combat_stats.expected_loss("boss") if self.combat_stats else None
             if est is None:
                 est = w.default_boss_loss
+            # Clock bosses (Knowledge Demon's Disintegration) cost more than the
+            # aggregate boss history says — per-boss bump via _BOSS_DRAFT_RULES.
+            rule = _boss_draft_rule(ctx.screen_mem.get("act_boss_name"))
+            if rule:
+                est += rule.get("rest_loss_bonus", 0.0)
             needed = est * w.boss_safety_factor
             should_rest = hp < needed
             rest_why = f"rest: {hp} HP < ~{needed:.0f} needed for boss (est loss {est:.0f})"

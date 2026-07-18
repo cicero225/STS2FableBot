@@ -2779,3 +2779,61 @@ def test_spoils_map_is_exhaust_fodder_but_never_removed() -> None:
     # TRANSFORM: same protection
     st4 = _card_select_state("select", "Choose a card to Transform.", [spoils, strike])
     assert r.decide(st4, LoopContext()).action.payload()["index"] == 1
+
+
+def test_boss_aware_smith_prefers_threshold_crossing_upgrade() -> None:
+    """Owner lever 2026-07-17: vs the Matriarch the offer stream is the binding
+    constraint — Smithing widens it. An upgrade that crosses her per-instance
+    threshold (Headbutt 6->12) outranks a same-screen Strike (6->9, never crosses)."""
+    from sts2bot.policy.standard import _boss_draft_rule
+
+    r = router()
+    rule = _boss_draft_rule("Lagavulin Matriarch")
+
+    class CS:
+        prompt = "Choose a card to Upgrade."
+
+        def __init__(self, cards):
+            self.cards = cards
+
+    class C:
+        def __init__(self, i, cid, name):
+            self.index, self.id, self.name = i, cid, name
+            self.type, self.cost, self.rarity = "Attack", "1", "Common"
+            self.is_upgraded = False
+            self.description = ""
+
+    cs = CS([C(0, "STRIKE_IRONCLAD", "Strike"), C(1, "HEADBUTT", "Headbutt")])
+    pick = r._pick_target(cs, prefer_worst=False, character="The Ironclad",
+                          boss_rule=rule)
+    assert pick.id == "HEADBUTT"
+
+
+def test_pre_boss_rest_gate_demands_more_vs_clock_boss() -> None:
+    """Knowledge Demon recheck (2026-07-18): both f33 deaths raced him correctly and
+    still died from 52-56 HP entries — his Disintegration clock isn't in the generic
+    boss estimate. The rest gate demands rest_loss_bonus more HP when he's the boss."""
+    from sts2bot.policy.standard import StandardRouter, _boss_draft_rule
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    w = r.config.rest
+    payload = json.loads(json.dumps(FIXTURES["rest_site"]))
+    est = r.combat_stats.expected_loss("boss") if r.combat_stats else None
+    est = est if est is not None else w.default_boss_loss
+    bump = _boss_draft_rule("Knowledge Demon")["rest_loss_bonus"]
+    # an HP strictly between the generic threshold and the Demon-bumped one
+    hp = int((est + bump / 2) * w.boss_safety_factor)
+    payload["player"]["hp"] = hp
+    payload["player"]["max_hp"] = 90
+
+    ctx = LoopContext()
+    ctx.screen_mem["pre_boss"] = True
+    ctx.screen_mem["act_boss_name"] = "Vantom"
+    d_vantom = r.decide(parse_state(payload), ctx)
+    assert "smith" in d_vantom.rationale or "covers the boss" in d_vantom.rationale
+
+    ctx2 = LoopContext()
+    ctx2.screen_mem["pre_boss"] = True
+    ctx2.screen_mem["act_boss_name"] = "Knowledge Demon"
+    d_demon = r.decide(parse_state(payload), ctx2)
+    assert d_demon.rationale.startswith("rest")
