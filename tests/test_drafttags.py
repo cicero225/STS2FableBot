@@ -481,3 +481,13 @@ def test_kin_rule_premiums_aoe() -> None:
 
     assert delta(confl) >= rule["aoe_bonus"] - 1e-6
     assert abs(delta(whirl)) < 1e-9  # X-cost exclusion holds
+
+
+def test_insatiable_rule_names_barricade() -> None:
+    """The Insatiable: A/B #3's human win came from a Barricade block engine banking
+    93 — Barricade is named tech vs him, big blocks premiumed, rest gate bumped."""
+    from sts2bot.policy.standard import _boss_draft_rule
+
+    rule = _boss_draft_rule("The Insatiable")
+    assert rule and rule["min_block"] == 9 and rule["rest_loss_bonus"] > 0
+    assert rule["card_bonus"]["BARRICADE"] > 0

@@ -138,6 +138,13 @@ _BOSS_DRAFT_RULES: dict[str, dict] = {
     # deck with Conflagration cleared the Followers by r5 and nearly won from a
     # 52hp entry); entries at 38/52 both died — the fight costs ~55.
     "THE KIN": {"aoe_bonus": 2.0, "rest_loss_bonus": 10.0},
+    # The Insatiable (3 lifetime; A/B #3's boss): pure escalating attrition — Empower
+    # cycle with 6-status-card pollution, 8x2 → 28 → 12x2 → 30 output onto our small
+    # blocks. The PROVEN human answer (A/B #3 win from a 51hp entry) was a Barricade
+    # block engine banking 93 — so Barricade is named tech, big blocks premiumed,
+    # and the rest gate demands a healthier entry (61 and 49 both died).
+    "INSATIABLE": {"min_block": 9, "block_bonus": 2.0, "rest_loss_bonus": 10.0,
+                   "card_bonus": {"BARRICADE": 2.5}},
 }
 
 
