@@ -2,6 +2,24 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-18 (Fable 5, session 8 cont.) — Kin + Insatiable audited: EVERY repeat killer now has a trace-grounded rule
+
+**The Kin (00fe9a5)**: 2 Followers (58/59) + a 190-HP Priest with permanent Frail/Weak
+cycling = 307 aggregate HP. AoE is the axis — the Conflagration deck cleared the
+Followers by r5 and nearly won from a 52hp entry (the 38hp entry was dead on arrival).
+New aoe_bonus rule field: THE KIN premiums AoE +2.0 (X-cost excluded), rest +10.
+
+**The Insatiable (6868fb6)**: pure escalating attrition (Empower cycle, 6-status-card
+pollution, 8x2 → 28 → 12x2 → 30 onto small blocks; ~17/round of our damage wasn't
+enough from a 61hp entry). The human answer is on file — A/B #3's win from 51hp was a
+Barricade engine banking 93 — so INSATIABLE names BARRICADE +2.5 as tech, premiums
+block≥9, bumps rest +10.
+
+**Boss-rule table: 8 entries** (LAGAVULIN, VANTOM, KNOWLEDGE, WATERFALL, KAISER,
+SOUL FYSH, THE KIN, INSATIABLE) + kill-priority (SHRINKER, ROCKET) + enemy Intangible
+in the sim. Every boss with 2+ lifetime kills is now covered. The recurring indictment
+(5 of 8 rules premium block≥9) makes the global big-block draft term the obvious next
+magnitude discussion once the next batch reports.
 ## 2026-07-18 (Fable 5, session 8 close) — Batch bwvwblkf9: fixes verified live (1.60); the wall rotates to the UNSTUDIED (Kin, Insatiable)
 
 **0/10, act-reach 1.60.** Arrival streak ended at 41 (f15 Snapping Jaxfruit normal —
