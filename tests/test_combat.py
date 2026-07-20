@@ -1492,3 +1492,31 @@ def test_flame_barrier_retaliation_credited() -> None:
     assert d.action.payload()["card_index"] == 0  # Flame Barrier wins on retaliation
     # enemy HP untouched by the credit: 12 expected retaliation is score-only
     assert d.scores["plan_damage"] >= 12.0
+
+
+def test_feel_no_pain_credits_exhaust_block() -> None:
+    """Owner check 2026-07-18: FNP block per exhaust EVENT was entirely uncredited
+    (invisible to pre-bake — it fires on events, not card text). With FNP 4 active:
+    a self-exhausting card credits +4 block; Stoke (Exhaust your Hand) credits 4 x
+    remaining hand — the exhaust-synergy edge that makes Stoke playable."""
+    w = load_policy_config().combat
+    fnp = [{"id": "FEEL_NO_PAIN_POWER", "name": "Feel No Pain", "amount": 4,
+            "description": "Whenever a card is Exhausted, gain 4 Block."}]
+    stoke = _bcard(0, "STOKE", "Stoke", 1,
+                   "Exhaust your Hand. Add 1 random card into your Hand for each "
+                   "card Exhausted.", "Skill", "None")
+    junk = [_bcard(i, "WOUND", "Wound", 0, "Unplayable.", "Status", "None",
+                   can_play=False) for i in (1, 2, 3)]
+    state = _beckon_state(1, [stoke, *junk], enemy_hp=100, hp=60, incoming="12")
+    state["player"]["status"] = fnp
+    d = plan_combat_turn(parse_state(state), w)
+    # Stoke exhausts the 3 remaining cards -> 12 FNP block covers the incoming 12
+    assert d.action.payload()["card_index"] == 0
+    assert d.scores["hp_loss"] == 0.0
+
+    # Drum-class "when this card is Exhausted" text must NOT count as exhausting
+    from sts2bot.policy.combat import _EX_HAND, _EX_ONE, _EX_SELF
+    drum = "Draw 2 cards. When this card is Exhausted, gain energy."
+    assert not (_EX_HAND.search(drum) or _EX_ONE.search(drum) or _EX_SELF.search(drum))
+    assert _EX_SELF.search("Deal 16 damage to ALL enemies. Exhaust.")
+    assert _EX_ONE.search("Exhaust a card in your hand. Gain 11 Block.")

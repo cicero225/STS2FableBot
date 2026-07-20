@@ -30,6 +30,13 @@ _RAGE_BLOCK = re.compile(r"gain (\d+) block", re.IGNORECASE)
 # "Exhaust your hand, deal N damage for each card exhausted" (Fiend Fire): damage
 # scales with hand size, so the flat per-hit the text parser sees underprices it.
 _HAND_EXHAUST_DMG = re.compile(r"(\d+) damage for each card", re.IGNORECASE)
+# Exhaust COUNTING for Feel No Pain credit (owner check 2026-07-18: FNP block per
+# exhaust event was entirely uncredited — Stoke's whole edge is exhaust synergies).
+# Deliberately narrow: "when this card is Exhausted" (Drum) must NOT count as
+# exhausting on play.
+_EX_HAND = re.compile(r"exhaust (?:your hand|all)", re.IGNORECASE)
+_EX_ONE = re.compile(r"exhaust (?:a|an|the top|1) ", re.IGNORECASE)
+_EX_SELF = re.compile(r"(?:^|\.\s)Exhaust\.(?:\s|$)")
 _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 damage, 1 cost)
 # An enemy in its invincible/about-to-explode state (Waterfall Giant's Steam Eruption) is reported
 # at a sentinel HP — damage into it is wasted (it dies on its own after the explosion), only block
@@ -233,6 +240,7 @@ class PlannedCard:
     # anything with debuffs/draw/block riders or big base damage is a keeper.
     primal_fodder: bool = False
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
+    exhaust_count: int = 0  # cards this play exhausts (-1 = remaining hand); FNP credit
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
     # debuff types this card applies to the *target* enemy, in card-TEXT order (Uppercut = Weak
     # then Vulnerable). Order matters for Artifact, which eats one debuff per unique status.
@@ -375,6 +383,7 @@ class SimState:
     carrier_damage: int = 0  # damage to debuff carriers while others live (their death lifts it)
     primal_active: bool = False  # Primal Force played: later Attacks are 16-dmg Giant Rocks
     keepers_rocked: int = 0  # keeper attacks fed to an active Primal Force (permanent downgrade)
+    per_exhaust_block: int = 0  # Feel No Pain stacks: block gained per card Exhausted
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
     pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
@@ -528,6 +537,10 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         bonus_block_if_exhausted=block_if_exh,
         energy_requires_exhausted=energy_gated,
         exhausts_a_card="exhaust" in low,
+        exhaust_count=(
+            -1 if _EX_HAND.search(desc)
+            else (1 if _EX_ONE.search(desc) else 0) + (1 if _EX_SELF.search(desc) else 0)
+        ),
         grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
         on_fatal_bonus=bool(re.search(r"\bIf Fatal\b", desc, re.IGNORECASE)),
         requires_target=(card.target_type == "AnyEnemy"),
@@ -959,7 +972,15 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         base_block += card.bonus_block_if_exhausted
     if base_block and s.dex_unbaked:  # text already carries turn-start Dexterity
         base_block = max(0, base_block + s.dex_unbaked)
-    block_gain = base_block + rage_bonus
+    # Feel No Pain (owner check 2026-07-18): block per exhaust EVENT — invisible to
+    # the pre-bake (it fires on events, not card text). Whole-hand exhausters (Stoke,
+    # Fiend Fire) count the remaining hand; no Dex/Frail on power-granted block.
+    fnp_block = 0
+    if s.per_exhaust_block and card.exhaust_count:
+        n_ex = (max(0, state.hand_size - len(state.played) - 1)
+                if card.exhaust_count == -1 else card.exhaust_count)
+        fnp_block = s.per_exhaust_block * n_ex
+    block_gain = base_block + rage_bonus + fnp_block
     # Frail is likewise PRE-BAKED into the text (a Defend under Frail reads "Gain 3
     # Block", 5 x 0.75 — trace-verified 2026-07-14): do NOT re-apply FRAIL_MULT.
     # Forgotten Ritual: the energy fires only if a card was Exhausted this turn
@@ -1189,6 +1210,7 @@ def plan_combat_turn(
     my_dex = 0
     self_end_damage = 0
     vuln_mult_bonus = 0.0
+    per_exhaust_block = 0  # Feel No Pain
     end_turn_block = 0  # Plating: end-of-turn block that soaks this turn's incoming
     for p in player.status:
         pid = p.id.upper()
@@ -1198,6 +1220,8 @@ def plan_combat_turn(
             my_strength = p.amount
         if "DEXTER" in pid and p.amount:  # DEXTERITY_POWER; negative under Soul Siphon
             my_dex = p.amount
+        if pid.startswith("FEEL_NO_PAIN") and p.amount:  # block per card Exhausted
+            per_exhaust_block = p.amount
         # Knowledge Demon's Disintegration (and kin): end-of-turn blockable self-damage as a
         # PLAYER status. Parse the amount from the text so escalation (6->7->8) tracks live.
         if m := re.search(r"end of your turn, take (\d+) damage", p.description or "", re.I):
@@ -1337,6 +1361,7 @@ def plan_combat_turn(
         my_dex_start=my_dex,
         self_end_damage=self_end_damage,
         vuln_mult_bonus=vuln_mult_bonus,
+        per_exhaust_block=per_exhaust_block,
         end_turn_block=end_turn_block,
         barricade=barricade,
         my_weak=my_weak,
