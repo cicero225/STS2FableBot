@@ -287,6 +287,7 @@ class EnemySim:
     # turns, 2026-07-18: two Strikes into it dealt 2 total while Beckons piled up —
     # the planner now spends those turns blocking/clearing instead of attacking).
     intangible: bool = False
+    incoming_hits: int = 0  # number of attack instances aimed at us this turn (retaliation math)
     summons: bool = False  # has a Summon intent — its minions are replaceable, so race it
     illusion: bool = False  # "Illusion": revives at full HP when killed — grinding it is futile
     # damage-throttling (ENEMY_PASS): first HP-loss/turn -> 1 (Slippery); a hard per-turn HP-loss
@@ -610,6 +611,12 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
             for i in e.intents
             if (i.type or "").lower() in ("attack", "deathblow")
         )
+        # attack INSTANCE count ("6x3" = 3 hits) for Flame Barrier-class retaliation
+        incoming_hits = sum(
+            int(m.group(1)) if (m := re.search(r"x(\d+)", i.label or "")) else 1
+            for i in e.intents
+            if (i.type or "").lower() in ("attack", "deathblow")
+        )
         # throttling parsed from the same status text the bestiary harvests (ENEMY_PASS)
         mech = detect_mechanics([{"description": p.description} for p in e.status])
         sims.append(
@@ -626,6 +633,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                     k in (e.entity_id or "").upper() for k in _DEBUFF_CARRIERS
                 ),
                 intangible=intangible,
+                incoming_hits=incoming_hits,
                 summons=summons,
                 illusion=illusion,
                 slippery_stacks=slippery_stacks,
@@ -794,6 +802,15 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     target_id = state.enemies[target_i].entity_id if target_i is not None else None
     # Rage: an Attack played while Rage is already active grants Block.
     rage_bonus = state.rage_block_active if (card.is_attack and state.rage_block_active) else 0
+    # Flame Barrier-class retaliation (owner 2026-07-18): thorns-for-a-turn in all but
+    # name — credit retaliate x every attack instance aimed at us this turn. Score
+    # credit only (damage_dealt), no enemy-HP mutation: the hits land after end-turn,
+    # so a false in-plan kill must not be claimable from it.
+    retaliation = 0
+    if card.fx.retaliate:
+        retaliation = card.fx.retaliate * sum(
+            e.incoming_hits for e in state.enemies if _enemy_attacking(e)
+        )
     # Kaiser Crab facing: any single-target click turns you to face that enemy, so the OTHER claw
     # takes the +50% back-attack. AoE doesn't rotate. What matters is who you face LAST this turn
     # (owner), so just track the most recent single-target target through the sequence.
@@ -801,6 +818,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     s = replace(
         state,
         energy=state.energy - card.cost,
+        damage_dealt=state.damage_dealt + retaliation,
         potions_spent=state.potions_spent + (1 if card.potion_slot is not None else 0),
         rage_block_active=max(state.rage_block_active, card.rage_block),
         rage_block_granted=state.rage_block_granted + rage_bonus,

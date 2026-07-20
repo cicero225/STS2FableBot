@@ -1468,3 +1468,27 @@ def test_soul_fysh_boss_rule_exists() -> None:
 
     rule = _boss_draft_rule("Soul Fysh")
     assert rule and rule["min_block"] == 9
+
+
+def test_flame_barrier_retaliation_credited() -> None:
+    """Owner 2026-07-18: Flame Barrier is thorns-for-a-turn in all but name ('Whenever
+    you are attacked this turn, deal N damage back') — the planner credited it as pure
+    block. Now: retaliate x every attack instance aimed at us this turn, as score
+    credit only (no enemy-HP mutation, no false in-plan kills)."""
+    from sts2bot.policy.textparse import parse_card_description
+
+    fx = parse_card_description(
+        "Gain 17 Block. Whenever you are attacked this turn, deal 4 damage back.")
+    assert fx.retaliate == 4 and fx.block == 17
+
+    # plan level: vs a 3-hit turn, Flame Barrier out-scores a same-block plain skill
+    w = load_policy_config().combat
+    fb = _bcard(0, "FLAME_BARRIER", "Flame Barrier", 2,
+                "Gain 17 Block. Whenever you are attacked this turn, deal 4 damage "
+                "back.", "Skill", "None")
+    plain = _bcard(1, "IMPERVIOUS", "Impervious", 2, "Gain 17 Block.", "Skill", "None")
+    state = _beckon_state(2, [fb, plain], enemy_hp=100, hp=60, incoming="6x3")
+    d = plan_combat_turn(parse_state(state), w)
+    assert d.action.payload()["card_index"] == 0  # Flame Barrier wins on retaliation
+    # enemy HP untouched by the credit: 12 expected retaliation is score-only
+    assert d.scores["plan_damage"] >= 12.0

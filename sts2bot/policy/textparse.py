@@ -72,6 +72,10 @@ _LOSE_HP = re.compile(r"\bLose (\d+) HP", re.IGNORECASE)
 _LOSE_MAX_HP = re.compile(r"\bLose (\d+) Max(?:imum)? HP", re.IGNORECASE)
 _TAKE_DAMAGE = re.compile(r"\b[Tt]ake (\d+) damage")
 _HEAL = re.compile(r"\bHeal (\d+) HP", re.IGNORECASE)
+# Flame Barrier-class thorns-for-a-turn (owner 2026-07-18): "Whenever you are attacked
+# this turn, deal N damage back." Not CALLED Thorns, but that's what it does — the
+# planner credits N per incoming hit this turn.
+_RETALIATE = re.compile(r"attacked this turn, deal (\d+) damage back", re.IGNORECASE)
 # Fisticuffs: "Gain Block equal to damage dealt" — approximate block = damage (delta audit)
 _BLOCK_EQ_DAMAGE = re.compile(r"Gain Block equal to (?:the )?damage dealt", re.IGNORECASE)
 # The Gambit: "Gain 50 Block. If you take unblocked attack damage this combat, die." A
@@ -110,6 +114,7 @@ class CardEffects:
     self_hp_cost: int = 0
     max_hp_cost: int = 0
     heal: int = 0
+    retaliate: int = 0  # Flame Barrier: damage dealt back per incoming hit this turn
     conditional: bool = False  # has synergy/conditional language the planner can't price
     # The Gambit-class: a rider that KILLS YOU under conditions no one-turn plan can certify
     # against ("If you take unblocked attack damage this combat, die.") — never play/draft.
@@ -192,6 +197,12 @@ def parse_card_description(text: str | None) -> CardEffects:
     if m := _HEAL.search(text):
         fx.heal = int(m.group(1))
         fx.recognized.append("heal")
+    # searched in FULL text: the "Whenever you are attacked" trigger sentence is
+    # stripped from `text`, but retaliation resolves THIS turn — it's the one
+    # trigger whose expected value the one-turn planner can honestly price.
+    if m := _RETALIATE.search(full):
+        fx.retaliate = int(m.group(1))
+        fx.recognized.append("retaliate")
     if _BLOCK_EQ_DAMAGE.search(text) and fx.damage and not fx.block:
         fx.block = fx.damage * fx.hits  # Fisticuffs-class: ~95% of the value in one regex
         fx.recognized.append("block")
