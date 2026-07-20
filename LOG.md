@@ -2,6 +2,31 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-18 (Fable 5, session 8 close) — WIN #3 on the full 8-rule table; no dominant wall for the first time
+
+**Batch bhlrfgvf2 (complete boss-rule table live): 1 WIN, act-reach 1.80.** Three runs
+at/near the end: the win (f48), a Queen death at f48, an f39. **Two wins in the last
+five batches vs zero in the fifteen before** — the knowledge-first curve is bending.
+
+**Win #3 (2E666RMTTX, f48) anatomy — the systems compounding**: f1 Ancient was
+"Phial Holster", an UNKNOWN new-epoch boon handled by the clamp (heur-capped 5.0 —
+graceful degradation's first live win); f18 Storybook 7.5 (Brightest Flame in the
+final deck); f34 Spiked Gauntlets 7.5 — the double-energy-Ancient signature now
+common to ALL THREE bot wins. Deck: 29 cards / 11 upgrades / 12 relics, Flame
+Barrier ×2 (won while still priced as plain block — credit ships next batch).
+
+**Killer board: spread thin for the first time** — no boss took 3+: Waterfall Giant
+×2 (his rule 0-for-2 live; watch), Kin ×2 (rule live; check AoE offer flow), then
+Matriarch / Kaiser / Insatiable / Queen ×1 each. The studied bosses stay receded.
+
+**Owner-check fixes shipped mid-batch (debut next batch)**: Flame Barrier retaliation
+credited (c566cfa — retaliate × incoming attack instances, score-only) and Feel No
+Pain block per exhaust event (f88579b — makes Stoke playable in synergy context;
+narrow exhaust-counting regexes; Drum-class trigger text counts zero).
+
+Next: new-epoch triage (Phial Holster + friends), Waterfall/Kin rule check after
+another batch, recorder bug, events pass. Queen (2 f48 deaths) is the next audit
+candidate if she repeats.
 ## 2026-07-18 (Fable 5, session 8 cont.) — Kin + Insatiable audited: EVERY repeat killer now has a trace-grounded rule
 
 **The Kin (00fe9a5)**: 2 Followers (58/59) + a 190-HP Priest with permanent Frail/Weak
