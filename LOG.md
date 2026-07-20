@@ -2,6 +2,25 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-19 (Fable 5, night batch) — bq2sre642: 0/10 at 1.60; no Queen roll (Bound fix untested); Vantom rule 0-for-2; Slumbering Beetle's 3rd
+
+**0/10, act-reach 1.60** (band holds: 2.00/1.30/1.50/1.80/1.60/1.80/1.60). One f44
+(Owl Magistrate normal), two f33s (Insatiable, Kaiser), five f17s (Vantom ×2, Soul
+Fysh, Kin, Matriarch), two Act-2 normal deaths (Mytes f23 — new name, likely
+new-epoch; **Slumbering Beetle f21 — third lifetime normal-fight kill**, no longer
+ignorable). No Queen roll, so the Chains-of-Binding fix goes untested live; ditto
+Flame Barrier/FNP (no note of either in a decisive spot — check next session).
+
+**Watch-list updates**: Vantom rule now 0-for-2 live tonight (offer-flow check needed —
+same question as the Matriarch's: does Act 1 supply the multi-hits his rule wants?).
+Waterfall rule still 0-for-2 overall. Region weights now 5 batches (~25 UD runs) —
+enough for the magnitude review. Slumbering Beetle promoted to audit (3 normal-fight
+kills: SLUMBER wake mechanic is explicitly NOT Asleep per the sim comment — verify
+the wake model matches reality).
+
+Morning queue: Slumbering Beetle + Vantom offer-flow checks → new-epoch triage
+(Phial Holster, Mytes, Test Subject, Lost and Forgotten) → region magnitude review →
+recorder bug → events pass.
 ## 2026-07-18 (Fable 5, session 8 close) — WIN #3 on the full 8-rule table; no dominant wall for the first time
 
 **Batch bhlrfgvf2 (complete boss-rule table live): 1 WIN, act-reach 1.80.** Three runs
