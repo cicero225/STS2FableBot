@@ -241,6 +241,11 @@ class PlannedCard:
     primal_fodder: bool = False
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
     exhaust_count: int = 0  # cards this play exhausts (-1 = remaining hand); FNP credit
+    # Queen's Chains of Binding (owner 2026-07-18): first 3 draws each turn are Bound —
+    # ONLY ONE Bound card is playable per turn (keyword on the hand card; un-Bound at
+    # end of turn; transform strips it). Plans sequencing 2+ Bound cards fizzled at the
+    # gate, Normality-style.
+    bound: bool = False
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
     # debuff types this card applies to the *target* enemy, in card-TEXT order (Uppercut = Weak
     # then Vulnerable). Order matters for Artifact, which eats one debuff per unique status.
@@ -384,6 +389,7 @@ class SimState:
     primal_active: bool = False  # Primal Force played: later Attacks are 16-dmg Giant Rocks
     keepers_rocked: int = 0  # keeper attacks fed to an active Primal Force (permanent downgrade)
     per_exhaust_block: int = 0  # Feel No Pain stacks: block gained per card Exhausted
+    bound_played: bool = False  # a Bound card was played this turn (only one allowed)
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
     pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
@@ -540,6 +546,10 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         exhaust_count=(
             -1 if _EX_HAND.search(desc)
             else (1 if _EX_ONE.search(desc) else 0) + (1 if _EX_SELF.search(desc) else 0)
+        ),
+        bound=(
+            any((k.name or "") == "Bound" for k in getattr(card, "keywords", None) or [])
+            or bool(re.search(r"\bBound\b", desc))
         ),
         grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
         on_fatal_bonus=bool(re.search(r"\bIf Fatal\b", desc, re.IGNORECASE)),
@@ -844,6 +854,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             1 if (state.primal_active and card.is_attack and not card.primal_fodder)
             else 0
         ),
+        bound_played=state.bound_played or card.bound,
         facing=facing,
         played=(*state.played, (card.index, target_id)),
     )
@@ -1439,6 +1450,8 @@ def plan_combat_turn(
             return
         for ci, card in enumerate(remaining):
             if card.cost > sim.energy:
+                continue
+            if card.bound and sim.bound_played:  # Chains of Binding: one Bound play/turn
                 continue
             rest = remaining[:ci] + remaining[ci + 1 :]
             if card.targets_enemy and not card.fx.aoe:

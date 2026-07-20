@@ -1520,3 +1520,26 @@ def test_feel_no_pain_credits_exhaust_block() -> None:
     assert not (_EX_HAND.search(drum) or _EX_ONE.search(drum) or _EX_SELF.search(drum))
     assert _EX_SELF.search("Deal 16 damage to ALL enemies. Exhaust.")
     assert _EX_ONE.search("Exhaust a card in your hand. Gain 11 Block.")
+
+
+def test_chains_of_binding_one_bound_card_per_turn() -> None:
+    """Owner 2026-07-18 (Queen f48 deaths): Chains of Binding marks the first 3 draws
+    Bound — only ONE Bound card is playable per turn. Plans sequencing 2+ Bound cards
+    fizzled at the gate (Normality family). The DFS now picks the best single Bound
+    card and fills the rest of the turn with un-Bound plays."""
+    w = load_policy_config().combat
+    kw = [{"name": "Bound",
+           "description": "Only 1 Bound card can be played each turn."}]
+    b_strike = dict(_bcard(0, "STRIKE_IRONCLAD", "Strike", 1,
+                           "Deal 6 damage. Bound", "Attack", "AnyEnemy"), keywords=kw)
+    b_bash = dict(_bcard(1, "BASH", "Bash", 2,
+                         "Deal 8 damage. Apply 2 Vulnerable. Bound", "Attack",
+                         "AnyEnemy"), keywords=kw)
+    free = _bcard(2, "POMMEL_STRIKE", "Pommel Strike", 1,
+                  "Deal 9 damage. Draw 1 card.", "Attack", "AnyEnemy")
+    state = _beckon_state(3, [b_strike, b_bash, free], enemy_hp=100, hp=60)
+    d = plan_combat_turn(parse_state(state), w)
+    plan = d.rationale.split("[")[1].split("]")[0].split(" > ")
+    bound_played = sum(1 for n in plan if n in ("Strike", "Bash"))
+    assert bound_played == 1  # exactly one Bound card in the plan
+    assert "Pommel Strike" in plan  # un-Bound card still fills the turn
