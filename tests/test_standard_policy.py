@@ -2837,3 +2837,38 @@ def test_pre_boss_rest_gate_demands_more_vs_clock_boss() -> None:
     ctx2.screen_mem["act_boss_name"] = "Knowledge Demon"
     d_demon = r.decide(parse_state(payload), ctx2)
     assert d_demon.rationale.startswith("rest")
+
+
+def test_hail_mary_never_drinks_self_lethal_foul() -> None:
+    """Owner-caught 2026-07-20: at 9 HP the hail-mary fallback drank Foul Potion
+    ('Deal 10 damage to EVERYONE' — drinker included), a certain suicide traded for
+    a merely-projected death. Self-lethal potions are vetoed from the fallback; a
+    healthy drinker may still use Foul as an AoE nuke."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    def combat_state(hp):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 2, "floor": 33, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80,
+                       "block": 0, "energy": 0, "status": [], "hand": [],
+                       "potions": [{"slot": 0, "id": "FOUL_POTION",
+                                    "name": "Foul Potion", "can_use_in_combat": True,
+                                    "description": "Deal 10 damage to EVERYONE."}],
+                       "max_potion_slots": 3},
+            "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "kd0", "name": "Knowledge Demon",
+                                    "hp": 200, "max_hp": 379, "block": 0,
+                                    "status": [],
+                                    "intents": [{"type": "attack", "label": "25"}]}]},
+        })
+
+    # 9 HP, projected-lethal turn: Foul must NOT be drunk (suicide)
+    d = r.decide(combat_state(9), LoopContext())
+    assert "Foul" not in (d.rationale or "")
+
+    # 40 HP: Foul as hail-mary fallback is legitimate (10 < 40, and it nukes enemies)
+    d2 = r.decide(combat_state(30), LoopContext())
+    if "hail mary" in (d2.rationale or ""):
+        assert "Foul" in d2.rationale

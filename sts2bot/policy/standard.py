@@ -444,12 +444,26 @@ class StandardRouter:
         # 1. Hail-mary (run 10: died holding buff potions): dying even after our cards
         #    block — throw a potion, preferring one that can actually save us.
         if w.hail_mary and hp_pct < w.drink_when_hp_pct_below and proj_loss >= player.hp:
-            potion = first("block", "heal", "aoe_damage", "damage") or available[0]
-            tgt = biggest_threat() if cat[potion.slot] in ("damage", "aoe_damage") else None
-            return drink(
-                potion, tgt,
-                f"hail mary: drink {potion.name} (proj loss {proj_loss:.0f} >= {player.hp} HP)",
-            )
+            # Foul-class guard (owner-caught 2026-07-20: hail-mary at 9 HP drank Foul
+            # Potion, "Deal 10 damage to EVERYONE" — the drinker included — a certain
+            # suicide traded for a merely-PROJECTED death; projections carry ~15%
+            # error, so that margin is real). Never fall back to a self-lethal potion.
+            def _self_lethal(p: Potion) -> bool:
+                if re.search(r"\bEVERYONE\b", p.description or "", re.IGNORECASE):
+                    return (parse_card_description(p.description).total_damage
+                            >= player.hp)
+                return False
+
+            potion = first("block", "heal", "aoe_damage", "damage") or next(
+                (p for p in available if not _self_lethal(p)), None)
+            if potion is not None:
+                tgt = (biggest_threat()
+                       if cat[potion.slot] in ("damage", "aoe_damage") else None)
+                return drink(
+                    potion, tgt,
+                    f"hail mary: drink {potion.name} "
+                    f"(proj loss {proj_loss:.0f} >= {player.hp} HP)",
+                )
 
         # 2. Fruit Juice (+max HP): pure upside, drink on sight.
         if juice := first("fruit_juice"):
