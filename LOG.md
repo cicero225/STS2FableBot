@@ -2,6 +2,31 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-20 (Fable 5, session 9) — Events pass ships; KD rest-gate validates but he wins anyway (the forward-model frontier marker)
+
+**Batch bidee2frt (Bound + Flame Barrier + FNP live): 0/10, act-reach 1.80** — second
+1.80 in three batches; one f48 (vs AEONGLASS, a third distinct new-epoch Act-3 boss).
+No Queen roll again (Bound untested live). **Knowledge Demon ×3 at f33 — and the
+rest-gate bump VALIDATED while losing**: "est loss 56" demanded ~62, entries came in
+at 62/82/75 (vs the old fatal 52-56)… and 82 HP + correct racing still lost. First
+boss where knowledge patches have PLATEAUED — the cleanest multi-turn-forward-model
+frontier marker yet. Waterfall Giant ×2 more (rule 0-for-4: next mini-audit — did
+blocks get drafted, or is the eruption math still under-banked?).
+
+**Correction (owner)**: Test Subject is a 3-STAGE boss (sequential), not 3-body —
+ANTI-AoE; stage transitions may reset debuffs and will confuse the harness/kill
+logic when audited. Previous entry's AoE note is wrong.
+
+**Shipped this session**: Foul Potion hail-mary guard (25e4572 — owner-caught suicide
+at 9 HP); recorder .run-read retry (ddbbfba — the A/B #4 all-null race); new-epoch
+triage (c4ef887 — 10 boons incl. 3 day-one Orobas gaps, bestiary → 107); **EVENTS
+PASS v1 (37ef0e7)**: discovery found DECLINE-BY-DEFAULT (50%+ Proceed across all 52
+events); 53-option title-keyed catalog now engages (Slither trap stays negative,
+Spirebird still outranks where confident). 11 uncertain options pending owner
+keyword review. 369 tests.
+
+Next: owner event-keyword review → rest-handler non-standard actions (4-member
+class) → WG mini-audit → next batch (events catalog + Foul guard debut live).
 ## 2026-07-19 (Fable 5, night batch) — bq2sre642: 0/10 at 1.60; no Queen roll (Bound fix untested); Vantom rule 0-for-2; Slumbering Beetle's 3rd
 
 **0/10, act-reach 1.60** (band holds: 2.00/1.30/1.50/1.80/1.60/1.80/1.60). One f44
