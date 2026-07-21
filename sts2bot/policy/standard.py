@@ -48,6 +48,7 @@ from sts2bot.policy.drafttags import (
     boon_relic_context,
     load_ancient_boons,
     load_draft_tags,
+    load_event_choices,
     score_adjustment,
 )
 from sts2bot.policy.textparse import parse_card_description, parse_hp_cost, parse_intent_damage
@@ -202,6 +203,8 @@ class StandardRouter:
         self.ancient_boons = (
             ancient_boons if ancient_boons is not None else load_ancient_boons()
         )
+        # events pass (EVENTS_PASS.md): option-title catalog for non-ancient events
+        self.event_choices = load_event_choices()
         self._fallback = TrivialRouter()
 
     def decide(self, state: GameState, ctx: LoopContext) -> Decision | Wait:
@@ -864,6 +867,34 @@ class StandardRouter:
                     scores={(o.title or "?"): round(vals[o.index], 2)
                             for o, _h, _v in scored},
                 )
+
+        # Events pass (EVENTS_PASS.md): the decline-by-default fix. When the option
+        # catalog knows any option on a NON-ancient screen, rank catalogued options by
+        # value (unknowns ride the clamped heuristic, same lesson as Silken Tress) and
+        # engage if the best clears take_min — Spirebird still outranks the catalog
+        # when it has confident data (it sees outcomes; the catalog sees text).
+        if not ev.is_ancient and self.event_choices and scored:
+            rated_sb = [s for s in scored if s[2] is not None]
+            if len(rated_sb) < 2:  # Spirebird not confident here: catalog leads
+                vals = {}
+                known_any = False
+                for o, heur, _vs in scored:
+                    entry = self.event_choices.get(o.title or "")
+                    if entry:
+                        vals[o.index] = float(entry.get("value", 0.0))
+                        known_any = True
+                    else:
+                        vals[o.index] = min(heur, _UNKNOWN_BOON_CAP)
+                if known_any:
+                    best_o = max(scored, key=lambda s: vals[s[0].index])[0]
+                    if vals[best_o.index] >= w.take_min:
+                        return Decision(
+                            action=act.ChooseEventOption(index=best_o.index),
+                            rationale=(f"event catalog: '{best_o.title}' "
+                                       f"({vals[best_o.index]:.1f})"),
+                            scores={(o.title or "?"): round(vals[o.index], 2)
+                                    for o, _h, _v in scored},
+                        )
 
         rated = [s for s in scored if s[2] is not None]
         if len(rated) >= 2:

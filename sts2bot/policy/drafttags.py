@@ -49,6 +49,20 @@ def load_ancient_boons(path: Path | str | None = None) -> dict[str, dict]:
     return json.loads(p.read_text(encoding="utf-8")).get("boons", {})
 
 
+_EVENTS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "event_choices.json"
+
+
+def load_event_choices(path: Path | str | None = None) -> dict[str, dict]:
+    """OPTION TITLE -> {value, note, uncertain} from data/event_choices.json
+    (scripts/build_event_choices.py, EVENTS_PASS.md). Title-keyed because the mod's
+    event_id lags screen transitions. Empty if absent — events then fall back to
+    Spirebird + the generic heuristic."""
+    p = Path(path) if path else _EVENTS_PATH
+    if not p.is_file():
+        return {}
+    return json.loads(p.read_text(encoding="utf-8")).get("choices", {})
+
+
 def boon_relic_context(relics, boons: dict) -> tuple[dict[str, float], dict[str, float]]:
     """(provides, draft_bonus) merged over owned relics that match catalog boons.
 

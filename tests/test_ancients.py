@@ -247,3 +247,44 @@ def test_legion_steers_drafting_toward_block() -> None:
                               relics=[R("Pael's Legion")])
     expected = BOONS["Pael's Legion"]["draft_bonus"]["block_engine"]
     assert with_boon - without >= expected - 1e-6
+
+
+def test_event_catalog_beats_decline_by_default() -> None:
+    """Events pass (EVENTS_PASS.md): 50%+ of events were declined because the generic
+    heuristic couldn't price their text. The title-keyed catalog engages instead —
+    and the Slither trap ('Snake') stays negative, never taken over Proceed."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    assert r.event_choices  # catalog loaded
+
+    def event_state(options):
+        return parse_state({
+            "state_type": "event",
+            "event": {"event_id": "SUNKEN_STATUE", "event_name": "Sunken Statue",
+                      "is_ancient": False, "in_dialogue": False, "body": None,
+                      "options": [
+                          {"index": i, "title": t, "description": d,
+                           "is_locked": False, "is_proceed": t == "Proceed",
+                           "was_chosen": False, "keywords": []}
+                          for i, (t, d) in enumerate(options)
+                      ]},
+            "run": {"act": 1, "floor": 8, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                       "block": 0, "gold": 120, "status": [], "relics": [],
+                       "potions": [], "max_potion_slots": 3},
+        })
+
+    # 'Grab the Sword' (free relic, catalog 5.5) must beat Proceed
+    st = event_state([("Grab the Sword", "Obtain the Sword of Stone."),
+                      ("Proceed", "Leave.")])
+    d = r.decide(st, LoopContext())
+    assert isinstance(d, Decision)
+    assert "event catalog" in d.rationale and d.action.index == 0
+
+    # the Slither trap stays declined: Snake is negative in catalog
+    st2 = event_state([("Snake", "Enchant 1 card with Slither."),
+                       ("Proceed", "Leave.")])
+    d2 = r.decide(st2, LoopContext())
+    assert isinstance(d2, Decision)
+    assert d2.action.index == 1  # Proceed over the trap

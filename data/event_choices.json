@@ -1,0 +1,276 @@
+{
+ "_meta": {
+  "source": "scripts/build_event_choices.py (events pass, EVENTS_PASS.md)",
+  "scale": "event-heuristic units (relic ~ 6.0)",
+  "keying": "OPTION TITLE (event_id lags transitions in mod state)",
+  "n_options": 53,
+  "n_uncertain": 11
+ },
+ "choices": {
+  "Read the Back": {
+   "value": 4.0,
+   "uncertain": true,
+   "note": "Sharp 2 on an Attack; Sharp text unconfirmed (+dmg?)."
+  },
+  "Read a Random Passage": {
+   "value": 4.0,
+   "uncertain": true,
+   "note": "Nimble 2 on a Skill; Nimble unconfirmed."
+  },
+  "Read the Entire Book": {
+   "value": 4.5,
+   "note": "Swift 2 on a Power (owner: first play each combat draws 2 — powers get played once, so this is 2 draw every combat it's cast).",
+   "uncertain": false
+  },
+  "Rip the Leech Off": {
+   "value": 4.5,
+   "note": "5 HP for a Colorless card reward; owner took it in A/B #2-era play, Spirebird agrees.",
+   "uncertain": false
+  },
+  "Share Knowledge": {
+   "value": 3.5,
+   "note": "1-of-5 random cards; decent selection.",
+   "uncertain": false
+  },
+  "Immerse": {
+   "value": 5.0,
+   "note": "+2 Max HP for 3 damage — great rate; loop.",
+   "uncertain": false
+  },
+  "Linger": {
+   "value": 4.5,
+   "note": "+2 Max HP for 4 damage; keep looping.",
+   "uncertain": false
+  },
+  "Abstain": {
+   "value": 2.5,
+   "note": "Heal 10; take only when the HP math flips.",
+   "uncertain": false
+  },
+  "This": {
+   "value": 3.5,
+   "note": "~64g for 6 HP; fair.",
+   "uncertain": false
+  },
+  "That": {
+   "value": 4.5,
+   "note": "Random relic + Clumsy; relics are deck power and Clumsy is a mild curse.",
+   "uncertain": false
+  },
+  "Search": {
+   "value": 5.0,
+   "note": "14 HP for the Chosen Cheese relic — seen in two win decks; pay it.",
+   "uncertain": false
+  },
+  "Devour": {
+   "value": 5.0,
+   "note": "Title alias of 'Search' (same Chosen Cheese option; the event uses both). Owner-QA'd correct pick.",
+   "uncertain": false
+  },
+  "Gorge": {
+   "value": 3.0,
+   "note": "2 of 8 commons; deck bloat vs selection.",
+   "uncertain": false
+  },
+  "Nab the Map": {
+   "value": 5.0,
+   "note": "Spoils Map = 600g at the Act-3 main chest; we protect it from removal and exhaust it freely (7f0a0c6). Real EV if the run goes deep; the router likes gold now.",
+   "uncertain": false
+  },
+  "Grab the Sword": {
+   "value": 5.5,
+   "note": "Sword of Stone relic, free.",
+   "uncertain": false
+  },
+  "Dive into the Water": {
+   "value": 4.0,
+   "note": "~109g for 7 HP.",
+   "uncertain": false
+  },
+  "Bathe": {
+   "value": 3.0,
+   "note": "Wellspring heal-ish option; Spirebird carried it.",
+   "uncertain": false
+  },
+  "Snake": {
+   "value": -2.0,
+   "note": "THE Slither trap (PLAN item 5 anchor): enchants a card with Slither. Negative until proven otherwise.",
+   "uncertain": false
+  },
+  "Bird": {
+   "value": 3.5,
+   "uncertain": true,
+   "note": "Starter → Peck; Peck's text unknown."
+  },
+  "Torus": {
+   "value": 3.5,
+   "uncertain": true,
+   "note": "Starter → Toric Toughness; text unknown."
+  },
+  "First Chest": {
+   "value": 3.5,
+   "note": "~56-64g free.",
+   "uncertain": false
+  },
+  "Second Chest": {
+   "value": 4.0,
+   "note": "300-360g + Greed curse. Big income for one curse; gold converts well since the late-shop loop.",
+   "uncertain": false
+  },
+  "Bottle": {
+   "value": 3.0,
+   "note": "Glowwater Potion (downside class but free).",
+   "uncertain": false
+  },
+  "Climb": {
+   "value": 1.5,
+   "note": "Fresnel Lens for -13 Max HP — steep.",
+   "uncertain": false
+  },
+  "Observe": {
+   "value": 3.0,
+   "uncertain": true,
+   "note": "Spiral enchant on a basic; Spiral text unknown."
+  },
+  "Drink": {
+   "value": 2.5,
+   "note": "Heal 26; situational by HP.",
+   "uncertain": false
+  },
+  "Observe the Chef": {
+   "value": 4.0,
+   "note": "Free random upgrade.",
+   "uncertain": false
+  },
+  "Grab Spicy Snappy off the Belt": {
+   "value": 3.5,
+   "note": "40g for a random upgrade + the loop continues.",
+   "uncertain": false
+  },
+  "Grab Caviar off the Belt": {
+   "value": 3.0,
+   "uncertain": true,
+   "note": "Conveyor item; text varies."
+  },
+  "Grab Fried Eel off the Belt": {
+   "value": 3.0,
+   "uncertain": true,
+   "note": "Conveyor item; text varies."
+  },
+  "Insert Common Potion": {
+   "value": 3.5,
+   "note": "Common potion → upgraded tier; fine trade.",
+   "uncertain": false
+  },
+  "Insert Uncommon Potion": {
+   "value": 3.0,
+   "uncertain": true,
+   "note": "Exact return unconfirmed."
+  },
+  "Insert Rare Potion": {
+   "value": 2.0,
+   "uncertain": true,
+   "note": "Risking a rare potion; unconfirmed return."
+  },
+  "Trudge On": {
+   "value": 3.5,
+   "note": "~70g for 8 HP.",
+   "uncertain": false
+  },
+  "Fight!": {
+   "value": 3.0,
+   "note": "Optional fight for loot; deck-power dependent.",
+   "uncertain": false
+  },
+  "Solo Quest": {
+   "value": 4.5,
+   "note": "~148g for 18 HP — big income, real cost.",
+   "uncertain": false
+  },
+  "Join Forces": {
+   "value": 3.5,
+   "note": "~53g free.",
+   "uncertain": false
+  },
+  "Capture the Wisp": {
+   "value": 4.0,
+   "note": "Lost Wisp relic (seen in a win deck).",
+   "uncertain": false
+  },
+  "Tea of Discourtesy": {
+   "value": 4.5,
+   "note": "Relic; in multiple win decks.",
+   "uncertain": false
+  },
+  "Kill with Fire": {
+   "value": 3.5,
+   "note": "Symbiote removal-ish; Spirebird liked it.",
+   "uncertain": false
+  },
+  "Smash": {
+   "value": 4.0,
+   "note": "Heal 20 HP free (Tablet of Truth).",
+   "uncertain": false
+  },
+  "Decipher": {
+   "value": 2.0,
+   "note": "-3 Max HP for one random upgrade — poor rate.",
+   "uncertain": false
+  },
+  "Let Go": {
+   "value": 3.5,
+   "note": "Transform a card (Aroma of Chaos).",
+   "uncertain": false
+  },
+  "Maintain Control": {
+   "value": 3.5,
+   "note": "Upgrade a card.",
+   "uncertain": false
+  },
+  "Exchange Gold": {
+   "value": 3.0,
+   "note": "42g for 2 random potions.",
+   "uncertain": false
+  },
+  "Hug the Tree": {
+   "value": 2.5,
+   "note": "9 HP for a chosen transform.",
+   "uncertain": false
+  },
+  "Extract Nectar": {
+   "value": 3.0,
+   "note": "35g free.",
+   "uncertain": false
+  },
+  "Reach Deeper": {
+   "value": 3.0,
+   "note": "Deeper for 5 HP; chain EV positive-ish.",
+   "uncertain": false
+  },
+  "Slowly Find an Exit": {
+   "value": 2.0,
+   "note": "8 HP for one random potion — meh.",
+   "uncertain": false
+  },
+  "Light Door": {
+   "value": 4.5,
+   "note": "Upgrade 2 random cards, free.",
+   "uncertain": false
+  },
+  "Dark Door": {
+   "value": 4.0,
+   "note": "Remove 1 card, free.",
+   "uncertain": false
+  },
+  "Overcome": {
+   "value": 3.0,
+   "uncertain": true,
+   "note": "Slippery Bridge; text not yet harvested."
+  },
+  "Accept": {
+   "value": 2.5,
+   "uncertain": true,
+   "note": "'Serve as today's Decider' — flow unknown."
+  }
+ }
+}
