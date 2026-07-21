@@ -47,7 +47,16 @@ def record_session(
         nonlocal watermark
         outcome = RunOutcome(status="completed")
         if history_dirs:
-            rec = latest_run_summary(history_dirs, newer_than_mtime=watermark)
+            # The game writes its .run record on its own schedule; finalize fires the
+            # INSTANT play returns to menu, and losing that race nulls the whole
+            # outcome (A/B #4, 2026-07-18: a clean WIN recorded as all-null while the
+            # owner was already on the timeline screen). Retry briefly before giving up.
+            rec = None
+            for _ in range(10):
+                rec = latest_run_summary(history_dirs, newer_than_mtime=watermark)
+                if rec is not None:
+                    break
+                time.sleep(1.0)
             if rec is not None:
                 outcome.victory = rec.win
                 outcome.seed = rec.seed
