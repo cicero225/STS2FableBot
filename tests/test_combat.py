@@ -1574,3 +1574,22 @@ def test_thrash_growth_bonus_with_fodder_hand_only() -> None:
                            enemy_status=skittish, incoming="8")
     d2 = plan_combat_turn(parse_state(state2), w)
     assert "Uppercut" in d2.rationale.split("[")[1].split("]")[0]
+
+
+def test_smoggy_caps_skills_at_one_per_turn() -> None:
+    """Living Fog's Smoggy (owner 2026-07-20): only one Skill playable per turn —
+    Bound-family constraint, visible as a player status. Plans must carry at most
+    one Skill; attacks stay unrestricted."""
+    w = load_policy_config().combat
+    hand = [_bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            _bcard(2, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack",
+                   "AnyEnemy")]
+    state = _beckon_state(3, hand, enemy_hp=100, hp=60, incoming="15")
+    state["player"]["status"] = [{
+        "id": "SMOGGY_POWER", "name": "Smoggy", "amount": 1,
+        "description": "Only one Skill can be played each turn."}]
+    d = plan_combat_turn(parse_state(state), w)
+    plan = d.rationale.split("[")[1].split("]")[0].split(" > ")
+    assert plan.count("Defend") == 1  # second Defend blocked by Smoggy
+    assert "Strike" in plan

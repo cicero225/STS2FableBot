@@ -173,9 +173,11 @@ def _apply_trigger_fx(s: SimState, trig: RelicTrigger, times: int,
 def _fire_relic_triggers(pre: SimState, post: SimState, card: PlannedCard) -> SimState:
     """Run the relic trigger pass for one played card: update play-kind counters, then
     fire every armed trigger the play crossed. Strength/Dexterity gained here correctly
-    affects LATER cards in the same plan (SimState carries it forward)."""
-    if not post.relic_triggers:
-        return post
+    affects LATER cards in the same plan (SimState carries it forward).
+
+    NB the counters update even with NO trigger relics — Smoggy's one-Skill-per-turn
+    cap reads n_skills_played, and the old early return silently froze it at 0 in
+    relic-less fights (caught 2026-07-20 while wiring Smoggy)."""
     is_potion = card.potion_slot is not None
     is_attack = card.is_attack
     is_power = card.is_power
@@ -185,6 +187,8 @@ def _fire_relic_triggers(pre: SimState, post: SimState, card: PlannedCard) -> Si
     kills_delta = post.kills - pre.kills
     self_loss = card.fx.self_hp_cost
     s = replace(post, n_attacks_played=n_att, n_skills_played=n_sk)
+    if not s.relic_triggers:
+        return s
     for trig in s.relic_triggers:
         times = 0
         if trig.kind == "attack":
@@ -256,6 +260,7 @@ class PlannedCard:
     # exhaust eating a keeper; the DFS's natural ordering covers the played ones).
     grows_on_exhaust: bool = False
     growth_bonus: float = 0.0
+    is_skill: bool = False  # card.type == "Skill" (for Smoggy's one-Skill-per-turn cap)
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
     # debuff types this card applies to the *target* enemy, in card-TEXT order (Uppercut = Weak
     # then Vulnerable). Order matters for Artifact, which eats one debuff per unique status.
@@ -401,6 +406,7 @@ class SimState:
     per_exhaust_block: int = 0  # Feel No Pain stacks: block gained per card Exhausted
     bound_played: bool = False  # a Bound card was played this turn (only one allowed)
     flat_bonus: float = 0.0  # accumulated per-play bonuses (Thrash growth credit)
+    smoggy: bool = False  # Living Fog's Smoggy: only ONE Skill playable per turn
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
     pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
@@ -532,6 +538,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         targets_enemy=(card.target_type == "AnyEnemy")
         or (fx.damage > 0 and not fx.aoe),
         is_attack=(card.type == "Attack"),
+        is_skill=(card.type == "Skill"),
         is_power=is_power,
         self_damage_power=self_damage_power,
         primal_force=primal_force,
@@ -1236,6 +1243,7 @@ def plan_combat_turn(
     self_end_damage = 0
     vuln_mult_bonus = 0.0
     per_exhaust_block = 0  # Feel No Pain
+    smoggy = False  # Living Fog: one Skill per turn
     end_turn_block = 0  # Plating: end-of-turn block that soaks this turn's incoming
     for p in player.status:
         pid = p.id.upper()
@@ -1247,6 +1255,10 @@ def plan_combat_turn(
             my_dex = p.amount
         if pid.startswith("FEEL_NO_PAIN") and p.amount:  # block per card Exhausted
             per_exhaust_block = p.amount
+        # Living Fog's Smoggy (owner 2026-07-20): only one Skill per turn
+        if pid.startswith("SMOGGY") or re.search(
+                r"only (?:one|1) Skill", p.description or "", re.I):
+            smoggy = True
         # Knowledge Demon's Disintegration (and kin): end-of-turn blockable self-damage as a
         # PLAYER status. Parse the amount from the text so escalation (6->7->8) tracks live.
         if m := re.search(r"end of your turn, take (\d+) damage", p.description or "", re.I):
@@ -1396,6 +1408,7 @@ def plan_combat_turn(
         self_end_damage=self_end_damage,
         vuln_mult_bonus=vuln_mult_bonus,
         per_exhaust_block=per_exhaust_block,
+        smoggy=smoggy,
         end_turn_block=end_turn_block,
         barricade=barricade,
         my_weak=my_weak,
@@ -1476,6 +1489,8 @@ def plan_combat_turn(
                 continue
             if card.bound and sim.bound_played:  # Chains of Binding: one Bound play/turn
                 continue
+            if sim.smoggy and card.is_skill and sim.n_skills_played >= 1:
+                continue  # Smoggy: only one Skill per turn (Living Fog)
             rest = remaining[:ci] + remaining[ci + 1 :]
             if card.targets_enemy and not card.fx.aoe:
                 target_idx = [i for i, e in enumerate(sim.enemies) if e.hp > 0]
