@@ -59,11 +59,29 @@ TEA_MASTER, SYMBIOTE, AROMA_OF_CHAOS; tail of 30 rare ones.)
    instead of the fixed Rest/Smith menu. Unblocks two boon reprices too.
 4. Defer: event-stats mining for per-option outcome deltas (needs more corpus).
 
+## Owner review outcomes (2026-07-20)
+
+- **Spirebird HAS event data** (owner recalled correctly; 62 events, e.g. 81k picks
+  on Self-Help Book) and the word-subset matcher reaches most of it.
+- **SLITHER REVERSED**: random 0-3 cost on draw = +EV on any cost>=2 card (SB 11.9
+  agrees). The old "trap" anchor was a cost-1 Strike TARGETING mistake. Enchant
+  picker now targets the highest-cost card (Bash always exists).
+- Swift-on-Power tops Self-Help Book (SB 15.1) unless a 3x+ multi-hit Sharp target
+  exists — Sharp target preference wired.
+- Spiral = Replay 1 on a basic; planner verified to price the Replay text.
+- **Future of Potions**: highest-rarity-first; PROTECTED potions never sacrificed
+  (potion-pass item): Entropic Brew, Fairy in a Bottle, Gigantification Potion,
+  Orobic Acid, Ambergris. Event itself is not declinable.
+- Decider (not declinable): 2-relics > Shame-upgrade; Regret+300g > heal-10 (unless
+  desperate / no shops remain); Doubt+2-rewards vs Double+Transform-2 by basics count.
+- Peck vs Toric: Toric usually; Peck with Strength gain in deck OR Vantom as boss.
+
 ## Status
 
-- [x] Discovery audit (this doc)
-- [ ] Harvest option texts for top-20 events → catalog draft
-- [ ] Owner review of catalog values
-- [ ] `_event` catalog-first wiring + strictly-positive default
-- [ ] Rest-handler non-standard action awareness
-- [ ] Slither-class enchant target fix verification
+- [x] Discovery audit
+- [x] Harvest option texts → catalog (53 options)
+- [x] Owner review (0 uncertain remaining)
+- [x] `_event` catalog-first wiring (37ef0e7) + review values (a26dd4a)
+- [x] Slither/Sharp enchant target rules (a26dd4a)
+- [ ] Rest-handler non-standard action awareness (Girya/Hatch/Clone/Cook)
+- [ ] Potion-pass handoff: protected-potion veto for Future of Potions
