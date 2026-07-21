@@ -2872,3 +2872,51 @@ def test_hail_mary_never_drinks_self_lethal_foul() -> None:
     d2 = r.decide(combat_state(30), LoopContext())
     if "hail mary" in (d2.rationale or ""):
         assert "Foul" in d2.rationale
+
+
+def test_slither_enchant_targets_highest_cost() -> None:
+    """Owner 2026-07-20 (reversing the old 'Slither trap' anchor): Slither = random
+    0-3 cost on draw, +EV on any cost>=2 card. The original sin was targeting a
+    cost-1 Strike; the picker now takes the highest-cost card (Bash over Strike)."""
+    r = router()
+
+    class CS:
+        prompt = "Enchant 1 card with Slither."
+
+        def __init__(self, cards):
+            self.cards = cards
+
+    class C:
+        def __init__(self, i, cid, name, cost):
+            self.index, self.id, self.name, self.cost = i, cid, name, cost
+            self.type, self.rarity, self.is_upgraded = "Attack", "Basic", False
+            self.description = ""
+
+    cs = CS([C(0, "STRIKE_IRONCLAD", "Strike", "1"), C(1, "BASH", "Bash", "2")])
+    pick = r._pick_target(cs, prefer_worst=False, character="The Ironclad")
+    assert pick.id == "BASH"
+
+
+def test_sharp_enchant_prefers_multihit() -> None:
+    """Owner: Sharp (per-hit) on a 3x attack beats even Swift-on-Power — the target
+    picker prefers multi-hit attacks over single hits."""
+    r = router()
+
+    class CS:
+        prompt = "Choose an Attack to Enchant with Sharp 2."
+
+        def __init__(self, cards):
+            self.cards = cards
+
+    class C:
+        def __init__(self, i, cid, name, desc):
+            self.index, self.id, self.name = i, cid, name
+            self.cost, self.type, self.rarity = "1", "Attack", "Common"
+            self.is_upgraded = False
+            self.description = desc
+
+    cs = CS([C(0, "BLUDGEON", "Bludgeon", "Deal 32 damage."),
+             C(1, "SWORD_BOOMERANG", "Sword Boomerang",
+               "Deal 3 damage to a random enemy 3 times.")])
+    pick = r._pick_target(cs, prefer_worst=False, character="The Ironclad")
+    assert pick.id == "SWORD_BOOMERANG"

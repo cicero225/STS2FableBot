@@ -282,9 +282,10 @@ def test_event_catalog_beats_decline_by_default() -> None:
     assert isinstance(d, Decision)
     assert "event catalog" in d.rationale and d.action.index == 0
 
-    # the Slither trap stays declined: Snake is negative in catalog
+    # Slither REVERSED (owner 2026-07-20): the option is good — the old trap was
+    # a targeting mistake, and the enchant picker now takes the highest-cost card
     st2 = event_state([("Snake", "Enchant 1 card with Slither."),
                        ("Proceed", "Leave.")])
     d2 = r.decide(st2, LoopContext())
     assert isinstance(d2, Decision)
-    assert d2.action.index == 1  # Proceed over the trap
+    assert d2.action.index == 0  # engage: Slither-on-Bash is +EV

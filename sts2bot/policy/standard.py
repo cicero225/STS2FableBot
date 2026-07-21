@@ -1375,6 +1375,19 @@ class StandardRouter:
         if not candidates:
             return None
         if is_upgrade:
+            # Slither enchant (owner 2026-07-20, reversing the old 'trap' anchor):
+            # random 0-3 cost on draw = positive EV stapled to any cost>=2 card, and
+            # Ironclad always has Bash. Target the HIGHEST-cost card — the original
+            # sin was Slither on a cost-1 Strike.
+            if "slither" in prompt:
+                def slither_cost(c):
+                    try:
+                        return int(c.cost or 0)
+                    except ValueError:
+                        return 0  # X-cost: don't randomize an X card
+                return max(candidates,
+                           key=lambda c: (slither_cost(c),
+                                          self._card_quality(c, character)))
             # Upgrade the card that GAINS the most (Spirebird upgraded-vs-base delta),
             # tie-broken by base quality; missing deltas default to a typical gain.
             # Boss-aware Smith (owner lever 2026-07-17): an upgrade that pushes an
@@ -1384,6 +1397,12 @@ class StandardRouter:
             def upgrade_key(c):
                 uv = self.priors.upgrade_value(c.id, character) if self.priors else None
                 uv = uv if uv is not None else 1.5
+                # Sharp enchant multiplies per-HIT: prefer multi-hit attacks (owner:
+                # a 3x+ target beats even Swift-on-Power)
+                if "sharp" in prompt:
+                    fxc = parse_card_description(c.description)
+                    if fxc.hits >= 2:
+                        uv += 1.5 + (1.0 if fxc.hits >= 3 else 0.0)
                 if boss_rule and self.card_effects:
                     cid = (c.id or "").upper()
                     base_fx = parse_card_description(

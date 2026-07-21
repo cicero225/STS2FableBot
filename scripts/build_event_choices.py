@@ -17,11 +17,14 @@ OUT = Path(__file__).resolve().parent.parent / "data" / "event_choices.json"
 
 CHOICES: dict[str, dict] = {
     # ---- Self-Help Book (enchant one of your cards)
-    "Read the Back": dict(value=4.0, uncertain=True,
-                          note="Sharp 2 on an Attack; Sharp text unconfirmed (+dmg?)."),
-    "Read a Random Passage": dict(value=4.0, uncertain=True,
-                                  note="Nimble 2 on a Skill; Nimble unconfirmed."),
-    "Read the Entire Book": dict(value=4.5,
+    "Read the Back": dict(value=4.0,
+                          note="Sharp 2 (+dmg/hit) on an Attack; SB 8.2. Owner: beats "
+                          "Swift-Power only with a 3x+ multi-hit target — the enchant "
+                          "target picker prefers multi-hits."),
+    "Read a Random Passage": dict(value=4.2,
+                                  note="Nimble 2 on a Skill; SB 8.5; owner: Nimble > "
+                                  "Sharp generally."),
+    "Read the Entire Book": dict(value=5.5,
                                  note="Swift 2 on a Power (owner: first play each "
                                  "combat draws 2 — powers get played once, so this "
                                  "is 2 draw every combat it's cast)."),
@@ -54,13 +57,17 @@ CHOICES: dict[str, dict] = {
     "Dive into the Water": dict(value=4.0, note="~109g for 7 HP."),
     "Bathe": dict(value=3.0, note="Wellspring heal-ish option; Spirebird carried it."),
     # ---- Wood Carvings (enchant traps + starter transforms)
-    "Snake": dict(value=-2.0,
-                  note="THE Slither trap (PLAN item 5 anchor): enchants a card with "
-                  "Slither. Negative until proven otherwise."),
-    "Bird": dict(value=3.5, uncertain=True,
-                 note="Starter → Peck; Peck's text unknown."),
-    "Torus": dict(value=3.5, uncertain=True,
-                  note="Starter → Toric Toughness; text unknown."),
+    "Snake": dict(value=5.5,
+                  note="REVERSED 2026-07-20 (owner + SB 11.9): Slither = random 0-3 "
+                  "cost on draw — positive EV stapled to any cost>=2 card, and "
+                  "Ironclad always has Bash. The old 'Slither trap' anchor was a "
+                  "TARGETING mistake (a cost-1 Strike), not a bad option; the "
+                  "enchant target picker now takes the highest-cost card."),
+    "Bird": dict(value=3.0,
+                 note="Starter -> Peck; SB 5.0. Owner: Toric usually better; Peck "
+                 "edges it with Strength gain in deck OR Vantom as the boss."),
+    "Torus": dict(value=4.0,
+                  note="Starter -> Toric Toughness; SB 9.5; owner: usually the pick."),
     # ---- Sunken Treasury (+ chest twins elsewhere)
     "First Chest": dict(value=3.5, note="~56-64g free."),
     "Second Chest": dict(value=4.0,
@@ -70,24 +77,27 @@ CHOICES: dict[str, dict] = {
     "Bottle": dict(value=3.0, note="Glowwater Potion (downside class but free)."),
     "Climb": dict(value=1.5, note="Fresnel Lens for -13 Max HP — steep."),
     # ---- Spiraling Whirlpool
-    "Observe": dict(value=3.0, uncertain=True,
-                    note="Spiral enchant on a basic; Spiral text unknown."),
+    "Observe": dict(value=5.5,
+                    note="Spiral = Replay 1 on a basic (mediocre -> decent); SB 15.3 "
+                    "and owner agree. Planner prices the Replay text correctly "
+                    "(verified: Strike+Spiral parses 6x2)."),
     "Drink": dict(value=2.5, note="Heal 26; situational by HP."),
     # ---- Endless Conveyor (pay-gold upgrade loop)
     "Observe the Chef": dict(value=4.0, note="Free random upgrade."),
     "Grab Spicy Snappy off the Belt": dict(
         value=3.5, note="40g for a random upgrade + the loop continues."),
-    "Grab Caviar off the Belt": dict(value=3.0, uncertain=True,
-                                     note="Conveyor item; text varies."),
-    "Grab Fried Eel off the Belt": dict(value=3.0, uncertain=True,
-                                        note="Conveyor item; text varies."),
+    "Grab Caviar off the Belt": dict(value=4.5, note="SB 14.6; keep feasting."),
+    "Grab Fried Eel off the Belt": dict(value=4.3, note="SB 13.6; keep feasting."),
     # ---- Future of Potions
     "Insert Common Potion": dict(value=3.5,
-                                 note="Common potion → upgraded tier; fine trade."),
-    "Insert Uncommon Potion": dict(value=3.0, uncertain=True,
-                                   note="Exact return unconfirmed."),
-    "Insert Rare Potion": dict(value=2.0, uncertain=True,
-                               note="Risking a rare potion; unconfirmed return."),
+                                 note="Sacrifice the tier's potion for a same-rarity "
+                                 "card reward (declinable cards, event NOT declinable)."),
+    "Insert Uncommon Potion": dict(value=4.0,
+                                   note="Owner: higher rarity better, unless the "
+                                   "potion is protected-class (see EVENTS_PASS)."),
+    "Insert Rare Potion": dict(value=4.5,
+                               note="Owner: highest rarity is the default pick; "
+                               "protected-potion veto is a potion-pass item."),
     # ---- Dense Vegetation / misc
     "Trudge On": dict(value=3.5, note="~70g for 8 HP."),
     "Fight!": dict(value=3.0, note="Optional fight for loot; deck-power dependent."),
@@ -109,10 +119,12 @@ CHOICES: dict[str, dict] = {
     "Slowly Find an Exit": dict(value=2.0, note="8 HP for one random potion — meh."),
     "Light Door": dict(value=4.5, note="Upgrade 2 random cards, free."),
     "Dark Door": dict(value=4.0, note="Remove 1 card, free."),
-    "Overcome": dict(value=3.0, uncertain=True,
-                     note="Slippery Bridge; text not yet harvested."),
-    "Accept": dict(value=2.5, uncertain=True,
-                   note="'Serve as today's Decider' — flow unknown."),
+    "Overcome": dict(value=4.0, note="SB 8.9; engage."),
+    "Accept": dict(value=3.0,
+                   note="The Decider is NOT declinable (Reject loops then ends the "
+                   "run). Sub-choices per owner: 2-relics > Shame-upgrade; "
+                   "Regret+300g > heal-10 (unless desperate / no shops left); "
+                   "Doubt+2-rewards vs Double+Transform-2 by basics count."),
 }
 
 

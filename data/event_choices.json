@@ -4,21 +4,21 @@
   "scale": "event-heuristic units (relic ~ 6.0)",
   "keying": "OPTION TITLE (event_id lags transitions in mod state)",
   "n_options": 53,
-  "n_uncertain": 11
+  "n_uncertain": 0
  },
  "choices": {
   "Read the Back": {
    "value": 4.0,
-   "uncertain": true,
-   "note": "Sharp 2 on an Attack; Sharp text unconfirmed (+dmg?)."
+   "note": "Sharp 2 (+dmg/hit) on an Attack; SB 8.2. Owner: beats Swift-Power only with a 3x+ multi-hit target — the enchant target picker prefers multi-hits.",
+   "uncertain": false
   },
   "Read a Random Passage": {
-   "value": 4.0,
-   "uncertain": true,
-   "note": "Nimble 2 on a Skill; Nimble unconfirmed."
+   "value": 4.2,
+   "note": "Nimble 2 on a Skill; SB 8.5; owner: Nimble > Sharp generally.",
+   "uncertain": false
   },
   "Read the Entire Book": {
-   "value": 4.5,
+   "value": 5.5,
    "note": "Swift 2 on a Power (owner: first play each combat draws 2 — powers get played once, so this is 2 draw every combat it's cast).",
    "uncertain": false
   },
@@ -93,19 +93,19 @@
    "uncertain": false
   },
   "Snake": {
-   "value": -2.0,
-   "note": "THE Slither trap (PLAN item 5 anchor): enchants a card with Slither. Negative until proven otherwise.",
+   "value": 5.5,
+   "note": "REVERSED 2026-07-20 (owner + SB 11.9): Slither = random 0-3 cost on draw — positive EV stapled to any cost>=2 card, and Ironclad always has Bash. The old 'Slither trap' anchor was a TARGETING mistake (a cost-1 Strike), not a bad option; the enchant target picker now takes the highest-cost card.",
    "uncertain": false
   },
   "Bird": {
-   "value": 3.5,
-   "uncertain": true,
-   "note": "Starter → Peck; Peck's text unknown."
+   "value": 3.0,
+   "note": "Starter -> Peck; SB 5.0. Owner: Toric usually better; Peck edges it with Strength gain in deck OR Vantom as the boss.",
+   "uncertain": false
   },
   "Torus": {
-   "value": 3.5,
-   "uncertain": true,
-   "note": "Starter → Toric Toughness; text unknown."
+   "value": 4.0,
+   "note": "Starter -> Toric Toughness; SB 9.5; owner: usually the pick.",
+   "uncertain": false
   },
   "First Chest": {
    "value": 3.5,
@@ -128,9 +128,9 @@
    "uncertain": false
   },
   "Observe": {
-   "value": 3.0,
-   "uncertain": true,
-   "note": "Spiral enchant on a basic; Spiral text unknown."
+   "value": 5.5,
+   "note": "Spiral = Replay 1 on a basic (mediocre -> decent); SB 15.3 and owner agree. Planner prices the Replay text correctly (verified: Strike+Spiral parses 6x2).",
+   "uncertain": false
   },
   "Drink": {
    "value": 2.5,
@@ -148,29 +148,29 @@
    "uncertain": false
   },
   "Grab Caviar off the Belt": {
-   "value": 3.0,
-   "uncertain": true,
-   "note": "Conveyor item; text varies."
+   "value": 4.5,
+   "note": "SB 14.6; keep feasting.",
+   "uncertain": false
   },
   "Grab Fried Eel off the Belt": {
-   "value": 3.0,
-   "uncertain": true,
-   "note": "Conveyor item; text varies."
+   "value": 4.3,
+   "note": "SB 13.6; keep feasting.",
+   "uncertain": false
   },
   "Insert Common Potion": {
    "value": 3.5,
-   "note": "Common potion → upgraded tier; fine trade.",
+   "note": "Sacrifice the tier's potion for a same-rarity card reward (declinable cards, event NOT declinable).",
    "uncertain": false
   },
   "Insert Uncommon Potion": {
-   "value": 3.0,
-   "uncertain": true,
-   "note": "Exact return unconfirmed."
+   "value": 4.0,
+   "note": "Owner: higher rarity better, unless the potion is protected-class (see EVENTS_PASS).",
+   "uncertain": false
   },
   "Insert Rare Potion": {
-   "value": 2.0,
-   "uncertain": true,
-   "note": "Risking a rare potion; unconfirmed return."
+   "value": 4.5,
+   "note": "Owner: highest rarity is the default pick; protected-potion veto is a potion-pass item.",
+   "uncertain": false
   },
   "Trudge On": {
    "value": 3.5,
@@ -263,14 +263,14 @@
    "uncertain": false
   },
   "Overcome": {
-   "value": 3.0,
-   "uncertain": true,
-   "note": "Slippery Bridge; text not yet harvested."
+   "value": 4.0,
+   "note": "SB 8.9; engage.",
+   "uncertain": false
   },
   "Accept": {
-   "value": 2.5,
-   "uncertain": true,
-   "note": "'Serve as today's Decider' — flow unknown."
+   "value": 3.0,
+   "note": "The Decider is NOT declinable (Reject loops then ends the run). Sub-choices per owner: 2-relics > Shame-upgrade; Regret+300g > heal-10 (unless desperate / no shops left); Doubt+2-rewards vs Double+Transform-2 by basics count.",
+   "uncertain": false
   }
  }
 }
