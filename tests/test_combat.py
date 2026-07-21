@@ -1543,3 +1543,34 @@ def test_chains_of_binding_one_bound_card_per_turn() -> None:
     bound_played = sum(1 for n in plan if n in ("Strike", "Bash"))
     assert bound_played == 1  # exactly one Bound card in the plan
     assert "Pommel Strike" in plan  # un-Bound card still fills the turn
+
+
+def test_thrash_growth_bonus_with_fodder_hand_only() -> None:
+    """Owner 2026-07-20: with a hand of Strikes + Thrash, avoiding Thrash is 'almost
+    strictly wrong' — its permanent growth + thinning were unpriced while its per-hit
+    costs (Skittish, thorns) were priced, tipping marginal contexts to Strike. The
+    growth bonus fires ONLY when every other attack in hand is fodder (never risk
+    the random exhaust eating a keeper)."""
+    w = load_policy_config().combat
+    thrash = _bcard(0, "THRASH", "Thrash", 1,
+                    "Deal 4 damage twice. Exhaust a random Attack in your Hand and "
+                    "add its damage to this card.", "Attack", "AnyEnemy")
+    strike = _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack",
+                    "AnyEnemy")
+    # Skittish enemy: first hit lands, then it gains block — the context that used
+    # to tip the sim toward Strike
+    skittish = [{"id": "SKITTISH_POWER", "name": "Skittish", "amount": 5,
+                 "description": "When first damaged each turn, gains 5 Block."}]
+    state = _beckon_state(1, [thrash, strike], enemy_hp=60, hp=60,
+                          enemy_status=skittish, incoming="8")
+    d = plan_combat_turn(parse_state(state), w)
+    assert "Thrash" in d.rationale.split("[")[1].split("]")[0]
+
+    # keeper in hand (Uppercut, riders) -> no bonus; Thrash competes on raw numbers
+    upper = _bcard(1, "UPPERCUT", "Uppercut", 1,
+                   "Deal 13 damage. Apply 1 Weak. Apply 1 Vulnerable.", "Attack",
+                   "AnyEnemy")
+    state2 = _beckon_state(1, [thrash, upper], enemy_hp=60, hp=60,
+                           enemy_status=skittish, incoming="8")
+    d2 = plan_combat_turn(parse_state(state2), w)
+    assert "Uppercut" in d2.rationale.split("[")[1].split("]")[0]

@@ -76,6 +76,10 @@ class CombatWeights(_Section):
     # 16-dmg Giant Rock (owner 2026-07-18: "upgrade your strikes, not the attacks you
     # want to keep"). The DFS discovers keeper-BEFORE-PF ordering from this penalty.
     w_primal_keeper: float = -6.0
+    # Thrash-class growth: exhausted attack's damage banks into the next play, plus
+    # the thinning — granted only when all other hand attacks are fodder (owner
+    # 2026-07-20: strikes are GOOD Thrash food; keepers must never be risked).
+    w_exhaust_growth: float = 5.0
     w_crab_rage_split: float = -20.0  # small penalty for a 1-claw-dead split (1-turn enrage stall)
     max_sequences: int = 4000
     survival_status_threshold: int = 2

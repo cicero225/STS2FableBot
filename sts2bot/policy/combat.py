@@ -37,6 +37,11 @@ _HAND_EXHAUST_DMG = re.compile(r"(\d+) damage for each card", re.IGNORECASE)
 _EX_HAND = re.compile(r"exhaust (?:your hand|all)", re.IGNORECASE)
 _EX_ONE = re.compile(r"exhaust (?:a|an|the top|1) ", re.IGNORECASE)
 _EX_SELF = re.compile(r"(?:^|\.\s)Exhaust\.(?:\s|$)")
+# Thrash-class growth (owner 2026-07-20): "add its damage to this card" = the
+# exhausted attack's damage is banked into Thrash's NEXT play, plus the thinning.
+# Both are future value the one-turn tally can't see, so the sim's correctly-priced
+# per-hit costs (Skittish, thorns) made it look strictly worse than a Strike.
+_GROWS_ON_EXHAUST = re.compile(r"add its damage to this card", re.IGNORECASE)
 _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 damage, 1 cost)
 # An enemy in its invincible/about-to-explode state (Waterfall Giant's Steam Eruption) is reported
 # at a sentinel HP — damage into it is wasted (it dies on its own after the explosion), only block
@@ -246,6 +251,11 @@ class PlannedCard:
     # end of turn; transform strips it). Plans sequencing 2+ Bound cards fizzled at the
     # gate, Normality-style.
     bound: bool = False
+    # Thrash-class: play bonus for growth+thinning, granted post-build only when
+    # every OTHER attack in hand is fodder (owner's rule: never risk the random
+    # exhaust eating a keeper; the DFS's natural ordering covers the played ones).
+    grows_on_exhaust: bool = False
+    growth_bonus: float = 0.0
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
     # debuff types this card applies to the *target* enemy, in card-TEXT order (Uppercut = Weak
     # then Vulnerable). Order matters for Artifact, which eats one debuff per unique status.
@@ -390,6 +400,7 @@ class SimState:
     keepers_rocked: int = 0  # keeper attacks fed to an active Primal Force (permanent downgrade)
     per_exhaust_block: int = 0  # Feel No Pain stacks: block gained per card Exhausted
     bound_played: bool = False  # a Bound card was played this turn (only one allowed)
+    flat_bonus: float = 0.0  # accumulated per-play bonuses (Thrash growth credit)
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
     pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
@@ -551,6 +562,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
             any((k.name or "") == "Bound" for k in getattr(card, "keywords", None) or [])
             or bool(re.search(r"\bBound\b", desc))
         ),
+        grows_on_exhaust=bool(_GROWS_ON_EXHAUST.search(desc)),
         grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
         on_fatal_bonus=bool(re.search(r"\bIf Fatal\b", desc, re.IGNORECASE)),
         requires_target=(card.target_type == "AnyEnemy"),
@@ -855,6 +867,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             else 0
         ),
         bound_played=state.bound_played or card.bound,
+        flat_bonus=state.flat_bonus + card.growth_bonus,
         facing=facing,
         played=(*state.played, (card.index, target_id)),
     )
@@ -1178,6 +1191,7 @@ def _score(
         + w.w_ramp_damage * state.ramp_damage
         + w.w_carrier_damage * state.carrier_damage
         + w.w_primal_keeper * state.keepers_rocked
+        + state.flat_bonus
         # turtling a ramper loses (Damp Cultist 2026-07-16: four all-block turns vs a
         # +5/turn Ritual, died at full-HP enemy) — damageless turns pay while one lives
         + (w.w_ramp_stall
@@ -1319,6 +1333,15 @@ def plan_combat_turn(
                 index=-(potion.slot + 1), name=f"{potion.name} (potion)", cost=0, fx=pfx,
                 targets_enemy=not pfx.aoe, potion_slot=potion.slot,
             ))
+    # Thrash-class growth bonus: the exhausted attack's damage banks into the NEXT
+    # play + thinning — future value the one-turn tally can't see. Granted only when
+    # every OTHER attack in hand is fodder (owner: never risk eating a keeper).
+    grow_attacks = [pc for pc in playable if pc.is_attack and pc.potion_slot is None]
+    for i, pc in enumerate(playable):
+        if pc.grows_on_exhaust:
+            others = [a for a in grow_attacks if a.index != pc.index]
+            if others and all(a.primal_fodder for a in others):
+                playable[i] = replace(pc, growth_bonus=weights.w_exhaust_growth)
     if not playable:
         return Decision(action=act.EndTurn(), rationale="no playable cards; end turn")
 
