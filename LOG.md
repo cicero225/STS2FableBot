@@ -2,6 +2,26 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-20 (Fable 5, session 9 close) — Bound validates 14/14 vs the Queen; event catalog engages but coverage caps it
+
+**Batch bo1bhqron (reviewed events catalog + Foul guard + Bound/FB/FNP): 0/10, 1.70.**
+Queen fight at f48 (run 3): **Chains of Binding compliance 14/14 plans, zero
+violations** — first mechanic-aware Queen fight; she still won (f48 remains the
+deepest wall). Kaiser ×2 at f33 (focus-Rocket confirmed live earlier; his wall is
+block instances + entry HP like the rest), Matriarch/Kin/Soul Fysh/WG ×1 each at f17.
+
+**Event catalog live: engaged 8×, Spirebird 24×, but decline rate still ~60%** — the
+53-title catalog covers the top events' main options; the full title universe is
+~150+. Coverage, not correctness, is the gap — v2 = full-title harvest broadening.
+
+**Owner minutiae round (shipped mid-batch, debut next)**: Thrash growth+thinning
+priced (w_exhaust_growth=5.0, fodder-gated per the owner's keeper rule; forensics
+exonerated the card-vs-card math — Skittish/thorns were correctly priced, the future
+value wasn't); Smoggy one-Skill-per-turn (Bound family) + a latent counter bug
+(n_skills_played froze at 0 in relic-less fights); Gremlin Merc gold-recovery
+deferred per owner. Events-pass review: 0 uncertain, SLITHER REVERSED (targeting sin,
+not bad option — picker takes highest-cost card), Sharp prefers multi-hits, protected
+potions filed. 373 tests.
 ## 2026-07-20 (Fable 5, session 9) — Events pass ships; KD rest-gate validates but he wins anyway (the forward-model frontier marker)
 
 **Batch bidee2frt (Bound + Flame Barrier + FNP live): 0/10, act-reach 1.80** — second
