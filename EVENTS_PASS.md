@@ -43,10 +43,14 @@ TEA_MASTER, SYMBIOTE, AROMA_OF_CHAOS; tail of 30 rare ones.)
 
 ## Proposed approach (the Ancients playbook)
 
-1. **Event catalog** (`data/event_choices.json`): per-event per-option values for the
-   top ~20 events, harvested option texts from logs; catalog-first in `_event` for
-   non-ancient events too, generic heuristic as fallback. Owner review pass on the
-   table (the card/ancient review format).
+1. **Option catalog keyed by OPTION TITLE** (`data/event_choices.json`) — not by
+   (event, option): the harvest showed the mod's event_id LAGS screen transitions
+   (options bleed across ids in logs), and titles are stable and self-identifying
+   ("Rip the Leech Off" means the same thing wherever filed). Same key design as the
+   boon catalog. Harvested texts: session scratchpad event_texts.json (2026-07-20).
+   Notable entries already visible: Second Chest = 300-360g + Greed curse; Nab the
+   Map = Spoils Map (the 600g coupon we now protect); Snake = the Slither trap IN
+   TEXT; Immerse/Linger = repeatable +2 max HP for small damage.
 2. **Decline-rate correction**: where an option is strictly-positive (no HP/gold/curse
    cost parsed AND no unknown keyword), prefer it over Proceed even without Spirebird
    — walking away from free value is the one provably wrong move.
