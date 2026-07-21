@@ -57,6 +57,22 @@ BOONS: dict[str, dict] = {
     "Scroll Boxes": dict(
         value=3.0, note="Owner: 1-of-2 packs of 3 class cards (1 uncommon + 2 "
         "commons, non-repeating), unskippable; costs all gold (~99 at Neow)."),
+    # --- new-epoch Neow-pool additions (harvested live 2026-07-20; texts from state)
+    "Hefty Tablet": dict(
+        value=4.0, note="1-of-3 Rares + an Injury curse; rare quality for a small tax."),
+    "Kaleidoscope": dict(
+        value=3.0, note="2 off-class card rewards; drafts blind off-class."),
+    "Neow's Bones": dict(
+        value=4.5, note="2 random Neow relics + 1 random curse; relic economy usually "
+        "wins."),
+    "Neow's Talisman": dict(
+        value=3.0, note="Upgrade 1 Strike + 1 Defend; modest but never dead."),
+    "Phial Holster": dict(
+        value=4.5, note="+1 potion slot + 2 potions — the potion policy cashes these "
+        "(win #3 picked it blind at the clamp cap and it played fine)."),
+    "Winged Boots": dict(
+        value=4.5, note="Ignore paths 3x — routing freedom the DP can spend on "
+        "off-lane shops/rests."),
     "Silken Tress": dict(
         value=2.5, note="Lose all gold; Glam-enchant the first card reward "
         "(you keep ONE of its cards — one twice-a-combat card for ~99g). "
@@ -95,6 +111,17 @@ BOONS: dict[str, dict] = {
         value=5.5, provides={"energy_source": 1.0},
         note="Luminesce (KB): Retain, +2 energy, Exhaust — in hand every combat "
         "= ~2 flexible energy per fight."),
+    "Sand Castle": dict(
+        value=5.5, note="Upgrade 6 random cards on pickup — near Yummy Cookie tier "
+        "for our mostly-unupgraded decks. (Day-one catalog gap: in the log harvest, "
+        "missed from the wiki's Orobas list; fixed 2026-07-20.)"),
+    "Noble Glass": dict(
+        value=3.5, note="See 15 Regent cards, add any number — free optionality "
+        "(take zero if bad), but off-class cards draft blind (no priors/tags)."),
+    "Venom Glass": dict(
+        value=3.5, note="Silent version of Noble Glass; same off-class caveat."),
+    "Gear Glass": dict(
+        value=3.5, note="Defect version of Noble Glass (new-epoch)."),
     "Touch of Orobas": dict(
         value=6.0, note="Owner-confirmed: Black Blood = heal 12 post-combat, "
         "a strict Burning Blood upgrade — +6/combat is major attrition relief "

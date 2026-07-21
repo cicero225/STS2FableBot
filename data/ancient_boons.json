@@ -2,7 +2,7 @@
  "_meta": {
   "source": "scripts/build_ancient_boons.py (Ancients pass, PLAN §8.5.5a)",
   "scale": "event-heuristic units (relic ≈ 6.0)",
-  "n_boons": 89,
+  "n_boons": 99,
   "n_uncertain": 0
  },
  "boons": {
@@ -142,6 +142,54 @@
    "provides": {},
    "draft_bonus": {}
   },
+  "Hefty Tablet": {
+   "value": 4.0,
+   "note": "1-of-3 Rares + an Injury curse; rare quality for a small tax.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Kaleidoscope": {
+   "value": 3.0,
+   "note": "2 off-class card rewards; drafts blind off-class.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Neow's Bones": {
+   "value": 4.5,
+   "note": "2 random Neow relics + 1 random curse; relic economy usually wins.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Neow's Talisman": {
+   "value": 3.0,
+   "note": "Upgrade 1 Strike + 1 Defend; modest but never dead.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Phial Holster": {
+   "value": 4.5,
+   "note": "+1 potion slot + 2 potions — the potion policy cashes these (win #3 picked it blind at the clamp cap and it played fine).",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Winged Boots": {
+   "value": 4.5,
+   "note": "Ignore paths 3x — routing freedom the DP can spend on off-lane shops/rests.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
   "Silken Tress": {
    "value": 2.5,
    "note": "Lose all gold; Glam-enchant the first card reward (you keep ONE of its cards — one twice-a-combat card for ~99g). New-epoch boon, harvested live 2026-07-16.",
@@ -235,6 +283,38 @@
    "note": "Luminesce (KB): Retain, +2 energy, Exhaust — in hand every combat = ~2 flexible energy per fight.",
    "uncertain": false,
    "deck_bonus": [],
+   "draft_bonus": {}
+  },
+  "Sand Castle": {
+   "value": 5.5,
+   "note": "Upgrade 6 random cards on pickup — near Yummy Cookie tier for our mostly-unupgraded decks. (Day-one catalog gap: in the log harvest, missed from the wiki's Orobas list; fixed 2026-07-20.)",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Noble Glass": {
+   "value": 3.5,
+   "note": "See 15 Regent cards, add any number — free optionality (take zero if bad), but off-class cards draft blind (no priors/tags).",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Venom Glass": {
+   "value": 3.5,
+   "note": "Silent version of Noble Glass; same off-class caveat.",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
+   "draft_bonus": {}
+  },
+  "Gear Glass": {
+   "value": 3.5,
+   "note": "Defect version of Noble Glass (new-epoch).",
+   "uncertain": false,
+   "deck_bonus": [],
+   "provides": {},
    "draft_bonus": {}
   },
   "Touch of Orobas": {
