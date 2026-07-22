@@ -289,3 +289,41 @@ def test_event_catalog_beats_decline_by_default() -> None:
     d2 = r.decide(st2, LoopContext())
     assert isinstance(d2, Decision)
     assert d2.action.index == 0  # engage: Slither-on-Bash is +EV
+
+
+def test_costless_unknown_event_option_engages() -> None:
+    """Catalog v2 (2026-07-21): unparseable-but-COSTLESS options engage at the floor
+    instead of declining (the event pool is EV-positive per Spirebird's own data);
+    unknowns with a parsed cost keep the clamped heuristic and can still decline."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    def ev(options):
+        return parse_state({
+            "state_type": "event",
+            "event": {"event_id": "MYSTERY", "event_name": "Mystery",
+                      "is_ancient": False, "in_dialogue": False, "body": None,
+                      "options": [
+                          {"index": i, "title": t, "description": d,
+                           "is_locked": False, "is_proceed": t == "Proceed",
+                           "was_chosen": False, "keywords": []}
+                          for i, (t, d) in enumerate(options)
+                      ]},
+            "run": {"act": 1, "floor": 6, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                       "block": 0, "gold": 100, "status": [], "relics": [],
+                       "potions": [], "max_potion_slots": 3},
+        })
+
+    # costless mystery option: engage
+    d = r.decide(ev([("Pull the Lever", "Something mysterious happens."),
+                     ("Proceed", "Leave.")]), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.index == 0
+
+    # unknown WITH a parsed cost and no gain: still declined
+    d2 = r.decide(ev([("Sacrifice", "Lose 20 HP. Something mysterious happens."),
+                      ("Proceed", "Leave.")]), LoopContext())
+    assert isinstance(d2, Decision)
+    assert d2.action.index == 1

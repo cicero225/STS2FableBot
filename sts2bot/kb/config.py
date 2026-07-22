@@ -93,6 +93,10 @@ class EventWeights(_Section):
     hp_cost_refuse_below: float = 0.45
     unknown_take_first_above: float = 0.70
     take_min: float = 0.5  # heuristic net-value floor to engage an option vs proceeding
+    # catalog v2 (2026-07-21): unknown options with NO parsed cost engage at this
+    # floor instead of declining — the event pool is EV-positive (Spirebird's own
+    # data), so free-value walk-aways were the residual decline driver
+    unknown_costless_floor: float = 2.5
     spirebird_take_floor: float = -2.0  # take Spirebird's top option unless heuristically harmful
     min_hp_pct_after_cost: float = 0.20  # never pay an event HP cost that drops below this
 

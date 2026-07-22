@@ -877,24 +877,32 @@ class StandardRouter:
             rated_sb = [s for s in scored if s[2] is not None]
             if len(rated_sb) < 2:  # Spirebird not confident here: catalog leads
                 vals = {}
-                known_any = False
                 for o, heur, _vs in scored:
                     entry = self.event_choices.get(o.title or "")
                     if entry:
                         vals[o.index] = float(entry.get("value", 0.0))
-                        known_any = True
                     else:
-                        vals[o.index] = min(heur, _UNKNOWN_BOON_CAP)
-                if known_any:
-                    best_o = max(scored, key=lambda s: vals[s[0].index])[0]
-                    if vals[best_o.index] >= w.take_min:
-                        return Decision(
-                            action=act.ChooseEventOption(index=best_o.index),
-                            rationale=(f"event catalog: '{best_o.title}' "
-                                       f"({vals[best_o.index]:.1f})"),
-                            scores={(o.title or "?"): round(vals[o.index], 2)
-                                    for o, _h, _v in scored},
-                        )
+                        # Costless-unknown floor (catalog v2, 2026-07-21): the
+                        # residual declines were unparseable-but-costless options
+                        # (enchants, flows), and Spirebird's own data says the event
+                        # pool is overwhelmingly EV-positive — walking away from an
+                        # option with NO parsed cost is the provably wrong default.
+                        # Anything with a parsed cost keeps the clamped heuristic.
+                        text = f"{o.title or ''} {o.description or ''}"
+                        costless = (parse_hp_cost(text) == 0
+                                    and "curse" not in text.lower()
+                                    and "lose" not in text.lower())
+                        vals[o.index] = (max(heur, w.unknown_costless_floor)
+                                         if costless else min(heur, _UNKNOWN_BOON_CAP))
+                best_o = max(scored, key=lambda s: vals[s[0].index])[0]
+                if vals[best_o.index] >= w.take_min:
+                    return Decision(
+                        action=act.ChooseEventOption(index=best_o.index),
+                        rationale=(f"event catalog: '{best_o.title}' "
+                                   f"({vals[best_o.index]:.1f})"),
+                        scores={(o.title or "?"): round(vals[o.index], 2)
+                                for o, _h, _v in scored},
+                    )
 
         rated = [s for s in scored if s[2] is not None]
         if len(rated) >= 2:
