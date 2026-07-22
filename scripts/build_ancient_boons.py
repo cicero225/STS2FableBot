@@ -142,11 +142,10 @@ BOONS: dict[str, dict] = {
         value=8.5, provides=dict(ENERGY),
         note="+1 energy from turn 3 on — the strongest common Pael offer."),
     "Pael's Growth": dict(
-        value=1.5, note="Owner: Clone unlocks a rest-site action duplicating "
-        "ALL Clone cards (1→2→4→8 with dedication). Bot-aware LOW: the rest "
-        "handler is blind to non-standard campfire actions (Girya/Lift class, "
-        "§8.4) — until it learns Clone, the enchant does nothing for us. Raise "
-        "when the rest handler grows action awareness."),
+        value=4.0, note="Owner: Clone unlocks a rest-site action duplicating "
+        "ALL Clone cards (1→2→4→8 with dedication). REPRICED 2026-07-21: the "
+        "rest handler now takes Clone when an enchanted card exists (the §8.4 "
+        "non-standard-action fix); still needs a premium enchant target to sing."),
     "Pael's Horn": dict(
         value=3.0, note="Relax (KB): 3 energy, 16 Block, next turn +2 draw "
         "+2 energy, Exhaust — real but unexciting cards; owner rated average."),
@@ -241,10 +240,9 @@ BOONS: dict[str, dict] = {
     "Iron Club": dict(
         value=4.0, provides={"draw_engine": 0.5}, note="Draw per 4 plays."),
     "Meat Cleaver": dict(
-        value=2.5, note="Owner: Cook = rest action, remove 2 cards + 9 Max HP "
-        "— strong in principle, but the rest handler is blind to non-standard "
-        "campfire actions (Girya class, §8.4), so it's dead weight for the bot "
-        "until that lands. Raise then."),
+        value=5.0, note="Owner: Cook = rest action, remove 2 cards + 9 Max HP — "
+        "strong. REPRICED 2026-07-21: the rest handler now Cooks when thinnable "
+        "cards exist (the §8.4 non-standard-action fix)."),
     "Sai": dict(
         value=6.5, note="Passive 7 block/turn — pure survival, no play needed."),
     "Spiked Gauntlets": dict(

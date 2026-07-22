@@ -362,8 +362,8 @@
    "draft_bonus": {}
   },
   "Pael's Growth": {
-   "value": 1.5,
-   "note": "Owner: Clone unlocks a rest-site action duplicating ALL Clone cards (1→2→4→8 with dedication). Bot-aware LOW: the rest handler is blind to non-standard campfire actions (Girya/Lift class, §8.4) — until it learns Clone, the enchant does nothing for us. Raise when the rest handler grows action awareness.",
+   "value": 4.0,
+   "note": "Owner: Clone unlocks a rest-site action duplicating ALL Clone cards (1→2→4→8 with dedication). REPRICED 2026-07-21: the rest handler now takes Clone when an enchanted card exists (the §8.4 non-standard-action fix); still needs a premium enchant target to sing.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -624,8 +624,8 @@
    "draft_bonus": {}
   },
   "Meat Cleaver": {
-   "value": 2.5,
-   "note": "Owner: Cook = rest action, remove 2 cards + 9 Max HP — strong in principle, but the rest handler is blind to non-standard campfire actions (Girya class, §8.4), so it's dead weight for the bot until that lands. Raise then.",
+   "value": 5.0,
+   "note": "Owner: Cook = rest action, remove 2 cards + 9 Max HP — strong. REPRICED 2026-07-21: the rest handler now Cooks when thinnable cards exist (the §8.4 non-standard-action fix).",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},

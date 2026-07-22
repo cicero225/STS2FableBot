@@ -2920,3 +2920,48 @@ def test_sharp_enchant_prefers_multihit() -> None:
                "Deal 3 damage to a random enemy 3 times.")])
     pick = r._pick_target(cs, prefer_worst=False, character="The Ironclad")
     assert pick.id == "SWORD_BOOMERANG"
+
+
+def test_rest_site_nonstandard_actions() -> None:
+    """§8.4 class fix (4 members): relic/quest-added campfire options the fixed
+    Rest/Smith menu was blind to. Hatch always beats Smith; Lift beats Smith while
+    healthy; rest still wins when HP demands it; Cook requires thinnable cards."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    def rest_state(hp, extra_options):
+        opts = [{"index": 0, "id": "HEAL", "name": "Rest", "is_enabled": True},
+                {"index": 1, "id": "SMITH", "name": "Smith", "is_enabled": True}]
+        opts += [dict(o, index=2 + i) for i, o in enumerate(extra_options)]
+        return parse_state({
+            "state_type": "rest_site",
+            "rest_site": {"options": opts, "can_proceed": False},
+            "run": {"act": 1, "floor": 8, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80,
+                       "block": 0, "gold": 100, "status": [], "relics": [],
+                       "potions": [], "max_potion_slots": 3,
+                       "deck": [{"index": 0, "id": "STRIKE_IRONCLAD",
+                                 "name": "Strike", "type": "Attack", "cost": "1",
+                                 "is_upgraded": False}]},
+        })
+
+    lift = {"id": "LIFT", "name": "Lift", "is_enabled": True}
+    hatch = {"id": "HATCH", "name": "Hatch", "is_enabled": True}
+    cook = {"id": "COOK", "name": "Cook", "is_enabled": True}
+
+    # healthy: Lift beats Smith
+    d = r.decide(rest_state(70, [lift]), LoopContext())
+    assert "lift" in d.rationale.lower()
+
+    # hurt: Rest still wins over specials
+    d2 = r.decide(rest_state(20, [lift]), LoopContext())
+    assert d2.rationale.startswith("rest")
+
+    # Hatch outranks Lift
+    d3 = r.decide(rest_state(70, [lift, hatch]), LoopContext())
+    assert "hatch" in d3.rationale.lower()
+
+    # Cook fires with a removable Strike in deck
+    d4 = r.decide(rest_state(70, [cook]), LoopContext())
+    assert "cook" in d4.rationale.lower()

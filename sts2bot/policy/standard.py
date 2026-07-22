@@ -1663,6 +1663,37 @@ class StandardRouter:
             return Decision(
                 action=act.ChooseRestOption(index=enabled["rest"].index), rationale=rest_why
             )
+        # Non-standard campfire actions (§8.4 class, 4 known members): relic/quest-added
+        # options the fixed Rest/Smith menu was blind to — the Byrdonis Egg rode along
+        # as a dead curse past 3 rest sites, Girya's Lift never fired, and two Ancient
+        # boons (Pael's Growth / Meat Cleaver) were priced near-zero because their
+        # actions were unreachable. Priority (owner guidance, Girya note 2026-06-25):
+        # Hatch always (it's why the egg was taken) > Lift while healthy (permanent
+        # +1 Str, <=3 uses) > Cook when thinnables exist (remove 2, +9 max HP) >
+        # Clone only if a Clone-enchanted card exists. Rest already won above if needed.
+        def _deck_has_clone_enchant() -> bool:
+            for c in (player.deck if player else None) or []:
+                for k in getattr(c, "keywords", None) or []:
+                    if (getattr(k, "name", "") or "").lower() == "clone":
+                        return True
+            return False
+
+        specials = []  # (priority, option, why)
+        for key, o in enabled.items():
+            if key in ("rest", "smith"):
+                continue
+            nm = f"{o.id or ''} {o.name or ''}".lower()
+            if "hatch" in nm:
+                specials.append((0, o, f"hatch the egg ({o.name})"))
+            elif "lift" in nm:
+                specials.append((1, o, f"lift: permanent +1 Strength ({o.name})"))
+            elif "cook" in nm and self._has_removable_card(player):
+                specials.append((2, o, f"cook: remove 2 + max HP ({o.name})"))
+            elif "clone" in nm and _deck_has_clone_enchant():
+                specials.append((3, o, f"clone the enchanted card ({o.name})"))
+        if specials:
+            _, o, why = min(specials)
+            return Decision(action=act.ChooseRestOption(index=o.index), rationale=why)
         if "smith" in enabled:
             return Decision(
                 action=act.ChooseRestOption(index=enabled["smith"].index), rationale=smith_why

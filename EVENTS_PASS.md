@@ -83,5 +83,5 @@ TEA_MASTER, SYMBIOTE, AROMA_OF_CHAOS; tail of 30 rare ones.)
 - [x] Owner review (0 uncertain remaining)
 - [x] `_event` catalog-first wiring (37ef0e7) + review values (a26dd4a)
 - [x] Slither/Sharp enchant target rules (a26dd4a)
-- [ ] Rest-handler non-standard action awareness (Girya/Hatch/Clone/Cook)
+- [x] Rest-handler non-standard action awareness (Girya/Hatch/Clone/Cook) — 2026-07-21; Growth 1.5→4.0, Cleaver 2.5→5.0 repriced
 - [ ] Potion-pass handoff: protected-potion veto for Future of Potions
