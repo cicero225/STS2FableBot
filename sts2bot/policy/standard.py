@@ -840,6 +840,14 @@ class StandardRouter:
                 continue
             text = f"{o.title or ''} {o.description or ''}"
             hp_cost = parse_hp_cost(text)
+            # An event option that IS a fight carries an implicit HP cost the text
+            # never states (Lantern Key death 2026-07-22: 'Fight to obtain the Key'
+            # read as a free relic at 25/85 HP — chose combat at 29% over 100 gold).
+            # Price it as an expected monster loss so the hp-cost gates apply.
+            if hp_cost == 0 and re.search(r"\bfight\b", text, re.IGNORECASE):
+                est_fight = (self.combat_stats.expected_loss("monster", stat="mean")
+                             if self.combat_stats else None)
+                hp_cost = int(est_fight if est_fight is not None else 15)
             if hp_cost:
                 after_pct = (hp - hp_cost) / max(1, max_hp)
                 # Refuse if already too hurt to pay, or if paying drops us into the danger
@@ -947,7 +955,8 @@ class StandardRouter:
                         text = f"{o.title or ''} {o.description or ''}"
                         costless = (parse_hp_cost(text) == 0
                                     and "curse" not in text.lower()
-                                    and "lose" not in text.lower())
+                                    and "lose" not in text.lower()
+                                    and "fight" not in text.lower())
                         vals[o.index] = (max(heur, w.unknown_costless_floor)
                                          if costless else min(heur, _UNKNOWN_BOON_CAP))
                 best_o = max(scored, key=lambda s: vals[s[0].index])[0]

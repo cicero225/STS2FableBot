@@ -381,3 +381,40 @@ def test_slippery_bridge_gamble_rule() -> None:
     d4 = r.decide(bridge("Spoils Map", 3, [card("Spoils Map", "Quest")]),
                   LoopContext())
     assert d4.action.index == 1
+
+
+def test_event_fight_options_carry_implicit_hp_cost() -> None:
+    """Lantern Key death (2026-07-22): 'Fight to obtain the Key' read as a free
+    relic at 25/85 HP. Fight options now price an expected monster loss through
+    the hp-cost gates: refused when hurt, allowed when healthy."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    def lantern(hp):
+        return parse_state({
+            "state_type": "event",
+            "event": {"event_id": "THE_LANTERN_KEY", "event_name": "Lantern Key",
+                      "is_ancient": False, "in_dialogue": False, "body": None,
+                      "options": [
+                          {"index": 0, "title": "Return the Key",
+                           "description": "Gain 100 Gold.", "is_locked": False,
+                           "is_proceed": False, "was_chosen": False, "keywords": []},
+                          {"index": 1, "title": "Keep the Key",
+                           "description": "Fight to obtain the Key.",
+                           "is_locked": False, "is_proceed": False,
+                           "was_chosen": False, "keywords": []},
+                      ]},
+            "run": {"act": 2, "floor": 22, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 85,
+                       "block": 0, "gold": 120, "status": [], "relics": [],
+                       "potions": [], "max_potion_slots": 3},
+        })
+
+    # 25/85 (29%): the fight option must be refused -> take the gold
+    d = r.decide(lantern(25), LoopContext())
+    assert d.action.index == 0
+
+    # 80/85: fighting for a key relic is a legitimate choice again
+    d2 = r.decide(lantern(80), LoopContext())
+    assert d2.action.index == 1
