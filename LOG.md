@@ -2,6 +2,31 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-22 (Fable 5, session 10 close) — 90% ACT-1 PASS RATE; the wall moves to Act 2 wholesale; A/B phase opens
+
+**Batch b45wjw8a9 (Frond mode + act3 rest bump + bridge gamble live): 0/10, 1.90 —
+and NINE of ten cleared Act 1** (era average ~50%; owner's human estimate 90%). The
+funnel's biggest screen just matched human-rate on its first post-fix batch (n=10,
+variance caveat). Everything then died in Act 2: Insatiable ×2, Kaiser ×2, four
+mid-act normals, one EVENT death — the Lantern Key kill-chain (fight option read as
+a free relic at 25/85 HP; fixed same hour: fight-text options now price an expected
+monster loss through the hp gates, and the costless floor excludes fights).
+
+**Normality audit (owner stall report)**: 0 cap violations, 0 rejected plays — the
+stall was poll-rhythm optics. The code-read still found a latent zero-budget gap in
+the DFS (1-card plans generable at '(0 cards left)') — guarded (8f37c56).
+
+**Death distribution, clean-build era (n=108)**: act1 53 (49 AT the f17 boss),
+act2 41 (24 at f33), act3 14. Owner's read confirmed conditionally: 75% of runs
+clearing f17 die in Act 2. Entry-HP study says the boss-door condition is equalized;
+the differentiator is fight execution over horizons.
+
+**PHASE TRANSITION (owner-agreed)**: knowledge lane is substantially mined. Next:
+fight-turn A/B — owner pilots a bot death seed; A/B candidate from this batch:
+**TZSM9SV0P0** (Soul Fysh f17, the batch's only Act-1 boss death). KD-from-82hp and
+Queen-f48 remain the deeper target cases. The A/B's turn-diff spec's the multi-turn
+forward model from evidence.
+
 ## 2026-07-22 (Fable 5, session 10) — 1.90 batch; rest actions fire live (Hatch ×6, Lift ×5); the entry-HP hypothesis REFUTED by data
 
 **Batch b21tcq01j (rest actions + costless floor + Thrash/Smoggy live): 0/10,
