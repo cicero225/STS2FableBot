@@ -2,6 +2,34 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-22 (Fable 5, session 10) — 1.90 batch; rest actions fire live (Hatch ×6, Lift ×5); the entry-HP hypothesis REFUTED by data
+
+**Batch b21tcq01j (rest actions + costless floor + Thrash/Smoggy live): 0/10,
+act-reach 1.90** — second-best ever. TWO f48 runs (Queen; Test Subject at 825
+decisions). Validations: **Hatch fired 6×, Lift 5×** (the Byrdonis Egg era ends),
+event catalog 13 engagements. Cook/Clone didn't roll.
+
+**Entry-HP study (owner hypothesis, n=39 f33 fights)**: REFUTED in strong form —
+winners and losers enter the Act-2 boss at IDENTICAL HP (60.8 vs 62.5, both 74%).
+The HP-economy levers are pulled; at equal footing the differentiator is what the
+deck DOES — the KD lesson generalized. One real signal: act-2 START HP separates
+(35 vs 28) → Act-1 exit condition matters via routing/shop freedom. f48 weakly
+favors entries (n=9); the act3_boss_loss_bonus (+15, bed456d) addresses the real
+gap there (Act-1-dominated aggregate estimate — Queen entered at 25/53 after a
+CORRECT rest decision on a 53-HP pool; est said 41, truth is 60+).
+
+**Shipped today**: rest-site non-standard actions (faa43ad: Hatch/Lift/Cook/Clone;
+Growth 1.5→4.0, Cleaver 2.5→5.0), costless-unknown event floor (e08488a), Delicate
+Frond aggressive potion mode + act3 rest bump (bed456d — Frond was aboard a live
+run with the switch STILL unshipped since A/B #4; owner-caught). **Slippery Bridge
+gamble filed** (owner mechanics: lose-shown-card vs pay-X-and-reroll; decision rule
+documented; blocked on one clean sub-screen capture — the bot currently drops
+whatever's shown first).
+
+**Strategic (owner-aligned)**: knowledge lane nearly mined — WG mini-audit, catalog
+curation, potion odds-and-ends remain. Every analysis now converges on the same
+successor: multi-turn forward model, spec'd by fight-turn A/Bs (KD-from-82hp and
+Queen-f48 are the documented target cases). 377 tests.
 ## 2026-07-20 (Fable 5, session 9 close) — Bound validates 14/14 vs the Queen; event catalog engages but coverage caps it
 
 **Batch bo1bhqron (reviewed events catalog + Foul guard + Bound/FB/FNP): 0/10, 1.70.**
