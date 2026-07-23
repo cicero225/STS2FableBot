@@ -85,3 +85,11 @@ TEA_MASTER, SYMBIOTE, AROMA_OF_CHAOS; tail of 30 rare ones.)
 - [x] Slither/Sharp enchant target rules (a26dd4a)
 - [x] Rest-handler non-standard action awareness (Girya/Hatch/Clone/Cook) — 2026-07-21; Growth 1.5→4.0, Cleaver 2.5→5.0 repriced
 - [ ] Potion-pass handoff: protected-potion veto for Future of Potions
+- [ ] **Slippery Bridge gamble** (owner mechanics 2026-07-22): after Overcome, a
+  repeated choice — (1) lose the SHOWN card (random from deck, no repeats) or
+  (2) lose X HP and reroll at higher X. Decision rule: junk shown (basic/curse) →
+  accept the loss (curses are a WIN); keeper shown → pay HP while X < ~8 and
+  HP buffer allows; Quest cards (Spoils Map) always rerolled. Bot currently
+  drops whatever is shown first. BLOCKED on one clean sub-screen payload capture
+  (options resolve between polls); the costless floor does NOT aggravate ("lose"
+  texts are excluded from it). Implement on next live capture.
