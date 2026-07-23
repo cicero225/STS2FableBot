@@ -3,7 +3,7 @@
   "source": "scripts/build_event_choices.py (events pass, EVENTS_PASS.md)",
   "scale": "event-heuristic units (relic ~ 6.0)",
   "keying": "OPTION TITLE (event_id lags transitions in mod state)",
-  "n_options": 53,
+  "n_options": 55,
   "n_uncertain": 0
  },
  "choices": {
@@ -265,6 +265,16 @@
   "Overcome": {
    "value": 4.0,
    "note": "SB 8.9; engage.",
+   "uncertain": false
+  },
+  "Keep the Key": {
+   "value": 5.0,
+   "note": "Fight for the Key (hp-gated); pays off at the first Act-3 '?' with a top-tier relic. Owner: real difference-maker if the run gets there.",
+   "uncertain": false
+  },
+  "Return the Key": {
+   "value": 3.5,
+   "note": "100g now; the safe branch.",
    "uncertain": false
   },
   "Accept": {

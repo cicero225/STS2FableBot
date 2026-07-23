@@ -120,6 +120,15 @@ CHOICES: dict[str, dict] = {
     "Light Door": dict(value=4.5, note="Upgrade 2 random cards, free."),
     "Dark Door": dict(value=4.0, note="Remove 1 card, free."),
     "Overcome": dict(value=4.0, note="SB 8.9; engage."),
+    # ---- Lantern Key (owner 2026-07-22): the Key is a BACKLOADED difference-maker —
+    # it unlocks an incredibly strong relic at the first Act-3 '?' room. Calculus:
+    # Act-1/2 fight HP + 100g opportunity cost vs an Act-3 payoff you must survive to
+    # collect. The fight-option HP gate (bc49fd7) prices the entry cost.
+    "Keep the Key": dict(value=5.0,
+                         note="Fight for the Key (hp-gated); pays off at the first "
+                         "Act-3 '?' with a top-tier relic. Owner: real "
+                         "difference-maker if the run gets there."),
+    "Return the Key": dict(value=3.5, note="100g now; the safe branch."),
     "Accept": dict(value=3.0,
                    note="The Decider is NOT declinable (Reject loops then ends the "
                    "run). Sub-choices per owner: 2-relics > Shame-upgrade; "
