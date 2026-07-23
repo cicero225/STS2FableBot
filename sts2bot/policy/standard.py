@@ -133,7 +133,10 @@ _BOSS_DRAFT_RULES: dict[str, dict] = {
     # Soul Fysh (forensics 2026-07-18): Beckon-flood action tax + periodic Intangible
     # turns (now modeled in the sim) + escalating 24-hit turns on small blocks. Big
     # blocks premiumed; the Intangible/Beckon play fixes live in combat.py.
-    "SOUL FYSH": {"min_block": 9, "block_bonus": 2.0},
+    # tag_bonus (owner, A/B #5): exhaust-enabler cards can DELETE his Beckons from
+    # the deck — a small premium, especially with targeted control (True Grit+).
+    "SOUL FYSH": {"min_block": 9, "block_bonus": 2.0,
+                  "tag_bonus": {"exhaust_enabler": 1.5}},
     # The Kin (forensics 2026-07-18, ~5 lifetime): 2 Followers + a 190-HP Priest =
     # 307 aggregate HP with permanent Frail/Weak cycling. AoE is the axis (the one
     # deck with Conflagration cleared the Followers by r5 and nearly won from a
@@ -477,6 +480,26 @@ class StandardRouter:
                     f"hail mary: drink {potion.name} "
                     f"(proj loss {proj_loss:.0f} >= {player.hp} HP)",
                 )
+
+        # 1b. Petrified Toad (owner A/B #5): the Rock potion (deal ~15) REGENERATES at
+        #     every combat start — hoarding wastes the relic AND clogs the slot that
+        #     would hold tomorrow's Rock. Throw it freely: finisher on sight, or at
+        #     the biggest threat once the fight matures. (After hail-mary: a
+        #     lifesaving block/heal still outranks a throw.)
+        if any("PETRIFIED" in f"{r.id or ''} {r.name or ''}".upper()
+               for r in (player.relics or [])):
+            rock = next((p for p in available
+                         if "ROCK" in f"{p.id or ''} {p.name or ''}".upper()), None)
+            if rock is not None:
+                rock_dmg = parse_card_description(rock.description).total_damage or 15
+                finish = next((e for e in state.battle.enemies
+                               if 0 < e.hp <= rock_dmg), None)
+                if finish is not None:
+                    return drink(rock, finish.entity_id,
+                                 f"throw {rock.name} (finishes {finish.name})")
+                if round_ >= 3:
+                    return drink(rock, biggest_threat(),
+                                 f"throw {rock.name} (free the Toad slot)")
 
         # 2. Fruit Juice (+max HP): pure upside, drink on sight.
         if juice := first("fruit_juice"):
@@ -1174,6 +1197,14 @@ class StandardRouter:
             if fx.aoe and not is_xcost_damage:  # multi-body boss (The Kin)
                 score += boss_rule.get("aoe_bonus", 0.0)
             score += (boss_rule.get("card_bonus") or {}).get((card.id or "").upper(), 0.0)
+            # tag_bonus: premium for cards PROVIDING a tag this boss values
+            # (Soul Fysh: exhaust_enabler deletes his Beckons from the deck)
+            if self.draft_tags:
+                provides = ((self.draft_tags.get((card.id or "").upper()) or {})
+                            .get("provides") or {})
+                for tag_, b_ in (boss_rule.get("tag_bonus") or {}).items():
+                    if provides.get(tag_):
+                        score += b_
         if fx.energy_gain:
             score += w.bonus_energy
         # Early-damage bias (owner, Run-2/3): Act 1 favors cards that deliver damage, to get

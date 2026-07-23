@@ -3025,3 +3025,48 @@ def test_act3_boss_rest_gate_demands_more() -> None:
         ctx.screen_mem["act_boss_name"] = "Vantom" if act_n == 1 else "Queen"
         d = r.decide(parse_state(payload), ctx)
         assert d.rationale.startswith("rest") == expect_rest, (act_n, d.rationale)
+
+
+def test_petrified_toad_throws_rock_freely() -> None:
+    """Owner A/B #5: the Toad's Rock potion regenerates every combat — hoarding wastes
+    the relic and clogs its slot. Finisher on sight; thrown at the biggest threat once
+    the fight matures; without the relic the same potion is hoarded normally."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    def combat(enemy_hp, round_n=1, relics=("PETRIFIED_TOAD",)):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 1, "floor": 6, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                       "block": 0, "energy": 0, "status": [], "hand": [],
+                       "relics": [{"id": rid, "name": rid.replace("_", " ").title()}
+                                  for rid in relics],
+                       "potions": [{"slot": 0, "id": "ROCK", "name": "Rock",
+                                    "can_use_in_combat": True,
+                                    "target_type": "AnyEnemy",
+                                    "description": "Deal 15 damage."}],
+                       "max_potion_slots": 3},
+            "battle": {"round": round_n, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Flyconid",
+                                    "hp": enemy_hp, "max_hp": 60, "block": 0,
+                                    "status": [],
+                                    "intents": [{"type": "attack", "label": "8"}]}]},
+        })
+
+    # finisher on sight (enemy at 12 <= 15): either the combat planner throws it
+    # as a computed LETHAL (in-plan potion path) or the Toad rule finishes — both
+    # count; what matters is the Rock flies at the target
+    d = r.decide(combat(12), LoopContext())
+    assert d.action.payload().get("action") == "use_potion"
+    assert d.action.payload().get("target") == "e0"
+
+    # healthy enemy, round 1: hold; round 3: throw to free the slot
+    d2 = r.decide(combat(50, round_n=1), LoopContext())
+    assert "Rock" not in (d2.rationale or "")
+    d3 = r.decide(combat(50, round_n=3), LoopContext())
+    assert "free the Toad slot" in (d3.rationale or "")
+
+    # no Toad relic: the Rock is hoarded like any damage potion
+    d4 = r.decide(combat(50, round_n=3, relics=()), LoopContext())
+    assert "Rock" not in (d4.rationale or "")
