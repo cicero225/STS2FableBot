@@ -207,6 +207,10 @@ class RestWeights(_Section):
     # pre-boss campfire: rest unless HP covers the upcoming boss's likely damage
     # (the bot's own p75 boss HP-loss) times a safety factor; else smith to gear up.
     boss_safety_factor: float = 1.1
+    # The aggregate boss-loss stat is dominated by Act-1 samples (est 41 vs a Queen
+    # that costs 60+): Act-3 bosses demand more in the tank (owner-questioned entry
+    # at 25/53, 2026-07-22). Applied on top of any per-boss rest_loss_bonus.
+    act3_boss_loss_bonus: float = 15.0
     default_boss_loss: float = 60.0  # fallback when combat_stats has too few boss fights
 
 

@@ -418,7 +418,17 @@ class StandardRouter:
             return max(alive, key=lambda e: e.hp).entity_id if alive else None
 
         hp_pct = player.hp / max(1, player.max_hp)
-        dangerous = state.state_type in ("elite", "boss") and w.drink_in_elite_or_boss
+        # Delicate Frond (owner A/B #4 + live 2026-07-22): empty slots REFILL at every
+        # combat start, so the whole hoard-for-elites taxonomy inverts — spend potions
+        # every fight ("just played most of my potions each fight" — the owner's Act-3
+        # bonanza). Every fight becomes deploy-worthy and heals become topping-off.
+        frond = any(
+            "DELICATE" in f"{r.id or ''} {r.name or ''}".upper()
+            and "FROND" in f"{r.id or ''} {r.name or ''}".upper()
+            for r in (player.relics or [])
+        )
+        dangerous = (state.state_type in ("elite", "boss")
+                     and w.drink_in_elite_or_boss) or frond
         incoming = sum(
             parse_intent_damage(i.label)
             for e in state.battle.enemies
@@ -472,15 +482,17 @@ class StandardRouter:
         if juice := first("fruit_juice"):
             return drink(juice, None, f"drink {juice.name} (+max HP, free value)")
 
-        # 3. Heal / Blood Potion when hurt.
-        if hp_pct < w.heal_below_pct and (healp := first("heal")):
+        # 3. Heal / Blood Potion when hurt. (Frond: heals are free refills — top off.)
+        heal_bar = max(w.heal_below_pct, 0.8) if frond else w.heal_below_pct
+        if hp_pct < heal_bar and (healp := first("heal")):
             return drink(healp, None, f"drink {healp.name} to heal at {hp_pct:.0%} HP")
 
         # 4a. Card-generating potions (Skill/Attack/Power/Colorless): drop immediately at a
         #     BOSS start — the chosen card compounds over the fight's length, and held ones
         #     historically died in the belt or fired as pointless hail-maries (owner
         #     2026-07-09). Window is two rounds so a buff (4b) and a card-gen both land.
-        if state.state_type == "boss" and round_ <= 2 and (cg := first("card_gen")):
+        if ((state.state_type == "boss" or frond) and round_ <= 2
+                and (cg := first("card_gen"))):
             return drink(cg, None, f"drink {cg.name} (boss start: bank the card early)")
 
         # 4. Proactive at an elite/boss start: deploy long-term buffs/debuffs early (the
@@ -495,7 +507,8 @@ class StandardRouter:
         #     hail-mary at the next floor — the human spent it to power through and exited +30 HP.
         if vp := first("value"):
             enemy_hp = sum(e.hp for e in state.battle.enemies if e.hp > 0)
-            if enemy_hp >= w.value_drink_enemy_hp_min and round_ <= w.value_drink_by_round:
+            if ((frond or enemy_hp >= w.value_drink_enemy_hp_min)
+                    and round_ <= w.value_drink_by_round):
                 return drink(
                     vp, None, f"drink {vp.name} (energy/draw for a {enemy_hp}-HP fight)"
                 )
@@ -1658,6 +1671,9 @@ class StandardRouter:
             rule = _boss_draft_rule(ctx.screen_mem.get("act_boss_name"))
             if rule:
                 est += rule.get("rest_loss_bonus", 0.0)
+            # Act-3 bosses cost more than the act-1-dominated aggregate says
+            if (state.run.act if state.run else 1) >= 3:
+                est += w.act3_boss_loss_bonus
             needed = est * w.boss_safety_factor
             should_rest = hp < needed
             rest_why = f"rest: {hp} HP < ~{needed:.0f} needed for boss (est loss {est:.0f})"

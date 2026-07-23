@@ -2965,3 +2965,63 @@ def test_rest_site_nonstandard_actions() -> None:
     # Cook fires with a removable Strike in deck
     d4 = r.decide(rest_state(70, [cook]), LoopContext())
     assert "cook" in d4.rationale.lower()
+
+
+def test_delicate_frond_flips_potion_policy_aggressive() -> None:
+    """Owner A/B #4 + live 2026-07-22: Delicate Frond refills empty slots every
+    combat, inverting the hoard taxonomy — buffs deploy at NORMAL fights, heals
+    top off at 80%, value potions skip the big-fight gate."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    def combat(potions, hp=70, relics=()):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 3, "floor": 40, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80,
+                       "block": 0, "energy": 0, "status": [], "hand": [],
+                       "relics": [{"id": rid, "name": rid.replace("_", " ").title()}
+                                  for rid in relics],
+                       "potions": potions, "max_potion_slots": 5},
+            "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "m0", "name": "Myte", "hp": 40,
+                                    "max_hp": 40, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "8"}]}]},
+        })
+
+    flex = [{"slot": 0, "id": "FLEX_POTION", "name": "Flex Potion",
+             "can_use_in_combat": True,
+             "description": "Gain 5 Strength until the end of this turn."}]
+
+    # without Frond: a buff potion is hoarded at a normal fight
+    d = r.decide(combat(flex), LoopContext())
+    assert "Flex" not in (d.rationale or "")
+
+    # with Frond: deployed at the normal fight's start
+    d2 = r.decide(combat(flex, relics=("DELICATE_FROND",)), LoopContext())
+    assert "Flex" in (d2.rationale or "")
+
+
+def test_act3_boss_rest_gate_demands_more() -> None:
+    """Owner 2026-07-22 (Queen entry at 25/53): the aggregate boss-loss stat is
+    Act-1-dominated (est 41 vs a 60+ Queen). Act-3 pre-boss rests demand
+    act3_boss_loss_bonus more."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    w = r.config.rest
+    est = r.combat_stats.expected_loss("boss") if r.combat_stats else None
+    est = est if est is not None else w.default_boss_loss
+    hp = int((est + w.act3_boss_loss_bonus / 2) * w.boss_safety_factor)
+    payload = json.loads(json.dumps(FIXTURES["rest_site"]))
+    payload["player"]["hp"] = hp
+    payload["player"]["max_hp"] = 90
+
+    for act_n, expect_rest in ((1, False), (3, True)):
+        payload["run"] = {"act": act_n, "floor": 16 if act_n == 1 else 47,
+                          "ascension": 0}
+        ctx = LoopContext()
+        ctx.screen_mem["pre_boss"] = True
+        ctx.screen_mem["act_boss_name"] = "Vantom" if act_n == 1 else "Queen"
+        d = r.decide(parse_state(payload), ctx)
+        assert d.rationale.startswith("rest") == expect_rest, (act_n, d.rationale)
