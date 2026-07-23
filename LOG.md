@@ -2,6 +2,31 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-23 (Fable 5, session 11) — A/B #5 verdict: the Act-1 gap is ELITE AGGRESSION, not fight micro; KD claims the owner too
+
+**A/B #5 (TZSM9SV0P0, whole-run, blind)**: bot died f17 to Soul Fysh; owner cleared
+it in 7 rounds and died f33 to the Knowledge Demon. Recorder race fix VALIDATED
+(full outcome captured with the game left open — ddbbfba works).
+
+**The decisive decomposition** (same seed, same offers):
+- Bot: ZERO Act-1 elites, 3 relics at f17, entered SF at 73 HP → 16 dmg/round, dead r10.
+- Owner: TWO elites (f12, f14), 7 relics, entered at 67 HP → 27 dmg/round, won r7.
+- Owner blocked selectively (only the 24-hit turns); the bot also never blocked — the
+  fight delta is DECK POWER from elite relics, not tactical micro. **HP preservation
+  without power is a losing trade**: the bot arrived healthier and deader.
+- Entry-HP study corroborated again from the other side.
+
+**REOPENS THE ELITE GATE** (owner flagged it 2026-07-13: "too conservative, but core
+competency wasn't there" — competency now is: 90% arrival last batch). The §5-C gate
+(pool_win_frac + 30% end-HP floor) is leaving the decisive resources on the table at
+A0. Candidate levers for the owner's magnitude call: elite_gate_min_end_hp_pct
+0.30→0.20, elite_gate_pool_win_frac down a notch, elite_relic_value up.
+
+**KD recalibrated**: he bled out the OWNER from a 101-HP entry (379→199 over 11
+rounds, heals clawing back). Not a bot-specific failure — near-wall for everyone
+without dedicated tools. Deprioritized as forward-model target; the Soul Fysh
+7-vs-10-round diff is the better spec case, and it points at DRAFTING ECONOMY first.
+
 ## 2026-07-22 (Fable 5, session 10 close) — 90% ACT-1 PASS RATE; the wall moves to Act 2 wholesale; A/B phase opens
 
 **Batch b45wjw8a9 (Frond mode + act3 rest bump + bridge gamble live): 0/10, 1.90 —
