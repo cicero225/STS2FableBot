@@ -1593,3 +1593,18 @@ def test_smoggy_caps_skills_at_one_per_turn() -> None:
     plan = d.rationale.split("[")[1].split("]")[0].split(" > ")
     assert plan.count("Defend") == 1  # second Defend blocked by Smoggy
     assert "Strike" in plan
+
+
+def test_normality_zero_left_plans_no_cards() -> None:
+    """Latent gap (code-read 2026-07-22): the DFS checked the play budget only when
+    recursing, so '(0 cards left)' could still generate a 1-card plan that the game
+    gate rejects. At zero budget: no card plays (potions remain legal)."""
+    w = load_policy_config().combat
+    norm = "Unplayable. You cannot play more than 3 cards this turn. (0 cards left)"
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack",
+                   "AnyEnemy"),
+            _bcard(1, "NORMALITY", "Normality", 0, norm, "Curse", "None",
+                   can_play=False)]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=100, hp=70)), w)
+    assert "end turn" in d.rationale or (isinstance(d.action, type(d.action)) and \
+        d.action.payload().get("action") == "end_turn")

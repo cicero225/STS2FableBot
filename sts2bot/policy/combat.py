@@ -1485,6 +1485,12 @@ def plan_combat_turn(
         if _fight_over(sim.enemies):
             return
         for ci, card in enumerate(remaining):
+            # Normality "(0 cards left)": the DFS only checked the play budget when
+            # RECURSING, so a 1-card plan was generable at zero budget (latent; found
+            # by code-read during the 2026-07-22 owner stall report — no live firing
+            # observed, but the class is real). Potions aren't cards: still legal.
+            if plays_left <= 0 and card.potion_slot is None:
+                continue
             if card.cost > sim.energy:
                 continue
             if card.bound and sim.bound_played:  # Chains of Binding: one Bound play/turn
