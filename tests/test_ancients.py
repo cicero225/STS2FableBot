@@ -327,3 +327,57 @@ def test_costless_unknown_event_option_engages() -> None:
                       ("Proceed", "Leave.")]), LoopContext())
     assert isinstance(d2, Decision)
     assert d2.action.index == 1
+
+
+def test_slippery_bridge_gamble_rule() -> None:
+    """Owner mechanics + screenshot (2026-07-22): the sub-screen's 'Overcome' title
+    collides with the stage-1 catalog entry — description-matched now. Junk shown ->
+    accept (free thinning); keeper shown -> pay X and reroll while cheap; too-steep X
+    -> accept even a keeper; Quest cards always rerolled."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+
+    def bridge(card_name, x, deck_cards, hp=60):
+        return parse_state({
+            "state_type": "event",
+            "event": {"event_id": "SLIPPERY_BRIDGE", "event_name": "Slippery Bridge",
+                      "is_ancient": False, "in_dialogue": False, "body": None,
+                      "options": [
+                          {"index": 0, "title": "Overcome",
+                           "description": f"{card_name} is removed from your Deck.",
+                           "is_locked": False, "is_proceed": False,
+                           "was_chosen": False, "keywords": []},
+                          {"index": 1, "title": "Hold On",
+                           "description": f"Lose {x} HP. The card in the above "
+                                          "option is randomized.",
+                           "is_locked": False, "is_proceed": False,
+                           "was_chosen": False, "keywords": []},
+                      ]},
+            "run": {"act": 1, "floor": 10, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80,
+                       "block": 0, "gold": 100, "status": [], "relics": [],
+                       "potions": [], "max_potion_slots": 3,
+                       "deck": deck_cards},
+        })
+
+    def card(name, typ="Attack", cid=None):
+        return {"index": 0, "id": cid or name.upper().replace(" ", "_"),
+                "name": name, "type": typ, "cost": "1", "is_upgraded": False}
+
+    # curse shown: remove it (free thinning)
+    d = r.decide(bridge("Debt", 3, [card("Debt", "Curse")]), LoopContext())
+    assert d.action.index == 0 and "free thinning" in d.rationale
+
+    # keeper shown, cheap X: reroll
+    d2 = r.decide(bridge("Uppercut", 3, [card("Uppercut")]), LoopContext())
+    assert d2.action.index == 1
+
+    # keeper shown, X too steep: accept the loss
+    d3 = r.decide(bridge("Uppercut", 12, [card("Uppercut")]), LoopContext())
+    assert d3.action.index == 0
+
+    # Quest card shown: always reroll (never surrender the coupon cheaply)
+    d4 = r.decide(bridge("Spoils Map", 3, [card("Spoils Map", "Quest")]),
+                  LoopContext())
+    assert d4.action.index == 1

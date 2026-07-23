@@ -881,6 +881,49 @@ class StandardRouter:
                             for o, _h, _v in scored},
                 )
 
+        # Slippery Bridge gamble (owner mechanics + screenshot 2026-07-22): the
+        # sub-screen reads [Overcome] "<Card> is removed from your Deck" /
+        # [Hold On] "Lose X HP. The card in the above option is randomized." The
+        # sub-screen title COLLIDES with the stage-1 'Overcome' catalog entry, so the
+        # bot removed whatever card was shown first. Description-matched rule: junk
+        # shown (curse/status/basic) -> accept the removal (free thinning!); keeper or
+        # Quest card shown -> pay X and reroll while X is cheap and HP allows.
+        removal_o = reroll_o = None
+        removed_name = None
+        reroll_x = 0
+        for o in ev.options or []:
+            d_ = o.description or ""
+            if m := re.search(r"^(.+?) is removed from your Deck", d_):
+                removal_o, removed_name = o, m.group(1).strip()
+            elif "card in the above option is randomized" in d_:
+                reroll_o = o
+                if m2 := re.search(r"Lose (\d+) HP", d_):
+                    reroll_x = int(m2.group(1))
+        if removal_o is not None and reroll_o is not None and removed_name:
+            deck = player.deck if (player and player.deck) else []
+            shown = next((c for c in deck
+                          if (c.name or "").rstrip("+") == removed_name.rstrip("+")),
+                         None)
+            is_quest = shown is not None and (shown.type or "") == "Quest"
+            junk = False
+            if shown is not None and not is_quest:
+                cid = (shown.id or "").upper()
+                junk = ((shown.type or "") in ("Curse", "Status")
+                        or (cid.startswith(("STRIKE_", "DEFEND_"))
+                            and not shown.is_upgraded))
+            can_pay = hp > reroll_x + 10 and reroll_x <= 7
+            if junk or not can_pay:
+                why = ("free thinning" if junk
+                       else f"X={reroll_x} too steep at {hp} HP")
+                return Decision(
+                    action=act.ChooseEventOption(index=removal_o.index),
+                    rationale=f"bridge: remove {removed_name} ({why})",
+                )
+            return Decision(
+                action=act.ChooseEventOption(index=reroll_o.index),
+                rationale=f"bridge: keep {removed_name}, pay {reroll_x} HP to reroll",
+            )
+
         # Events pass (EVENTS_PASS.md): the decline-by-default fix. When the option
         # catalog knows any option on a NON-ancient screen, rank catalogued options by
         # value (unknowns ride the clamped heuristic, same lesson as Silken Tress) and
