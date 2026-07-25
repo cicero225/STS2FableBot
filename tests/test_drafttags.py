@@ -93,6 +93,45 @@ def test_stoke_shred_scale_outvalues_one_card_thinners_early() -> None:
     assert early_stoke > late_stoke
 
 
+def test_colossus_needs_vuln_beyond_bash() -> None:
+    """Shadow review 2026-07-24: "Colossus doesn't really work unless a source of
+    vulnerable bigger than Bash already exists." Bash (2.0, in every starter) earns
+    HALF credit at the raised threshold 4; a real vuln package earns full."""
+    bash_only = score_adjustment("COLOSSUS", _starter(), TAGS, W)
+    stacked = score_adjustment("COLOSSUS", [*_starter(), C("TREMBLE", typ="Skill")],
+                               TAGS, W)
+    assert bash_only < stacked
+    assert bash_only <= W.w_tag_bonus * 0.5 + 0.01  # half credit, nothing more
+
+
+def test_hand_dump_collision_second_wind_vs_stoke() -> None:
+    """Shadow review: "Second Wind and Stoke get in each other's way" — two whole-hand
+    value-dumpers can't both fire. Either into a deck holding the other gets docked;
+    Fiend Fire (a finisher you hold, not a value dump) is exempt."""
+    base_sw = score_adjustment("SECOND_WIND", _starter(), TAGS, W)
+    sw_into_stoke = score_adjustment("SECOND_WIND", [*_starter(), C("STOKE", typ="Skill")],
+                                     TAGS, W)
+    assert sw_into_stoke < base_sw
+    base_st = score_adjustment("STOKE", _starter(), TAGS, W)
+    st_into_sw = score_adjustment("STOKE", [*_starter(), C("SECOND_WIND", typ="Skill")],
+                                  TAGS, W)
+    assert st_into_sw < base_st
+    ff_into_stoke = score_adjustment("FIEND_FIRE", [*_starter(), C("STOKE", typ="Skill")],
+                                     TAGS, W)
+    ff_base = score_adjustment("FIEND_FIRE", _starter(), TAGS, W)
+    assert ff_into_stoke >= ff_base  # no dump-collision dock for the finisher
+
+
+def test_bloodletting_fed_by_hand_dumpers() -> None:
+    """Shadow review: Bloodletting->Stoke is a clean play pattern, and the shred is
+    "an invisible source of cards that might need bloodletting" — a deck holding a
+    hand-dumper values Bloodletting higher."""
+    base = score_adjustment("BLOODLETTING", _starter(), TAGS, W)
+    with_stoke = score_adjustment("BLOODLETTING", [*_starter(), C("STOKE", typ="Skill")],
+                                  TAGS, W)
+    assert with_stoke > base
+
+
 def test_upgrade_unlocks_anticipation() -> None:
     up = score_adjustment("APOTHEOSIS", _starter(), TAGS, W, is_upgraded=True)
     base = score_adjustment("APOTHEOSIS", _starter(), TAGS, W, is_upgraded=False)

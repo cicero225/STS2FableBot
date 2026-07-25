@@ -119,6 +119,12 @@
      "threshold": 2,
      "strength": "moderate",
      "penalty": false
+    },
+    {
+     "tag": "hand_dump",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
     }
    ]
   },
@@ -290,7 +296,7 @@
    "needs": [
     {
      "tag": "vulnerable_source",
-     "threshold": 2,
+     "threshold": 4,
      "strength": "moderate",
      "penalty": false
     }
@@ -1031,7 +1037,8 @@
   "SECOND_WIND": {
    "provides": {
     "exhaust_enabler": 1.0,
-    "block_engine": 1.0
+    "block_engine": 1.0,
+    "hand_dump": 1.0
    },
    "needs": [
     {
@@ -1039,6 +1046,13 @@
      "threshold": 1,
      "strength": "mild",
      "penalty": false
+    }
+   ],
+   "anti": [
+    {
+     "tag": "hand_dump",
+     "threshold": 1,
+     "strength": "strong"
     }
    ]
   },
@@ -1121,7 +1135,8 @@
   },
   "STOKE": {
    "provides": {
-    "exhaust_enabler": 1.0
+    "exhaust_enabler": 1.0,
+    "hand_dump": 1.0
    },
    "needs": [
     {
@@ -1129,6 +1144,13 @@
      "threshold": 1,
      "strength": "moderate",
      "penalty": false
+    }
+   ],
+   "anti": [
+    {
+     "tag": "hand_dump",
+     "threshold": 1,
+     "strength": "strong"
     }
    ],
    "controlled_exhaust": 2.0

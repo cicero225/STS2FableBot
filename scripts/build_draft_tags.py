@@ -36,7 +36,10 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "TREMBLE": [("vulnerable_payoff", 1, "moderate", False)],  # bonus-only enabler (review #3)
     "CRUELTY": [("vulnerable_source", 3, "strong", True)],
     "DEBILITATE": [("vulnerable_source", 2, "strong", False)],  # 10-dmg baseline
-    "COLOSSUS": [("vulnerable_source", 2, "moderate", False)],
+    # shadow review 2026-07-24: "doesn't really work unless a source of
+    # vulnerable bigger than Bash already exists" -- Bash (2.0, in every
+    # deck) earns half credit only at threshold 4
+    "COLOSSUS": [("vulnerable_source", 4, "moderate", False)],
     # ---- exhaust package
     "ASHEN_STRIKE": [("exhaust_enabler", 3, "strong", False)],
     "EVIL_EYE": [("exhaust_enabler", 2, "moderate", False)],  # Defend baseline
@@ -107,7 +110,10 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "PROLONG": [("block_engine", 1, "moderate", False)],  # review #13: snapshot, softened
     "UNMOVABLE": [("block_engine", 1, "moderate", True)],  # Act-1 window keeps it takeable
     # ---- other density / deck-property
-    "BLOODLETTING": [("expensive_attack", 2, "moderate", False)],
+    # shadow review 2026-07-24: clean Bloodletting->Stoke plays; the shred is
+    # "an invisible source of cards that might need bloodletting"
+    "BLOODLETTING": [("expensive_attack", 2, "moderate", False),
+                     ("hand_dump", 1, "mild", False)],
     "ARMAMENTS": [("__unupgraded", 8, "mild", False)],  # review #15: mainly good as +
     "PERFECTED_STRIKE": [("__strike_named", 5, "moderate", False)],  # review #16
     "APOTHEOSIS": [("__unupgraded", 8, "strong", False)],
@@ -122,6 +128,10 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
 # Panic Button block-lock, Expect a Fight energy-lock)
 ANTI: dict[str, list[tuple[str, int, str]]] = {
     "BATTLE_TRANCE": [("draw_engine", 2, "mild")],
+    # shadow review 2026-07-24: "Second Wind and Stoke get in each other's way" --
+    # two whole-hand value-dumpers can't both fire; dock either into the other
+    "SECOND_WIND": [("hand_dump", 1, "strong")],
+    "STOKE": [("hand_dump", 1, "strong")],
     "PANIC_BUTTON": [("block_engine", 2, "moderate")],
     "EXPECT_A_FIGHT": [("energy_source", 1, "mild")],
 }
@@ -160,13 +170,13 @@ PROVIDES: dict[str, list[str]] = {
     "DISMANTLE": ["vulnerable_payoff"],
     # exhaust
     "TRUE_GRIT": ["exhaust_enabler", "block_engine"],
-    "SECOND_WIND": ["exhaust_enabler", "block_engine"],
+    "SECOND_WIND": ["exhaust_enabler", "block_engine", "hand_dump"],
     "FIEND_FIRE": ["exhaust_enabler", "big_single_hit"],
     "BURNING_PACT": ["exhaust_enabler", "draw_engine", "deck_thinning"],
     "BRAND": ["exhaust_enabler", "strength_source", "deck_thinning"],
     "THRASH": ["exhaust_enabler", "multi_hit"],
     "CINDER": ["exhaust_enabler", "big_single_hit"],
-    "STOKE": ["exhaust_enabler"],
+    "STOKE": ["exhaust_enabler", "hand_dump"],
     "SHIV": ["exhaust_enabler"],
     "CLOAK_AND_DAGGER": ["exhaust_enabler", "block_engine"],
     "UP_MY_SLEEVE": ["exhaust_enabler", "multi_hit"],
