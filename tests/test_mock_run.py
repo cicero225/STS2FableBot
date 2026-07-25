@@ -282,6 +282,92 @@ def test_stop_at_floor_hands_off_without_acting(tmp_path: Path) -> None:
     assert outcome.floor == 22
 
 
+def test_stop_at_floor_follow_records_human_half(tmp_path: Path) -> None:
+    """The tactical A/B instrument (2026-07-24): after the handoff, the loop keeps
+    polling (never acting) and logs the human's play into the SAME run log until the
+    run returns to a menu — bot half + human half in one decisions.jsonl."""
+    player = {"character": "The Ironclad", "hp": 50, "max_hp": 80, "block": 0,
+              "energy": 3, "max_energy": 3, "hand": [], "status": [], "relics": [],
+              "potions": [], "max_potion_slots": 3}
+    fight = {"state_type": "monster", "run": {"act": 2, "floor": 22, "ascension": 0},
+             "player": player,
+             "battle": {"round": 1, "turn": "player", "is_play_phase": True, "enemies": []}}
+    fight_r3 = json.loads(json.dumps(fight))
+    fight_r3["battle"]["round"] = 3
+    fight_r3["player"]["hp"] = 31
+    menu = {"state_type": "menu", "message": "Main menu.", "menu_screen": "main",
+            "options": ["singleplayer", "quit"]}
+    seq = [fight, fight_r3, menu]
+
+    class SeqClient:
+        def __init__(self):
+            self.i = 0
+
+        def get_state_raw(self):
+            s = seq[min(self.i, len(seq) - 1)]
+            self.i += 1
+            return s
+
+        def act(self, action):
+            raise AssertionError("the bot must never act during a handoff follow")
+
+    loop = AgentLoop(
+        SeqClient(), TrivialRouter(), log_root=tmp_path,
+        config=LoopConfig(poll_interval=0, stop_at_floor=22, handoff_follow=True,
+                          handoff_nav_poll_interval=0),
+    )
+    outcome = loop.play_one_run()
+    assert outcome.status == "stopped"
+    run_dir = next((tmp_path / "runs").iterdir())
+    lines = (run_dir / "decisions.jsonl").read_text(encoding="utf-8").splitlines()
+    human = [json.loads(x) for x in lines
+             if json.loads(x).get("rationale") == "human play (handoff)"]
+    assert len(human) >= 2  # the fight state at handoff + the human's round-3 state
+    assert all(r["action"] is None for r in human)
+
+
+def test_stop_at_floor_resets_time_scale_for_the_human(tmp_path: Path) -> None:
+    """Batches run at 4x; the handoff must hand the owner a playable 1x game
+    (the owner has had to ask for speed resets twice — automate it)."""
+    player = {"character": "The Ironclad", "hp": 50, "max_hp": 80, "block": 0,
+              "energy": 3, "max_energy": 3, "hand": [], "status": [], "relics": [],
+              "potions": [], "max_potion_slots": 3}
+    fight = {"state_type": "monster", "run": {"act": 2, "floor": 22, "ascension": 0},
+             "player": player,
+             "battle": {"round": 1, "turn": "player", "is_play_phase": True, "enemies": []}}
+
+    class ScaleClient:
+        def __init__(self):
+            self.scales = []
+
+        def get_state_raw(self):
+            return fight
+
+        def act(self, action):
+            payload = action.payload()
+            assert payload.get("action") == "set_time_scale", (
+                f"only speed resets allowed at handoff, got {payload}")
+            self.scales.append(payload.get("scale"))
+
+            class R:
+                ok = True
+                detail = "ok"
+
+                def model_dump(self, **kw):
+                    return {"ok": True}
+
+            return R()
+
+    client = ScaleClient()
+    loop = AgentLoop(
+        client, TrivialRouter(), log_root=tmp_path,
+        config=LoopConfig(poll_interval=0, stop_at_floor=22, time_scale=4.0),
+    )
+    outcome = loop.play_one_run()
+    assert outcome.status == "stopped"
+    assert client.scales[-1] == 1.0  # last speed action hands back a 1x game
+
+
 def test_loop_retries_transient_malformed_state(tmp_path: Path) -> None:
     """A transient mod error-object (no state_type) mid event-transition — the live
     'Failed to read GardenerResponse' that halted a late-Act-2 run at the fake merchant — is

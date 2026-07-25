@@ -99,6 +99,14 @@ class LoopConfig(BaseModel):
     # one-shot manual takeover: stop cleanly (without acting) when a fight begins at
     # this floor, leaving the live game at the player's turn for a human to play it out
     stop_at_floor: int | None = None
+    # After a stop_at_floor handoff: keep polling (NEVER acting) and log the human's
+    # play into the SAME run log until the run ends — bot half and human half land in
+    # one decisions.jsonl for turn-by-turn A/B diffing. Off by default so handoff
+    # tests with stuck mock clients don't spin; the CLI turns it on with stop_at_floor.
+    handoff_follow: bool = False
+    # Post-handoff nav-screen poll cadence (recorder lesson: the mod's /state read
+    # re-renders the screen and can fight a human's click, so poll non-combat slowly).
+    handoff_nav_poll_interval: float = 4.0
 
 
 class BotStalled(Exception):
@@ -161,6 +169,7 @@ class AgentLoop:
         manual_announced = False
         fight_in_progress = False
         paused_screen: str | None = None  # observation mode: screen we've already paused on
+        handoff_run_ended = False  # stop_at_floor follow saw the human finish the run
         if cfg.pause_after_fight and cfg.resume_signal_path:
             Path(cfg.resume_signal_path).unlink(missing_ok=True)  # clear stale
         self._assert_time_scale()
@@ -209,11 +218,25 @@ class AgentLoop:
                     and state.state_type in ("monster", "elite", "boss")
                 ):
                     outcome.status = "stopped"
+                    if cfg.time_scale not in (None, 1.0):
+                        # batches run at 4x; hand the owner a playable game
+                        try:
+                            from sts2bot.client.actions import SetTimeScale
+
+                            self.client.act(SetTimeScale(scale=1.0))
+                            print("time scale reset to 1x for manual play", flush=True)
+                        except Exception:
+                            print("WARNING: could not reset time scale — "
+                                  "run `sts2bot speed 1` if the game is fast", flush=True)
                     print(
                         f"\n*** STOPPING at floor {state.run.floor} ({state.state_type}) for "
                         "manual takeover — play it out, the bot will NOT act. ***",
                         flush=True,
                     )
+                    # the fight's opening position is the A/B baseline — keep it
+                    logger.log_decision(raw, None, "human play (handoff)", None)
+                    if cfg.handoff_follow:
+                        handoff_run_ended = self._follow_human_play(logger, cfg, last_fp=fp)
                     break
 
                 # Pause-after-fight (observation mode): hold only when a fight
@@ -337,7 +360,11 @@ class AgentLoop:
             # Enrich even on errored loops: the run may have genuinely ended (e.g.
             # run 16 died to the Ovicopter, then the loop railed on its death
             # sequence) and the game's .run record is still authoritative.
-            self._enrich_from_run_record(outcome, record_watermark)
+            # A finished handoff run races the game's .run write the same way the
+            # recorder did (A/B #4: clean WIN recorded as all-null) — retry briefly.
+            self._enrich_from_run_record(
+                outcome, record_watermark, retries=10 if handoff_run_ended else 0
+            )
             if outcome.status == "completed" and outcome.victory is None:
                 outcome.victory = self._resolve_victory(outcome)
             logger.finalize(outcome)
@@ -405,6 +432,44 @@ class AgentLoop:
         sig_path.unlink(missing_ok=True)
         print("*** resumed ***", flush=True)
 
+    def _follow_human_play(
+        self, logger: RunLogger, cfg: LoopConfig, last_fp: str | None = None
+    ) -> bool:
+        """Post-handoff passive follow: log the human's play (never acting) into the
+        same run log until play returns to a menu, so the bot half and the human half
+        of a tactical A/B land in ONE decisions.jsonl. Returns True if the run
+        genuinely ended (menu reached); False on Ctrl+C. Combat polls fast; nav
+        screens slowly (the mod's /state read re-renders and can fight human clicks).
+        `last_fp` seeds dedupe with the already-logged handoff state."""
+        was_in_run = False
+        print("following: human play is being recorded into this run's log "
+              "(Ctrl+C to stop early).", flush=True)
+        try:
+            while True:
+                try:
+                    raw = self.client.get_state_raw()
+                    state = parse_state(raw)
+                except StateParseError:
+                    time.sleep(cfg.poll_interval)
+                    continue
+                if was_in_run and isinstance(state, MenuState):
+                    print("run ended; handoff log finalized.", flush=True)
+                    return True
+                was_in_run = was_in_run or (
+                    state.run is not None and not isinstance(state, MenuState)
+                )
+                fp = _fingerprint(raw)
+                if fp != last_fp:
+                    logger.log_decision(raw, None, "human play (handoff)", None)
+                last_fp = fp
+                combat = state.state_type in _COMBAT_STATES
+                time.sleep(
+                    cfg.poll_interval if combat else cfg.handoff_nav_poll_interval
+                )
+        except KeyboardInterrupt:
+            print("\nhandoff follow interrupted; finalizing run log.", flush=True)
+            return False
+
     def _assert_time_scale(self) -> None:
         """Re-apply the configured engine speed; cinematics reset it to 1.0."""
         if self.config.time_scale is None:
@@ -425,15 +490,26 @@ class AgentLoop:
         if state.player is not None:
             outcome.character = state.player.character
 
-    def _enrich_from_run_record(self, outcome: RunOutcome, record_watermark: float) -> None:
+    def _enrich_from_run_record(
+        self, outcome: RunOutcome, record_watermark: float, retries: int = 0
+    ) -> None:
         """Pull the authoritative outcome from the game's own .run history record
         (win flag, seed, build_id, killed_by) — only records written AFTER this
-        loop started (strict watermark; grace matching once cross-attributed)."""
+        loop started (strict watermark; grace matching once cross-attributed).
+        `retries` waits out the game's own write schedule (1s apart) when the run
+        is known to have just ended, e.g. a finished stop_at_floor handoff."""
         if not self.config.history_dirs:
             return
         from sts2bot.runlog.runfile import latest_run_summary
 
         record = latest_run_summary(self.config.history_dirs, newer_than_mtime=record_watermark)
+        for _ in range(retries):
+            if record is not None:
+                break
+            time.sleep(1.0)
+            record = latest_run_summary(
+                self.config.history_dirs, newer_than_mtime=record_watermark
+            )
         if record is None:
             return
         outcome.victory = record.win

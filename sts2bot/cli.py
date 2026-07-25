@@ -126,6 +126,9 @@ def play(
         pause_after_fight=pause_after_fight,
         resume_signal_path=Path("logs/resume.signal") if pause_after_fight else None,
         stop_at_floor=stop_at_floor,
+        # tactical A/B: after the handoff, keep recording the human's play into the
+        # same run log (one decisions.jsonl = bot half + human half, diff-ready)
+        handoff_follow=stop_at_floor is not None,
     )
     with Sts2Client(base_url=base_url) as client:
         try:
@@ -157,6 +160,9 @@ def play(
                 )
             if outcome.error:
                 typer.echo(f"  error: {outcome.error}")
+            if outcome.status == "stopped":
+                typer.echo("  handoff done: bot + human halves are in this run's log.")
+                break
             if outcome.status != "completed":
                 typer.echo("  stopping: run did not complete cleanly (C5).")
                 break
