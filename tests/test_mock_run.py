@@ -326,6 +326,33 @@ def test_stop_at_floor_follow_records_human_half(tmp_path: Path) -> None:
     assert all(r["action"] is None for r in human)
 
 
+def test_stop_on_map_hands_off_at_the_map_screen(tmp_path: Path) -> None:
+    """Act-2 elite A/B mode: the bot's own gate never routes into an act-2 elite, so
+    --stop-at-map hands off at the MAP screen — the human picks the door too."""
+    map_state = {"state_type": "map", "run": {"act": 2, "floor": 18, "ascension": 0},
+                 "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                            "status": [], "relics": [], "potions": [],
+                            "max_potion_slots": 3},
+                 "map": {"next_options": [
+                     {"index": 0, "col": 1, "row": 1, "type": "Monster", "leads_to": []},
+                     {"index": 1, "col": 2, "row": 1, "type": "Elite", "leads_to": []},
+                 ]}}
+
+    class StuckClient:
+        def get_state_raw(self):
+            return map_state
+
+        def act(self, action):
+            raise AssertionError("must not act: map handoff leaves the door choice human")
+
+    outcome = AgentLoop(
+        StuckClient(), TrivialRouter(), log_root=tmp_path,
+        config=LoopConfig(poll_interval=0, stop_at_floor=18, stop_on_map=True),
+    ).play_one_run()
+    assert outcome.status == "stopped"
+    assert outcome.floor == 18
+
+
 def test_stop_at_floor_resets_time_scale_for_the_human(tmp_path: Path) -> None:
     """Batches run at 4x; the handoff must hand the owner a playable 1x game
     (the owner has had to ask for speed resets twice — automate it)."""

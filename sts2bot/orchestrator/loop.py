@@ -99,6 +99,11 @@ class LoopConfig(BaseModel):
     # one-shot manual takeover: stop cleanly (without acting) when a fight begins at
     # this floor, leaving the live game at the player's turn for a human to play it out
     stop_at_floor: int | None = None
+    # stop_at_floor triggers on FIGHTS by default; stop_on_map hands off at the MAP
+    # screen instead once floor >= stop_at_floor — for A/Bs where the human should
+    # choose the door too (act-2 elite handoff: the bot's own gate would never
+    # route into the elite, so the navigation is part of the human's half).
+    stop_on_map: bool = False
     # After a stop_at_floor handoff: keep polling (NEVER acting) and log the human's
     # play into the SAME run log until the run ends — bot half and human half land in
     # one decisions.jsonl for turn-by-turn A/B diffing. Off by default so handoff
@@ -215,7 +220,8 @@ class AgentLoop:
                     and state.run is not None
                     and state.run.floor is not None
                     and state.run.floor >= cfg.stop_at_floor
-                    and state.state_type in ("monster", "elite", "boss")
+                    and state.state_type
+                    in (("map",) if cfg.stop_on_map else ("monster", "elite", "boss"))
                 ):
                     outcome.status = "stopped"
                     if cfg.time_scale not in (None, 1.0):

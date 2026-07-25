@@ -98,6 +98,10 @@ def play(
     stop_at_floor: int = typer.Option(
         None, help="Stop (without acting) when a fight starts at this floor, for manual takeover."
     ),
+    stop_at_map: bool = typer.Option(
+        False, help="With --stop-at-floor: hand off at the MAP screen instead of the "
+        "fight, so the human picks the door too (act-2 elite A/Bs)."
+    ),
 ) -> None:
     """Play run(s) with the current policy (P0: trivial policy). Attended use only
     for now — keep an eye on it (REQUIREMENTS FR-4.4)."""
@@ -126,6 +130,7 @@ def play(
         pause_after_fight=pause_after_fight,
         resume_signal_path=Path("logs/resume.signal") if pause_after_fight else None,
         stop_at_floor=stop_at_floor,
+        stop_on_map=stop_at_map,
         # tactical A/B: after the handoff, keep recording the human's play into the
         # same run log (one decisions.jsonl = bot half + human half, diff-ready)
         handoff_follow=stop_at_floor is not None,
