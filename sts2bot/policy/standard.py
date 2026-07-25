@@ -82,6 +82,17 @@ _BIG_HIT_DAMAGE = 12  # "real hit" threshold for the first-big-hit draft switch 
 # Uncatalogued ancient boons compete at their generic-heuristic value clamped to this
 # (catalog scale: relic ~ 6; the raw heuristic runs far hotter and must not hijack)
 _UNKNOWN_BOON_CAP = 5.0
+# Doll Room dolls (owner mechanics 2026-07-24, event-heuristic scale relic ~ 6):
+# Daughter of the Wind = 1 Block whenever you play an Attack (scales with cheap
+# attacks; pairs with Juggernaut) — base value assumes a middling deck, deck-fit
+# adds +2.0. Mr. Struggles = end-of-turn AoE damage equal to the turn number
+# (slow, consistent — the safe generic). Bing Bong = permanently-added cards
+# arrive doubled — hardest to use, occasionally right, usually the prune target.
+_DOLL_VALUES = {
+    "Daughter of the Wind": 5.0,
+    "Mr. Struggles": 5.5,
+    "Bing Bong": 3.0,
+}
 # Act-1 region by boss (bosses are region-exclusive; co-occurrence clustering over 451
 # logged runs split the enemy pools cleanly, 2026-07-17). Owner + community read:
 # damage drafts play in the Overgrowth, defense/scaling in the Underdocks — and the
@@ -955,6 +966,63 @@ class StandardRouter:
                 rationale=f"bridge: keep {removed_name}, pay {reroll_x} HP to reroll",
             )
 
+        # Doll Room (owner mechanics 2026-07-24): the text parser took 'Pick at
+        # Random' every run ("Obtain a random Doll Relic" = free relic 6.0) — and
+        # Random is Spirebird's WORST option here (vs 5.8 vs 14.3/22.5). Owner:
+        # 'Take Some Time' (5 HP, 1 of 2) is the default because it always lets you
+        # prune Bing Bong and assures at least an okay choice; with a real Daughter
+        # deck (Juggernaut, or attack-spam) pay the 15 HP to Examine and make sure
+        # you get her. Description-matched (stage-1 titles are collision-prone).
+        doll_random = doll_pick = None
+        doll_pick_n = 0
+        for o in unlocked:
+            d_ = o.description or ""
+            if "random Doll Relic" in d_:
+                doll_random = o
+            elif m := re.search(r"Choose 1 of (\d+) Doll Relics", d_):
+                n = int(m.group(1))
+                if n > doll_pick_n:
+                    doll_pick, doll_pick_n = o, n
+        if doll_random is not None and doll_pick is not None:
+            deck = player.deck if (player and player.deck) else []
+            fit = self._daughter_deck_fit(deck)
+            choose2 = next((o for o in unlocked
+                            if "Choose 1 of 2 Doll Relics" in (o.description or "")),
+                           None)
+
+            def _payable(cost: int) -> bool:
+                return (hp_pct >= w.hp_cost_refuse_below
+                        and (hp - cost) / max(1, max_hp) >= w.min_hp_pct_after_cost)
+
+            if doll_pick_n >= 3 and fit and _payable(15):
+                pick, why = doll_pick, "Examine (Daughter deck, guarantee her)"
+            elif choose2 is not None and _payable(5):
+                pick, why = choose2, "Take Some Time (always prunes Bing Bong)"
+            else:
+                pick, why = doll_random, "too hurt to pay for selection"
+            return Decision(
+                action=act.ChooseEventOption(index=pick.index),
+                rationale=f"doll room: {why}",
+            )
+
+        # Doll Room sub-screen: rank the offered dolls with the owner's deck-fit
+        # nuance (Spirebird's Daughter 19 > Struggles 16.9 > Bing Bong 11.5 is
+        # selection-biased — Daughter is only that good when the deck feeds her).
+        doll_opts = [(o, _DOLL_VALUES[o.title or ""]) for o in unlocked
+                     if (o.title or "") in _DOLL_VALUES]
+        if len(doll_opts) >= 2:
+            deck = player.deck if (player and player.deck) else []
+            fit = self._daughter_deck_fit(deck)
+            vals = {o.index: v + (2.0 if fit and "Daughter" in (o.title or "") else 0.0)
+                    for o, v in doll_opts}
+            best_o = max(doll_opts, key=lambda s: vals[s[0].index])[0]
+            return Decision(
+                action=act.ChooseEventOption(index=best_o.index),
+                rationale=f"doll room: {best_o.title} ({vals[best_o.index]:.1f})",
+                scores={(o.title or "?"): round(vals[o.index], 2)
+                        for o, _v in doll_opts},
+            )
+
         # Events pass (EVENTS_PASS.md): the decline-by-default fix. When the option
         # catalog knows any option on a NON-ancient screen, rank catalogued options by
         # value (unknowns ride the clamped heuristic, same lesson as Silken Tress) and
@@ -1026,6 +1094,22 @@ class StandardRouter:
             action=act.ChooseEventOption(index=cheapest.index),
             rationale=f"event: least-cost '{cheapest.title}'",
         )
+
+    @staticmethod
+    def _daughter_deck_fit(deck) -> bool:
+        """Does the deck feed Daughter of the Wind (Block per Attack played)?
+        Juggernaut turns her into a damage engine outright; otherwise she needs
+        attack density — ≥7 cheap (cost ≤ 1) attacks means she triggers most plays."""
+        if not deck:
+            return False
+        cheap_attacks = 0
+        for c in deck:
+            if "JUGGERNAUT" in (c.id or "").upper():
+                return True
+            if (c.type or "") == "Attack" and (c.cost or "").isdigit() \
+                    and int(c.cost) <= 1:
+                cheap_attacks += 1
+        return cheap_attacks >= 7
 
     def _boon_deck_fit(self, entry: dict, deck) -> float:
         """Choice-time deck-fit for a boon: + per weighted provider of each deck_bonus

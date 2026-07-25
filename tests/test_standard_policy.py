@@ -1083,6 +1083,69 @@ def test_event_recognizes_obtain_relic_when_relic_name_unset() -> None:
     assert idx == 1  # the relic (6.0 - 4.2 = 1.8) beats the bland card-add (1.0)
 
 
+_DOLL_ROOM_OPTS = [
+    _ev_opt(0, "Pick at Random", "Obtain a random Doll Relic."),
+    _ev_opt(1, "Take Some Time", "Lose 5 HP. Choose 1 of 2 Doll Relics."),
+    _ev_opt(2, "Examine Each and Make the Best Choice",
+            "Lose 15 HP. Choose 1 of 3 Doll Relics."),
+]
+
+
+def _doll_state(hp=70, max_hp=80, deck=None, options=None):
+    payload = {
+        "state_type": "event",
+        "event": {"event_id": "DOLL_ROOM", "event_name": "x", "is_ancient": False,
+                  "in_dialogue": False, "body": "",
+                  "options": options or _DOLL_ROOM_OPTS},
+        "run": {"act": 1, "floor": 6, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": hp, "max_hp": max_hp, "gold": 50,
+                   "status": [], "relics": [], "potions": [], "max_potion_slots": 3,
+                   "deck": deck or []},
+    }
+    return parse_state(payload)
+
+
+def test_doll_room_pays_for_selection_not_random() -> None:
+    """Owner (2026-07-24): the parser took 'Pick at Random' every run (free relic 6.0) —
+    Spirebird's worst option. Default is Take Some Time: 5 HP always lets you prune
+    Bing Bong and assures an okay choice."""
+    d = router().decide(_doll_state(deck=_STARTER_DECK), LoopContext())
+    assert d.action.payload()["index"] == 1
+    assert "doll room" in d.rationale
+
+
+def test_doll_room_examines_with_a_daughter_deck() -> None:
+    """With Juggernaut (or attack-spam) in deck, pay 15 HP to Examine and guarantee
+    Daughter of the Wind; without the deck for her, the 15 HP isn't worth it."""
+    jugg_deck = [*_STARTER_DECK, *_deck(("JUGGERNAUT", "Power", 2, 1))]
+    d = router().decide(_doll_state(deck=jugg_deck), LoopContext())
+    assert d.action.payload()["index"] == 2
+    assert "Daughter deck" in d.rationale
+
+
+def test_doll_room_takes_random_when_too_hurt_to_pay() -> None:
+    """Below the HP-cost floor, selection isn't affordable — free random beats nothing."""
+    d = router().decide(_doll_state(hp=8, max_hp=80, deck=_STARTER_DECK), LoopContext())
+    assert d.action.payload()["index"] == 0
+
+
+def test_doll_room_subscreen_ranks_dolls_by_deck_fit() -> None:
+    """Sub-screen: plain deck -> Mr. Struggles (safe consistent scaling, 5.5 > 5.0);
+    a deck that feeds Daughter (Juggernaut) -> Daughter (5.0 + 2.0 fit). Bing Bong
+    stays last (owner: usually the prune target)."""
+    dolls = [
+        _ev_opt(0, "Daughter of the Wind", "Whenever you play an Attack, gain 1 Block."),
+        _ev_opt(1, "Mr. Struggles",
+                "At the end of your turn, deal damage equal to the turn number to ALL enemies."),
+        _ev_opt(2, "Bing Bong", "Whenever you add a card to your Deck, add another copy."),
+    ]
+    plain = router().decide(_doll_state(deck=_STARTER_DECK, options=dolls), LoopContext())
+    assert plain.action.payload()["index"] == 1  # Mr. Struggles
+    jugg_deck = [*_STARTER_DECK, *_deck(("JUGGERNAUT", "Power", 2, 1))]
+    fit = router().decide(_doll_state(deck=jugg_deck, options=dolls), LoopContext())
+    assert fit.action.payload()["index"] == 0  # Daughter of the Wind
+
+
 def test_event_refuses_hp_cost_that_drops_too_low() -> None:
     """Owner edge case: a choice can be great on average yet suicidal now. Refuse a high-value
     option whose HP cost would drop us below the danger floor, and take the safe gain instead."""
