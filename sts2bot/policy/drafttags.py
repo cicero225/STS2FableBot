@@ -186,13 +186,16 @@ def score_adjustment(
 
     # controlled exhaust = thinning value in its own right (owner): scaled by remaining
     # thinnable basics, damped when the deck already thins itself. "upgraded" marks
-    # cards whose exhaust only becomes targeted on upgrade (True Grit).
+    # cards whose exhaust only becomes targeted on upgrade (True Grit). A float value
+    # scales the bonus (Stoke 2.0, owner 2026-07-24: whole-hand shred converts several
+    # basics per play into random cards — better than the basics, especially early).
     ce = entry.get("controlled_exhaust")
-    if ce and (ce is True or (ce == "upgraded" and is_upgraded)):
+    if ce and (ce != "upgraded" or is_upgraded):
+        scale = float(ce) if isinstance(ce, (int, float)) and not isinstance(ce, bool) else 1.0
         basics = deck_counts.get("__basics", 0.0)
         thinning = _providers("deck_thinning", deck_counts, deck, tags)
         damp = 0.5 if thinning > 0 else 1.0
-        adj += w.w_controlled_exhaust * min(1.0, basics / 6.0) * damp
+        adj += w.w_controlled_exhaust * scale * min(1.0, basics / 6.0) * damp
 
     # upgrade-awareness: the upgrade crosses a class boundary (True Grit's targeted
     # exhaust, Armaments' all-hand, Apotheosis/Stampede/Pyre cost drops) — a mild

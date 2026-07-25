@@ -127,9 +127,16 @@ ANTI: dict[str, list[tuple[str, int, str]]] = {
 }
 
 COPY_CAP = {"BARRICADE"}
-# review #4/#5: controlled exhaust = thinning value; True Grit only once upgraded
-CONTROLLED_EXHAUST: dict[str, bool | str] = {
+# review #4/#5: controlled exhaust = thinning value; True Grit only once upgraded.
+# Float = scale on w_controlled_exhaust (True = 1.0). STOKE 2.0: owner draft A/B
+# leg-3 (X9VM7AR5PF, 2026-07-24) — "the random cards you derive from Stoke
+# shredding strikes and defends is almost always better value than Strikes/
+# Defends... I'm underestimating Stoke as a card (especially early)". Whole-hand
+# shred converts SEVERAL basics per play, so it outscales the one-card thinners;
+# the basics/6 scaling already fades it as the deck outgrows its basics.
+CONTROLLED_EXHAUST: dict[str, bool | str | float] = {
     "BRAND": True, "BURNING_PACT": True, "TRUE_GRIT": "upgraded",
+    "STOKE": 2.0,
 }
 # review #5/#6/#15/#30: the upgrade crosses a class boundary
 UPGRADE_UNLOCKS = {"TRUE_GRIT", "STAMPEDE", "ARMAMENTS", "APOTHEOSIS", "PYRE"}

@@ -1130,7 +1130,8 @@
      "strength": "moderate",
      "penalty": false
     }
-   ]
+   ],
+   "controlled_exhaust": 2.0
   },
   "STOMP": {
    "provides": {

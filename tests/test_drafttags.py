@@ -79,6 +79,20 @@ def test_controlled_exhaust_thinning_value() -> None:
     assert tg_up > tg_base - W.w_upgrade_unlocks
 
 
+def test_stoke_shred_scale_outvalues_one_card_thinners_early() -> None:
+    """Owner draft A/B leg-3 (X9VM7AR5PF, 2026-07-24): Stoke's whole-hand shred turns
+    basics into random cards — better than the basics, ESPECIALLY early. Stoke carries
+    controlled_exhaust=2.0: on a starter-heavy deck it must out-bonus a 1.0-scale
+    thinner (Brand), and the edge must fade as the deck outgrows its basics."""
+    early_stoke = score_adjustment("STOKE", _starter(), TAGS, W)
+    early_brand = score_adjustment("BRAND", _starter(), TAGS, W)
+    assert early_stoke > early_brand
+    thin = [C("BLUDGEON", cost="3"), C("FEEL_NO_PAIN", typ="Power")]
+    late_stoke = score_adjustment("STOKE", thin, TAGS, W)
+    # early shred credit (basics-scaled part) exceeds what's left of it late
+    assert early_stoke > late_stoke
+
+
 def test_upgrade_unlocks_anticipation() -> None:
     up = score_adjustment("APOTHEOSIS", _starter(), TAGS, W, is_upgraded=True)
     base = score_adjustment("APOTHEOSIS", _starter(), TAGS, W, is_upgraded=False)
