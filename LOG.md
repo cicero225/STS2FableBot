@@ -2,6 +2,57 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-24 (Fable 5, session 12) — Elite retune validated; the tactical A/B instrument ships and pays for itself the same night
+
+**Elite gate retune** (owner-blessed, a577e98): end-HP floor 0.30→0.20, pool frac
+0.50→0.40, elite_relic_value 36→42. Validation batch: act-1 elites 0.13→0.40/run,
+ZERO elite deaths, relics@f17 4.2→4.9, act-reach 1.9. Third loosening of this gate,
+each earned by evidence. Act-2/3 elites still zero — corpus forensics say near-lethal
+at current fight skill (44→9, 38→dead, 53→dead), so the refusal is honest; owner
+reframe: act-2 elites are the HARDEST per deck power (shirking is most reasonable
+there), the real aggression gap is Act 3. Do NOT weight-tune act-2/3 open.
+
+**stop_at_floor becomes the tactical A/B instrument** (de7d7f0 + c4e034f): 1x reset
+at handoff, passive follow records the human half into the SAME decisions.jsonl,
+enrich retries the .run race, --stop-at-map hands off at the map screen. Three modes
+validated live in one evening:
+- **Fight A/B (X9VM7AR5PF)**: replay determinism HELD (identical route, same 76 HP at
+  the door). Bot beat Soul Fysh r14/-48; owner r21/-63 on the same deck — "the deck
+  was just not very good"; piloting had nothing to grip.
+- **Draft A/B (same seed, owner drafts)**: 19-card engine deck (Neow Stoke → shred
+  basics), 3 elites, SF in 9 rounds from 61 entry. Engine-coherence in drafting is
+  what separates the owner's Act 1, not fight micro.
+- **Act-2 handoff (random seed)**: owner took the f18 map with the bot's deck, gave a
+  live route-planning monologue (backward planning from act anchors, DEFERRED choice
+  points, conditional fallback lines — now the optionality spec in PLAN), downgraded
+  his 2-elite ambition on early-fight evidence, paid **12 HP for Infested Prism**
+  (bot corpus: near-lethal) and beat Insatiable 80→50. The act-2 elite piloting gap,
+  quantified: ~2-4x.
+
+**shadow_compare.py ships** (owner proposal, f478f28): replays recorded states
+through the live router offline, diffs every decision screen. Two review rounds
+same night → 5 commits: Stoke shred value scaled by basics ×2.0 (4f96468, "I'm
+underestimating Stoke, especially early"); Colossus vuln bar 2→4 + hand_dump
+anti (SW×Stoke) + Bloodletting fed by dumpers (22d110a); **deficit feeding** — the
+reverse tag edge, candidate feeds cards the deck is starving for, external-supply
+only, threshold+1 redundancy target (5baeb39, from the owner's Uppercut+ articulation:
+"the deck lacked vulnerable appliers and defense, so I picked a card that gave
+both"); Colossus prior dock -0.8 via new OWNER_OVERRIDES lane (owner: community Elo
+runs hot on it).
+
+**Live catch during the handoff leg**: BOTH enchant-target rules (slither/sharp)
+were dead code — the mod's screen says only "Choose a card to Enchant.", the name
+lives on the event option one screen back. Enchant intent now carried via
+ctx.screen_mem from event choice to target screen (8a66472); Slither-on-Taunt was
+the tell. Only live human-alongside-bot play could have caught it.
+
+**Also**: Doll Room catalogued (02dc30f — parser took Spirebird's WORST option every
+time; now pays 5 HP for selection, Examine with a Daughter deck, dolls ranked with
+deck-fit). Filed: phantom duplicate map decisions (2nd decision per floor, wildly
+negative values — poisons route-intent analysis), negative path-value audit
+(RestSite -58.7 "rest sites are not negative 58 hp"), act-2/3 elite mechanics pass
+(Knights trio), monster_early stat is act-1-dominated.
+
 ## 2026-07-23 (Fable 5, session 11) — A/B #5 verdict: the Act-1 gap is ELITE AGGRESSION, not fight micro; KD claims the owner too
 
 **A/B #5 (TZSM9SV0P0, whole-run, blind)**: bot died f17 to Soul Fysh; owner cleared
