@@ -205,6 +205,14 @@ class CardRewardWeights(_Section):
     w_copy_cap: float = -8.0  # a second Barricade-class copy is dead weight
     w_controlled_exhaust: float = 1.5  # targeted exhaust = thinning value (x basics/6)
     w_upgrade_unlocks: float = 1.0  # upgrade crosses a class boundary (True Grit+)
+    # Deficit feeding (owner shadow review #2, 2026-07-24, Uppercut+ over Colossus):
+    # "the deck seemed to lack vulnerable appliers and defense. So I picked a card
+    # that gave both." A candidate that PROVIDES a tag which cards already in the
+    # deck need — and which the deck supplies at or below threshold+1 — earns a
+    # redundancy bonus per starved needer (Molten Fist drew dead all act behind a
+    # lone Bash: one source at exact threshold is fragile in the draw).
+    w_deficit_feed: float = 1.5
+    deficit_feed_cap: float = 3.0
 
 
 class RestWeights(_Section):

@@ -87,7 +87,9 @@ def test_stoke_shred_scale_outvalues_one_card_thinners_early() -> None:
     early_stoke = score_adjustment("STOKE", _starter(), TAGS, W)
     early_brand = score_adjustment("BRAND", _starter(), TAGS, W)
     assert early_stoke > early_brand
-    thin = [C("BLUDGEON", cost="3"), C("FEEL_NO_PAIN", typ="Power")]
+    # thin deck with NO exhaust payoffs (an FNP here would rightly earn Stoke the
+    # deficit-feed bonus instead — that lane has its own test)
+    thin = [C("BLUDGEON", cost="3")]
     late_stoke = score_adjustment("STOKE", thin, TAGS, W)
     # early shred credit (basics-scaled part) exceeds what's left of it late
     assert early_stoke > late_stoke
@@ -130,6 +132,33 @@ def test_bloodletting_fed_by_hand_dumpers() -> None:
     with_stoke = score_adjustment("BLOODLETTING", [*_starter(), C("STOKE", typ="Skill")],
                                   TAGS, W)
     assert with_stoke > base
+
+
+def test_deficit_feeding_rewards_the_provider_the_deck_starves_for() -> None:
+    """Owner shadow review #2 (Uppercut+ over Colossus): "the deck seemed to lack
+    vulnerable appliers... so I picked a card that gave both." Uppercut (provides
+    vulnerable_source) into a deck holding Molten Fist behind a lone Bash earns the
+    deficit-feed bonus; into the same deck without the starving needer it earns less;
+    with the tag well-supplied (threshold+1 reached) the bonus is gone."""
+    starving = [*_starter(), C("MOLTEN_FIST")]
+    fed = score_adjustment("UPPERCUT", starving, TAGS, W)
+    no_needer = score_adjustment("UPPERCUT", _starter(), TAGS, W)
+    assert fed > no_needer
+    # Bash 2.0 + Tremble 3.0 = 5.0 >= threshold+1 (3): redundancy target met, no feed
+    saturated = [*_starter(), C("MOLTEN_FIST"), C("TREMBLE", typ="Skill")]
+    assert score_adjustment("UPPERCUT", saturated, TAGS, W) < fed
+
+
+def test_colossus_prior_carries_owner_dock() -> None:
+    """Owner 2026-07-24: "the global prior for Colossus is a bit high" — passed it
+    twice in one evening of shadow A/Bs. The committed priors carry the -0.8 dock."""
+    import json
+    from pathlib import Path
+    d = json.loads((Path(__file__).resolve().parent.parent / "data"
+                    / "priors_cards.json").read_text(encoding="utf-8"))
+    e = d["cards"]["IRONCLAD"]["COLOSSUS"]
+    assert e.get("owner_adj") == -0.8
+    assert e["s"] < 2.5
 
 
 def test_upgrade_unlocks_anticipation() -> None:

@@ -38,6 +38,14 @@ COHORT = "all"
 MIN_ACT_PICKS = 300
 TILT_CAP = 1.0  # clamp per-act tilts; keeps the term a bounded secondary nudge
 MIN_UPGRADE_PICKS = 100  # need both base and upgraded variants well-sampled for a delta
+# Owner corrections to the community Elo (applied post-distill, recorded as
+# owner_adj on the entry). COLOSSUS -0.8 (2026-07-24): "the global prior for
+# Colossus is a bit high -- I picked it a lot when I started Ironclad and backed
+# off once it became clear it wasn't working as well as I'd hoped"; passed it
+# twice in one evening of shadow A/Bs, both times into decks it wouldn't serve.
+OWNER_OVERRIDES: dict[tuple[str, str], float] = {
+    ("IRONCLAD", "COLOSSUS"): -0.8,
+}
 
 
 def parse_key(key: str) -> tuple[str, str] | None:
@@ -154,6 +162,11 @@ def main() -> int:
         },
         "cards": {ch: dict(sorted(cards_.items())) for ch, cards_ in sorted(out.items())},
     }
+    for (char, cid), delta in OWNER_OVERRIDES.items():
+        entry = payload["cards"].get(char, {}).get(cid)
+        if entry is not None:
+            entry["s"] = round(entry["s"] + delta, 3)
+            entry["owner_adj"] = delta
     DEST.write_text(json.dumps(payload, indent=1), encoding="utf-8")
     sizes = {ch: len(c) for ch, c in payload["cards"].items()}
     print(f"wrote {DEST.name}: {sizes} (skipped {skipped} malformed keys)")

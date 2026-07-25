@@ -178,6 +178,35 @@ def score_adjustment(
         if _providers(tag, deck_counts, deck, tags, relic_provides) >= threshold:
             adj += w.w_tag_penalty * mult * 0.5  # anti docks run at half penalty weight
 
+    # deficit feeding (owner shadow review #2, 2026-07-24): "the deck seemed to lack
+    # vulnerable appliers and defense. So I picked a card that gave both." The needs
+    # lane above rewards a candidate whose OWN needs the deck meets; this is the
+    # reverse edge — the candidate provides a tag that cards already in the deck are
+    # starving for. Starvation includes exact-threshold supply (threshold+1 is the
+    # redundancy target): Molten Fist behind a lone Bash met its threshold on paper
+    # and still drew dead all act.
+    feed = 0.0
+    for c in deck:
+        needer = tags.get((getattr(c, "id", "") or "").upper())
+        if not needer:
+            continue
+        for need in needer.get("needs") or []:
+            tag = need.get("tag", "")
+            if tag.startswith("__") or float(own_provides.get(tag, 0.0)) <= 0:
+                continue
+            threshold = max(1.0, float(need.get("threshold", 1)))
+            mult = _STRENGTH_MULT.get(need.get("strength", "moderate"), 1.0)
+            have = _providers(tag, deck_counts, deck, tags, relic_provides)
+            # a needer can't feed its own precondition (Molten Fist "provides"
+            # vulnerable only AFTER the fist connects) — judge ITS starvation
+            # on external supply only
+            have -= float((needer.get("provides") or {}).get(tag, 0.0))
+            gap = (threshold + 1.0) - have
+            if gap <= 0:
+                continue
+            feed += w.w_deficit_feed * mult * min(1.0, gap / (threshold + 1.0))
+    adj += min(feed, w.deficit_feed_cap)
+
     # copy cap: a second copy of a non-stacking card (Barricade) is dead weight
     if entry.get("copy_cap"):
         cid = (card_id or "").upper()
