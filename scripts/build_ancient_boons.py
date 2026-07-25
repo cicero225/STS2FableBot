@@ -31,22 +31,30 @@ BOONS: dict[str, dict] = {
     "Fishing Rod": dict(
         value=5.0, note="Every 3 combats upgrade a random card — live-validated "
         "(both A/B #3 runs carried it to good effect)."),
-    "Arcane Scroll": dict(value=4.0, note="Random Rare; solid average."),
+    "Arcane Scroll": dict(
+        value=5.0, note="Owner Neow rank 2026-07-25: top of the six -- a random "
+        "Rare can anchor an Ironclad deck on the spot (their Stoke run); high "
+        "variance, real whiffs, still the pick."),
     "Booming Conch": dict(
         value=2.5, note="Elite-combat draw; bot declines most elites, low uptime."),
     "Cursed Pearl": dict(
         value=3.0, note="333g minus a curse; gold engine needs shop skill we lack."),
-    "Golden Pearl": dict(value=3.5, note="150g flat."),
+    "Golden Pearl": dict(value=4.0, note="150g flat. Owner rank: ~ Large Capsule."),
     "Large Capsule": dict(
-        value=5.5, note="2 relics for mild deck bloat — best Neow economy."),
+        value=4.0, note="Owner correction 2026-07-25 (bot took it every Neow at "
+        "5.5): surprisingly mid -- the two junk cards are surprisingly punishing; "
+        "ranked ~ Golden Pearl."),
     "Lava Rock": dict(value=4.5, note="2 boss relics, delayed but real."),
-    "Lead Paperweight": dict(value=3.0, note="1-of-2 colorless; average."),
+    "Lead Paperweight": dict(
+        value=3.0, note="1-of-2 colorless; owner rank: above Lost Coffer only."),
     "Leafy Poultice": dict(
         value=2.5, note="Transform 2 basics at -10 Max HP; the HP is real money."),
-    "Lost Coffer": dict(value=3.5, note="Card reward + potion."),
+    "Lost Coffer": dict(
+        value=2.5, note="Card reward + potion. Owner rank: bottom of the six."),
     "Neow's Torment": dict(
-        value=3.5, note="Neow's Fury (KB): 10 dmg + return 2 discards to hand, "
-        "Exhaust — a solid free card."),
+        value=4.2, note="Owner rank: 2nd of six -- docked from ~4.5 for the BOT "
+        "specifically: full value requires understanding tutoring, which the "
+        "planner lacks."),
     "New Leaf": dict(value=2.0, note="Transform 1; low impact."),
     "Nutritious Oyster": dict(value=4.0, note="+11 Max HP."),
     "Pomander": dict(value=3.5, note="Upgrade a card (Bash+ early)."),

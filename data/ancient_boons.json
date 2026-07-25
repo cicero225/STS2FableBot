@@ -15,8 +15,8 @@
    "draft_bonus": {}
   },
   "Arcane Scroll": {
-   "value": 4.0,
-   "note": "Random Rare; solid average.",
+   "value": 5.0,
+   "note": "Owner Neow rank 2026-07-25: top of the six -- a random Rare can anchor an Ironclad deck on the spot (their Stoke run); high variance, real whiffs, still the pick.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -39,16 +39,16 @@
    "draft_bonus": {}
   },
   "Golden Pearl": {
-   "value": 3.5,
-   "note": "150g flat.",
+   "value": 4.0,
+   "note": "150g flat. Owner rank: ~ Large Capsule.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
    "draft_bonus": {}
   },
   "Large Capsule": {
-   "value": 5.5,
-   "note": "2 relics for mild deck bloat — best Neow economy.",
+   "value": 4.0,
+   "note": "Owner correction 2026-07-25 (bot took it every Neow at 5.5): surprisingly mid -- the two junk cards are surprisingly punishing; ranked ~ Golden Pearl.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -64,7 +64,7 @@
   },
   "Lead Paperweight": {
    "value": 3.0,
-   "note": "1-of-2 colorless; average.",
+   "note": "1-of-2 colorless; owner rank: above Lost Coffer only.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -79,16 +79,16 @@
    "draft_bonus": {}
   },
   "Lost Coffer": {
-   "value": 3.5,
-   "note": "Card reward + potion.",
+   "value": 2.5,
+   "note": "Card reward + potion. Owner rank: bottom of the six.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
    "draft_bonus": {}
   },
   "Neow's Torment": {
-   "value": 3.5,
-   "note": "Neow's Fury (KB): 10 dmg + return 2 discards to hand, Exhaust — a solid free card.",
+   "value": 4.2,
+   "note": "Owner rank: 2nd of six -- docked from ~4.5 for the BOT specifically: full value requires understanding tutoring, which the planner lacks.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
