@@ -233,8 +233,35 @@ class StandardRouter:
                 ctx.screen_mem.pop(k, None)
         handler = getattr(self, f"_{state.state_type}", None)
         if handler is not None:
-            return handler(state, ctx)
+            decision = handler(state, ctx)
+            if state.state_type == "event":
+                self._note_enchant_intent(state, decision, ctx)
+            return decision
         return self._fallback.decide(state, ctx)
+
+    # The mod's enchant target screen says only "Choose a card to Enchant." — the
+    # enchant NAME lives one screen earlier, on the chosen event option (live
+    # 2026-07-24: Slither landed on a 1-cost Taunt with Bash in the pool, because
+    # the 'slither'-in-prompt rule could never fire on the generic prompt). Remember
+    # the kind at event-choice time; _pick_target reads it on the next enchant
+    # screen. Set on EVERY event choice (None when no enchant word) so a stale
+    # intent from a declined event self-heals.
+    _ENCHANT_KINDS = ("slither", "sharp", "nimble", "swift", "sown", "spiral")
+
+    def _note_enchant_intent(self, state, decision, ctx: LoopContext) -> None:
+        if not isinstance(decision, Decision) or not isinstance(
+            decision.action, act.ChooseEventOption
+        ):
+            return
+        ev = getattr(state, "event", None)
+        opt = next((o for o in (ev.options if ev else []) or []
+                    if o.index == decision.action.index), None)
+        if opt is None:
+            return
+        text = f"{opt.title or ''} {opt.description or ''}".lower()
+        ctx.screen_mem["pending_enchant"] = next(
+            (k for k in self._ENCHANT_KINDS if k in text), None
+        )
 
     # ------------------------------------------------------------------ combat
 
@@ -1542,8 +1569,12 @@ class StandardRouter:
 
     def _pick_target(self, cs, prefer_worst: bool, character, exclude=(),
                      free_this_turn: bool = False, deck: list | None = None,
-                     boss_rule: dict | None = None):
+                     boss_rule: dict | None = None, enchant_kind: str | None = None):
         prompt = (cs.prompt or "").lower()
+        # the generic "Choose a card to Enchant." prompt carries no enchant name;
+        # enchant_kind is the intent remembered from the event choice one screen back
+        if enchant_kind and "enchant" in prompt:
+            prompt = f"{prompt} {enchant_kind}"
         candidates = [c for c in cs.cards if c.index not in exclude]
         # All options are Status-type = a forced pick-your-poison, not a reward: choose the
         # least-bad by the owner's table, NOT by card quality (they're all "worthless").
@@ -1709,7 +1740,8 @@ class StandardRouter:
             target = self._pick_target(cs, prefer_worst, character, free_this_turn=in_combat,
                                        deck=state.player.deck if state.player else None,
                                        boss_rule=_boss_draft_rule(
-                                           ctx.screen_mem.get("act_boss_name")))
+                                           ctx.screen_mem.get("act_boss_name")),
+                                       enchant_kind=ctx.screen_mem.get("pending_enchant"))
             if mem["tries"] < self._CHOOSE_RETRIES and target is not None:
                 mem["tries"] += 1
                 return Decision(
@@ -1734,6 +1766,7 @@ class StandardRouter:
             target = self._pick_target(cs, prefer_worst, character, exclude=picked,
                                        free_this_turn=in_combat,
                                        deck=state.player.deck if state.player else None,
+                                       enchant_kind=ctx.screen_mem.get("pending_enchant"),
                                        boss_rule=_boss_draft_rule(
                                            ctx.screen_mem.get("act_boss_name")))
             if target is not None:

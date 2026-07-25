@@ -1901,6 +1901,42 @@ def _sc_card(index, name, ctype="Attack", rarity="Common", upgraded=False, cid=N
     }
 
 
+def test_enchant_intent_carries_from_event_to_generic_prompt() -> None:
+    """Live 2026-07-24: Slither landed on a 1-cost Taunt with Bash in the pool. The
+    mod's target screen says only 'Choose a card to Enchant.' — the enchant name is
+    on the EVENT option one screen back, so the 'slither' prompt rule never fired.
+    The router must remember the kind at event-choice time and target highest-cost."""
+    r = router()
+    ctx = LoopContext()
+    ev = _ev_state("WOOD_CARVINGS", [
+        _ev_opt(0, "Bird", "Choose 1 starter card to Transform into Peck."),
+        _ev_opt(1, "Snake", "Enchant 1 card with Slither."),
+        _ev_opt(2, "Torus", "Choose 1 starter card to Transform into Toric Toughness."),
+    ])
+    d = r.decide(ev, ctx)
+    assert d.action.payload()["index"] == 1  # Snake (catalog 5.5)
+    assert ctx.screen_mem.get("pending_enchant") == "slither"
+    cards = [{"id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack", "cost": "1",
+              "description": "Deal 6 damage.", "rarity": "Basic", "is_upgraded": False,
+              "index": 0},
+             {"id": "TAUNT", "name": "Taunt", "type": "Skill", "cost": "1",
+              "description": "Gain 4 Block.", "rarity": "Common", "is_upgraded": False,
+              "index": 1},
+             {"id": "BASH", "name": "Bash", "type": "Attack", "cost": "2",
+              "description": "Deal 8 damage. Apply 2 Vulnerable.", "rarity": "Basic",
+              "is_upgraded": False, "index": 2}]
+    sel = _card_select_state("NCardSelectScreen", "Choose a card to Enchant.", cards)
+    pick = r.decide(sel, ctx)
+    assert pick.action.payload()["index"] == 2  # Bash: the highest-cost card
+    # a later event choice with no enchant word self-heals the intent
+    ev2 = _ev_state("ZZZ_PLAIN", [
+        _ev_opt(0, "Smash", "Heal 20 HP."),
+        _ev_opt(1, "Proceed", "", is_proceed=True),
+    ])
+    r.decide(ev2, ctx)
+    assert ctx.screen_mem.get("pending_enchant") is None
+
+
 def _card_select_state(screen_type, prompt, cards, can_confirm=False, can_cancel=True):
     return parse_state(
         {
