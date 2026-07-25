@@ -2364,11 +2364,14 @@ def test_elite_gate_uses_real_bestiary_pool() -> None:
         "elite": {"mean": 21.0, "p75": 32, "n": 99},
         "boss": {"mean": 25.0, "p75": 42, "n": 99},
     })
+    # pool recalibrated 2026-07-24 (A/B #5 gate loosening 0.50/0.30 -> 0.40/0.20):
+    # bigger bodies so the pool STILL fails the looser gate — the test pins the
+    # real-pool-vs-generic mechanism, not any particular threshold.
     pool = {
-        "Terror Eel": {"roles": ["elite"], "acts": [1], "hp": [140, 140], "statuses": {}},
-        "Bygone Effigy": {"roles": ["elite"], "acts": [1], "hp": [127, 127], "statuses": {}},
-        "Skulking Colony": {"roles": ["elite"], "acts": [1], "hp": [70, 70], "statuses": {
-            "HARDENED_SHELL_POWER": {"description": "Cannot lose more than 15 HP each turn."}}},
+        "Terror Eel": {"roles": ["elite"], "acts": [1], "hp": [190, 190], "statuses": {}},
+        "Bygone Effigy": {"roles": ["elite"], "acts": [1], "hp": [180, 180], "statuses": {}},
+        "Skulking Colony": {"roles": ["elite"], "acts": [1], "hp": [95, 95], "statuses": {
+            "HARDENED_SHELL_POWER": {"description": "Cannot lose more than 10 HP each turn."}}},
     }
     payload = json.loads(json.dumps(FIXTURES["map"]))
     payload["map"]["next_options"] = [

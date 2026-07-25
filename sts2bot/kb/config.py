@@ -122,20 +122,25 @@ class MapWeights(_Section):
     # each route using the bot's own per-fight p75 loss; these tune how it reacts.
     survival_floor_hp_pct: float = 0.10  # route projected to drop to/below this HP frac = "lethal"
     route_death_penalty: float = 80.0  # ...and pays this; dominates a node's own type score
-    # a *survivable* elite earns elite_relic_value (vs score_elite -20 -> net +16, just above
-    # treasure): relics are deck power, so chase elites when the HP is there to spend
-    elite_relic_value: float = 36.0
+    # a *survivable* elite earns elite_relic_value (vs score_elite -20 -> net +22, well above
+    # treasure): relics are deck power, so chase elites when the HP is there to spend.
+    # 36 -> 42 (A/B #5, 2026-07-24): the owner traded ~30 HP for 2 elites -> 7 relics vs
+    # our 3 -> 27 vs 16 dmg/round at the boss. HP preservation without power is a
+    # losing trade; the whole retune is owner-blessed for batch validation.
+    elite_relic_value: float = 42.0
     rest_heal_pct: float = 0.30  # HP fraction a rest site restores, for the projection
     # §5-C elite gate: chase an elite only if the deck wins it (at full HP) with at least this HP
     # fraction left — a pyrrhic 2-HP win is a loss for the next node, so don't chase it.
-    elite_gate_min_end_hp_pct: float = 0.30
+    # 0.30 -> 0.20 (A/B #5): a 20%-HP win + relic beat our 90%-HP no-relic arrival.
+    elite_gate_min_end_hp_pct: float = 0.20
     # The node's elite is a random draw from the act's bestiary pool: chase only if the deck
     # clears (win + HP floor) at least this fraction of the pool's real members (2026-07-09:
     # the generic 90-HP profile flattered Terror Eel & co -> 3 elite deaths in one batch).
     # 0.67 -> 0.50 (owner 2026-07-12, after three straight 0-elite batches: "we can
     # definitely fight more elites now" — the damage model gained Strength credit,
     # cross-turn Vulnerable, Cruelty, and coherent step-2 decks since 0.67 was set).
-    elite_gate_pool_win_frac: float = 0.50
+    # 0.50 -> 0.40 (A/B #5, 2026-07-24): same evidence as elite_relic_value above.
+    elite_gate_pool_win_frac: float = 0.40
 
 
 class CardRewardWeights(_Section):
