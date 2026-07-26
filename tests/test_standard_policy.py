@@ -1901,6 +1901,29 @@ def _sc_card(index, name, ctype="Attack", rarity="Common", upgraded=False, cid=N
     }
 
 
+def test_transform_never_targets_a_curse() -> None:
+    """LKG20K3FBE forensics (owner-confirmed mechanic): transforming a curse rerolls
+    WITHIN the curse pool — 'select worst' transformed Writhe at f3 and rolled Bad
+    Luck (Eternal, 13 HP/turn-in-hand), which bled the run dead by f21. Transform
+    must target the worst NON-curse (a basic), even with a curse on the screen."""
+    cards = [
+        {"id": "WRITHE", "name": "Writhe", "type": "Curse", "cost": "-2",
+         "description": "Unplayable.", "rarity": "Curse", "is_upgraded": False, "index": 0},
+        {"id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack", "cost": "1",
+         "description": "Deal 6 damage.", "rarity": "Basic", "is_upgraded": False, "index": 1},
+        {"id": "BLUDGEON", "name": "Bludgeon", "type": "Attack", "cost": "3",
+         "description": "Deal 32 damage.", "rarity": "Rare", "is_upgraded": False, "index": 2},
+    ]
+    state = _card_select_state("NCardSelectScreen", "Choose 2 cards to Transform.", cards)
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("index") == 1  # the Strike — never the curse
+    # REMOVAL keeps curse-first (deleting Writhe outright is still correct)
+    state_rm = _card_select_state("NCardSelectScreen", "Choose a card to Remove.", cards)
+    d_rm = router().decide(state_rm, LoopContext())
+    assert d_rm.action.payload().get("index") == 0
+
+
 def test_enchant_intent_carries_from_event_to_generic_prompt() -> None:
     """Live 2026-07-24: Slither landed on a 1-cost Taunt with Bash in the pool. The
     mod's target screen says only 'Choose a card to Enchant.' — the enchant name is

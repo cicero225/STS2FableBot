@@ -1682,6 +1682,14 @@ class StandardRouter:
                     #            before basics (-50)
                 elif any(v in prompt for v in ("remove", "destroy", "transform")):
                     q += 150.0  # never delete the coupon
+            # Curse-transform is curse ROULETTE (owner 2026-07-25, LKG20K3FBE forensics:
+            # 'select worst' transformed Writhe at f3 and rolled Bad Luck — Eternal,
+            # unplayable, 13 HP per end-of-turn-in-hand, un-removable — which bled the
+            # run dead by f21): transforming a curse rerolls WITHIN THE CURSE POOL, so
+            # the downside dwarfs the upside. Transform targets basics; curses only if
+            # literally nothing else is offered.
+            if (c.type or "") == "Curse" and "transform" in prompt:
+                q += 250.0  # from -100 to above everything: never the transform pick
             # Retain curses (Poor Sleep) are better PARKED in hand than discarded back into
             # the deck cycle — but the parking is worth roughly one junk-tier, not immunity
             # (owner refinement 2026-07-09): if the rest of the hand would actually be PLAYED,
