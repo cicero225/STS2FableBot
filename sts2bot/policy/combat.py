@@ -47,6 +47,10 @@ _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 
 # at a sentinel HP — damage into it is wasted (it dies on its own after the explosion), only block
 # matters. Treat any absurd HP as invincible so the planner stops chipping it.
 _INVINCIBLE_HP = 100_000_000
+# The eruption's size is invisible (intent null in the invincible phase — live 2026-07-25);
+# assume this much blockable incoming so the planner stacks block instead of coasting.
+# Owner: entering the blast at 30 HP with 12 block died, so the real number is 42+.
+_ERUPTION_ASSUMED_INCOMING = 50
 _PEN_NIB_PERIOD = 10  # Pen Nib: every 10th attack deals double damage (counter persists per-run)
 # Empirical guard pairs: single-target attacks aimed at the guarded enemy redirect to
 # its guard while the guard lives; Skills/debuffs and AoE are NOT redirected. Keys and
@@ -643,16 +647,23 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 gains_strength = True
             if "summon" in text:
                 summons = True
-        # Count damage from Attack AND DeathBlow intents. The Waterfall Giant's Steam-Eruption
-        # explosion telegraphs as a "DeathBlow" (the boss goes invincible at an HP sentinel, then
-        # hits for the whole stack), which the attack-only filter missed -> the bot saw 0 incoming
-        # and neither blocked nor hail-mary'd a blatant lethal (owner). Extend the set if other
-        # damage-intent types surface.
+        # Count damage from Attack AND DeathBlow intents. (The DeathBlow lane was built on the
+        # assumption the Waterfall Giant telegraphs its eruption as one — DISPROVEN live
+        # 2026-07-25, WYZQR5KPFQ f17 r13: during the invincible phase the Giant exposes intent
+        # null AND statuses null. Kept for any boss that does telegraph a DeathBlow.)
         incoming = sum(
             parse_intent_damage(i.label)
             for i in e.intents
             if (i.type or "").lower() in ("attack", "deathblow")
         )
+        invincible = e.hp >= _INVINCIBLE_HP
+        # Eruption pending with NOTHING telegraphed (intent/statuses null): the one reliable
+        # signature is the HP sentinel itself. Assume a big blockable hit so the block machinery
+        # stacks everything it can — the WG death above played 12 block at 30 HP into the blast
+        # because 0 parsed incoming made all block score as excess. Steam-stack size is
+        # unknowable from state; overblocking costs w_block_excess, dying costs the run.
+        if invincible and incoming == 0:
+            incoming = _ERUPTION_ASSUMED_INCOMING
         # attack INSTANCE count ("6x3" = 3 hits) for Flame Barrier-class retaliation
         incoming_hits = sum(
             int(m.group(1)) if (m := re.search(r"x(\d+)", i.label or "")) else 1
@@ -684,7 +695,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 skittish=mech.get("skittish", 0),
                 artifact=artifact,
                 stun_threshold=mech.get("stun_threshold", 0),
-                invincible=e.hp >= _INVINCIBLE_HP,
+                invincible=invincible,
                 crab_rage=crab_rage,
                 back_attack=back_attack,
                 asleep=asleep,

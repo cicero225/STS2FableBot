@@ -2490,6 +2490,30 @@ def test_elite_gate_uses_real_bestiary_pool() -> None:
         assert took_elite == expect_elite, (bestiary.keys(), d.rationale)
 
 
+def test_eruption_phase_stacks_block_despite_null_intent() -> None:
+    """WG death forensics (WYZQR5KPFQ f17, 2026-07-25): during the invincible phase the
+    Giant exposes intent null and statuses null — 0 parsed incoming made all block score
+    as excess, and the bot played 12 block at 30 HP into the blast. The HP sentinel is
+    the one reliable signature: assume a big blockable eruption and stack block."""
+    wg = {"entity_id": "WATERFALL_GIANT_0", "combat_id": 1, "name": "Waterfall Giant",
+          "hp": 999999994, "max_hp": 999999999, "block": 0, "status": [], "intents": []}
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage."),
+              card(1, "Defend", 1, "Gain 5 Block."),
+              card(2, "Defend", 1, "Gain 5 Block."),
+              card(3, "Iron Wave", 1, "Gain 5 Block. Deal 5 damage.")],
+        enemies=[wg], hp=30, max_hp=80, state_type="boss",
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    # the 3-energy plan must be all-block (Defend/Defend/Iron Wave), never the Strike:
+    # damage into the sentinel is wasted and the assumed eruption prices every point
+    plan = d.rationale
+    assert "Strike" not in plan.split("plan")[-1].split(";")[0], plan
+    assert d.scores.get("plan_damage") == 0.0, d.scores  # no chip into the sentinel
+    assert d.scores.get("hp_loss") == 35.0, d.scores  # 50 assumed - 15 block stacked
+
+
 def test_map_travel_hold_suppresses_phantom_redecide() -> None:
     """Audit 2026-07-25 (f42-44 forensics): right after a travel is accepted the mod
     re-renders the map minus the consumed option; the router re-decided on the
