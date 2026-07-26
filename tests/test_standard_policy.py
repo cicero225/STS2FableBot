@@ -2490,6 +2490,44 @@ def test_elite_gate_uses_real_bestiary_pool() -> None:
         assert took_elite == expect_elite, (bestiary.keys(), d.rationale)
 
 
+def test_map_travel_hold_suppresses_phantom_redecide() -> None:
+    """Audit 2026-07-25 (f42-44 forensics): right after a travel is accepted the mod
+    re-renders the map minus the consumed option; the router re-decided on the
+    leftovers and submitted a SECOND travel (Unknown 44.3 accepted -> 'Elite -151.5'
+    phantom). Same node after a choice must Wait; the hold expires after its tick
+    budget so a genuinely failed submission still recovers."""
+    payload = json.loads(json.dumps(FIXTURES["map"]))
+    payload["map"]["current_position"] = {"col": 4, "row": 2, "type": "Monster"}
+    payload["map"]["next_options"] = [
+        {"index": 0, "col": 1, "row": 3, "type": "Monster", "leads_to": []},
+        {"index": 1, "col": 2, "row": 3, "type": "RestSite", "leads_to": []},
+    ]
+    r = router()
+    ctx = LoopContext()
+    first = r.decide(parse_state(payload), ctx)
+    assert isinstance(first, Decision)
+    # the transient: same position, the chosen option gone
+    transient = json.loads(json.dumps(payload))
+    transient["map"]["next_options"] = [o for o in payload["map"]["next_options"]
+                                        if o["index"] != first.action.payload()["index"]]
+    held = r.decide(parse_state(transient), ctx)
+    assert isinstance(held, Wait) and "holding" in held.reason
+    # budget: after 8 held ticks it re-decides (failed-submission recovery)
+    for _ in range(7):
+        assert isinstance(r.decide(parse_state(transient), ctx), Wait)
+    recovered = r.decide(parse_state(transient), ctx)
+    assert isinstance(recovered, Decision)
+    # and once the position CHANGES (travel landed), no hold at all
+    moved = json.loads(json.dumps(payload))
+    moved["map"]["current_position"] = {"col": 1, "row": 3, "type": "Monster"}
+    moved["run"]["floor"] = payload["run"]["floor"] + 1
+    r2 = router()
+    ctx2 = LoopContext()
+    r2.decide(parse_state(payload), ctx2)
+    after_move = r2.decide(parse_state(moved), ctx2)
+    assert isinstance(after_move, Decision)
+
+
 def test_desperation_draw_skipped_under_ringing() -> None:
     """Under a 1-card cap (Ringing), the desperation draw would BE the whole turn -- the drawn
     cards can never be played (f17 Beast death 2026-07-09: Battle Trance burned the capped play).

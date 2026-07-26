@@ -674,6 +674,23 @@ class StandardRouter:
         opts = state.map.next_options
         if not opts:
             return Wait(reason="map with no next options")
+        # Phantom re-present guard (audit 2026-07-25): right after a travel is
+        # ACCEPTED, the mod re-renders the map briefly with the consumed option
+        # removed; deciding on that transient submitted a SECOND travel — "ok"-ed
+        # but ignored by the game today (a swerve risk if it ever honors it), and
+        # it poisoned route-intent analysis with best-of-the-leftovers values
+        # (f42-44 forensics: Unknown 44.3 accepted, then 'Elite -151.5' phantoms).
+        # Hold further map decisions from the SAME node, with a tick budget so a
+        # genuinely failed submission still recovers.
+        pos = state.map.current_position
+        poskey = (state.run.floor if state.run else None,
+                  (pos.col, pos.row) if pos else None)
+        hold = ctx.screen_mem.get("map_travel_hold")
+        if isinstance(hold, dict) and hold.get("key") == poskey:
+            if hold.get("ticks", 0) < 8:
+                hold["ticks"] = hold.get("ticks", 0) + 1
+                return Wait(reason="travel already chosen from this node; holding")
+            ctx.screen_mem.pop("map_travel_hold", None)  # budget spent: re-decide
         player = state.player
         hp_missing_pct = 0.0
         gold = 0
@@ -867,6 +884,7 @@ class StandardRouter:
             ctx.screen_mem["pre_boss"] = True  # arriving on the last row before the boss
         else:
             ctx.screen_mem.pop("pre_boss", None)
+        ctx.screen_mem["map_travel_hold"] = {"key": poskey, "ticks": 0}
         return Decision(
             action=act.ChooseMapNode(index=best.index),
             rationale=f"route to {best.type} at ({best.col},{best.row}) "
