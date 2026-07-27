@@ -208,6 +208,42 @@ rules text, so `deck_output` prices them via a harvested `id|upgrade→descripti
 elites taken / tighten if elite deaths persist); then combat-side rewiring (race-vs-turtle from the
 same estimate), and `deck_output` refinements (energy relics, X-cost, scaling cards).
 
+### 5.2 Forward-model requirements — harvested from live piloting A/Bs (2026-07-24/25)
+
+Sources: Soul Fysh fight/draft A/Bs (X9VM7AR5PF), act-2 handoff (Infested Prism -12 HP),
+and the narrated Exoskeleton fight (LKG20K3FBE f21 — bot died r4 from 47; owner won at
+3/80 with full turn-by-turn reasoning on record in logs/manual/runs/20260726-171135).
+Each item is something the one-turn planner structurally cannot represent:
+
+1. **Draw-pile forecasting.** "The remaining 6 cards are X — so blocking three enemies
+   next turn is bad regardless." Plans discount block-now vs block-later using known
+   pile contents; the owner tracked the exact last card before each reshuffle.
+2. **Deck-state clocks.** Bad Luck recurs per cycle -> kill speed outranks HP thrift,
+   and exhaust-thinning becomes BAD (smaller deck = faster curse recursion). Tempo
+   preference must be a function of what the deck does when it cycles.
+3. **Cap-aware kill sequencing.** Hard to Kill (9/hit) makes spreading damage nearly
+   worthless; the fight is a two-turn-kill scheduling problem. Note the meta-lesson:
+   caps PRUNE the search ("the 9-cap saves me a detailed calculation"), they don't
+   just rescale values — mechanics as search-space reducers.
+4. **Anticipatory focus-fire.** Target the FUTURE-strongest (the buffing body), and
+   don't switch when a buffer merely converges to the current target's strength —
+   banked chip under a cap is a sunk asset.
+5. **Cross-fight potion economy.** "With multiple normal fights coming up I wouldn't
+   commit potions to this fight's opening" — potion value is a run-level resource
+   allocation, not per-fight; stacking potions (Powdered Demise) invert this when a
+   fight is KNOWN hard (perfect play = turn 1 deploy).
+6. **Conditional card economics.** Fight Me!'s downside erased by killing its
+   recipient; Cruelty near-worthless into caps; Brightest Flame's permanent -1 Max HP
+   almost never worth deferring (relic-conditional: Chosen Cheese offsets).
+7. **Verified already-correct**: minimal-lethal lines (planner drops downside cards on
+   lethal turns — probe 2026-07-25), Bad Luck's 13 in survival math (hand-curse lane
+   parses it), relic-counter-conditional "play everything" turns.
+
+Root confirmation from three independent audits: the static capability estimate
+(deck_output) cannot see engine/generative decks (owner's f6 Stoke deck read as 9.6
+sustained dmg/turn, gate said 0/6 elites, owner went 3-for-3). The forward model must
+simulate DRAWS AND PLAYS over multiple turns, not summarize the deck as static output.
+
 ## 6. Working conventions
 
 - Mock-first; live game sessions are attended (owner present) until owner flips
