@@ -74,9 +74,21 @@ def record_session(
             flush=True,
         )
 
+    from sts2bot.client import Sts2ConnectionError
+
     try:
         while True:
-            raw = client.get_state_raw()
+            try:
+                raw = client.get_state_raw()
+            except Sts2ConnectionError:
+                # game closed mid-session (live 2026-07-25: owner closed the game after
+                # a captured fight and the recorder died on a traceback) — finalize
+                # whatever we hold and stop cleanly; closing the game IS a stop signal.
+                if logger is not None:
+                    finalize(logger)
+                    recorded += 1
+                print("game connection lost; recording stopped.", flush=True)
+                return recorded
             state = parse_state(raw)
             in_run = state.run is not None and not isinstance(state, MenuState)
             if in_run and logger is None:
