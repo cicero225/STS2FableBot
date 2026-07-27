@@ -34,6 +34,9 @@ class CombatWeights(_Section):
     # (Pael's Tears banked energy, Pocketwatch's deferred draw, Art of War).
     w_next_turn_energy: float = 2.0
     w_next_turn_draw: float = 1.0
+    # Prolong-class block carryover: next-turn block per point snapshotted, discounted
+    # vs w_block_useful for the unknown next-turn incoming (live 2026-07-25)
+    w_next_turn_block: float = 0.6
     w_focus: float = 9.0
     w_overkill: float = -0.3
     # Block is valued both directly here AND via the avoided hp_loss below, which double-counts it

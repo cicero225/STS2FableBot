@@ -2513,6 +2513,27 @@ def test_elite_gate_uses_real_bestiary_pool() -> None:
         assert took_elite == expect_elite, (bestiary.keys(), d.rationale)
 
 
+def test_prolong_played_after_block_not_left_in_hand() -> None:
+    """Live 2026-07-25: 0-cost Prolong ('Next turn, gain Block equal to your current
+    Block. Exhaust.') sat unplayed with block up — it parsed to all-zeros. The
+    carryover credit must get it played, and AFTER the block cards (snapshot)."""
+    state = make_combat(
+        hand=[card(0, "Prolong", 0,
+                   "Next turn, gain Block equal to your current Block. Exhaust."),
+              card(1, "Defend", 1, "Gain 5 Block."),
+              card(2, "Defend", 1, "Gain 5 Block."),
+              card(3, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("MOB_0", 60, intent_label="12")],
+        hp=50, max_hp=80,
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    plan = d.rationale.split(";")[0]
+    assert "Prolong" in plan, d.rationale
+    # snapshot semantics: Prolong after at least the Defends it wants to copy
+    assert plan.index("Prolong") > plan.index("Defend"), d.rationale
+
+
 def test_enemy_buff_rider_gates_fight_me_on_kill_or_safe() -> None:
     """Ovicopter A/B 2026-07-25: the bot played Fight Me!+ into a non-lethal (missed
     by 9), ate the buffed intent, died next round. The owner's rule, made literal by

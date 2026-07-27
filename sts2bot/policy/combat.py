@@ -410,6 +410,7 @@ class SimState:
     per_exhaust_block: int = 0  # Feel No Pain stacks: block gained per card Exhausted
     bound_played: bool = False  # a Bound card was played this turn (only one allowed)
     flat_bonus: float = 0.0  # accumulated per-play bonuses (Thrash growth credit)
+    carryover_block: int = 0  # Prolong-class: block snapshotted for next turn's start
     smoggy: bool = False  # Living Fog's Smoggy: only ONE Skill playable per turn
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
@@ -895,6 +896,13 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         ),
         bound_played=state.bound_played or card.bound,
         flat_bonus=state.flat_bonus + card.growth_bonus,
+        # Prolong-class: next-turn block equal to block AT PLAY TIME (snapshot —
+        # review #13). Future value the one-turn tally can't see; the DFS discovers
+        # on its own that it plays best AFTER the block cards (live 2026-07-25:
+        # 0-cost Prolong sat unplayed with block up — it parsed to all-zeros).
+        carryover_block=state.carryover_block + (
+            state.my_block if card.fx.block_carryover else 0
+        ),
         facing=facing,
         played=(*state.played, (card.index, target_id)),
     )
@@ -1219,6 +1227,7 @@ def _score(
         + w.w_carrier_damage * state.carrier_damage
         + w.w_primal_keeper * state.keepers_rocked
         + state.flat_bonus
+        + w.w_next_turn_block * state.carryover_block
         # turtling a ramper loses (Damp Cultist 2026-07-16: four all-block turns vs a
         # +5/turn Ritual, died at full-HP enemy) — damageless turns pay while one lives
         + (w.w_ramp_stall

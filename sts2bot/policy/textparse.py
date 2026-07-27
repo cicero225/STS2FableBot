@@ -72,6 +72,8 @@ _STRENGTH = re.compile(r"\bGain (\d+) Strength", re.IGNORECASE)
 # math must see (the buffed intent hits THIS turn's incoming). No collision with
 # _STRENGTH: "gains 1" never matches "\bGain (\d+)".
 _ENEMY_STRENGTH = re.compile(r"\benem(?:y|ies) gains? (\d+) Strength", re.IGNORECASE)
+_BLOCK_CARRYOVER = re.compile(
+    r"next turn,? gain block equal to your current block", re.IGNORECASE)
 _LOSE_HP = re.compile(r"\bLose (\d+) HP", re.IGNORECASE)
 _LOSE_MAX_HP = re.compile(r"\bLose (\d+) Max(?:imum)? HP", re.IGNORECASE)
 _TAKE_DAMAGE = re.compile(r"\b[Tt]ake (\d+) damage")
@@ -120,6 +122,10 @@ class CardEffects:
     max_hp_cost: int = 0
     heal: int = 0
     retaliate: int = 0  # Flame Barrier: damage dealt back per incoming hit this turn
+    # Prolong: "Next turn, gain Block equal to your current Block." — value is a
+    # snapshot of block AT PLAY TIME, delivered next turn (parsed to all-zeros
+    # before; live 2026-07-25: 0-cost Prolong sat unplayed with block up)
+    block_carryover: bool = False
     conditional: bool = False  # has synergy/conditional language the planner can't price
     # The Gambit-class: a rider that KILLS YOU under conditions no one-turn plan can certify
     # against ("If you take unblocked attack damage this combat, die.") — never play/draft.
@@ -196,6 +202,11 @@ def parse_card_description(text: str | None) -> CardEffects:
     if m := _ENEMY_STRENGTH.search(text):
         fx.enemy_strength = int(m.group(1))
         fx.recognized.append("enemy_strength")
+    # NB search `full`: the "Next turn, ..." clause is exactly what the conditional-
+    # sentence strip removes (same lesson as _RETALIATE below)
+    if _BLOCK_CARRYOVER.search(full):
+        fx.block_carryover = True
+        fx.recognized.append("block_carryover")
     if m := _LOSE_MAX_HP.search(text):
         fx.max_hp_cost = int(m.group(1))
         fx.recognized.append("max_hp_cost")
