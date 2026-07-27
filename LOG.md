@@ -2,6 +2,40 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-25 (Fable 5, session 13) — audits closed, the narrated-fight exercise, and the estimator's indictment by calibration
+
+**Morning audits (owner away)**: negative path values = NO DP bug (-58.7 = rest +
+0.8 x death-priced elite pocket; the SS5-C gate had rated the owner's 15-card Stoke
+deck 0/6 vs the act-1 pool — deck_output sees 9.6 sustained dmg in an engine deck).
+Phantom map decisions = post-travel transient re-render, FIXED with a travel-hold
+(8ae71ce). WG rule 0-for-4 explained: the DeathBlow-telegraph assumption is false —
+the invincible phase exposes intent null/statuses null; sentinel HP now assumes 50
+blockable incoming so the planner block-stacks (381f564; the pre-fix batch promptly
+lost two more runs to WG).
+
+**The owner's exercise — narrated fight A/B (LKG20K3FBE f21, WEAK Exoskeletons)**:
+bot died r4 from 47 HP; owner won at 3/80, narrating every turn. Root-caused the
+death to three separable causes: (1) curse-roulette acquisition — 'select worst'
+TRANSFORMED Writhe at f3 and rolled Bad Luck (Eternal, 13 HP/turn-in-hand);
+owner-confirmed mechanic: curse transforms reroll IN THE CURSE POOL → transform
+never targets a curse now (0059317); (2) cap-blind kill sequencing (Hard to Kill
+9/hit — forward-model material); (3) the Bad Luck bleed itself — verified already
+priced correctly by the hand-curse lane. Also encoded: curses count 2x in
+controlled_exhaust (True Grit as Eternal-curse exorcism, 31c87a1; retain/ethereal
+excluded, 9e17bc1), recorder survives game-close (aa9044b), minimal-lethal verified
+already correct. Neow reprice validated same day: 10 runs, 10 DIFFERENT Neow picks.
+
+**PLAN 5.2 written** — seven forward-model requirements straight from the owner's
+narration (draw-pile forecasting, deck-state clocks, cap-aware sequencing,
+anticipatory focus-fire, cross-fight potion economy, conditional card economics)
+plus the verified-already-correct list.
+
+**The calibration baseline (scripts/calibrate_capability.py, n=292)**: estimate_fight
+is uniformly pessimistic, NEVER optimistic — predicted 0% act-1 boss wins vs 55%
+actual, 55% act-1 elite wins vs 97% actual, HP-loss bias +8..+24, false positives
+~0%. Every gate threshold tuned in July was compensating for this scale. The forward
+model's acceptance test: beat this table.
+
 ## 2026-07-24 (Fable 5, session 12) — Elite retune validated; the tactical A/B instrument ships and pays for itself the same night
 
 **Elite gate retune** (owner-blessed, a577e98): end-HP floor 0.30→0.20, pool frac
