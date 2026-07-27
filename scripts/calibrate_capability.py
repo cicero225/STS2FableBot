@@ -26,6 +26,8 @@ from sts2bot.policy.capability import (
     bestiary_enemy,
     deck_output,
     estimate_fight,
+    load_enemy_dps,
+    realized_dps,
 )
 from sts2bot.policy.rollout import rollout_fight
 from sts2bot.policy.standard import _GENERIC_ELITE, StandardRouter
@@ -33,6 +35,7 @@ from sts2bot.policy.standard import _GENERIC_ELITE, StandardRouter
 SINCE = sys.argv[sys.argv.index("--since") + 1] if "--since" in sys.argv else "20260714"
 
 router = StandardRouter(load_policy_config())  # for bestiary + card_effects only
+ENEMY_DPS = load_enemy_dps()
 
 
 def wrap_deck(deck_raw):
@@ -109,7 +112,7 @@ def predict(kind, act, entry):
             continue
         name = e.get("name") or ""
         entry_b = router.bestiary.get(name)
-        dps = edps + (4 if kind == "boss" else 0)
+        dps = realized_dps(ENEMY_DPS, name, edps + (4 if kind == "boss" else 0))
         if entry_b:
             m = bestiary_enemy(entry_b, dps=dps, name=name)
             # use the OBSERVED hp for this instance (bestiary carries max seen)

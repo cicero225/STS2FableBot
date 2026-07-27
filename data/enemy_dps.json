@@ -1,0 +1,750 @@
+{
+ "_meta": {
+  "source": "scripts/build_enemy_dps.py (realized intent-damage averages; buff/stall rounds count as 0 \u2014 the sustained dps the race needs)",
+  "n_enemies": 106
+ },
+ "enemies": {
+  "Nibbit": {
+   "dps_mean": 7.5,
+   "dps_early": 6.4,
+   "dps_late": 10.1,
+   "rounds": 1619,
+   "fights": 319
+  },
+  "Twig Slime (S)": {
+   "dps_mean": 4.0,
+   "dps_early": 4.0,
+   "dps_late": 4.0,
+   "rounds": 504,
+   "fights": 339
+  },
+  "Leaf Slime (M)": {
+   "dps_mean": 3.6,
+   "dps_early": 2.7,
+   "dps_late": 5.1,
+   "rounds": 1135,
+   "fights": 246
+  },
+  "Leaf Slime (S)": {
+   "dps_mean": 1.5,
+   "dps_early": 1.5,
+   "dps_late": 1.6,
+   "rounds": 651,
+   "fights": 340
+  },
+  "Shrinker Beetle": {
+   "dps_mean": 7.1,
+   "dps_early": 6.3,
+   "dps_late": 9.2,
+   "rounds": 1319,
+   "fights": 334
+  },
+  "Inklet": {
+   "dps_mean": 5.2,
+   "dps_early": 5.0,
+   "dps_late": 5.9,
+   "rounds": 873,
+   "fights": 89
+  },
+  "Mawler": {
+   "dps_mean": 10.6,
+   "dps_early": 8.5,
+   "dps_late": 13.1,
+   "rounds": 499,
+   "fights": 90
+  },
+  "Assassin Raider": {
+   "dps_mean": 10.2,
+   "dps_early": 10.2,
+   "dps_late": 10.2,
+   "rounds": 134,
+   "fights": 56
+  },
+  "Brute Raider": {
+   "dps_mean": 5.4,
+   "dps_early": 5.6,
+   "dps_late": 5.1,
+   "rounds": 224,
+   "fights": 58
+  },
+  "Crossbow Raider": {
+   "dps_mean": 6.2,
+   "dps_early": 5.1,
+   "dps_late": 9.6,
+   "rounds": 191,
+   "fights": 64
+  },
+  "Twig Slime (M)": {
+   "dps_mean": 5.7,
+   "dps_early": 5.4,
+   "dps_late": 6.2,
+   "rounds": 909,
+   "fights": 245
+  },
+  "Bygone Effigy": {
+   "dps_mean": 14.2,
+   "dps_early": 7.3,
+   "dps_late": 22.7,
+   "rounds": 186,
+   "fights": 34
+  },
+  "Fuzzy Wurm Crawler": {
+   "dps_mean": 6.2,
+   "dps_early": 4.9,
+   "dps_late": 9.3,
+   "rounds": 1318,
+   "fights": 319
+  },
+  "Cubex Construct": {
+   "dps_mean": 10.8,
+   "dps_early": 6.5,
+   "dps_late": 19.2,
+   "rounds": 486,
+   "fights": 100
+  },
+  "Byrdonis": {
+   "dps_mean": 17.4,
+   "dps_early": 15.8,
+   "dps_late": 20.3,
+   "rounds": 200,
+   "fights": 44
+  },
+  "Snapping Jaxfruit": {
+   "dps_mean": 5.1,
+   "dps_early": 4.7,
+   "dps_late": 11.9,
+   "rounds": 274,
+   "fights": 108
+  },
+  "Flyconid": {
+   "dps_mean": 8.9,
+   "dps_early": 7.7,
+   "dps_late": 10.3,
+   "rounds": 687,
+   "fights": 127
+  },
+  "Tracker Raider": {
+   "dps_mean": 6.0,
+   "dps_early": 5.2,
+   "dps_late": 7.8,
+   "rounds": 229,
+   "fights": 56
+  },
+  "Slithering Strangler": {
+   "dps_mean": 4.3,
+   "dps_early": 3.1,
+   "dps_late": 5.7,
+   "rounds": 547,
+   "fights": 100
+  },
+  "Wriggler": {
+   "dps_mean": 4.1,
+   "dps_early": 3.7,
+   "dps_late": 4.3,
+   "rounds": 1028,
+   "fights": 74
+  },
+  "Fogmog": {
+   "dps_mean": 9.5,
+   "dps_early": 7.0,
+   "dps_late": 13.2,
+   "rounds": 518,
+   "fights": 102
+  },
+  "Eye With Teeth": {
+   "dps_mean": 0.0,
+   "dps_early": 0.0,
+   "dps_late": 0.0,
+   "rounds": 174,
+   "fights": 25
+  },
+  "Phrog Parasite": {
+   "dps_mean": 6.7,
+   "dps_early": 5.4,
+   "dps_late": 10.1,
+   "rounds": 155,
+   "fights": 39
+  },
+  "Vine Shambler": {
+   "dps_mean": 11.7,
+   "dps_early": 11.9,
+   "dps_late": 11.5,
+   "rounds": 418,
+   "fights": 78
+  },
+  "Vantom": {
+   "dps_mean": 13.4,
+   "dps_early": 14.7,
+   "dps_late": 12.8,
+   "rounds": 708,
+   "fights": 73
+  },
+  "Tunneler": {
+   "dps_mean": 13.8,
+   "dps_early": 11.6,
+   "dps_late": 16.6,
+   "rounds": 662,
+   "fights": 126
+  },
+  "Thieving Hopper": {
+   "dps_mean": 10.8,
+   "dps_early": 12.4,
+   "dps_late": 7.5,
+   "rounds": 487,
+   "fights": 113
+  },
+  "Chomper": {
+   "dps_mean": 8.2,
+   "dps_early": 8.0,
+   "dps_late": 8.4,
+   "rounds": 625,
+   "fights": 66
+  },
+  "Ovicopter": {
+   "dps_mean": 9.1,
+   "dps_early": 7.6,
+   "dps_late": 11.3,
+   "rounds": 343,
+   "fights": 70
+  },
+  "Tough Egg": {
+   "dps_mean": 0.0,
+   "dps_early": 0.0,
+   "dps_late": 0.0,
+   "rounds": 241,
+   "fights": 70
+  },
+  "Hatchling": {
+   "dps_mean": 5.1,
+   "dps_early": 4.0,
+   "dps_late": 5.7,
+   "rounds": 515,
+   "fights": 64
+  },
+  "Axe Raider": {
+   "dps_mean": 6.8,
+   "dps_early": 7.1,
+   "dps_late": 6.2,
+   "rounds": 198,
+   "fights": 48
+  },
+  "Ceremonial Beast": {
+   "dps_mean": 13.5,
+   "dps_early": 11.6,
+   "dps_late": 14.5,
+   "rounds": 762,
+   "fights": 88
+  },
+  "Kin Follower": {
+   "dps_mean": 4.8,
+   "dps_early": 3.8,
+   "dps_late": 6.2,
+   "rounds": 1034,
+   "fights": 103
+  },
+  "Kin Priest": {
+   "dps_mean": 9.0,
+   "dps_early": 8.1,
+   "dps_late": 9.4,
+   "rounds": 1071,
+   "fights": 103
+  },
+  "Bowlbug (Rock)": {
+   "dps_mean": 11.3,
+   "dps_early": 11.9,
+   "dps_late": 9.8,
+   "rounds": 932,
+   "fights": 240
+  },
+  "Bowlbug (Nectar)": {
+   "dps_mean": 5.4,
+   "dps_early": 4.6,
+   "dps_late": 18.1,
+   "rounds": 266,
+   "fights": 107
+  },
+  "Bowlbug (Egg)": {
+   "dps_mean": 6.9,
+   "dps_early": 6.9,
+   "dps_late": 7.0,
+   "rounds": 194,
+   "fights": 87
+  },
+  "Exoskeleton": {
+   "dps_mean": 5.4,
+   "dps_early": 4.7,
+   "dps_late": 7.7,
+   "rounds": 2149,
+   "fights": 182
+  },
+  "The Obscura": {
+   "dps_mean": 5.7,
+   "dps_early": 3.8,
+   "dps_late": 8.1,
+   "rounds": 435,
+   "fights": 83
+  },
+  "Parafright": {
+   "dps_mean": 18.1,
+   "dps_early": 16.5,
+   "dps_late": 19.6,
+   "rounds": 347,
+   "fights": 83
+  },
+  "Louse Progenitor": {
+   "dps_mean": 10.4,
+   "dps_early": 9.2,
+   "dps_late": 11.9,
+   "rounds": 407,
+   "fights": 76
+  },
+  "Spiny Toad": {
+   "dps_mean": 11.9,
+   "dps_early": 13.2,
+   "dps_late": 9.8,
+   "rounds": 407,
+   "fights": 87
+  },
+  "The Insatiable": {
+   "dps_mean": 15.6,
+   "dps_early": 14.2,
+   "dps_late": 16.5,
+   "rounds": 278,
+   "fights": 37
+  },
+  "Myte": {
+   "dps_mean": 5.5,
+   "dps_early": 5.4,
+   "dps_late": 5.5,
+   "rounds": 471,
+   "fights": 62
+  },
+  "Entomancer": {
+   "dps_mean": 16.5,
+   "dps_early": 12.1,
+   "dps_late": 19.6,
+   "rounds": 58,
+   "fights": 8
+  },
+  "Corpse Slug": {
+   "dps_mean": 6.2,
+   "dps_early": 5.4,
+   "dps_late": 9.6,
+   "rounds": 1887,
+   "fights": 260
+  },
+  "Seapunk": {
+   "dps_mean": 7.8,
+   "dps_early": 6.5,
+   "dps_late": 10.7,
+   "rounds": 1175,
+   "fights": 279
+  },
+  "Toadpole": {
+   "dps_mean": 4.9,
+   "dps_early": 4.8,
+   "dps_late": 5.3,
+   "rounds": 1012,
+   "fights": 195
+  },
+  "Sewer Clam": {
+   "dps_mean": 7.5,
+   "dps_early": 7.9,
+   "dps_late": 6.8,
+   "rounds": 396,
+   "fights": 84
+  },
+  "Fossil Stalker": {
+   "dps_mean": 14.0,
+   "dps_early": 12.9,
+   "dps_late": 18.7,
+   "rounds": 305,
+   "fights": 85
+  },
+  "Haunted Ship": {
+   "dps_mean": 10.1,
+   "dps_early": 8.3,
+   "dps_late": 12.5,
+   "rounds": 475,
+   "fights": 91
+  },
+  "Soul Fysh": {
+   "dps_mean": 8.4,
+   "dps_early": 7.6,
+   "dps_late": 8.8,
+   "rounds": 892,
+   "fights": 88
+  },
+  "Two-Tailed Rat": {
+   "dps_mean": 4.4,
+   "dps_early": 4.4,
+   "dps_late": 4.4,
+   "rounds": 694,
+   "fights": 75
+  },
+  "Calcified Cultist": {
+   "dps_mean": 6.4,
+   "dps_early": 5.8,
+   "dps_late": 13.5,
+   "rounds": 452,
+   "fights": 166
+  },
+  "Damp Cultist": {
+   "dps_mean": 8.4,
+   "dps_early": 2.3,
+   "dps_late": 16.7,
+   "rounds": 435,
+   "fights": 84
+  },
+  "Living Fog": {
+   "dps_mean": 6.6,
+   "dps_early": 7.0,
+   "dps_late": 6.1,
+   "rounds": 386,
+   "fights": 77
+  },
+  "Gas Bomb": {
+   "dps_mean": 8.0,
+   "dps_early": 8.0,
+   "dps_late": 8.0,
+   "rounds": 136,
+   "fights": 76
+  },
+  "Lagavulin Matriarch": {
+   "dps_mean": 12.6,
+   "dps_early": 10.4,
+   "dps_late": 13.8,
+   "rounds": 665,
+   "fights": 75
+  },
+  "Hunter Killer": {
+   "dps_mean": 15.6,
+   "dps_early": 12.8,
+   "dps_late": 19.4,
+   "rounds": 358,
+   "fights": 70
+  },
+  "Sludge Spinner": {
+   "dps_mean": 8.9,
+   "dps_early": 8.7,
+   "dps_late": 10.4,
+   "rounds": 685,
+   "fights": 203
+  },
+  "Gremlin Merc": {
+   "dps_mean": 12.9,
+   "dps_early": 11.5,
+   "dps_late": 16.8,
+   "rounds": 335,
+   "fights": 87
+  },
+  "Sneaky Gremlin": {
+   "dps_mean": 5.0,
+   "dps_early": 2.9,
+   "dps_late": 5.7,
+   "rounds": 187,
+   "fights": 87
+  },
+  "Fat Gremlin": {
+   "dps_mean": 0.0,
+   "dps_early": 0.0,
+   "dps_late": 0.0,
+   "rounds": 169,
+   "fights": 87
+  },
+  "Punch Construct": {
+   "dps_mean": 6.8,
+   "dps_early": 7.9,
+   "dps_late": 4.9,
+   "rounds": 480,
+   "fights": 106
+  },
+  "Waterfall Giant": {
+   "dps_mean": 12.8,
+   "dps_early": 8.0,
+   "dps_late": 14.6,
+   "rounds": 862,
+   "fights": 79
+  },
+  "Decimillipede": {
+   "dps_mean": 9.5,
+   "dps_early": 8.8,
+   "dps_late": 10.4,
+   "rounds": 178,
+   "fights": 13
+  },
+  "Bowlbug (Silk)": {
+   "dps_mean": 3.4,
+   "dps_early": 2.8,
+   "dps_late": 5.7,
+   "rounds": 374,
+   "fights": 109
+  },
+  "Slumbering Beetle": {
+   "dps_mean": 9.7,
+   "dps_early": 0.8,
+   "dps_late": 18.6,
+   "rounds": 385,
+   "fights": 65
+  },
+  "Crusher": {
+   "dps_mean": 12.6,
+   "dps_early": 12.7,
+   "dps_late": 12.6,
+   "rounds": 368,
+   "fights": 52
+  },
+  "Rocket": {
+   "dps_mean": 13.5,
+   "dps_early": 8.2,
+   "dps_late": 18.8,
+   "rounds": 308,
+   "fights": 52
+  },
+  "Terror Eel": {
+   "dps_mean": 14.8,
+   "dps_early": 14.9,
+   "dps_late": 14.8,
+   "rounds": 197,
+   "fights": 28
+  },
+  "Phantasmal Gardener": {
+   "dps_mean": 5.3,
+   "dps_early": 4.2,
+   "dps_late": 6.7,
+   "rounds": 755,
+   "fights": 37
+  },
+  "Skulking Colony": {
+   "dps_mean": 14.2,
+   "dps_early": 12.3,
+   "dps_late": 16.4,
+   "rounds": 147,
+   "fights": 26
+  },
+  "Knowledge Demon": {
+   "dps_mean": 13.0,
+   "dps_early": 12.9,
+   "dps_late": 13.0,
+   "rounds": 249,
+   "fights": 38
+  },
+  "Devoted Sculptor": {
+   "dps_mean": 19.3,
+   "dps_early": 10.9,
+   "dps_late": 36.9,
+   "rounds": 118,
+   "fights": 27
+  },
+  "Scroll of Biting": {
+   "dps_mean": 8.8,
+   "dps_early": 8.8,
+   "dps_late": 9.3,
+   "rounds": 281,
+   "fights": 34
+  },
+  "Frog Knight": {
+   "dps_mean": 16.1,
+   "dps_early": 11.0,
+   "dps_late": 22.6,
+   "rounds": 75,
+   "fights": 14
+  },
+  "Living Shield": {
+   "dps_mean": 7.7,
+   "dps_early": 6.9,
+   "dps_late": 13.9,
+   "rounds": 59,
+   "fights": 22
+  },
+  "Turret Operator": {
+   "dps_mean": 12.0,
+   "dps_early": 10.5,
+   "dps_late": 18.8,
+   "rounds": 73,
+   "fights": 22
+  },
+  "Globe Head": {
+   "dps_mean": 15.3,
+   "dps_early": 15.0,
+   "dps_late": 18.0,
+   "rounds": 39,
+   "fights": 13
+  },
+  "Owl Magistrate": {
+   "dps_mean": 18.8,
+   "dps_early": 13.5,
+   "dps_late": 27.7,
+   "rounds": 48,
+   "fights": 11
+  },
+  "Aeonglass": {
+   "dps_mean": 20.2,
+   "dps_early": 16.0,
+   "dps_late": 23.0,
+   "rounds": 45,
+   "fights": 6
+  },
+  "The Lost": {
+   "dps_mean": 6.8,
+   "dps_early": 4.4,
+   "dps_late": 11.8,
+   "rounds": 41,
+   "fights": 11
+  },
+  "The Forgotten": {
+   "dps_mean": 8.2,
+   "dps_early": 5.2,
+   "dps_late": 11.6,
+   "rounds": 60,
+   "fights": 11
+  },
+  "Eye with Teeth": {
+   "dps_mean": 0.0,
+   "dps_early": 0.0,
+   "dps_late": 0.0,
+   "rounds": 233,
+   "fights": 75
+  },
+  "Battle Friend V3.0": {
+   "dps_mean": 0.0,
+   "dps_early": 0.0,
+   "dps_late": null,
+   "rounds": 15,
+   "fights": 5
+  },
+  "Torch Head Amalgam": {
+   "dps_mean": 24.8,
+   "dps_early": 23.4,
+   "dps_late": 27.5,
+   "rounds": 31,
+   "fights": 7
+  },
+  "Queen": {
+   "dps_mean": 2.1,
+   "dps_early": 0.0,
+   "dps_late": 5.4,
+   "rounds": 33,
+   "fights": 7
+  },
+  "Infested Prism": {
+   "dps_mean": 12.1,
+   "dps_early": 13.1,
+   "dps_late": 10.8,
+   "rounds": 59,
+   "fights": 11
+  },
+  "Test Subject #C10": {
+   "dps_mean": 25.4,
+   "dps_early": 22.3,
+   "dps_late": 27.8,
+   "rounds": 7,
+   "fights": 1
+  },
+  "Mecha Knight": {
+   "dps_mean": 14.6,
+   "dps_early": 8.3,
+   "dps_late": 20.8,
+   "rounds": 12,
+   "fights": 2
+  },
+  "Fabricator": {
+   "dps_mean": 9.2,
+   "dps_early": 7.1,
+   "dps_late": 11.9,
+   "rounds": 33,
+   "fights": 6
+  },
+  "Noisebot": {
+   "dps_mean": 0.0,
+   "dps_early": 0.0,
+   "dps_late": 0.0,
+   "rounds": 14,
+   "fights": 3
+  },
+  "Stabbot": {
+   "dps_mean": 11.0,
+   "dps_early": 11.0,
+   "dps_late": 11.0,
+   "rounds": 20,
+   "fights": 6
+  },
+  "Zapbot": {
+   "dps_mean": 16.5,
+   "dps_early": 16.5,
+   "dps_late": 16.5,
+   "rounds": 12,
+   "fights": 5
+  },
+  "Flail Knight": {
+   "dps_mean": 14.9,
+   "dps_early": 12.8,
+   "dps_late": 19.0,
+   "rounds": 9,
+   "fights": 2
+  },
+  "Spectral Knight": {
+   "dps_mean": 10.8,
+   "dps_early": 9.0,
+   "dps_late": 13.5,
+   "rounds": 10,
+   "fights": 2
+  },
+  "Magi Knight": {
+   "dps_mean": 7.4,
+   "dps_early": 5.3,
+   "dps_late": 11.7,
+   "rounds": 9,
+   "fights": 2
+  },
+  "Axebot": {
+   "dps_mean": 18.0,
+   "dps_early": 14.4,
+   "dps_late": 21.2,
+   "rounds": 64,
+   "fights": 10
+  },
+  "Soul Nexus": {
+   "dps_mean": 29.2,
+   "dps_early": 24.3,
+   "dps_late": 35.0,
+   "rounds": 11,
+   "fights": 2
+  },
+  "Mysterious Knight": {
+   "dps_mean": 19.0,
+   "dps_early": 17.9,
+   "dps_late": 21.3,
+   "rounds": 36,
+   "fights": 8
+  },
+  "Slimed Berserker": {
+   "dps_mean": 11.3,
+   "dps_early": 5.3,
+   "dps_late": 18.7,
+   "rounds": 27,
+   "fights": 5
+  },
+  "Guardbot": {
+   "dps_mean": 0.0,
+   "dps_early": 0.0,
+   "dps_late": 0.0,
+   "rounds": 17,
+   "fights": 4
+  },
+  "Test Subject #C15": {
+   "dps_mean": 27.9,
+   "dps_early": 24.0,
+   "dps_late": 30.2,
+   "rounds": 8,
+   "fights": 1
+  },
+  "Test Subject #C17": {
+   "dps_mean": 35.8,
+   "dps_early": 30.0,
+   "dps_late": 41.7,
+   "rounds": 6,
+   "fights": 1
+  }
+ }
+}

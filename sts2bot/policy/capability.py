@@ -267,6 +267,31 @@ def load_bestiary(path: Path | str | None = None) -> dict[str, dict]:
     return json.loads(p.read_text(encoding="utf-8")).get("enemies", {})
 
 
+_ENEMY_DPS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "enemy_dps.json"
+
+
+def load_enemy_dps(path: Path | str | None = None) -> dict[str, dict]:
+    """Enemy name -> realized dps record from data/enemy_dps.json
+    (scripts/build_enemy_dps.py — intent-label averages, buff/stall rounds as 0).
+    Calibration 2026-07-25: the per-act dps priors ran ~2x hot as sustained
+    averages; realized values are the fix. Empty if absent."""
+    p = Path(path) if path else _ENEMY_DPS_PATH
+    if not p.is_file():
+        return {}
+    return json.loads(p.read_text(encoding="utf-8")).get("enemies", {})
+
+
+def realized_dps(enemy_dps: dict, name: str, default: int) -> int:
+    """Realized sustained dps for `name`, else the per-act prior. dps_early is the
+    base (rounds 1-3) so the ramp parameter isn't double-counted — the late mean
+    already bakes ramp in."""
+    e = (enemy_dps or {}).get(name)
+    if not e:
+        return default
+    v = e.get("dps_early") or e.get("dps_mean")
+    return round(v) if v else default
+
+
 # Move/intent mechanics that no status text carries — live-traced params, keyed by a substring of
 # the bestiary entry name. (Soul Siphon: 2026-07-09 trace, -2 Str -2 Dex per cast, every 4th round
 # post-wake; permanent. See PLAN §8.4-A.)

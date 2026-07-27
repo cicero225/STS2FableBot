@@ -42,6 +42,8 @@ from sts2bot.policy.capability import (
     estimate_fight,
     load_bestiary,
     load_card_descriptions,
+    load_enemy_dps,
+    realized_dps,
 )
 from sts2bot.policy.combat import plan_combat_turn
 from sts2bot.policy.drafttags import (
@@ -199,6 +201,7 @@ class StandardRouter:
         shop_stats: ShopStats | None = None,
         event_stats: EventStats | None = None,
         bestiary: dict | None = None,
+        enemy_dps: dict | None = None,
         draft_tags: dict | None = None,
         ancient_boons: dict | None = None,
     ):
@@ -210,6 +213,9 @@ class StandardRouter:
         self.card_effects = load_card_descriptions()  # id|upgrade -> text, for §5-C deck pricing
         # enemy name -> HP + status text, for per-boss/elite estimates (injectable for tests)
         self.bestiary = bestiary if bestiary is not None else load_bestiary()
+        # realized per-enemy dps (calibration 2026-07-25: the per-act priors ran ~2x
+        # hot as sustained averages — Soul Fysh realized 8.4 vs the modeled 25)
+        self.enemy_dps = enemy_dps if enemy_dps is not None else load_enemy_dps()
         # card-pass step 2: deck-context provides/needs table (injectable for tests)
         self.draft_tags = draft_tags if draft_tags is not None else load_draft_tags()
         # Ancients pass (§8.5.5a): boon catalog for is_ancient events + owned-boon
@@ -777,7 +783,8 @@ class StandardRouter:
                     estimate_fight(
                         int(max_hp), deck_out,
                         elite_fight_members(name, entry, self.bestiary,
-                                            dps=edps, str_ramp=eramp),
+                                            dps=realized_dps(self.enemy_dps, name, edps),
+                                            str_ramp=eramp),
                     )
                     for name, entry in pool
                 ]
@@ -1401,6 +1408,7 @@ class StandardRouter:
         entry = self.bestiary.get(boss_name)
         if entry:
             dps, ramp = _ACT_BOSS.get(act, _ACT_BOSS[1])
+            dps = realized_dps(self.enemy_dps, boss_name, dps)
             return [bestiary_enemy(entry, dps=dps, name=boss_name, str_ramp=ramp)]
         return [FightEnemy(*_GENERIC_BOSS)]
 
