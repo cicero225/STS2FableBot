@@ -239,6 +239,14 @@ Each item is something the one-turn planner structurally cannot represent:
    lethal turns — probe 2026-07-25), Bad Luck's 13 in survival math (hand-curse lane
    parses it), relic-counter-conditional "play everything" turns.
 
+**Calibration baseline (scripts/calibrate_capability.py, 2026-07-25, n=292 modern-era
+elite/boss fights):** estimate_fight is uniformly pessimistic, never optimistic —
+predicted 0% act-1 boss wins vs 55% actual; 55% predicted act-1 elite wins vs 97%
+actual (gate-selection caveat applies to elites, NOT to bosses — every run fights its
+boss); mean HP-loss bias +8 to +24 by segment; false-positive rate ~0% everywhere.
+Consequence: every gate threshold tuned to date has been compensating for a broken
+absolute scale. The forward model's acceptance test = beat this table.
+
 Root confirmation from three independent audits: the static capability estimate
 (deck_output) cannot see engine/generative decks (owner's f6 Stoke deck read as 9.6
 sustained dmg/turn, gate said 0/6 elites, owner went 3-for-3). The forward model must
