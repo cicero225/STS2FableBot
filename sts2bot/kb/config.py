@@ -232,6 +232,10 @@ class RestWeights(_Section):
 
 class PotionWeights(_Section):
     drink_in_elite_or_boss: bool = True
+    # Late-act-3 downside-potion claims (Foul/Glowwater) are skipped — merchant ammo
+    # with no merchant left (owner catch 2026-07-25). Config-gated so diagnostics
+    # (e.g. the foul-throw probe replay) can re-enable claiming.
+    skip_late_downside_claims: bool = True
     # Full belt = every reward potion overflows, so a held potion's option value is
     # gone; treat any fight as deploy-worthy (value gates still decide WHICH/WHETHER).
     # Owner, Ovicopter A/B 2026-07-25: "3 of 3 potions, so my prior for playing one

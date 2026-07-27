@@ -2147,7 +2147,8 @@ class StandardRouter:
         # run banked two Fouls it could never sell). Late-act-3 proxy until routing
         # can answer "is a shop still reachable" properly.
         run = state.run
-        if (run and (run.act or 0) >= 3 and (run.floor or 0) >= 40
+        if (self.config.potions.skip_late_downside_claims
+                and run and (run.act or 0) >= 3 and (run.floor or 0) >= 40
                 and player is not None and player.potions):
             for item in state.rewards.items:
                 nid = f"{item.potion_id or ''} {item.potion_name or ''}".upper()
