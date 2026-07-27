@@ -412,8 +412,8 @@
    "draft_bonus": {}
   },
   "Pael's Wing": {
-   "value": 4.5,
-   "note": "Card-reward sacrifices → relic per 2. Synergizes with our high skip rate: skips become income.",
+   "value": 2.5,
+   "note": "DOCKED from 4.5 (owner catch 2026-07-25): the sacrifice action on card-reward screens is UNIMPLEMENTED -- the bot would plain-skip and collect nothing. Sacrifice strictly beats skip (half a relic each); restore to 4.5+ when the handler lands (PLAN: capture the payload shape next time it is held).",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},

@@ -173,8 +173,11 @@ BOONS: dict[str, dict] = {
         "thinning+upgrades. (The old event heuristic's '+5 for remove' bait "
         "overrated it vs Legion, but it isn't a bad boon.)"),
     "Pael's Wing": dict(
-        value=4.5, note="Card-reward sacrifices → relic per 2. Synergizes with "
-        "our high skip rate: skips become income."),
+        value=2.5, note="DOCKED from 4.5 (owner catch 2026-07-25): the sacrifice "
+        "action on card-reward screens is UNIMPLEMENTED -- the bot would "
+        "plain-skip and collect nothing. Sacrifice strictly beats skip (half a "
+        "relic each); restore to 4.5+ when the handler lands (PLAN: capture the "
+        "payload shape next time it is held)."),
     # -------------------------------------------------------------- TEZCATARA (Act 2)
     "Biiig Hug": dict(
         value=4.0, note="Remove 4 for Soot-on-shuffle (Soot = unplayable "
