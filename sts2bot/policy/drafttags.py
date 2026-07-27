@@ -110,7 +110,20 @@ def deck_tag_weights(deck) -> dict[str, float]:
     counts["__strike_named"] = float(n_strike_named)
     counts["__defends"] = float(n_defends)
     counts["__basics"] = float(n_basics)
-    counts["__curses"] = float(sum(1 for c in deck if (getattr(c, "type", "") or "") == "Curse"))
+    # Curse-exhaust edge cases (owner, re-raised 2026-07-25): a RETAIN curse parks in
+    # hand once drawn (pseudo-outside the deck) and an ETHEREAL curse exhausts ITSELF
+    # at end of turn — neither needs an exhaust enabler. Deck-listing descriptions are
+    # often None (Bad Luck's was); when the text is missing we count the curse
+    # (conservative: the nasty ones are the plain ones anyway).
+    n_curses = 0
+    for c in deck:
+        if (getattr(c, "type", "") or "") != "Curse":
+            continue
+        desc = (getattr(c, "description", "") or "").lower()
+        if "retain" in desc or "ethereal" in desc:
+            continue
+        n_curses += 1
+    counts["__curses"] = float(n_curses)
     return counts
 
 

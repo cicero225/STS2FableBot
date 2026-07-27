@@ -142,6 +142,15 @@ def test_controlled_exhaust_counts_curses_double() -> None:
     cursed = [*thin, C("BAD_LUCK", typ="Curse", cost="0")]
     assert (score_adjustment("BRAND", cursed, TAGS, W)
             > score_adjustment("BRAND", thin, TAGS, W))
+    # edge cases (owner): retain curses park in hand, ethereal curses exhaust
+    # themselves — neither needs an enabler
+    parked = C("POOR_SLEEP", typ="Curse", cost="0")
+    parked.description = "Unplayable. Retain."
+    self_solving = C("FLEETING_DREAD", typ="Curse", cost="0")
+    self_solving.description = "Unplayable. Ethereal."
+    soft_cursed = [*thin, parked, self_solving]
+    assert (score_adjustment("BRAND", soft_cursed, TAGS, W)
+            == score_adjustment("BRAND", thin, TAGS, W))
 
 
 def test_deficit_feeding_rewards_the_provider_the_deck_starves_for() -> None:
