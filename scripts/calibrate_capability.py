@@ -27,6 +27,7 @@ from sts2bot.policy.capability import (
     deck_output,
     estimate_fight,
 )
+from sts2bot.policy.rollout import rollout_fight
 from sts2bot.policy.standard import _GENERIC_ELITE, StandardRouter
 
 SINCE = sys.argv[sys.argv.index("--since") + 1] if "--since" in sys.argv else "20260714"
@@ -119,7 +120,10 @@ def predict(kind, act, entry):
     if not members:
         return None
     out = estimate_fight(int(hp), deck, members)
-    return out
+    roll = rollout_fight(wrap_deck(deck_raw), members, int(hp),
+                         int(pl.get("max_hp") or hp),
+                         card_effects=router.card_effects, n=20)
+    return out, roll
 
 
 def main():
@@ -131,16 +135,20 @@ def main():
         if not os.path.isfile(p):
             continue
         for kind, act, entry, exit_hp in fights_in(p):
-            out = predict(kind, act, entry)
-            if out is None:
+            res = predict(kind, act, entry)
+            if res is None:
                 continue
+            out, roll = res
             hp = (entry.get("player") or {}).get("hp")
             actual_win = exit_hp is not None
             actual_loss = (hp - exit_hp) if actual_win else hp
             pred_loss = (hp - out.exp_end_hp) if out.win else hp
+            roll_loss = hp - roll.exp_end_hp
             rows.append(dict(kind=kind, act=act, hp=hp,
                              pred_win=bool(out.win), actual_win=actual_win,
                              pred_loss=float(pred_loss), actual_loss=float(actual_loss),
+                             roll_win=roll.win, roll_loss=float(roll_loss),
+                             roll_win_rate=roll.win_rate,
                              deck_n=len((entry.get("player") or {}).get("deck") or []),
                              run=os.path.basename(d)))
     print(f"calibration over {len(rows)} elite/boss fights since {SINCE}\n")
@@ -158,8 +166,14 @@ def main():
             al = sum(r["actual_loss"] for r in seg) / n
             fn = sum((not r["pred_win"]) and r["actual_win"] for r in seg) / n
             fp = sum(r["pred_win"] and (not r["actual_win"]) for r in seg) / n
+            rw = sum(r["roll_win"] for r in seg) / n
+            rl = sum(r["roll_loss"] for r in seg) / n
+            rfn = sum((not r["roll_win"]) and r["actual_win"] for r in seg) / n
+            rfp = sum(r["roll_win"] and (not r["actual_win"]) for r in seg) / n
             print(f"{kind}-act{act:<6}{n:>4} {pw:>6.0%} {aw:>6.0%} {pl_:>9.1f} "
                   f"{al:>8.1f} {pl_-al:>+6.1f}  {fn:>8.0%} {fp:>14.0%}")
+            print(f"  ROLLOUT{'':<5}{n:>4} {rw:>6.0%} {aw:>6.0%} {rl:>9.1f} "
+                  f"{al:>8.1f} {rl-al:>+6.1f}  {rfn:>8.0%} {rfp:>14.0%}")
     # the engine-blindness exhibit: predicted-lose fights that were WON
     fns = [r for r in rows if not r["pred_win"] and r["actual_win"]]
     fns.sort(key=lambda r: r["pred_loss"] - r["actual_loss"], reverse=True)
