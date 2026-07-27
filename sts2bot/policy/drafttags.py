@@ -112,7 +112,9 @@ def deck_tag_weights(deck) -> dict[str, float]:
     counts["__basics"] = float(n_basics)
     # Curse-exhaust edge cases (owner, re-raised 2026-07-25): a RETAIN curse parks in
     # hand once drawn (pseudo-outside the deck) and an ETHEREAL curse exhausts ITSELF
-    # at end of turn — neither needs an exhaust enabler. Deck-listing descriptions are
+    # at end of turn — neither needs an exhaust enabler. (Owner nuance: a retain curse
+    # that ALSO damaged you would jump to priority-1 exhaust — no such curse exists in
+    # the current game; revisit if one ships.) Deck-listing descriptions are
     # often None (Bad Luck's was); when the text is missing we count the curse
     # (conservative: the nasty ones are the plain ones anyway).
     n_curses = 0
