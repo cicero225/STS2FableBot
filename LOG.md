@@ -2,6 +2,30 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-25c (Fable 5, session 13 close) — WIN #4; the calibrated gate's first batch is the strongest in project history
+
+**Batch bwlg87wsp (calibrated realized-dps gate + 7 fixes), fresh 9: 1 WIN
+(KJEZJQN609 — beat a 509-HP Aeonglass at 84 HP), act-reach 2.0 (record), THREE
+act-3 arrivals.** Act-1 elites 1.22/run (era was 0.2-0.4); relics@f17 mean 5.5
+with runs at 7 and 8 — the owner's benchmark of 7 finally in reach. 44 potion
+actions (full-belt prior live). The win run also took a Waterfall Giant blast at
+38 HP and LIVED — first save by the eruption block-stack (the other WG death
+entered the blast at 1 HP: already dead walking, as the fix's caveat predicted).
+
+**One elite death** (Phantasmal Gardeners f9) — and it's the KNOWN swarm-pollution
+blind spot (harvests as one small body), not general recklessness: the calibrated
+gate's false-positive promise (3-8%) held. Queen reached at f48, not beaten;
+Kaiser/KD/Matriarch still take boss kills — consistent with calibration's residual:
+boss fights need potion/relic terms in the model.
+
+**Owner live-catches while the batch ran**: Prolong parsed to all-zeros (the
+"Next turn..." clause is what the conditional strip removes — carryover priced,
+790566a); Pael's Wing sacrifice is a MOD gap (payload has only can_skip — fork ask
+#3; boon docked to 2.5); Fur Coat room marks not serialized (fork ask #2);
+Slippery Bridge multi-stage gamble confirmed live. Normality flicker re-audited:
+1 benign reject in 77 act-3 submissions — poll-driven re-render illusion, filed
+for livewatch prep (mod-side passive /state = fork ask #1, fixes three quirks).
+
 ## 2026-07-25b (Fable 5, session 13 addendum) — Ovicopter A/B: the bot lost to a rule the owner stated before touching a card
 
 **Narrated fight #2 (DELDJQX3BP f24, Ovicopter + 3 Hatchlings, both from 19/80)**:
