@@ -2,6 +2,26 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-25b (Fable 5, session 13 addendum) — Ovicopter A/B: the bot lost to a rule the owner stated before touching a card
+
+**Narrated fight #2 (DELDJQX3BP f24, Ovicopter + 3 Hatchlings, both from 19/80)**:
+bot died r3; owner won r2 with ZERO potions spent. The decisive divergence is the
+cleanest yet: at r2 the bot held nearly the owner's exact hand and played Fight
+Me!+ into a non-lethal — missed the kill by 9 WITH a Flex potion in the belt, ate
+the str-buffed intent, died to the hatched swarm. The owner, same position: "if I
+play Fight Me!+ I MUST kill this turn... either I have lethal or I don't", did the
+exact arithmetic, killed pre-hatch (fight simply ended), held both budgeted potions
+when the math cleared without them.
+
+**Encoded same hour (4b4b4ee)**: enemy_strength riders parsed + simmed (the buffed
+survivor's incoming rises; killing it erases the rider — kill-or-pay made literal);
+strength potions join the lethal search as pseudo-cards; full belt raises the potion
+spend prior (owner: "3 of 3, so my prior for playing one is higher"; the overflowing
+Explosive Ampule proved it). PLAN 5.2 gains items 8-12 (fight-level intent,
+route-informed risk budget, exact arithmetic at binary stakes, draw-pile stacking as
+tutor value, archetype-conditional potion value). Withholding the bot's line until
+the debrief kept the minion-targeting read unbiased this time.
+
 ## 2026-07-25 (Fable 5, session 13) — audits closed, the narrated-fight exercise, and the estimator's indictment by calibration
 
 **Morning audits (owner away)**: negative path values = NO DP bug (-58.7 = rest +

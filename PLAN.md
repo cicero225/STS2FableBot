@@ -239,6 +239,30 @@ Each item is something the one-turn planner structurally cannot represent:
    lethal turns — probe 2026-07-25), Bad Luck's 13 in survival math (hand-curse lane
    parses it), relic-counter-conditional "play everything" turns.
 
+**Round 2 additions (Ovicopter A/B, DELDJQX3BP f24, 2026-07-25 — bot died r3 from
+19 HP, owner won r2 from 19 HP, zero potions spent):**
+
+8. **Fight-level intent.** The owner locked "burst the spawner, no AoE for the swarm"
+   at the door and every turn served it; the bot had only turn-local scores. A fight
+   opens with a PLAN (race / clear / stall), refreshed on evidence.
+9. **Route-state sets the fight's risk budget.** Campfire-chest-campfire ahead ->
+   attrition to near-1 acceptable -> Bloodletting plays freely. Routing context must
+   flow INTO combat, not just out of it.
+10. **Exact arithmetic at binary stakes.** "Either I have lethal or I don't" — when a
+    line is kill-or-die (enemy-buff riders, counterattack lethals), the owner switches
+    from heuristic scoring to exact damage accounting with a declared bailout
+    (energy potion) — and the miscount he DID make (unupgraded Strike, -5) is exactly
+    what a simulator never gets wrong.
+11. **Draw-pile stacking as tutor value.** Headbutt+ returned Bloodletting+ to the
+    draw pile top to guarantee next-turn energy — put-back/tutor effects are worth
+    far more than their stat line when sequenced across turns.
+12. **Archetype-conditional potion value.** Flex is weak in general but "very hard to
+    get a better turn" for an all-attack hand, and notably strong in eternal/attack-
+    heavy decks — potion value conditions on hand shape and deck archetype.
+
+Encoded immediately (4b4b4ee): enemy-buff riders in the sim (kill-or-pay), strength
+potions in the lethal search, full-belt spend prior.
+
 **Calibration baseline (scripts/calibrate_capability.py, 2026-07-25, n=292 modern-era
 elite/boss fights):** estimate_fight is uniformly pessimistic, never optimistic —
 predicted 0% act-1 boss wins vs 55% actual; 55% predicted act-1 elite wins vs 97%
