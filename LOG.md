@@ -2,6 +2,35 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-25d (Fable 5, session 14 close) — the Foul-throw saga: our own polling was the culprit; epoch advance invalidates all seeds
+
+**Owner potion catches off the win-run summary**: Thorns never deployed (categorized
+'other' — now buff-class, boss-start deploy) and two unsellable Fouls banked. The
+Foul thread went four layers deep: (1) forensics proved the run REACHED the f44
+merchant and the shop-throw errored twice; (2) mod source showed the game's own
+PassesCustomUsabilityCheck rejecting it; (3) a live probe A/B (owner savescum loop
+on the win seed) tried the throw at four moments — all errored — while the owner
+watched the bot click STRAIGHT PAST the shopkeeper screen; (4) a ZERO-POLL blind
+throw landed both Fouls (+200g, merchant dialogue, owner-verified). Verdict: the
+mod's /state read re-renders and auto-advances the shopkeeper screen — OUR POLLING
+destroYED the throw window. Fixed in the orchestrator (9bc8c89): throws fire blind
+between the accepted Shop travel and the next poll; Foul economy un-suspended.
+
+**The /state re-render side effect now owns THREE bugs** (combat flicker, phantom
+map decisions, the throw window) — passive reads promoted to the mod fork's top
+item, ahead of map-node modifiers (Fur Coat) and the Pael's Wing sacrifice action.
+
+**Also this session**: Prolong carryover (parsed to all-zeros — the 'Next turn'
+clause is what the conditional strip removes), full-belt potion prior validated
+live (Binding at fight start; owner initially read it as a Foul — lookalikes),
+Pael's Wing docked to 2.5 (sacrifice not exposed by the mod).
+
+**EPOCH ADVANCE (unavoidable, post-abandon): ALL PRIOR SEEDS INVALID** — the A/B
+library (KJEZJQN609, LKG20K3FBE, DELDJQX3BP, TZSM9SV0P0...) no longer replays; new
+content may appear in future runs (triage lanes ready). Queue: potion/relic terms
+for the boss model, gate re-tightening watch, next batch validates the throw fix +
+Thorns deploy organically.
+
 ## 2026-07-25c (Fable 5, session 13 close) — WIN #4; the calibrated gate's first batch is the strongest in project history
 
 **Batch bwlg87wsp (calibrated realized-dps gate + 7 fixes), fresh 9: 1 WIN
