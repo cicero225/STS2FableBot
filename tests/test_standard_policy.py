@@ -2739,11 +2739,11 @@ def test_planner_blind_cards_get_docked_at_draft() -> None:
     assert generator > blind  # the exemption: its output is playable
 
 
-def test_reward_discard_compares_values_foul_protection_suspended() -> None:
-    """2026-07-25: the Foul merchant-throw is PROVEN broken live (f44 merchant, two
-    Fouls, 'cannot be used right now' x2 — fork ask #4), so the 2026-07-13 owner
-    protection (Foul = 100g, never evict) is SUSPENDED: rank 3 -> 1, Foul is now the
-    preferred eviction. Restore the old expectations when the fork action lands."""
+def test_reward_discard_compares_values_and_protects_foul() -> None:
+    """Owner 2026-07-13 (live): a belt Foul (100g at the next merchant) was discarded
+    for an ordinary reward potion. Foul ranks as gold value — and the throw itself
+    was probe-proven + orchestrator-fixed 2026-07-25 (shopkeeper-window blind throw),
+    so the 100g is real again."""
     def payload(belt, reward_name, reward_desc):
         return {
             "state_type": "rewards",
@@ -2761,23 +2761,21 @@ def test_reward_discard_compares_values_foul_protection_suspended() -> None:
             "description": "Lose 5 HP."}
     weakest = {"slot": 1, "id": "SPEED_POTION", "name": "Speed Potion",
                "description": "Gain 2 Dexterity this turn."}
-    # a real reward potion evicts the FOUL first (rank 1 while the throw is broken)
+    # full belt with a Foul: an ordinary reward potion must NOT evict it
     st = payload([dict(foul), dict(weakest)], "Weak Potion",
                  "Apply 3 Weak to target enemy.")
     d = router().decide(parse_state(st), LoopContext())
     p = d.action.payload()
-    assert p.get("action") == "discard_potion" and p.get("slot") == 0
-    # a genuinely better reward (Fruit Juice) also evicts the Foul, not the buff
+    assert p.get("action") != "discard_potion" or p.get("slot") != 0
+    # a genuinely better reward (Fruit Juice) evicts the WEAKEST (never the Foul)
     st2 = payload([dict(foul), dict(weakest)], "Fruit Juice", "Gain 5 Max HP.")
     d2 = router().decide(parse_state(st2), LoopContext())
     p2 = d2.action.payload()
-    assert p2.get("action") == "discard_potion" and p2.get("slot") == 0
-    # a junk/unknown reward (rank 2 > Foul's 1)... still evicts the Foul for it —
-    # acceptable while Foul is dead weight; revisit with the fork
+    assert p2.get("action") == "discard_potion" and p2.get("slot") == 1
+    # and a junk/unknown reward doesn't evict ANYTHING from a Foul+junk belt
     st3 = payload([dict(foul), dict(weakest)], "Mystery Brew", "Swirls mysteriously.")
     d3 = router().decide(parse_state(st3), LoopContext())
-    p3 = d3.action.payload()
-    assert p3.get("action") != "discard_potion" or p3.get("slot") == 0
+    assert d3.action.payload().get("action") != "discard_potion"
 
 
 def test_death_rider_card_never_drafted() -> None:
@@ -2969,10 +2967,10 @@ def test_finisher_potion_held_at_zero_threat() -> None:
     assert brewing.action.payload()["action"] == "use_potion"  # setup: worth ending it now
 
 
-def test_foul_potion_thrown_at_the_merchant_once() -> None:
-    """Owner 2026-07-09: Foul Potions are merchant ammo (+100 gold thrown at the shopkeeper)
-    -- the bot hauled them past merchants untouched. At a shop, each Foul slot is thrown once
-    (before any purchase); a second poll moves on to normal shopping."""
+def test_foul_throw_no_longer_attempted_on_the_shop_screen() -> None:
+    """2026-07-25 probe: the throw only works on the SHOPKEEPER screen (our polling
+    auto-advances past it), so the orchestrator now fires it blind after shop travel
+    (test_mock_run) and the shop handler must NOT burn errors attempting it here."""
     shop_state = {
         "state_type": "shop",
         "shop": {"items": []},
@@ -2983,17 +2981,9 @@ def test_foul_potion_thrown_at_the_merchant_once() -> None:
                                        "Deal 10 damage to EVERYONE.", slot=1)],
                    "max_potion_slots": 3},
     }
-    ctx = LoopContext()
-    d = router().decide(parse_state(shop_state), ctx)
-    assert isinstance(d, Decision)
-    assert d.action.payload() == {"action": "use_potion", "slot": 1}
-    assert "merchant" in d.rationale
-
-    d2 = router().decide(parse_state(shop_state), ctx)  # same shop, already thrown
-    assert not (isinstance(d2, Decision)
-                and d2.action.payload().get("action") == "use_potion")
-
-
+    d = router().decide(parse_state(shop_state), LoopContext())
+    if isinstance(d, Decision):
+        assert d.action.payload().get("action") != "use_potion", d.rationale
 def test_combat_without_battle_block_waits_not_crashes() -> None:
     """Live-only transitional state: combat announced but battle block not yet present
     (crashed batch bpnsoql1j run 1 via the potion bookkeeping's unguarded state.battle)."""

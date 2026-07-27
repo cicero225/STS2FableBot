@@ -128,9 +128,6 @@ default_boss_loss = 60.0     # fallback when too few boss fights are logged yet
 # otherwise smith (upgrade); upgrade priority = highest reward-score card unupgraded
 
 [potions]
-# TEMP (2026-07-25): foul-throw probe replay needs the f42 Foul claims;
-# restore to true (or delete the line) after the diagnostic.
-skip_late_downside_claims = false
 drink_in_elite_or_boss = true
 drink_when_hp_pct_below = 0.35
 # if this turn's unblocked incoming can kill us, drink anything usable —

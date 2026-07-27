@@ -433,3 +433,49 @@ def test_loop_retries_transient_malformed_state(tmp_path: Path) -> None:
         config=LoopConfig(poll_interval=0, stop_at_floor=22, malformed_state_retries=2),
     ).play_one_run()
     assert failed.status == "error"
+
+
+def test_foul_thrown_blind_in_the_shopkeeper_window(tmp_path: Path) -> None:
+    """Probe-proven 2026-07-25: the Foul merchant-throw only works on the SHOPKEEPER
+    screen, which /state polling auto-advances past. The loop must fire the throw
+    BLIND between the accepted shop travel and the next state poll."""
+    map_state = {"state_type": "map", "run": {"act": 1, "floor": 5, "ascension": 0},
+                 "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                            "status": [], "relics": [],
+                            "potions": [{"id": "FOUL_POTION", "name": "Foul Potion",
+                                         "description": "Deal 10 damage to EVERYONE.",
+                                         "slot": 2, "can_use_in_combat": True,
+                                         "target_type": "None", "keywords": []}],
+                            "max_potion_slots": 3},
+                 "map": {"next_options": [
+                     {"index": 0, "col": 1, "row": 5, "type": "Shop", "leads_to": []},
+                 ]}}
+
+    class SeqClient:
+        def __init__(self):
+            self.events = []
+
+        def get_state_raw(self):
+            self.events.append("poll")
+            return map_state
+
+        def act(self, action):
+            self.events.append(action.payload().get("action"))
+
+            class R:
+                ok = True
+                detail = "ok"
+
+                def model_dump(self, **kw):
+                    return {"ok": True}
+
+            return R()
+
+    client = SeqClient()
+    loop = AgentLoop(client, TrivialRouter(), log_root=tmp_path,
+                     config=LoopConfig(poll_interval=0, max_decisions=1))
+    loop.play_one_run()
+    # the throw must come immediately after the travel, BEFORE any further poll
+    i = client.events.index("choose_map_node")
+    assert client.events[i + 1] == "use_potion", client.events
+    assert "poll" not in client.events[i:i + 2], client.events

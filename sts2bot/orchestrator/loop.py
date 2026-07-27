@@ -327,6 +327,13 @@ class AgentLoop:
                 if result.ok:
                     error_streak = 0
                     last_act_fp, last_act_payload, dup_hold = fp, payload, 0
+                    # Foul-throw window (probe-proven live 2026-07-25): the merchant
+                    # throw (100g/Foul) is only usable on the SHOPKEEPER screen, and
+                    # our own /state polling auto-advances past it — so the throws
+                    # must fire BLIND between the accepted shop travel and the next
+                    # poll. Player-visible info only (C3): the held Fouls and the
+                    # chosen node type both come from the state we just decided on.
+                    self._throw_fouls_after_shop_travel(state, decision, logger)
                 elif (
                     "actions are currently disabled" in result.detail
                     or "already queued" in result.detail
@@ -437,6 +444,30 @@ class AgentLoop:
             time.sleep(1.0)
         sig_path.unlink(missing_ok=True)
         print("*** resumed ***", flush=True)
+
+    def _throw_fouls_after_shop_travel(self, state, decision, logger) -> None:
+        """Fire Foul throws blind in the shopkeeper window (between the accepted
+        Shop travel and the next state poll — polling would advance past it)."""
+        from sts2bot.client import actions as act
+
+        if not isinstance(decision.action, act.ChooseMapNode):
+            return
+        m = getattr(state, "map", None)
+        if m is None or state.player is None:
+            return
+        opt = next((o for o in m.next_options
+                    if o.index == decision.action.index), None)
+        if opt is None or (opt.type or "").lower() != "shop":
+            return
+        for p in state.player.potions or []:
+            if "FOUL" in f"{p.id or ''} {p.name or ''}".upper():
+                r = self.client.act(act.UsePotion(slot=p.slot, target=None))
+                logger.log_decision(
+                    {"state_type": "shop_travel"}, act.UsePotion(slot=p.slot).payload(),
+                    f"throw {p.name} at the merchant in the shopkeeper window "
+                    f"(+100g; probe-proven 2026-07-25)",
+                    r.model_dump(exclude_none=True),
+                )
 
     def _follow_human_play(
         self, logger: RunLogger, cfg: LoopConfig, last_fp: str | None = None

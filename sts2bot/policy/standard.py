@@ -1994,22 +1994,12 @@ class StandardRouter:
         bought = ctx.screen_mem.setdefault("shop_bought", [])
         avail = [i for i in state.shop.items if i.is_stocked and i.index not in bought]
 
-        # -1. Foul Potions are merchant ammo: thrown at the merchant they pay 100 gold each
-        #     (the event that grants them heavily implies it; owner 2026-07-09 — the bot was
-        #     hauling them past merchants untouched). The mod has no dedicated throw action,
-        #     but using Foul at a shop is the game's own throw interaction; attempt each slot
-        #     ONCE per shop (bounded: an unsupported use is one logged error, nothing more —
-        #     live-verify, and file a fork TODO if the mod rejects it). Thrown before buying
-        #     so the gold is available to spend.
-        thrown = ctx.screen_mem.setdefault("foul_thrown_slots", [])
-        for potion in (player.potions if player else []) or []:
-            nid = f"{potion.id or ''} {potion.name or ''}".upper()
-            if "FOUL" in nid and potion.slot not in thrown:
-                thrown.append(potion.slot)
-                return Decision(
-                    action=act.UsePotion(slot=potion.slot),
-                    rationale=f"throw {potion.name} at the merchant (+100 gold)",
-                )
+        # (Foul throws moved to the orchestrator, 2026-07-25: probe-proven that the
+        # throw only works on the SHOPKEEPER screen, which our own /state polling
+        # auto-advances past — so the loop fires them blind between the accepted
+        # shop travel and the next poll. Attempting here always errored
+        # "cannot be used right now": the shop UI is already open by the time this
+        # handler runs.)
 
         # 0. Discount relics (Membership Card -50% / Courier -20%, applied immediately) — buy
         #    FIRST so the rest of the shop is cheaper; once owned, the live shop returns
@@ -2214,12 +2204,11 @@ class StandardRouter:
         discarded for a reward potion before ever meeting a shop)."""
         nid = f"{potion.id or ''} {potion.name or ''}".upper()
         if "FOUL" in nid:
-            # The 100g merchant-throw is PROVEN BROKEN live (win run 2026-07-25:
-            # reached the f44 merchant with 2 Fouls, use_potion errored "cannot be
-            # used right now" twice — the throw is a UI interaction the mod can't
-            # reach; fork ask #4). Until that lands a Foul is dead weight: rank 1,
-            # above only unknowns. Restore to 3 when the throw works.
-            return 1
+            # ~100g via the merchant throw — WORKING again (2026-07-25 probe: the
+            # window is the shopkeeper screen; the orchestrator now fires the throw
+            # blind between shop travel and the next poll). Above junk, below real
+            # combat potions.
+            return 3
         return self._DISCARD_RANK.get(self._potion_category(potion), 2)
 
     def _worst_potion(self, potions: list[Potion]) -> Potion | None:
