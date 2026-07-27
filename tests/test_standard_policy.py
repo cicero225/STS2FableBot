@@ -2513,6 +2513,43 @@ def test_elite_gate_uses_real_bestiary_pool() -> None:
         assert took_elite == expect_elite, (bestiary.keys(), d.rationale)
 
 
+def test_thorns_potion_deployed_at_boss_start() -> None:
+    """Owner catch (win-run summary): the run ENDED with a Thorns potion in the belt —
+    'absolutely drink a thorns potion at the start of the final boss fight.' It
+    categorized 'other' (only hail-maries drink those); now buff -> boss-start deploy."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BOSS_0", 300, intent_label="12")],
+        hp=70, max_hp=80, state_type="boss",
+        potions=[_potion("THORNS_POTION", "Thorns Potion",
+                         "Gain 6 Thorns for the rest of combat.")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("action") == "use_potion", d.rationale
+
+
+def test_foul_potion_not_claimed_late_act3() -> None:
+    """Owner catch: the win run banked two Fouls it could never sell (merchant ammo,
+    no merchant left). Past f40 in act 3, downside potions are left on the table."""
+    state = parse_state({
+        "state_type": "rewards",
+        "rewards": {"items": [
+            {"index": 0, "type": "potion", "potion_id": "FOUL_POTION",
+             "potion_name": "Foul Potion",
+             "potion_description": "Deal 10 damage to EVERYONE."},
+        ]},
+        "run": {"act": 3, "floor": 42, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "gold": 100,
+                   "status": [], "relics": [],
+                   "potions": [_potion("BLOCK_POTION", "Block Potion", "Gain 12 Block.")],
+                   "max_potion_slots": 3},
+    })
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("action") != "claim_reward", d.rationale
+
+
 def test_prolong_played_after_block_not_left_in_hand() -> None:
     """Live 2026-07-25: 0-cost Prolong ('Next turn, gain Block equal to your current
     Block. Exhaust.') sat unplayed with block up — it parsed to all-zeros. The
@@ -2702,11 +2739,11 @@ def test_planner_blind_cards_get_docked_at_draft() -> None:
     assert generator > blind  # the exemption: its output is playable
 
 
-def test_reward_discard_compares_values_and_protects_foul() -> None:
-    """Owner 2026-07-13 (live): a belt Foul Potion (100g at the next merchant) was
-    discarded for an ordinary reward potion before ever meeting a shop. The reward
-    discard now compares incoming value vs worst-in-belt, and Foul ranks as gold
-    value, not combat 'downside'."""
+def test_reward_discard_compares_values_foul_protection_suspended() -> None:
+    """2026-07-25: the Foul merchant-throw is PROVEN broken live (f44 merchant, two
+    Fouls, 'cannot be used right now' x2 — fork ask #4), so the 2026-07-13 owner
+    protection (Foul = 100g, never evict) is SUSPENDED: rank 3 -> 1, Foul is now the
+    preferred eviction. Restore the old expectations when the fork action lands."""
     def payload(belt, reward_name, reward_desc):
         return {
             "state_type": "rewards",
@@ -2724,23 +2761,23 @@ def test_reward_discard_compares_values_and_protects_foul() -> None:
             "description": "Lose 5 HP."}
     weakest = {"slot": 1, "id": "SPEED_POTION", "name": "Speed Potion",
                "description": "Gain 2 Dexterity this turn."}
-    # full belt with a Foul: an ordinary reward potion must NOT evict it (nor the buff);
-    # the weakest belt potion (buff, rank 5) still outranks... the incoming debuff (3)
+    # a real reward potion evicts the FOUL first (rank 1 while the throw is broken)
     st = payload([dict(foul), dict(weakest)], "Weak Potion",
                  "Apply 3 Weak to target enemy.")
     d = router().decide(parse_state(st), LoopContext())
     p = d.action.payload()
-    # the Foul (slot 0) must never be the victim of an ordinary reward
-    assert p.get("action") != "discard_potion" or p.get("slot") != 0
-    # a genuinely better reward (Fruit Juice, rank 7) evicts the WEAKEST (never the Foul)
+    assert p.get("action") == "discard_potion" and p.get("slot") == 0
+    # a genuinely better reward (Fruit Juice) also evicts the Foul, not the buff
     st2 = payload([dict(foul), dict(weakest)], "Fruit Juice", "Gain 5 Max HP.")
     d2 = router().decide(parse_state(st2), LoopContext())
     p2 = d2.action.payload()
-    assert p2.get("action") == "discard_potion" and p2.get("slot") == 1
-    # and a junk/unknown reward doesn't evict ANYTHING from a Foul+junk belt
+    assert p2.get("action") == "discard_potion" and p2.get("slot") == 0
+    # a junk/unknown reward (rank 2 > Foul's 1)... still evicts the Foul for it —
+    # acceptable while Foul is dead weight; revisit with the fork
     st3 = payload([dict(foul), dict(weakest)], "Mystery Brew", "Swirls mysteriously.")
     d3 = router().decide(parse_state(st3), LoopContext())
-    assert d3.action.payload().get("action") != "discard_potion"
+    p3 = d3.action.payload()
+    assert p3.get("action") != "discard_potion" or p3.get("slot") == 0
 
 
 def test_death_rider_card_never_drafted() -> None:

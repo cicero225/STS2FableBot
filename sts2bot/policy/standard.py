@@ -630,7 +630,11 @@ class StandardRouter:
             # Weak-class debuff the Apply-N regexes miss (it sat as "other" until hail-mary)
             return "debuff"
         if fx.strength > 0 or any(
-            k in nid for k in ("STRENGTH", "DEXTER", "FOCUS", "POWER", "BLESSING", "FYSH", "FORGE")
+            k in nid for k in ("STRENGTH", "DEXTER", "FOCUS", "POWER", "BLESSING", "FYSH",
+                               "FORGE", "THORNS")
+            # THORNS: owner catch 2026-07-25 — the win run ENDED with a Thorns potion
+            # in the belt ("absolutely drink a thorns potion at the start of the final
+            # boss fight"); it categorized "other" and only hail-maries drink those
         ):
             return "buff"
         if fx.draw > 0 or fx.energy_gain > 0 or "ENERGY" in nid:  # tempo: more energy / cards
@@ -2137,6 +2141,21 @@ class StandardRouter:
 
     def _rewards(self, state: RewardsState, ctx: LoopContext) -> Decision | Wait:
         player = state.player
+        # Downside potions (Foul/Glowwater) are merchant ammo (100g thrown at a shop),
+        # NOT combat resources — so past the point where a merchant is plausibly still
+        # reachable, claiming one just wastes a slot (owner catch 2026-07-25: the WIN
+        # run banked two Fouls it could never sell). Late-act-3 proxy until routing
+        # can answer "is a shop still reachable" properly.
+        run = state.run
+        if (run and (run.act or 0) >= 3 and (run.floor or 0) >= 40
+                and player is not None and player.potions):
+            for item in state.rewards.items:
+                nid = f"{item.potion_id or ''} {item.potion_name or ''}".upper()
+                if item.type == "potion" and ("FOUL" in nid or "GLOWWATER" in nid):
+                    marker = item.potion_id or item.gold_amount or item.description or ""
+                    ctx.screen_mem.setdefault("reward_attempts", {})[
+                        f"{run.floor}:{item.index}:{item.type}:{marker}"
+                    ] = 99  # mark exhausted: the fallback claims everything else
         if player is not None and len(player.potions) >= player.max_potion_slots:
             potion_items = [i for i in state.rewards.items if i.type == "potion"]
             if potion_items and not ctx.screen_mem.get("discarded_for_reward"):
@@ -2194,9 +2213,12 @@ class StandardRouter:
         discarded for a reward potion before ever meeting a shop)."""
         nid = f"{potion.id or ''} {potion.name or ''}".upper()
         if "FOUL" in nid:
-            # ~100g: clearly above junk/unknown (never auto-discard fodder), but below
-            # real combat potions — in a strong belt the Foul is still the right cut.
-            return 3
+            # The 100g merchant-throw is PROVEN BROKEN live (win run 2026-07-25:
+            # reached the f44 merchant with 2 Fouls, use_potion errored "cannot be
+            # used right now" twice — the throw is a UI interaction the mod can't
+            # reach; fork ask #4). Until that lands a Foul is dead weight: rank 1,
+            # above only unknowns. Restore to 3 when the throw works.
+            return 1
         return self._DISCARD_RANK.get(self._potion_category(potion), 2)
 
     def _worst_potion(self, potions: list[Potion]) -> Potion | None:
