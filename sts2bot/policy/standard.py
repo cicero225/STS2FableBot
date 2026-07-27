@@ -468,8 +468,15 @@ class StandardRouter:
             and "FROND" in f"{r.id or ''} {r.name or ''}".upper()
             for r in (player.relics or [])
         )
+        # Full belt raises the spend prior (owner, Ovicopter A/B 2026-07-25: "we're at
+        # 3 of 3 potions, so my prior for playing one of them is higher" — and the
+        # post-fight Explosive Ampule proved the overflow). A raised prior, not a
+        # mandate: the value gates below still decide, same as the owner held both
+        # budgeted potions once the exact math cleared without them.
+        belt_full = (w.full_belt_deploys
+                     and len(player.potions or []) >= (player.max_potion_slots or 3))
         dangerous = (state.state_type in ("elite", "boss")
-                     and w.drink_in_elite_or_boss) or frond
+                     and w.drink_in_elite_or_boss) or frond or belt_full
         incoming = sum(
             parse_intent_damage(i.label)
             for e in state.battle.enemies

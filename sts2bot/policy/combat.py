@@ -814,9 +814,18 @@ def _apply_attack(
     # cancels its attack, a BLOCK-based stun the planner can aim for deliberately.
     if e.burrowed and e.block > 0 and block <= 0:
         stunned = True
+    # Enemy-buff rider (Fight Me!: "The enemy gains N Strength") — the survivor hits
+    # harder THIS turn, so bump its incoming per attack instance. Killing it same
+    # turn erases the rider (dead enemies contribute no incoming) — which makes the
+    # owner's rule literal: play Fight Me only into a kill, or pay the buffed hit
+    # (Ovicopter A/B 2026-07-25: the bot buffed it, missed the kill by 9, died).
+    inc = e.incoming
+    if card.fx.enemy_strength and hp > 0:
+        inc += card.fx.enemy_strength * max(1, e.incoming_hits)
     enemies[target_i] = replace(
         e, hp=hp, block=block, vulnerable=e.vulnerable + card.fx.vulnerable,
         hp_lost_this_turn=lost, stunned_this_turn=stunned, slippery_stacks=slip,
+        incoming=inc,
     )
     # Ignorable minions (weak, non-ramping) aren't progress — they flee with the leader and
     # Illusion ones revive — so deny offensive reward; their death's incoming drop is still
@@ -1350,11 +1359,20 @@ def plan_combat_turn(
             if "FOUL" in nid or "GLOWWATER" in nid:  # downside potions (cf. _potion_category)
                 continue
             pfx = parse_card_description(potion.description)
-            if pfx.total_damage <= 0:
+            # Strength potions (Flex: "Gain 5 Strength... lose 5 at end of turn") join
+            # too when the hand has attacks — str converts to damage per attack played
+            # after it, and the DFS orders that correctly. Ovicopter A/B 2026-07-25:
+            # the bot missed a fight-ending kill by 9 with a Flex in the belt; the
+            # owner's read of the same hand: "very hard to get a Flex turn better
+            # than this". w_potion_spend still keeps it out of non-lethal lines.
+            str_pseudo = pfx.strength > 0 and any(
+                pc.is_attack for pc in playable if pc.potion_slot is None)
+            if pfx.total_damage <= 0 and not str_pseudo:
                 continue
             playable.append(PlannedCard(
                 index=-(potion.slot + 1), name=f"{potion.name} (potion)", cost=0, fx=pfx,
-                targets_enemy=not pfx.aoe, potion_slot=potion.slot,
+                targets_enemy=pfx.total_damage > 0 and not pfx.aoe,
+                potion_slot=potion.slot,
             ))
     # Thrash-class growth bonus: the exhausted attack's damage banks into the NEXT
     # play + thinning — future value the one-turn tally can't see. Granted only when

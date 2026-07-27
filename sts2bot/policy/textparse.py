@@ -68,6 +68,10 @@ _ENERGY_ICON = re.compile(r"\[[a-z_]*energy[a-z_]*\.png\]", re.IGNORECASE)
 _VULN = re.compile(r"\bApply (\d+) Vulnerable", re.IGNORECASE)
 _WEAK = re.compile(r"\bApply (\d+) Weak", re.IGNORECASE)
 _STRENGTH = re.compile(r"\bGain (\d+) Strength", re.IGNORECASE)
+# Fight Me!-class: "The enemy gains 1 Strength." — an enemy-buff rider the survival
+# math must see (the buffed intent hits THIS turn's incoming). No collision with
+# _STRENGTH: "gains 1" never matches "\bGain (\d+)".
+_ENEMY_STRENGTH = re.compile(r"\benem(?:y|ies) gains? (\d+) Strength", re.IGNORECASE)
 _LOSE_HP = re.compile(r"\bLose (\d+) HP", re.IGNORECASE)
 _LOSE_MAX_HP = re.compile(r"\bLose (\d+) Max(?:imum)? HP", re.IGNORECASE)
 _TAKE_DAMAGE = re.compile(r"\b[Tt]ake (\d+) damage")
@@ -111,6 +115,7 @@ class CardEffects:
     vulnerable: int = 0
     weak: int = 0
     strength: int = 0
+    enemy_strength: int = 0  # Fight Me!-class rider: "The enemy gains N Strength"
     self_hp_cost: int = 0
     max_hp_cost: int = 0
     heal: int = 0
@@ -188,6 +193,9 @@ def parse_card_description(text: str | None) -> CardEffects:
     if m := _STRENGTH.search(text):
         fx.strength = int(m.group(1))
         fx.recognized.append("strength")
+    if m := _ENEMY_STRENGTH.search(text):
+        fx.enemy_strength = int(m.group(1))
+        fx.recognized.append("enemy_strength")
     if m := _LOSE_MAX_HP.search(text):
         fx.max_hp_cost = int(m.group(1))
         fx.recognized.append("max_hp_cost")

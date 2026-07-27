@@ -2513,6 +2513,72 @@ def test_elite_gate_uses_real_bestiary_pool() -> None:
         assert took_elite == expect_elite, (bestiary.keys(), d.rationale)
 
 
+def test_enemy_buff_rider_gates_fight_me_on_kill_or_safe() -> None:
+    """Ovicopter A/B 2026-07-25: the bot played Fight Me!+ into a non-lethal (missed
+    by 9), ate the buffed intent, died next round. The owner's rule, made literal by
+    the sim: the rider raises the SURVIVOR's incoming, so into a kill it's free, into
+    a survivor it costs — with the hit lethal-adjacent, the planner must skip it."""
+    fight_me = card(0, "Fight Me!+", 1,
+                    "Deal 9 damage twice. Gain 4 Strength. The enemy gains 1 Strength.")
+    strike = card(1, "Strike", 1, "Deal 6 damage.")
+    defend = card(2, "Defend", 1, "Gain 5 Block.")
+    # enemy survives anything this hand can do; its 4x4 hits become 5x4 = 20 if buffed,
+    # and at 22 HP with 5 block that's the difference between -11 and -15... make it
+    # sharper: hp such that buffed = into the death floor
+    big = enemy("OVI_0", 60, intent_label="4x4")
+    state = make_combat(hand=[fight_me, strike, defend], enemies=[big],
+                        hp=14, max_hp=80)
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    plan_head = d.rationale.split(";")[0]
+    assert "Fight Me" not in plan_head, d.rationale  # buffing a survivor near the floor: no
+    # and the same card INTO a kill is fine (rider dies with the target)
+    small = enemy("EGG_0", 15, intent_label="4x4")
+    state2 = make_combat(hand=[fight_me, strike, defend], enemies=[small],
+                         hp=14, max_hp=80)
+    d2 = router().decide(state2, LoopContext())
+    assert "Fight Me" in d2.rationale.split(";")[0], d2.rationale
+
+
+def test_flex_potion_completes_lethal() -> None:
+    """Ovicopter A/B: the bot missed a fight-ending kill by 9 with a Flex in the belt.
+    Strength potions now join the lethal search as pseudo-cards before attacks."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage."),
+              card(1, "Strike", 1, "Deal 6 damage."),
+              card(2, "Twin Strike", 1, "Deal 5 damage twice.")],
+        enemies=[enemy("BOSS_0", 37, intent_label="12")],
+        hp=30, max_hp=80, state_type="boss",
+        potions=[_potion("FLEX_POTION", "Flex Potion",
+                         "Gain 5 Strength. At the end of your turn, lose 5 Strength.")],
+    )
+    # cards alone: 6+6+5x2 = 22 < 37. With Flex first: 11+11+10x2 = 42 >= 37.
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.scores and d.scores.get("lethal") == 1.0, (d.rationale, d.scores)
+
+
+def test_full_belt_raises_potion_deploy_prior() -> None:
+    """Owner (Ovicopter A/B): at 3/3 potions the spend prior rises — every reward
+    potion overflows. A normal fight with a full belt counts as deploy-worthy."""
+    def mk(n_potions):
+        pots = [_potion(f"STRENGTH_POTION_{i}", "Strength Potion",
+                        "Gain 2 Strength.", slot=i) for i in range(n_potions)]
+        return make_combat(
+            hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+            enemies=[enemy("MOB_0", 60, intent_label="6")],
+            hp=50, max_hp=80, potions=pots,
+        )
+
+    # full belt: the round-1 buff-deploy lane fires in a NORMAL fight
+    d = router().decide(mk(3), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("action") == "use_potion", d.rationale
+    # slack in the belt: same fight, potion stays held
+    d2 = router().decide(mk(2), LoopContext())
+    assert d2.action.payload().get("action") != "use_potion", d2.rationale
+
+
 def test_eruption_phase_stacks_block_despite_null_intent() -> None:
     """WG death forensics (WYZQR5KPFQ f17, 2026-07-25): during the invincible phase the
     Giant exposes intent null and statuses null — 0 parsed incoming made all block score

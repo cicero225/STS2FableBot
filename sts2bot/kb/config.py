@@ -229,6 +229,11 @@ class RestWeights(_Section):
 
 class PotionWeights(_Section):
     drink_in_elite_or_boss: bool = True
+    # Full belt = every reward potion overflows, so a held potion's option value is
+    # gone; treat any fight as deploy-worthy (value gates still decide WHICH/WHETHER).
+    # Owner, Ovicopter A/B 2026-07-25: "3 of 3 potions, so my prior for playing one
+    # of them is higher" — confirmed by the overflowing Explosive Ampule same fight.
+    full_belt_deploys: bool = True
     drink_when_hp_pct_below: float = 0.35  # hail-mary HP gate
     hail_mary: bool = True
     heal_below_pct: float = 0.80  # drink a heal/Blood potion below this HP fraction
