@@ -134,6 +134,16 @@ def test_bloodletting_fed_by_hand_dumpers() -> None:
     assert with_stoke > base
 
 
+def test_controlled_exhaust_counts_curses_double() -> None:
+    """Owner post-fight draft (LKG20K3FBE): took True Grit because its exhaust is the
+    ONLY in-fight mitigation for an Eternal curse (Bad Luck). A cursed deck values
+    targeted exhaust more than the same deck without the curse."""
+    thin = [C("BLUDGEON", cost="3"), C("SHRUG_IT_OFF", typ="Skill")]
+    cursed = [*thin, C("BAD_LUCK", typ="Curse", cost="0")]
+    assert (score_adjustment("BRAND", cursed, TAGS, W)
+            > score_adjustment("BRAND", thin, TAGS, W))
+
+
 def test_deficit_feeding_rewards_the_provider_the_deck_starves_for() -> None:
     """Owner shadow review #2 (Uppercut+ over Colossus): "the deck seemed to lack
     vulnerable appliers... so I picked a card that gave both." Uppercut (provides

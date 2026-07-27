@@ -110,6 +110,7 @@ def deck_tag_weights(deck) -> dict[str, float]:
     counts["__strike_named"] = float(n_strike_named)
     counts["__defends"] = float(n_defends)
     counts["__basics"] = float(n_basics)
+    counts["__curses"] = float(sum(1 for c in deck if (getattr(c, "type", "") or "") == "Curse"))
     return counts
 
 
@@ -222,9 +223,14 @@ def score_adjustment(
     if ce and (ce != "upgraded" or is_upgraded):
         scale = float(ce) if isinstance(ce, (int, float)) and not isinstance(ce, bool) else 1.0
         basics = deck_counts.get("__basics", 0.0)
+        # curses are the PREMIUM exhaust targets — for Eternal curses (Bad Luck:
+        # un-removable, un-transformable, 13 HP per turn-in-hand) targeted exhaust is
+        # the ONLY in-fight mitigation (owner drafted True Grit for exactly this,
+        # LKG20K3FBE post-fight 2026-07-25); weight them double a basic.
+        curses = deck_counts.get("__curses", 0.0)
         thinning = _providers("deck_thinning", deck_counts, deck, tags)
         damp = 0.5 if thinning > 0 else 1.0
-        adj += w.w_controlled_exhaust * scale * min(1.0, basics / 6.0) * damp
+        adj += w.w_controlled_exhaust * scale * min(1.0, (basics + 2.0 * curses) / 6.0) * damp
 
     # upgrade-awareness: the upgrade crosses a class boundary (True Grit's targeted
     # exhaust, Armaments' all-hand, Apotheosis/Stampede/Pyre cost drops) — a mild
