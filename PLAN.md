@@ -239,6 +239,20 @@ Each item is something the one-turn planner structurally cannot represent:
    lethal turns — probe 2026-07-25), Bad Luck's 13 in survival math (hand-curse lane
    parses it), relic-counter-conditional "play everything" turns.
 
+**P1/P1.5 executed (2026-07-25, eb6505b + 798e1ca):** rollout engine built
+(`sts2bot/policy/rollout.py` — greedy policy, content-derived seed) and the
+calibration loop closed: a dps sensitivity probe localized the error to the ENEMY
+model; `scripts/build_enemy_dps.py` harvested realized per-enemy dps from intent
+labels (106 enemies; priors ran ~2x hot — Soul Fysh 8.4 realized vs 25 modeled).
+Post-fix backtest: elite-act1 94% predicted vs 97% actual (bias +4.4), elite-act2
+67% vs 67% — ELITES CALIBRATED; bosses still 15-22% vs 55% pending potion/relic
+terms (the live bot wins bosses with resources neither engine models yet).
+CAUTION for the next batches: the elite gate's July thresholds (pool frac 0.40,
+floor 0.20) were loosened to compensate for estimator pessimism that no longer
+exists — with calibrated inputs the gate will open far more often (correctly, per
+the 97% actual win rate, but the thresholds may need RE-TIGHTENING once the
+compensation is redundant; the next batch is the live A/B).
+
 **Round 2 additions (Ovicopter A/B, DELDJQX3BP f24, 2026-07-25 — bot died r3 from
 19 HP, owner won r2 from 19 HP, zero potions spent):**
 
