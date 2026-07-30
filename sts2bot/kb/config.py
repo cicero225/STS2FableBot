@@ -153,6 +153,9 @@ class MapWeights(_Section):
     # batch traded aggression for safety (elites 1.9 -> 1.6/run, deaths 2 -> 0,
     # relics@f17 6.0 -> 4.8); buy some aggression back with the tail floor
     # (p25 >= elite_gate_min_end_hp_pct) still standing guard.
+    # KEPT at 0.55 (owner decision 2026-07-30): deep scan found 0.55 ~ 0.60 on
+    # elite outcomes with zero attributable deaths; "I prefer slightly more
+    # aggression if it has no discernable downside."
     rollout_gate_win_rate: float = 0.55
     # P1.7 (2026-07-30): KNOWN bosses are priced by DFS-policy rollouts (the real
     # one-turn planner drives each simulated turn) -- backtest: 52% predicted vs
