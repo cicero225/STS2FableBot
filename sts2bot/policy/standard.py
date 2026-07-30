@@ -917,7 +917,7 @@ class StandardRouter:
                 members_by_name = {
                     name: elite_fight_members(name, entry, self.bestiary,
                                               dps=realized_dps(self.enemy_dps, name, edps),
-                                              str_ramp=eramp)
+                                              str_ramp=eramp, dps_table=self.enemy_dps)
                     for name, entry in pool
                 }
                 if self.config.map.use_rollout_gate:

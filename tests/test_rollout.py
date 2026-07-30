@@ -89,3 +89,16 @@ def test_wave_split_prices_phrog_hotter_than_concurrent_split() -> None:
     assert parasite[0].dps == 12
     # phase 2: the wave splits the act estimate among its own 4 bodies
     assert all(w.dps == 3 for w in wrigglers)
+
+
+def test_composition_members_use_their_own_realized_dps_when_harvested() -> None:
+    from sts2bot.policy.capability import elite_fight_members
+    bestiary = {"Phrog Parasite": {"hp": [40, 46], "statuses": {}},
+                "Wriggler": {"hp": [10, 12], "statuses": {}}}
+    table = {"Phrog Parasite": {"dps_early": 5.4, "dps_mean": 6.7},
+             "Wriggler": {"dps_early": 3.7, "dps_mean": 4.1}}
+    members = elite_fight_members("Phrog Parasite", bestiary["Phrog Parasite"],
+                                  bestiary, dps=12, dps_table=table)
+    # harvested per-body numbers win over the act-estimate split
+    assert next(m for m in members if m.wave == 0).dps == 5
+    assert all(w.dps == 4 for w in members if w.wave == 1)

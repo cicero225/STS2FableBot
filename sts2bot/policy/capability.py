@@ -341,14 +341,16 @@ _ELITE_COMPOSITIONS: dict[str, list[tuple]] = {
 
 
 def elite_fight_members(
-    name: str, entry: dict, bestiary: dict, *, dps: int, str_ramp: int = 0
+    name: str, entry: dict, bestiary: dict, *, dps: int, str_ramp: int = 0,
+    dps_table: dict | None = None,
 ) -> list[FightEnemy]:
     """The full body-list for an elite fight. Single-body elites -> [bestiary_enemy(entry)];
-    composed ones (swarms, death-spawn waves) expand via _ELITE_COMPOSITIONS, splitting the
-    per-act dps estimate across the CONCURRENT bodies of each wave (HP totals and per-body
-    mechanics like Skittish are the real correction; per-phase threat stays the act estimate —
-    splitting across ALL bodies underpriced phased fights like Phrog, whose phase-1 parasite
-    carries the full load alone)."""
+    composed ones (swarms, death-spawn waves) expand via _ELITE_COMPOSITIONS. Each member
+    body gets its OWN realized dps when the table has it (Wriggler: 4.1/body over 1028
+    rounds); only unharvested members fall back to splitting the per-act estimate across
+    their wave's concurrent bodies. The old ALL-bodies split underpriced Phrog twice over:
+    the phase-1 parasite carried 1/5th of the estimate, and the table's parasite-only 7
+    dps was the thing being split."""
     comp = next(
         (m for key, m in _ELITE_COMPOSITIONS.items() if key in name.upper()), None
     )
@@ -362,7 +364,8 @@ def elite_fight_members(
     for member in comp:
         member_name, count = member[0], member[1]
         member_wave = member[2] if len(member) > 2 else 0
-        per_dps = max(1, dps // max(1, wave_bodies[member_wave]))
+        split = max(1, dps // max(1, wave_bodies[member_wave]))
+        per_dps = realized_dps(dps_table or {}, member_name, split)
         m_entry = bestiary.get(member_name) or entry
         for _ in range(count):
             members.append(
