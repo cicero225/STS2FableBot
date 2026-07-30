@@ -2661,6 +2661,43 @@ def test_eruption_phase_stacks_block_despite_null_intent() -> None:
     assert d.scores.get("hp_loss") == 35.0, d.scores  # 50 assumed - 15 block stacked
 
 
+def test_planisphere_heal_flips_a_death_floor_pocket() -> None:
+    """Owner nuance check 2026-07-29: Planisphere (+5 HP entering a '?' room) now
+    rides the map DP's HP projection. At 20/80 HP with a 12-loss monster behind both
+    doors, the '?' route projects 20+5-12=13 (safe) while the event route projects
+    20-12=8 (death floor) — the +5 is exactly the margin."""
+    from sts2bot.kb.combat_stats import CombatStats
+
+    stats = CombatStats(by_type={
+        "monster_early": {"mean": 4.0, "p75": 5, "n": 99},
+        "monster": {"mean": 12.0, "p75": 18, "n": 99},
+        "elite": {"mean": 21.0, "p75": 32, "n": 99},
+        "boss": {"mean": 25.0, "p75": 42, "n": 99},
+    })
+    payload = json.loads(json.dumps(FIXTURES["map"]))
+    payload["map"]["next_options"] = [
+        {"index": 0, "col": 1, "row": 4, "type": "Unknown",
+         "leads_to": [{"col": 1, "row": 5, "type": "Monster"}]},
+        {"index": 1, "col": 2, "row": 4, "type": "Event",
+         "leads_to": [{"col": 2, "row": 5, "type": "Monster"}]},
+    ]
+    payload["map"]["nodes"] = [
+        {"col": 1, "row": 5, "type": "Monster", "children": []},
+        {"col": 2, "row": 5, "type": "Monster", "children": []},
+    ]
+    payload["player"]["hp"] = 20
+    payload["player"]["max_hp"] = 80
+    payload["player"]["deck"] = _STRONG_DECK
+    payload["player"]["relics"] = [{"id": "PLANISPHERE", "name": "Planisphere",
+                                    "description": "Heal 5 HP when you enter a ? room.",
+                                    "counter": None, "keywords": []}]
+    r = StandardRouter(combat_stats=stats, bestiary={})
+    r.card_effects = _ROUTING_CARD_EFFECTS
+    d = r.decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["index"] == 0, d.scores  # the healed '?' route
+
+
 def test_map_travel_hold_suppresses_phantom_redecide() -> None:
     """Audit 2026-07-25 (f42-44 forensics): right after a travel is accepted the mod
     re-renders the map minus the consumed option; the router re-decided on the

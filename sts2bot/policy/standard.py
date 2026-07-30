@@ -714,6 +714,13 @@ class StandardRouter:
         if player is not None:
             hp_missing_pct = 100.0 * (1.0 - player.hp / max(1, player.max_hp))
             gold = player.gold
+        # Planisphere: +5 HP on entering a '?' room (owner nuance check 2026-07-29).
+        # Margins only — but the DP's death-floor pockets flip on margins, and a
+        # '?'-dense route with it held is a real trickle of sustain.
+        unknown_heal = 5.0 if any(
+            "PLANISPHERE" in f"{r.id or ''} {r.name or ''}".upper()
+            for r in ((player.relics if player else None) or [])
+        ) else 0.0
 
         next_row = min(o.row for o in opts)
 
@@ -839,6 +846,8 @@ class StandardRouter:
                 hp_after = hp - fight_loss("boss")
             elif t in ("restsite", "rest_site"):
                 return min(max_hp, hp + w.rest_heal_pct * max_hp), 0.0
+            elif t == "unknown" and unknown_heal:
+                return min(max_hp, hp + unknown_heal), 0.0  # Planisphere trickle
             else:
                 return hp, 0.0
             if hp_after <= death_floor:
