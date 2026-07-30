@@ -80,6 +80,8 @@ class _Foe:
     vuln: int = 0
     lost_this_turn: int = 0
     slipped_this_turn: bool = False
+    wave: int = 0
+    dormant: bool = False  # wave>0 body not yet spawned: untargetable, not attacking
 
 
 @dataclass(frozen=True)
@@ -211,7 +213,8 @@ class _RolloutSim:
                           thorns=e.thorns, death_damage=e.death_damage,
                           death_damage_growth=e.death_damage_growth,
                           heals=e.heals_per_turn, dot=e.player_dot_avg,
-                          death_timer=e.death_timer)
+                          death_timer=e.death_timer, wave=e.wave,
+                          dormant=e.wave > 0)
                      for e in enemies]
         self.rng = rng
         self.rfx = rfx or {}
@@ -241,7 +244,28 @@ class _RolloutSim:
         return 0
 
     def alive_leaders(self):
+        # win condition: dormant bodies still hold kill-HP (Phrog phase 2)
         return [f for f in self.foes if f.counts and f.hp > 0]
+
+    def targets(self):
+        # what's actually on the field: alive AND spawned
+        return [f for f in self.foes if f.hp > 0 and not f.dormant]
+
+    def best_target(self):
+        # prefer leaders among on-field bodies; raced-past minions only as fallback
+        on_field = self.targets()
+        leaders = [f for f in on_field if f.counts]
+        return min(leaders or on_field, key=lambda f: f.hp, default=None)
+
+    def _advance_wave(self):
+        if any(not f.dormant and f.hp > 0 for f in self.foes):
+            return
+        sleepers = [f for f in self.foes if f.dormant and f.hp > 0]
+        if sleepers:
+            nxt = min(f.wave for f in sleepers)
+            for f in sleepers:
+                if f.wave == nxt:
+                    f.dormant = False
 
     def draw_one(self):
         if not self.draw:
@@ -270,7 +294,7 @@ class _RolloutSim:
             self.block += rfx.get("t1_block", 0)
             self.my_str += self.spend("strength")  # fight-start buffs (live lane 4)
             for f in self.foes:
-                if f.hp > 0:
+                if f.hp > 0 and not f.dormant:
                     f.vuln += rfx.get("t1_vuln", 0)
         if self.turn == 2:
             self.block += rfx.get("t2_block", 0)
@@ -300,10 +324,10 @@ class _RolloutSim:
         for _ in range(pick.fx.draw):
             self.draw_one()
         if pick.fx.total_damage > 0:
-            tgts = ([f for f in self.foes if f.hp > 0] if pick.fx.aoe
+            tgts = (self.targets() if pick.fx.aoe
                     else ([target] if target is not None else []))
             for f in tgts:
-                if f is None or f.hp <= 0:
+                if f is None or f.hp <= 0 or f.dormant:
                     continue
                 for _h in range(max(1, pick.fx.hits)):
                     _hit(f, pick.fx.damage + self.my_str, self.vm)
@@ -313,6 +337,7 @@ class _RolloutSim:
                     f.vuln += pick.fx.vulnerable
                 if f.hp <= 0:
                     self.hp -= f.death_damage + f.death_damage_growth * self.turn
+            self._advance_wave()  # Phrog: killing the leader spawns the next wave
         if pick.shreds_hand:
             # Stoke: exhaust hand, add a random card per exhausted — average-quality
             # replacements (owner: shredding basics is almost always a value upgrade)
@@ -358,15 +383,17 @@ class _RolloutSim:
             return
         # damage-potion finisher (live lane 5)
         for kind in ("damage", "aoe"):
-            tgt = next((f for f in self.foes if f.counts and f.hp > 0), None)
+            tgt = next((f for f in self.foes
+                        if f.counts and f.hp > 0 and not f.dormant), None)
             if tgt is not None and any(k == kind and a >= tgt.hp for k, a in self.belt):
                 tgt.hp = 0
                 self.spend(kind)
+                self._advance_wave()
                 if not self.alive_leaders():
                     self._win()
                     return
         # enemy turn (block/heal potions as death-preventers — live lanes 1/5)
-        strike = sum(f.dps + f.str_gained + f.dot for f in self.foes if f.hp > 0)
+        strike = sum(f.dps + f.str_gained + f.dot for f in self.targets())
         if self.hp - max(0, strike - self.block) <= 0:
             self.block += self.spend("block")
         if self.hp - max(0, strike - self.block) <= 0:
@@ -380,7 +407,7 @@ class _RolloutSim:
         if self.block == 0 and self.rfx.get("eot_block_if_none"):
             self.block += self.rfx["eot_block_if_none"]  # Orichalcum
         for f in self.foes:
-            if f.hp <= 0:
+            if f.hp <= 0 or f.dormant:
                 continue
             f.str_gained += f.ramp
             if f.heals:
@@ -398,14 +425,14 @@ def _greedy_turn(sim: _RolloutSim) -> None:
     """The P1 heuristic: generators -> powers -> kills -> vuln uptime -> needed
     block -> best damage. Calibrated on elites; behavior unchanged by the P1.7
     refactor (same pick order, same physics)."""
-    incoming = sum(f.dps + f.str_gained + f.dot for f in sim.foes if f.hp > 0)
+    incoming = sum(f.dps + f.str_gained + f.dot for f in sim.targets())
     for _ in range(12):
         if sim.outcome is not None:
             return
         playable = sim.playable()
         if not playable:
             return
-        target = min(sim.alive_leaders(), key=lambda f: f.hp, default=None)
+        target = sim.best_target()
         pick = None
         gens = [c for c in playable if c.fx.draw > 0 or c.fx.energy_gain > 0]
         if gens:
@@ -432,8 +459,7 @@ def _greedy_turn(sim: _RolloutSim) -> None:
             pick = max(blocks, key=lambda c: c.fx.block)
         if pick is None:
             return
-        sim.apply_card(pick, min(sim.alive_leaders(), key=lambda f: f.hp,
-                                 default=None))
+        sim.apply_card(pick, sim.best_target())
 
 
 def _synth_state(sim: _RolloutSim):
@@ -444,7 +470,7 @@ def _synth_state(sim: _RolloutSim):
     from sts2bot.client.models import parse_state
     enemies = []
     for i, f in enumerate(sim.foes):
-        if f.hp <= 0:
+        if f.hp <= 0 or f.dormant:  # dormant wave: not on screen yet
             continue
         status = []
         if f.vuln > 0:
@@ -510,10 +536,11 @@ def _dfs_turn(sim: _RolloutSim, weights, max_plans: int = 10) -> None:
             tid = a.target or ""
             if tid.startswith("SIM_"):
                 k = int(tid.split("_")[1])
-                if 0 <= k < len(sim.foes) and sim.foes[k].hp > 0:
+                if (0 <= k < len(sim.foes) and sim.foes[k].hp > 0
+                        and not sim.foes[k].dormant):
                     target = sim.foes[k]
             if target is None:
-                target = min(sim.alive_leaders(), key=lambda f: f.hp, default=None)
+                target = sim.best_target()
             sim.apply_card(sim.hand[idx], target)
         else:
             return  # EndTurn / anything else: the turn is done
