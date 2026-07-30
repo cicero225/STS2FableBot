@@ -132,6 +132,11 @@ class MapWeights(_Section):
     # losing trade; the whole retune is owner-blessed for batch validation.
     elite_relic_value: float = 42.0
     rest_heal_pct: float = 0.30  # HP fraction a rest site restores, for the projection
+    # Winged Boots charges are INSURANCE (owner 2026-07-29: jump to a rest when
+    # desperate, to a shop when rich — not casual path upgrades; live: 2 of 3
+    # charges burned on marginal jumps). Off-path options pay this, so only a
+    # clearly better line (death-floor dodge, big value gap) spends a charge.
+    boots_jump_cost: float = 12.0
     # §5-C elite gate: chase an elite only if the deck wins it (at full HP) with at least this HP
     # fraction left — a pyrrhic 2-HP win is a loss for the next node, so don't chase it.
     # 0.30 -> 0.20 (A/B #5): a 20%-HP win + relic beat our 90%-HP no-relic arrival.

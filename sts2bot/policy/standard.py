@@ -883,6 +883,14 @@ class StandardRouter:
             memo[key] = value
             return value
 
+        # Winged Boots (owner 2026-07-29): with it held the mod offers OFF-PATH nodes
+        # as extra next_options — identifiable as options absent from the current
+        # node's graph children. Charges are insurance, not path upgrades (live:
+        # 2 of 3 burned on marginal jumps), so jump options pay boots_jump_cost;
+        # a death-floor dodge to a rest site still clears it easily.
+        cur_node = node_by_pos.get((pos.col, pos.row)) if pos else None
+        cur_kids = ({tuple(c) for c in cur_node.children} if cur_node else set())
+
         scored: dict[str, float] = {}
         best = None
         best_score = float("-inf")
@@ -898,6 +906,8 @@ class StandardRouter:
                     default=0.0,
                 )
             score = type_score(opt.type, opt.row) + adj + w.path_step_discount * future
+            if cur_kids and (opt.col, opt.row) not in cur_kids:
+                score -= w.boots_jump_cost
             scored[f"{opt.index}:{opt.type}"] = round(score, 2)
             if score > best_score:
                 best_score, best = score, opt

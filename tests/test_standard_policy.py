@@ -2661,6 +2661,45 @@ def test_eruption_phase_stacks_block_despite_null_intent() -> None:
     assert d.scores.get("hp_loss") == 35.0, d.scores  # 50 assumed - 15 block stacked
 
 
+def test_boots_jump_is_insurance_not_a_path_upgrade() -> None:
+    """Owner 2026-07-29: Winged Boots charges should be saved for emergencies — the
+    bot burned 2 of 3 on marginal jumps (off-path options score higher, DP obliges).
+    Jump options now pay boots_jump_cost: a comfy-HP rest jump is refused; the same
+    jump at desperate HP (death-floor dodge) is taken."""
+    from sts2bot.kb.combat_stats import CombatStats
+
+    stats = CombatStats(by_type={
+        "monster_early": {"mean": 4.0, "p75": 5, "n": 99},
+        "monster": {"mean": 12.0, "p75": 18, "n": 99},
+        "elite": {"mean": 21.0, "p75": 32, "n": 99},
+        "boss": {"mean": 25.0, "p75": 42, "n": 99},
+    })
+
+    def mk(hp):
+        payload = json.loads(json.dumps(FIXTURES["map"]))
+        payload["map"]["current_position"] = {"col": 4, "row": 3, "type": "Monster"}
+        payload["map"]["next_options"] = [
+            {"index": 0, "col": 4, "row": 4, "type": "Monster", "leads_to": []},
+            {"index": 1, "col": 0, "row": 4, "type": "RestSite", "leads_to": []},  # boots jump
+        ]
+        payload["map"]["nodes"] = [
+            {"col": 4, "row": 3, "type": "Monster", "children": [[4, 4]]},
+            {"col": 4, "row": 4, "type": "Monster", "children": []},
+            {"col": 0, "row": 4, "type": "RestSite", "children": []},
+        ]
+        payload["player"]["hp"] = hp
+        payload["player"]["max_hp"] = 80
+        payload["player"]["deck"] = _STRONG_DECK
+        return payload
+
+    r = StandardRouter(combat_stats=stats, bestiary={})
+    r.card_effects = _ROUTING_CARD_EFFECTS
+    comfy = r.decide(parse_state(mk(64)), LoopContext())
+    assert comfy.action.payload()["index"] == 0, comfy.scores  # stay on-path
+    desperate = r.decide(parse_state(mk(18)), LoopContext())
+    assert desperate.action.payload()["index"] == 1, desperate.scores  # spend the charge
+
+
 def test_planisphere_heal_flips_a_death_floor_pocket() -> None:
     """Owner nuance check 2026-07-29: Planisphere (+5 HP entering a '?' room) now
     rides the map DP's HP projection. At 20/80 HP with a 12-loss monster behind both
