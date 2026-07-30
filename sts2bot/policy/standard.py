@@ -702,11 +702,12 @@ class StandardRouter:
         if fx.strength > 0 or any(
             k in nid for k in ("STRENGTH", "DEXTER", "FOCUS", "POWER", "BLESSING", "FYSH",
                                "FORGE", "THORNS")
-        ) or re.search(r"gain \d+ thorns", potion.description or "", re.IGNORECASE):
-            # THORNS by name OR TEXT (owner 2026-07-25 + live 2026-07-29: the actual
-            # potion is "Liquid Bronze" / "Gain 3 Thorns" — the name keyword never
-            # matched, so it sat until hail-mary at the Knowledge Demon): "absolutely
-            # drink a thorns potion at the start of the final boss fight."
+        ) or re.search(r"gain \d+ (thorns|replay)", potion.description or "",
+                       re.IGNORECASE):
+            # THORNS/REPLAY by TEXT (names lie): Liquid Bronze "Gain 3 Thorns" sat
+            # until hail-mary at a live KD fight; Soldier's Stew "All cards containing
+            # Strike gain 1 Replay this combat" ditto at a live Aeonglass (owner
+            # 2026-07-29: both are obvious turn-1 plays at bosses/elites).
             return "buff"
         if (fx.draw > 0 and fx.energy_gain == 0
                 and "energy" not in (potion.description or "").lower()):
