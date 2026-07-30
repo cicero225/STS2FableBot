@@ -203,6 +203,15 @@ class AgentLoop:
                     "MANUAL:"
                 )
                 limit = cfg.manual_stall_threshold if waiting_on_owner else cfg.stall_threshold
+                # Long benign animations (live 2026-07-29: the Waterfall Giant's
+                # eruption sequence held "not the player's play phase" past the
+                # ~9s leash on a HEALTHY game -- the rail C5-aborted a 15-run
+                # batch at run 1, and the fight was alive minutes later). Waits
+                # that are explicitly phase/animation-shaped get triple the rope;
+                # the rail still fires eventually on a true hang.
+                if (last_wait_reason
+                        and "play phase" in str(last_wait_reason).lower()):
+                    limit = cfg.stall_threshold * 3
                 if stall >= limit:
                     detail = f"; last wait reason: {last_wait_reason}" if last_wait_reason else ""
                     raise BotStalled(
