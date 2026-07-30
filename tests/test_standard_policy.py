@@ -2458,6 +2458,26 @@ def test_card_gen_potion_dropped_at_boss_start() -> None:
     assert "bank cards early" in d.rationale
 
 
+def test_swift_potion_on_out_of_cards_with_energy() -> None:
+    """Owner provisional rule 2026-07-29: Swift (draw 3) drinks when out of playable
+    cards with energy unspent at a boss/elite (or full belt) — NOT at turn 1 with a
+    full hand. Full treatment belongs to the multiturn planner."""
+    swift = _potion("SWIFT_POTION", "Swift Potion", "Draw 3 cards.")
+    # boss, empty hand, 2 energy left -> drink
+    state = make_combat(hand=[], enemies=[enemy("BOSS_0", 200, intent_label="10")],
+                        energy=2, hp=70, max_hp=80, state_type="boss", potions=[swift])
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("action") == "use_potion", d.rationale
+    assert "out of cards" in d.rationale
+    # normal fight, belt not full -> held
+    st2 = make_combat(hand=[], enemies=[enemy("MOB_0", 30, intent_label="5")],
+                      energy=2, hp=70, max_hp=80, potions=[swift])
+    d2 = router().decide(st2, LoopContext())
+    assert (not isinstance(d2, Decision)
+            or d2.action.payload().get("action") != "use_potion"), d2.rationale
+
+
 def test_orobic_acid_deploys_at_elite_start() -> None:
     """Owner 2026-07-29: Orobic Acid (3 random cards, free this turn) and the other
     card-gen potions are obvious turn-1 plays at bosses AND elites — the lane was

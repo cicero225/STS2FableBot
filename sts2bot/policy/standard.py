@@ -604,6 +604,15 @@ class StandardRouter:
 
         # 5. Reactive, once the planned line has spent its cards (end of turn):
         if plan_ends_turn:
+            # Swift-class draw potions (owner provisional 2026-07-29; full treatment
+            # is the multiturn planner): out of playable cards with energy unspent
+            # at a big fight or on a full belt -> the draw converts dead energy
+            # into plays THIS turn.
+            energy_left = player.energy or 0
+            if (energy_left >= 1 and (dangerous or belt_full)
+                    and (dp := first("draw"))):
+                return drink(dp, None,
+                             f"drink {dp.name} (out of cards, {energy_left} energy unspent)")
             if proj_loss >= w.block_reactive_min and (blockp := first("block")):
                 return drink(
                     blockp, None, f"drink {blockp.name} end-of-turn (unblocked {proj_loss:.0f})"
@@ -662,6 +671,13 @@ class StandardRouter:
             # boss fight"); it categorized "other" and only hail-maries drink those
         ):
             return "buff"
+        if (fx.draw > 0 and fx.energy_gain == 0
+                and "energy" not in (potion.description or "").lower()):
+            # Swift-class PURE draw: its moment is OUT-OF-CARDS-WITH-ENERGY, not
+            # turn 1 (owner provisional rule 2026-07-29; full treatment = §5-C).
+            # The energy-text guard keeps Cure-All-likes ("Gain energy. Draw 2",
+            # unnumbered energy parses 0) in the value bucket.
+            return "draw"
         if fx.draw > 0 or fx.energy_gain > 0 or "ENERGY" in nid:  # tempo: more energy / cards
             return "value"
         return "other"
@@ -2279,7 +2295,7 @@ class StandardRouter:
     # Keep-value by category for the full-belt discard: ditch junk (downside / unknown),
     # keep the good stuff (heals, buffs, energy/draw value, damage). Tie-break by slot.
     _DISCARD_RANK: ClassVar[dict[str, int]] = {
-        "downside": 0, "other": 1, "debuff": 3, "block": 3, "value": 4,
+        "downside": 0, "other": 1, "debuff": 3, "block": 3, "value": 4, "draw": 4,
         "damage": 4, "aoe_damage": 4, "card_gen": 4, "buff": 5, "heal": 6, "fruit_juice": 7,
     }
 
