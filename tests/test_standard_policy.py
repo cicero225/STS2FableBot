@@ -3825,3 +3825,26 @@ def test_eternal_feather_entry_heal_rides_the_route_projection() -> None:
     bare["player"]["relics"] = []
     d2 = r.decide(parse_state(bare), LoopContext())
     assert with_feather > d2.scores["0:RestSite"]
+
+
+def test_queen_forecast_includes_the_torch_head_amalgam() -> None:
+    """Tape 2026-07-30 (A36ZF0WVBS, f48 death from a 95-HP entry in 6 turns): the
+    Queen's own realized dps is 2.1 -- she summons a 24.8-dps Torch Head Amalgam
+    the single-entry forecast never saw. _upcoming_boss now adds summons as
+    Kin-style minions: full threat, no kill-HP."""
+    from sts2bot.policy.standard import StandardRouter
+
+    bestiary = {"Queen": {"hp": [400, 400], "statuses": {}, "roles": ["boss"]},
+                "Torch Head Amalgam": {"hp": [199, 199], "statuses": {},
+                                       "roles": ["boss"]}}
+    r = StandardRouter(combat_stats=None, bestiary=bestiary)
+    r.enemy_dps = {"Queen": {"dps_early": 0.0, "dps_mean": 2.1},
+                   "Torch Head Amalgam": {"dps_early": 23.4, "dps_mean": 24.8}}
+    ctx = LoopContext()
+    ctx.screen_mem["act_boss_name"] = "Queen"
+    members = r._upcoming_boss(ctx, 3)
+    assert len(members) == 2
+    queen = next(m for m in members if m.hp == 400)
+    tha = next(m for m in members if m.hp == 199)
+    assert queen.counts_toward_kill and not tha.counts_toward_kill
+    assert tha.dps == 23  # its own realized number, not the queen's 2

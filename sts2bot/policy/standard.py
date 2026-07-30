@@ -88,6 +88,10 @@ _GENERIC_ELITE = {
 # harvested), paired with the bestiary's real HP + throttling.
 _GENERIC_BOSS = (170, 24, 2)
 _ACT_BOSS = {1: (24, 2), 2: (30, 2), 3: (36, 3)}  # (dps, str_ramp) estimate for the act's boss
+# Summoner bosses: bodies the boss ADDS mid-fight, keyed by a substring of the boss
+# name -> bestiary names of the summons. Consumed by _upcoming_boss (forecast side);
+# the summons are minions in the Kin sense (threat, not kill-HP).
+_BOSS_SUMMONS: dict[str, list[str]] = {"QUEEN": ["Torch Head Amalgam"]}
 _BIG_HIT_DAMAGE = 12  # "real hit" threshold for the first-big-hit draft switch (owner)
 # Uncatalogued ancient boons compete at their generic-heuristic value clamped to this
 # (catalog scale: relic ~ 6; the raw heuristic runs far hotter and must not hijack)
@@ -1655,7 +1659,22 @@ class StandardRouter:
         if entry:
             dps, ramp = _ACT_BOSS.get(act, _ACT_BOSS[1])
             dps = realized_dps(self.enemy_dps, boss_name, dps)
-            return [bestiary_enemy(entry, dps=dps, name=boss_name, str_ramp=ramp)]
+            members = [bestiary_enemy(entry, dps=dps, name=boss_name, str_ramp=ramp)]
+            # Summoner bosses (tape 2026-07-30, A36ZF0WVBS): the single-entry
+            # forecast read the Queen as harmless (2.1 realized dps) while her
+            # summoned Torch Head Amalgam swings 24.8 — a 95-HP entry died in 6
+            # turns to a "2-dps" boss. Leader carries the kill-HP; summons add
+            # dps but not kill-HP (counts_toward_kill=False — the Kin rule).
+            for key, minions in _BOSS_SUMMONS.items():
+                if key in boss_name.upper():
+                    for mname in minions:
+                        m_entry = self.bestiary.get(mname)
+                        if m_entry:
+                            members.append(bestiary_enemy(
+                                m_entry,
+                                dps=realized_dps(self.enemy_dps, mname, dps),
+                                name=mname, counts_toward_kill=False))
+            return members
         return [FightEnemy(*_GENERIC_BOSS)]
 
     @staticmethod
