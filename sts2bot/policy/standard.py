@@ -335,8 +335,8 @@ class StandardRouter:
             return None
         if isinstance(plan, Decision) and plan.scores and plan.scores.get("lethal"):
             return None
-        if any("NO_DRAW" in (st_.id or "").upper() for st_ in (player.status or [])):
-            return None  # Battle Trance rider: the desperation draw would draw nothing
+        no_draw = any("NO_DRAW" in (st_.id or "").upper()
+                      for st_ in (player.status or []))
         incoming = sum(
             parse_intent_damage(i.label)
             for e in state.battle.enemies
@@ -357,17 +357,42 @@ class StandardRouter:
             if (m := re.search(r"only play (\d+) card", s.description or "", re.IGNORECASE)) \
                     and int(m.group(1)) <= 1:
                 return None
+        shredder = None
+        energy_gen = None
         for card_ in player.hand or []:
             if not card_.can_play:
                 continue
             fx = parse_card_description(card_.description)
-            if fx.draw > 0 and fx.self_hp_cost < player.hp:
+            if fx.draw > 0 and fx.self_hp_cost < player.hp and not no_draw:
                 target = self._target_for(card_, state)
                 return Decision(
                     action=act.PlayCard(card_index=card_.index, target=target),
                     rationale=f"desperation draw: {card_.name} (incoming {incoming} vs "
                     f"{player.hp} HP — dig for answers)",
                 )
+            d_ = (card_.description or "").lower()
+            if "exhaust your hand" in d_ and "random card" in d_:
+                shredder = card_  # Stoke-class: reroll the whole hand
+            elif fx.energy_gain > 0 and fx.self_hp_cost < player.hp:
+                energy_gen = card_
+        # Emergency Stoke (owner live 2026-07-30): no survivable line -> shredding
+        # the hand IS a reroll, and it works under NO_DRAW (adds aren't draws).
+        # Bank energy first if a generator is playable — the lane re-fires next
+        # poll and the shred then plays with more energy for whatever it finds.
+        if shredder is not None:
+            if energy_gen is not None:
+                return Decision(
+                    action=act.PlayCard(card_index=energy_gen.index,
+                                        target=self._target_for(energy_gen, state)),
+                    rationale=f"bank {energy_gen.name} before the emergency shred "
+                    f"(incoming {incoming} vs {player.hp} HP)",
+                )
+            return Decision(
+                action=act.PlayCard(card_index=shredder.index,
+                                    target=self._target_for(shredder, state)),
+                rationale=f"emergency shred: {shredder.name} rerolls the hand "
+                f"(incoming {incoming} vs {player.hp} HP)",
+            )
         return None
 
     @staticmethod
@@ -809,6 +834,11 @@ class StandardRouter:
         # Meal Ticket: +15 HP on entering a shop (owner 2026-07-29) — same seam.
         shop_heal = 15.0 if any("MEAL_TICKET" in n or "MEAL TICKET" in n
                                 for n in held_relics) else 0.0
+        # Juzu Bracelet (owner 2026-07-30): '?' rooms never roll normal fights.
+        # NB the HP projection never charged '?' nodes for potential combat, so
+        # there is no penalty to remove — this is the upside-only score bump
+        # (guaranteed event/treasure/shop EV beats the fight-diluted pool).
+        juzu_bonus = 2.0 if any("JUZU" in n for n in held_relics) else 0.0
 
         next_row = min(o.row for o in opts)
 
@@ -816,7 +846,7 @@ class StandardRouter:
             t = (node_type or "unknown").lower()
             base = {
                 "monster": w.score_monster,
-                "unknown": w.score_unknown,
+                "unknown": w.score_unknown + juzu_bonus,
                 "event": w.score_event,
                 "restsite": w.score_rest_site,
                 "rest_site": w.score_rest_site,
@@ -920,8 +950,37 @@ class StandardRouter:
                 est_elite_loss = (max_hp - outcome.exp_end_hp) if outcome.win else max_hp
             boss_members = self._upcoming_boss(ctx, cur_act)
             if boss_members:
-                bo = estimate_fight(int(max_hp), deck_out, boss_members)
-                est_boss_loss = (max_hp - bo.exp_end_hp) if bo.win else max_hp
+                boss_name = ctx.screen_mem.get("act_boss_name", "")
+                use_dfs = (self.config.map.use_dfs_boss_rollouts
+                           and boss_name and self.bestiary.get(boss_name))
+                if use_dfs:
+                    # P1.7: DFS-policy rollout for the KNOWN boss, cached per
+                    # (deck, boss, belt) -- ~1.1s fresh, free on cache hits
+                    key = (boss_name,
+                           tuple(sorted((c.id or "", bool(c.is_upgraded))
+                                        for c in player.deck)),
+                           tuple(sorted((p_.id or "") for p_ in player.potions or [])))
+                    cache = ctx.screen_mem.setdefault("boss_roll_cache", {})
+                    if key in cache:
+                        est_boss_loss = cache[key]
+                    else:
+                        t0 = time.perf_counter()
+                        timing: dict = {}
+                        roll = rollout_fight(
+                            player.deck, boss_members, int(max_hp), int(max_hp),
+                            card_effects=self.card_effects,
+                            potions=player.potions, relics=player.relics,
+                            n=self.config.map.dfs_boss_rollout_n,
+                            policy="dfs", combat_weights=self.config.combat,
+                            timing_out=timing,
+                        )
+                        est_boss_loss = max_hp - roll.exp_end_hp
+                        cache[key] = est_boss_loss
+                        boss_ms = timing.get("ms", (time.perf_counter() - t0) * 1e3)
+                        ctx.screen_mem["last_boss_ms"] = round(boss_ms, 1)
+                else:
+                    bo = estimate_fight(int(max_hp), deck_out, boss_members)
+                    est_boss_loss = (max_hp - bo.exp_end_hp) if bo.win else max_hp
 
         def fight_loss(key: str) -> float:
             # Owner 2026-07-13 (route-then-swerve forensics): the p75-of-own-history
@@ -1022,6 +1081,8 @@ class StandardRouter:
         assert best is not None
         if gate_ms is not None:
             scored["gate_ms"] = round(gate_ms, 1)  # owner: latency data matters
+        if ctx.screen_mem.get("last_boss_ms") is not None:
+            scored["boss_ms"] = ctx.screen_mem.pop("last_boss_ms")
         if state.map.boss and state.map.boss.name:
             # cache the act's boss name (known after Neow) so post-combat drafting, where the map
             # isn't in state, can price cards against the *real* boss (§5-C / ENEMY_PASS).

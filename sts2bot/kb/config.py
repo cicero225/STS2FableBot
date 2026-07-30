@@ -154,6 +154,14 @@ class MapWeights(_Section):
     # relics@f17 6.0 -> 4.8); buy some aggression back with the tail floor
     # (p25 >= elite_gate_min_end_hp_pct) still standing guard.
     rollout_gate_win_rate: float = 0.55
+    # P1.7 (2026-07-30): KNOWN bosses are priced by DFS-policy rollouts (the real
+    # one-turn planner drives each simulated turn) -- backtest: 52% predicted vs
+    # greedy's 38% (actual 65%), bias +7. Median ~1.1s/estimate at n=8, so results
+    # cache per (deck, boss, belt) in ctx.screen_mem; scores["boss_ms"] logs fresh
+    # computations (owner: the amount matters). Generic/unknown bosses stay on the
+    # closed form.
+    use_dfs_boss_rollouts: bool = True
+    dfs_boss_rollout_n: int = 8
     # §5-C elite gate: chase an elite only if the deck wins it (at full HP) with at least this HP
     # fraction left — a pyrrhic 2-HP win is a loss for the next node, so don't chase it.
     # 0.30 -> 0.20 (A/B #5): a 20%-HP win + relic beat our 90%-HP no-relic arrival.
