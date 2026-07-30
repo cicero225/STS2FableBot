@@ -2458,6 +2458,33 @@ def test_card_gen_potion_dropped_at_boss_start() -> None:
     assert "bank cards early" in d.rationale
 
 
+def test_emergency_stoke_rerolls_a_doomed_hand() -> None:
+    """Owner live 2026-07-30: with no survivable line, Stoke as first play (after
+    banking energy if available) rerolls the hand — the bot declined it. Works
+    under NO_DRAW too (adds aren't draws)."""
+    stoke = card(0, "Stoke", 1, "Exhaust your Hand. Add 1 random card into your "
+                                "Hand for each card Exhausted.", ctype="Skill")
+    bloodletting = card(1, "Bloodletting", 0,
+                        "Lose 2 HP. Gain 2 Energy.", ctype="Skill")
+    strike = card(2, "Strike", 1, "Deal 6 damage.")
+    state = make_combat(hand=[stoke, bloodletting, strike],
+                        enemies=[enemy("BOSS_0", 300, intent_label="40")],
+                        hp=12, max_hp=80, state_type="boss")
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    # energy first (the lane re-fires next poll and the shred plays richer)
+    assert d.action.payload().get("card_index") == 1, d.rationale
+    assert "bank" in d.rationale
+    # without the generator, the shred itself fires
+    st2 = make_combat(hand=[stoke, strike],
+                      enemies=[enemy("BOSS_0", 300, intent_label="40")],
+                      hp=12, max_hp=80, state_type="boss")
+    d2 = router().decide(st2, LoopContext())
+    assert isinstance(d2, Decision)
+    assert d2.action.payload().get("card_index") == 0, d2.rationale
+    assert "emergency shred" in d2.rationale
+
+
 def test_explosive_potion_held_for_the_swarms_ahead() -> None:
     """Owner 2026-07-29: AoE damage potions are premium vs the Kin / Phrog p2 /
     Gardeners / Decimillipede — hold them in acts 1-2 NORMAL fights while any of
