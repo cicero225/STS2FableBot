@@ -2619,8 +2619,8 @@ def test_thorns_potion_deployed_at_boss_start() -> None:
         hand=[card(0, "Strike", 1, "Deal 6 damage.")],
         enemies=[enemy("BOSS_0", 300, intent_label="12")],
         hp=70, max_hp=80, state_type="boss",
-        potions=[_potion("THORNS_POTION", "Thorns Potion",
-                         "Gain 6 Thorns for the rest of combat.")],
+        potions=[_potion("LIQUID_BRONZE", "Liquid Bronze",
+                         "Gain 3 Thorns.")],  # the REAL name (live 2026-07-29)
     )
     d = router().decide(state, LoopContext())
     assert isinstance(d, Decision)

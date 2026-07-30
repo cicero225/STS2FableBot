@@ -702,10 +702,11 @@ class StandardRouter:
         if fx.strength > 0 or any(
             k in nid for k in ("STRENGTH", "DEXTER", "FOCUS", "POWER", "BLESSING", "FYSH",
                                "FORGE", "THORNS")
-            # THORNS: owner catch 2026-07-25 — the win run ENDED with a Thorns potion
-            # in the belt ("absolutely drink a thorns potion at the start of the final
-            # boss fight"); it categorized "other" and only hail-maries drink those
-        ):
+        ) or re.search(r"gain \d+ thorns", potion.description or "", re.IGNORECASE):
+            # THORNS by name OR TEXT (owner 2026-07-25 + live 2026-07-29: the actual
+            # potion is "Liquid Bronze" / "Gain 3 Thorns" — the name keyword never
+            # matched, so it sat until hail-mary at the Knowledge Demon): "absolutely
+            # drink a thorns potion at the start of the final boss fight."
             return "buff"
         if (fx.draw > 0 and fx.energy_gain == 0
                 and "energy" not in (potion.description or "").lower()):
