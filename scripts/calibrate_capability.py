@@ -123,9 +123,17 @@ def predict(kind, act, entry):
     if not members:
         return None
     out = estimate_fight(int(hp), deck, members)
+    from types import SimpleNamespace as _NS
+
+    def wrap(xs):
+        return [_NS(**{k: x.get(k) for k in ("id", "name", "description")})
+                for x in xs or []]
+
     roll = rollout_fight(wrap_deck(deck_raw), members, int(hp),
                          int(pl.get("max_hp") or hp),
-                         card_effects=router.card_effects, n=20)
+                         card_effects=router.card_effects, n=20,
+                         potions=wrap(pl.get("potions")),
+                         relics=wrap(pl.get("relics")))
     return out, roll
 
 
