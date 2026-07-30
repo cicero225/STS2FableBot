@@ -19,16 +19,14 @@ leader). If the owner wins this by committing everything early, the encodable
 rule is: race fights extend the boss-start deploy lane to the FULL belt, not one
 potion.
 
-## 2. `A36ZF0WVBS` — Queen, f48
-Entered at 95 HP, dead in 6 turns (trough -721). But our realized-dps table says
-Queen is nearly harmless: dps_mean 2.1, dps_early 0.0 (n=7 fights, 33 rounds).
-A 95-HP entry does not die in 6 turns to a 2-dps boss — the table is measuring
-the wrong thing (summons? eggs? a phase the intent labels miss?). Queen is 2 of
-today's 4 final-boss deaths, and the bot HAS beaten her twice (so the fight is
-in reach).
-**Hypothesis:** the Queen's threat is carried by something our per-enemy intent
-harvest doesn't attribute to her. Watching one owner fight tells us what to put
-in the bestiary/dps table — the cheapest possible fix class (data, not code).
+## 2. `A36ZF0WVBS` — Queen, f48 — **RESOLVED FROM TAPE, fix shipped (bb484dd)**
+Entered at 95 HP, dead in 6 turns while the dps table called the Queen harmless
+(2.1 mean). The fight window answered it without a replay: `TORCH_HEAD_AMALGAM_0`
+(realized dps 24.8, hottest in the table) — she's a SUMMONER, and the forecast
+priced her alone. `_upcoming_boss` now adds the Amalgam as a Kin-style minion
+(full threat, no kill-HP). Residual owner question, lower priority: summon
+cadence (does she re-summon after an Amalgam dies? kill-the-summon ever right?)
+— worth asking next time one is on screen, not worth a dedicated session.
 
 ## 3. `XNTR7JTWGZ` — Aeonglass, f48
 11 turns, peak +581 (!) — the planner believed it was decisively winning — then
