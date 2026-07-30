@@ -2,6 +2,48 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-30 (Fable 5, session 17) — WIN #7; P1.7 live latency measured; Phrog phase 2 root-caused; P2b lands
+
+**P1.7 MAIDEN BATCH (b0smoa0p0): 1/10 win** — HHB656AQ8P, act-3 f48. Third
+consecutive batch with a win (4 in the last 34 runs vs 3 in the prior ~200).
+Latency (owner asked for numbers): gate_ms median 19.3 — free; boss_ms n=139,
+median 704ms, max 10.4s. 139 fresh computes across 10 runs = the (deck, boss,
+BELT) cache key was busted by potion churn -> cache now keys deck+boss only
+(4a55200). Elites 1.50 act-1 / 1.90 all — the act-3 elite pool is newly
+reachable and 0-for-2 (KNIGHTS_ELITE f43; the filed Knights-mechanics pass is
+now load-bearing). Foul-throw backoff STILL untested — no foul+shop overlap in
+10 runs.
+
+**Phrog phase 2 root-caused from the tape** (20260730-084448, 3rd Phrog death):
+turns 1-4 target only the parasite, turn 5+ only wrigglers — the swarm spawns
+AFTER the parasite dies. Concurrent modeling was optimistic twice over: the sim
+shed wriggler dps by killing cheap bodies early, and the 5-way split priced the
+parasite at 1/5th of the estimate. Worse: the split's input was the TABLE'S
+parasite-only 6.7 dps. Fixes: dormant-wave mechanics in the sim (wave>0 bodies
+untargetable/not attacking until the prior wave dies; kill-HP still counts) +
+composition members now use their OWN realized dps (Wriggler 4.1/body, n=1028
+rounds -> phase 2 = 16/turn, matching the tape's proj-loss-19 hail mary).
+Repricing: starter@64HP p25 57 -> 31; a 45-HP entry now fails the floor.
+(8e53a26, 7649ca2.) Also: a PASSING gate used to log nothing — map scores now
+carry won_n/pool_n + weakest fight's win_rate/p25 (185b7a9).
+
+**P2b LANDS** (1f69f96): the pre-boss rest gate asks the DFS boss estimate
+first (warm from the map cache; computes fresh for known bosses), falling back
+to aggregate history + hand-bumps only for unknown bosses. This is the direct
+answer to the Matriarch cluster ('~45 needed' vs three deaths from 62-64 HP).
+
+**Session-16 leftovers closed this morning**: dial verdict INNOCENT (0.55 ≈
+0.60 on elites, no attributable deaths — decision with owner still open);
+Matriarch = Soul Siphon drain spiral -> race lane via _EMPIRICAL_MOVES drain
+table (6c7a4a2); Foul guard text-drift fix ('ALL players and enemies' never
+matched EVERYONE — suicide at 6 HP) (2dae5cb); Tent forensic REVERSED — first
+scan read the wrong run; the real Tent runs chain rest actions PERFECTLY
+(smith->rest, rest->smith by HP need, rest->Lift), replay exercise cancelled.
+Explosive-on-normal suspicion ACQUITTED (all AoE spends were elite/boss).
+
+Batch bb1jkxvr1 (Matriarch race + Foul guard + cache fix live; Phrog/P2b land
+mid-batch) running as of this entry.
+
 ## 2026-07-29/30 (Fable 5, session 16) — WINS #5 AND #6 in one batch; P1.7 built; the live-watch harvest continues
 
 **FIRST MULTI-WIN BATCH: 2/14** (byw7ikj6w, overnight, the accidental 0.55-dial

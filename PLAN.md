@@ -298,6 +298,14 @@ Root confirmation from three independent audits: the static capability estimate
 sustained dmg/turn, gate said 0/6 elites, owner went 3-for-3). The forward model must
 simulate DRAWS AND PLAYS over multiple turns, not summarize the deck as static output.
 
+**Forward-model rollout status (2026-07-30):** P2a rollout elite gate live (win_rate +
+p25 tail floor; pass-side evidence logged since 185b7a9). P1.7 DFS-policy boss rollouts
+live for known bosses — one physics (_RolloutSim), two turn policies; backtest 52% vs
+greedy 38% (actual 65%); live latency: median 704ms, max 10.4s, cached per deck+boss
+(4a55200). P2b: the pre-boss rest gate now consumes the DFS estimate (1f69f96), retiring
+the hand-patched per-boss rest bumps for known bosses. Boss residual ~13 pts = synth
+bridge v1 gaps (Strength not re-baked into card texts) — next calibration lever.
+
 ## 6. Working conventions
 
 - Mock-first; live game sessions are attended (owner present) until owner flips
@@ -1383,6 +1391,9 @@ pass** (7).*
    killed 3 runs; synthesize swarms as multi-FightEnemy pools (Gardeners ≈ 3×31 HP w/ Skittish,
    Phrog + Wriggler treadmill) so both the gate and the route DP price them. Belongs to the
    enemies pass (item 2), noted here because the gate work exposed it.*
+   *Update 2026-07-30: Phrog re-fixed as a **dormant wave** (wrigglers spawn AFTER the parasite
+   dies — the tape showed concurrent modeling was optimistic, not conservative) and composition
+   members now use their own realized per-body dps (Wriggler 4.1, n=1028). 8e53a26, 7649ca2.*
 6b. **Curses pass — DONE INLINE 2026-07-09** (owner: "low hanging, right after cards").
    All 9 discovered curses audited: **Normality's** 3-card cap now read from the HAND
    (conservative — the true remainder isn't sourceable, the game's can_play enforces it on
