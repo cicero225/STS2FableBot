@@ -898,6 +898,8 @@ class StandardRouter:
         # one small body and fall below the pool's HP floor — the swarm is under-represented.
         can_win_elite = False
         gate_ms: float | None = None
+        gate_detail: dict[str, float] | None = None  # pass-side evidence (Phrog audit
+        # 2026-07-30: a passing gate logged NOTHING, so a bad pass left no numbers)
         est_elite_loss: float | None = None
         est_boss_loss: float | None = None
         if hp_aware and player is not None and player.deck:
@@ -938,6 +940,12 @@ class StandardRouter:
                     can_win_elite = won_n >= len(pool) * w.elite_gate_pool_win_frac
                     losses = sorted(max_hp - r.exp_end_hp for r in rolls)
                     est_elite_loss = losses[len(losses) // 2]
+                    gate_detail = {
+                        "gate_won_n": float(won_n),
+                        "gate_pool_n": float(len(pool)),
+                        "gate_min_win": round(min(r.win_rate for r in rolls), 2),
+                        "gate_min_p25": round(min(r.p25_end_hp for r in rolls), 1),
+                    }
                 else:
                     outcomes = [estimate_fight(int(max_hp), deck_out, members)
                                 for members in members_by_name.values()]
@@ -1088,6 +1096,8 @@ class StandardRouter:
         assert best is not None
         if gate_ms is not None:
             scored["gate_ms"] = round(gate_ms, 1)  # owner: latency data matters
+        if gate_detail:
+            scored.update(gate_detail)
         if ctx.screen_mem.get("last_boss_ms") is not None:
             scored["boss_ms"] = ctx.screen_mem.pop("last_boss_ms")
         if state.map.boss and state.map.boss.name:
