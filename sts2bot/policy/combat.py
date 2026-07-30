@@ -653,6 +653,16 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
             # ramp_damage/ramp_stall incentives are exactly right for it too).
             if (i.type or "").lower() == "heal":
                 gains_strength = True
+        # A PLAYER-DRAINER is a racer in mirror image: the Matriarch's Soul Siphon
+        # (-2 Str AND Dex, permanent, every 4th round) shifts the race against you
+        # each cycle exactly like enemy ramp. The drain is a MOVE, not a status, so
+        # nothing text-detects it — matched from the empirical table (Matriarch
+        # cluster 2026-07-30: 3 healthy-HP deaths, chip ~12/round vs 222 HP while
+        # Str/Dex bled -2 -> -6; the planner turtled with no clock pressure).
+        from sts2bot.policy.capability import _EMPIRICAL_MOVES
+        if any(key in (e.name or "").upper() and params.get("drains_player")
+               for key, params in _EMPIRICAL_MOVES.items()):
+            gains_strength = True
             if "summon" in text:
                 summons = True
         # Count damage from Attack AND DeathBlow intents. (The DeathBlow lane was built on the

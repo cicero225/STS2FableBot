@@ -2458,6 +2458,24 @@ def test_card_gen_potion_dropped_at_boss_start() -> None:
     assert "bank cards early" in d.rationale
 
 
+def test_matriarch_drain_forces_the_race() -> None:
+    """Matriarch cluster 2026-07-30 (3 healthy-HP deaths): Soul Siphon (-2 Str/Dex
+    per cycle, a MOVE — nothing text-detects it) makes her a clock, but the planner
+    turtled at ~12 chip/round vs 222 HP. Drain-table bosses now join the race lane:
+    a damageless comfortable-block turn pays w_ramp_stall against her."""
+    hand = [card(0, "Strike", 1, "Deal 6 damage."),
+            card(1, "Defend", 1, "Gain 5 Block."),
+            card(2, "Defend", 1, "Gain 5 Block.")]
+    def fight(name):
+        e = enemy(name.upper().replace(" ", "_") + "_0", 200, intent_label="10")
+        e["name"] = name
+        return make_combat(hand=[dict(c) for c in hand], enemies=[e],
+                           hp=60, max_hp=80, state_type="boss", energy=2)
+    d_m = router().decide(fight("Lagavulin Matriarch"), LoopContext())
+    plan_m = d_m.rationale.split(";")[0]
+    assert "Strike" in plan_m, d_m.rationale  # racing: damage in the plan
+
+
 def test_emergency_stoke_rerolls_a_doomed_hand() -> None:
     """Owner live 2026-07-30: with no survivable line, Stoke as first play (after
     banking energy if available) rerolls the hand — the bot declined it. Works
