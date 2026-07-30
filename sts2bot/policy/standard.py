@@ -1142,7 +1142,11 @@ class StandardRouter:
         # when it has confident data (it sees outcomes; the catalog sees text).
         if not ev.is_ancient and self.event_choices and scored:
             rated_sb = [s for s in scored if s[2] is not None]
-            if len(rated_sb) < 2:  # Spirebird not confident here: catalog leads
+            # Catalog-first exceptions: events where the owner's ranking OVERRIDES
+            # confident Spirebird data (Tinker Time 2026-07-29: SB slightly prefers
+            # Skill over Power, 14.0 vs 13.8; owner: Power > Skill > Attack).
+            catalog_first = (ev.event_id or "").upper() in ("TINKER_TIME",)
+            if len(rated_sb) < 2 or catalog_first:  # catalog leads
                 vals = {}
                 for o, heur, _vs in scored:
                     entry = self.event_choices.get(o.title or "")
@@ -1702,6 +1706,13 @@ class StandardRouter:
             def upgrade_key(c):
                 uv = self.priors.upgrade_value(c.id, character) if self.priors else None
                 uv = uv if uv is not None else 1.5
+                # Mad Science upgrade = Innate (owner 2026-07-29): premium on the
+                # POWER variants (an Innate Curious/Expertise fires turn 1 every
+                # fight), minor otherwise. One id, many designs -> detect by text.
+                if (c.id or "").upper() == "MAD_SCIENCE":
+                    d_ = (c.description or "").lower()
+                    if "cost 1 less" in d_ or "dexterity" in d_:
+                        uv += 2.5
                 # Sharp enchant multiplies per-HIT: prefer multi-hit attacks (owner:
                 # a 3x+ target beats even Swift-on-Power)
                 if "sharp" in prompt:

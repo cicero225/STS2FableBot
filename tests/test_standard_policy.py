@@ -2661,6 +2661,42 @@ def test_eruption_phase_stacks_block_despite_null_intent() -> None:
     assert d.scores.get("hp_loss") == 35.0, d.scores  # 50 assumed - 15 block stacked
 
 
+def test_tinker_time_catalog_overrides_spirebird() -> None:
+    """Owner brief 2026-07-29: Power > Skill > Attack at Tinker Time — but Spirebird
+    slightly prefers Skill (14.0 vs 13.8), so TINKER_TIME is catalog-first. The live
+    miss: bot took Protector over Gadget at the catalog floor."""
+    state = _ev_state("TINKER_TIME", [
+        _ev_opt(0, "Protector", "Make a Skill."),
+        _ev_opt(1, "Gadget", "Make a Power."),
+    ])
+    d = router().decide(state, LoopContext())
+    assert d.action.payload()["index"] == 1, d.scores  # Gadget
+    # stage 2 power head-to-head: Expertise default over Improvement
+    st2 = _ev_state("TINKER_TIME", [
+        _ev_opt(0, "Improvement", "At the end of combat, Upgrade a random card."),
+        _ev_opt(1, "Expertise", "Gain 2 Strength and 2 Dexterity."),
+    ])
+    d2 = router().decide(st2, LoopContext())
+    assert d2.action.payload()["index"] == 1, d2.scores
+
+
+def test_mad_science_power_variant_is_a_premium_smith_target() -> None:
+    """Owner 2026-07-29: upgrading Curious/Expertise Mad Science = Innate power
+    (fires turn 1 every fight) — premium; other variants minor. One id, many
+    designs — detected by text."""
+    cards = [
+        {"id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack", "cost": "1",
+         "description": "Deal 6 damage.", "rarity": "Basic", "is_upgraded": False,
+         "index": 0},
+        {"id": "MAD_SCIENCE", "name": "Mad Science", "type": "Power", "cost": "1",
+         "description": "Gain 2 Strength and 2 Dexterity.", "rarity": "Special",
+         "is_upgraded": False, "index": 1},
+    ]
+    state = _card_select_state("NCardSelectScreen", "Choose a card to Upgrade.", cards)
+    d = router().decide(state, LoopContext())
+    assert d.action.payload().get("index") == 1, d.rationale
+
+
 def test_cost_zero_potion_waits_for_a_worthy_target() -> None:
     """Owner 2026-07-29 (Touch of Insanity — matched by TEXT, the name never
     matters): deploy early at a boss but only when a cost>=2 card is in hand — a

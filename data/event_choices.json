@@ -3,7 +3,7 @@
   "source": "scripts/build_event_choices.py (events pass, EVENTS_PASS.md)",
   "scale": "event-heuristic units (relic ~ 6.0)",
   "keying": "OPTION TITLE (event_id lags transitions in mod state)",
-  "n_options": 55,
+  "n_options": 67,
   "n_uncertain": 0
  },
  "choices": {
@@ -275,6 +275,66 @@
   "Return the Key": {
    "value": 3.5,
    "note": "100g now; the safe branch.",
+   "uncertain": false
+  },
+  "Gadget": {
+   "value": 5.5,
+   "note": "Make a Power: Expertise (2 Str 2 Dex at 1 cost) and Curious (Powers cost 1 less) are both excellent.",
+   "uncertain": false
+  },
+  "Protector": {
+   "value": 4.5,
+   "note": "Make a Skill: Chaos/Wisdom decent.",
+   "uncertain": false
+  },
+  "Weapon": {
+   "value": 3.5,
+   "note": "Make an Attack: weakest trio (owner).",
+   "uncertain": false
+  },
+  "Expertise": {
+   "value": 5.2,
+   "note": "2 Str + 2 Dex at 1 energy: 'really good'.",
+   "uncertain": false
+  },
+  "Curious": {
+   "value": 5.0,
+   "note": "Powers cost 1 less: REALLY good with 2+ powers (and you can keep drafting powers after).",
+   "uncertain": false
+  },
+  "Improvement": {
+   "value": 3.8,
+   "note": "Upgrade a random card post-combat: surprisingly mediocre -- Act-3-only event, rivals too good.",
+   "uncertain": false
+  },
+  "Chaos": {
+   "value": 5.0,
+   "note": "Random card, free this turn: avg generated cost >1 so beats Energized; random 0-cost adds are strong.",
+   "uncertain": false
+  },
+  "Wisdom": {
+   "value": 4.8,
+   "note": "Draw 3. Beats Chaos in energy-rich decks (refinement filed); default is Chaos.",
+   "uncertain": false
+  },
+  "Energized": {
+   "value": 4.0,
+   "note": "Gain 2 Energy (+1 net): weakest skill pick.",
+   "uncertain": false
+  },
+  "Violence": {
+   "value": 4.2,
+   "note": "12x3 at 1 energy + Str scaling.",
+   "uncertain": false
+  },
+  "Sapping": {
+   "value": 3.5,
+   "note": "~Uppercut clone; only if vuln-starved.",
+   "uncertain": false
+  },
+  "Choking": {
+   "value": 3.4,
+   "note": "6/card this turn; inflects at 4+ plays.",
    "uncertain": false
   },
   "Accept": {

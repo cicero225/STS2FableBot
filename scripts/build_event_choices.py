@@ -135,6 +135,29 @@ CHOICES: dict[str, dict] = {
                          "Act-3 '?' with a top-tier relic. Owner: real "
                          "difference-maker if the run gets there."),
     "Return the Key": dict(value=3.5, note="100g now; the safe branch."),
+    # ---- Tinker Time (Act 3, non-declinable): design Mad Science (owner brief
+    # 2026-07-29). Stage 1 sort: Power > Skill > Attack. Stage 2 defaults: Expertise
+    # ~ Curious (head-to-head by deck power count -- static default Expertise);
+    # Chaos default over Wisdom (Wisdom wins in energy-rich decks -- refinement
+    # filed). Spirebird slightly prefers Skill over Power here (14.0 vs 13.8) --
+    # owner overrides, so TINKER_TIME is catalog-first (like ancients).
+    "Gadget": dict(value=5.5, note="Make a Power: Expertise (2 Str 2 Dex at 1 cost) "
+                   "and Curious (Powers cost 1 less) are both excellent."),
+    "Protector": dict(value=4.5, note="Make a Skill: Chaos/Wisdom decent."),
+    "Weapon": dict(value=3.5, note="Make an Attack: weakest trio (owner)."),
+    "Expertise": dict(value=5.2, note="2 Str + 2 Dex at 1 energy: 'really good'."),
+    "Curious": dict(value=5.0, note="Powers cost 1 less: REALLY good with 2+ powers "
+                    "(and you can keep drafting powers after)."),
+    "Improvement": dict(value=3.8, note="Upgrade a random card post-combat: "
+                        "surprisingly mediocre -- Act-3-only event, rivals too good."),
+    "Chaos": dict(value=5.0, note="Random card, free this turn: avg generated cost "
+                  ">1 so beats Energized; random 0-cost adds are strong."),
+    "Wisdom": dict(value=4.8, note="Draw 3. Beats Chaos in energy-rich decks "
+                   "(refinement filed); default is Chaos."),
+    "Energized": dict(value=4.0, note="Gain 2 Energy (+1 net): weakest skill pick."),
+    "Violence": dict(value=4.2, note="12x3 at 1 energy + Str scaling."),
+    "Sapping": dict(value=3.5, note="~Uppercut clone; only if vuln-starved."),
+    "Choking": dict(value=3.4, note="6/card this turn; inflects at 4+ plays."),
     "Accept": dict(value=3.0,
                    note="The Decider is NOT declinable (Reject loops then ends the "
                    "run). Sub-choices per owner: 2-relics > Shame-upgrade; "
