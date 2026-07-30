@@ -1627,6 +1627,37 @@ class StandardRouter:
             return [bestiary_enemy(entry, dps=dps, name=boss_name, str_ramp=ramp)]
         return [FightEnemy(*_GENERIC_BOSS)]
 
+    def _dfs_boss_loss(self, ctx: LoopContext, player, cur_act: int) -> float | None:
+        """P2b: THIS deck vs THIS boss loss estimate for the pre-boss rest gate,
+        sharing the map block's cache (warm in practice — a map screen precedes every
+        rest node with the same deck). None -> caller falls back to aggregate history.
+        The Matriarch cluster (3 deaths from 62-64 HP) was the aggregate saying '~45
+        needed' for a boss whose drain spiral the DFS sim actually models."""
+        if not (self.config.map.use_dfs_boss_rollouts and player and player.deck):
+            return None
+        boss_name = ctx.screen_mem.get("act_boss_name") or ""
+        if not boss_name:
+            return None
+        key = (boss_name,
+               tuple(sorted((c.id or "", bool(c.is_upgraded)) for c in player.deck)))
+        cache = ctx.screen_mem.setdefault("boss_roll_cache", {})
+        if key in cache:
+            return cache[key]
+        if not self.bestiary.get(boss_name):
+            return None  # unknown boss: nothing real to roll out against
+        boss_members = self._upcoming_boss(ctx, cur_act)
+        if not boss_members:
+            return None
+        max_hp = int(player.max_hp)
+        roll = rollout_fight(player.deck, boss_members, max_hp, max_hp,
+                             card_effects=self.card_effects, potions=player.potions,
+                             relics=player.relics,
+                             n=self.config.map.dfs_boss_rollout_n,
+                             policy="dfs", combat_weights=self.config.combat)
+        loss = max_hp - roll.exp_end_hp
+        cache[key] = loss
+        return loss
+
     def _capability_deltas(
         self, deck, cards, max_hp: int, boss: list[FightEnemy]
     ) -> dict[int, float]:
@@ -2125,22 +2156,31 @@ class StandardRouter:
 
         # Rest only when we might not survive to the next heal, else smith to gear up.
         if pre_boss:
-            # next "fight" is the boss: estimate its likely HP cost from our own history.
-            est = self.combat_stats.expected_loss("boss") if self.combat_stats else None
-            if est is None:
-                est = w.default_boss_loss
-            # Clock bosses (Knowledge Demon's Disintegration) cost more than the
-            # aggregate boss history says — per-boss bump via _BOSS_DRAFT_RULES.
-            rule = _boss_draft_rule(ctx.screen_mem.get("act_boss_name"))
-            if rule:
-                est += rule.get("rest_loss_bonus", 0.0)
-            # Act-3 bosses cost more than the act-1-dominated aggregate says
-            if (state.run.act if state.run else 1) >= 3:
-                est += w.act3_boss_loss_bonus
+            cur_act = state.run.act if state.run else 1
+            # P2b: per-boss DFS estimate first — it models the mechanics the per-boss
+            # bumps below hand-patch (drain spirals, clocks), so it replaces them too.
+            dfs_est = self._dfs_boss_loss(ctx, player, cur_act)
+            if dfs_est is not None:
+                est = dfs_est
+                src = f"DFS vs {ctx.screen_mem.get('act_boss_name', 'boss')}"
+            else:
+                # fall back: estimate the boss's likely HP cost from our own history.
+                est = self.combat_stats.expected_loss("boss") if self.combat_stats else None
+                if est is None:
+                    est = w.default_boss_loss
+                # Clock bosses (Knowledge Demon's Disintegration) cost more than the
+                # aggregate boss history says — per-boss bump via _BOSS_DRAFT_RULES.
+                rule = _boss_draft_rule(ctx.screen_mem.get("act_boss_name"))
+                if rule:
+                    est += rule.get("rest_loss_bonus", 0.0)
+                # Act-3 bosses cost more than the act-1-dominated aggregate says
+                if cur_act >= 3:
+                    est += w.act3_boss_loss_bonus
+                src = "history"
             needed = est * w.boss_safety_factor
             should_rest = hp < needed
-            rest_why = f"rest: {hp} HP < ~{needed:.0f} needed for boss (est loss {est:.0f})"
-            smith_why = f"smith: {hp} HP covers the boss (~{needed:.0f} needed)"
+            rest_why = f"rest: {hp} HP < ~{needed:.0f} needed for boss ({src} est loss {est:.0f})"
+            smith_why = f"smith: {hp} HP covers the boss (~{needed:.0f} needed, {src})"
         else:
             should_rest = hp_pct < w.rest_below_hp_pct
             rest_why = f"rest at {hp_pct:.0%} HP"

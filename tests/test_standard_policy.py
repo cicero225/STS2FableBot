@@ -3703,3 +3703,43 @@ def test_petrified_toad_throws_rock_freely() -> None:
     # no Toad relic: the Rock is hoarded like any damage potion
     d4 = r.decide(combat(50, round_n=3, relics=()), LoopContext())
     assert "Rock" not in (d4.rationale or "")
+
+
+def test_pre_boss_rest_gate_uses_dfs_boss_estimate_when_cached() -> None:
+    """P2b (2026-07-30): the aggregate history said '~45 needed' while Matriarch's
+    drain spiral killed three runs from 62-64 HP entries. When the map block's DFS
+    cache holds THIS deck vs THIS boss, the rest gate trusts it over history."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    w = r.config.rest
+    payload = json.loads(json.dumps(FIXTURES["rest_site"]))
+    payload["player"]["max_hp"] = 90
+    # an HP that comfortably covers the history estimate (would smith)...
+    payload["player"]["hp"] = int(w.default_boss_loss * w.boss_safety_factor) + 6
+    payload["player"]["deck"] = [
+        {"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack",
+         "cost": "1", "description": "Deal 6 damage.", "is_upgraded": False,
+         "keywords": []},
+        {"index": 1, "id": "BASH", "name": "Bash", "type": "Attack", "cost": "2",
+         "description": "Deal 8 damage. Apply 2 Vulnerable.", "is_upgraded": False,
+         "keywords": []},
+    ]
+    st = parse_state(payload)
+    deck_key = tuple(sorted((c.id or "", bool(c.is_upgraded))
+                            for c in st.player.deck))
+
+    ctx = LoopContext()
+    ctx.screen_mem["pre_boss"] = True
+    ctx.screen_mem["act_boss_name"] = "Lagavulin Matriarch"
+    d_history = r.decide(st, ctx)
+    assert "smith" in d_history.rationale
+
+    # ...but the DFS cache says this boss costs 80 HP for this deck -> rest.
+    ctx2 = LoopContext()
+    ctx2.screen_mem["pre_boss"] = True
+    ctx2.screen_mem["act_boss_name"] = "Lagavulin Matriarch"
+    ctx2.screen_mem["boss_roll_cache"] = {
+        ("Lagavulin Matriarch", deck_key): 80.0}
+    d_dfs = r.decide(st, ctx2)
+    assert d_dfs.rationale.startswith("rest") and "DFS" in d_dfs.rationale
