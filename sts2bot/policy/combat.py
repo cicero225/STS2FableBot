@@ -144,7 +144,7 @@ def _apply_trigger_fx(s: SimState, trig: RelicTrigger, times: int,
     s = replace(
         s,
         my_block=s.my_block + trig.block * times,
-        draws=s.draws + trig.draw * times,
+        draws=s.draws + (0 if s.no_draw else trig.draw * times),
         energy=s.energy + trig.energy * times,
         my_strength=s.my_strength + trig.strength * times,
         my_dex=s.my_dex + trig.dexterity * times,
@@ -240,6 +240,9 @@ class PlannedCard:
     fx: CardEffects
     targets_enemy: bool
     is_attack: bool = False
+    # Battle Trance rider: "cannot draw additional cards this turn" — later
+    # in-plan draws are dead (owner trap 2026-07-29, hits Ironclad specifically)
+    blocks_draw: bool = False
     # Damage potions ride the DFS as pseudo-cards (0 cost, don't consume the card cap, carry
     # w_potion_spend reluctance) so card+potion LETHALS are weighed against block patterns
     # (owner question 2026-07-09). None = a real hand card.
@@ -409,6 +412,7 @@ class SimState:
     keepers_rocked: int = 0  # keeper attacks fed to an active Primal Force (permanent downgrade)
     per_exhaust_block: int = 0  # Feel No Pain stacks: block gained per card Exhausted
     bound_played: bool = False  # a Bound card was played this turn (only one allowed)
+    no_draw: bool = False  # Battle Trance rider active: further draws are dead
     flat_bonus: float = 0.0  # accumulated per-play bonuses (Thrash growth credit)
     carryover_block: int = 0  # Prolong-class: block snapshotted for next turn's start
     smoggy: bool = False  # Living Fog's Smoggy: only ONE Skill playable per turn
@@ -455,6 +459,8 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         except ValueError:
             return None
     fx = parse_card_description(card.description)
+    blocks_draw = bool(re.search(r"(cannot|may not) draw (any |additional )?(more )?cards?",
+                                 card.description or "", re.IGNORECASE))
     # The Gambit: "Gain 50 Block. If you take unblocked attack damage this combat, die."
     # A one-turn planner can never certify combat-long perfect blocking, so a self-death
     # rider makes the card strictly unplayable for this pilot (delta audit).
@@ -547,6 +553,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         is_power=is_power,
         self_damage_power=self_damage_power,
         primal_force=primal_force,
+        blocks_draw=blocks_draw,
         # fodder = Strikes, or rider-less attacks a 16-dmg Rock strictly upgrades
         primal_fodder=(
             (card.id or "").upper().startswith("STRIKE_")
@@ -1051,7 +1058,8 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         my_block=s.my_block + block_gain,
         my_strength=s.my_strength + card.fx.strength,
         strength_gained=s.strength_gained + card.fx.strength,
-        draws=s.draws + card.fx.draw,
+        draws=s.draws + (0 if s.no_draw else card.fx.draw),
+        no_draw=s.no_draw or card.blocks_draw,
         energy=s.energy + energy_gain,
         self_damage=s.self_damage + card.fx.self_hp_cost,
         healing=s.healing + heal_applied,

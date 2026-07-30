@@ -329,6 +329,8 @@ class StandardRouter:
             return None
         if isinstance(plan, Decision) and plan.scores and plan.scores.get("lethal"):
             return None
+        if any("NO_DRAW" in (st_.id or "").upper() for st_ in (player.status or [])):
+            return None  # Battle Trance rider: the desperation draw would draw nothing
         incoming = sum(
             parse_intent_damage(i.label)
             for e in state.battle.enemies
@@ -609,7 +611,9 @@ class StandardRouter:
             # at a big fight or on a full belt -> the draw converts dead energy
             # into plays THIS turn.
             energy_left = player.energy or 0
-            if (energy_left >= 1 and (dangerous or belt_full)
+            no_draw = any("NO_DRAW" in (st_.id or "").upper()
+                          for st_ in (player.status or []))
+            if (energy_left >= 1 and not no_draw and (dangerous or belt_full)
                     and (dp := first("draw"))):
                 return drink(dp, None,
                              f"drink {dp.name} (out of cards, {energy_left} energy unspent)")
