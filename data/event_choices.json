@@ -78,8 +78,8 @@
    "uncertain": false
   },
   "Grab the Sword": {
-   "value": 5.5,
-   "note": "Sword of Stone relic, free.",
+   "value": 3.8,
+   "note": "Sword of Stone: transforms into Sword of Jade (+3 Str) after 5 elites -- at the current ~1.2 elites/run it will essentially never upgrade (owner 2026-07-29: 'I know this is never going to upgrade'), so it prices as a weak free relic and the gold option can win when affordable. REVISIT upward when era elite rate reaches ~3/run; routing carries a completion nudge at counter 4.",
    "uncertain": false
   },
   "Dive into the Water": {

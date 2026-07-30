@@ -714,6 +714,13 @@ class StandardRouter:
         if player is not None:
             hp_missing_pct = 100.0 * (1.0 - player.hp / max(1, player.max_hp))
             gold = player.gold
+        # Sword of Stone one-from-Jade (owner 2026-07-29): at counter 4 the next
+        # elite also completes the +3-Str transform -- nudge winnable elites.
+        sword_bonus = w.sword_completion_bonus if any(
+            "SWORD OF STONE" in f"{r.id or ''} {r.name or ''}".upper()
+            and (r.counter or 0) == 4
+            for r in ((player.relics if player else None) or [])
+        ) else 0.0
         # Planisphere: +5 HP on entering a '?' room (owner nuance check 2026-07-29).
         # Margins only — but the DP's death-floor pockets flip on margins, and a
         # '?'-dense route with it held is a real trickle of sustain.
@@ -861,7 +868,8 @@ class StandardRouter:
             if t == "elite" and not can_win_elite:
                 return hp_after, -w.route_death_penalty
             # a survivable, winnable elite earns its relic bonus (§5-C gate)
-            return hp_after, (w.elite_relic_value if t == "elite" else 0.0)
+            return hp_after, (w.elite_relic_value + sword_bonus
+                              if t == "elite" else 0.0)
 
         memo: dict[tuple[int, int, int], float] = {}
 

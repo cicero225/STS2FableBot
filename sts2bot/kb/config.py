@@ -137,6 +137,10 @@ class MapWeights(_Section):
     # charges burned on marginal jumps). Off-path options pay this, so only a
     # clearly better line (death-floor dodge, big value gap) spends a charge.
     boots_jump_cost: float = 12.0
+    # Sword of Stone at 4/5 elites: the next elite ALSO completes Sword of Jade
+    # (+3 Str permanent) -- worth a real nudge on top of the relic value when the
+    # gate already says the fight is winnable (owner 2026-07-29).
+    sword_completion_bonus: float = 8.0
     # §5-C elite gate: chase an elite only if the deck wins it (at full HP) with at least this HP
     # fraction left — a pyrrhic 2-HP win is a loss for the next node, so don't chase it.
     # 0.30 -> 0.20 (A/B #5): a 20%-HP win + relic beat our 90%-HP no-relic arrival.

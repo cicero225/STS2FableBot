@@ -53,7 +53,13 @@ CHOICES: dict[str, dict] = {
                         "it from removal and exhaust it freely (7f0a0c6). Real EV "
                         "if the run goes deep; the router likes gold now."),
     # ---- Sunken Statue / Wellspring
-    "Grab the Sword": dict(value=5.5, note="Sword of Stone relic, free."),
+    "Grab the Sword": dict(
+        value=3.8, note="Sword of Stone: transforms into Sword of Jade (+3 Str) "
+        "after 5 elites -- at the current ~1.2 elites/run it will essentially "
+        "never upgrade (owner 2026-07-29: 'I know this is never going to "
+        "upgrade'), so it prices as a weak free relic and the gold option can "
+        "win when affordable. REVISIT upward when era elite rate reaches ~3/run; "
+        "routing carries a completion nudge at counter 4."),
     "Dive into the Water": dict(value=4.0, note="~109g for 7 HP."),
     "Bathe": dict(value=3.0, note="Wellspring heal-ish option; Spirebird carried it."),
     # ---- Wood Carvings (enchant traps + starter transforms)

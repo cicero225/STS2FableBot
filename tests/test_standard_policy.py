@@ -2661,6 +2661,43 @@ def test_eruption_phase_stacks_block_despite_null_intent() -> None:
     assert d.scores.get("hp_loss") == 35.0, d.scores  # 50 assumed - 15 block stacked
 
 
+def test_sword_of_stone_completion_nudge_at_four_elites() -> None:
+    """Owner 2026-07-29: at counter 4 the next elite ALSO completes Sword of Jade
+    (+3 Str) — a winnable elite node scores sword_completion_bonus higher than the
+    identical spot at counter 0. (The event pick itself is docked until era elite
+    rates make the upgrade real.)"""
+    from sts2bot.kb.combat_stats import CombatStats
+
+    stats = CombatStats(by_type={
+        "monster_early": {"mean": 4.0, "p75": 5, "n": 99},
+        "monster": {"mean": 12.0, "p75": 18, "n": 99},
+        "elite": {"mean": 21.0, "p75": 32, "n": 99},
+        "boss": {"mean": 25.0, "p75": 42, "n": 99},
+    })
+
+    def elite_score(counter):
+        payload = json.loads(json.dumps(FIXTURES["map"]))
+        payload["map"]["next_options"] = [
+            {"index": 0, "col": 1, "row": 3, "type": "Elite", "leads_to": []},
+            {"index": 1, "col": 2, "row": 3, "type": "Monster", "leads_to": []},
+        ]
+        payload["player"]["deck"] = _ELITE_READY_DECK
+        payload["player"]["hp"] = 80
+        payload["player"]["max_hp"] = 80
+        payload["player"]["relics"] = [{
+            "id": "SWORD_OF_STONE", "name": "Sword of Stone",
+            "description": "Transforms into a powerful Relic after defeating 5 Elites.",
+            "counter": counter, "keywords": []}]
+        r = StandardRouter(combat_stats=stats, bestiary={})
+        r.card_effects = _ROUTING_CARD_EFFECTS
+        d = r.decide(parse_state(payload), LoopContext())
+        return d.scores["0:Elite"]
+
+    from sts2bot.kb.config import load_policy_config
+    w = load_policy_config().map
+    assert elite_score(4) - elite_score(0) >= w.sword_completion_bonus * 0.75
+
+
 def test_boots_jump_is_insurance_not_a_path_upgrade() -> None:
     """Owner 2026-07-29: Winged Boots charges should be saved for emergencies — the
     bot burned 2 of 3 on marginal jumps (off-path options score higher, DP obliges).
