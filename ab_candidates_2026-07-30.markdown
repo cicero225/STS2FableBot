@@ -28,13 +28,16 @@ priced her alone. `_upcoming_boss` now adds the Amalgam as a Kin-style minion
 cadence (does she re-summon after an Amalgam dies? kill-the-summon ever right?)
 — worth asking next time one is on screen, not worth a dedicated session.
 
-## 3. `XNTR7JTWGZ` — Aeonglass, f48
-11 turns, peak +581 (!) — the planner believed it was decisively winning — then
-collapse to death. Aeonglass realized dps 20.2 (n=6). Something turns this fight
-that a one-turn planner cannot see coming (clock? stacking debuff? WG-style
-accumulating payload).
-**Hypothesis:** Aeonglass has a mechanic in the WG death-growth class that needs
-an _EMPIRICAL_MOVES entry. One owner fight (or even a narrated loss) names it.
+## 3. `XNTR7JTWGZ` — Aeonglass, f48 — **RESOLVED FROM TAPE, fix shipped (ea27f77)**
+Four fight tapes named the whole kit: 3-turn cycle (26+Str single w/ Defend rider
+-> 11x2+Str -> Empower +3-4 Str COMPOUNDING; single swing 26->40 by r10), opens
+with Artifact 3 (early Vulnerable plans fizzle — the +581-peak-then-collapse
+signature), and Withering Presence = "every 6 cards you play, add a Wither to
+your Hand" (deck clog, not a stat drain). Artifact now modeled end-to-end
+(detect_mechanics -> sim -> synth). Residual, lower priority: Wither/StatusCard
+clog in the sim (ENEMY_PASS refinement); no dedicated owner session needed —
+the remaining question is play style vs the compounding ramp (all-in early?),
+which the Kin/Matriarch sessions already cover in spirit.
 
 ## 4. `R9NZLD49C1` — Lagavulin Matriarch, f17
 18 turns (longest of the day), 17 score flips, and ZERO hail-maries — the bot
