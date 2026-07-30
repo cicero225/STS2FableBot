@@ -2661,6 +2661,30 @@ def test_eruption_phase_stacks_block_despite_null_intent() -> None:
     assert d.scores.get("hp_loss") == 35.0, d.scores  # 50 assumed - 15 block stacked
 
 
+def test_cost_zero_potion_waits_for_a_worthy_target() -> None:
+    """Owner 2026-07-29 (Touch of Insanity — matched by TEXT, the name never
+    matters): deploy early at a boss but only when a cost>=2 card is in hand — a
+    turn-1 hand of cheap cards means WAIT for the turn the 3-cost shows up; the
+    target screen then prefers max cost."""
+    cz = _potion("TOUCH_OF_INSANITY", "Touch of Insanity",
+                 "Choose a card. It costs 0 for the rest of this fight.")
+    cheap_hand = [card(0, "Strike", 1, "Deal 6 damage."),
+                  card(1, "Defend", 1, "Gain 5 Block.")]
+    rich_hand = [*cheap_hand, card(2, "Bludgeon", 3, "Deal 32 damage.")]
+    st_cheap = make_combat(hand=cheap_hand, enemies=[enemy("BOSS_0", 300, intent_label="10")],
+                           hp=70, max_hp=80, state_type="boss", potions=[cz])
+    d = router().decide(st_cheap, LoopContext())
+    assert (not isinstance(d, Decision)
+            or d.action.payload().get("action") != "use_potion"), d.rationale
+    ctx = LoopContext()
+    st_rich = make_combat(hand=rich_hand, enemies=[enemy("BOSS_0", 300, intent_label="10")],
+                          hp=70, max_hp=80, state_type="boss", potions=[cz])
+    d2 = router().decide(st_rich, ctx)
+    assert isinstance(d2, Decision)
+    assert d2.action.payload().get("action") == "use_potion", d2.rationale
+    assert ctx.screen_mem.get("pending_enchant") == "cost_zero"
+
+
 def test_sword_of_stone_completion_nudge_at_four_elites() -> None:
     """Owner 2026-07-29: at counter 4 the next elite ALSO completes Sword of Jade
     (+3 Str) — a winnable elite node scores sword_completion_bonus higher than the

@@ -575,6 +575,17 @@ class StandardRouter:
             tgt = biggest_threat() if cat[buff.slot] == "debuff" else None
             return drink(buff, tgt, f"drink {buff.name} (deploy at {state.state_type} start)")
 
+        # 4a-2. Cost-zero potions (Touch of Insanity): deploy early at a boss,
+        #     but ONLY when a worthy target (cost >= 2) is in hand — the owner nuance:
+        #     turn 1 full of cheap cards -> WAIT for the turn the 3-cost shows up.
+        if dangerous and round_ <= 4 and (cz := first("cost_zero")):
+            hand_costs = [int(c.cost) for c in (player.hand or [])
+                          if c.cost and str(c.cost).lstrip("-").isdigit()]
+            if hand_costs and max(hand_costs) >= 2:
+                ctx.screen_mem["pending_enchant"] = "cost_zero"  # target screen: max cost
+                return drink(cz, None,
+                             f"drink {cz.name} (cost-zero the {max(hand_costs)}-cost)")
+
         # 4b. Value/tempo potions (energy / draw): spend them early in a big fight so the extra
         #     energy + cards convert to more block and damage. Owner B04BGZEDRN: the bot hoarded
         #     Cure All (gain energy, draw 2) through the 126-HP Ovicopter and threw it away in a
@@ -616,6 +627,13 @@ class StandardRouter:
         # earlier the card arrives, the longer it works. Deployed at boss start (rule 4a).
         if any(k in nid for k in ("SKILL", "ATTACK", "COLORLESS", "POWER POTION")):
             return "card_gen"
+        # "[Selected] card costs 0 for the rest of this fight" (owner 2026-07-29,
+        # Touch of Insanity; matched by TEXT so the exact name doesn't matter):
+        # a targeted cost-zero is a per-fight engine — deploy early in big fights,
+        # but only when a WORTHY target is in hand (see the boss-deploy lane).
+        if re.search(r"costs? 0.*rest of (this|the) (fight|combat)",
+                     potion.description or "", re.IGNORECASE | re.DOTALL):
+            return "cost_zero"
         fx = parse_card_description(potion.description)
         if fx.heal > 0:
             return "heal"
@@ -724,10 +742,12 @@ class StandardRouter:
         # Planisphere: +5 HP on entering a '?' room (owner nuance check 2026-07-29).
         # Margins only — but the DP's death-floor pockets flip on margins, and a
         # '?'-dense route with it held is a real trickle of sustain.
-        unknown_heal = 5.0 if any(
-            "PLANISPHERE" in f"{r.id or ''} {r.name or ''}".upper()
-            for r in ((player.relics if player else None) or [])
-        ) else 0.0
+        held_relics = [f"{r.id or ''} {r.name or ''}".upper()
+                       for r in ((player.relics if player else None) or [])]
+        unknown_heal = 5.0 if any("PLANISPHERE" in n for n in held_relics) else 0.0
+        # Meal Ticket: +15 HP on entering a shop (owner 2026-07-29) — same seam.
+        shop_heal = 15.0 if any("MEAL_TICKET" in n or "MEAL TICKET" in n
+                                for n in held_relics) else 0.0
 
         next_row = min(o.row for o in opts)
 
@@ -855,6 +875,8 @@ class StandardRouter:
                 return min(max_hp, hp + w.rest_heal_pct * max_hp), 0.0
             elif t == "unknown" and unknown_heal:
                 return min(max_hp, hp + unknown_heal), 0.0  # Planisphere trickle
+            elif t == "shop" and shop_heal:
+                return min(max_hp, hp + shop_heal), 0.0  # Meal Ticket
             else:
                 return hp, 0.0
             if hp_after <= death_floor:
@@ -1662,7 +1684,7 @@ class StandardRouter:
             # random 0-3 cost on draw = positive EV stapled to any cost>=2 card, and
             # Ironclad always has Bash. Target the HIGHEST-cost card — the original
             # sin was Slither on a cost-1 Strike.
-            if "slither" in prompt:
+            if "slither" in prompt or "cost_zero" in prompt:
                 def slither_cost(c):
                     try:
                         return int(c.cost or 0)
