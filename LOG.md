@@ -2,6 +2,42 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-29/30 (Fable 5, session 16) — WINS #5 AND #6 in one batch; P1.7 built; the live-watch harvest continues
+
+**FIRST MULTI-WIN BATCH: 2/14** (byw7ikj6w, overnight, the accidental 0.55-dial
+experiment) — Queen (YGHJ50QFHQ) and Test Subject (8CD49Y69TF, the 3-stage
+anti-AoE boss) back-to-back. Counterweight: 8 of 14 died at the ACT-1 boss
+(Matriarch x3 cluster) + 1 Phrog Parasite elite death (the swarm blind-spot
+class). Dial verdict (0.55 vs 0.60) PENDING the deep scan — win ceiling up,
+act-1 floor rougher; could be dial cost or one bad-variance night.
+
+**P1.7 BUILT + BACKTESTED (commits pending a shell-tool outage — Sonnet
+classifier down, owner opted to wait)**: rollout core refactored to ONE physics
+(_RolloutSim) with TWO turn policies; DFS-policy (the real planner via
+synthesized CombatStates) backtests boss-act1 at 52% predicted vs greedy 38%
+(actual 65%), bias +7; median ~1.1s/estimate -> wired for KNOWN bosses with a
+per-(deck,boss,belt) cache and boss_ms timing logs. Also staged: Juzu +2 on
+'?' (no combat penalty existed to remove — verified), emergency Stoke shred
+in the desperation lane (owner live catch: reroll a doomed hand, energy-first,
+works under NO_DRAW), History Course filed as SS5.2 item 13, ?-hides-a-shop
+foul-throw corner filed.
+
+**Live-watch harvest**: Thorns potion = LIQUID BRONZE (name-keyword never
+matched — text-matching now; same lesson as Touch of Insanity and Soldier's
+Stew, both also encoded); Orobic Acid + card-gen deploys extended to elites;
+Swift out-of-cards lane; Battle Trance NO_DRAW locks draws at all three layers;
+Explosive AoE held for the swarms ahead (found the DFS pseudo-card spend path);
+Shuriken/Kunai confirmed already covered by the trigger table. **Miniature Tent:
+the bot does NOT chain rest actions** (one action then proceed at all 7 sites of
+the win run) — payload forensic + Tent replay exercise queued (win seeds valid,
+no epoch trigger). Mid-batch: a REAL game freeze at the WG knockdown (instance
+#3 of the batch-killer class, cards frozen mid-resolution, state reports
+healthy) cost a batch restart; stall leash tripled for phase-shaped waits.
+
+'''PENDING NEXT SESSION''': commit the 5-item backlog + tests; batch deep scan
+(dial verdict, Matriarch cluster); Tent payload forensic; P2b rest-handler onto
+DFS boss estimates.
+
 ## 2026-07-29 (Fable 5, session 15) — the aggression era arrives; owner nuance harvest x7
 
 **Batch b4xypb8pc (throw fix + Thorns + new epoch): 0/10, act-reach 1.9 — but the
