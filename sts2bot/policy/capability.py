@@ -101,6 +101,9 @@ class FightEnemy:
     # not attacking — until every lower-wave body dies. They still hold kill-HP (the fight
     # isn't won until they fall), which is what backloads the swarm the way the real fight does.
     wave: int = 0
+    # Artifact charges (Aeonglass opens with 3): each negates one incoming debuff, so
+    # early Vulnerable-based plans fizzle — the +581-peak-then-collapse tape signature.
+    artifact: int = 0
 
 
 @dataclass(frozen=True)
@@ -210,6 +213,7 @@ _DEATH_RE = re.compile(r"when killed, deals (\d+) damage", re.I)  # Steam Erupti
 _STUN_RE = re.compile(r"HP reaches (\d+) or below", re.I)
 _THORNS_RE = re.compile(r"hit by an attack, deal (\d+) damage back", re.I)  # Thorns
 _RAMP_RE = re.compile(r"end of (?:its|each|your)?\s*turn,?\s*gain[s]? (\d+) Strength", re.I)
+_ARTIFACT_RE = re.compile(r"Negates? (\d+) debuffs?", re.I)  # Aeonglass opens with 3
 _TIMER_RE = re.compile(r"in (\d+) turns?[^.]*?\bdie\b", re.I)  # Sandpit: "In N turns ... you die"
 _SKITTISH_RE = re.compile(r"first time.*?hit each turn.*?gains? (\d+) block", re.I)  # Skittish
 
@@ -218,11 +222,13 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
     """Parse an enemy's statuses (each `{name, description, ...}`) into `FightEnemy` throttling
     kwargs. Unknown text contributes nothing (so a new status fails safe to 'generic enemy')."""
     cap: int | None = None
-    block = death = stun = thorns = ramp = skittish = 0
+    block = death = stun = thorns = ramp = skittish = artifact = 0
     timer = 0  # soonest "you will die in N turns" deadline (Sandpit)
     slippery = False
     for s in statuses:
         d = s.get("description") or ""
+        if m := _ARTIFACT_RE.search(d):
+            artifact = max(artifact, int(m.group(1)))
         if m := (_CAP_RE.search(d) or _CAP_RE2.search(d)):
             v = int(m.group(1))
             cap = v if cap is None else min(cap, v)
@@ -262,6 +268,8 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
         out["death_timer"] = timer
     if skittish:
         out["skittish"] = skittish
+    if artifact:
+        out["artifact"] = artifact
     return out
 
 

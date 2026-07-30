@@ -99,6 +99,7 @@ class _Foe:
     slipped_this_turn: bool = False
     wave: int = 0
     dormant: bool = False  # wave>0 body not yet spawned: untargetable, not attacking
+    artifact: int = 0  # charges that eat incoming debuffs (Aeonglass opens with 3)
 
 
 @dataclass(frozen=True)
@@ -237,7 +238,7 @@ class _RolloutSim:
                           death_damage_growth=e.death_damage_growth,
                           heals=e.heals_per_turn, dot=e.player_dot_avg,
                           death_timer=e.death_timer, wave=e.wave,
-                          dormant=e.wave > 0)
+                          dormant=e.wave > 0, artifact=e.artifact)
                      for e in enemies]
         self.rng = rng
         self.rfx = rfx or {}
@@ -318,7 +319,10 @@ class _RolloutSim:
             self.my_str += self.spend("strength")  # fight-start buffs (live lane 4)
             for f in self.foes:
                 if f.hp > 0 and not f.dormant:
-                    f.vuln += rfx.get("t1_vuln", 0)
+                    if f.artifact > 0 and rfx.get("t1_vuln", 0):
+                        f.artifact -= 1
+                    else:
+                        f.vuln += rfx.get("t1_vuln", 0)
         if self.turn == 2:
             self.block += rfx.get("t2_block", 0)
         for f in self.foes:
@@ -357,7 +361,10 @@ class _RolloutSim:
                     if f.thorns:
                         self.hp -= f.thorns
                 if pick.fx.vulnerable:
-                    f.vuln += pick.fx.vulnerable
+                    if f.artifact > 0:
+                        f.artifact -= 1  # charge eats the debuff (Aeonglass tape)
+                    else:
+                        f.vuln += pick.fx.vulnerable
                 if f.hp <= 0:
                     self.hp -= f.death_damage + f.death_damage_growth * self.turn
             self._advance_wave()  # Phrog: killing the leader spawns the next wave
@@ -508,6 +515,11 @@ def _synth_state(sim: _RolloutSim):
             status.append({"id": "SLIPPERY_POWER", "name": "Slippery", "amount": 1,
                            "keywords": [],
                            "description": "The next time this loses HP, it only loses 1 HP."})
+        if f.artifact > 0:
+            # the real planner already prices debuffs-into-Artifact as waste
+            status.append({"id": "ARTIFACT_POWER", "name": "Artifact",
+                           "amount": f.artifact, "keywords": [],
+                           "description": f"Negates {f.artifact} debuffs."})
         enemies.append({
             "entity_id": f"SIM_{i}", "combat_id": 1, "name": f"Sim{i}",
             "hp": f.hp, "max_hp": max(f.hp, 1), "block": f.self_block,

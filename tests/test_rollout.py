@@ -148,3 +148,21 @@ def test_loss_gradient_survives_unwinnable_fights() -> None:
                            boss, 60, 80, card_effects=FX)
     assert weak.win_rate == 0.0 and strong.win_rate == 0.0
     assert strong.exp_enemy_hp_left < weak.exp_enemy_hp_left
+
+
+def test_artifact_charges_eat_vulnerable_in_the_sim() -> None:
+    # Aeonglass tape (4 fights, 2026-07-30): she opens with Artifact 3, so early
+    # Vulnerable-based plans fizzle -- the +581-peak-then-collapse signature. The
+    # live planner already knew; the sim let vuln land turn 1 (optimistic exactly
+    # where the fight is hardest). Bash x many vs artifact=1: first vuln eaten.
+    from sts2bot.policy.capability import detect_mechanics
+    flags = detect_mechanics([{"name": "Artifact", "description": "Negates 3 debuffs."}])
+    assert flags.get("artifact") == 3
+    # sim: same deck, same boss, artifact 3 vs 0 -- charges must cost win equity
+    boss = dict(hp=300, dps=18, str_ramp=2)
+    plain = rollout_fight([*starter(), *([card("BASH", cost="2")] * 3)],
+                          [FightEnemy(**boss)], 75, 80, card_effects=FX)
+    shielded = rollout_fight([*starter(), *([card("BASH", cost="2")] * 3)],
+                             [FightEnemy(**boss, artifact=3)], 75, 80, card_effects=FX)
+    assert (shielded.win_rate, shielded.exp_end_hp - shielded.exp_enemy_hp_left) <= \
+        (plain.win_rate, plain.exp_end_hp - plain.exp_enemy_hp_left)
