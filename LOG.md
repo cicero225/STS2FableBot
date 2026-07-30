@@ -44,6 +44,34 @@ Explosive-on-normal suspicion ACQUITTED (all AoE spends were elite/boss).
 Batch bb1jkxvr1 (Matriarch race + Foul guard + cache fix live; Phrog/P2b land
 mid-batch) running as of this entry.
 
+**Afternoon addendum (session 17 continued): WIN #8 + two owner fixes validated
+live in ONE run.** 2FQE720FCE (batch bh1ytvbe1, act-3 f48) threw BOTH Foul
+Potions at the merchant for +200g (backoff ladder v2's first organic test —
+both `ok`) and converted at the final boss. Day's arc: bb1jkxvr1 0/10 (zero
+elite deaths in 25 elite fights — elites effectively solved; 7/10 boss deaths
+from healthy HP), bxhdqtdfi 0/10 (KD x3; P2b's first live read: 'DFS vs
+Lagavulin Matriarch est loss 80' — correct doom forecast; gate-pass logging
+immediately solved the Gardeners f7 case: won_n 4/6 pool gamble drew a 0.0-win
+member), bnglkzkyk 0/10 but ACT-REACH RECORD 2.20 with FOUR f48 final-boss
+deaths, bh1ytvbe1 1/10 (win #8). Wins in 3 of the last 4 batches.
+
+**KD audit (5 corpses)**: every death was a correctly-forecast loss (rest gate
+saw 44<62, 43<62, 59<88, 21<98, 63<88 and rested) — fights lasted only 5-8
+turns; the failure is UPSTREAM deck power by f33. Fix: §5-C v2 (5bb14fd) —
+draft deltas priced by ROLLOUT vs the real upcoming boss (CRN seeding, n=40,
+exp_enemy_hp_left loss gradient) instead of the static estimator; the rollout
+correctly punished the old cost-2-for-5-block test fixture as worse than a
+Defend. Re-bake A/B: NULL (36%/+7.1 both ways over 121 fights — physics
+already counted Str; choice-flips too rare to move aggregates; kept as free
+correctness). Recurrence pool (f606551): seen elites leave the gate pool until
+3 fought (owner rule, player-visible, C3-clean). Mutual-kill ruling encoded
+(d206af1): drinker-in-blast potions filtered by TEXT everywhere (HITS_EVERYONE
+single source; hail-mary already priced it). Owner live catches: Man-Sized
+Holes goes catalog-first — Perfect Fit over the Normality trap (2333ce7);
+Eternal Feather entry heal rides the route projection (54a5141). Phrog f15
+death post-fix: forced elite row at low HP, best path value -16.3 — the DP
+knew; tail loss, not a model miss.
+
 ## 2026-07-29/30 (Fable 5, session 16) — WINS #5 AND #6 in one batch; P1.7 built; the live-watch harvest continues
 
 **FIRST MULTI-WIN BATCH: 2/14** (byw7ikj6w, overnight, the accidental 0.55-dial
