@@ -563,13 +563,15 @@ class StandardRouter:
         if hp_pct < heal_bar and (healp := first("heal")):
             return drink(healp, None, f"drink {healp.name} to heal at {hp_pct:.0%} HP")
 
-        # 4a. Card-generating potions (Skill/Attack/Power/Colorless): drop immediately at a
-        #     BOSS start — the chosen card compounds over the fight's length, and held ones
-        #     historically died in the belt or fired as pointless hail-maries (owner
-        #     2026-07-09). Window is two rounds so a buff (4b) and a card-gen both land.
-        if ((state.state_type == "boss" or frond) and round_ <= 2
+        # 4a. Card-generating potions (Skill/Attack/Power/Colorless/Orobic): drop
+        #     immediately at a BOSS or ELITE start (owner 2026-07-29: "obvious turn 1
+        #     plays") — the generated cards compound over the fight's length, and held
+        #     ones historically died in the belt or fired as pointless hail-maries
+        #     (owner 2026-07-09). Window is two rounds so a buff (4b) also lands.
+        if ((state.state_type in ("boss", "elite") or frond) and round_ <= 2
                 and (cg := first("card_gen"))):
-            return drink(cg, None, f"drink {cg.name} (boss start: bank the card early)")
+            return drink(cg, None,
+                         f"drink {cg.name} ({state.state_type} start: bank cards early)")
 
         # 4. Proactive at an elite/boss start: deploy long-term buffs/debuffs early (the
         #    bot struggles with these fights, so bank the value rather than hoard it).
@@ -627,7 +629,10 @@ class StandardRouter:
         # to your hand"). Their text parses to no effect -> they fell to "other" and only ever
         # fired as the hail-mary fallback, way too late value-wise (owner 2026-07-09): the
         # earlier the card arrives, the longer it works. Deployed at boss start (rule 4a).
-        if any(k in nid for k in ("SKILL", "ATTACK", "COLORLESS", "POWER POTION")):
+        if any(k in nid for k in ("SKILL", "ATTACK", "COLORLESS", "POWER POTION",
+                                  "OROBIC")):
+            # Orobic Acid: 3 random cards, free this turn — a turn-1 tempo bomb
+            # (owner 2026-07-29: obvious turn-1 play at bosses/elites)
             return "card_gen"
         # "[Selected] card costs 0 for the rest of this fight" (owner 2026-07-29,
         # Touch of Insanity; matched by TEXT so the exact name doesn't matter):

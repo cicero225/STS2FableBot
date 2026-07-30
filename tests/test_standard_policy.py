@@ -2458,6 +2458,24 @@ def test_card_gen_potion_dropped_at_boss_start() -> None:
     assert "bank the card early" in d.rationale
 
 
+def test_orobic_acid_deploys_at_elite_start() -> None:
+    """Owner 2026-07-29: Orobic Acid (3 random cards, free this turn) and the other
+    card-gen potions are obvious turn-1 plays at bosses AND elites — the lane was
+    boss-only and Orobic categorized 'other' (hail-mary only)."""
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("ELITE_0", 140, intent_label="14")],
+        hp=70, max_hp=80, state_type="elite",
+        potions=[_potion("OROBIC_ACID", "Orobic Acid",
+                         "Add a random Attack, Skill, and Power into your Hand. "
+                         "They're free to play this turn.")],
+    )
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("action") == "use_potion", d.rationale
+    assert "elite start" in d.rationale
+
+
 def test_card_gen_potion_held_in_normal_fights() -> None:
     """The boss-start drop is boss-only: in a normal monster fight the card-gen potion is
     held (its value is banked for the fights that matter)."""
