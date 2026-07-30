@@ -569,7 +569,12 @@ class StandardRouter:
             # suicide traded for a merely-PROJECTED death; projections carry ~15%
             # error, so that margin is real). Never fall back to a self-lethal potion.
             def _self_lethal(p: Potion) -> bool:
-                if re.search(r"\bEVERYONE\b", p.description or "", re.IGNORECASE):
+                # Text drift bit this guard (live 2026-07-30: Foul's text became
+                # "Deal 12 damage to ALL players and enemies" — no EVERYONE — and
+                # the bot drank a 12-damage suicide at 6 HP). Match every phrasing
+                # that includes the drinker in the blast.
+                if re.search(r"\bEVERYONE\b|ALL (players|characters|creatures)",
+                             p.description or "", re.IGNORECASE):
                     return (parse_card_description(p.description).total_damage
                             >= player.hp)
                 return False

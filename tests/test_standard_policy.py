@@ -2458,6 +2458,22 @@ def test_card_gen_potion_dropped_at_boss_start() -> None:
     assert "bank cards early" in d.rationale
 
 
+def test_foul_self_lethal_guard_survives_text_drift() -> None:
+    """Live 2026-07-30: Foul's text became 'Deal 12 damage to ALL players and
+    enemies' (no EVERYONE) and the guard went silent — the bot drank a 12-damage
+    suicide at 6 HP in a hail-mary. Both phrasings now veto."""
+    foul = _potion("FOUL_POTION", "Foul Potion",
+                   "Deal 12 damage to ALL players and enemies. "
+                   "Can be thrown at the Merchant for 100 Gold instead.")
+    state = make_combat(
+        hand=[], enemies=[enemy("BOSS_0", 200, intent_label="24")],
+        energy=0, hp=6, max_hp=80, state_type="boss", potions=[foul],
+    )
+    d = router().decide(state, LoopContext())
+    if isinstance(d, Decision):
+        assert d.action.payload().get("action") != "use_potion", d.rationale
+
+
 def test_matriarch_drain_forces_the_race() -> None:
     """Matriarch cluster 2026-07-30 (3 healthy-HP deaths): Soul Siphon (-2 Str/Dex
     per cycle, a MOVE — nothing text-detects it) makes her a clock, but the planner
