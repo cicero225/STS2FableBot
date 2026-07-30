@@ -102,3 +102,37 @@ def test_composition_members_use_their_own_realized_dps_when_harvested() -> None
     # harvested per-body numbers win over the act-estimate split
     assert next(m for m in members if m.wave == 0).dps == 5
     assert all(w.dps == 4 for w in members if w.wave == 1)
+
+
+# ---- synth bridge v2: Strength re-baked into planner-visible texts (2026-07-30) ----
+
+def test_rebake_strength_adjusts_numeric_damage_only() -> None:
+    from sts2bot.policy.rollout import _rebake_strength
+    assert _rebake_strength("Deal 6 damage.", 3) == "Deal 9 damage."
+    assert _rebake_strength("Deal 6 damage 2 times.", 3) == "Deal 9 damage 2 times."
+    assert _rebake_strength("Deal damage equal to your Block.", 3) == \
+        "Deal damage equal to your Block."
+    assert _rebake_strength("Deal 6 damage.", 0) == "Deal 6 damage."
+    # drained past the base: the game floors a hit at 0, so does the re-bake
+    assert _rebake_strength("Deal 6 damage.", -9) == "Deal 0 damage."
+    # 'Deals N additional...' riders are per-X scaling, NOT a hit — Strength must
+    # only land on the primary 'Deal N damage' clause (8 such texts in the catalog)
+    assert _rebake_strength(
+        "Deal 6 damage. Deals 3 additional damage for each card in your Exhaust Pile.",
+        5) == "Deal 11 damage. Deals 3 additional damage for each card in your Exhaust Pile."
+
+
+def test_synth_state_shows_planner_strength_adjusted_attacks() -> None:
+    import random
+
+    from sts2bot.policy.rollout import _build_cards, _RolloutSim, _synth_state
+    cards = _build_cards([card("STRIKE_IRONCLAD"), card("DEFEND_IRONCLAD", typ="Skill")],
+                         FX)
+    sim = _RolloutSim(cards, [FightEnemy(hp=30, dps=5)], 50, 80,
+                      random.Random(1), [], {})
+    sim.start_turn()
+    sim.my_str = 3
+    st = _synth_state(sim)
+    texts = [c.description for c in st.player.hand]
+    assert any("Deal 9 damage" in t for t in texts)      # Strike re-baked
+    assert all("Gain 8" not in t or "damage" not in t for t in texts)  # skills untouched

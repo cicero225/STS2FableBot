@@ -42,6 +42,19 @@ _EXHAUST_SELF = re.compile(r"\bexhaust\.\s*$|\bexhaust\b(?!\s+(a|all|your|the|up
                            re.IGNORECASE)
 _EOT_HAND_LOSS = re.compile(r"lose (\d+) hp", re.IGNORECASE)
 _ADD_RANDOM_PER_EXHAUST = re.compile(r"add (\d+) random card", re.IGNORECASE)
+_DEAL_N = re.compile(r"(?i)\b(deal )(\d+)( damage)")
+
+
+def _rebake_strength(text: str, strength: int) -> str:
+    """Synth-bridge v2: fold accumulated Strength into an attack's damage numbers so
+    the one-turn planner prices the card the way the game's own UI would show it.
+    Per-hit numbers get the full bonus ('Deal 6 damage 2 times' -> each hit +str).
+    Non-numeric damage ('equal to your Block') is left alone."""
+    if not strength:
+        return text
+    return _DEAL_N.sub(
+        lambda m: f"{m.group(1)}{max(0, int(m.group(2)) + strength)}{m.group(3)}", text
+    )
 
 
 @dataclass
@@ -463,10 +476,11 @@ def _greedy_turn(sim: _RolloutSim) -> None:
 
 
 def _synth_state(sim: _RolloutSim):
-    """Fabricate a CombatState for the real planner from sim state. Known v1
-    gaps (documented, conservative): accumulated Strength isn't re-baked into
-    card texts (the planner under-rates late-fight attacks slightly); caps and
-    Slippery ride synthesized status text the live detectors already parse."""
+    """Fabricate a CombatState for the real planner from sim state. Accumulated
+    Strength IS re-baked into attack texts (v2, 2026-07-30 — the v1 gap made the
+    planner under-rate late-fight attacks; physics stays on the base fx, so the
+    bonus applies exactly once). Caps and Slippery ride synthesized status text
+    the live detectors already parse."""
     from sts2bot.client.models import parse_state
     enemies = []
     for i, f in enumerate(sim.foes):
@@ -495,7 +509,9 @@ def _synth_state(sim: _RolloutSim):
     hand = [{
         "index": i, "id": c.cid or c.name.upper().replace(" ", "_"), "name": c.name,
         "type": c.ctype, "cost": str(c.cost), "star_cost": None,
-        "description": c.text, "target_type": "AnyEnemy" if c.is_attack else "None",
+        "description": (_rebake_strength(c.text, sim.my_str) if c.is_attack
+                        else c.text),
+        "target_type": "AnyEnemy" if c.is_attack else "None",
         "can_play": not c.unplayable, "unplayable_reason": None,
         "is_upgraded": False, "keywords": [],
     } for i, c in enumerate(sim.hand)]
