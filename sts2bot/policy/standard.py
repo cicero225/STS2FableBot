@@ -961,10 +961,12 @@ class StandardRouter:
                 if use_dfs:
                     # P1.7: DFS-policy rollout for the KNOWN boss, cached per
                     # (deck, boss, belt) -- ~1.1s fresh, free on cache hits
+                    # cache key: deck + boss only (2026-07-30: keying on the belt
+                    # too busted the cache ~14x/run for ~10s max stalls; potions
+                    # rarely flip a boss estimate materially)
                     key = (boss_name,
                            tuple(sorted((c.id or "", bool(c.is_upgraded))
-                                        for c in player.deck)),
-                           tuple(sorted((p_.id or "") for p_ in player.potions or [])))
+                                        for c in player.deck)))
                     cache = ctx.screen_mem.setdefault("boss_roll_cache", {})
                     if key in cache:
                         est_boss_loss = cache[key]
