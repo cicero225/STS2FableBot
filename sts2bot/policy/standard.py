@@ -9,6 +9,7 @@ TrivialRouter, which is already battle-tested plumbing.
 from __future__ import annotations
 
 import re
+import time
 from typing import ClassVar
 
 from sts2bot.client import actions as act
@@ -53,6 +54,7 @@ from sts2bot.policy.drafttags import (
     load_event_choices,
     score_adjustment,
 )
+from sts2bot.policy.rollout import rollout_fight
 from sts2bot.policy.textparse import parse_card_description, parse_hp_cost, parse_intent_damage
 from sts2bot.policy.trivial import TrivialRouter
 
@@ -801,6 +803,7 @@ class StandardRouter:
         # pool's real members. Known limitation: swarm elites (Phantasmal Gardeners) harvest as
         # one small body and fall below the pool's HP floor — the swarm is under-represented.
         can_win_elite = False
+        gate_ms: float | None = None
         est_elite_loss: float | None = None
         est_boss_loss: float | None = None
         if hp_aware and player is not None and player.deck:
@@ -817,23 +820,39 @@ class StandardRouter:
                      or any(k in name.upper() for k in _ELITE_COMPOSITIONS))
             ]
             if pool:
-                outcomes = [
-                    estimate_fight(
-                        int(max_hp), deck_out,
-                        elite_fight_members(name, entry, self.bestiary,
-                                            dps=realized_dps(self.enemy_dps, name, edps),
-                                            str_ramp=eramp),
-                    )
+                members_by_name = {
+                    name: elite_fight_members(name, entry, self.bestiary,
+                                              dps=realized_dps(self.enemy_dps, name, edps),
+                                              str_ramp=eramp)
                     for name, entry in pool
-                ]
-                won = [o for o in outcomes if o.win and o.exp_end_hp >= floor_hp]
-                can_win_elite = len(won) >= len(pool) * w.elite_gate_pool_win_frac
-                # capability-aware projection loss (owner 2026-07-13): median projected
-                # HP cost of THIS deck vs the act's real elite pool — a losing estimate
-                # projects the whole pool (death-priced downstream)
-                losses = sorted((max_hp - o.exp_end_hp) if o.win else max_hp
-                                for o in outcomes)
-                est_elite_loss = losses[len(losses) // 2]
+                }
+                if self.config.map.use_rollout_gate:
+                    # P2a: calibrated Monte-Carlo distributions, tail-aware
+                    t0 = time.perf_counter()
+                    rolls = [
+                        rollout_fight(player.deck, members, int(max_hp), int(max_hp),
+                                      card_effects=self.card_effects,
+                                      potions=player.potions, relics=player.relics)
+                        for members in members_by_name.values()
+                    ]
+                    gate_ms = (time.perf_counter() - t0) * 1000.0
+                    won_n = sum(
+                        1 for r in rolls
+                        if r.win_rate >= w.rollout_gate_win_rate
+                        and r.p25_end_hp >= floor_hp
+                    )
+                    can_win_elite = won_n >= len(pool) * w.elite_gate_pool_win_frac
+                    losses = sorted(max_hp - r.exp_end_hp for r in rolls)
+                    est_elite_loss = losses[len(losses) // 2]
+                else:
+                    outcomes = [estimate_fight(int(max_hp), deck_out, members)
+                                for members in members_by_name.values()]
+                    won = [o for o in outcomes if o.win and o.exp_end_hp >= floor_hp]
+                    can_win_elite = len(won) >= len(pool) * w.elite_gate_pool_win_frac
+                    # median projected HP cost of THIS deck vs the act's real pool
+                    losses = sorted((max_hp - o.exp_end_hp) if o.win else max_hp
+                                    for o in outcomes)
+                    est_elite_loss = losses[len(losses) // 2]
             else:  # bestiary empty for this act: fall back to the generic profile
                 outcome = estimate_fight(
                     int(max_hp), deck_out, [FightEnemy(hp=ehp, dps=edps, str_ramp=eramp)]
@@ -942,6 +961,8 @@ class StandardRouter:
             if score > best_score:
                 best_score, best = score, opt
         assert best is not None
+        if gate_ms is not None:
+            scored["gate_ms"] = round(gate_ms, 1)  # owner: latency data matters
         if state.map.boss and state.map.boss.name:
             # cache the act's boss name (known after Neow) so post-combat drafting, where the map
             # isn't in state, can price cards against the *real* boss (§5-C / ENEMY_PASS).

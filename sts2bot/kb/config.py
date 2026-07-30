@@ -141,6 +141,15 @@ class MapWeights(_Section):
     # (+3 Str permanent) -- worth a real nudge on top of the relic value when the
     # gate already says the fight is winnable (owner 2026-07-29).
     sword_completion_bonus: float = 8.0
+    # P2a (2026-07-29): the elite gate judges the pool with Monte-Carlo ROLLOUTS
+    # (calibrated: act-1 93%/95%, act-2 86%/81%) instead of the closed-form race.
+    # Tail-aware: a pool member is "won" at win_rate >= rollout_gate_win_rate AND
+    # p25 end HP >= the existing elite_gate_min_end_hp_pct floor. Boss estimates
+    # stay closed-form until P1.7 (DFS-policy boss rollouts). Flag reverts to the
+    # closed form if the batch A/B goes wrong. Gate latency is logged per decision
+    # in scores["gate_ms"] (owner: the amount matters for iteration time).
+    use_rollout_gate: bool = True
+    rollout_gate_win_rate: float = 0.6
     # §5-C elite gate: chase an elite only if the deck wins it (at full HP) with at least this HP
     # fraction left — a pyrrhic 2-HP win is a loss for the next node, so don't chase it.
     # 0.30 -> 0.20 (A/B #5): a 20%-HP win + relic beat our 90%-HP no-relic arrival.
