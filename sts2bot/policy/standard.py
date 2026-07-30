@@ -858,6 +858,12 @@ class StandardRouter:
         # there is no penalty to remove — this is the upside-only score bump
         # (guaranteed event/treasure/shop EV beats the fight-diluted pool).
         juzu_bonus = 2.0 if any("JUZU" in n for n in held_relics) else 0.0
+        # Eternal Feather (owner relic check 2026-07-30): heal 3 per 5 deck cards on
+        # ENTERING a rest site — no rest required, so it stacks on top of whatever
+        # the campfire is spent on and rewards rest-dense routes even when smithing.
+        feather_heal = (3.0 * (len((player.deck if player else None) or []) // 5)
+                        if any("ETERNAL" in n and "FEATHER" in n
+                               for n in held_relics) else 0.0)
 
         next_row = min(o.row for o in opts)
 
@@ -1044,7 +1050,8 @@ class StandardRouter:
             elif t == "boss":
                 hp_after = hp - fight_loss("boss")
             elif t in ("restsite", "rest_site"):
-                return min(max_hp, hp + w.rest_heal_pct * max_hp), 0.0
+                # feather_heal fires on ENTRY (before the rest/smith choice)
+                return min(max_hp, hp + feather_heal + w.rest_heal_pct * max_hp), 0.0
             elif t == "unknown" and unknown_heal:
                 return min(max_hp, hp + unknown_heal), 0.0  # Planisphere trickle
             elif t == "shop" and shop_heal:

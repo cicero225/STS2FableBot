@@ -3777,3 +3777,51 @@ def test_field_of_man_sized_holes_takes_perfect_fit_over_normality() -> None:
     ])
     idx = router().decide(state, LoopContext()).action.payload()["index"]
     assert idx == 1
+
+
+def test_eternal_feather_entry_heal_rides_the_route_projection() -> None:
+    """Owner relic check 2026-07-30: Eternal Feather heals 3 HP per 5 deck cards on
+    ENTERING a rest site — no rest required. With a 20-card deck (+12 on entry) the
+    campfire route's projection clears a death-floor pocket the bare projection
+    can't; the feather is exactly the margin (same seam as Planisphere/Meal Ticket)."""
+    from sts2bot.kb.combat_stats import CombatStats
+
+    stats = CombatStats(by_type={
+        "monster_early": {"mean": 4.0, "p75": 5, "n": 99},
+        "monster": {"mean": 12.0, "p75": 18, "n": 99},
+        "elite": {"mean": 21.0, "p75": 32, "n": 99},
+        "boss": {"mean": 25.0, "p75": 42, "n": 99},
+    })
+    payload = json.loads(json.dumps(FIXTURES["map"]))
+    payload["map"]["next_options"] = [
+        {"index": 0, "col": 1, "row": 4, "type": "RestSite",
+         "leads_to": [{"col": 1, "row": 5, "type": "Monster"}]},
+        {"index": 1, "col": 2, "row": 4, "type": "Event",
+         "leads_to": [{"col": 2, "row": 5, "type": "Monster"}]},
+    ]
+    payload["map"]["nodes"] = [
+        {"col": 1, "row": 5, "type": "Monster", "children": []},
+        {"col": 2, "row": 5, "type": "Monster", "children": []},
+    ]
+    # calibrated so the feather is exactly the margin (floor = 10% of 40 = 4):
+    # rest heal alone (30% of 40 = 12) leaves 4+12-12 = 4 <= floor -> death
+    # penalty; the feather's +6 (14-card fixture deck) clears it to 10.
+    payload["player"]["hp"] = 4
+    payload["player"]["max_hp"] = 40
+    payload["player"]["deck"] = _STRONG_DECK
+    payload["player"]["relics"] = [
+        {"id": "ETERNAL_FEATHER", "name": "Eternal Feather",
+         "description": "For every 5 cards in your deck, heal 3 HP whenever you "
+                        "enter a Rest Site.", "counter": None, "keywords": []}]
+    r = StandardRouter(combat_stats=stats, bestiary={})
+    r.card_effects = _ROUTING_CARD_EFFECTS
+    d = r.decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["index"] == 0, d.scores
+    # the seam itself: the same state WITHOUT the feather must score the rest-site
+    # route strictly lower (the delta is the feather term riding the projection)
+    with_feather = d.scores["0:RestSite"]
+    bare = json.loads(json.dumps(payload))
+    bare["player"]["relics"] = []
+    d2 = r.decide(parse_state(bare), LoopContext())
+    assert with_feather > d2.scores["0:RestSite"]
