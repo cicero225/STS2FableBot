@@ -55,7 +55,12 @@ from sts2bot.policy.drafttags import (
     score_adjustment,
 )
 from sts2bot.policy.rollout import rollout_fight
-from sts2bot.policy.textparse import parse_card_description, parse_hp_cost, parse_intent_damage
+from sts2bot.policy.textparse import (
+    HITS_EVERYONE,
+    parse_card_description,
+    parse_hp_cost,
+    parse_intent_damage,
+)
 from sts2bot.policy.trivial import TrivialRouter
 
 # Event-option value cues the card-text parser doesn't cover (gains the bot was blind to).
@@ -571,10 +576,9 @@ class StandardRouter:
             def _self_lethal(p: Potion) -> bool:
                 # Text drift bit this guard (live 2026-07-30: Foul's text became
                 # "Deal 12 damage to ALL players and enemies" — no EVERYONE — and
-                # the bot drank a 12-damage suicide at 6 HP). Match every phrasing
-                # that includes the drinker in the blast.
-                if re.search(r"\bEVERYONE\b|ALL (players|characters|creatures)",
-                             p.description or "", re.IGNORECASE):
+                # the bot drank a 12-damage suicide at 6 HP). HITS_EVERYONE is the
+                # shared single-source pattern for drinker-in-the-blast texts.
+                if HITS_EVERYONE.search(p.description or ""):
                     return (parse_card_description(p.description).total_damage
                             >= player.hp)
                 return False

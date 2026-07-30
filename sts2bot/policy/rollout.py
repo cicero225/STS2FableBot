@@ -34,7 +34,11 @@ import zlib
 from dataclasses import dataclass
 
 from sts2bot.policy.capability import FightEnemy
-from sts2bot.policy.textparse import CardEffects, parse_card_description
+from sts2bot.policy.textparse import (
+    HITS_EVERYONE,
+    CardEffects,
+    parse_card_description,
+)
 
 _UNPLAYABLE = re.compile(r"\bunplayable\b", re.IGNORECASE)
 _ETHEREAL = re.compile(r"\bethereal\b", re.IGNORECASE)
@@ -177,7 +181,9 @@ def _classify_potions(potions) -> list[tuple[str, int]]:
     out = []
     for p in potions or []:
         nid = f"{getattr(p, 'id', '') or ''} {getattr(p, 'name', '') or ''}".upper()
-        if "FOUL" in nid or "GLOWWATER" in nid:
+        if ("FOUL" in nid or "GLOWWATER" in nid
+                # drinker-in-the-blast by TEXT (names lie; a mutual kill is a loss)
+                or HITS_EVERYONE.search(getattr(p, "description", None) or "")):
             continue
         fx = parse_card_description(getattr(p, "description", None) or "")
         if fx.heal > 0 or "BLOOD" in nid:

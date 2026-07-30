@@ -27,6 +27,12 @@ _DAMAGE_TIMES = re.compile(
 )
 # "ALL other enemies" = splash (Omnislice); close enough to AoE for the planner
 _ALL_ENEMIES = re.compile(r"\bALL (?:other )?enem", re.IGNORECASE)
+# Foul-class blast that includes the DRINKER (owner ruling 2026-07-30: a mutual kill
+# is a loss). Single source — the guard text-drifted twice ('EVERYONE' -> 'ALL
+# players and enemies'), so every consumer must share one pattern. Public: used by
+# standard (hail-mary veto), combat (pseudo-card filter), rollout (belt filter).
+HITS_EVERYONE = re.compile(r"\bEVERYONE\b|ALL (players|characters|creatures)",
+                           re.IGNORECASE)
 _BLOCK = re.compile(r"\bGain (\d+) (?:Block|Plating)", re.IGNORECASE)  # Plating ~ recurring block
 _DRAW = re.compile(r"\bDraw (\d+) card", re.IGNORECASE)
 # retrieval reads as draw: Dredge "Put 3 cards from your Discard Pile into your Hand"

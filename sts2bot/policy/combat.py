@@ -21,7 +21,12 @@ from sts2bot.client.models import CombatState, Enemy
 from sts2bot.kb.config import CombatWeights
 from sts2bot.policy.base import Decision, Wait
 from sts2bot.policy.capability import detect_mechanics
-from sts2bot.policy.textparse import CardEffects, parse_card_description, parse_intent_damage
+from sts2bot.policy.textparse import (
+    HITS_EVERYONE,
+    CardEffects,
+    parse_card_description,
+    parse_intent_damage,
+)
 
 VULN_MULT = 1.5
 WEAK_MULT = 0.75
@@ -1384,7 +1389,11 @@ def plan_combat_turn(
             if potion.can_use_in_combat is False or potion.slot in used_potion_slots:
                 continue
             nid = f"{potion.id or ''} {potion.name or ''}".upper()
-            if "FOUL" in nid or "GLOWWATER" in nid:  # downside potions (cf. _potion_category)
+            if ("FOUL" in nid or "GLOWWATER" in nid  # downside (cf. _potion_category)
+                    # drinker-in-the-blast by TEXT (names lie): a Foul-class finisher
+                    # at low HP is a mutual kill, and a mutual kill is a loss
+                    # (owner ruling 2026-07-30)
+                    or HITS_EVERYONE.search(potion.description or "")):
                 continue
             pfx = parse_card_description(potion.description)
             if hold_aoe_potions and pfx.aoe and pfx.total_damage > 0:

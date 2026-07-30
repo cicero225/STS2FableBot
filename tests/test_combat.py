@@ -1608,3 +1608,27 @@ def test_normality_zero_left_plans_no_cards() -> None:
     d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=100, hp=70)), w)
     assert "end turn" in d.rationale or (isinstance(d.action, type(d.action)) and \
         d.action.payload().get("action") == "end_turn")
+
+
+def test_drinker_in_blast_potion_never_joins_by_text() -> None:
+    # Owner ruling 2026-07-30 (KD fight, suspected mutual kill): a Foul-class blast
+    # includes the drinker, and a mutual kill is a LOSS -- the finisher lane must
+    # never pick it, and by TEXT (names lie: this one isn't called Foul at all).
+    w = load_policy_config().combat
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy")]
+    pots = [{"id": "MYSTERY_BREW", "name": "Mystery Brew",
+             "description": "Deal 25 damage to ALL players and enemies.",
+             "slot": 0, "can_use_in_combat": True, "target_type": "None", "keywords": []}]
+    d = plan_combat_turn(parse_state(_fysh_with_potion(25, hand, pots)), w)
+    assert "(potion)" not in d.rationale
+
+
+def test_rollout_belt_excludes_drinker_in_blast_by_text() -> None:
+    from types import SimpleNamespace as NS
+
+    from sts2bot.policy.rollout import _classify_potions
+    pots = [NS(id="MYSTERY_BREW", name="Mystery Brew",
+               description="Deal 25 damage to ALL players and enemies."),
+            NS(id="FIRE_POTION", name="Fire Potion", description="Deal 20 damage.")]
+    belt = _classify_potions(pots)
+    assert belt == [("damage", 20)]  # the blast never enters the sim's belt
