@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import re
 import time
+import zlib
 from typing import ClassVar
 
 from sts2bot.client import actions as act
@@ -1692,31 +1693,43 @@ class StandardRouter:
         return loss
 
     def _capability_deltas(
-        self, deck, cards, max_hp: int, boss: list[FightEnemy]
+        self, deck, cards, max_hp: int, boss: list[FightEnemy], relics=None
     ) -> dict[int, float]:
-        """§5-C drafting: per card index, how much it improves estimate_fight vs the upcoming boss
-        in the *current deck's* context (deck-aware: a block-starved deck values block, a
-        damage-starved one values damage). Needs the deck + harvested card text to price it; if
-        either is missing the term is skipped (empty) and drafting falls back to Elo/heuristics.
-        Note: deck_output now also prices Strength-ramp + Vulnerable from card text (approx; it
-        still misses relic Strength e.g. Vajra and true per-turn rampers like Demon Form, which
-        the Elo prior / w_power carry)."""
+        """§5-C drafting: per card index, how much it improves the boss forecast in the
+        *current deck's* context (deck-aware: a block-starved deck values block, a
+        damage-starved one values damage). 2026-07-30 (KD audit: all 5 deaths were
+        correctly forecast losses — the forecast was wasted because nothing upstream
+        consumed it): priced by ROLLOUT delta, not estimate_fight — the static estimate
+        is the calibration table's known-blind spot (engines, draw variance), and the
+        rollout's exp_enemy_hp_left keeps the loss gradient the old progress() had.
+        Needs the deck + harvested card text; if either is missing the term is skipped
+        and drafting falls back to Elo/heuristics."""
         if not deck or not self.card_effects:
             return {}
         w = self.config.card_rewards
 
-        def progress(o) -> float:
-            # HP I'd retain minus the boss HP still standing: rewards getting *closer* to the kill
-            # even in a loss (the usual Act-1-boss case), where raw end-HP alone is misleading.
-            return o.exp_end_hp - o.enemy_hp_left
+        def progress(r) -> float:
+            # HP I'd retain minus the boss HP still standing: rewards getting *closer*
+            # to the kill even in a loss (the usual boss case at draft time).
+            return r.exp_end_hp - r.exp_enemy_hp_left
 
-        base_out = estimate_fight(max_hp, deck_output(deck, descriptions=self.card_effects), boss)
+        # common random numbers: one seed from the BASE deck for every candidate, so
+        # deltas compare like against like instead of re-seeding per candidate (a
+        # per-candidate content seed made deltas a difference of two independent
+        # noisy estimates — sigma comparable to the take threshold)
+        seed = zlib.crc32(",".join(sorted(
+            (getattr(c, "id", "") or "") for c in deck)).encode()) & 0x7FFFFFFF
+
+        def roll(d):
+            return rollout_fight(d, boss, max_hp, max_hp,
+                                 card_effects=self.card_effects,
+                                 relics=relics, n=w.draft_rollout_n, rng_seed=seed)
+
+        base_out = roll(deck)
         base = progress(base_out)
         deltas: dict[int, float] = {}
         for c in cards:
-            out = estimate_fight(
-                max_hp, deck_output([*deck, c], descriptions=self.card_effects), boss
-            )
+            out = roll([*deck, c])
             delta = w.capability_weight * (progress(out) - base)
             if out.win and not base_out.win:
                 delta += w.capability_win_flip_bonus  # flips the boss lose->win: prize it
@@ -1736,8 +1749,9 @@ class StandardRouter:
         run_act = state.run.act if state.run else 1
         max_hp = state.player.max_hp if (state.player and state.player.max_hp) else 80
         # §5-C: value each card by how much it improves the estimate vs the *real* upcoming boss
-        cap = self._capability_deltas(deck, cr.cards, max_hp, self._upcoming_boss(ctx, run_act))
         relics = state.player.relics if (state.player and state.player.relics) else None
+        cap = self._capability_deltas(deck, cr.cards, max_hp,
+                                      self._upcoming_boss(ctx, run_act), relics=relics)
         region = _act1_region(ctx.screen_mem.get("act_boss_name")) if run_act <= 1 else None
         boss_rule = _boss_draft_rule(ctx.screen_mem.get("act_boss_name"))
         scored = [

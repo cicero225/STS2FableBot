@@ -228,6 +228,12 @@ class CardRewardWeights(_Section):
     # damage-starved one values damage). Added on top of the Elo/heuristic score, not replacing it.
     capability_weight: float = 0.4  # score per +1 projected boss-survival HP the card adds
     capability_win_flip_bonus: float = 6.0  # extra if the card flips the boss estimate lose->win
+    # §5-C v2 (2026-07-30, KD audit): deltas priced by rollout, not estimate_fight.
+    # Rollouts per draft option; ~3ms each so a 4-card screen costs ~(4+1)*n*3ms.
+    # 40 because one card in a ~15-card deck moves boss progress by only a few HP —
+    # honest but small; at n=12 the delta sign flipped on rollout noise (probe
+    # 2026-07-30: Bludgeon vs 170-HP boss read -0.4 at n=12, +0.6/+3.6 at 40/80).
+    draft_rollout_n: int = 40
     # Card-pass step 2 (owner-reviewed 2026-07-12): deck-context tag machinery
     # (sts2bot/policy/drafttags.py + data/card_draft_tags.json). Bonus per met need
     # (x strength mult x met fraction); penalty ONLY for pure payoffs with zero

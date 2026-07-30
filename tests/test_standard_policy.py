@@ -1499,9 +1499,10 @@ def test_card_reward_takes_good_skips_bad() -> None:
 def test_weak_starter_deck_takes_card_a_polished_deck_skips() -> None:
     """8.1d: the same modest, parseable card is TAKEN by a starter-heavy deck (a real card
     beats keeping a basic) but SKIPPED once the deck is polished. (Fixture recalibrated
-    2026-07-14 after the draw/block bonus rework: cost 2 keeps the take/skip margins on
-    both sides of the weak-deck-adjusted threshold.) In the 0/5 batch the bot skipped
-    good cards (Molten Fist x4) holding a 9-starter deck."""
+    2026-07-30 for §5-C v2: rollout-priced deltas correctly punish the old cost-2-for-5-
+    block fixture as strictly worse than a basic Defend; 'Gain 7 Block' at cost 1 is a
+    modest REAL improvement, which is what this test is about.) In the 0/5 batch the
+    bot skipped good cards (Molten Fist x4) holding a 9-starter deck."""
     def reward(deck_ids):
         deck = [{"index": i, "id": cid, "name": cid.title(), "type": "Attack", "cost": "1",
                  "description": "Deal 6 damage.", "rarity": "Basic", "is_upgraded": False}
@@ -1509,8 +1510,8 @@ def test_weak_starter_deck_takes_card_a_polished_deck_skips() -> None:
         return parse_state({
             "state_type": "card_reward",
             "card_reward": {"cards": [
-                {"index": 0, "id": "MYSTERY_SKILL", "name": "Modest", "type": "Skill", "cost": "2",
-                 "description": "Gain 5 Block.", "rarity": "Common", "is_upgraded": False,
+                {"index": 0, "id": "MYSTERY_SKILL", "name": "Modest", "type": "Skill", "cost": "1",
+                 "description": "Gain 7 Block.", "rarity": "Common", "is_upgraded": False,
                  "keywords": []}], "can_skip": True},
             "run": {"act": 1, "floor": 5, "ascension": 0},
             "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "deck": deck},

@@ -136,3 +136,15 @@ def test_synth_state_shows_planner_strength_adjusted_attacks() -> None:
     texts = [c.description for c in st.player.hand]
     assert any("Deal 9 damage" in t for t in texts)      # Strike re-baked
     assert all("Gain 8" not in t or "damage" not in t for t in texts)  # skills untouched
+
+
+def test_loss_gradient_survives_unwinnable_fights() -> None:
+    # KD audit 2026-07-30: on a forecast-lost boss every option used to score end_hp
+    # 0 -- exp_enemy_hp_left restores the 'got closer to the kill' gradient drafting
+    # needs. A deck with Bludgeons leaves less boss standing than the bare starter.
+    boss = [FightEnemy(hp=400, dps=30)]
+    weak = rollout_fight(starter(), boss, 60, 80, card_effects=FX)
+    strong = rollout_fight([*starter(), *([card("BLUDGEON", cost="3")] * 3)],
+                           boss, 60, 80, card_effects=FX)
+    assert weak.win_rate == 0.0 and strong.win_rate == 0.0
+    assert strong.exp_enemy_hp_left < weak.exp_enemy_hp_left

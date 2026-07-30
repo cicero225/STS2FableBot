@@ -108,6 +108,10 @@ class RolloutResult:
     p25_end_hp: float  # pessimistic tail — gate material
     mean_turns: float
     n: int = 0
+    # mean kill-HP still standing at the end (0 on wins) — the loss GRADIENT draft
+    # pricing needs: on an unwinnable boss every option scores end_hp 0, but a card
+    # that gets 30 HP closer to the kill is still the right pick (§5-C, 2026-07-30)
+    exp_enemy_hp_left: float = 0.0
 
     @property
     def win(self) -> bool:
@@ -608,6 +612,7 @@ def rollout_fight(
     t0 = _time.perf_counter()
     end_hps: list[int] = []
     turns_out: list[int] = []
+    hp_left: list[int] = []
     wins = 0
     for i in range(n):
         rng = random.Random(rng_seed + i * 7919)
@@ -624,6 +629,9 @@ def rollout_fight(
         wins += 1 if won else 0
         end_hps.append(end_hp if won else 0)
         turns_out.append(sim.turn)
+        # loss gradient for draft pricing: how much kill-HP still stood at the end
+        hp_left.append(0 if won else sum(f.hp for f in sim.foes
+                                         if f.counts and f.hp > 0))
     if timing_out is not None:
         timing_out["ms"] = (_time.perf_counter() - t0) * 1000.0
     end_hps.sort()
@@ -633,4 +641,5 @@ def rollout_fight(
         p25_end_hp=float(end_hps[n // 4]),
         mean_turns=sum(turns_out) / n,
         n=n,
+        exp_enemy_hp_left=sum(hp_left) / n,
     )
