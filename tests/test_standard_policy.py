@@ -2458,6 +2458,36 @@ def test_card_gen_potion_dropped_at_boss_start() -> None:
     assert "bank cards early" in d.rationale
 
 
+def test_explosive_potion_held_for_the_swarms_ahead() -> None:
+    """Owner 2026-07-29: AoE damage potions are premium vs the Kin / Phrog p2 /
+    Gardeners / Decimillipede — hold them in acts 1-2 NORMAL fights while any of
+    those is ahead; release once the act's swarms are seen (an elite seen won't
+    recur until 3 fought) and the boss isn't Kin. Elite/boss fights spend freely."""
+    boom = _potion("EXPLOSIVE_POTION", "Explosive Potion",
+                   "Deal 12 damage to ALL enemies.")
+
+    def normal_fight(potions):
+        return make_combat(
+            hand=[], enemies=[enemy("BUG_A", 11, intent_label="12"),
+                              enemy("BUG_B", 25, intent_label="12")],
+            energy=0, hp=70, max_hp=80, potions=potions,
+        )
+
+    # Kin boss cached -> held even with a finisher-worthy target
+    ctx = LoopContext()
+    ctx.screen_mem["act_boss_name"] = "The Kin"
+    d = router().decide(normal_fight([boom]), ctx)
+    assert (not isinstance(d, Decision)
+            or d.action.payload().get("action") != "use_potion"), d.rationale
+    # other boss + both act-1 swarms already seen -> the hold releases
+    ctx2 = LoopContext()
+    ctx2.screen_mem["act_boss_name"] = "Soul Fysh"
+    ctx2.screen_mem["elites_seen"] = {"PHROG PARASITE", "PHANTASMAL GARDENER"}
+    d2 = router().decide(normal_fight([boom]), ctx2)
+    assert isinstance(d2, Decision)
+    assert d2.action.payload().get("action") == "use_potion", d2.rationale
+
+
 def test_no_draw_lock_blocks_swift_and_dead_plan_draws() -> None:
     """Owner trap 2026-07-29: Battle Trance's rider ("cannot draw additional cards
     this turn", status NO_DRAW_POWER) also kills potion draws. Swift must hold under

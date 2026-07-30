@@ -241,6 +241,11 @@ class StandardRouter:
                 ctx.screen_mem.pop(k, None)
         handler = getattr(self, f"_{state.state_type}", None)
         if handler is not None:
+            if state.state_type == "elite" and getattr(state, "battle", None):
+                seen = ctx.screen_mem.setdefault("elites_seen", set())
+                for e in state.battle.enemies or []:
+                    if e.name:
+                        seen.add(e.name.upper())
             decision = handler(state, ctx)
             if state.state_type == "event":
                 self._note_enchant_intent(state, decision, ctx)
@@ -297,7 +302,8 @@ class StandardRouter:
             pused = {"round": round_, "slots": []}
             ctx.screen_mem["potions_used"] = pused
         plan = plan_combat_turn(state, self.config.combat,
-                                used_potion_slots=tuple(pused["slots"]))
+                                used_potion_slots=tuple(pused["slots"]),
+                                hold_aoe_potions=self._aoe_hold(state, ctx))
         if (isinstance(plan, Decision) and isinstance(plan.action, act.UsePotion)
                 and plan.action.slot not in pused["slots"]):
             pused["slots"].append(plan.action.slot)
@@ -428,6 +434,24 @@ class StandardRouter:
     _monster = _combat
     _elite = _combat
     _boss = _combat
+
+    @staticmethod
+    def _aoe_hold(state, ctx: LoopContext) -> bool:
+        """AoE damage potions held in acts 1-2 NORMAL fights while their premium
+        targets are ahead: the Kin (spottable act-1 boss), Phrog Parasite p2,
+        Phantasmal Gardeners, act-2 Decimillipede (owner 2026-07-29; Knight Gang
+        excluded -- too much HP to dent). An elite already seen won't recur until
+        3 elites are fought, so seen = the hold releases. Hail-mary overrides."""
+        if state.state_type != "monster":
+            return False
+        cur_act = state.run.act if state.run else 1
+        if cur_act > 2:
+            return False
+        seen = ctx.screen_mem.get("elites_seen") or set()
+        swarms = {1: ("PHROG", "GARDENER"), 2: ("DECIMILLIPEDE",)}.get(cur_act, ())
+        kin_boss = "KIN" in (ctx.screen_mem.get("act_boss_name") or "").upper()
+        return ((cur_act == 1 and kin_boss)
+                or any(not any(sw in name for name in seen) for sw in swarms))
 
     def _combat_potion(
         self, state: CombatState, ctx: LoopContext, plan: Decision | Wait | None = None
@@ -621,7 +645,15 @@ class StandardRouter:
                 return drink(
                     blockp, None, f"drink {blockp.name} end-of-turn (unblocked {proj_loss:.0f})"
                 )
-            dmgp = first("damage", "aoe_damage")
+            # AoE-damage hold (owner 2026-07-29): Explosive-class potions are
+            # PREMIUM against the multi-body fights ahead -- the Kin (spottable as
+            # the act-1 boss), Phrog Parasite phase 2, Phantasmal Gardeners, act-2
+            # Decimillipede (Knight Gang excluded: too much HP to dent). In acts
+            # 1-2 NORMAL fights, hold the AoE while any of those is still ahead;
+            # an elite already seen won't recur until 3 elites are fought (owner
+            # recurrence rule), so seen = the hold releases. Hail-mary overrides.
+            dmgp = first("damage") or (None if self._aoe_hold(state, ctx)
+                                       else first("aoe_damage"))
             if dmgp:
                 tgt = self._finisher_potion_target(dmgp, state, cat[dmgp.slot], w)
                 if tgt is not False:

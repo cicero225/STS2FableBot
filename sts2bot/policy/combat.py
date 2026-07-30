@@ -1255,7 +1255,8 @@ _HAND_TAKE_DMG_RE = re.compile(r"take (\d+) damage", re.I)  # Toxic-type: blocka
 
 
 def plan_combat_turn(
-    state: CombatState, weights: CombatWeights, used_potion_slots: tuple[int, ...] = ()
+    state: CombatState, weights: CombatWeights, used_potion_slots: tuple[int, ...] = (),
+    hold_aoe_potions: bool = False,
 ) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences. Damage potions
     (minus already-used slots) join the search as pseudo-cards so card+potion lethals are
@@ -1376,6 +1377,8 @@ def plan_combat_turn(
             if "FOUL" in nid or "GLOWWATER" in nid:  # downside potions (cf. _potion_category)
                 continue
             pfx = parse_card_description(potion.description)
+            if hold_aoe_potions and pfx.aoe and pfx.total_damage > 0:
+                continue  # Explosive-class held for the swarms ahead (owner 2026-07-29)
             # Strength potions (Flex: "Gain 5 Strength... lose 5 at end of turn") join
             # too when the hand has attacks — str converts to damage per attack played
             # after it, and the DFS orders that correctly. Ovicopter A/B 2026-07-25:
