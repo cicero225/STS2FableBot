@@ -2455,7 +2455,7 @@ def test_card_gen_potion_dropped_at_boss_start() -> None:
     d = router().decide(state, LoopContext())
     assert isinstance(d, Decision)
     assert d.action.payload()["action"] == "use_potion"
-    assert "bank the card early" in d.rationale
+    assert "bank cards early" in d.rationale
 
 
 def test_orobic_acid_deploys_at_elite_start() -> None:
