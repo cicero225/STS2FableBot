@@ -149,7 +149,11 @@ class MapWeights(_Section):
     # closed form if the batch A/B goes wrong. Gate latency is logged per decision
     # in scores["gate_ms"] (owner: the amount matters for iteration time).
     use_rollout_gate: bool = True
-    rollout_gate_win_rate: float = 0.6
+    # 0.60 -> 0.55 (owner "push a little", 2026-07-29): the first rollout-gate
+    # batch traded aggression for safety (elites 1.9 -> 1.6/run, deaths 2 -> 0,
+    # relics@f17 6.0 -> 4.8); buy some aggression back with the tail floor
+    # (p25 >= elite_gate_min_end_hp_pct) still standing guard.
+    rollout_gate_win_rate: float = 0.55
     # §5-C elite gate: chase an elite only if the deck wins it (at full HP) with at least this HP
     # fraction left — a pyrrhic 2-HP win is a loss for the next node, so don't chase it.
     # 0.30 -> 0.20 (A/B #5): a 20%-HP win + relic beat our 90%-HP no-relic arrival.
