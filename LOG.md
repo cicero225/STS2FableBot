@@ -2,6 +2,33 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-29 (Fable 5, session 15) — the aggression era arrives; owner nuance harvest x7
+
+**Batch b4xypb8pc (throw fix + Thorns + new epoch): 0/10, act-reach 1.9 — but the
+profile has changed shape.** Act-1 elites 1.40/run, ALL-acts 1.90/run with the
+FIRST act-2/3 elite fights in project history (calibrated dps opened them);
+relics@f17 mean 6.0 (owner benchmark 7 in sight). TWO elite deaths (Bygone Effigy
+f7; Mecha Knight f46 = the first act-3 elite ever attempted) — ~10.5% of elite
+fights vs the backtest's 3-8% promise: WATCH, one more batch before touching
+thresholds. Two more WG deaths: NOT fix failures (JE48MB r12: planner projected
+death correctly, hand was two Strikes — arrived at the blast with nothing). The
+human counter is "knock it down when you're ready to block" = delay-the-knockdown,
+filed as the WG case in the forward-model spec. No organic foul-throw or Thorns
+test arose; Insatiable x2 persists (boss-model work).
+
+**Owner nuance harvest (all encoded same-session):** Planisphere +5/? and Meal
+Ticket +15/shop ride a NEW relic seam in the map HP projection; Winged Boots
+charges = insurance (off-path jumps pay 12 — the desperate rest-jump emerges from
+death-floor math; live: 2 of 3 charges had been burned on marginal jumps); Sword
+of Stone docked 5.5->3.8 + completion nudge (+8 on winnable elites at counter 4/5);
+Touch of Insanity cost-zero deploy (TEXT-matched — the potion has never appeared
+in logs; waits for a cost>=2 target in hand per the owner nuance); Tinker Time /
+Mad Science full catalog with the owner's Power > Skill > Attack sort + a NEW
+catalog-first-event mechanism (Spirebird confidently prefers Skill 14.0 vs 13.8 —
+owner overrides) + text-detected smith premium for the Curious/Expertise variants.
+THE POTION PASS elevated to a named PLAN item (relic pass done, potions never);
+owner's potion value-ordering exercise banked as its centerpiece.
+
 ## 2026-07-25d (Fable 5, session 14 close) — the Foul-throw saga: our own polling was the culprit; epoch advance invalidates all seeds
 
 **Owner potion catches off the win-run summary**: Thorns never deployed (categorized
