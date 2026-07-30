@@ -1655,10 +1655,27 @@ class StandardRouter:
         the map) with a per-act dps/ramp estimate; the generic profile for unknown / multi-creature
         bosses (e.g. The Kin, whose bestiary entries are its components)."""
         boss_name = ctx.screen_mem.get("act_boss_name", "")
+        dps_prior, ramp = _ACT_BOSS.get(act, _ACT_BOSS[1])
+        # Stage bosses (Test Subject: bestiary holds '#C10'/'#C14'/'#C15' as separate
+        # entries with escalating dps 25->28->36; the run's own suffix varies): any
+        # single entry prices ONE stage of a 3-stage fight. Model the family as
+        # sequential waves — the same dormant-wave machinery as Phrog phase 2.
+        base = boss_name.split("#")[0].strip()
+        family = sorted(
+            (k for k in self.bestiary if base and k.split("#")[0].strip() == base),
+            key=lambda k: int(re.search(r"(\d+)", k.split("#")[-1]).group(1))
+            if "#" in k and re.search(r"(\d+)", k.split("#")[-1]) else 0,
+        )
+        if len(family) >= 2:
+            return [
+                bestiary_enemy(self.bestiary[k],
+                               dps=realized_dps(self.enemy_dps, k, dps_prior),
+                               name=k, wave=wave)
+                for wave, k in enumerate(family[:3])
+            ]
         entry = self.bestiary.get(boss_name)
         if entry:
-            dps, ramp = _ACT_BOSS.get(act, _ACT_BOSS[1])
-            dps = realized_dps(self.enemy_dps, boss_name, dps)
+            dps = realized_dps(self.enemy_dps, boss_name, dps_prior)
             members = [bestiary_enemy(entry, dps=dps, name=boss_name, str_ramp=ramp)]
             # Summoner bosses (tape 2026-07-30, A36ZF0WVBS): the single-entry
             # forecast read the Queen as harmless (2.1 realized dps) while her

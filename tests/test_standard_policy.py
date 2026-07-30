@@ -3848,3 +3848,32 @@ def test_queen_forecast_includes_the_torch_head_amalgam() -> None:
     tha = next(m for m in members if m.hp == 199)
     assert queen.counts_toward_kill and not tha.counts_toward_kill
     assert tha.dps == 23  # its own realized number, not the queen's 2
+
+
+def test_stage_boss_family_expands_to_sequential_waves() -> None:
+    """Test Subject (9 f48 deaths today incl. x3 to him): the bestiary holds each
+    stage as its own entry ('#C10'/'#C14'/'#C15', escalating dps) and the run's
+    suffix varies, so any single-entry forecast prices ONE stage of a 3-stage
+    fight. The family now expands to dormant waves (the Phrog machinery)."""
+    from sts2bot.policy.standard import StandardRouter
+
+    bestiary = {
+        "Test Subject #C14": {"hp": [120, 120], "statuses": {}, "roles": ["boss"]},
+        "Test Subject #C10": {"hp": [100, 100], "statuses": {}, "roles": ["boss"]},
+        "Test Subject #C15": {"hp": [150, 150], "statuses": {}, "roles": ["boss"]},
+        "Queen": {"hp": [400, 400], "statuses": {}, "roles": ["boss"]},
+    }
+    r = StandardRouter(combat_stats=None, bestiary=bestiary)
+    r.enemy_dps = {"Test Subject #C10": {"dps_early": 22.3},
+                   "Test Subject #C15": {"dps_early": 24.0}}
+    ctx = LoopContext()
+    ctx.screen_mem["act_boss_name"] = "Test Subject #C10"
+    members = r._upcoming_boss(ctx, 3)
+    assert [m.wave for m in members] == [0, 1, 2]      # sequential stages
+    assert [m.hp for m in members] == [100, 120, 150]  # sorted by stage number
+    assert members[0].dps == 22                        # per-stage realized dps
+    assert all(m.counts_toward_kill for m in members)  # every stage must die
+    # a plain single-entry boss is untouched by the family logic
+    ctx2 = LoopContext()
+    ctx2.screen_mem["act_boss_name"] = "Queen"
+    assert len(r._upcoming_boss(ctx2, 3)) >= 1
