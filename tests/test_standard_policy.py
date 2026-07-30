@@ -3763,3 +3763,17 @@ def test_fresh_elite_pool_excludes_recently_seen_until_three_fought() -> None:
     ctx.screen_mem["elite_floors"] = {(1, 6), (1, 10), (1, 13), (2, 4)}
     fresh = StandardRouter._fresh_elite_pool(pool, ctx)
     assert [n for n, _ in fresh] == ["Terror Eel", "Phantasmal Gardener"]
+
+
+def test_field_of_man_sized_holes_takes_perfect_fit_over_normality() -> None:
+    """Owner live catch 2026-07-30: the bot kept taking 'Resist' (2 removals + a
+    NORMALITY curse) off Spirebird's removal-loving prior. Normality's 3-plays cap
+    is awful unless a shop is 1-2 combats away (unknowable here), so the curated
+    values flip the pick to the weak-but-harmless Perfect Fit enchant."""
+    state = _ev_state("FIELD_OF_MAN_SIZED_HOLES", [
+        _ev_opt(0, "Resist", "Remove 2 cards from your Deck. Add Normality to your Deck."),
+        _ev_opt(1, "Enter Your Hole", "Enchant a card with Perfect Fit."),
+        _ev_opt(2, "Proceed", "", is_proceed=True),
+    ])
+    idx = router().decide(state, LoopContext()).action.payload()["index"]
+    assert idx == 1

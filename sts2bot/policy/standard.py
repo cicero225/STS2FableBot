@@ -1322,8 +1322,12 @@ class StandardRouter:
             rated_sb = [s for s in scored if s[2] is not None]
             # Catalog-first exceptions: events where the owner's ranking OVERRIDES
             # confident Spirebird data (Tinker Time 2026-07-29: SB slightly prefers
-            # Skill over Power, 14.0 vs 13.8; owner: Power > Skill > Attack).
-            catalog_first = (ev.event_id or "").upper() in ("TINKER_TIME",)
+            # Skill over Power, 14.0 vs 13.8; owner: Power > Skill > Attack.
+            # Man-Sized Holes 2026-07-30: SB's removal-loving 10.6 for 'Resist' is
+            # blind to the Normality rider — owner: awful without a shop 1-2
+            # combats away).
+            catalog_first = (ev.event_id or "").upper() in (
+                "TINKER_TIME", "FIELD_OF_MAN_SIZED_HOLES")
             if len(rated_sb) < 2 or catalog_first:  # catalog leads
                 vals = {}
                 for o, heur, _vs in scored:

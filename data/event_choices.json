@@ -3,7 +3,7 @@
   "source": "scripts/build_event_choices.py (events pass, EVENTS_PASS.md)",
   "scale": "event-heuristic units (relic ~ 6.0)",
   "keying": "OPTION TITLE (event_id lags transitions in mod state)",
-  "n_options": 67,
+  "n_options": 69,
   "n_uncertain": 0
  },
  "choices": {
@@ -75,6 +75,16 @@
   "Nab the Map": {
    "value": 5.0,
    "note": "Spoils Map = 600g at the Act-3 main chest; we protect it from removal and exhaust it freely (7f0a0c6). Real EV if the run goes deep; the router likes gold now.",
+   "uncertain": false
+  },
+  "Resist": {
+   "value": 2.5,
+   "note": "2 removals + a NORMALITY curse (3-plays-per-turn cap while in hand). Owner: awful in most cases -- only worth it when a shop to remove it is a known 1-2 combats away, which the event handler can't see yet (map-context conditional filed). Priced to lose to Perfect Fit.",
+   "uncertain": false
+  },
+  "Enter Your Hole": {
+   "value": 4.0,
+   "note": "Perfect Fit enchant: card is always in first hand on reshuffle (NOT combat's first hand). Weak but strictly harmless; wins this event by default (owner 2026-07-30).",
    "uncertain": false
   },
   "Grab the Sword": {

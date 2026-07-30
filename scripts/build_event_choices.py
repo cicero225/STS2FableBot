@@ -52,6 +52,17 @@ CHOICES: dict[str, dict] = {
                         note="Spoils Map = 600g at the Act-3 main chest; we protect "
                         "it from removal and exhaust it freely (7f0a0c6). Real EV "
                         "if the run goes deep; the router likes gold now."),
+    # ---- Field of Man-Sized Holes (Act 2; owner live catch 2026-07-30: the bot
+    # kept taking Resist off Spirebird's removal-loving prior, blind to the rider)
+    "Resist": dict(
+        value=2.5, note="2 removals + a NORMALITY curse (3-plays-per-turn cap while "
+        "in hand). Owner: awful in most cases -- only worth it when a shop to "
+        "remove it is a known 1-2 combats away, which the event handler can't see "
+        "yet (map-context conditional filed). Priced to lose to Perfect Fit."),
+    "Enter Your Hole": dict(
+        value=4.0, note="Perfect Fit enchant: card is always in first hand on "
+        "reshuffle (NOT combat's first hand). Weak but strictly harmless; wins "
+        "this event by default (owner 2026-07-30)."),
     # ---- Sunken Statue / Wellspring
     "Grab the Sword": dict(
         value=3.8, note="Sword of Stone: transforms into Sword of Jade (+3 Str) "
