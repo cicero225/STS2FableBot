@@ -3743,3 +3743,22 @@ def test_pre_boss_rest_gate_uses_dfs_boss_estimate_when_cached() -> None:
         ("Lagavulin Matriarch", deck_key): 80.0}
     d_dfs = r.decide(st, ctx2)
     assert d_dfs.rationale.startswith("rest") and "DFS" in d_dfs.rationale
+
+
+def test_fresh_elite_pool_excludes_recently_seen_until_three_fought() -> None:
+    """Recurrence rule (owner 2026-07-29): a seen elite won't recur this act until
+    3 elites have been fought — so it shouldn't dilute the gate's pool gamble
+    (Gardeners f7 death NE6CSNNX2Y drew a 0.0-win member from a 4/6 pool)."""
+    from sts2bot.policy.standard import StandardRouter
+
+    pool = [("Terror Eel", {}), ("Phantasmal Gardener", {})]
+    ctx = LoopContext()
+    # Gardeners seen at elite fight #1; only 2 fights total -> still excluded
+    ctx.screen_mem["elites_seen_at"] = {"PHANTASMAL GARDENER": 1}
+    ctx.screen_mem["elite_floors"] = {(1, 6), (1, 10)}
+    fresh = StandardRouter._fresh_elite_pool(pool, ctx)
+    assert [n for n, _ in fresh] == ["Terror Eel"]
+    # after the 4th elite fight (3 since sighting) it can recur -> back in the pool
+    ctx.screen_mem["elite_floors"] = {(1, 6), (1, 10), (1, 13), (2, 4)}
+    fresh = StandardRouter._fresh_elite_pool(pool, ctx)
+    assert [n for n, _ in fresh] == ["Terror Eel", "Phantasmal Gardener"]

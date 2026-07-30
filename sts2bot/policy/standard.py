@@ -248,9 +248,18 @@ class StandardRouter:
         if handler is not None:
             if state.state_type == "elite" and getattr(state, "battle", None):
                 seen = ctx.screen_mem.setdefault("elites_seen", set())
+                # fight count by (act, floor) — decide() polls many times per fight,
+                # so a bare counter would run hot; seen_at records the count when an
+                # elite FIRST appeared (recurrence rule, owner 2026-07-29: a seen
+                # elite won't recur until 3 elites have been fought)
+                floors = ctx.screen_mem.setdefault("elite_floors", set())
+                if state.run:
+                    floors.add((state.run.act, state.run.floor))
+                seen_at = ctx.screen_mem.setdefault("elites_seen_at", {})
                 for e in state.battle.enemies or []:
                     if e.name:
                         seen.add(e.name.upper())
+                        seen_at.setdefault(e.name.upper(), len(floors))
             decision = handler(state, ctx)
             if state.state_type == "event":
                 self._note_enchant_intent(state, decision, ctx)
@@ -919,6 +928,12 @@ class StandardRouter:
                 and (((entry.get("hp") or [0, 0])[1] or 0) >= 50
                      or any(k in name.upper() for k in _ELITE_COMPOSITIONS))
             ]
+            # Recurrence sharpening (owner rule 2026-07-29; Gardeners f7 death NE6CSNNX2Y
+            # was a 4/6 pool gamble that drew a 0.0-win member): an elite seen this act
+            # can't recur until 3 elites have been fought, so it shouldn't dilute the
+            # pool the gate gambles on. Keep the full pool if everything is excluded.
+            fresh = self._fresh_elite_pool(pool, ctx)
+            pool = fresh or pool
             if pool:
                 members_by_name = {
                     name: elite_fight_members(name, entry, self.bestiary,
@@ -1630,6 +1645,20 @@ class StandardRouter:
             dps = realized_dps(self.enemy_dps, boss_name, dps)
             return [bestiary_enemy(entry, dps=dps, name=boss_name, str_ramp=ramp)]
         return [FightEnemy(*_GENERIC_BOSS)]
+
+    @staticmethod
+    def _fresh_elite_pool(pool: list, ctx: LoopContext) -> list:
+        """Pool members that can actually appear behind the next elite node: a seen
+        elite won't recur until 3 elite fights after its appearance (owner recurrence
+        rule). seen_at holds the elite-fight count at first sighting; matching is by
+        body name against the pool's bestiary key."""
+        seen_at = ctx.screen_mem.get("elites_seen_at") or {}
+        n_fought = len(ctx.screen_mem.get("elite_floors") or ())
+        return [
+            (name, entry) for name, entry in pool
+            if (seen_at.get(name.upper()) is None
+                or n_fought - seen_at[name.upper()] >= 3)
+        ]
 
     def _dfs_boss_loss(self, ctx: LoopContext, player, cur_act: int) -> float | None:
         """P2b: THIS deck vs THIS boss loss estimate for the pre-boss rest gate,
