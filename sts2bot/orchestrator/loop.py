@@ -468,15 +468,35 @@ class AgentLoop:
                     if o.index == decision.action.index), None)
         if opt is None or (opt.type or "").lower() != "shop":
             return
-        for p in state.player.potions or []:
-            if "FOUL" in f"{p.id or ''} {p.name or ''}".upper():
-                r = self.client.act(act.UsePotion(slot=p.slot, target=None))
-                logger.log_decision(
-                    {"state_type": "shop_travel"}, act.UsePotion(slot=p.slot).payload(),
-                    f"throw {p.name} at the merchant in the shopkeeper window "
-                    f"(+100g; probe-proven 2026-07-25)",
-                    r.model_dump(exclude_none=True),
-                )
+        # Timing (2026-07-30; the 07-29 delay edit was lost to a clobbered heredoc,
+        # so accept-instant ran overnight and errored -- the game is still in the
+        # travel animation then). Backoff ladder, unscaled (engine animation floors
+        # don't scale cleanly with time_scale), and NO polling in between (a poll
+        # auto-advances the shopkeeper window; the probe worked because the owner
+        # was HOLDING that screen).
+        fouls = [p for p in state.player.potions or []
+                 if "FOUL" in f"{p.id or ''} {p.name or ''}".upper()]
+        if not fouls:
+            return
+        r = None
+        for delay in (0.5, 1.0, 2.0):
+            time.sleep(delay)
+            r = self.client.act(act.UsePotion(slot=fouls[0].slot, target=None))
+            if r.ok and "cannot" not in (r.detail or "").lower():
+                break
+        logger.log_decision(
+            {"state_type": "shop_travel"}, act.UsePotion(slot=fouls[0].slot).payload(),
+            f"throw {fouls[0].name} at the merchant in the shopkeeper window "
+            f"(+100g; backoff-timed 2026-07-30)",
+            r.model_dump(exclude_none=True) if r else {"status": "skipped"},
+        )
+        for p in fouls[1:]:
+            r2 = self.client.act(act.UsePotion(slot=p.slot, target=None))
+            logger.log_decision(
+                {"state_type": "shop_travel"}, act.UsePotion(slot=p.slot).payload(),
+                f"throw {p.name} at the merchant (follow-up)",
+                r2.model_dump(exclude_none=True),
+            )
 
     def _follow_human_play(
         self, logger: RunLogger, cfg: LoopConfig, last_fp: str | None = None
