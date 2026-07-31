@@ -3992,3 +3992,45 @@ def test_solo_drain_boss_gets_focus_plan_without_rollout() -> None:
     }))
     assert r._fight_plan(parse_state(payload), LoopContext()) == "focus"
     del st
+
+
+def test_regal_pillow_rest_heal_rides_the_route_projection() -> None:
+    """Owner relic check 2026-07-30: Regal Pillow = +15 when you actually REST
+    (unlike Eternal Feather's entry heal). Rides the DP's rest-heal term; fixture
+    calibrated so the pillow is exactly the death-floor margin (floor = 4 at 40
+    max: 4+12-12=4 <= floor bare; +15 clears it)."""
+    from sts2bot.kb.combat_stats import CombatStats
+
+    stats = CombatStats(by_type={
+        "monster_early": {"mean": 4.0, "p75": 5, "n": 99},
+        "monster": {"mean": 12.0, "p75": 18, "n": 99},
+        "elite": {"mean": 21.0, "p75": 32, "n": 99},
+        "boss": {"mean": 25.0, "p75": 42, "n": 99},
+    })
+    payload = json.loads(json.dumps(FIXTURES["map"]))
+    payload["map"]["next_options"] = [
+        {"index": 0, "col": 1, "row": 4, "type": "RestSite",
+         "leads_to": [{"col": 1, "row": 5, "type": "Monster"}]},
+        {"index": 1, "col": 2, "row": 4, "type": "Event",
+         "leads_to": [{"col": 2, "row": 5, "type": "Monster"}]},
+    ]
+    payload["map"]["nodes"] = [
+        {"col": 1, "row": 5, "type": "Monster", "children": []},
+        {"col": 2, "row": 5, "type": "Monster", "children": []},
+    ]
+    payload["player"]["hp"] = 4
+    payload["player"]["max_hp"] = 40
+    payload["player"]["deck"] = _STRONG_DECK
+    payload["player"]["relics"] = [
+        {"id": "REGAL_PILLOW", "name": "Regal Pillow", "counter": None,
+         "keywords": [],
+         "description": "Whenever you Rest, heal an additional 15 HP."}]
+    r = StandardRouter(combat_stats=stats, bestiary={})
+    r.card_effects = _ROUTING_CARD_EFFECTS
+    d = r.decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    with_pillow = d.scores["0:RestSite"]
+    bare = json.loads(json.dumps(payload))
+    bare["player"]["relics"] = []
+    d2 = r.decide(parse_state(bare), LoopContext())
+    assert with_pillow > d2.scores["0:RestSite"]

@@ -941,6 +941,11 @@ class StandardRouter:
         # Pantograph (owner relic check 2026-07-30): +25 at boss-combat start — the
         # projection heals BEFORE charging the boss loss.
         boss_entry_heal = 25.0 if any("PANTOGRAPH" in n for n in held_relics) else 0.0
+        # Regal Pillow (owner relic check 2026-07-30): +15 when you actually REST —
+        # unlike the feather it rides the rest heal itself, which is what the DP's
+        # rest-site step already assumes the campfire is spent on.
+        pillow_heal = 15.0 if any("REGAL" in n and "PILLOW" in n
+                                  for n in held_relics) else 0.0
 
         next_row = min(o.row for o in opts)
 
@@ -1127,8 +1132,10 @@ class StandardRouter:
             elif t == "boss":
                 hp_after = min(max_hp, hp + boss_entry_heal) - fight_loss("boss")
             elif t in ("restsite", "rest_site"):
-                # feather_heal fires on ENTRY (before the rest/smith choice)
-                return min(max_hp, hp + feather_heal + w.rest_heal_pct * max_hp), 0.0
+                # feather_heal fires on ENTRY (before the rest/smith choice);
+                # pillow_heal only when resting, which this step assumes
+                return (min(max_hp, hp + feather_heal + pillow_heal
+                            + w.rest_heal_pct * max_hp), 0.0)
             elif t == "unknown" and unknown_heal:
                 return min(max_hp, hp + unknown_heal), 0.0  # Planisphere trickle
             elif t == "shop" and shop_heal:
