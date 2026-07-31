@@ -28,7 +28,7 @@ consider the fight lost regardless of HP (all-in before drain stack ~2)?
 **Epoch caveat:** seeds are valid only if no unlock epoch advanced since the run
 (wins #7/#8 happened today). Verify one seed in-game before scheduling a session.
 
-## 1. `9NUW6E6TGZ` — The Kin, f17 (TOP PICK)
+## 1. `9NUW6E6TGZ` — The Kin, f17 — **PLAYED 2026-07-30, owner WON; fix shipped (62a6261)**
 15 turns, peak +278, 7 potions drunk, 6 of them hail-maries. The bot entered at
 ~28 HP off a rest, spent potions REACTIVELY (one per near-death turn) in the
 fight the owner's own rule says is a race-the-leader. 307-HP fight, Radiant
@@ -38,6 +38,15 @@ front-loads the whole belt turn 1-2 (and target discipline never wavers off the
 leader). If the owner wins this by committing everything early, the encodable
 rule is: race fights extend the boss-start deploy lane to the FULL belt, not one
 potion.
+
+**RESULT:** owner won from 67/80 (ending 40) in 9 turns vs the bot's 15-turn loss
+from 77/80. Belt front-load CONFIRMED (both potions by turn 2 — with the nuance
+that one-turn debuff potions are TIMED for the best turn, not auto-T1). Targeting
+HYPOTHESIS INVERTED: the owner killed the Followers first (scaling deck needs
+time), the opposite of his June race with a burst deck — "no one strategy."
+Encoded as fight-open plan selection: round-1 rollout of both target orders picks
+per fight (62a6261). Belt-front-load + potion timing filed to the potion pass
+(PLAN §5.2 item 14).
 
 ## 2. `A36ZF0WVBS` — Queen, f48 — **RESOLVED FROM TAPE, fix shipped (bb484dd)**
 Entered at 95 HP, dead in 6 turns while the dps table called the Queen harmless

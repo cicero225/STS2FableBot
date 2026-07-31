@@ -281,6 +281,18 @@ compensation is redundant; the next batch is the live A/B).
     Attack/Skill while held, Rage-sequencing style) but the honest treatment is
     multiturn. In-turn effects need nothing: the auto-replay resolves before the
     planner sees the state (pre-bake).
+14. **Fight-open plan selection — SHIPPED in miniature (62a6261, Kin A/B 2026-07-30).**
+    Owner won 9NUW6E6TGZ from 67 HP (bot lost from 77) by killing the Followers first
+    with a scaling deck — while his June fight RACED the same boss with a burst deck.
+    Round-1 rollout comparison of both target orders now picks per fight (the owner's
+    "correspondence between scaling cards and investing in defensive resources" is what
+    the comparison measures implicitly — a scaling deck wins more sims in the
+    buy-time order). Remaining from the same A/B, for the POTION PASS: (a) known-hard
+    fights front-load the belt turns 1-2 instead of the reactive one-per-near-death-turn
+    hail-maries the bot showed; (b) ONE-TURN debuff potions (Potion of Binding: 1 Weak +
+    1 Vulnerable) are TIMED, not auto-T1 — the owner held Binding to turn 2 because turn
+    1 the enemy was buffing and his own output was low pre-Rupture; value = biggest
+    enemy attack turn x own biggest output turn.
 
 Encoded immediately (4b4b4ee): enemy-buff riders in the sim (kill-or-pay), strength
 potions in the lethal search, full-belt spend prior.
