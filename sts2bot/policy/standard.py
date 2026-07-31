@@ -868,6 +868,9 @@ class StandardRouter:
         feather_heal = (3.0 * (len((player.deck if player else None) or []) // 5)
                         if any("ETERNAL" in n and "FEATHER" in n
                                for n in held_relics) else 0.0)
+        # Pantograph (owner relic check 2026-07-30): +25 at boss-combat start — the
+        # projection heals BEFORE charging the boss loss.
+        boss_entry_heal = 25.0 if any("PANTOGRAPH" in n for n in held_relics) else 0.0
 
         next_row = min(o.row for o in opts)
 
@@ -1052,7 +1055,7 @@ class StandardRouter:
             elif t == "elite":
                 hp_after = hp - fight_loss("elite")
             elif t == "boss":
-                hp_after = hp - fight_loss("boss")
+                hp_after = min(max_hp, hp + boss_entry_heal) - fight_loss("boss")
             elif t in ("restsite", "rest_site"):
                 # feather_heal fires on ENTRY (before the rest/smith choice)
                 return min(max_hp, hp + feather_heal + w.rest_heal_pct * max_hp), 0.0
@@ -2272,9 +2275,18 @@ class StandardRouter:
                     est += w.act3_boss_loss_bonus
                 src = "history"
             needed = est * w.boss_safety_factor
-            should_rest = hp < needed
-            rest_why = f"rest: {hp} HP < ~{needed:.0f} needed for boss ({src} est loss {est:.0f})"
-            smith_why = f"smith: {hp} HP covers the boss (~{needed:.0f} needed, {src})"
+            # Pantograph (owner relic check 2026-07-30): +25 HP at boss-combat START,
+            # so the gate compares the post-heal entry, not the campfire HP.
+            pantograph = 25 if any(
+                "PANTOGRAPH" in f"{r.id or ''} {r.name or ''}".upper()
+                for r in ((player.relics if player else None) or [])) else 0
+            hp_at_boss = min(player.max_hp if player else hp, hp + pantograph)
+            should_rest = hp_at_boss < needed
+            panto_tag = f" (+{pantograph} Pantograph)" if pantograph else ""
+            rest_why = (f"rest: {hp} HP{panto_tag} < ~{needed:.0f} needed for boss "
+                        f"({src} est loss {est:.0f})")
+            smith_why = (f"smith: {hp} HP{panto_tag} covers the boss "
+                         f"(~{needed:.0f} needed, {src})")
         else:
             should_rest = hp_pct < w.rest_below_hp_pct
             rest_why = f"rest at {hp_pct:.0%} HP"

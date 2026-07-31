@@ -3877,3 +3877,32 @@ def test_stage_boss_family_expands_to_sequential_waves() -> None:
     ctx2 = LoopContext()
     ctx2.screen_mem["act_boss_name"] = "Queen"
     assert len(r._upcoming_boss(ctx2, 3)) >= 1
+
+
+def test_pantograph_counts_toward_the_pre_boss_rest_gate() -> None:
+    """Owner relic check 2026-07-30: Pantograph heals 25 at boss-combat START, so
+    the gate must compare the post-heal entry HP. Same HP, same estimate: without
+    the relic -> rest; with it -> smith."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    w = r.config.rest
+    payload = json.loads(json.dumps(FIXTURES["rest_site"]))
+    payload["player"]["max_hp"] = 90
+    # 10 short of the actual history-estimate bar: Pantograph's +25 must flip it
+    est = r.combat_stats.expected_loss("boss") if r.combat_stats else None
+    est = est if est is not None else w.default_boss_loss
+    payload["player"]["hp"] = int(est * w.boss_safety_factor) - 10
+
+    ctx1 = LoopContext()
+    ctx1.screen_mem["pre_boss"] = True
+    d_bare = r.decide(parse_state(payload), ctx1)
+    assert d_bare.rationale.startswith("rest")
+
+    payload["player"]["relics"] = [
+        {"id": "PANTOGRAPH", "name": "Pantograph", "counter": None, "keywords": [],
+         "description": "At the start of each Boss combat, heal 25 HP."}]
+    ctx2 = LoopContext()
+    ctx2.screen_mem["pre_boss"] = True
+    d_panto = r.decide(parse_state(payload), ctx2)
+    assert "smith" in d_panto.rationale and "Pantograph" in d_panto.rationale
