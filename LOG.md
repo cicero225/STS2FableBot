@@ -44,6 +44,23 @@ Explosive-on-normal suspicion ACQUITTED (all AoE spends were elite/boss).
 Batch bb1jkxvr1 (Matriarch race + Foul guard + cache fix live; Phrog/P2b land
 mid-batch) running as of this entry.
 
+**Evening close: WIN #9 = AEONGLASS, first try with her model live.** She went
+0-for-5 on the day under the flat-512-HP model; the afternoon tape decode
+(compounding Empower ramp 26->40 by r10, Artifact 3 opener, Withering Presence
+= Wither-per-6-plays) shipped as ea27f77, and the first run to face her with it
+won: 'DFS vs Aeonglass est loss 95' -> rested to 93 -> converted (Q2WSD191ZC,
+20 relics, Eternal Feather riding its new routing seam). Queen forecast also
+verified live ('est loss 85/105' vs yesterday's ~free-win pricing). Day: ~120
+runs, wins #7/#8/#9 — all three from batches carrying the newest code. The
+estimate layer is effectively CALIBRATED (every boss death pre-called with
+per-boss numbers); remaining walls: (1) KD, 10 kills today, pure deck-power —
+SS5-C v2's target; (2) act-2 attrition (12 normal deaths, all <=15 HP
+arrivals) — death class #2; (3) fight execution = the multiturn program.
+A/B dossier: Queen + Aeonglass resolved from tape; Kin (belt front-load) and
+Matriarch (drain-race horizon) queued for the owner. Batch-killer #4 confirmed
+WG-knockdown by owner screenshot (2-for-2); server death is downstream of the
+wedge; fork asks sharpened (heartbeat + knockdown decompile).
+
 **Afternoon addendum (session 17 continued): WIN #8 + two owner fixes validated
 live in ONE run.** 2FQE720FCE (batch bh1ytvbe1, act-3 f48) threw BOTH Foul
 Potions at the merchant for +200g (backoff ladder v2's first organic test —
