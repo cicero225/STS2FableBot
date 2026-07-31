@@ -93,6 +93,16 @@ _ACT_BOSS = {1: (24, 2), 2: (30, 2), 3: (36, 3)}  # (dps, str_ramp) estimate for
 # name -> bestiary names of the summons. Consumed by _upcoming_boss (forecast side);
 # the summons are minions in the Kin sense (threat, not kill-HP).
 _BOSS_SUMMONS: dict[str, list[str]] = {"QUEEN": ["Torch Head Amalgam"]}
+# Stage bosses: (hp, dps) per sequential stage, owner-tape-observed (2026-07-30,
+# Test Subject #C29 full fight): stage transitions FULL-HEAL to the next pool
+# (100 -> 200 -> 300; his '#C__' suffix varies per run but every variant is ONE
+# entity through all stages -- the bestiary's per-variant entries are run
+# fragments, not stages). Stage 3 carries Nemesis (intangible every other turn,
+# unmodeled -- the real fight is tougher than these numbers say) and dps 40 is
+# the observed 12x3/45-single alternation.
+_BOSS_STAGES: dict[str, list[tuple[int, int]]] = {
+    "TEST SUBJECT": [(100, 19), (200, 36), (300, 40)],
+}
 _BIG_HIT_DAMAGE = 12  # "real hit" threshold for the first-big-hit draft switch (owner)
 # Uncatalogued ancient boons compete at their generic-heuristic value clamped to this
 # (catalog scale: relic ~ 6; the raw heuristic runs far hotter and must not hijack)
@@ -1736,22 +1746,15 @@ class StandardRouter:
         bosses (e.g. The Kin, whose bestiary entries are its components)."""
         boss_name = ctx.screen_mem.get("act_boss_name", "")
         dps_prior, ramp = _ACT_BOSS.get(act, _ACT_BOSS[1])
-        # Stage bosses (Test Subject: bestiary holds '#C10'/'#C14'/'#C15' as separate
-        # entries with escalating dps 25->28->36; the run's own suffix varies): any
-        # single entry prices ONE stage of a 3-stage fight. Model the family as
-        # sequential waves — the same dormant-wave machinery as Phrog phase 2.
-        base = boss_name.split("#")[0].strip()
-        family = sorted(
-            (k for k in self.bestiary if base and k.split("#")[0].strip() == base),
-            key=lambda k: int(re.search(r"(\d+)", k.split("#")[-1]).group(1))
-            if "#" in k and re.search(r"(\d+)", k.split("#")[-1]) else 0,
-        )
-        if len(family) >= 2:
+        # Stage bosses: owner tape 2026-07-30 corrected the family-variant model —
+        # every '#C__' Test Subject is ONE entity that full-heals through 3 stages
+        # (100/200/300), so the stages come from the observed table, keyed on the
+        # suffix-stripped base name. Same dormant-wave machinery as Phrog phase 2.
+        base = boss_name.split("#")[0].strip().upper()
+        if base in _BOSS_STAGES:
             return [
-                bestiary_enemy(self.bestiary[k],
-                               dps=realized_dps(self.enemy_dps, k, dps_prior),
-                               name=k, wave=wave)
-                for wave, k in enumerate(family[:3])
+                FightEnemy(hp=hp_s, dps=dps_s, wave=wave)
+                for wave, (hp_s, dps_s) in enumerate(_BOSS_STAGES[base])
             ]
         entry = self.bestiary.get(boss_name)
         if entry:

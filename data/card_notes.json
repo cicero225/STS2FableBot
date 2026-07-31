@@ -29,7 +29,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "per-turn-power-banking",
-   "evidence": "Parser returned only {'conditional': True}; 'At the start of your turn' matches the per-turn-power zeroing in _to_planned (nothing to zero anyway), so it is played as a zero-immediate power and banked via the w_power_played horizon term — the designed handling for future-stream powers. No within-turn misplay; its retrieval/upgrade value is inherently cross-turn.",
+   "evidence": "Parser returned only {'conditional': True}; 'At the start of your turn' matches the per-turn-power zeroing in _to_planned (nothing to zero anyway), so it is played as a zero-immediate power and banked via the w_power_played horizon term \u2014 the designed handling for future-stream powers. No within-turn misplay; its retrieval/upgrade value is inherently cross-turn.",
    "proposal": "none",
    "status": "verified"
   },
@@ -39,7 +39,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "in-hand-upgrade",
-   "evidence": "Parser returned {'block': 5} — block correct, but 'Upgrade a card in your Hand' is invisible (not even conditional-flagged). The sim gives the upgrade zero value and no sequencing preference, so the planner may play Armaments last, after the attacks it could have upgraded; live replanning only captures the upgrade if Armaments happens to go first.",
+   "evidence": "Parser returned {'block': 5} \u2014 block correct, but 'Upgrade a card in your Hand' is invisible (not even conditional-flagged). The sim gives the upgrade zero value and no sequencing preference, so the planner may play Armaments last, after the attacks it could have upgraded; live replanning only captures the upgrade if Armaments happens to go first.",
    "proposal": "Rage-style special case in _to_planned: detect 'Upgrade a card/ALL cards in your Hand' and add a small early-sequencing bonus (value scaled by cards remaining in hand for the upgraded version), so it sorts before attacks.",
    "status": "open"
   },
@@ -49,7 +49,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "for-each-state-scaling",
-   "evidence": "Parse: {damage: 6, conditional} — the '+3 per card in your Exhaust Pile' is dropped (the Fiend-Fire regex '(\\d+) damage for each card' does NOT match because of the word 'additional', so it is not misrouted, just flat 6). Mid-fight with 5 exhausted it's really 21; the exhaust-archetype payoff card is badly undervalued.",
+   "evidence": "Parse: {damage: 6, conditional} \u2014 the '+3 per card in your Exhaust Pile' is dropped (the Fiend-Fire regex '(\\d+) damage for each card' does NOT match because of the word 'additional', so it is not misrouted, just flat 6). Mid-fight with 5 exhausted it's really 21; the exhaust-archetype payoff card is badly undervalued.",
    "proposal": "Planner rule keyed on 'for each card in your Exhaust Pile': damage += per_value * len(exhaust pile from game state) (+ cards exhausted this turn). Keep it distinct from _HAND_EXHAUST_DMG so Fiend Fire's hand-scaling isn't confused with pile-scaling.",
    "status": "fixed (tranche C, 2026-07-09)"
   },
@@ -59,7 +59,7 @@
    "impact": "high",
    "confidence": "high",
    "shared_pattern": "multi-hit-word-numeral",
-   "evidence": "Parse: {'damage': 6/8, 'hits': 1, 'aoe': True} — the word 'twice' is missed, so a 0-cost AoE is priced at HALF its real 12/16 total. The _AOE_TIMES regex (textparse.py:20) only matches digit '(\\d+) times'; this is the same class of bug as the Conflagration '4 times' fix. Undervalued exactly in the multi-enemy fights (Soul Fysh x4 wall) where it matters most.",
+   "evidence": "Parse: {'damage': 6/8, 'hits': 1, 'aoe': True} \u2014 the word 'twice' is missed, so a 0-cost AoE is priced at HALF its real 12/16 total. The _AOE_TIMES regex (textparse.py:20) only matches digit '(\\d+) times'; this is the same class of bug as the Conflagration '4 times' fix. Undervalued exactly in the multi-enemy fights (Soul Fysh x4 wall) where it matters most.",
    "proposal": "Extend the hit-count regexes to word numerals: '(?:(\\d+) times|twice|thrice)' mapping twice->2, thrice->3, in both _AOE_TIMES and the plain multi-hit pattern.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
@@ -69,7 +69,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "draw-triggered-power",
-   "evidence": "Parse: {'energy_gain': 1, 'recognized': ['energy']} — the 'Every 10 cards you draw' trigger is read as immediate +1 energy, and _apply_card adds fx.energy_gain straight to sim energy (combat.py 519). The per-turn-power gate only checks 'start of'/'each turn'/'every turn' (line 177) so 'Every 10 cards' slips through: the sim thinks base Automation is energy-neutral and the upgrade GAINS 1 energy, letting the DFS pick plan lines with one more energy than reality (replan-per-card contains but does not eliminate the distortion).",
+   "evidence": "Parse: {'energy_gain': 1, 'recognized': ['energy']} \u2014 the 'Every 10 cards you draw' trigger is read as immediate +1 energy, and _apply_card adds fx.energy_gain straight to sim energy (combat.py 519). The per-turn-power gate only checks 'start of'/'each turn'/'every turn' (line 177) so 'Every 10 cards' slips through: the sim thinks base Automation is energy-neutral and the upgrade GAINS 1 energy, letting the DFS pick plan lines with one more energy than reality (replan-per-card contains but does not eliminate the distortion).",
    "proposal": "Broaden the trigger gate in _to_planned for Powers: also zero immediate fx when the text matches 'every \\d+ cards' or 'whenever you' (same zeroing as per_turn_power).",
    "status": "fixed (tranche B, 2026-07-09)"
   },
@@ -79,7 +79,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {conditional:True} with no immediates to misprice. _to_planned: is_power=True and per_turn_power=True ('start of' in text) → banked via w_power_played x power_horizon, so it's played eagerly like other powers. Once active, plan_combat_turn reads pid=='BARRICADE' (combat.py:684) and _score treats all block as future-useful, never excess (combat.py:568-570). Both the play decision and the downstream block valuation are modeled.",
+   "evidence": "Parse: {conditional:True} with no immediates to misprice. _to_planned: is_power=True and per_turn_power=True ('start of' in text) \u2192 banked via w_power_played x power_horizon, so it's played eagerly like other powers. Once active, plan_combat_turn reads pid=='BARRICADE' (combat.py:684) and _score treats all block as future-useful, never excess (combat.py:568-570). Both the play decision and the downstream block valuation are modeled.",
    "proposal": "none",
    "status": "verified"
   },
@@ -109,7 +109,7 @@
    "impact": "high",
    "confidence": "high",
    "shared_pattern": "stranded-status",
-   "evidence": "Parser returns {self_hp_cost:6, conditional:True} — a misread (the loss hits only if NOT played) — but _to_planned zeroes self_hp_cost for 'in your hand'+'end of' text (combat.py:171-173), and _HAND_HP_LOSS_RE ('lose (\\d+) hp', line 646) registers 6 as stranded_unblockable, added straight to hp_loss past block (line 578). This is exactly the mechanic fixed in commit f71a0e1 after the Soul Fysh losses; playing Beckon is correctly valued as clearing 6 unblockable.",
+   "evidence": "Parser returns {self_hp_cost:6, conditional:True} \u2014 a misread (the loss hits only if NOT played) \u2014 but _to_planned zeroes self_hp_cost for 'in your hand'+'end of' text (combat.py:171-173), and _HAND_HP_LOSS_RE ('lose (\\d+) hp', line 646) registers 6 as stranded_unblockable, added straight to hp_loss past block (line 578). This is exactly the mechanic fixed in commit f71a0e1 after the Soul Fysh losses; playing Beckon is correctly valued as clearing 6 unblockable.",
    "proposal": "none",
    "status": "verified"
   },
@@ -119,7 +119,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser: {'energy_gain': 2, 'self_hp_cost': 3} (up: energy 3) — the [ironclad_energy_icon.png] tokens parse correctly. _score prices self_hp_cost via the tempo-trade cheap-floor curve (owner-tuned for exactly this card, per the 2026-07-09 comment).",
+   "evidence": "Parser: {'energy_gain': 2, 'self_hp_cost': 3} (up: energy 3) \u2014 the [ironclad_energy_icon.png] tokens parse correctly. _score prices self_hp_cost via the tempo-trade cheap-floor curve (owner-tuned for exactly this card, per the 2026-07-09 comment).",
    "proposal": "none",
    "status": "verified"
   },
@@ -129,7 +129,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse returned {'block': 16, 'self_hp_cost': 2, 'recognized': ['block', 'hp_cost']} (20 block upgraded) — both effects captured. _apply_card adds the block (with dex/frail adjustments) and charges self_damage through the HP-scarcity/tempo curve in _score (lines 582-590), which is exactly the right treatment for a small HP-for-block trade.",
+   "evidence": "Parse returned {'block': 16, 'self_hp_cost': 2, 'recognized': ['block', 'hp_cost']} (20 block upgraded) \u2014 both effects captured. _apply_card adds the block (with dex/frail adjustments) and charges self_damage through the HP-scarcity/tempo curve in _score (lines 582-590), which is exactly the right treatment for a small HP-for-block trade.",
    "proposal": "none",
    "status": "verified"
   },
@@ -149,7 +149,7 @@
    "impact": "high",
    "confidence": "med",
    "shared_pattern": "osty-summon",
-   "evidence": "parse: {} (only hits:1) — 'Summon 5.' matches no regex, and no parser field can express it. The card gives the Necrobinder's companion Osty 5 (7 upgraded) HP: tanking value plus fuel for Unleash's HP-scaled damage. grep of sts2bot/policy/ shows the planner has no player-companion concept at all (summon logic is enemy-side only), so the bot prices this Basic at zero and never summons.",
+   "evidence": "parse: {} (only hits:1) \u2014 'Summon 5.' matches no regex, and no parser field can express it. The card gives the Necrobinder's companion Osty 5 (7 upgraded) HP: tanking value plus fuel for Unleash's HP-scaled damage. grep of sts2bot/policy/ shows the planner has no player-companion concept at all (summon logic is enemy-side only), so the bot prices this Basic at zero and never summons.",
    "proposal": "Planner rule: track Osty HP in SimState (seed from combat state), map 'Summon N' to +N Osty HP, and value it as block-equivalent plus Unleash fuel; pair with the UNLEASH fix",
    "status": "partial-fix (2026-07-12): probe of 40 runs of logged states found NO osty/companion field in the mod's state payload, so the full SimState model is blocked on a mod-fork API addition (TODO filed in the proposal). Shipped approximation: 'Summon N' parses as +N block-equivalent (Bodyguard 5, Pull Aggro 4+7; Invoke's next-turn summon correctly deferred by the trigger strip). Unleash keeps its parsed base 6 without the HP-scaling bonus."
   },
@@ -159,7 +159,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "stat-scaling-damage",
-   "evidence": "Parse returned {'hits': 1} — damage 0, because 'Deal damage equal to your Block' has no number. The sim already tracks my_block in SimState, so the value exists at play time but no rule wires it in: the planner sees a 1-cost (0-cost upgraded) do-nothing and never plays it, forfeiting free damage in every block-heavy turn.",
+   "evidence": "Parse returned {'hits': 1} \u2014 damage 0, because 'Deal damage equal to your Block' has no number. The sim already tracks my_block in SimState, so the value exists at play time but no rule wires it in: the planner sees a 1-cost (0-cost upgraded) do-nothing and never plays it, forfeiting free damage in every block-heavy turn.",
    "proposal": "In _to_planned, detect 'damage equal to your Block' and set a flag; in _apply_card, before the attack resolves, set atk.fx.damage = state.my_block (mirrors the Fiend-Fire dynamic-damage rewrite at line 452-456).",
    "status": "open"
   },
@@ -169,7 +169,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {damage:3, hits:1} (4 upgraded) — a 0-cost attack priced exactly by its damage; the planner takes it whenever it helps and it costs nothing. 'Return to your Hand next turn' is pure next-turn upside that cannot flip a this-turn decision (only marginal edge: a card-cap turn where the slot should go to a bigger hit — the planner already compares damage per play).",
+   "evidence": "Parse: {damage:3, hits:1} (4 upgraded) \u2014 a 0-cost attack priced exactly by its damage; the planner takes it whenever it helps and it costs nothing. 'Return to your Hand next turn' is pure next-turn upside that cannot flip a this-turn decision (only marginal edge: a card-cap turn where the slot should go to a bigger hit \u2014 the planner already compares damage per play).",
    "proposal": "none",
    "status": "verified"
   },
@@ -179,7 +179,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "exhaust-synergy",
-   "evidence": "Parse: {'strength': 1, 'self_hp_cost': 1, 'conditional': True} — both combat-relevant numbers captured; sim applies strength (combat.py:516) and HP cost (520). The 'Exhaust 1 card' choose-prompt is already handled by standard.py:1079 (picks worst card), and replanning after each play absorbs the hand change.",
+   "evidence": "Parse: {'strength': 1, 'self_hp_cost': 1, 'conditional': True} \u2014 both combat-relevant numbers captured; sim applies strength (combat.py:516) and HP cost (520). The 'Exhaust 1 card' choose-prompt is already handled by standard.py:1079 (picks worst card), and replanning after each play absorbs the hand change.",
    "proposal": "none",
    "status": "verified"
   },
@@ -189,7 +189,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {damage: 9, aoe: True, self_hp_cost: 1} (upgraded 13) — complete. AoE loop and self_damage accounting both exist in _apply_card/_apply_attack.",
+   "evidence": "Parse: {damage: 9, aoe: True, self_hp_cost: 1} (upgraded 13) \u2014 complete. AoE loop and self_damage accounting both exist in _apply_card/_apply_attack.",
    "proposal": "none",
    "status": "verified"
   },
@@ -199,7 +199,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "for-each-state-scaling",
-   "evidence": "Parse: {damage: 4, conditional} — the '+2 per Vulnerable on the enemy' scaling is dropped. Planner still plays it (0-cost 4 dmg) but undervalues it and won't prefer sequencing it AFTER applying Vulnerable; with 3 Vuln it's really 10 (upgraded 13).",
+   "evidence": "Parse: {damage: 4, conditional} \u2014 the '+2 per Vulnerable on the enemy' scaling is dropped. Planner still plays it (0-cost 4 dmg) but undervalues it and won't prefer sequencing it AFTER applying Vulnerable; with 3 Vuln it's really 10 (upgraded 13).",
    "proposal": "Planner rule keyed on 'additional damage for each Vulnerable': in _apply_card add per_value * target's current Vulnerable stacks (state already tracks vuln applied this turn), giving correct post-Tremble sequencing.",
    "status": "fixed (tranche C, 2026-07-09)"
   },
@@ -239,8 +239,8 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "deck-autoplay",
-   "evidence": "Parser returns only {hits:1, conditional:True} for 'Play 2 random cards from your Draw Pile.' — no priceable fields. The planner treats it as a 2-cost no-op, so it never improves a scored line and is effectively never played (under-valued, not actively harmful). Valuing it requires draw-pile contents and random-autoplay expected value — the same class as Cascade's deck autoplay, explicitly a multi-turn/draw-pile design gap.",
-   "proposal": "File: needs a draw-pile expected-value model (average priceable fx over remaining pile cards) — out of scope for the one-turn planner. Interim: draft policy could deprioritize it since the combat planner strands it.",
+   "evidence": "Parser returns only {hits:1, conditional:True} for 'Play 2 random cards from your Draw Pile.' \u2014 no priceable fields. The planner treats it as a 2-cost no-op, so it never improves a scored line and is effectively never played (under-valued, not actively harmful). Valuing it requires draw-pile contents and random-autoplay expected value \u2014 the same class as Cascade's deck autoplay, explicitly a multi-turn/draw-pile design gap.",
+   "proposal": "File: needs a draw-pile expected-value model (average priceable fx over remaining pile cards) \u2014 out of scope for the one-turn planner. Interim: draft policy could deprioritize it since the combat planner strands it.",
    "status": "open"
   },
   "CELESTIAL_MIGHT": {
@@ -249,7 +249,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "parse: {'damage':6,'hits':3} (hits:4 upgraded) — multi-hit count captured by _DAMAGE_TIMES; _apply_attack simulates per-hit damage correctly",
+   "evidence": "parse: {'damage':6,'hits':3} (hits:4 upgraded) \u2014 multi-hit count captured by _DAMAGE_TIMES; _apply_attack simulates per-hit damage correctly",
    "proposal": "none",
    "status": "verified"
   },
@@ -259,7 +259,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "add-shiv-to-hand",
-   "evidence": "Parse: {'block': 6, 'hits': 1} for BOTH base and upgrade — 'Add 1 Shiv/2 Shivs into your Hand' is invisible, so 4 (base) / 8 (upgraded) free 0-cost damage is unpriced and base+ parse identically. Planner may skip it at a lethal cut where the shivs finish the kill.",
+   "evidence": "Parse: {'block': 6, 'hits': 1} for BOTH base and upgrade \u2014 'Add 1 Shiv/2 Shivs into your Hand' is invisible, so 4 (base) / 8 (upgraded) free 0-cost damage is unpriced and base+ parse identically. Planner may skip it at a lethal cut where the shivs finish the kill.",
    "proposal": "Generic regex 'Add (\\d+|a) Shivs? into your Hand' -> price as N extra 0-cost hits of 4 damage (Shiv constant), either in textparse as bonus damage or in _to_planned like the Fiend-Fire special case.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
@@ -269,7 +269,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "unplayable-can-play-gate",
-   "evidence": "Parser returns nothing (hits=1 default only), but _to_planned starts with 'if not card.can_play: return None' — unplayable curses never enter the plan. Ethereal is irrelevant since it can't be played.",
+   "evidence": "Parser returns nothing (hits=1 default only), but _to_planned starts with 'if not card.can_play: return None' \u2014 unplayable curses never enter the plan. Ethereal is irrelevant since it can't be played.",
    "proposal": "none",
    "status": "verified"
   },
@@ -289,7 +289,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "reads-target-vuln",
-   "evidence": "Parser: {'block': 5} only (up: 8) — the '50% less damage from Vulnerable enemies this turn' clause vanishes entirely (not even conditional-flagged, since the _CONDITIONAL regex misses this phrasing). The sim sees a strictly-worse Defend; the defensive halving needs the incoming tally in _score to scale each attacker's incoming by 0.5 when that enemy has vulnerable > 0.",
+   "evidence": "Parser: {'block': 5} only (up: 8) \u2014 the '50% less damage from Vulnerable enemies this turn' clause vanishes entirely (not even conditional-flagged, since the _CONDITIONAL regex misses this phrasing). The sim sees a strictly-worse Defend; the defensive halving needs the incoming tally in _score to scale each attacker's incoming by 0.5 when that enemy has vulnerable > 0.",
    "proposal": "_to_planned regex for 'receive 50% less damage from Vulnerable enemies this turn' sets a vuln_damage_reduction flag on SimState; _score halves incoming from enemies with vulnerable > 0 when set.",
    "status": "fixed (tranche C, 2026-07-09)"
   },
@@ -299,7 +299,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returns {'damage': 2, 'hits': 4, 'aoe': True} (hits 5 upgraded) — the _DAMAGE_TIMES regex (textparse.py:19, added for exactly this card per its comment) matches 'to ALL enemies 4 times'.",
+   "evidence": "Parser returns {'damage': 2, 'hits': 4, 'aoe': True} (hits 5 upgraded) \u2014 the _DAMAGE_TIMES regex (textparse.py:19, added for exactly this card per its comment) matches 'to ALL enemies 4 times'.",
    "proposal": "none",
    "status": "verified"
   },
@@ -319,7 +319,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "per-deck-count-scaling",
-   "evidence": "Parse: {'damage': 8, 'hits': 1} with NO conditional flag — the 'Deals 2/3 additional damage for ALL your cards that have a [star_icon.png] cost' scaling is dropped silently. Real damage = 8 + 2*count(star-cost cards). A regex can capture the per-card bonus but not the count; pricing needs the master deck (player.deck, which the fork exposes).",
+   "evidence": "Parse: {'damage': 8, 'hits': 1} with NO conditional flag \u2014 the 'Deals 2/3 additional damage for ALL your cards that have a [star_icon.png] cost' scaling is dropped silently. Real damage = 8 + 2*count(star-cost cards). A regex can capture the per-card bonus but not the count; pricing needs the master deck (player.deck, which the fork exposes).",
    "proposal": "In _to_planned: regex 'Deals (\\d+) additional damage for ALL your cards' + '[star_icon' -> damage += N * count of star-cost cards in player.deck. Minimum fallback: make textparse flag 'additional damage for' phrasing as conditional so it stops parsing as clean flat damage.",
    "status": "open"
   },
@@ -339,7 +339,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "damage-multiplier-power",
-   "evidence": "Parse: {'hits': 1} — nothing extracted, not even conditional. It is a Power, does not match the per-turn zeroing ('start of'/'each turn' absent), so it gets generic w_power_played*horizon credit and will be played, but _apply_attack uses a fixed VULN_MULT with no hook for '+25% additional vs Vulnerable' — the sim undercounts all subsequent damage vs vulnerable enemies for the rest of the fight (missed lethals, under-valued vuln application).",
+   "evidence": "Parse: {'hits': 1} \u2014 nothing extracted, not even conditional. It is a Power, does not match the per-turn zeroing ('start of'/'each turn' absent), so it gets generic w_power_played*horizon credit and will be played, but _apply_attack uses a fixed VULN_MULT with no hook for '+25% additional vs Vulnerable' \u2014 the sim undercounts all subsequent damage vs vulnerable enemies for the rest of the fight (missed lethals, under-valued vuln application).",
    "proposal": "Planner rule: parse 'Vulnerable enemies take an additional N% damage' into a player-side vuln-multiplier bonus stored in SimState (and read the power from state.player.powers on later turns), applied in _apply_attack alongside VULN_MULT.",
    "status": "open"
   },
@@ -359,7 +359,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "whenever-trigger-power",
-   "evidence": "Parse: {'draw': 1, 'conditional': True}. The card draws NOTHING when played (draw fires per future exhaust), but per_turn_power in _to_planned only triggers on 'start of'/'each turn'/'every turn' — 'Whenever a card is Exhausted' matches none, so the sim credits an immediate draw of 1 via s.draws (combat.py:518). The real per-exhaust engine value is unpriced; power banking via w_power_played partially compensates.",
+   "evidence": "Parse: {'draw': 1, 'conditional': True}. The card draws NOTHING when played (draw fires per future exhaust), but per_turn_power in _to_planned only triggers on 'start of'/'each turn'/'every turn' \u2014 'Whenever a card is Exhausted' matches none, so the sim credits an immediate draw of 1 via s.draws (combat.py:518). The real per-exhaust engine value is unpriced; power banking via w_power_played partially compensates.",
    "proposal": "Add 'whenever' to the per_turn_power trigger list in _to_planned (line 177) and zero fx.draw alongside block/energy/strength there, so whenever-triggered powers are priced purely by the banked power term.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
@@ -369,8 +369,8 @@
    "impact": "med",
    "confidence": "med",
    "shared_pattern": "enemy-strength-down",
-   "evidence": "Parse returned only {'conditional': True} — 'Enemy loses 9 Strength this turn' has no fx field at all (textparse only matches 'Gain N Strength' for self, line 34). The planner sees a 0-value card; since it's 0-cost the misprice means it never deliberately plays it to blunt a big multi-hit turn, wasting free flat mitigation (9-15 less per enemy hit).",
-   "proposal": "Add an enemy_strength_down field parsed from r'Enemy loses (\\d+) Strength', and in _apply_card reduce the target's incoming by N per parsed intent hit (or conservatively by N flat) for this turn — analogous to the Weak incoming reduction at line 483.",
+   "evidence": "Parse returned only {'conditional': True} \u2014 'Enemy loses 9 Strength this turn' has no fx field at all (textparse only matches 'Gain N Strength' for self, line 34). The planner sees a 0-value card; since it's 0-cost the misprice means it never deliberately plays it to blunt a big multi-hit turn, wasting free flat mitigation (9-15 less per enemy hit).",
+   "proposal": "Add an enemy_strength_down field parsed from r'Enemy loses (\\d+) Strength', and in _apply_card reduce the target's incoming by N per parsed intent hit (or conservatively by N flat) for this turn \u2014 analogous to the Weak incoming reduction at line 483.",
    "status": "fixed (tranche C, 2026-07-09)"
   },
   "DAZED": {
@@ -379,7 +379,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {hits:1} only. Unplayable → filtered by can_play at combat.py:137. Ethereal (self-exhausts at end of turn) affects no player decision the planner controls. Nothing to misplay.",
+   "evidence": "Parse: {hits:1} only. Unplayable \u2192 filtered by can_play at combat.py:137. Ethereal (self-exhausts at end of turn) affects no player decision the planner controls. Nothing to misplay.",
    "proposal": "none",
    "status": "verified"
   },
@@ -389,7 +389,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": null,
-   "evidence": "parse: {'damage':10,'hits':1} (12 upgraded), no conditional flag — planner plays it as a plain 10-damage attack, which is safe, but the real effect (Vulnerable and Weak twice as effective vs that enemy for 2/3 turns) is invisible: no regex can map 'twice as effective' onto existing fields, and _apply_attack's vuln multiplier has no per-enemy modifier hook. Result is undervaluation and unguided ordering vs Vulnerable appliers, not a catastrophic misplay.",
+   "evidence": "parse: {'damage':10,'hits':1} (12 upgraded), no conditional flag \u2014 planner plays it as a plain 10-damage attack, which is safe, but the real effect (Vulnerable and Weak twice as effective vs that enemy for 2/3 turns) is invisible: no regex can map 'twice as effective' onto existing fields, and _apply_attack's vuln multiplier has no per-enemy modifier hook. Result is undervaluation and unguided ordering vs Vulnerable appliers, not a catastrophic misplay.",
    "proposal": "Sim rule: per-enemy vuln/weak effectiveness multiplier in EnemySim, set when this card resolves and read in _apply_attack; low priority",
    "status": "open"
   },
@@ -399,7 +399,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "spare-energy-thinning",
-   "evidence": "Parse: {hits:1, conditional:True} — no priced effect, so the planner never spends 1 energy on it (a 0-value play never beats the baseline score). Correct this turn; the only missed line is spending spare energy to exhaust it for future draw quality, which is cross-turn by definition.",
+   "evidence": "Parse: {hits:1, conditional:True} \u2014 no priced effect, so the planner never spends 1 energy on it (a 0-value play never beats the baseline score). Correct this turn; the only missed line is spending spare energy to exhaust it for future draw quality, which is cross-turn by definition.",
    "proposal": "File: 'playable status/curse removal with spare energy' as a multi-turn deck-thinning heuristic (could be a small flat bonus for Exhaust-on-play statuses when energy would otherwise be wasted).",
    "status": "open"
   },
@@ -409,7 +409,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "stranded-in-hand-status",
-   "evidence": "Parse: {'hits': 1, 'conditional': True}; unplayable so excluded from plans. Its bite IS modeled: the stranded-in-hand scan (combat.py 775-782) keyword-gates on 'in your hand'+'end of' and _HAND_TAKE_DMG_RE picks up 'take 2 damage' → 2 blockable damage joins the incoming pool every turn it sits in hand (always, since it can never be played). Correct.",
+   "evidence": "Parse: {'hits': 1, 'conditional': True}; unplayable so excluded from plans. Its bite IS modeled: the stranded-in-hand scan (combat.py 775-782) keyword-gates on 'in your hand'+'end of' and _HAND_TAKE_DMG_RE picks up 'take 2 damage' \u2192 2 blockable damage joins the incoming pool every turn it sits in hand (always, since it can never be played). Correct.",
    "proposal": "none",
    "status": "verified"
   },
@@ -429,7 +429,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "parse: {'block':5} / 8 upgraded — full effect covered",
+   "evidence": "parse: {'block':5} / 8 upgraded \u2014 full effect covered",
    "proposal": "none",
    "status": "verified"
   },
@@ -439,7 +439,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "parse: {'hits':1,'block':5} / upgraded block 8 — exactly the card's full effect",
+   "evidence": "parse: {'hits':1,'block':5} / upgraded block 8 \u2014 exactly the card's full effect",
    "proposal": "none",
    "status": "verified"
   },
@@ -449,7 +449,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {'block': 5} / upgraded {'block': 8} — exact match; plain block card fully covered by the sim's block/incoming tally.",
+   "evidence": "Parse: {'block': 5} / upgraded {'block': 8} \u2014 exact match; plain block card fully covered by the sim's block/incoming tally.",
    "proposal": "none",
    "status": "verified"
   },
@@ -459,7 +459,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {'strength': 2, 'conditional': True} (3 upgraded), but _to_planned's per_turn_power gate matches 'start of' (combat.py 177-181) and zeroes the immediate strength, banking the card via w_power_played × power_horizon instead — exactly the documented Demon Form special case. No immediate-fx overvalue.",
+   "evidence": "Parse: {'strength': 2, 'conditional': True} (3 upgraded), but _to_planned's per_turn_power gate matches 'start of' (combat.py 177-181) and zeroes the immediate strength, banking the card via w_power_played \u00d7 power_horizon instead \u2014 exactly the documented Demon Form special case. No immediate-fx overvalue.",
    "proposal": "none",
    "status": "verified"
   },
@@ -469,7 +469,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "vulnerable-conditional-bonus",
-   "evidence": "Parse: {'damage': 8, 'hits': 1, 'conditional': True} — the 'If the enemy is Vulnerable, hits twice' doubling is invisible, so against a Vulnerable target the sim prices 8*1.5=12 instead of the real 24 (16 base * 1.5). Parsing alone can't express the condition, but the sim already tracks per-enemy vulnerable (e.vulnerable, _apply_attack line 345), so it's checkable at apply time.",
+   "evidence": "Parse: {'damage': 8, 'hits': 1, 'conditional': True} \u2014 the 'If the enemy is Vulnerable, hits twice' doubling is invisible, so against a Vulnerable target the sim prices 8*1.5=12 instead of the real 24 (16 base * 1.5). Parsing alone can't express the condition, but the sim already tracks per-enemy vulnerable (e.vulnerable, _apply_attack line 345), so it's checkable at apply time.",
    "proposal": "Add a PlannedCard flag (e.g. double_if_vuln, set in _to_planned on regex 'if the enemy is vulnerable.*hits twice') and in _apply_attack double hits when e.vulnerable > 0.",
    "status": "open"
   },
@@ -479,7 +479,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "reads-target-vuln",
-   "evidence": "Parser: {'vulnerable': 1, 'strength': 1, 'conditional': True} — reads a flat 1 Strength, but the card grants 1 Str PER Vulnerable stack on the enemy (after its own application). conditional only affects draft priors (standard.py:751), never combat play, so the sim undervalues it whenever the target has vuln stacks (post-Bash it is really +3-4 Str) and cannot price the Bash-then-Dominate sequencing.",
+   "evidence": "Parser: {'vulnerable': 1, 'strength': 1, 'conditional': True} \u2014 reads a flat 1 Strength, but the card grants 1 Str PER Vulnerable stack on the enemy (after its own application). conditional only affects draft priors (standard.py:751), never combat play, so the sim undervalues it whenever the target has vuln stacks (post-Bash it is really +3-4 Str) and cannot price the Bash-then-Dominate sequencing.",
    "proposal": "Planner rule in _to_planned/_apply_card: regex 'Gain N Strength for each Vulnerable' sets a per_vuln_strength scale; at play time credit strength = N * (target.vulnerable + this card's landed vuln), reading EnemySim.vulnerable like the Fiend Fire hand-scale pattern.",
    "status": "fixed (tranche C, 2026-07-09)"
   },
@@ -499,7 +499,7 @@
    "impact": "med",
    "confidence": "med",
    "shared_pattern": "discard-to-hand-retrieval",
-   "evidence": "Parse returned only {'hits': 1, 'conditional': True} — the 'Put 3 cards from your Discard Pile into your Hand' retrieval is invisible, so the planner prices a 1-cost card at zero and never plays it. Retrieved cards land in HAND and are playable this same turn (and the planner replans after every card, so once played the new hand is picked up correctly); the whole gap is the zero valuation.",
+   "evidence": "Parse returned only {'hits': 1, 'conditional': True} \u2014 the 'Put 3 cards from your Discard Pile into your Hand' retrieval is invisible, so the planner prices a 1-cost card at zero and never plays it. Retrieved cards land in HAND and are playable this same turn (and the planner replans after every card, so once played the new hand is picked up correctly); the whole gap is the zero valuation.",
    "proposal": "Add a regex in textparse.py: r'Put (\\d+) cards? from your Discard Pile into your Hand' -> fx.draw += N (selective retrieval is at least as good as draw). One pattern, no sim change.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
@@ -509,7 +509,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "trigger-clause-credited-as-immediate",
-   "evidence": "Parser returned {'draw': 2, 'energy_gain': 2} (3 upgraded) — but the energy only arrives 'When this card is Exhausted', which playing it does NOT do. combat.py line 519 adds fx.energy_gain directly to sim energy, so the planner sees a 1-cost card that refunds 2: a phantom net +1 energy cantrip, systematically over-played and plans built on energy that never materializes.",
+   "evidence": "Parser returned {'draw': 2, 'energy_gain': 2} (3 upgraded) \u2014 but the energy only arrives 'When this card is Exhausted', which playing it does NOT do. combat.py line 519 adds fx.energy_gain directly to sim energy, so the planner sees a 1-cost card that refunds 2: a phantom net +1 energy cantrip, systematically over-played and plans built on energy that never materializes.",
    "proposal": "Generic clause scoping in textparse: strip or zero effects inside a 'When this card is Exhausted,' / 'When(ever) ...' trigger clause before extracting numbers (set conditional instead). Same fix covers Juggernaut's misread damage.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
@@ -519,8 +519,8 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "poison-model-missing",
-   "evidence": "Parse: {'hits': 1, 'conditional': True}. As a Power it does get generic w_power_played*horizon credit in _score, so it is not stranded — but its real mechanic (1/2 Poison per unblocked attack hit) is unmodeled, and like Rage it must be sequenced BEFORE this turn's attacks to trigger on them; the planner has no such ordering pressure, and poison never enters the scored state.",
-   "proposal": "Rage-style special case: flag Envenom with a per-attack-hit poison grant so the DFS prefers playing it before attacks, and score applied poison as delayed damage (poison ticks at the enemy's next turn start). Full poison compounding is multi-turn — take the one-turn slice, file the rest.",
+   "evidence": "Parse: {'hits': 1, 'conditional': True}. As a Power it does get generic w_power_played*horizon credit in _score, so it is not stranded \u2014 but its real mechanic (1/2 Poison per unblocked attack hit) is unmodeled, and like Rage it must be sequenced BEFORE this turn's attacks to trigger on them; the planner has no such ordering pressure, and poison never enters the scored state.",
+   "proposal": "Rage-style special case: flag Envenom with a per-attack-hit poison grant so the DFS prefers playing it before attacks, and score applied poison as delayed damage (poison ticks at the enemy's next turn start). Full poison compounding is multi-turn \u2014 take the one-turn slice, file the rest.",
    "status": "open"
   },
   "EQUILIBRIUM": {
@@ -529,8 +529,8 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "retain-hold",
-   "evidence": "Parse: {block: 13, recognized: ['block']} (upgraded 16) — played correctly as a 2-cost block card this turn. 'Retain your Hand this turn' is invisible: the planner neither credits the carried-over hand nor knows that leaving good cards unplayed is now free, so it under-values the card and may still dump the hand it just paid to keep.",
-   "proposal": "Retain-hold rule (same family as REAP's keyword): when a played card retains the hand, add a small w_retained_card credit per unplayed card in _score so the search prefers holding playables over w_energy_waste dumping. Full valuation of NEXT turn's hand is multi-turn — take only the hold-credit slice now.",
+   "evidence": "Parse: {block: 13, recognized: ['block']} (upgraded 16) \u2014 played correctly as a 2-cost block card this turn. 'Retain your Hand this turn' is invisible: the planner neither credits the carried-over hand nor knows that leaving good cards unplayed is now free, so it under-values the card and may still dump the hand it just paid to keep.",
+   "proposal": "Retain-hold rule (same family as REAP's keyword): when a played card retains the hand, add a small w_retained_card credit per unplayed card in _score so the search prefers holding playables over w_energy_waste dumping. Full valuation of NEXT turn's hand is multi-turn \u2014 take only the hold-credit slice now.",
    "status": "open"
   },
   "EVIL_EYE": {
@@ -539,7 +539,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "exhaust-this-turn-conditional",
-   "evidence": "Parser: {'block': 8, 'conditional': True} (up: 11) — only the unconditional first half. The 'another 8 Block if you have Exhausted a card this turn' needs an exhausted-a-card-this-turn flag in SimState; nothing sets or reads one (only Fiend Fire's hand_exhaust_scale exists). Bot plays it as a plain 8-block Defend and never sequences an exhauster first.",
+   "evidence": "Parser: {'block': 8, 'conditional': True} (up: 11) \u2014 only the unconditional first half. The 'another 8 Block if you have Exhausted a card this turn' needs an exhausted-a-card-this-turn flag in SimState; nothing sets or reads one (only Fiend Fire's hand_exhaust_scale exists). Bot plays it as a plain 8-block Defend and never sequences an exhauster first.",
    "proposal": "Add exhausted_this_turn bool to SimState, set by cards whose text says 'Exhaust N card(s)'/'Exhaust your Hand' (and self-Exhaust plays); _to_planned regex 'Gain another N Block if you have Exhausted a card this turn' adds N block when the flag is set at play time.",
    "status": "fixed (tranche C, 2026-07-09)"
   },
@@ -549,7 +549,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "for-each-state-scaling",
-   "evidence": "Parse: {energy_gain: 1, conditional} — the single icon is counted as flat 1 energy. Real effect: energy per Attack in hand. At cost 2 the planner prices it as net -1 energy and will essentially never play it, when with 3+ attacks in hand it is net-positive and enabling. No 'for each Attack in your Hand' rule in combat.py.",
+   "evidence": "Parse: {energy_gain: 1, conditional} \u2014 the single icon is counted as flat 1 energy. Real effect: energy per Attack in hand. At cost 2 the planner prices it as net -1 energy and will essentially never play it, when with 3+ attacks in hand it is net-positive and enabling. No 'for each Attack in your Hand' rule in combat.py.",
    "proposal": "_to_planned special case: if text matches 'for each Attack in your Hand', set energy_gain = count of Attack-type cards in hand (planner replans per card so hand is known). Also honor the 'cannot gain additional energy' lock by ordering other energy cards first.",
    "status": "fixed (tranche C, 2026-07-09)"
   },
@@ -559,7 +559,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "parse: {'damage':8,'hits':1,'vulnerable':1,'weak':1} (12 upgraded) — all three effects captured; planner's debuff_order handles Artifact sequencing",
+   "evidence": "parse: {'damage':8,'hits':1,'vulnerable':1,'weak':1} (12 upgraded) \u2014 all three effects captured; planner's debuff_order handles Artifact sequencing",
    "proposal": "none",
    "status": "verified"
   },
@@ -569,7 +569,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "on-fatal-bonus",
-   "evidence": "Parse: {'damage': 10, 'hits': 1, 'conditional': True} — the damage/exhaust play is priced correctly, so no combat misplay, but the 'If Fatal, raise your Max HP by 3' payoff is invisible: with two ways to secure a kill the planner never prefers landing Feed as the killing blow, forfeiting permanent Max HP over the run.",
+   "evidence": "Parse: {'damage': 10, 'hits': 1, 'conditional': True} \u2014 the damage/exhaust play is priced correctly, so no combat misplay, but the 'If Fatal, raise your Max HP by 3' payoff is invisible: with two ways to secure a kill the planner never prefers landing Feed as the killing blow, forfeiting permanent Max HP over the run.",
    "proposal": "Small sim rule: flag on-fatal-bonus cards in _to_planned ('if fatal') and add a modest _score credit when that card's attack sets killed=True in _apply_attack, nudging sequencing toward Feed kills.",
    "status": "open"
   },
@@ -579,7 +579,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "whenever-trigger-power",
-   "evidence": "Parser returns {'block': 3, 'conditional': True} — read as 3 immediate Block, but the real card grants 0 on play and 3 per exhaust event. The per-turn-power zeroing (combat.py:177) only matches 'start of/each turn/every turn', not 'Whenever', so the phantom immediate block survives into the sim; the actual on-exhaust trigger is never simulated.",
+   "evidence": "Parser returns {'block': 3, 'conditional': True} \u2014 read as 3 immediate Block, but the real card grants 0 on play and 3 per exhaust event. The per-turn-power zeroing (combat.py:177) only matches 'start of/each turn/every turn', not 'Whenever', so the phantom immediate block survives into the sim; the actual on-exhaust trigger is never simulated.",
    "proposal": "Generic: for Power cards whose text starts effects with 'Whenever', zero immediate fx (same treatment Rage gets at line 159). Optionally credit 3 Block per exhaust event the sim can see (Exhaust-keyword cards played, Second Wind/Fiend Fire exhausts).",
    "status": "open"
   },
@@ -599,8 +599,8 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "hits-twice-wording",
-   "evidence": "Parser returned {'damage': 5, 'hits': 1, 'strength': 3} — 'Deal 5 damage twice' should be hits=2 (10 dmg), so the attack is priced at half its damage. _DAMAGE_TIMES in textparse.py only matches 'N times', not 'twice'. The enemy's +1 Strength is also unpriced (minor next-turn cost, silently dropped).",
-   "proposal": "Extend the hits regex to accept 'twice'/'thrice' (e.g. r'Deal (\\d+) damage (?:to ...)? (twice|thrice|(\\d+) times)' mapping twice→2). Optionally subtract a small penalty for 'The enemy gains N Strength', but the hits fix is the load-bearing one.",
+   "evidence": "Parser returned {'damage': 5, 'hits': 1, 'strength': 3} \u2014 'Deal 5 damage twice' should be hits=2 (10 dmg), so the attack is priced at half its damage. _DAMAGE_TIMES in textparse.py only matches 'N times', not 'twice'. The enemy's +1 Strength is also unpriced (minor next-turn cost, silently dropped).",
+   "proposal": "Extend the hits regex to accept 'twice'/'thrice' (e.g. r'Deal (\\d+) damage (?:to ...)? (twice|thrice|(\\d+) times)' mapping twice\u21922). Optionally subtract a small penalty for 'The enemy gains N Strength', but the hits fix is the load-bearing one.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
   "FINESSE": {
@@ -609,7 +609,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {block: 4, draw: 1, recognized: ['block','draw']} (upgraded block 7) — both effects captured; _apply_card credits block through dex/frail math and draws through w_draw. Fully priced.",
+   "evidence": "Parse: {block: 4, draw: 1, recognized: ['block','draw']} (upgraded block 7) \u2014 both effects captured; _apply_card credits block through dex/frail math and draws through w_draw. Fully priced.",
    "proposal": "none",
    "status": "verified"
   },
@@ -619,7 +619,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "retaliation-thorns",
-   "evidence": "Parse: {damage: 4, block: 12, conditional} — the retaliation clause 'deal 4 damage back' is misread as on-play damage. It is inert in the sim (self-target skill, target_i=None so _apply_card:460-466 never applies it), but the parse is wrong and the thorns value (4 per incoming attack this turn) is unpriced, so the card is valued as plain 12 block.",
+   "evidence": "Parse: {damage: 4, block: 12, conditional} \u2014 the retaliation clause 'deal 4 damage back' is misread as on-play damage. It is inert in the sim (self-target skill, target_i=None so _apply_card:460-466 never applies it), but the parse is wrong and the thorns value (4 per incoming attack this turn) is unpriced, so the card is valued as plain 12 block.",
    "proposal": "Exclude retaliation phrasing from the damage regex (negative lookahead on 'damage back' / preceded by 'whenever you are attacked') and route it to a thorns field; optionally price thorns = value * expected incoming hits from intents.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
@@ -629,7 +629,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {'damage': 5, 'hits': 1, 'draw': 1, 'recognized': ['damage', 'draw']} — both effects captured; 0-cost damage+draw is priced by w_damage and w_draw, and the drawn card enters play via live replanning.",
+   "evidence": "Parse: {'damage': 5, 'hits': 1, 'draw': 1, 'recognized': ['damage', 'draw']} \u2014 both effects captured; 0-cost damage+draw is priced by w_damage and w_draw, and the drawn card enters play via live replanning.",
    "proposal": "none",
    "status": "verified"
   },
@@ -639,7 +639,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "numbered-energy-icon",
-   "evidence": "Base parses {energy_gain: 3} via the icon-run regex, but upgraded 'gain 4[ironclad_energy_icon.png]' parses to NOTHING (_ENERGY_ICON_RUN requires icons directly after 'Gain', textparse.py:30) — an upgraded copy is a dead card to the bot. Also the 'If you Exhausted a card this turn' gate is unmodeled: sim credits energy unconditionally (combat.py:519), so base is misplayed as +2 free energy even with no exhaust.",
+   "evidence": "Base parses {energy_gain: 3} via the icon-run regex, but upgraded 'gain 4[ironclad_energy_icon.png]' parses to NOTHING (_ENERGY_ICON_RUN requires icons directly after 'Gain', textparse.py:30) \u2014 an upgraded copy is a dead card to the bot. Also the 'If you Exhausted a card this turn' gate is unmodeled: sim credits energy unconditionally (combat.py:519), so base is misplayed as +2 free energy even with no exhaust.",
    "proposal": "Extend the energy-icon regex to 'Gain (\\d+)\\s*\\[...energy...png\\]' (multiplier form). Separately gate energy_gain in the sim on an exhausted-this-turn flag (set by 'Exhaust.'-keyword cards and True Grit/Burning Pact plays).",
    "status": "fixed (tranche C, 2026-07-09)"
   },
@@ -649,7 +649,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "encounter-death-timer",
-   "evidence": "Parse: {hits:1} — nothing priced, so the generic combat planner never wastes energy on it. But it is already handled by a dedicated layer: standard.py _survival_card (lines 215-248) generically matches an enemy death-countdown status ('die'/'eaten' in text) to a playable hand card whose description names that status ('Increase Sandpit by 1' contains 'sandpit') and plays it when the counter is at/below survival_status_threshold; capability.py pads the deadline by _SANDPIT_SLACK=3 for these escapes. The code itself notes optimal timing as a later refinement, but the survival case is covered.",
+   "evidence": "Parse: {hits:1} \u2014 nothing priced, so the generic combat planner never wastes energy on it. But it is already handled by a dedicated layer: standard.py _survival_card (lines 215-248) generically matches an enemy death-countdown status ('die'/'eaten' in text) to a playable hand card whose description names that status ('Increase Sandpit by 1' contains 'sandpit') and plays it when the counter is at/below survival_status_threshold; capability.py pads the deadline by _SANDPIT_SLACK=3 for these escapes. The code itself notes optimal timing as a later refinement, but the survival case is covered.",
    "proposal": "none",
    "status": "verified"
   },
@@ -659,7 +659,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "next-turn-block",
-   "evidence": "parse: {'block':11,'conditional':True} (13 upgraded) — this-turn block fully captured, so the card is PLAYED correctly; the 'Next turn, gain 5 Block' rider is only flagged conditional and never valued, a mild undervaluation the one-turn planner can't price by design",
+   "evidence": "parse: {'block':11,'conditional':True} (13 upgraded) \u2014 this-turn block fully captured, so the card is PLAYED correctly; the 'Next turn, gain 5 Block' rider is only flagged conditional and never valued, a mild undervaluation the one-turn planner can't price by design",
    "proposal": "File: next-turn-block credit needs a cross-turn score term (e.g. discounted block carryover); not worth forcing into the one-turn sim",
    "status": "open"
   },
@@ -679,7 +679,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {'hits': 1} only. Unplayable → card.can_play is False → _to_planned returns None (combat.py 137-138), so it never enters the plan. 'Removed from Deck after 5 combats' has no in-combat effect to model.",
+   "evidence": "Parse: {'hits': 1} only. Unplayable \u2192 card.can_play is False \u2192 _to_planned returns None (combat.py 137-138), so it never enters the plan. 'Removed from Deck after 5 combats' has no in-combat effect to model.",
    "proposal": "none",
    "status": "verified"
   },
@@ -689,7 +689,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "deck-autoplay",
-   "evidence": "Parse returned only {'conditional': True}. The effect is deck autoplay of an unseen top card — the same class as Cascade, an explicit D example, and C3 forbids peeking at the draw pile. The planner prices it at 0 and never plays it, which is a safe default (autoplaying a random card can even hurt).",
+   "evidence": "Parse returned only {'conditional': True}. The effect is deck autoplay of an unseen top card \u2014 the same class as Cascade, an explicit D example, and C3 forbids peeking at the draw pile. The planner prices it at 0 and never plays it, which is a safe default (autoplaying a random card can even hurt).",
    "proposal": "File: needs a draw-pile expected-value model (average-card EV) or the cross-turn layer; do not force into the one-turn sim.",
    "status": "open"
   },
@@ -699,7 +699,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse returned {'damage': 9} (12 upgraded) — the full this-turn effect. The discard-to-top-of-DRAW-pile rider is a next-turn setup the one-turn planner ignores by design; ignoring it undervalues Headbutt only marginally and never causes a misplay this turn.",
+   "evidence": "Parse returned {'damage': 9} (12 upgraded) \u2014 the full this-turn effect. The discard-to-top-of-DRAW-pile rider is a next-turn setup the one-turn planner ignores by design; ignoring it undervalues Headbutt only marginally and never causes a misplay this turn.",
    "proposal": "none (the draw-pile-stacking upside is multi-turn; file only if a cross-turn layer lands)",
    "status": "verified"
   },
@@ -709,7 +709,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "draw-triggered-power",
-   "evidence": "Parse returns {'hits': 1, 'conditional': True} — no priceable fx. It is a Power, so _to_planned banks it via the generic w_power_played credit (combat.py 605-607); the 'whenever you draw' trigger has no immediate fx to misapply. Its real value = autoplaying every drawn Strike-named card, which scales with Strike density in the deck and future draws — outside a one-turn horizon.",
+   "evidence": "Parse returns {'hits': 1, 'conditional': True} \u2014 no priceable fx. It is a Power, so _to_planned banks it via the generic w_power_played credit (combat.py 605-607); the 'whenever you draw' trigger has no immediate fx to misapply. Its real value = autoplaying every drawn Strike-named card, which scales with Strike density in the deck and future draws \u2014 outside a one-turn horizon.",
    "proposal": "File: scale its power credit by the count of cards whose name contains 'Strike' in player.deck (master deck is in state); generic flat power credit is a passable proxy meanwhile.",
    "status": "open"
   },
@@ -719,7 +719,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returns {'damage': 15, 'self_hp_cost': 2} (20 damage upgraded) — both effects captured; the sim applies self HP cost and damage directly.",
+   "evidence": "Parser returns {'damage': 15, 'self_hp_cost': 2} (20 damage upgraded) \u2014 both effects captured; the sim applies self HP cost and damage directly.",
    "proposal": "none",
    "status": "verified"
   },
@@ -729,7 +729,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "exhaust-pile-trigger",
-   "evidence": "Parse: {damage:16, hits:1, aoe:True} (21 upgraded) — the direct play is priced exactly right (3 energy, 16 AoE). The hidden mechanic ('if this is in your Exhaust Pile at end of turn, play it') is a recurring free replay once exhausted (e.g. via Fiend Fire's hand-exhaust, which _to_planned already models for damage but not for what lands in the exhaust pile) — pure unpriced upside that fires on future turns; it never causes a this-turn misplay of the card itself.",
+   "evidence": "Parse: {damage:16, hits:1, aoe:True} (21 upgraded) \u2014 the direct play is priced exactly right (3 energy, 16 AoE). The hidden mechanic ('if this is in your Exhaust Pile at end of turn, play it') is a recurring free replay once exhausted (e.g. via Fiend Fire's hand-exhaust, which _to_planned already models for damage but not for what lands in the exhaust pile) \u2014 pure unpriced upside that fires on future turns; it never causes a this-turn misplay of the card itself.",
    "proposal": "File: exhaust-pile end-of-turn triggers as an exhaust-synergy valuation item (credit exhausting this card when a hand-exhaust card is in the plan).",
    "status": "open"
   },
@@ -759,7 +759,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returns {'strength': 2} (3 upgraded). No per-turn phrasing, so combat.py:177 leaves it immediate — correct, Inflame's Strength applies instantly and permanently. is_power also banks the power_term bonus.",
+   "evidence": "Parser returns {'strength': 2} (3 upgraded). No per-turn phrasing, so combat.py:177 leaves it immediate \u2014 correct, Inflame's Strength applies instantly and permanently. is_power also banks the power_term bonus.",
    "proposal": "none",
    "status": "verified"
   },
@@ -779,7 +779,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {'damage': 5, 'hits': 1, 'block': 5, 'recognized': ['damage', 'block']} — both effects captured; _apply_card applies block (with dex/frail) and _apply_attack the damage. Upgrade (7/7) parses the same way.",
+   "evidence": "Parse: {'damage': 5, 'hits': 1, 'block': 5, 'recognized': ['damage', 'block']} \u2014 both effects captured; _apply_card applies block (with dex/frail) and _apply_attack the damage. Upgrade (7/7) parses the same way.",
    "proposal": "none",
    "status": "verified"
   },
@@ -789,7 +789,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "trigger-clause-credited-as-immediate",
-   "evidence": "Parser returned {'damage': 6, 'conditional': True} — the trigger damage is misread as immediate, but by accident it never lands: powers get targets_enemy=False (target_type != 'AnyEnemy') so target_i is None and _apply_card skips the attack. The real mechanic — 6 dmg to a random enemy per block-gain event — is unsimulated both when playing it and when it is already active, so block cards are undervalued under Juggernaut and there is no play-it-before-block sequencing (mirror of the Rage special case).",
+   "evidence": "Parser returned {'damage': 6, 'conditional': True} \u2014 the trigger damage is misread as immediate, but by accident it never lands: powers get targets_enemy=False (target_type != 'AnyEnemy') so target_i is None and _apply_card skips the attack. The real mechanic \u2014 6 dmg to a random enemy per block-gain event \u2014 is unsimulated both when playing it and when it is already active, so block cards are undervalued under Juggernaut and there is no play-it-before-block sequencing (mirror of the Rage special case).",
    "proposal": "Rage-mirror special case: a juggernaut_damage field on PlannedCard/SimState that credits N random-enemy damage per block-granting card played after it (and seed it from active combat powers, not just hand). The clause-scoping fix from Drum also cleans up the misparse.",
    "status": "open"
   },
@@ -799,7 +799,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": null,
-   "evidence": "Parse: {'hits': 1} (no fx), and 'each turn' in the text makes per_turn_power=True, so it's banked purely via the power term (w_power_played * power_horizon) — no phantom immediate effects. If the third Attack lands this turn the copied card appears in hand and the replan-after-every-card loop sees it, so within-turn play is correct; its precise attack-density valuation is beyond the one-turn model but the generic power prior is a reasonable price.",
+   "evidence": "Parse: {'hits': 1} (no fx), and 'each turn' in the text makes per_turn_power=True, so it's banked purely via the power term (w_power_played * power_horizon) \u2014 no phantom immediate effects. If the third Attack lands this turn the copied card appears in hand and the replan-after-every-card loop sees it, so within-turn play is correct; its precise attack-density valuation is beyond the one-turn model but the generic power prior is a reasonable price.",
    "proposal": "none",
    "status": "verified"
   },
@@ -809,7 +809,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "damage-multiplier-power",
-   "evidence": "Parse: {'hits': 1} — nothing extracted. 'each turn' trips the per_turn_power zeroing in _to_planned (correct direction), so it gets generic w_power_played*horizon credit and gets played, but the sim never applies the +50% (75% upgraded) first-attack multiplier — damage vs its own big hits is undercounted every turn (missed lethals, wrong attack ordering: the biggest attack should go first). Ethereal (exhausts if unplayed) is also unmodeled, so there is no urgency to play it before end of turn.",
+   "evidence": "Parse: {'hits': 1} \u2014 nothing extracted. 'each turn' trips the per_turn_power zeroing in _to_planned (correct direction), so it gets generic w_power_played*horizon credit and gets played, but the sim never applies the +50% (75% upgraded) first-attack multiplier \u2014 damage vs its own big hits is undercounted every turn (missed lethals, wrong attack ordering: the biggest attack should go first). Ethereal (exhausts if unplayed) is also unmodeled, so there is no urgency to play it before end of turn.",
    "proposal": "Planner rule: parse 'first Attack each turn deals N% additional damage' into a first-attack multiplier in SimState (also read from active player powers on later turns); apply in _apply_attack to the first attack of the sequence. Ethereal-hold urgency can ride the existing stranded-card machinery as a smaller follow-up.",
    "status": "open"
   },
@@ -819,7 +819,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "enemy-strength-down",
-   "evidence": "Parse: {'damage': 15, 'hits': 1} (upgraded: damage 20) — 'Enemy loses 10 Strength this turn' is silently dropped, not even flagged conditional. The sim does model per-enemy incoming and already mutates it for Weak (combat.py 480-483), but there is no parser field or sim rule for enemy-strength-down, so the planner prices Mangle as a plain 3-cost 15-damage attack and ignores its (often larger) damage-prevention half.",
+   "evidence": "Parse: {'damage': 15, 'hits': 1} (upgraded: damage 20) \u2014 'Enemy loses 10 Strength this turn' is silently dropped, not even flagged conditional. The sim does model per-enemy incoming and already mutates it for Weak (combat.py 480-483), but there is no parser field or sim rule for enemy-strength-down, so the planner prices Mangle as a plain 3-cost 15-damage attack and ignores its (often larger) damage-prevention half.",
    "proposal": "Add an enemy_strength_down field (regex 'loses (\\d+) Strength') and a sim rule in _apply_attack/_enemy state reducing that enemy's incoming by N per hit this turn, parallel to the existing Weak handling.",
    "status": "fixed (tranche C, 2026-07-09)"
   },
@@ -829,7 +829,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "deck-autoplay",
-   "evidence": "Parse: {conditional:True}, no misread immediates. _to_planned: is_power + per_turn_power=True ('start of' matches) → nothing zeroed by mistake, banked via flat w_power_played x power_horizon, so the planner plays it early — usually the right call. Its real value (autoplay top of draw pile each turn) is deck-composition-dependent and cross-turn: with a status/curse-clogged deck the flat power credit over-values it, and no one-turn rule can price 'what's on top next turn'.",
+   "evidence": "Parse: {conditional:True}, no misread immediates. _to_planned: is_power + per_turn_power=True ('start of' matches) \u2192 nothing zeroed by mistake, banked via flat w_power_played x power_horizon, so the planner plays it early \u2014 usually the right call. Its real value (autoplay top of draw pile each turn) is deck-composition-dependent and cross-turn: with a status/curse-clogged deck the flat power credit over-values it, and no one-turn rule can price 'what's on top next turn'.",
    "proposal": "File alongside the Cascade deck-autoplay class: condition the power credit on deck quality (fraction of statuses/curses in draw pile) when text says 'play the top card of your Draw Pile'.",
    "status": "open"
   },
@@ -839,7 +839,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "poison-model-missing",
-   "evidence": "Parse: {'hits': 1, 'conditional': True} — zero block. Real block = sum of Poison across ALL enemies. combat.py has no poison tracking anywhere (grep 'poison' = 0 hits), so the planner sees a 1-cost no-op and never plays it even when enemies carry 20+ poison.",
+   "evidence": "Parse: {'hits': 1, 'conditional': True} \u2014 zero block. Real block = sum of Poison across ALL enemies. combat.py has no poison tracking anywhere (grep 'poison' = 0 hits), so the planner sees a 1-cost no-op and never plays it even when enemies carry 20+ poison.",
    "proposal": "Sim rule in _to_planned: on 'Block equal to Poison on ALL enemies', set fx.block = sum of POISON stacks read from each enemy's status list (same scan _enemy_sims already does for VULNERABLE/ARTIFACT).",
    "status": "open"
   },
@@ -849,7 +849,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "reads-target-vuln",
-   "evidence": "Parser: {'damage': 10, 'conditional': True} (up: 14) — 'Double the enemy's Vulnerable' is not represented; the sim plays it as a vanilla 10-damage exhaust attack. Doubling needs the target's live vulnerable count (EnemySim.vulnerable), which parsing alone cannot express, and sequencing after a vuln applier goes unpriced.",
+   "evidence": "Parser: {'damage': 10, 'conditional': True} (up: 14) \u2014 'Double the enemy's Vulnerable' is not represented; the sim plays it as a vanilla 10-damage exhaust attack. Doubling needs the target's live vulnerable count (EnemySim.vulnerable), which parsing alone cannot express, and sequencing after a vuln applier goes unpriced.",
    "proposal": "Planner rule: _to_planned regex \"Double the enemy's Vulnerable\" sets a doubles_vuln flag; _apply_card sets target.vulnerable *= 2 after the hit and credits the added stacks to vuln_applied.",
    "status": "fixed (tranche C, 2026-07-09)"
   },
@@ -859,7 +859,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": null,
-   "evidence": "Parse: {'damage': 10, 'hits': 1, 'conditional': True, 'recognized': ['damage']}. The 10 damage (14 upgraded) is priced correctly, so the planner plays it at a fine rate; the discard-retrieval upside is unpriced but not a misplay — the retrieved cards appear in hand and the planner replans after every play, so it uses them. Only a mild undervaluation, no wrong action.",
+   "evidence": "Parse: {'damage': 10, 'hits': 1, 'conditional': True, 'recognized': ['damage']}. The 10 damage (14 upgraded) is priced correctly, so the planner plays it at a fine rate; the discard-retrieval upside is unpriced but not a misplay \u2014 the retrieved cards appear in hand and the planner replans after every play, so it uses them. Only a mild undervaluation, no wrong action.",
    "proposal": "none (optionally a small flat bonus for 'from your Discard Pile into your Hand' if drafting ever needs it)",
    "status": "verified"
   },
@@ -879,7 +879,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "card-play-cap",
-   "evidence": "Parse: {'hits': 1}; unplayable → excluded, fine. But its constraint is invisible: the planner's card-cap detection scans player statuses with regex 'only play (\\d+) card' (combat.py 694), which does not match 'cannot play more than 3 cards this turn'. With Normality in hand the DFS plans unconstrained sequences, so the executed 3-card prefix may not be the best 3-card line (e.g. spends plays on cheap chaff before the key block/kill card).",
+   "evidence": "Parse: {'hits': 1}; unplayable \u2192 excluded, fine. But its constraint is invisible: the planner's card-cap detection scans player statuses with regex 'only play (\\d+) card' (combat.py 694), which does not match 'cannot play more than 3 cards this turn'. With Normality in hand the DFS plans unconstrained sequences, so the executed 3-card prefix may not be the best 3-card line (e.g. spends plays on cheap chaff before the key block/kill card).",
    "proposal": "Broaden the cap regex to r'(?:only play|play more than) (\\d+) card' and also scan unplayable hand-card text (not just player statuses) in case the mod surfaces no status for it.",
    "status": "open (card-cap curse; planner-side, deferred per PLAN 8.4)"
   },
@@ -889,7 +889,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returned {'heal': 10, 'conditional': True} — heal captured; _apply_card caps it at heal_room (max_hp - hp at turn start) so there is no overheal credit. Exhaust has no one-turn consequence.",
+   "evidence": "Parser returned {'heal': 10, 'conditional': True} \u2014 heal captured; _apply_card caps it at heal_room (max_hp - hp at turn start) so there is no overheal credit. Exhaust has no one-turn consequence.",
    "proposal": "none",
    "status": "verified"
   },
@@ -899,7 +899,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returns {'draw': 3, 'energy_gain': 2, 'self_hp_cost': 6} — the [ironclad_energy_icon.png] tokens are correctly counted as 2 energy, HP cost and draw are captured (5 draw upgraded parses the same way). The bot replans after every card play against live state, so the drawn cards are picked up by replanning.",
+   "evidence": "Parser returns {'draw': 3, 'energy_gain': 2, 'self_hp_cost': 6} \u2014 the [ironclad_energy_icon.png] tokens are correctly counted as 2 energy, HP cost and draw are captured (5 draw upgraded parses the same way). The bot replans after every card play against live state, so the drawn cards are picked up by replanning.",
    "proposal": "none",
    "status": "verified"
   },
@@ -909,7 +909,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "aoe-equal-splash",
-   "evidence": "Parse: {damage: 8, hits: 1, aoe: False} — the 'Damage ALL other enemies equal to the damage dealt' splash is lost because _ALL_ENEMIES is r'\\bALL enem' and the intervening 'other' breaks it. A 0-cost 8-to-everyone card is priced as 8-to-one, badly under-valued in multi-enemy fights (exactly where the bot dies).",
+   "evidence": "Parse: {damage: 8, hits: 1, aoe: False} \u2014 the 'Damage ALL other enemies equal to the damage dealt' splash is lost because _ALL_ENEMIES is r'\\bALL enem' and the intervening 'other' breaks it. A 0-cost 8-to-everyone card is priced as 8-to-one, badly under-valued in multi-enemy fights (exactly where the bot dies).",
    "proposal": "Change _ALL_ENEMIES to r'\\bALL (?:other )?enem' (verified match) so fx.aoe=True; treating it as plain 8-damage AoE is the right one-turn approximation (splash equals damage dealt to the primary).",
    "status": "fixed (tranche B, 2026-07-09)"
   },
@@ -919,7 +919,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "next-attack-replay",
-   "evidence": "Parse returned {'hits': 1} — nothing. 'Your next Attack is played an extra time' is a sequencing buff the sim must carry as state (like rage_block_active): the next attack card resolves twice. Planner sees a 1-cost blank and never plays it; when it does hold one, it also can't sequence it before the big attack.",
+   "evidence": "Parse returned {'hits': 1} \u2014 nothing. 'Your next Attack is played an extra time' is a sequencing buff the sim must carry as state (like rage_block_active): the next attack card resolves twice. Planner sees a 1-cost blank and never plays it; when it does hold one, it also can't sequence it before the big attack.",
    "proposal": "Add a next_attack_replays counter to SimState set by a 'next N Attacks? (is|are) played an extra time' pattern in _to_planned; in _apply_card, when an attack is played and the counter > 0, resolve _apply_attack twice and decrement.",
    "status": "open"
   },
@@ -929,7 +929,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "exhaust-pile-threshold",
-   "evidence": "Parse: {'damage': 17, 'hits': 1, 'aoe': True, 'conditional': True} — the planner sims 17 AoE damage for 0 energy unconditionally, but the card deals NOTHING with fewer than 3 cards in the exhaust pile. Free phantom AoE inflates projected damage every early turn, and the planner 'cuts at lethal' — a fake lethal read means it skips blocking and eats a full enemy turn. models.py:137 exposes exhaust_pile_count but combat.py never reads it.",
+   "evidence": "Parse: {'damage': 17, 'hits': 1, 'aoe': True, 'conditional': True} \u2014 the planner sims 17 AoE damage for 0 energy unconditionally, but the card deals NOTHING with fewer than 3 cards in the exhaust pile. Free phantom AoE inflates projected damage every early turn, and the planner 'cuts at lethal' \u2014 a fake lethal read means it skips blocking and eats a full enemy turn. models.py:137 exposes exhaust_pile_count but combat.py never reads it.",
    "proposal": "Thread exhaust_pile_count into planning and gate: on regex 'if you have (\\d+) or more cards in your exhaust pile', zero fx.damage when the live count (plus cards exhausted so far this plan, if tracked) is below the threshold.",
    "status": "open"
   },
@@ -939,7 +939,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {damage: 2, hits: 3} base and {damage: 2, hits: 4} upgraded — _DAMAGE_TIMES captures the numeric multi-hit exactly; no hidden mechanic.",
+   "evidence": "Parse: {damage: 2, hits: 3} base and {damage: 2, hits: 4} upgraded \u2014 _DAMAGE_TIMES captures the numeric multi-hit exactly; no hidden mechanic.",
    "proposal": "none",
    "status": "verified"
   },
@@ -949,8 +949,8 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "count-scaling-damage",
-   "evidence": "Parse: {'damage': 6, 'hits': 1, 'recognized': ['damage']} — the '+2 (3 upgraded) additional damage for ALL your cards containing \"Strike\"' scaling is invisible. With a starter deck's ~5 Strikes plus itself the real hit is ~18+, so the planner prices it at a third of its value and treats it as a bad 2-cost 6-damage attack it should never play. Pure text parsing cannot fix it (needs the master deck count), so it is a planner rule, not a regex.",
-   "proposal": "Planner rule: parse 'Deals N additional damage for ALL your cards containing \"X\"' into (N, keyword); _to_planned counts matching names in the master deck (player.deck — the fork exposes it) and adds N*count to fx.damage.",
+   "evidence": "Parse: {'damage': 6, 'hits': 1, 'recognized': ['damage']} \u2014 the '+2 (3 upgraded) additional damage for ALL your cards containing \"Strike\"' scaling is invisible. With a starter deck's ~5 Strikes plus itself the real hit is ~18+, so the planner prices it at a third of its value and treats it as a bad 2-cost 6-damage attack it should never play. Pure text parsing cannot fix it (needs the master deck count), so it is a planner rule, not a regex.",
+   "proposal": "Planner rule: parse 'Deals N additional damage for ALL your cards containing \"X\"' into (N, keyword); _to_planned counts matching names in the master deck (player.deck \u2014 the fork exposes it) and adds N*count to fx.damage.",
    "status": "open"
   },
   "PILLAGE": {
@@ -959,7 +959,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "variable-draw",
-   "evidence": "Parse: {'damage': 6, 'hits': 1} — the 'Draw cards until you draw a non-Attack card' clause is completely missed (no draw, and not even the conditional flag fires since none of textparse's synergy keywords match). It's priced as a vanilla 6-damage attack; replan-after-every-card means the real draws are still picked up in play, so the misplay is just mild under-ranking.",
+   "evidence": "Parse: {'damage': 6, 'hits': 1} \u2014 the 'Draw cards until you draw a non-Attack card' clause is completely missed (no draw, and not even the conditional flag fires since none of textparse's synergy keywords match). It's priced as a vanilla 6-damage attack; replan-after-every-card means the real draws are still picked up in play, so the misplay is just mild under-ranking.",
    "proposal": "Add a textparse pattern for 'draw cards until' setting draw=1 (conservative expected value) plus conditional=True.",
    "status": "open (variable draw; low)"
   },
@@ -979,7 +979,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "unplayable-curse",
-   "evidence": "Parse returned {'hits': 1} (inert), but that never matters: 'Unplayable' means can_play is false and _to_planned returns None at line 137-138, so the planner correctly never considers it. Retain just means it clogs the hand across turns — no play decision exists to get wrong.",
+   "evidence": "Parse returned {'hits': 1} (inert), but that never matters: 'Unplayable' means can_play is false and _to_planned returns None at line 137-138, so the planner correctly never considers it. Retain just means it clogs the hand across turns \u2014 no play decision exists to get wrong.",
    "proposal": "none",
    "status": "verified"
   },
@@ -990,7 +990,7 @@
    "confidence": "high",
    "shared_pattern": null,
    "evidence": "Parse is empty ({hits: 1}) but combat.py already special-cases it: _to_planned sets primal_force on 'transform all attacks' (matches this text), _apply_card sets primal_active, and _apply_attack replaces later attacks with _PRIMAL_ROCK_DAMAGE=16 x1. Replan-after-every-card refreshes the real transformed hand, correcting cost/upgrade drift.",
-   "proposal": "none (optional polish: Giant Rock+ from the upgraded card does more than the constant 16, and sim keeps original card costs until replan — both self-correct on replan)",
+   "proposal": "none (optional polish: Giant Rock+ from the upgraded card does more than the constant 16, and sim keeps original card costs until replan \u2014 both self-correct on replan)",
    "status": "verified"
   },
   "PRODUCTION": {
@@ -999,7 +999,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "iconized-energy-gain",
-   "evidence": "Parse: {energy_gain: 2, recognized: ['energy']} (upgraded 3) via the _ENERGY_ICON_RUN icon-token path added 2026-06-26. conditional=True fires on 'Exhaust' but fx.conditional is only read in standard.py draft priors, never in combat.py — the planner plays it as 0-cost +2 energy, which is exactly right.",
+   "evidence": "Parse: {energy_gain: 2, recognized: ['energy']} (upgraded 3) via the _ENERGY_ICON_RUN icon-token path added 2026-06-26. conditional=True fires on 'Exhaust' but fx.conditional is only read in standard.py draft priors, never in combat.py \u2014 the planner plays it as 0-cost +2 energy, which is exactly right.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1009,7 +1009,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "next-turn-block",
-   "evidence": "parse: {'conditional':True} only — zero priced value. The card's entire effect ('Next turn, gain Block equal to your current Block') is cross-turn: correct play is sequencing it AFTER stacking block on a heavy-block turn, which requires next-turn reasoning the planner lacks by design. Being 0-cost, misplay cost is bounded (worst case it's played at 0 block and exhausted for nothing).",
+   "evidence": "parse: {'conditional':True} only \u2014 zero priced value. The card's entire effect ('Next turn, gain Block equal to your current Block') is cross-turn: correct play is sequencing it AFTER stacking block on a heavy-block turn, which requires next-turn reasoning the planner lacks by design. Being 0-cost, misplay cost is bounded (worst case it's played at 0 block and exhausted for nothing).",
    "proposal": "File with next-turn-block: value = current end-of-turn block discounted into next turn; needs the multi-turn model (MEMORY: combat capability estimate)",
    "status": "open"
   },
@@ -1019,7 +1019,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "per-turn-power-banking",
-   "evidence": "Parser returned {'energy_gain': 1, 'conditional': True} (2 upgraded), but _to_planned's per-turn-power branch ('start of'/'each turn' + is_power) zeroes energy_gain exactly for this case — Pyre is literally the named example in the code comment — and value is banked via the power horizon term. Icon-token energy parsing also works (energy_gain scaled with icon count).",
+   "evidence": "Parser returned {'energy_gain': 1, 'conditional': True} (2 upgraded), but _to_planned's per-turn-power branch ('start of'/'each turn' + is_power) zeroes energy_gain exactly for this case \u2014 Pyre is literally the named example in the code comment \u2014 and value is banked via the power horizon term. Icon-token energy parsing also works (energy_gain scaled with icon count).",
    "proposal": "none",
    "status": "verified"
   },
@@ -1039,8 +1039,8 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "per-play-scaling",
-   "evidence": "Parser returned {'damage': 9, 'hits': 1} — the current-turn play is priced correctly. 'Increase this card's damage by 5 this combat' is cross-turn scaling the one-turn planner cannot value (preferring Rampage over an equal flat attack to grow it). Later-turn accuracy depends on whether the mod's live description reflects the scaled number.",
-   "proposal": "File: (1) verify live whether STS2MCP's card description/damage field updates as Rampage scales — if not, read the numeric damage field instead of text; (2) note per-play scaling as a multi-turn valuation item.",
+   "evidence": "Parser returned {'damage': 9, 'hits': 1} \u2014 the current-turn play is priced correctly. 'Increase this card's damage by 5 this combat' is cross-turn scaling the one-turn planner cannot value (preferring Rampage over an equal flat attack to grow it). Later-turn accuracy depends on whether the mod's live description reflects the scaled number.",
+   "proposal": "File: (1) verify live whether STS2MCP's card description/damage field updates as Rampage scales \u2014 if not, read the numeric damage field instead of text; (2) note per-play scaling as a multi-turn valuation item.",
    "status": "open"
   },
   "RATTLE": {
@@ -1049,7 +1049,7 @@
    "impact": "med",
    "confidence": "med",
    "shared_pattern": "companion-deals-damage",
-   "evidence": "Parse: {hits: 1, conditional: True} — the 7 base damage is missed entirely (same 'Osty deals' gap as SNAP; the deals? regex recovers it), and 'Hits an additional time for each other time he has attacked this turn' is Rage-style sequencing the sim can't get from text: hits should be 1 + prior attacks played this turn, so it must be sequenced LAST.",
+   "evidence": "Parse: {hits: 1, conditional: True} \u2014 the 7 base damage is missed entirely (same 'Osty deals' gap as SNAP; the deals? regex recovers it), and 'Hits an additional time for each other time he has attacked this turn' is Rage-style sequencing the sim can't get from text: hits should be 1 + prior attacks played this turn, so it must be sequenced LAST.",
    "proposal": "First apply the deals? regex (B fix recovers 7x1). Then a _to_planned/_apply_card rule like rage_block: detect 'additional time for each other time' and set hits = 1 + count of attack cards already in state.played, so the planner learns to sequence it after other attacks.",
    "status": "open"
   },
@@ -1059,7 +1059,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "retain-hold",
-   "evidence": "Parse: {damage: 27, hits: 1} (upgraded 33) — full combat value captured. 'Retain.' adds no same-turn effect; combat.py has no retain handling but none is needed to play it correctly this turn (unplayed cards simply stay, and the planner doesn't penalize holding).",
+   "evidence": "Parse: {damage: 27, hits: 1} (upgraded 33) \u2014 full combat value captured. 'Retain.' adds no same-turn effect; combat.py has no retain handling but none is needed to play it correctly this turn (unplayed cards simply stay, and the planner doesn't penalize holding).",
    "proposal": "none (the cross-turn 'hold Retain cards instead of dumping energy' optimization is a shared retain-hold nicety, not a misplay)",
    "status": "verified"
   },
@@ -1069,8 +1069,8 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "next-turn-clause",
-   "evidence": "Parse returned {'block': 15, 'draw': 2, 'energy_gain': 2} — but the draw and energy are NEXT turn ('Next turn, draw 2 cards and gain [energy][energy]'). The parser counts them as immediate; _apply_card credits +2 energy and +2 draws to THIS turn's sim (lines 518-519), so the planner plans follow-up cards with energy that never arrives (replanning recovers the real energy but the turn is already misordered) and over-picks Relax. Same failure the per-turn-power zeroing at line 178-181 fixes for Powers, unfixed for skills.",
-   "proposal": "Generic text fix: in textparse (or _to_planned), truncate/zero any effects parsed from text after a 'Next turn,' clause — split the description at 'Next turn' and only parse the prefix.",
+   "evidence": "Parse returned {'block': 15, 'draw': 2, 'energy_gain': 2} \u2014 but the draw and energy are NEXT turn ('Next turn, draw 2 cards and gain [energy][energy]'). The parser counts them as immediate; _apply_card credits +2 energy and +2 draws to THIS turn's sim (lines 518-519), so the planner plans follow-up cards with energy that never arrives (replanning recovers the real energy but the turn is already misordered) and over-picks Relax. Same failure the per-turn-power zeroing at line 178-181 fixes for Powers, unfixed for skills.",
+   "proposal": "Generic text fix: in textparse (or _to_planned), truncate/zero any effects parsed from text after a 'Next turn,' clause \u2014 split the description at 'Next turn' and only parse the prefix.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
   "RUPTURE": {
@@ -1079,7 +1079,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "whenever-trigger-power",
-   "evidence": "Parser returns {'strength': 1, 'conditional': True} — read as 1 immediate Strength, but the real card grants 0 on play and 1 (2 upgraded) per self-HP-loss event on your turn. Like Feel No Pain, 'Whenever' escapes the per-turn-power zeroing at combat.py:177, so the sim buffs this turn's attacks with phantom Strength; the actual trigger (Hemokinesis/Offering played after it) is never credited.",
+   "evidence": "Parser returns {'strength': 1, 'conditional': True} \u2014 read as 1 immediate Strength, but the real card grants 0 on play and 1 (2 upgraded) per self-HP-loss event on your turn. Like Feel No Pain, 'Whenever' escapes the per-turn-power zeroing at combat.py:177, so the sim buffs this turn's attacks with phantom Strength; the actual trigger (Hemokinesis/Offering played after it) is never credited.",
    "proposal": "Same generic fix as Feel No Pain: zero immediate fx on 'Whenever' trigger powers; optionally credit Strength per self_hp_cost card the sim plays after Rupture (the sim already tracks those plays).",
    "status": "open"
   },
@@ -1089,7 +1089,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "retain",
-   "evidence": "Parse: {damage:12, hits:1} (16 upgraded) — damage priced correctly, so it gets played when it's the best attack. 'Retain your Hand this turn' has zero handling anywhere (grep for 'retain' in sts2bot/policy finds nothing) — its value is next-turn hand quality, which the one-turn planner scores at 0. No this-turn misplay; only undervaluation vs. other 1-cost attacks and no incentive to hold good cards once Salvo is played.",
+   "evidence": "Parse: {damage:12, hits:1} (16 upgraded) \u2014 damage priced correctly, so it gets played when it's the best attack. 'Retain your Hand this turn' has zero handling anywhere (grep for 'retain' in sts2bot/policy finds nothing) \u2014 its value is next-turn hand quality, which the one-turn planner scores at 0. No this-turn misplay; only undervaluation vs. other 1-cost attacks and no incentive to hold good cards once Salvo is played.",
    "proposal": "File: retain-hand as a cross-turn value term (e.g. small credit per unplayed card kept when a retain effect is active).",
    "status": "open"
   },
@@ -1099,7 +1099,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "exhaust-hand-scaling",
-   "evidence": "Parser returns {'block': 5, 'conditional': True} — flat 5 Block. Real effect is 5 Block PER non-Attack card exhausted from hand (often 10-20+), and it removes those cards from hand. combat.py's hand-exhaust scaling (_HAND_EXHAUST_DMG, line 32/163) only matches '(\\d+) damage for each card', so no scaling rule fires; the card prices as a worse Defend.",
+   "evidence": "Parser returns {'block': 5, 'conditional': True} \u2014 flat 5 Block. Real effect is 5 Block PER non-Attack card exhausted from hand (often 10-20+), and it removes those cards from hand. combat.py's hand-exhaust scaling (_HAND_EXHAUST_DMG, line 32/163) only matches '(\\d+) damage for each card', so no scaling rule fires; the card prices as a worse Defend.",
    "proposal": "Add a block twin of the Fiend Fire rule: regex r'(\\d+) Block for each card' sets a hand_exhaust_block_scale; in _apply_card multiply by count of unplayed non-Attack cards in hand (same hand_size - played bookkeeping as line 455), and drop those cards from the remaining plan pool.",
    "status": "open"
   },
@@ -1109,7 +1109,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "temp-buff-this-turn",
-   "evidence": "Parse: {'damage': 7, 'hits': 1, 'strength': 2, 'recognized': ['damage', 'strength']} — the 'this turn' qualifier is dropped. In-sim application is actually correct (strength boosts later attacks this turn), but _score adds w_strength(=7.0) * strength_gained as if the 2 Str persisted across turns: +14 phantom score every play, biasing it over genuinely better plays (e.g. needed block).",
+   "evidence": "Parse: {'damage': 7, 'hits': 1, 'strength': 2, 'recognized': ['damage', 'strength']} \u2014 the 'this turn' qualifier is dropped. In-sim application is actually correct (strength boosts later attacks this turn), but _score adds w_strength(=7.0) * strength_gained as if the 2 Str persisted across turns: +14 phantom score every play, biasing it over genuinely better plays (e.g. needed block).",
    "proposal": "In _to_planned, when a strength grant is qualified by 'this turn', keep fx.strength for the in-sim my_strength application but exclude it from strength_gained (the persistent-value score term). Same pattern covers Flex-type temp buffs.",
    "status": "open"
   },
@@ -1119,7 +1119,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse returned {'damage': 4, 'recognized': ['damage']} (6 upgraded) — full effect. 0-cost attack, Exhaust; _apply_attack handles it like any single-target hit, strength/vuln/weak multipliers included. Nothing hidden.",
+   "evidence": "Parse returned {'damage': 4, 'recognized': ['damage']} (6 upgraded) \u2014 full effect. 0-cost attack, Exhaust; _apply_attack handles it like any single-target hit, strength/vuln/weak multipliers included. Nothing hidden.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1129,7 +1129,7 @@
    "impact": "high",
    "confidence": "high",
    "shared_pattern": "compound-debuff-and",
-   "evidence": "Parse of 'Apply 3 Weak and Vulnerable to ALL enemies. Exhaust.' returns {weak:3, conditional:True} — vulnerable=0 and aoe=False. Two regex gaps confirmed by probes: _VULN (textparse.py:32, '\\bApply (\\d+) Vulnerable') misses compound phrasing (even 'Apply 3 Weak and 3 Vulnerable' returns weak only), and aoe is gated on fx.damage (textparse.py:87) so apply-only ALL-enemies cards never set it. Net effect in the sim: 3 Weak lands on ONE enemy (untargeted weak → biggest attacker, combat.py:479) and the Vulnerable — the half that multiplies all subsequent damage by 1.5 in _apply_attack (combat.py:345) and earns w_vulnerable credit — is dropped entirely.",
+   "evidence": "Parse of 'Apply 3 Weak and Vulnerable to ALL enemies. Exhaust.' returns {weak:3, conditional:True} \u2014 vulnerable=0 and aoe=False. Two regex gaps confirmed by probes: _VULN (textparse.py:32, '\\bApply (\\d+) Vulnerable') misses compound phrasing (even 'Apply 3 Weak and 3 Vulnerable' returns weak only), and aoe is gated on fx.damage (textparse.py:87) so apply-only ALL-enemies cards never set it. Net effect in the sim: 3 Weak lands on ONE enemy (untargeted weak \u2192 biggest attacker, combat.py:479) and the Vulnerable \u2014 the half that multiplies all subsequent damage by 1.5 in _apply_attack (combat.py:345) and earns w_vulnerable credit \u2014 is dropped entirely.",
    "proposal": "Parser: add a compound pattern r'Apply (\\d+) (?:Weak and Vulnerable|Vulnerable and Weak)' setting both fields to N; set fx.aoe when _ALL_ENEMIES matches even with damage==0 (apply-only cards). Planner follow-up: when fx.aoe, apply weak to all alive enemies' incoming (combat.py:473-484 currently picks one).",
    "status": "fixed (tranche B, 2026-07-09)"
   },
@@ -1149,7 +1149,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse returned {'draw': 1, 'recognized': ['draw']} — matches the card text as given ('Draw 1 card. Exhaust.'). The planner weighs 1 energy vs 1 draw via w_draw (line 632) and self-removal-by-exhaust needs no extra credit in a one-turn sim; playing or skipping it based on spare energy is the right call either way.",
+   "evidence": "Parse returned {'draw': 1, 'recognized': ['draw']} \u2014 matches the card text as given ('Draw 1 card. Exhaust.'). The planner weighs 1 energy vs 1 draw via w_draw (line 632) and self-removal-by-exhaust needs no extra credit in a one-turn sim; playing or skipping it based on spare energy is the right call either way.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1159,8 +1159,8 @@
    "impact": "high",
    "confidence": "high",
    "shared_pattern": "companion-deals-damage",
-   "evidence": "Parse: {hits: 1} — ZERO damage extracted. _DAMAGE requires 'Deal N damage'; the companion phrasing 'Osty deals 7 damage' never matches. total_damage=0 means _apply_card does nothing and w_play_friction makes the planner never play this attack at all — it is dead weight in every fight.",
-   "proposal": "Change _DAMAGE (and _DAMAGE_TIMES) to r'\\bDeals? (\\d+) damage' — verified it matches both 'Osty deals 7 damage' and 'Deal 27 damage'. One-word regex change fixes all Osty/companion attack cards.",
+   "evidence": "Parse: {hits: 1} \u2014 ZERO damage extracted. _DAMAGE requires 'Deal N damage'; the companion phrasing 'Osty deals 7 damage' never matches. total_damage=0 means _apply_card does nothing and w_play_friction makes the planner never play this attack at all \u2014 it is dead weight in every fight.",
+   "proposal": "Change _DAMAGE (and _DAMAGE_TIMES) to r'\\bDeals? (\\d+) damage' \u2014 verified it matches both 'Osty deals 7 damage' and 'Deal 27 damage'. One-word regex change fixes all Osty/companion attack cards.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
   "SOOT": {
@@ -1179,7 +1179,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "hp-loss-synergy",
-   "evidence": "Parser returns {'damage': 5, 'hits': 1, 'conditional': True} for both base and upgrade — the 'If you lost HP this turn, hits 2 times' (3 upgraded) clause is invisible, so Spite is priced at 5 no matter what. The sim already knows when HP was lost this turn (it applies self_hp_cost for Hemokinesis/Offering sequentially), so the condition is checkable in-sim; a bare 'hits N times' regex would instead overprice the base case unconditionally.",
+   "evidence": "Parser returns {'damage': 5, 'hits': 1, 'conditional': True} for both base and upgrade \u2014 the 'If you lost HP this turn, hits 2 times' (3 upgraded) clause is invisible, so Spite is priced at 5 no matter what. The sim already knows when HP was lost this turn (it applies self_hp_cost for Hemokinesis/Offering sequentially), so the condition is checkable in-sim; a bare 'hits N times' regex would instead overprice the base case unconditionally.",
    "proposal": "Planner rule: detect 'If you lost HP this turn, hits (\\d+) times', store as conditional_hits; in _apply_attack use that hit count when the SimState shows self HP lost earlier this turn. Also fixes sequencing (HP-loss card before Spite).",
    "status": "open"
   },
@@ -1189,7 +1189,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {'hits': 1} only — no damage/block invented from the '600 extra Gold' text. 'Unplayable' means can_play is false in game state, so _to_planned returns None (combat.py:137-138) and the planner never touches it; its effect is entirely out-of-combat.",
+   "evidence": "Parse: {'hits': 1} only \u2014 no damage/block invented from the '600 extra Gold' text. 'Unplayable' means can_play is false in game state, so _to_planned returns None (combat.py:137-138) and the planner never touches it; its effect is entirely out-of-combat.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1199,7 +1199,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "exhaust-curse-thinning",
-   "evidence": "Parse: {'hits': 1, 'conditional': True} — zero effects, cost 1, playable. Score delta for playing it with spare energy = +0.5 (avoids w_energy_waste=-0.5) - 0.35 (w_play_friction) = +0.15 > 0, so the planner plays it when energy is otherwise idle — which happens to be the correct move (exhausts the curse out of the combat deck) and defers it when energy is needed.",
+   "evidence": "Parse: {'hits': 1, 'conditional': True} \u2014 zero effects, cost 1, playable. Score delta for playing it with spare energy = +0.5 (avoids w_energy_waste=-0.5) - 0.35 (w_play_friction) = +0.15 > 0, so the planner plays it when energy is otherwise idle \u2014 which happens to be the correct move (exhausts the curse out of the combat deck) and defers it when energy is needed.",
    "proposal": "none (behavior is accidentally correct; optionally add an explicit 'playing an Exhaust curse clears it' credit so it doesn't hinge on weight signs)",
    "status": "verified"
   },
@@ -1209,8 +1209,8 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "end-of-turn-autoplay",
-   "evidence": "Parser returns {'conditional': True} only — no numeric effects. is_power=True so it gets only the generic w_power_played x horizon value; per_turn_power (combat.py:177) does NOT match 'At the end of your turn' so nothing is zeroed (nothing to zero anyway). Real effect: every turn including the turn played, a random hand Attack is auto-played free at end of turn — the planner never credits that damage and never considers holding an attack.",
-   "proposal": "Same-turn rule: while Stampede is active, at end-of-turn scoring credit the damage of one unplayed Attack still in hand (average of remaining hand attacks). Cross-turn hold-an-attack sequencing is out of scope for the one-turn planner — file that part.",
+   "evidence": "Parser returns {'conditional': True} only \u2014 no numeric effects. is_power=True so it gets only the generic w_power_played x horizon value; per_turn_power (combat.py:177) does NOT match 'At the end of your turn' so nothing is zeroed (nothing to zero anyway). Real effect: every turn including the turn played, a random hand Attack is auto-played free at end of turn \u2014 the planner never credits that damage and never considers holding an attack.",
+   "proposal": "Same-turn rule: while Stampede is active, at end-of-turn scoring credit the damage of one unplayed Attack still in hand (average of remaining hand attacks). Cross-turn hold-an-attack sequencing is out of scope for the one-turn planner \u2014 file that part.",
    "status": "open"
   },
   "STOKE": {
@@ -1219,7 +1219,7 @@
    "impact": "med",
    "confidence": "med",
    "shared_pattern": "exhaust-hand-wipe",
-   "evidence": "Parse: {'hits': 1, 'conditional': True} — no effect extracted. The Fiend-Fire regex '(\\d+) damage for each card' does not match (no 'damage'), so no hand-exhaust handling applies. With w_play_friction=-0.35 vs w_energy_waste=-0.5, the planner treats it as a net-positive 1-cost energy dump, and the sim does NOT remove the rest of the hand: a plan can sequence Stoke before other cards that will actually be exhausted (live replanning limits but does not eliminate this — the current turn's remaining plays vanish).",
+   "evidence": "Parse: {'hits': 1, 'conditional': True} \u2014 no effect extracted. The Fiend-Fire regex '(\\d+) damage for each card' does not match (no 'damage'), so no hand-exhaust handling applies. With w_play_friction=-0.35 vs w_energy_waste=-0.5, the planner treats it as a net-positive 1-cost energy dump, and the sim does NOT remove the rest of the hand: a plan can sequence Stoke before other cards that will actually be exhausted (live replanning limits but does not eliminate this \u2014 the current turn's remaining plays vanish).",
    "proposal": "Planner rule: cards whose text starts 'Exhaust your Hand' set a hand-wipe flag in _to_planned; _apply_card marks all unplayed hand indices unplayable for the rest of the sim (same wipe should apply to Fiend Fire). Random-card upside stays unpriced (fine).",
    "status": "open"
   },
@@ -1229,7 +1229,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "dynamic-cost-reduction",
-   "evidence": "Parse: {'damage': 12, 'hits': 1, 'aoe': True, 'conditional': True, 'recognized': ['damage']} — damage/AoE correct, but the 'Costs 1 less [energy icon] for each Attack played this turn' discount is invisible: _to_planned charges the cost string as-is for the whole simulated sequence, so the planner never sequences cheap attacks first to enable Stomp and prices it at 3 within a plan even after simulated attacks. Live replanning partially rescues it only if the mod API reports the discounted current cost.",
+   "evidence": "Parse: {'damage': 12, 'hits': 1, 'aoe': True, 'conditional': True, 'recognized': ['damage']} \u2014 damage/AoE correct, but the 'Costs 1 less [energy icon] for each Attack played this turn' discount is invisible: _to_planned charges the cost string as-is for the whole simulated sequence, so the planner never sequences cheap attacks first to enable Stomp and prices it at 3 within a plan even after simulated attacks. Live replanning partially rescues it only if the mod API reports the discounted current cost.",
    "proposal": "Planner rule in _to_planned/_apply_card: parse 'Costs 1 less ... for each Attack played this turn' into a per-attack cost discount applied against attacks already in state.played during the sim.",
    "status": "open"
   },
@@ -1239,8 +1239,8 @@
    "impact": "med",
    "confidence": "med",
    "shared_pattern": "plating-keyword",
-   "evidence": "Parser returned NOTHING for 'Gain 4 Plating.' (not even conditional) — the card is a completely blank 1-cost in the sim, valued only by the generic powers_played banking term. Its actual defensive output (Plating = block at end of each turn, including the turn it's played; combat.py already models enemy-side Plating on Lagavulin) is invisible.",
-   "proposal": "Add regex 'Gain (\\d+) Plating' → fx.block = N (credits this turn's end-of-turn block) and set conditional; the existing power banking covers the future-turn stream.",
+   "evidence": "Parser returned NOTHING for 'Gain 4 Plating.' (not even conditional) \u2014 the card is a completely blank 1-cost in the sim, valued only by the generic powers_played banking term. Its actual defensive output (Plating = block at end of each turn, including the turn it's played; combat.py already models enemy-side Plating on Lagavulin) is invisible.",
+   "proposal": "Add regex 'Gain (\\d+) Plating' \u2192 fx.block = N (credits this turn's end-of-turn block) and set conditional; the existing power banking covers the future-turn stream.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
   "STRATAGEM": {
@@ -1249,7 +1249,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": null,
-   "evidence": "Parse: {conditional:True}, no misread values. _to_planned: is_power=True (per_turn_power=False since 'whenever you shuffle' matches none of the per-turn phrases, but there are no immediate fx to zero anyway); powers_played increments for every is_power card (combat.py:418) so it gets the flat banked power credit and is played eagerly — the correct play. Its shuffle-tutor value is deck-cycle-dependent and cannot change the this-turn decision.",
+   "evidence": "Parse: {conditional:True}, no misread values. _to_planned: is_power=True (per_turn_power=False since 'whenever you shuffle' matches none of the per-turn phrases, but there are no immediate fx to zero anyway); powers_played increments for every is_power card (combat.py:418) so it gets the flat banked power credit and is played eagerly \u2014 the correct play. Its shuffle-tutor value is deck-cycle-dependent and cannot change the this-turn decision.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1269,7 +1269,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "parse: {'damage':6,'hits':1} / 9 upgraded — full effect covered",
+   "evidence": "parse: {'damage':6,'hits':1} / 9 upgraded \u2014 full effect covered",
    "proposal": "none",
    "status": "verified"
   },
@@ -1279,7 +1279,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "parse: {'damage':6,'hits':1} / upgraded 9 — full effect covered",
+   "evidence": "parse: {'damage':6,'hits':1} / upgraded 9 \u2014 full effect covered",
    "proposal": "none",
    "status": "verified"
   },
@@ -1289,7 +1289,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {'damage': 6, 'hits': 1} / upgraded {'damage': 9, 'hits': 1} — exact match to card effect; plain single-target attack fully covered by _apply_attack.",
+   "evidence": "Parse: {'damage': 6, 'hits': 1} / upgraded {'damage': 9, 'hits': 1} \u2014 exact match to card effect; plain single-target attack fully covered by _apply_attack.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1319,7 +1319,7 @@
    "impact": "high",
    "confidence": "high",
    "shared_pattern": "self-death-rider",
-   "evidence": "Parser returns {block:50 (75 upgraded), conditional:True, recognized:['block']} — numerically complete, but the death rider 'If you take unblocked attack damage this combat, die.' is invisible to both parser and planner. Grep shows no player-card 'die' handling anywhere in sts2bot/policy (only enemy Sandpit death-timer logic in capability.py/standard.py). The planner therefore sees a 0-cost 50-block skill and will play it whenever block matters — then any chip damage on a later turn (which this bot takes constantly in Acts 1-2) is instant death. 'conditional' does not discount it; the misplay is playing it at all.",
+   "evidence": "Parser returns {block:50 (75 upgraded), conditional:True, recognized:['block']} \u2014 numerically complete, but the death rider 'If you take unblocked attack damage this combat, die.' is invisible to both parser and planner. Grep shows no player-card 'die' handling anywhere in sts2bot/policy (only enemy Sandpit death-timer logic in capability.py/standard.py). The planner therefore sees a 0-cost 50-block skill and will play it whenever block matters \u2014 then any chip damage on a later turn (which this bot takes constantly in Acts 1-2) is instant death. 'conditional' does not discount it; the misplay is playing it at all.",
    "proposal": "In _to_planned, add a self-death-rider gate: if the description matches r'\\byou\\b.*\\bdie\\b' (or simply r'\\bdie\\.?$' on a player card), return None so the card is never planned. Optimal use (guaranteed-full-block combats) needs cross-turn certainty the one-turn planner lacks, so a hard ban is the safe smallest change.",
    "status": "fixed (2026-07-12): fx.self_death_rider set from full text; _to_planned returns None (never played) and _card_score returns -100 (never drafted). Verified 'die' appears in no other card in the 250-card catalog."
   },
@@ -1330,7 +1330,7 @@
    "confidence": "med",
    "shared_pattern": "hand-to-drawpile-putback",
    "evidence": "Parse: {'draw': 2, 'conditional': True} both versions. The 'Put 1 card from your Hand on top of your Draw Pile' clause is unpriced, so the sim credits w_draw*2 when net hand gain is +1 (the topdeck upside is next-turn value). Slight overvalue of a 0-cost card; play decision is usually still correct.",
-   "proposal": "Generic pattern: 'Put N card(s) from your Hand on top of your Draw Pile' → draw -= N (floor 0).",
+   "proposal": "Generic pattern: 'Put N card(s) from your Hand on top of your Draw Pile' \u2192 draw -= N (floor 0).",
    "status": "open (putback; low)"
   },
   "THRASH": {
@@ -1339,8 +1339,8 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "twice-phrasing",
-   "evidence": "Parser returns {'damage': 4, 'hits': 1, 'conditional': True} for 'Deal 4 damage twice' — a 50% base-damage undercount. _DAMAGE_TIMES (textparse.py:19) only matches '(\\d+) times', not the word 'twice'. Verified _HAND_EXHAUST_DMG does NOT false-fire on the exhaust clause ('for each card' absent).",
-   "proposal": "Extend _DAMAGE_TIMES to r'Deal (\\d+) damage(?: to ...)? (?:(\\d+) times|twice)' with twice=2 (add thrice=3 while there). Residual: the exhaust-random-Attack-and-absorb-its-damage part (also removes a hand Attack) is a planner mechanic — file separately, the regex fix is the dominant correction.",
+   "evidence": "Parser returns {'damage': 4, 'hits': 1, 'conditional': True} for 'Deal 4 damage twice' \u2014 a 50% base-damage undercount. _DAMAGE_TIMES (textparse.py:19) only matches '(\\d+) times', not the word 'twice'. Verified _HAND_EXHAUST_DMG does NOT false-fire on the exhaust clause ('for each card' absent).",
+   "proposal": "Extend _DAMAGE_TIMES to r'Deal (\\d+) damage(?: to ...)? (?:(\\d+) times|twice)' with twice=2 (add thrice=3 while there). Residual: the exhaust-random-Attack-and-absorb-its-damage part (also removes a hand Attack) is a planner mechanic \u2014 file separately, the regex fix is the dominant correction.",
    "status": "fixed (tranche B, 2026-07-09)"
   },
   "THUNDERCLAP": {
@@ -1349,7 +1349,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {'damage': 4, 'hits': 1, 'aoe': True, 'vulnerable': 1} — everything captured. _apply_card loops _apply_attack over all living enemies for AoE (lines 461-464) and each hit lands the vulnerable on that enemy (line 375), with correct STS timing (its own damage is not boosted by the vuln it applies, line 345 reads pre-attack vulnerable). Artifact stripping is also handled via debuff_order.",
+   "evidence": "Parse: {'damage': 4, 'hits': 1, 'aoe': True, 'vulnerable': 1} \u2014 everything captured. _apply_card loops _apply_attack over all living enemies for AoE (lines 461-464) and each hit lands the vulnerable on that enemy (line 375), with correct STS timing (its own damage is not boosted by the vuln it applies, line 345 reads pre-attack vulnerable). Artifact stripping is also handled via debuff_order.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1379,7 +1379,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "exhaust-synergy",
-   "evidence": "Parse: {block: 7, conditional} (upgraded {block: 9}) — block is right. The random exhaust is unmodeled: the plan may sequence True Grit before a key attack and randomly exhaust it; replanning after each real play limits but does not prevent the loss. Exhaust also feeds Ashen Strike/Forgotten Ritual synergy, unpriced.",
+   "evidence": "Parse: {block: 7, conditional} (upgraded {block: 9}) \u2014 block is right. The random exhaust is unmodeled: the plan may sequence True Grit before a key attack and randomly exhaust it; replanning after each real play limits but does not prevent the loss. Exhaust also feeds Ashen Strike/Forgotten Ritual synergy, unpriced.",
    "proposal": "Small sequencing rule: cards with 'Exhaust 1 card at random' get a play-last nudge (or set the exhausted-this-turn flag for synergy pricing). No parser change needed.",
    "status": "open"
   },
@@ -1389,8 +1389,8 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "damage-twice-word",
-   "evidence": "Parse: {damage: 5, hits: 1} — real card is 5x2 (upgraded 7x2). _DAMAGE_TIMES only matches numeric '(\\d+) times', so 'twice' falls through to single-hit: a 2x under-value that skews target choice, missed lethals, and draft/keep decisions on a Common card.",
-   "proposal": "Extend _DAMAGE_TIMES multiplier alternation to r'(?:(\\d+) times|(twice)|(thrice))' mapping twice→2, thrice→3 — verified it matches 'Deal 5 damage twice.' while still matching 'Deal 2 damage 3 times.'",
+   "evidence": "Parse: {damage: 5, hits: 1} \u2014 real card is 5x2 (upgraded 7x2). _DAMAGE_TIMES only matches numeric '(\\d+) times', so 'twice' falls through to single-hit: a 2x under-value that skews target choice, missed lethals, and draft/keep decisions on a Common card.",
+   "proposal": "Extend _DAMAGE_TIMES multiplier alternation to r'(?:(\\d+) times|(twice)|(thrice))' mapping twice\u21922, thrice\u21923 \u2014 verified it matches 'Deal 5 damage twice.' while still matching 'Deal 2 damage 3 times.'",
    "status": "fixed (tranche B, 2026-07-09)"
   },
   "ULTIMATE_DEFEND": {
@@ -1399,7 +1399,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {'hits': 1, 'block': 11, 'recognized': ['block']} — plain block, fully handled by _apply_card (dex/frail applied) and the blocked/excess score terms. Upgrade (15) parses identically.",
+   "evidence": "Parse: {'hits': 1, 'block': 11, 'recognized': ['block']} \u2014 plain block, fully handled by _apply_card (dex/frail applied) and the blocked/excess score terms. Upgrade (15) parses identically.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1409,7 +1409,7 @@
    "impact": "high",
    "confidence": "high",
    "shared_pattern": "osty-summon",
-   "evidence": "parse: {} (only hits:1) — damage=0, so the class's Basic attack is priced at nothing and skipped. textparse.py's _DAMAGE is r\"\\bDeal (\\d+) damage\" which misses the third-person 'Osty deals 6 damage'. A one-character regex fix recovers the base 6 (9 upgraded). The '+ damage equal to Osty's current HP' rider additionally needs the osty-summon planner state (see BODYGUARD) to price fully, but the regex alone turns a never-played attack into a correctly-played 6+ damage attack.",
+   "evidence": "parse: {} (only hits:1) \u2014 damage=0, so the class's Basic attack is priced at nothing and skipped. textparse.py's _DAMAGE is r\"\\bDeal (\\d+) damage\" which misses the third-person 'Osty deals 6 damage'. A one-character regex fix recovers the base 6 (9 upgraded). The '+ damage equal to Osty's current HP' rider additionally needs the osty-summon planner state (see BODYGUARD) to price fully, but the regex alone turns a never-played attack into a correctly-played 6+ damage attack.",
    "proposal": "Change _DAMAGE (and _DAMAGE_TIMES) to r\"\\bDeals? (\\d+) damage\" in sts2bot/policy/textparse.py; full value needs the osty-summon sim rule on top",
    "status": "fixed (tranche B, 2026-07-09)"
   },
@@ -1419,8 +1419,8 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "block-scaling",
-   "evidence": "Parse is empty ({hits: 1}); as a Power with 'each turn' text it hits the per_turn_power path and is banked generically via w_power_played * power_horizon — so it IS played, at a reasonable prior. What the sim misses is the actual effect: with it active, the first block card each turn (including the turn it's played) grants double block, so same-turn Unmovable→Defend lines are under-credited.",
-   "proposal": "SimState flag block_double_pending set by a 'double the amount' + 'gain Block' text match in _to_planned; in _apply_card, double the first card block_gain while pending (mirror rage_block_active). Low urgency — generic power banking is roughly right.",
+   "evidence": "Parse is empty ({hits: 1}); as a Power with 'each turn' text it hits the per_turn_power path and is banked generically via w_power_played * power_horizon \u2014 so it IS played, at a reasonable prior. What the sim misses is the actual effect: with it active, the first block card each turn (including the turn it's played) grants double block, so same-turn Unmovable\u2192Defend lines are under-credited.",
+   "proposal": "SimState flag block_double_pending set by a 'double the amount' + 'gain Block' text match in _to_planned; in _apply_card, double the first card block_gain while pending (mirror rage_block_active). Low urgency \u2014 generic power banking is roughly right.",
    "status": "open"
   },
   "UNRELENTING": {
@@ -1429,7 +1429,7 @@
    "impact": "med",
    "confidence": "med",
    "shared_pattern": "next-card-cost-reduction",
-   "evidence": "Parse: {damage: 14, hits: 1} — the attack half is priced correctly and the card is played as a reasonable 2-cost 14. But 'The next Attack you play costs 0' is a cross-card cost modifier no regex field can express: the sim charges full cost for the follow-up attack, so it both under-values Unrelenting and misses sequences where Unrelenting + an unaffordable big attack is lethal.",
+   "evidence": "Parse: {damage: 14, hits: 1} \u2014 the attack half is priced correctly and the card is played as a reasonable 2-cost 14. But 'The next Attack you play costs 0' is a cross-card cost modifier no regex field can express: the sim charges full cost for the follow-up attack, so it both under-values Unrelenting and misses sequences where Unrelenting + an unaffordable big attack is lethal.",
    "proposal": "SimState flag next_attack_free (like rage_block_active): set in _apply_card when the card text matches 'next Attack you play costs 0'; in _to_planned/_apply_card charge 0 for the first subsequent attack in the sequence.",
    "status": "open"
   },
@@ -1439,7 +1439,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {damage: 13, vulnerable: 1, weak: 1} (upgraded 2/2) — complete. combat.py:433 even documents Uppercut's multi-status Artifact-strip handling in the debuff_order logic.",
+   "evidence": "Parse: {damage: 13, vulnerable: 1, weak: 1} (upgraded 2/2) \u2014 complete. combat.py:433 even documents Uppercut's multi-status Artifact-strip handling in the debuff_order logic.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1449,8 +1449,8 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "add-shiv-to-hand",
-   "evidence": "Parse: {'hits': 1} — completely empty. Real: 3/4 Shivs = 12/16 damage of free 0-cost attacks for 2 energy, plus self cost-reduction. Planner sees a 2-cost no-op and will never play it; if drafted it is dead weight every fight.",
-   "proposal": "Same 'Add N Shivs into your Hand' pattern as Cloak and Dagger (one regex fixes both). The 'Reduce this card's cost by 1' rider is cross-turn — ignore it (file as note, not a fix).",
+   "evidence": "Parse: {'hits': 1} \u2014 completely empty. Real: 3/4 Shivs = 12/16 damage of free 0-cost attacks for 2 energy, plus self cost-reduction. Planner sees a 2-cost no-op and will never play it; if drafted it is dead weight every fight.",
+   "proposal": "Same 'Add N Shivs into your Hand' pattern as Cloak and Dagger (one regex fixes both). The 'Reduce this card's cost by 1' rider is cross-turn \u2014 ignore it (file as note, not a fix).",
    "status": "fixed (tranche B, 2026-07-09)"
   },
   "VENERATE": {
@@ -1459,8 +1459,8 @@
    "impact": "high",
    "confidence": "med",
    "shared_pattern": "energy-icon-tokens",
-   "evidence": "parse returned {} (only hits:1) — energy_gain=0, so the planner never plays it. Card really gains 2 (3 upgraded) energy rendered as [star_icon.png] tokens; textparse.py's _ENERGY_ICON_RUN regex requires 'energy' in the icon filename ([a-z_]*energy[a-z_]*.png), which star_icon.png fails. Identical failure mode to Luminesce (owner-caught 2026-06-26, fixed for *_energy_icon.png only).",
-   "proposal": "Broaden _ENERGY_ICON_RUN/_ENERGY_ICON in sts2bot/policy/textparse.py to also match star_icon.png (Regent energy icon), e.g. r\"\\[(?:[a-z_]*energy[a-z_]*|star_icon)\\.png\\]\" — or treat any bare 'Gain [x.png][x.png].' icon run as energy.",
+   "evidence": "parse returned {} (only hits:1) \u2014 energy_gain=0, so the planner never plays it. Card really gains 2 (3 upgraded) energy rendered as [star_icon.png] tokens; textparse.py's _ENERGY_ICON_RUN regex requires 'energy' in the icon filename ([a-z_]*energy[a-z_]*.png), which star_icon.png fails. Identical failure mode to Luminesce (owner-caught 2026-06-26, fixed for *_energy_icon.png only).",
+   "proposal": "Broaden _ENERGY_ICON_RUN/_ENERGY_ICON in sts2bot/policy/textparse.py to also match star_icon.png (Regent energy icon), e.g. r\"\\[(?:[a-z_]*energy[a-z_]*|star_icon)\\.png\\]\" \u2014 or treat any bare 'Gain [x.png][x.png].' icon run as energy.",
    "status": "refiled: star-icon gain needs a star-economy model (Regent resource), not a regex"
   },
   "VICIOUS": {
@@ -1469,7 +1469,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "whenever-trigger-power",
-   "evidence": "Parser: {'draw': 1, 'conditional': True} (up: 2). It is a Power, but _to_planned's per_turn_power zeroing only keys on 'start of'/'each turn'/'every turn' (combat.py:177), so this 'Whenever you apply Vulnerable...' trigger power keeps draw=1 as an IMMEDIATE draw credit on top of w_power_played — a small overvalue; the trigger itself (draw per vuln applied) is never simulated.",
+   "evidence": "Parser: {'draw': 1, 'conditional': True} (up: 2). It is a Power, but _to_planned's per_turn_power zeroing only keys on 'start of'/'each turn'/'every turn' (combat.py:177), so this 'Whenever you apply Vulnerable...' trigger power keeps draw=1 as an IMMEDIATE draw credit on top of w_power_played \u2014 a small overvalue; the trigger itself (draw per vuln applied) is never simulated.",
    "proposal": "In _to_planned, extend the trigger-power detection: a Power whose text contains 'whenever' gets its immediate fx zeroed (like per-turn powers) and is valued via the power_horizon term.",
    "status": "open"
   },
@@ -1489,7 +1489,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "energy-icon-tokens",
-   "evidence": "Parse returned {'energy_gain': 1, 'recognized': ['energy']} — the [necrobinder_energy_icon.png] token is counted correctly. 0-cost, +1 energy, Exhaust: the sim credits energy_gain in _apply_card (line 519), so net value is right. Upgrade only adds Retain, which changes nothing for a card you always want to play immediately.",
+   "evidence": "Parse returned {'energy_gain': 1, 'recognized': ['energy']} \u2014 the [necrobinder_energy_icon.png] token is counted correctly. 0-cost, +1 energy, Exhaust: the sim credits energy_gain in _apply_card (line 519), so net value is right. Upgrade only adds Retain, which changes nothing for a card you always want to play immediately.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1499,7 +1499,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {hits:1} only (no effects). Unplayable → filtered by can_play at combat.py:137; no end-of-turn text, no combat-relevant effect to price. Nothing to misplay.",
+   "evidence": "Parse: {hits:1} only (no effects). Unplayable \u2192 filtered by can_play at combat.py:137; no end-of-turn text, no combat-relevant effect to price. Nothing to misplay.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1519,8 +1519,8 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "per-turn-power-ramp",
-   "evidence": "Parse: {hits:1, conditional:True} — no damage extracted. _to_planned sets is_power=True and per_turn_power (text has 'start of'), zeroing block/energy/strength/self_hp_cost; damage was never parsed so no immediate offense is credited. Correct: the 5/10 ALL-enemy damage fires at the START of future turns, not the turn played. It banks as a generic power via w_power.",
-   "proposal": "none — treated correctly as a generic ramping power; the escalating value is inherently multi-turn and shares the standard power-valuation limitation, not a misplay.",
+   "evidence": "Parse: {hits:1, conditional:True} \u2014 no damage extracted. _to_planned sets is_power=True and per_turn_power (text has 'start of'), zeroing block/energy/strength/self_hp_cost; damage was never parsed so no immediate offense is credited. Correct: the 5/10 ALL-enemy damage fires at the START of future turns, not the turn played. It banks as a generic power via w_power.",
+   "proposal": "none \u2014 treated correctly as a generic ramping power; the escalating value is inherently multi-turn and shares the standard power-valuation limitation, not a misplay.",
    "status": "verified"
   },
   "SLICE": {
@@ -1539,8 +1539,8 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "random-target-multihit",
-   "evidence": "Parse: {damage:3, hits:3} (upgraded hits:4). _to_planned confirms dmg=3 hits=3. Total damage and hit count captured correctly; single-target totals are exact. The only unmodeled detail is 'random enemy' distribution — in multi-enemy fights the planner applies all hits to the chosen target rather than spreading — but total damage is right and this is an accepted approximation shared with other random-target multihits.",
-   "proposal": "none — hits are parsed correctly; random spread is a targeting approximation, not a mispricing worth a rule.",
+   "evidence": "Parse: {damage:3, hits:3} (upgraded hits:4). _to_planned confirms dmg=3 hits=3. Total damage and hit count captured correctly; single-target totals are exact. The only unmodeled detail is 'random enemy' distribution \u2014 in multi-enemy fights the planner applies all hits to the chosen target rather than spreading \u2014 but total damage is right and this is an accepted approximation shared with other random-target multihits.",
+   "proposal": "none \u2014 hits are parsed correctly; random spread is a targeting approximation, not a mispricing worth a rule.",
    "status": "verified"
   },
   "THRUMMING_HATCHET": {
@@ -1549,8 +1549,8 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parse: {damage:11, hits:1, conditional:True}. _to_planned confirms dmg=11 hits=1. The 'conditional' flag comes from 'At the start of your next turn, return this to your Hand' — pure next-turn upside (a recurring free-ish attack). The turn it is played it deals exactly 11/14, which the sim prices correctly; the return is unmodeled upside, not a misplay.",
-   "proposal": "none — immediate damage is exact; the return-to-hand benefit is multi-turn upside the planner simply doesn't get credit for (slight undervalue, never a misplay).",
+   "evidence": "Parse: {damage:11, hits:1, conditional:True}. _to_planned confirms dmg=11 hits=1. The 'conditional' flag comes from 'At the start of your next turn, return this to your Hand' \u2014 pure next-turn upside (a recurring free-ish attack). The turn it is played it deals exactly 11/14, which the sim prices correctly; the return is unmodeled upside, not a misplay.",
+   "proposal": "none \u2014 immediate damage is exact; the return-to-hand benefit is multi-turn upside the planner simply doesn't get credit for (slight undervalue, never a misplay).",
    "status": "verified"
   },
   "ULTIMATE_STRIKE": {
@@ -1569,8 +1569,8 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "random-target-multihit",
-   "evidence": "Parse alone gives {damage:10, hits:1} — misses the X-times count. BUT _to_planned's X-cost special-case (line 184: cost==X and matches '\\bX times') fires: at energy=3 the planner returns cost=3, hits=3, so 10 dmg x 3 hits = 30. Confirmed empirically. Upgraded (14 dmg) same path. Correctly valued at all energy levels.",
-   "proposal": "none — already handled by the existing X-times planner mechanic. (Same 'random enemy' spread approximation as Sword Boomerang, immaterial to total damage.)",
+   "evidence": "Parse alone gives {damage:10, hits:1} \u2014 misses the X-times count. BUT _to_planned's X-cost special-case (line 184: cost==X and matches '\\bX times') fires: at energy=3 the planner returns cost=3, hits=3, so 10 dmg x 3 hits = 30. Confirmed empirically. Upgraded (14 dmg) same path. Correctly valued at all energy levels.",
+   "proposal": "none \u2014 already handled by the existing X-times planner mechanic. (Same 'random enemy' spread approximation as Sword Boomerang, immaterial to total damage.)",
    "status": "verified"
   },
   "ANGER": {
@@ -1579,7 +1579,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returns {damage: 6, hits: 1, conditional: True} (8 upgraded) — the damage half is fully priced. The 'Add a copy into your Discard Pile' clause is unmodeled, but the copy lands in the discard pile so it cannot be drawn or played this turn; a 0-cost 6-damage attack is always net-positive and the planner plays it. No one-turn misplay exists; the copy only matters for draft valuation / cross-turn deck density.",
+   "evidence": "Parser returns {damage: 6, hits: 1, conditional: True} (8 upgraded) \u2014 the damage half is fully priced. The 'Add a copy into your Discard Pile' clause is unmodeled, but the copy lands in the discard pile so it cannot be drawn or played this turn; a 0-cost 6-damage attack is always net-positive and the planner plays it. No one-turn misplay exists; the copy only matters for draft valuation / cross-turn deck density.",
    "proposal": "none (optionally file the self-copy as a draft-side deck-eval note, not a combat-planner change)",
    "status": "verified"
   },
@@ -1589,7 +1589,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "power-like-skill",
-   "evidence": "Parser returns {hits: 1, conditional: True} — zero priced effects. Grep confirms no Apotheosis/upgrade special-case anywhere in combat.py; it is not a Power so it gets no w_power banking. A 2-cost Skill with no credited effect scores strictly negative in the sim (energy spent, nothing gained), so the planner will NEVER play it — the real effect (upgrade every card in the deck, immediately buffing this turn's remaining hand and all future turns) is entirely lost.",
+   "evidence": "Parser returns {hits: 1, conditional: True} \u2014 zero priced effects. Grep confirms no Apotheosis/upgrade special-case anywhere in combat.py; it is not a Power so it gets no w_power banking. A 2-cost Skill with no credited effect scores strictly negative in the sim (energy spent, nothing gained), so the planner will NEVER play it \u2014 the real effect (upgrade every card in the deck, immediately buffing this turn's remaining hand and all future turns) is entirely lost.",
    "proposal": "In _to_planned, detect 'Upgrade ALL your cards' and mark the card power-like (credit via w_power x power_horizon like per-turn powers), so it gets played early; a later refinement could swap unplayed hand cards' fx to their upgraded texts on application.",
    "status": "fixed (power-like flag -> horizon credit; filed since 2026-06-26)"
   },
@@ -1599,7 +1599,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "recurring-replay",
-   "evidence": "Parser returns {damage: 18, hits: 1, conditional: True} — the trigger sentence 'At the start of your turn, if this is in your Exhaust Pile, play it' is correctly dropped by _TRIGGER_SENTENCE, so this turn's play is priced right (18 dmg for 3). But the recurring free 18-damage replay every subsequent turn is invisible, so the planner treats it as a mediocre 3-cost attack and may defer it indefinitely behind cheaper spends in long fights.",
+   "evidence": "Parser returns {damage: 18, hits: 1, conditional: True} \u2014 the trigger sentence 'At the start of your turn, if this is in your Exhaust Pile, play it' is correctly dropped by _TRIGGER_SENTENCE, so this turn's play is priced right (18 dmg for 3). But the recurring free 18-damage replay every subsequent turn is invisible, so the planner treats it as a mediocre 3-cost attack and may defer it indefinitely behind cheaper spends in long fights.",
    "proposal": "In _to_planned, detect 'if this is in your Exhaust Pile, play it' and credit the recurrence via the existing w_power x power_horizon banking (same machinery used for per-turn powers), on top of the immediate damage.",
    "status": "open"
   },
@@ -1609,7 +1609,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "random-hand-exhaust",
-   "evidence": "Parser returns {damage: 18, hits: 1, conditional: True}; 'exhaust' in text sets exhausts_a_card=True (Evil Eye/Ritual gating credit — a plus). The unmodeled part is the COST: exhausting 1 random hand card. The sim assumes every other hand card stays playable, slightly over-crediting multi-card plans that sequence Cinder before other planned cards; live per-card replanning bounds the real loss to occasional suboptimal ordering.",
+   "evidence": "Parser returns {damage: 18, hits: 1, conditional: True}; 'exhaust' in text sets exhausts_a_card=True (Evil Eye/Ritual gating credit \u2014 a plus). The unmodeled part is the COST: exhausting 1 random hand card. The sim assumes every other hand card stays playable, slightly over-crediting multi-card plans that sequence Cinder before other planned cards; live per-card replanning bounds the real loss to occasional suboptimal ordering.",
    "proposal": "Model 'Exhaust N card(s) at random' in _apply_card by removing (or score-penalizing) one average-value unplayed hand card from the sim, or add a sequencing nudge to play such cards last among the turn's plays.",
    "status": "open"
   },
@@ -1619,7 +1619,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "generate-card-to-hand",
-   "evidence": "Parser returns {hits: 1, conditional: True} — nothing priced. _RANDOM_ATTACK only matches 'Add a random Attack into your Hand' (the Infernal Blade fix at textparse.py:38-43), not 'Choose 1 of 3 random cards to add into your Hand', so Discovery scores zero and a 1-cost card with zero credit is never played — the exact 'sat unplayed at pure friction cost' failure mode that regex was added to fix. Replanning would see the real generated card immediately once it lands in hand.",
+   "evidence": "Parser returns {hits: 1, conditional: True} \u2014 nothing priced. _RANDOM_ATTACK only matches 'Add a random Attack into your Hand' (the Infernal Blade fix at textparse.py:38-43), not 'Choose 1 of 3 random cards to add into your Hand', so Discovery scores zero and a 1-cost card with zero credit is never played \u2014 the exact 'sat unplayed at pure friction cost' failure mode that regex was added to fix. Replanning would see the real generated card immediately once it lands in hand.",
    "proposal": "Extend the generator pattern to 'Choose \\d+ of \\d+ random cards to add into your Hand' (and 'Add N random ... card(s) into your Hand'), crediting an average-card EV like _RANDOM_ATTACK_DMG does, so free/cheap generators get played and the replan handles the actual card.",
    "status": "fixed (generator credit, average-card EV)"
   },
@@ -1629,7 +1629,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returns {damage: 3, hits: 4, aoe: True} (4 dmg upgraded) — the _DAMAGE_TIMES regex with the optional 'to ALL enemies' clause captures the full 12/16 AoE damage (this phrasing was the earlier Conflagration B-fix, already landed). _apply_attack sims per-hit across all living enemies with block/vuln/slippery per hit.",
+   "evidence": "Parser returns {damage: 3, hits: 4, aoe: True} (4 dmg upgraded) \u2014 the _DAMAGE_TIMES regex with the optional 'to ALL enemies' clause captures the full 12/16 AoE damage (this phrasing was the earlier Conflagration B-fix, already landed). _apply_attack sims per-hit across all living enemies with block/vuln/slippery per hit.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1639,7 +1639,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "block-per-card-played",
-   "evidence": "Parser returns {hits: 1} — no effects (correctly: 'Gain an additional 4 Block from Defend cards' does not match _BLOCK, so no false immediate block). As a Power it gets generic w_power x power_horizon banking, so it does get played, but the sim never adds +4 to Defends played after it this turn and the generic credit is blind to how many Defends the deck actually runs.",
+   "evidence": "Parser returns {hits: 1} \u2014 no effects (correctly: 'Gain an additional 4 Block from Defend cards' does not match _BLOCK, so no false immediate block). As a Power it gets generic w_power x power_horizon banking, so it does get played, but the sim never adds +4 to Defends played after it this turn and the generic credit is blind to how many Defends the deck actually runs.",
    "proposal": "Rage-shaped rule: detect 'additional (\\d+) Block from Defend' in _to_planned and, while active in the sim, add that bonus to each subsequent Defend's block in _apply_card (mirrors rage_block_active but keyed to Defend plays).",
    "status": "open"
   },
@@ -1649,7 +1649,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "block-equal-to-damage",
-   "evidence": "Parser returns {damage: 7, hits: 1, recognized: ['damage']} — no block and not even flagged conditional. 'Gain Block equal to damage dealt' is silently dropped, so half the card's value (about 7-9 block, more with Strength/Vulnerable) is never credited: the bot mis-ranks it against pure Defends when it needs mitigation.",
+   "evidence": "Parser returns {damage: 7, hits: 1, recognized: ['damage']} \u2014 no block and not even flagged conditional. 'Gain Block equal to damage dealt' is silently dropped, so half the card's value (about 7-9 block, more with Strength/Vulnerable) is never credited: the bot mis-ranks it against pure Defends when it needs mitigation.",
    "proposal": "Add a parser pattern 'Gain Block equal to damage dealt' setting fx.block = fx.damage as an approximation (exact value would hook dealt_total in _apply_attack, but the one-regex fix captures about 95% of the value).",
    "status": "fixed (block = damage dealt approximation)"
   },
@@ -1659,7 +1659,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returns {damage: 16, hits: 1} (20 upgraded) — pure single-target damage, fully captured. The planner even has dedicated Primal Force handling (_PRIMAL_ROCK_DAMAGE) for the transformed-attack case that generates these tokens.",
+   "evidence": "Parser returns {damage: 16, hits: 1} (20 upgraded) \u2014 pure single-target damage, fully captured. The planner even has dedicated Primal Force handling (_PRIMAL_ROCK_DAMAGE) for the transformed-attack case that generates these tokens.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1669,7 +1669,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returns {damage: 12, hits: 1, draw: 2} (13/3 upgraded parses identically in structure) — both effects captured; draws are credited via w_draw in _score and the live loop replans after each play so drawn cards become plannable immediately.",
+   "evidence": "Parser returns {damage: 12, hits: 1, draw: 2} (13/3 upgraded parses identically in structure) \u2014 both effects captured; draws are credited via w_draw in _score and the live loop replans after each play so drawn cards become plannable immediately.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1679,9 +1679,9 @@
    "impact": "high",
    "confidence": "high",
    "shared_pattern": "trigger-sentence-strip",
-   "evidence": "Parser returned {damage: 10, hits: 1, aoe: True, recognized: ['damage']} for 'Every time you play 5 cards in a single turn, deal 10 damage to ALL enemies.' — the _TRIGGER_SENTENCE strip (textparse.py:53-54) only matches 'Every \\d', so 'Every time' slips through and the trigger damage is credited as immediate. _to_planned's per_turn_power tokens ('start of'/'each turn'/'every turn') also miss it, and per-turn zeroing wouldn't zero damage anyway. Planner harness CONFIRMED false lethal: hand [Panache, Defend] vs 10-HP enemy attacking for 20 → 'plan [Panache] score 90.2 LETHAL', Defend skipped. Real card deals nothing until 5 cards are played.",
+   "evidence": "Parser returned {damage: 10, hits: 1, aoe: True, recognized: ['damage']} for 'Every time you play 5 cards in a single turn, deal 10 damage to ALL enemies.' \u2014 the _TRIGGER_SENTENCE strip (textparse.py:53-54) only matches 'Every \\d', so 'Every time' slips through and the trigger damage is credited as immediate. _to_planned's per_turn_power tokens ('start of'/'each turn'/'every turn') also miss it, and per-turn zeroing wouldn't zero damage anyway. Planner harness CONFIRMED false lethal: hand [Panache, Defend] vs 10-HP enemy attacking for 20 \u2192 'plan [Panache] score 90.2 LETHAL', Defend skipped. Real card deals nothing until 5 cards are played.",
    "proposal": "Extend _TRIGGER_SENTENCE in textparse.py from 'Every \\d' to 'Every (\\d|time)' (or just 'Every\\b') so the whenever-trigger sentence is dropped; Panache then plays as a generic power via power_term, like Hailstorm does.",
-   "status": "fixed (trigger strip Every\b, 2026-07-12 — was a harness-confirmed FALSE LETHAL)"
+   "status": "fixed (trigger strip Every\b, 2026-07-12 \u2014 was a harness-confirmed FALSE LETHAL)"
   },
   "INFERNAL_BLADE": {
    "name": "Infernal Blade",
@@ -1689,7 +1689,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "hand-generator-credit",
-   "evidence": "Parser returns {damage: 8, hits: 1} via the deliberate _RANDOM_ATTACK heuristic (textparse.py:38-43, the 2026-07-09 live-catch fix). But the credit NEVER lands in the sim: IB is a non-targeting Skill, and _apply_card (combat.py:532-540) only applies damage when aoe or target_i is set; the DFS (combat.py:942) only assigns targets when target_type=='AnyEnemy'. Harness confirmed: 0-cost Infernal Blade+ alone in hand vs an attacker → 'no play improves the turn; end turn' — the exact stranding the fix was meant to cure. The existing IB fixes (test_standard_policy.py:1000, 2244) are draft-scorer-side only.",
+   "evidence": "Parser returns {damage: 8, hits: 1} via the deliberate _RANDOM_ATTACK heuristic (textparse.py:38-43, the 2026-07-09 live-catch fix). But the credit NEVER lands in the sim: IB is a non-targeting Skill, and _apply_card (combat.py:532-540) only applies damage when aoe or target_i is set; the DFS (combat.py:942) only assigns targets when target_type=='AnyEnemy'. Harness confirmed: 0-cost Infernal Blade+ alone in hand vs an attacker \u2192 'no play improves the turn; end turn' \u2014 the exact stranding the fix was meant to cure. The existing IB fixes (test_standard_policy.py:1000, 2244) are draft-scorer-side only.",
    "proposal": "In _to_planned, set targets_enemy=(card.target_type=='AnyEnemy' or (fx.damage>0 and not fx.aoe)) so credited generator damage picks a target and lands in _apply_attack; alternatively credit hand-generators as fx.draw (target-free) instead of damage.",
    "status": "fixed properly (generator damage now targetable; the 07-09 credit never landed)"
   },
@@ -1699,7 +1699,7 @@
    "impact": "med",
    "confidence": "high",
    "shared_pattern": "pile-size-scaling",
-   "evidence": "Parser returned {hits: 1, conditional: True} — zero damage for 'Deal damage equal to the number of cards in your Draw Pile.' Harness: vs 15-HP enemy with draw_pile=20 (real damage 20 = lethal) it played it only as a reluctant filler ('score -19.4', no LETHAL flag) — the kill is never counted, so it can never be sequenced for lethal or preferred over blocking. State knows draw_pile_count at plan time; _to_planned already takes exhaust_pile for the identical Ashen Strike pattern (_PER_EXHAUST_PILE, combat.py:239).",
+   "evidence": "Parser returned {hits: 1, conditional: True} \u2014 zero damage for 'Deal damage equal to the number of cards in your Draw Pile.' Harness: vs 15-HP enemy with draw_pile=20 (real damage 20 = lethal) it played it only as a reluctant filler ('score -19.4', no LETHAL flag) \u2014 the kill is never counted, so it can never be sequenced for lethal or preferred over blocking. State knows draw_pile_count at plan time; _to_planned already takes exhaust_pile for the identical Ashen Strike pattern (_PER_EXHAUST_PILE, combat.py:239).",
    "proposal": "Pass draw_pile_count into _to_planned (like exhaust_pile) and add a regex for 'damage equal to the number of cards in your Draw Pile' setting fx.damage to that count.",
    "status": "open"
   },
@@ -1709,8 +1709,8 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": "hand-generator-credit",
-   "evidence": "Parser returned {hits: 1, conditional: True} — nothing credited for 'Add 1 random Colorless card into your Hand. Exhaust.' (_RANDOM_ATTACK requires 'random Attack'; this is 'random Colorless card'). Harness confirmed the 0-cost generator is stranded: alone in hand → 'no play improves the turn; end turn' — same pure-friction failure mode as pre-fix Infernal Blade+ (owner live-caught 2026-07-09).",
-   "proposal": "Generalize the generator pattern to 'Add N random ... card(s) into your Hand' and credit it as fx.draw += N — a draw credit lands without a target (w_draw in _score), fixing this card and de-stranding Infernal Blade/Discovery-style generators too.",
+   "evidence": "Parser returned {hits: 1, conditional: True} \u2014 nothing credited for 'Add 1 random Colorless card into your Hand. Exhaust.' (_RANDOM_ATTACK requires 'random Attack'; this is 'random Colorless card'). Harness confirmed the 0-cost generator is stranded: alone in hand \u2192 'no play improves the turn; end turn' \u2014 same pure-friction failure mode as pre-fix Infernal Blade+ (owner live-caught 2026-07-09).",
+   "proposal": "Generalize the generator pattern to 'Add N random ... card(s) into your Hand' and credit it as fx.draw += N \u2014 a draw credit lands without a target (w_draw in _score), fixing this card and de-stranding Infernal Blade/Discovery-style generators too.",
    "status": "open"
   },
   "HAILSTORM": {
@@ -1719,7 +1719,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "turn-trigger-power-damage",
-   "evidence": "Parser returned {hits: 1, conditional: True} — the 'At the end...' sentence is correctly dropped by _TRIGGER_SENTENCE, so no false immediate damage (contrast Panache). Harness: hand [Hailstorm, Defend] → 'plan [Hailstorm > Defend]' — played early as a generic power via power_term, which is the right one-turn behavior. The unpriced part (end-of-turn 6 AoE if you have Frost, every turn) requires Frost-stack tracking that combat.py doesn't model at all (grep for 'frost' in combat.py: zero hits) plus cross-turn value.",
+   "evidence": "Parser returned {hits: 1, conditional: True} \u2014 the 'At the end...' sentence is correctly dropped by _TRIGGER_SENTENCE, so no false immediate damage (contrast Panache). Harness: hand [Hailstorm, Defend] \u2192 'plan [Hailstorm > Defend]' \u2014 played early as a generic power via power_term, which is the right one-turn behavior. The unpriced part (end-of-turn 6 AoE if you have Frost, every turn) requires Frost-stack tracking that combat.py doesn't model at all (grep for 'frost' in combat.py: zero hits) plus cross-turn value.",
    "proposal": "File: pricing needs a Frost resource model in SimState (stacks granted by other cards this turn) plus an end-of-turn conditional AoE tick; until Frost exists in the sim there is nothing to hook. Current generic-power handling is a safe fallback.",
    "status": "open"
   },
@@ -1729,7 +1729,7 @@
    "impact": "low",
    "confidence": "med",
    "shared_pattern": "draw-pile-seeding",
-   "evidence": "Parser returned {hits: 1, conditional: True} — nothing credited ('into your Draw Pile' doesn't match the hand-generator regexes, correctly: the attacks arrive on future draws). Harness: with spare energy vs a non-attacker it still got played ('plan [Metamorphosis] score -0.8'), which is roughly right by accident; but its real value (3-5 free Attacks seeded into future draws) is pure cross-turn draw-pile reasoning the one-turn planner lacks by design.",
+   "evidence": "Parser returned {hits: 1, conditional: True} \u2014 nothing credited ('into your Draw Pile' doesn't match the hand-generator regexes, correctly: the attacks arrive on future draws). Harness: with spare energy vs a non-attacker it still got played ('plan [Metamorphosis] score -0.8'), which is roughly right by accident; but its real value (3-5 free Attacks seeded into future draws) is pure cross-turn draw-pile reasoning the one-turn planner lacks by design.",
    "proposal": "File as multi-turn: crediting draw-pile seeding needs a next-turn value model. Event rarity keeps exposure minimal; current behavior (plays it when energy is otherwise wasted) is acceptable.",
    "status": "open"
   },
@@ -1739,7 +1739,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returned {damage: 20, hits: 1, conditional: True, recognized: ['damage']} — exact. The 'If Fatal, gain 20 Gold' rider is combat-irrelevant (gold isn't a combat resource; the conditional flag alone doesn't misplay it). Harness: vs 18-HP enemy → 'plan [Hand of Greed] score 52.5 LETHAL' with correct target.",
+   "evidence": "Parser returned {damage: 20, hits: 1, conditional: True, recognized: ['damage']} \u2014 exact. The 'If Fatal, gain 20 Gold' rider is combat-irrelevant (gold isn't a combat resource; the conditional flag alone doesn't misplay it). Harness: vs 18-HP enemy \u2192 'plan [Hand of Greed] score 52.5 LETHAL' with correct target.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1749,7 +1749,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returned {block: 11, weak: 2, recognized: ['block','weak']} (upgraded: block 14, weak 3) — exact. Harness: vs a 14-attack Brute → 'plan [Leg Sweep > Strike]', Leg Sweep sequenced first and targeted at the attacker; _apply_card lands Weak through Artifact resolution and applies WEAK_MULT to incoming.",
+   "evidence": "Parser returned {block: 11, weak: 2, recognized: ['block','weak']} (upgraded: block 14, weak 3) \u2014 exact. Harness: vs a 14-attack Brute \u2192 'plan [Leg Sweep > Strike]', Leg Sweep sequenced first and targeted at the attacker; _apply_card lands Weak through Artifact resolution and applies WEAK_MULT to incoming.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1759,7 +1759,7 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returned {energy_gain: 2} base / {energy_gain: 3} upgraded via the _ENERGY_ICON_RUN icon-counting fix (textparse.py:56-61 names Luminesce; owner-caught 2026-06-26). Harness: at 0 energy with two Strikes and a 12-HP enemy → 'plan [Luminesce > Strike > Strike] score 45.0 LETHAL' — energy chained correctly. Retain only matters for cross-turn holding, and playing it for energy now is near-optimal for a 0-cost exhaust.",
+   "evidence": "Parser returned {energy_gain: 2} base / {energy_gain: 3} upgraded via the _ENERGY_ICON_RUN icon-counting fix (textparse.py:56-61 names Luminesce; owner-caught 2026-06-26). Harness: at 0 energy with two Strikes and a 12-HP enemy \u2192 'plan [Luminesce > Strike > Strike] score 45.0 LETHAL' \u2014 energy chained correctly. Retain only matters for cross-turn holding, and playing it for energy now is near-optimal for a 0-cost exhaust.",
    "proposal": "none",
    "status": "verified"
   },
@@ -1769,9 +1769,18 @@
    "impact": "low",
    "confidence": "high",
    "shared_pattern": null,
-   "evidence": "Parser returned {draw: 3, recognized: ['draw']} (upgraded: draw 4) — exact. Draw is scored via w_draw (combat.py:743) and the loop replans after playing, so the real drawn cards are seen immediately. Harness: alone in hand it gets played ('plan [Master of Strategy] score -4.8; first: Master of Strategy') rather than stranded.",
+   "evidence": "Parser returned {draw: 3, recognized: ['draw']} (upgraded: draw 4) \u2014 exact. Draw is scored via w_draw (combat.py:743) and the loop replans after playing, so the real drawn cards are seen immediately. Harness: alone in hand it gets played ('plan [Master of Strategy] score -4.8; first: Master of Strategy') rather than stranded.",
    "proposal": "none",
    "status": "verified"
+  },
+  "ALCHEMIZE": {
+   "notes": "Epoch unlock 2026-07-30: 'Procure a random potion. Exhaust.' 1-cost Skill. Potion-gen -- value scales with belt room and the potion lanes; parser sees no damage/block so heuristics undervalue it. Triage: playable-fine, draft-mediocre unless potion-belt build."
+  },
+  "NOSTALGIA": {
+   "notes": "Epoch unlock 2026-07-30: Power, 'The first Attack or Skill you play each turn is placed on top of your Draw Pile.' Cross-turn draw-pile stacking -- the SS5.2 item 11 class (tutor/put-back value invisible to the one-turn planner). Sequencing rider: END each turn having played the card you want replayed FIRST next turn -- History Course-adjacent, same interim bias."
+  },
+  "SCRAWL": {
+   "notes": "Epoch unlock 2026-07-30: 'Draw cards until your Hand is full. Exhaust.' 1-cost Skill. Parser's _DRAW regex needs a number so fx.draw=0 -- the planner undervalues it badly; treat as ~4-5 draw. Premium in thin decks; NO_DRAW (Battle Trance) locks it like all draws."
   }
  }
 }

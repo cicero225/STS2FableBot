@@ -3850,30 +3850,24 @@ def test_queen_forecast_includes_the_torch_head_amalgam() -> None:
     assert tha.dps == 23  # its own realized number, not the queen's 2
 
 
-def test_stage_boss_family_expands_to_sequential_waves() -> None:
-    """Test Subject (9 f48 deaths today incl. x3 to him): the bestiary holds each
-    stage as its own entry ('#C10'/'#C14'/'#C15', escalating dps) and the run's
-    suffix varies, so any single-entry forecast prices ONE stage of a 3-stage
-    fight. The family now expands to dormant waves (the Phrog machinery)."""
+def test_stage_boss_table_expands_to_sequential_waves() -> None:
+    """Test Subject: owner tape 2026-07-30 (#C29, full fight) showed every '#C__'
+    variant is ONE entity that FULL-HEALS through 3 stages (100/200/300) -- the
+    bestiary's per-variant entries are run fragments, not stages. The observed
+    stage table expands to dormant waves (the Phrog machinery), keyed on the
+    suffix-stripped base name so any run's variant resolves."""
     from sts2bot.policy.standard import StandardRouter
 
-    bestiary = {
-        "Test Subject #C14": {"hp": [120, 120], "statuses": {}, "roles": ["boss"]},
-        "Test Subject #C10": {"hp": [100, 100], "statuses": {}, "roles": ["boss"]},
-        "Test Subject #C15": {"hp": [150, 150], "statuses": {}, "roles": ["boss"]},
-        "Queen": {"hp": [400, 400], "statuses": {}, "roles": ["boss"]},
-    }
-    r = StandardRouter(combat_stats=None, bestiary=bestiary)
-    r.enemy_dps = {"Test Subject #C10": {"dps_early": 22.3},
-                   "Test Subject #C15": {"dps_early": 24.0}}
+    r = StandardRouter(combat_stats=None, bestiary={
+        "Queen": {"hp": [400, 400], "statuses": {}, "roles": ["boss"]}})
     ctx = LoopContext()
-    ctx.screen_mem["act_boss_name"] = "Test Subject #C10"
+    ctx.screen_mem["act_boss_name"] = "Test Subject #C29"  # unseen variant: still resolves
     members = r._upcoming_boss(ctx, 3)
     assert [m.wave for m in members] == [0, 1, 2]      # sequential stages
-    assert [m.hp for m in members] == [100, 120, 150]  # sorted by stage number
-    assert members[0].dps == 22                        # per-stage realized dps
+    assert [m.hp for m in members] == [100, 200, 300]  # observed full-heal pools
+    assert [m.dps for m in members] == [19, 36, 40]    # observed per-stage dps
     assert all(m.counts_toward_kill for m in members)  # every stage must die
-    # a plain single-entry boss is untouched by the family logic
+    # a plain single-entry boss is untouched by the stage table
     ctx2 = LoopContext()
     ctx2.screen_mem["act_boss_name"] = "Queen"
     assert len(r._upcoming_boss(ctx2, 3)) >= 1

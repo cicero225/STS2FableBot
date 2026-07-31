@@ -1,5 +1,5 @@
 {
- "source": "536 run logs",
+ "source": "785 run logs",
  "enemies": {
   "Aeonglass": {
    "roles": [
@@ -8,7 +8,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 4,
+   "runs_seen": 17,
    "hp": [
     512,
     512
@@ -39,7 +39,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 46,
+   "runs_seen": 69,
    "hp": [
     18,
     23
@@ -70,7 +70,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 39,
+   "runs_seen": 63,
    "hp": [
     20,
     22
@@ -97,12 +97,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 9,
+   "runs_seen": 21,
    "hp": [
     70,
     78
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
     "STOCK_POWER": {
      "name": "Stock",
      "description": "When killed, a new Axebot is summoned in its place."
@@ -121,7 +125,30 @@
     }
    }
   },
-  "Battle Friend V3.0": {
+  "Battle Friend V1.0": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 2,
+   "hp": [
+    75,
+    75
+   ],
+   "statuses": {
+    "BATTLEWORN_DUMMY_TIME_LIMIT_POWER": {
+     "name": "Time Limit",
+     "description": "You have 3 more turns to defeat the Battleworn Dummy."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    }
+   }
+  },
+  "Battle Friend V2.0": {
    "roles": [
     "monster"
    ],
@@ -129,6 +156,29 @@
     3
    ],
    "runs_seen": 4,
+   "hp": [
+    150,
+    150
+   ],
+   "statuses": {
+    "BATTLEWORN_DUMMY_TIME_LIMIT_POWER": {
+     "name": "Time Limit",
+     "description": "You have 3 more turns to defeat the Battleworn Dummy."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    }
+   }
+  },
+  "Battle Friend V3.0": {
+   "roles": [
+    "monster"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 5,
    "hp": [
     300,
     300
@@ -159,7 +209,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 63,
+   "runs_seen": 127,
    "hp": [
     21,
     22
@@ -186,12 +236,16 @@
    "acts": [
     2
    ],
-   "runs_seen": 78,
+   "runs_seen": 146,
    "hp": [
     35,
     38
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
     "STRENGTH_POWER": {
      "name": "Strength",
      "description": "Increases attack damage by 15."
@@ -213,7 +267,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 142,
+   "runs_seen": 262,
    "hp": [
     45,
     48
@@ -248,7 +302,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 81,
+   "runs_seen": 145,
    "hp": [
     40,
     43
@@ -279,7 +333,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 48,
+   "runs_seen": 72,
    "hp": [
     30,
     33
@@ -306,12 +360,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 34,
+   "runs_seen": 72,
    "hp": [
     127,
     127
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
     "SHRINK_POWER": {
      "name": "Shrink",
      "description": "Bygone Effigy's Attacks deal 30% less damage for the next 4 turns."
@@ -341,7 +399,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 41,
+   "runs_seen": 83,
    "hp": [
     81,
     84
@@ -350,6 +408,14 @@
     "DEBILITATE_POWER": {
      "name": "Debilitate",
      "description": "Vulnerable and Weak are twice as effective for the next 3 turns."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
+    "SHACKLING_POTION_POWER": {
+     "name": "Shackling Potion",
+     "description": "Lose 7 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -376,7 +442,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 117,
+   "runs_seen": 179,
    "hp": [
     38,
     41
@@ -393,6 +459,10 @@
     "RITUAL_POWER": {
      "name": "Ritual",
      "description": "At the end of its turn, gains 2 Strength."
+    },
+    "SHACKLING_POTION_POWER": {
+     "name": "Shackling Potion",
+     "description": "Lose 7 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -415,12 +485,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 77,
+   "runs_seen": 114,
    "hp": [
     252,
     252
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Ceremonial Beast's turn, it loses 9 HP."
+    },
     "PLOW_POWER": {
      "name": "Plow",
      "description": "The first time Ceremonial Beast's HP reaches 150 or below, it becomes Stunned and loses all its Strength."
@@ -454,7 +528,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 55,
+   "runs_seen": 93,
    "hp": [
     60,
     64
@@ -463,6 +537,10 @@
     "ARTIFACT_POWER": {
      "name": "Artifact",
      "description": "Negates 2 debuffs."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -485,7 +563,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 182,
+   "runs_seen": 270,
    "hp": [
     25,
     27
@@ -516,7 +594,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 51,
+   "runs_seen": 76,
    "hp": [
     18,
     21
@@ -543,7 +621,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 41,
+   "runs_seen": 77,
    "hp": [
     209,
     209
@@ -556,6 +634,14 @@
     "CRAB_RAGE_POWER": {
      "name": "Crab Rage",
      "description": "When an ally dies, Crusher gains 6 Strength and 99 Block."
+    },
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Crusher's turn, it loses 9 HP."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
     },
     "SHACKLING_POTION_POWER": {
      "name": "Shackling Potion",
@@ -587,7 +673,7 @@
     1,
     3
    ],
-   "runs_seen": 88,
+   "runs_seen": 130,
    "hp": [
     65,
     65
@@ -596,6 +682,10 @@
     "ARTIFACT_POWER": {
      "name": "Artifact",
      "description": "Negates 1 debuff."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -618,7 +708,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 67,
+   "runs_seen": 110,
    "hp": [
     51,
     53
@@ -631,6 +721,10 @@
     "RITUAL_POWER": {
      "name": "Ritual",
      "description": "At the end of its turn, gains 5 Strength."
+    },
+    "SHACKLING_POTION_POWER": {
+     "name": "Shackling Potion",
+     "description": "Lose 7 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -653,7 +747,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 11,
+   "runs_seen": 26,
    "hp": [
     40,
     46
@@ -684,12 +778,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 23,
+   "runs_seen": 50,
    "hp": [
     162,
     162
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
     "RITUAL_POWER": {
      "name": "Ritual",
      "description": "At the end of its turn, gains 9 Strength."
@@ -715,12 +813,20 @@
    "acts": [
     2
    ],
-   "runs_seen": 7,
+   "runs_seen": 34,
    "hp": [
     145,
     145
    ],
    "statuses": {
+    "DARK_SHACKLES_POWER": {
+     "name": "Dark Shackles",
+     "description": "Lose 9 Strength until the end of this turn."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
     "PERSONAL_HIVE_POWER": {
      "name": "Personal Hive",
      "description": "Whenever this enemy is hit by an Attack, add 1 Dazed into your Draw Pile."
@@ -746,7 +852,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 124,
+   "runs_seen": 227,
    "hp": [
     24,
     28
@@ -759,6 +865,10 @@
     "HARD_TO_KILL_POWER": {
      "name": "Hard to Kill",
      "description": "Reduce all damage taken and HP lost by Exoskeleton to 9."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -812,7 +922,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 59,
+   "runs_seen": 100,
    "hp": [
     6,
     6
@@ -839,12 +949,20 @@
    "acts": [
     3
    ],
-   "runs_seen": 4,
+   "runs_seen": 16,
    "hp": [
     150,
     150
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Decreases attack damage by 10."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
@@ -862,7 +980,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 75,
+   "runs_seen": 113,
    "hp": [
     13,
     17
@@ -885,7 +1003,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 2,
+   "runs_seen": 5,
    "hp": [
     101,
     101
@@ -912,7 +1030,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 112,
+   "runs_seen": 151,
    "hp": [
     47,
     49
@@ -943,7 +1061,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 86,
+   "runs_seen": 127,
    "hp": [
     74,
     74
@@ -970,7 +1088,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 74,
+   "runs_seen": 107,
    "hp": [
     51,
     53
@@ -1005,12 +1123,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 10,
+   "runs_seen": 25,
    "hp": [
     191,
     191
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Frog Knight's turn, it loses 9 HP."
+    },
     "PLATING_POWER": {
      "name": "Plating",
      "description": "At the end of your turn, gain 15 Block. Plating is reduced by 1 at the start of your turn."
@@ -1036,7 +1158,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 237,
+   "runs_seen": 338,
    "hp": [
     55,
     57
@@ -1071,7 +1193,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 65,
+   "runs_seen": 95,
    "hp": [
     7,
     7
@@ -1090,12 +1212,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 10,
+   "runs_seen": 29,
    "hp": [
     148,
     148
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Globe Head's turn, it loses 9 HP."
+    },
     "GALVANIC_POWER": {
      "name": "Galvanic",
      "description": "Powers are afflicted with Galvanized."
@@ -1121,7 +1247,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 75,
+   "runs_seen": 113,
    "hp": [
     47,
     49
@@ -1168,9 +1294,9 @@
    "acts": [
     3
    ],
-   "runs_seen": 3,
+   "runs_seen": 11,
    "hp": [
-    17,
+    16,
     20
    ],
    "statuses": {
@@ -1187,9 +1313,9 @@
    "acts": [
     2
    ],
-   "runs_seen": 52,
+   "runs_seen": 105,
    "hp": [
-    19,
+    14,
     21
    ],
    "statuses": {
@@ -1218,7 +1344,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 77,
+   "runs_seen": 112,
    "hp": [
     63,
     63
@@ -1253,12 +1379,16 @@
    "acts": [
     2
    ],
-   "runs_seen": 54,
+   "runs_seen": 104,
    "hp": [
     121,
     121
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
     "STRENGTH_POWER": {
      "name": "Strength",
      "description": "Increases attack damage by 1."
@@ -1280,12 +1410,20 @@
    "acts": [
     2
    ],
-   "runs_seen": 9,
+   "runs_seen": 33,
    "hp": [
     161,
     161
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VITAL_SPARK_POWER": {
      "name": "Vital Spark",
      "description": "ALL Skills are Tainted 2."
@@ -1307,7 +1445,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 80,
+   "runs_seen": 112,
    "hp": [
     11,
     17
@@ -1338,7 +1476,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 90,
+   "runs_seen": 136,
    "hp": [
     58,
     59
@@ -1369,7 +1507,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 90,
+   "runs_seen": 136,
    "hp": [
     190,
     190
@@ -1383,9 +1521,17 @@
      "name": "Demise",
      "description": "At the end of Kin Priest's turn, it loses 9 HP."
     },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
     "SHACKLING_POTION_POWER": {
      "name": "Shackling Potion",
      "description": "Lose 7 Strength until the end of this turn."
+    },
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Kin Priest's Attacks deal 30% less damage for the next 4 turns."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -1408,7 +1554,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 31,
+   "runs_seen": 72,
    "hp": [
     379,
     379
@@ -1421,6 +1567,10 @@
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 15 Strength until the end of this turn."
+    },
+    "SHACKLING_POTION_POWER": {
+     "name": "Shackling Potion",
+     "description": "Lose 7 Strength until the end of this turn."
     },
     "SHRINK_POWER": {
      "name": "Shrink",
@@ -1447,7 +1597,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 68,
+   "runs_seen": 101,
    "hp": [
     222,
     222
@@ -1456,6 +1606,10 @@
     "ASLEEP_POWER": {
      "name": "Asleep",
      "description": "Awakens upon losing HP or after 3 turns."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
     },
     "PLATING_POWER": {
      "name": "Plating",
@@ -1486,12 +1640,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 164,
+   "runs_seen": 236,
    "hp": [
     32,
     35
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
     "STRENGTH_POWER": {
      "name": "Strength",
      "description": "Increases attack damage by 1."
@@ -1513,7 +1671,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 234,
+   "runs_seen": 340,
    "hp": [
     11,
     15
@@ -1540,7 +1698,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 66,
+   "runs_seen": 97,
    "hp": [
     80,
     80
@@ -1567,7 +1725,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 16,
+   "runs_seen": 48,
    "hp": [
     55,
     55
@@ -1598,7 +1756,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 62,
+   "runs_seen": 105,
    "hp": [
     134,
     136
@@ -1633,12 +1791,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 2,
+   "runs_seen": 5,
    "hp": [
     82,
     82
    ],
    "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 1 turn."
@@ -1652,7 +1814,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 75,
+   "runs_seen": 108,
    "hp": [
     72,
     72
@@ -1679,7 +1841,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 2,
+   "runs_seen": 5,
    "hp": [
     300,
     300
@@ -1702,7 +1864,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 4,
+   "runs_seen": 17,
    "hp": [
     101,
     101
@@ -1733,7 +1895,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 45,
+   "runs_seen": 92,
    "hp": [
     61,
     67
@@ -1764,7 +1926,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 234,
+   "runs_seen": 333,
    "hp": [
     42,
     46
@@ -1799,7 +1961,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 2,
+   "runs_seen": 8,
    "hp": [
     18,
     23
@@ -1818,12 +1980,20 @@
    "acts": [
     2
    ],
-   "runs_seen": 55,
+   "runs_seen": 114,
    "hp": [
     124,
     130
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Ovicopter's turn, it loses 9 HP."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
     "STRENGTH_POWER": {
      "name": "Strength",
      "description": "Increases attack damage by 3."
@@ -1845,19 +2015,31 @@
    "acts": [
     3
    ],
-   "runs_seen": 8,
+   "runs_seen": 18,
    "hp": [
     231,
     231
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
     "SOAR_POWER": {
      "name": "Soar",
      "description": "Receives 50% less attack damage until it lands."
     },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -1868,7 +2050,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 60,
+   "runs_seen": 125,
    "hp": [
     21,
     21
@@ -1903,7 +2085,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 30,
+   "runs_seen": 59,
    "hp": [
     26,
     31
@@ -1934,7 +2116,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 37,
+   "runs_seen": 68,
    "hp": [
     61,
     64
@@ -1966,7 +2148,7 @@
     1,
     3
    ],
-   "runs_seen": 78,
+   "runs_seen": 130,
    "hp": [
     55,
     55
@@ -1975,6 +2157,10 @@
     "ARTIFACT_POWER": {
      "name": "Artifact",
      "description": "Negates 1 debuff."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -1997,12 +2183,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 5,
+   "runs_seen": 18,
    "hp": [
     400,
     400
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Queen's turn, it loses 9 HP."
+    },
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 10 Strength until the end of this turn."
@@ -2028,7 +2218,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 41,
+   "runs_seen": 77,
    "hp": [
     199,
     199
@@ -2071,12 +2261,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 21,
+   "runs_seen": 55,
    "hp": [
     30,
     37
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
     "PAPER_CUTS_POWER": {
      "name": "Paper Cuts",
      "description": "Whenever Scroll of Biting deals unblocked attack damage to you, you lose 2 Max HP."
@@ -2102,7 +2296,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 185,
+   "runs_seen": 286,
    "hp": [
     44,
     46
@@ -2133,7 +2327,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 68,
+   "runs_seen": 102,
    "hp": [
     56,
     56
@@ -2172,7 +2366,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 238,
+   "runs_seen": 345,
    "hp": [
     38,
     40
@@ -2203,7 +2397,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 25,
+   "runs_seen": 54,
    "hp": [
     70,
     75
@@ -2212,6 +2406,10 @@
     "HARDENED_SHELL_POWER": {
      "name": "Hardened Shell",
      "description": "Skulking Colony cannot lose more than 15 HP each turn."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -2234,12 +2432,20 @@
    "acts": [
     3
    ],
-   "runs_seen": 2,
+   "runs_seen": 19,
    "hp": [
     261,
     261
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Slimed Berserker's turn, it loses 9 HP."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
     "STRENGTH_POWER": {
      "name": "Strength",
      "description": "Increases attack damage by 3."
@@ -2247,6 +2453,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
     }
    }
   },
@@ -2257,7 +2467,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 86,
+   "runs_seen": 128,
    "hp": [
     53,
     55
@@ -2284,7 +2494,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 171,
+   "runs_seen": 264,
    "hp": [
     37,
     39
@@ -2311,12 +2521,20 @@
    "acts": [
     2
    ],
-   "runs_seen": 52,
+   "runs_seen": 96,
    "hp": [
     86,
     86
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Slumbering Beetle's turn, it loses 9 HP."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
+    },
     "PLATING_POWER": {
      "name": "Plating",
      "description": "At the end of your turn, gain 15 Block. Plating is reduced by 1 at the start of your turn."
@@ -2350,7 +2568,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 87,
+   "runs_seen": 119,
    "hp": [
     31,
     33
@@ -2381,7 +2599,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 75,
+   "runs_seen": 113,
    "hp": [
     10,
     14
@@ -2404,7 +2622,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 72,
+   "runs_seen": 108,
    "hp": [
     211,
     211
@@ -2425,6 +2643,10 @@
     "SHACKLING_POTION_POWER": {
      "name": "Shackling Potion",
      "description": "Lose 7 Strength until the end of this turn."
+    },
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Soul Fysh's Attacks deal 30% less damage for the next 4 turns."
     },
     "SIC_EM_POWER": {
      "name": "Sic 'Em",
@@ -2451,12 +2673,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 2,
+   "runs_seen": 6,
    "hp": [
     234,
     234
    ],
    "statuses": {
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 1."
+    },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 3 turns."
@@ -2474,7 +2700,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 2,
+   "runs_seen": 5,
    "hp": [
     93,
     93
@@ -2493,7 +2719,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 69,
+   "runs_seen": 121,
    "hp": [
     116,
     119
@@ -2532,7 +2758,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 4,
+   "runs_seen": 15,
    "hp": [
     18,
     23
@@ -2541,6 +2767,10 @@
     "MINION_POWER": {
      "name": "Minion",
      "description": "Minions abandon combat without their leader."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 3 turns."
     }
    }
   },
@@ -2551,7 +2781,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 27,
+   "runs_seen": 52,
    "hp": [
     140,
     140
@@ -2700,6 +2930,361 @@
     }
    }
   },
+  "Test Subject #C17": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    300
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C17 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "INTANGIBLE_POWER": {
+     "name": "Intangible",
+     "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."
+    },
+    "NEMESIS_POWER": {
+     "name": "Nemesis",
+     "description": "At the end of every other turn, gains Intangible 1."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 1 turn."
+    }
+   }
+  },
+  "Test Subject #C19": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    200
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C19 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    }
+   }
+  },
+  "Test Subject #C20": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 2,
+   "hp": [
+    100,
+    200
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C20 would be defeated, it instead revives even stronger."
+    },
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Test Subject #C20's turn, it loses 9 HP."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "SHACKLING_POTION_POWER": {
+     "name": "Shackling Potion",
+     "description": "Lose 7 Strength until the end of this turn."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Decreases attack damage by 7."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    }
+   }
+  },
+  "Test Subject #C21": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    300
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C21 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "INTANGIBLE_POWER": {
+     "name": "Intangible",
+     "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."
+    },
+    "NEMESIS_POWER": {
+     "name": "Nemesis",
+     "description": "At the end of every other turn, gains Intangible 1."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 3 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
+    }
+   }
+  },
+  "Test Subject #C23": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    200
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C23 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    }
+   }
+  },
+  "Test Subject #C24": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    200
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C24 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 1 turn."
+    }
+   }
+  },
+  "Test Subject #C25": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    200
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C25 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 1 turn."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "Test Subject #C26": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    300
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C26 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "INTANGIBLE_POWER": {
+     "name": "Intangible",
+     "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."
+    },
+    "NEMESIS_POWER": {
+     "name": "Nemesis",
+     "description": "At the end of every other turn, gains Intangible 1."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 4."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
+    }
+   }
+  },
+  "Test Subject #C28": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    200
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C28 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 1 turn."
+    }
+   }
+  },
   "The Forgotten": {
    "roles": [
     "monster"
@@ -2707,7 +3292,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 9,
+   "runs_seen": 25,
    "hp": [
     106,
     106
@@ -2746,12 +3331,16 @@
    "acts": [
     2
    ],
-   "runs_seen": 31,
+   "runs_seen": 62,
    "hp": [
     321,
     321
    ],
    "statuses": {
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
     "SANDPIT_POWER": {
      "name": "Sandpit",
      "description": "In 4 turns, you will be eaten and die."
@@ -2781,7 +3370,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 9,
+   "runs_seen": 25,
    "hp": [
     93,
     93
@@ -2798,6 +3387,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -2808,12 +3401,24 @@
    "acts": [
     2
    ],
-   "runs_seen": 60,
+   "runs_seen": 125,
    "hp": [
     123,
     123
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of The Obscura's turn, it loses 9 HP."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "The Obscura's Attacks deal 30% less damage for the next 4 turns."
+    },
     "STRENGTH_POWER": {
      "name": "Strength",
      "description": "Increases attack damage by 3."
@@ -2835,7 +3440,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 90,
+   "runs_seen": 170,
    "hp": [
     79,
     79
@@ -2852,6 +3457,10 @@
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 10 Strength until the end of this turn."
+    },
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Thieving Hopper's Attacks deal 30% less damage for the next 4 turns."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -2878,7 +3487,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 168,
+   "runs_seen": 245,
    "hp": [
     21,
     25
@@ -2913,7 +3522,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 5,
+   "runs_seen": 18,
    "hp": [
     199,
     199
@@ -2948,7 +3557,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 55,
+   "runs_seen": 114,
    "hp": [
     14,
     18
@@ -2979,7 +3588,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 47,
+   "runs_seen": 65,
    "hp": [
     21,
     25
@@ -3002,7 +3611,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 101,
+   "runs_seen": 176,
    "hp": [
     87,
     87
@@ -3037,7 +3646,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 16,
+   "runs_seen": 48,
    "hp": [
     41,
     41
@@ -3064,7 +3673,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 169,
+   "runs_seen": 252,
    "hp": [
     26,
     28
@@ -3095,7 +3704,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 235,
+   "runs_seen": 339,
    "hp": [
     7,
     11
@@ -3118,7 +3727,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 63,
+   "runs_seen": 102,
    "hp": [
     17,
     21
@@ -3145,7 +3754,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 63,
+   "runs_seen": 102,
    "hp": [
     173,
     173
@@ -3158,6 +3767,14 @@
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 15 Strength until the end of this turn."
+    },
+    "SHACKLING_POTION_POWER": {
+     "name": "Shackling Potion",
+     "description": "Lose 7 Strength until the end of this turn."
+    },
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Vantom's Attacks deal 30% less damage for the next 4 turns."
     },
     "SLIPPERY_POWER": {
      "name": "Slippery",
@@ -3184,7 +3801,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 71,
+   "runs_seen": 103,
    "hp": [
     61,
     61
@@ -3215,7 +3832,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 65,
+   "runs_seen": 106,
    "hp": [
     240,
     999999999
@@ -3228,6 +3845,10 @@
     "SHACKLING_POTION_POWER": {
      "name": "Shackling Potion",
      "description": "Lose 7 Strength until the end of this turn."
+    },
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Waterfall Giant's Attacks deal 30% less damage for the next 4 turns."
     },
     "STEAM_ERUPTION_POWER": {
      "name": "Steam Eruption",
@@ -3255,7 +3876,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 68,
+   "runs_seen": 109,
    "hp": [
     17,
     21
@@ -3282,7 +3903,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 4,
+   "runs_seen": 13,
    "hp": [
     18,
     23
