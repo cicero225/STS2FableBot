@@ -74,14 +74,7 @@
    "status": "fixed (tranche B, 2026-07-09)"
   },
   "BARRICADE": {
-   "name": "Barricade",
-   "class": "A",
-   "impact": "low",
-   "confidence": "high",
-   "shared_pattern": null,
-   "evidence": "Parse: {conditional:True} with no immediates to misprice. _to_planned: is_power=True and per_turn_power=True ('start of' in text) \u2192 banked via w_power_played x power_horizon, so it's played eagerly like other powers. Once active, plan_combat_turn reads pid=='BARRICADE' (combat.py:684) and _score treats all block as future-useful, never excess (combat.py:568-570). Both the play decision and the downstream block valuation are modeled.",
-   "proposal": "none",
-   "status": "verified"
+   "notes": "Owner criteria (2026-07-30, after the 92.5-overdraft catch): not awful but hard to justify over Offering-class engines. Serious downsides the naive eval misses: (1) negative tempo -- 3 energy, unreliably drawn, never active turn 1; (2) only pays if you reliably OUTBLOCK enemies on some turns, and outblocking BOSSES/ELITES is the real test -- banking block on normals saves HP but is relatively moot. Draft bar: needs an energy source + a block-heavy deck/relic package already in hand. The sim's smoothed-dps model overestimates outblocking (spike hits crack persistent block) -- delta clamp guards this until variance modeling lands (ENEMY_PASS)."
   },
   "BASH": {
    "name": "Bash",
