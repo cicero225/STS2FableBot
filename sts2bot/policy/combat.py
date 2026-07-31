@@ -47,6 +47,10 @@ _EX_SELF = re.compile(r"(?:^|\.\s)Exhaust\.(?:\s|$)")
 # Both are future value the one-turn tally can't see, so the sim's correctly-priced
 # per-hit costs (Skittish, thorns) made it look strictly worse than a Strike.
 _GROWS_ON_EXHAUST = re.compile(r"add its damage to this card", re.IGNORECASE)
+# Howl-from-Beyond class: replays itself from the Exhaust Pile (and reshuffles back),
+# so exhausting it is SAFE -- even profitable (owner thought experiment 2026-07-30:
+# Thrash eating Howl banks 25 dmg AND fires a free end-of-turn 25 AoE)
+_SELF_REPLAYS = re.compile(r"in your Exhaust Pile, play it", re.IGNORECASE)
 _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 damage, 1 cost)
 # An enemy in its invincible/about-to-explode state (Waterfall Giant's Steam Eruption) is reported
 # at a sentinel HP — damage into it is wasted (it dies on its own after the explosion), only block
@@ -260,6 +264,7 @@ class PlannedCard:
     # actually want to keep around"). Strikes and rider-less small attacks are fodder;
     # anything with debuffs/draw/block riders or big base damage is a keeper.
     primal_fodder: bool = False
+    self_replays: bool = False  # Howl class: returns from the Exhaust Pile on its own
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
     exhaust_count: int = 0  # cards this play exhausts (-1 = remaining hand); FNP credit
     # Queen's Chains of Binding (owner 2026-07-18): first 3 draws each turn are Bound —
@@ -577,6 +582,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
                          or per_vuln_str or target_str_down))
         ),
         rage_block=rage_block,
+        self_replays=bool(_SELF_REPLAYS.search(card.description or "")),
         hand_exhaust_scale=hand_exhaust_scale,
         debuff_order=debuff_order,
         dmg_per_target_vuln=per_vuln_dmg,
@@ -1439,7 +1445,9 @@ def plan_combat_turn(
     for i, pc in enumerate(playable):
         if pc.grows_on_exhaust:
             others = [a for a in grow_attacks if a.index != pc.index]
-            if others and all(a.primal_fodder for a in others):
+            # self-replayers are exhaust-SAFE (they come back), so they don't
+            # veto the growth line -- eating one is the jackpot, not a loss
+            if others and all(a.primal_fodder or a.self_replays for a in others):
                 playable[i] = replace(pc, growth_bonus=weights.w_exhaust_growth)
     if not playable:
         return Decision(action=act.EndTurn(), rationale="no playable cards; end turn")

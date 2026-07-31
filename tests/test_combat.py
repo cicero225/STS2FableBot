@@ -1655,3 +1655,28 @@ def test_energy_gain_chain_discovers_production_into_stomp() -> None:
     d = plan_combat_turn(parse_state(st), w)
     p = d.action.payload()
     assert p.get("action") == "play_card" and p.get("card_index") == 0, d.rationale
+
+
+def test_thrash_growth_bonus_survives_howl_in_hand() -> None:
+    # Owner thought experiment 2026-07-30: Thrash + Howl from Beyond is a jackpot
+    # (Thrash's random exhaust banks Howl's 25 AND Howl replays itself from the
+    # Exhaust Pile at end of turn, then reshuffles back) -- but the July-20 keeper
+    # rule vetoed the growth bonus whenever a non-fodder attack was in hand, so the
+    # planner actively AVOIDED the line. Self-replaying cards are exhaust-SAFE.
+    w = load_policy_config().combat
+    howl = _bcard(1, "HOWL_FROM_BEYOND", "Howl from Beyond", 3,
+                  "Deal 25 damage to ALL enemies. At the end of your turn, "
+                  "if this is in your Exhaust Pile, play it.", "Attack", "AllEnemy")
+    thrash = _bcard(0, "THRASH", "Thrash", 1,
+                    "Deal 4 damage twice. Exhaust a random Attack in your Hand "
+                    "and add its damage to this card.", "Attack", "AnyEnemy")
+    st = _beckon_state(3, [thrash, howl], enemy_hp=80, hp=60, incoming="5")
+    plan_combat_turn(parse_state(st), w)  # smoke: the pair plans without error
+    # the growth line must not be vetoed: Howl reads as exhaust-safe
+    from types import SimpleNamespace as NS
+
+    from sts2bot.policy.combat import _SELF_REPLAYS, _to_planned
+    hc = NS(**howl, star_cost=None)
+    assert _SELF_REPLAYS.search(hc.description)
+    pc = _to_planned(hc, 3)
+    assert pc is not None and pc.self_replays
