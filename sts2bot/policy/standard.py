@@ -297,6 +297,62 @@ class StandardRouter:
 
     # ------------------------------------------------------------------ combat
 
+    def _fight_plan(self, state: CombatState, ctx: LoopContext) -> str | None:
+        """Fight-open plan selection (Kin A/B 2026-07-30): the owner's scaling deck
+        killed the Followers first and won where the bot's static race lost; his June
+        fight raced the same boss and won — "no one strategy... it requires a fine
+        judgment of your bursting ability". So judge per fight: roll out both target
+        orders ("sweep" low-HP-first vs "focus" big-body-first) with THIS deck at
+        round 1 and commit to a clear winner; ties -> None (no bias). Cached per
+        fight signature; ~100ms once per multi-enemy fight."""
+        w = self.config.combat
+        player = state.player
+        if not w.use_fight_plan or player is None or not player.deck:
+            return None
+        b = state.battle
+        if b is None:
+            return None
+        alive = [e for e in b.enemies or [] if (e.hp or 0) > 0]
+        if len(alive) < 2:
+            return None
+        sig = ((state.run.floor if state.run else 0),
+               tuple(sorted((e.name or "") for e in alive)))
+        cache = ctx.screen_mem.setdefault("fight_plans", {})
+        if sig in cache:
+            return cache[sig]
+        cur_act = min(int(state.run.act or 1) if state.run else 1, 3)
+        ehp, edps, eramp = _GENERIC_ELITE.get(cur_act, _GENERIC_ELITE[1])
+        members = []
+        for e in alive:
+            dps = realized_dps(self.enemy_dps, e.name or "", edps)
+            entry = self.bestiary.get(e.name or "")
+            if entry:
+                m = bestiary_enemy(entry, dps=dps, name=e.name or "")
+                m = FightEnemy(**{**m.__dict__, "hp": e.hp or m.hp})
+            else:
+                m = FightEnemy(hp=e.hp or ehp, dps=dps, str_ramp=eramp)
+            members.append(m)
+        rolls = {
+            order: rollout_fight(player.deck, members, int(player.hp),
+                                 int(player.max_hp),
+                                 card_effects=self.card_effects,
+                                 potions=player.potions, relics=player.relics,
+                                 n=16, target_order=order)
+            for order in ("sweep", "focus")
+        }
+        s, f = rolls["sweep"], rolls["focus"]
+        plan = None
+        if f.win_rate - s.win_rate > 0.10:
+            plan = "focus"
+        elif s.win_rate - f.win_rate > 0.10:
+            plan = "sweep"
+        elif f.p25_end_hp - s.p25_end_hp > 5:
+            plan = "focus"
+        elif s.p25_end_hp - f.p25_end_hp > 5:
+            plan = "sweep"
+        cache[sig] = plan
+        return plan
+
     def _combat(self, state: CombatState, ctx: LoopContext) -> Decision | Wait:
         # Transient 'BlockedByHook' hands report every card unplayable while the
         # engine resolves a hook; trusting that ends the turn early (run 33: a
@@ -320,9 +376,13 @@ class StandardRouter:
         if not isinstance(pused, dict) or pused.get("round") != round_:
             pused = {"round": round_, "slots": []}
             ctx.screen_mem["potions_used"] = pused
+        fp = self._fight_plan(state, ctx)
         plan = plan_combat_turn(state, self.config.combat,
                                 used_potion_slots=tuple(pused["slots"]),
-                                hold_aoe_potions=self._aoe_hold(state, ctx))
+                                hold_aoe_potions=self._aoe_hold(state, ctx),
+                                fight_plan=fp)
+        if fp and isinstance(plan, Decision) and plan.rationale:
+            plan.rationale += f" |plan={fp}"
         if (isinstance(plan, Decision) and isinstance(plan.action, act.UsePotion)
                 and plan.action.slot not in pused["slots"]):
             pused["slots"].append(plan.action.slot)

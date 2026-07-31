@@ -242,6 +242,7 @@ class _RolloutSim:
                      for e in enemies]
         self.rng = rng
         self.rfx = rfx or {}
+        self.prefer_big = False  # set by rollout_fight(target_order="focus")
         self.belt = list(pots)
         self.draw = cards[:]
         rng.shuffle(self.draw)
@@ -276,9 +277,13 @@ class _RolloutSim:
         return [f for f in self.foes if f.hp > 0 and not f.dormant]
 
     def best_target(self):
-        # prefer leaders among on-field bodies; raced-past minions only as fallback
+        # "sweep" (default): lowest-HP body first — clear the board, shed dps.
+        # "focus": highest-HP leader first — race the big body (Kin-race style).
+        # Fight-open plan selection compares both orders (owner 2026-07-30).
         on_field = self.targets()
         leaders = [f for f in on_field if f.counts]
+        if self.prefer_big:
+            return max(leaders or on_field, key=lambda f: f.hp, default=None)
         return min(leaders or on_field, key=lambda f: f.hp, default=None)
 
     def _advance_wave(self):
@@ -601,6 +606,7 @@ def rollout_fight(
     policy: str = "greedy",
     combat_weights=None,  # required for policy="dfs"
     timing_out: dict | None = None,  # filled with {"ms": ...} when provided
+    target_order: str = "sweep",  # "sweep" (low-HP first) | "focus" (big body first)
 ) -> RolloutResult:
     cards = _build_cards(deck, card_effects)
     if not cards or not enemies:
@@ -629,6 +635,7 @@ def rollout_fight(
     for i in range(n):
         rng = random.Random(rng_seed + i * 7919)
         sim = _RolloutSim(cards, enemies, player_hp, max_hp, rng, pots, rfx)
+        sim.prefer_big = target_order == "focus"
         while sim.outcome is None and sim.turn < max_turns:
             sim.start_turn()
             if policy == "dfs":

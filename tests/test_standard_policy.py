@@ -3906,3 +3906,58 @@ def test_pantograph_counts_toward_the_pre_boss_rest_gate() -> None:
     ctx2.screen_mem["pre_boss"] = True
     d_panto = r.decide(parse_state(payload), ctx2)
     assert "smith" in d_panto.rationale and "Pantograph" in d_panto.rationale
+
+
+def _kin_shaped_state(hp=60):
+    def enemy(i, name, ehp):
+        return {"entity_id": f"E{i}", "combat_id": 1, "name": name, "hp": ehp,
+                "max_hp": ehp, "block": 0, "status": [],
+                "intents": [{"type": "Attack", "label": "6", "title": "Attack",
+                             "description": ""}]}
+    card = {"id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack", "cost": "1",
+            "description": "Deal 6 damage.", "is_upgraded": False, "keywords": []}
+    hand = [{**card, "index": i, "star_cost": None, "target_type": "AnyEnemy",
+             "can_play": True, "unplayable_reason": None} for i in range(5)]
+    deck = ([{**card, "index": i} for i in range(6)]
+            + [{**card, "index": 6 + i, "id": "DEFEND_IRONCLAD", "name": "Defend",
+                "type": "Skill", "description": "Gain 5 Block."} for i in range(4)])
+    return parse_state({
+        "state_type": "boss",
+        "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                   "enemies": [enemy(0, "Big Leader", 90), enemy(1, "Rampling", 12),
+                               enemy(2, "Rampling", 12)]},
+        "run": {"act": 1, "floor": 17, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80, "block": 0,
+                   "energy": 3, "max_energy": 3, "gold": 0, "hand": hand,
+                   "status": [], "relics": [], "potions": [],
+                   "max_potion_slots": 3, "in_combat": True, "deck": deck},
+    })
+
+
+def test_fight_plan_selects_sweep_for_a_low_burst_deck_vs_ramping_swarm() -> None:
+    """Kin A/B 2026-07-30: the owner's scaling deck killed the Followers first and
+    won where the bot's static race lost — and his June fight did the opposite and
+    also won. 'No one strategy': the round-1 rollout comparison picks per fight.
+    Starter-grade deck vs big leader + fast-ramping smalls -> sweep, decisively
+    (probe: win 1.00 vs 0.00)."""
+    from sts2bot.policy.standard import StandardRouter
+
+    bestiary = {
+        "Big Leader": {"hp": [90, 90], "statuses": {}},
+        "Rampling": {"hp": [12, 12], "statuses": {
+            "RAMP": {"name": "Ramp",
+                     "description": "At the end of its turn, gains 5 Strength."}}},
+    }
+    r = StandardRouter(combat_stats=None, bestiary=bestiary)
+    r.card_effects = {"STRIKE_IRONCLAD|0": "Deal 6 damage.",
+                      "DEFEND_IRONCLAD|0": "Gain 5 Block."}
+    r.enemy_dps = {"Big Leader": {"dps_early": 5.0},
+                   "Rampling": {"dps_early": 4.0}}
+    ctx = LoopContext()
+    plan = r._fight_plan(_kin_shaped_state(), ctx)
+    assert plan == "sweep"
+    # cached: second call is free and identical
+    assert r._fight_plan(_kin_shaped_state(), ctx) == "sweep"
+    # and the decision rationale carries the plan tag for forensics
+    d = r.decide(_kin_shaped_state(), ctx)
+    assert "|plan=sweep" in d.rationale

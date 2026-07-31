@@ -314,6 +314,7 @@ class EnemySim:
     incoming: int  # this enemy's attack damage this turn (0 if not attacking)
     is_minion: bool = False  # "Minion" status: flees when its leader dies, so ignorable
     gains_strength: bool = False  # ramping (Strength buff / Empower intent): race to kill it
+    is_big: bool = False  # the fight's largest max-HP body — the "focus" plan's target
     # Its player-debuff dies with it (owner 2026-07-17: Shrinker Beetle's big damage
     # debuff lifts on its death) — racing it down pays while OTHER enemies still live.
     debuff_carrier: bool = False
@@ -412,6 +413,7 @@ class SimState:
     powers_played: int = 0  # Power cards played this turn (banked permanent buffs)
     self_damage_powers_played: int = 0  # of those, per-turn self-HP-cost powers (Inferno)
     ramp_damage: int = 0  # damage dealt to strength-gaining enemies (rewarded: race them)
+    focus_damage: int = 0  # damage dealt to the fight's biggest body (the 'focus' plan)
     carrier_damage: int = 0  # damage to debuff carriers while others live (their death lifts it)
     primal_active: bool = False  # Primal Force played: later Attacks are 16-dmg Giant Rocks
     keepers_rocked: int = 0  # keeper attacks fed to an active Primal Force (permanent downgrade)
@@ -727,6 +729,11 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 ravenous=ravenous,
             )
         )
+    # mark the fight's biggest alive body — the "focus" plan's damage target
+    alive = [s for s in sims if s.hp > 0]
+    if alive:
+        big = max(alive, key=lambda s: s.max_hp)
+        sims = [replace(s, is_big=s is big) for s in sims]
     return tuple(sims)
 
 
@@ -872,6 +879,7 @@ def _apply_attack(
         overkill=state.overkill + overkill_amt,
         vuln_applied=state.vuln_applied + (card.fx.vulnerable if hp > 0 else 0),
         ramp_damage=state.ramp_damage + (dealt_total if e.gains_strength else 0),
+        focus_damage=state.focus_damage + (dealt_total if e.is_big else 0),
         carrier_damage=state.carrier_damage + (
             dealt_total
             if e.debuff_carrier
@@ -1102,6 +1110,7 @@ def _score(
     stranded_unblockable: dict[int, int] | None = None,
     stranded_blockable: dict[int, int] | None = None,
     my_hp: int = 999,
+    fight_plan: str | None = None,
 ) -> float:
     # Lethal end-state (all leaders dead): stranded penalties and the death wall don't apply —
     # the fight ends before end of turn. A dead SPAWNER (Infested) means the fight continues.
@@ -1258,6 +1267,10 @@ def _score(
                and any(e.gains_strength and e.hp > 0 for e in state.enemies))
            else 0.0)
         + w.w_potion_spend * state.potions_spent
+        # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
+        # picked a target order; these terms make the DFS serve it every turn.
+        + (w.w_plan_focus_damage * state.focus_damage if fight_plan == "focus" else 0.0)
+        + (w.w_plan_sweep_kill * state.kills if fight_plan == "sweep" else 0.0)
     )
 
 
@@ -1271,7 +1284,7 @@ _HAND_TAKE_DMG_RE = re.compile(r"take (\d+) damage", re.I)  # Toxic-type: blocka
 
 def plan_combat_turn(
     state: CombatState, weights: CombatWeights, used_potion_slots: tuple[int, ...] = (),
-    hold_aoe_potions: bool = False,
+    hold_aoe_potions: bool = False, fight_plan: str | None = None,
 ) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences. Damage potions
     (minus already-used slots) join the search as pseudo-cards so card+potion lethals are
@@ -1530,7 +1543,8 @@ def plan_combat_turn(
 
     def scored(sim: SimState) -> float:
         return _score(sim, weights, hp_pct, power_horizon,
-                      stranded_unblockable, stranded_blockable, my_hp=player.hp)
+                      stranded_unblockable, stranded_blockable, my_hp=player.hp,
+                      fight_plan=fight_plan)
 
     best_state = start
     best_score = scored(start)

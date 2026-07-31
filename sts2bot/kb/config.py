@@ -72,6 +72,13 @@ class CombatWeights(_Section):
     w_potion_spend: float = -18.0
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     w_ramp_damage: float = 1.5  # extra value for damaging strength-gaining enemies (race them)
+    # Fight-open plan selection (Kin A/B 2026-07-30: owner's scaling deck killed
+    # the Followers first and won where the bot's static race-the-leader lost;
+    # owner: "no one strategy" — so pick per fight by rolling out both target
+    # orders at round 1). The chosen plan biases the DFS via these terms:
+    use_fight_plan: bool = True
+    w_plan_focus_damage: float = 0.8  # "focus": per damage point on the biggest body
+    w_plan_sweep_kill: float = 15.0   # "sweep": per body cleared (stacks with w_kill)
     # Extra value for damaging a debuff CARRIER (Shrinker Beetle) while other enemies
     # live — its death lifts the player-debuff for the rest of the fight (owner 2026-07-17)
     w_carrier_damage: float = 1.5

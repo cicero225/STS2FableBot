@@ -166,3 +166,18 @@ def test_artifact_charges_eat_vulnerable_in_the_sim() -> None:
                              [FightEnemy(**boss, artifact=3)], 75, 80, card_effects=FX)
     assert (shielded.win_rate, shielded.exp_end_hp - shielded.exp_enemy_hp_left) <= \
         (plain.win_rate, plain.exp_end_hp - plain.exp_enemy_hp_left)
+
+
+def test_target_order_changes_outcomes_in_leader_plus_ramp_fights() -> None:
+    # Kin shape: big leader + small ramping bodies. "sweep" clears the ramps
+    # (shedding their growing dps); "focus" races the big body while they scale.
+    # For a low-burst deck the orders are night and day (probe: 1.00 vs 0.00) --
+    # which is exactly the signal _fight_plan selects on.
+    leader = FightEnemy(hp=90, dps=5)
+    ramps = [FightEnemy(hp=12, dps=4, str_ramp=5) for _ in range(2)]
+    deck = starter()
+    sweep = rollout_fight(deck, [leader, *ramps], 60, 80, card_effects=FX,
+                          target_order="sweep")
+    focus = rollout_fight(deck, [leader, *ramps], 60, 80, card_effects=FX,
+                          target_order="focus")
+    assert sweep.win_rate > focus.win_rate + 0.5
