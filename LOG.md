@@ -57,7 +57,22 @@ per-boss numbers); remaining walls: (1) KD, 10 kills today, pure deck-power —
 SS5-C v2's target; (2) act-2 attrition (12 normal deaths, all <=15 HP
 arrivals) — death class #2; (3) fight execution = the multiturn program.
 A/B dossier: Queen + Aeonglass resolved from tape; Kin (belt front-load) and
-Matriarch (drain-race horizon) queued for the owner. Batch-killer #4 confirmed
+Matriarch (drain-race horizon) queued for the owner. **NIGHT SESSION — both A/Bs
+PLAYED AND ENCODED:** Kin (owner won from 67/80 killing Followers-first with a
+scaling deck — inverting his own June race — 'no one strategy'): shipped as
+fight-open plan selection, round-1 rollout of both target orders (62a6261).
+Matriarch (owner won in 5 rounds from 44/80: all potions in her SLEEP window,
+zero block, 116-dmg r4): shipped as sleep_turns modeling end-to-end + solo
+drain/clock bosses auto-'focus' (5b24248). Owner then played on to Test Subject
+and DIED AT STAGE 3 — a top-25% human with a burst deck also fails the
+survivability check, independently confirming the deck-composition thesis. His
+tape corrected the stage model: every '#C__' variant is ONE entity full-healing
+100/200/300 (600 kill-HP; stage 3 = Nemesis intangible-alternation), now an
+observed _BOSS_STAGES table (0368354). Harvest rebuilt from both manual tapes.
+Live-catch relic seams: Pantograph (4f2befd), Regal Pillow (15afc05), Royal
+Stamp targets-restriction note (8add8a8); Man-Sized Holes + egg-ordering filed
+earlier. EPOCH ADVANCED at day's end (Alchemize/Nostalgia/Scrawl unlocked,
+owner screenshotted — same-day triage in card notes; all banked seeds stale). Batch-killer #4 confirmed
 WG-knockdown by owner screenshot (2-for-2); server death is downstream of the
 wedge; fork asks sharpened (heartbeat + knockdown decompile).
 
