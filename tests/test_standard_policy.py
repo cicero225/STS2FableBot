@@ -3961,3 +3961,34 @@ def test_fight_plan_selects_sweep_for_a_low_burst_deck_vs_ramping_swarm() -> Non
     # and the decision rationale carries the plan tag for forensics
     d = r.decide(_kin_shaped_state(), ctx)
     assert "|plan=sweep" in d.rationale
+
+
+def test_solo_drain_boss_gets_focus_plan_without_rollout() -> None:
+    """Matriarch A/B 2026-07-30: solo drain/clock bosses are pure races (owner
+    burst 222 HP in ~3 post-sleep rounds; the bot ground 18 turns into the drain
+    spiral). One alive enemy matching the drain/clock table -> plan='focus'."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    st = _kin_shaped_state()
+    # rebuild as a solo Matriarch fight
+    payload = json.loads(json.dumps({
+        "state_type": "boss",
+        "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "E0", "combat_id": 1,
+                                "name": "Lagavulin Matriarch", "hp": 222,
+                                "max_hp": 222, "block": 0, "status": [],
+                                "intents": [{"type": "Sleep", "label": "Sleeping",
+                                             "title": "Sleep", "description": ""}]}]},
+        "run": {"act": 1, "floor": 17, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 44, "max_hp": 80, "block": 0,
+                   "energy": 3, "max_energy": 3, "gold": 0, "hand": [], "status": [],
+                   "relics": [], "potions": [], "max_potion_slots": 3,
+                   "in_combat": True,
+                   "deck": [{"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                             "type": "Attack", "cost": "1",
+                             "description": "Deal 6 damage.", "is_upgraded": False,
+                             "keywords": []}]},
+    }))
+    assert r._fight_plan(parse_state(payload), LoopContext()) == "focus"
+    del st

@@ -100,6 +100,7 @@ class _Foe:
     wave: int = 0
     dormant: bool = False  # wave>0 body not yet spawned: untargetable, not attacking
     artifact: int = 0  # charges that eat incoming debuffs (Aeonglass opens with 3)
+    sleep: int = 0  # Lagavulin-class: turns left asleep (no attacks); ANY damage wakes
 
 
 @dataclass(frozen=True)
@@ -238,7 +239,8 @@ class _RolloutSim:
                           death_damage_growth=e.death_damage_growth,
                           heals=e.heals_per_turn, dot=e.player_dot_avg,
                           death_timer=e.death_timer, wave=e.wave,
-                          dormant=e.wave > 0, artifact=e.artifact)
+                          dormant=e.wave > 0, artifact=e.artifact,
+                          sleep=e.sleep_turns)
                      for e in enemies]
         self.rng = rng
         self.rfx = rfx or {}
@@ -361,6 +363,7 @@ class _RolloutSim:
             for f in tgts:
                 if f is None or f.hp <= 0 or f.dormant:
                     continue
+                f.sleep = 0  # any damage wakes a Lagavulin-class sleeper early
                 for _h in range(max(1, pick.fx.hits)):
                     _hit(f, pick.fx.damage + self.my_str, self.vm)
                     if f.thorns:
@@ -427,8 +430,10 @@ class _RolloutSim:
                 if not self.alive_leaders():
                     self._win()
                     return
-        # enemy turn (block/heal potions as death-preventers — live lanes 1/5)
-        strike = sum(f.dps + f.str_gained + f.dot for f in self.targets())
+        # enemy turn (block/heal potions as death-preventers — live lanes 1/5);
+        # sleepers don't attack
+        strike = sum(f.dps + f.str_gained + f.dot
+                     for f in self.targets() if f.sleep <= 0)
         if self.hp - max(0, strike - self.block) <= 0:
             self.block += self.spend("block")
         if self.hp - max(0, strike - self.block) <= 0:
@@ -443,6 +448,9 @@ class _RolloutSim:
             self.block += self.rfx["eot_block_if_none"]  # Orichalcum
         for f in self.foes:
             if f.hp <= 0 or f.dormant:
+                continue
+            if f.sleep > 0:
+                f.sleep -= 1  # sleeping: no ramp/heal ticks, just the countdown
                 continue
             f.str_gained += f.ramp
             if f.heals:
@@ -481,6 +489,11 @@ def _greedy_turn(sim: _RolloutSim) -> None:
             vulners = [c for c in atks if c.fx.vulnerable > 0]
             if kill:
                 pick = min(kill, key=lambda c: c.cost)
+            elif target.sleep > 0:
+                # sleeping (Matriarch A/B 2026-07-30): damage wakes her early, so
+                # the window is setup, not chip — bank block, let the turn end
+                if (blocks := [c for c in playable if c.fx.block > 0]):
+                    pick = max(blocks, key=lambda c: c.fx.block / max(1, c.cost))
             elif target.vuln <= 0 and vulners and target.hp > 25:
                 # vulnerable uptime first in long fights: everything after multiplies
                 pick = max(vulners, key=lambda c: c.fx.vulnerable)
@@ -525,13 +538,19 @@ def _synth_state(sim: _RolloutSim):
             status.append({"id": "ARTIFACT_POWER", "name": "Artifact",
                            "amount": f.artifact, "keywords": [],
                            "description": f"Negates {f.artifact} debuffs."})
+        if f.sleep > 0:
+            # the real planner's sleeper handling (damage-noop unless killed) applies
+            status.append({"id": "ASLEEP_POWER", "name": "Asleep", "amount": f.sleep,
+                           "keywords": [], "description": "Asleep."})
         enemies.append({
             "entity_id": f"SIM_{i}", "combat_id": 1, "name": f"Sim{i}",
             "hp": f.hp, "max_hp": max(f.hp, 1), "block": f.self_block,
             "status": status,
-            "intents": [{"type": "Attack",
-                         "label": str(f.dps + f.str_gained + f.dot),
-                         "title": "Attack", "description": ""}],
+            "intents": ([{"type": "Sleep", "label": "Sleeping", "title": "Sleep",
+                          "description": ""}] if f.sleep > 0 else
+                        [{"type": "Attack",
+                          "label": str(f.dps + f.str_gained + f.dot),
+                          "title": "Attack", "description": ""}]),
         })
     hand = [{
         "index": i, "id": c.cid or c.name.upper().replace(" ", "_"), "name": c.name,

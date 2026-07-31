@@ -37,6 +37,7 @@ from sts2bot.kb.shop_stats import ShopStats
 from sts2bot.policy.base import Decision, LoopContext, Wait
 from sts2bot.policy.capability import (
     _ELITE_COMPOSITIONS,
+    _EMPIRICAL_MOVES,
     FightEnemy,
     bestiary_enemy,
     deck_output,
@@ -313,6 +314,15 @@ class StandardRouter:
         if b is None:
             return None
         alive = [e for e in b.enemies or [] if (e.hp or 0) > 0]
+        if len(alive) == 1:
+            # Solo drain/clock boss (Matriarch A/B 2026-07-30: owner burst 222 HP
+            # in ~3 post-sleep rounds and won taking 25, where the bot ground 18
+            # turns into the drain spiral): time pressure makes the fight a pure
+            # race — bias damage-forward, no rollout comparison needed.
+            name = (alive[0].name or "").upper()
+            drainer = any(k in name and (p.get("drains_player") or p.get("death_timer"))
+                          for k, p in _EMPIRICAL_MOVES.items())
+            return "focus" if drainer else None
         if len(alive) < 2:
             return None
         sig = ((state.run.floor if state.run else 0),

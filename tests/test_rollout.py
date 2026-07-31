@@ -181,3 +181,25 @@ def test_target_order_changes_outcomes_in_leader_plus_ramp_fights() -> None:
     focus = rollout_fight(deck, [leader, *ramps], 60, 80, card_effects=FX,
                           target_order="focus")
     assert sweep.win_rate > focus.win_rate + 0.5
+
+
+def test_sleeper_gives_free_setup_turns_and_wakes_on_damage() -> None:
+    # Matriarch A/B 2026-07-30: she sleeps ~3 turns unless damaged; the owner set
+    # up through the window and burst her down, where the bot chipped her awake.
+    # Sim: a sleeping boss deals nothing while asleep, and the greedy banks setup
+    # instead of waking her -- so the same fight prices better than the old
+    # attacks-from-turn-1 model.
+    from sts2bot.policy.capability import bestiary_enemy
+    entry = {"hp": [222, 222], "statuses": {}}
+    # the empirical row now carries sleep_turns=3 for every Matriarch, so the
+    # awake control must override it explicitly
+    awake = bestiary_enemy(entry, dps=13, name="Lagavulin Matriarch", sleep_turns=0)
+    asleep = bestiary_enemy(entry, dps=13, name="Lagavulin Matriarch")
+    assert asleep.sleep_turns == 3 and asleep.drains_player  # empirical row rides along
+    fx = {**FX, "INFLAME|0": "Gain 2 Strength."}
+    deck = [*starter(), *([card("BLUDGEON", cost="3")] * 3),
+            *([card("INFLAME", typ="Power", cost="1")] * 2)]
+    r_awake = rollout_fight(deck, [awake], 44, 80, card_effects=fx)
+    r_sleep = rollout_fight(deck, [asleep], 44, 80, card_effects=fx)
+    # the window is worth real progress (~2 turns of damage: probe 132 -> 104)
+    assert r_sleep.exp_enemy_hp_left < r_awake.exp_enemy_hp_left - 15

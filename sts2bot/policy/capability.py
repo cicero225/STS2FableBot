@@ -104,6 +104,10 @@ class FightEnemy:
     # Artifact charges (Aeonglass opens with 3): each negates one incoming debuff, so
     # early Vulnerable-based plans fizzle — the +581-peak-then-collapse tape signature.
     artifact: int = 0
+    # Lagavulin-class sleep: doesn't attack for this many turns UNLESS damaged
+    # (damage wakes early). Free setup turns the estimator must price — Matriarch
+    # read est-loss 80+ while the owner won taking 25 (A/B 2026-07-30).
+    sleep_turns: int = 0
 
 
 @dataclass(frozen=True)
@@ -314,7 +318,11 @@ def realized_dps(enemy_dps: dict, name: str, default: int) -> int:
 # the bestiary entry name. (Soul Siphon: 2026-07-09 trace, -2 Str -2 Dex per cast, every 4th round
 # post-wake; permanent. See PLAN §8.4-A.)
 _EMPIRICAL_MOVES: dict[str, dict[str, int]] = {
-    "MATRIARCH": {"drains_player": 2, "drain_every": 4},
+    # sleep_turns (owner A/B 2026-07-30): she sleeps ~3 turns unless damaged —
+    # damage wakes her EARLY, so the window is free setup, not free chip. The
+    # owner set up 2 turns then burst 222 HP in 3 rounds; the bot chipped her
+    # awake and ground 18 turns into the drain spiral.
+    "MATRIARCH": {"drains_player": 2, "drain_every": 4, "sleep_turns": 3},
     # Waterfall Giant: +3 Steam Eruption per move -> the kill explosion is the ACCUMULATED
     # stack (30-60+ in a real race), not the flat 15 in the status text (PLAN §8.4-A part a)
     "WATERFALL": {"death_damage_growth": 3},
