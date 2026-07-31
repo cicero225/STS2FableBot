@@ -244,6 +244,12 @@ class CardRewardWeights(_Section):
     # honest but small; at n=12 the delta sign flipped on rollout noise (probe
     # 2026-07-30: Bludgeon vs 170-HP boss read -0.4 at n=12, +0.6/+3.6 at 40/80).
     draft_rollout_n: int = 40
+    # Clamp on the per-card capability delta (owner live catch 2026-07-30: Barricade
+    # drafted over Offering off a +52 delta — the greedy sim's permanent-block vs
+    # SMOOTHED-dps snowball is the platonic Barricade; real spike hits crack it).
+    # One card rarely swings a boss fight by 50 HP: keep the signal ordinal, cap
+    # its magnitude so sim artifacts can't overrule the heuristic layer alone.
+    capability_delta_clamp: float = 12.0
     # Card-pass step 2 (owner-reviewed 2026-07-12): deck-context tag machinery
     # (sts2bot/policy/drafttags.py + data/card_draft_tags.json). Bonus per met need
     # (x strength mult x met fraction); penalty ONLY for pure payoffs with zero

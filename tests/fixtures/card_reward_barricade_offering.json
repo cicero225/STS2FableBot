@@ -1,0 +1,246 @@
+{
+ "state_type": "card_reward",
+ "card_reward": {
+  "cards": [
+   {
+    "id": "PACTS_END",
+    "name": "Pact's End",
+    "type": "Attack",
+    "cost": "0",
+    "star_cost": null,
+    "description": "If you have 3 or more cards in your Exhaust Pile, deal 17 damage to ALL enemies.",
+    "rarity": "Rare",
+    "is_upgraded": false,
+    "keywords": [],
+    "index": 0
+   },
+   {
+    "id": "BARRICADE",
+    "name": "Barricade",
+    "type": "Power",
+    "cost": "3",
+    "star_cost": null,
+    "description": "Block is not removed at the start of your turn.",
+    "rarity": "Rare",
+    "is_upgraded": false,
+    "keywords": [
+     {
+      "name": "Block",
+      "description": "Until next turn, prevents damage."
+     }
+    ],
+    "index": 1
+   },
+   {
+    "id": "OFFERING",
+    "name": "Offering",
+    "type": "Skill",
+    "cost": "0",
+    "star_cost": null,
+    "description": "Lose 6 HP. Gain [ironclad_energy_icon.png][ironclad_energy_icon.png]. Draw 3 cards. Exhaust.",
+    "rarity": "Rare",
+    "is_upgraded": false,
+    "keywords": [
+     {
+      "name": "Energy",
+      "description": "Energy is used to play cards from your Hand."
+     },
+     {
+      "name": "Exhaust",
+      "description": "Removed until the end of combat."
+     }
+    ],
+    "index": 2
+   }
+  ],
+  "can_skip": true
+ },
+ "run": {
+  "act": 1,
+  "floor": 17,
+  "ascension": 0
+ },
+ "player": {
+  "character": "The Ironclad",
+  "hp": 52,
+  "max_hp": 80,
+  "gold": 267,
+  "deck": [
+   {
+    "index": 0,
+    "id": "STRIKE_IRONCLAD",
+    "name": "Strike",
+    "type": "Attack",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Basic",
+    "is_upgraded": false
+   },
+   {
+    "index": 1,
+    "id": "STRIKE_IRONCLAD",
+    "name": "Strike",
+    "type": "Attack",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Basic",
+    "is_upgraded": false
+   },
+   {
+    "index": 2,
+    "id": "STRIKE_IRONCLAD",
+    "name": "Strike",
+    "type": "Attack",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Basic",
+    "is_upgraded": false
+   },
+   {
+    "index": 3,
+    "id": "DEFEND_IRONCLAD",
+    "name": "Defend",
+    "type": "Skill",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Basic",
+    "is_upgraded": false
+   },
+   {
+    "index": 4,
+    "id": "DEFEND_IRONCLAD",
+    "name": "Defend",
+    "type": "Skill",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Basic",
+    "is_upgraded": false
+   },
+   {
+    "index": 5,
+    "id": "DEFEND_IRONCLAD",
+    "name": "Defend",
+    "type": "Skill",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Basic",
+    "is_upgraded": false
+   },
+   {
+    "index": 6,
+    "id": "DEFEND_IRONCLAD",
+    "name": "Defend",
+    "type": "Skill",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Basic",
+    "is_upgraded": false
+   },
+   {
+    "index": 7,
+    "id": "BASH",
+    "name": "Bash",
+    "type": "Attack",
+    "cost": "2",
+    "star_cost": null,
+    "rarity": "Basic",
+    "is_upgraded": false
+   },
+   {
+    "index": 8,
+    "id": "STOMP",
+    "name": "Stomp",
+    "type": "Attack",
+    "cost": "3",
+    "star_cost": null,
+    "rarity": "Uncommon",
+    "is_upgraded": false
+   },
+   {
+    "index": 9,
+    "id": "PROLONG",
+    "name": "Prolong",
+    "type": "Skill",
+    "cost": "0",
+    "star_cost": null,
+    "rarity": "Uncommon",
+    "is_upgraded": false
+   },
+   {
+    "index": 10,
+    "id": "EVIL_EYE",
+    "name": "Evil Eye+",
+    "type": "Skill",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Uncommon",
+    "is_upgraded": true
+   },
+   {
+    "index": 11,
+    "id": "SECOND_WIND",
+    "name": "Second Wind",
+    "type": "Skill",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Uncommon",
+    "is_upgraded": false
+   },
+   {
+    "index": 12,
+    "id": "FORGOTTEN_RITUAL",
+    "name": "Forgotten Ritual",
+    "type": "Skill",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Uncommon",
+    "is_upgraded": false
+   },
+   {
+    "index": 13,
+    "id": "MOLTEN_FIST",
+    "name": "Molten Fist+",
+    "type": "Attack",
+    "cost": "1",
+    "star_cost": null,
+    "rarity": "Common",
+    "is_upgraded": true
+   },
+   {
+    "index": 14,
+    "id": "HOWL_FROM_BEYOND",
+    "name": "Howl from Beyond+",
+    "type": "Attack",
+    "cost": "3",
+    "star_cost": null,
+    "rarity": "Uncommon",
+    "is_upgraded": true
+   }
+  ],
+  "relics": [
+   {
+    "id": "BURNING_BLOOD",
+    "name": "Burning Blood",
+    "description": "At the end of combat, heal 6 HP.",
+    "counter": null,
+    "keywords": []
+   },
+   {
+    "id": "WINGED_BOOTS",
+    "name": "Winged Boots",
+    "description": "You may ignore paths when choosing the next rooms to travel to 1 times.",
+    "counter": 1,
+    "keywords": []
+   },
+   {
+    "id": "BOOK_OF_FIVE_RINGS",
+    "name": "Book of Five Rings",
+    "description": "Every 5 cards you add to your Deck, heal 20 HP.",
+    "counter": 1,
+    "keywords": []
+   }
+  ],
+  "potions": [],
+  "max_potion_slots": 3
+ }
+}

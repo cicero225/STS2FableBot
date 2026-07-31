@@ -1858,9 +1858,11 @@ class StandardRouter:
         base_out = roll(deck)
         base = progress(base_out)
         deltas: dict[int, float] = {}
+        clamp = w.capability_delta_clamp
         for c in cards:
             out = roll([*deck, c])
             delta = w.capability_weight * (progress(out) - base)
+            delta = max(-clamp, min(clamp, delta))  # sim artifacts stay ordinal
             if out.win and not base_out.win:
                 delta += w.capability_win_flip_bonus  # flips the boss lose->win: prize it
             deltas[c.index] = delta
@@ -1880,8 +1882,18 @@ class StandardRouter:
         max_hp = state.player.max_hp if (state.player and state.player.max_hp) else 80
         # §5-C: value each card by how much it improves the estimate vs the *real* upcoming boss
         relics = state.player.relics if (state.player and state.player.relics) else None
-        cap = self._capability_deltas(deck, cr.cards, max_hp,
-                                      self._upcoming_boss(ctx, run_act), relics=relics)
+        # Boss-floor rewards (f17/f33) price vs the NEXT act's boss — act_boss_name
+        # still points at the boss just killed (owner live catch 2026-07-30: the
+        # Barricade draft was priced against a dead Waterfall Giant).
+        floor_now = state.run.floor if state.run else 0
+        if floor_now in (17, 33):
+            nxt = min(run_act + 1, 3)
+            dps, ramp = _ACT_BOSS.get(nxt, _ACT_BOSS[1])
+            boss_members = [FightEnemy(hp=_GENERIC_BOSS[0], dps=dps, str_ramp=ramp)]
+        else:
+            boss_members = self._upcoming_boss(ctx, run_act)
+        cap = self._capability_deltas(deck, cr.cards, max_hp, boss_members,
+                                      relics=relics)
         region = _act1_region(ctx.screen_mem.get("act_boss_name")) if run_act <= 1 else None
         boss_rule = _boss_draft_rule(ctx.screen_mem.get("act_boss_name"))
         scored = [

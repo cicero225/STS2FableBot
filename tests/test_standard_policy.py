@@ -4028,3 +4028,25 @@ def test_regal_pillow_rest_heal_rides_the_route_projection() -> None:
     bare["player"]["relics"] = []
     d2 = r.decide(parse_state(bare), LoopContext())
     assert with_pillow > d2.scores["0:RestSite"]
+
+
+
+
+def test_capability_delta_is_clamped_and_barricade_cannot_bury_offering() -> None:
+    """Owner live catch 2026-07-30 (batch bbis4j9pj run 1, f17 boss reward):
+    Barricade drafted at 92.5 over Offering 23.6 off a +52 capability delta --
+    the greedy sim's permanent-block-vs-smoothed-dps snowball, priced against
+    the DEAD act-1 boss to boot. With the clamp + next-act pricing, the exact
+    recorded state (fixture captured verbatim from the run log) must rank
+    Offering above Barricade."""
+    from pathlib import Path
+
+    from sts2bot.policy.standard import StandardRouter
+
+    payload = json.loads(
+        (Path(__file__).parent / "fixtures"
+         / "card_reward_barricade_offering.json").read_text(encoding="utf-8"))
+    r_ = StandardRouter()
+    d = r_.decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.scores["Offering"] > d.scores["Barricade"], d.scores
