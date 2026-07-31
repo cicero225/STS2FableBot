@@ -5,6 +5,26 @@ score flip-flops, potions dying in the belt, late hail-maries, winnable-looking
 peaks. Each pick below has a specific falsifiable hypothesis — a rule we could
 encode if the owner's line beats the bot's — not just "multiturn planner needed."
 
+## A/B session prep (2026-07-30 evening — batching paused, seeds verified from tape)
+
+**KIN — seed `9NUW6E6TGZ`** (Ironclad A0). Fight at f17. Bot's entry state, for
+verifying the seed reproduces: 77/80 HP, 133g, belt [Radiant Tincture,
+Gigantification, Entropic Brew, Speed], relics [Burning Blood, Phial Holster,
+Whetstone, Tuning Fork, Centennial Puzzle, Pantograph, Ghost Seed], deck 19
+(3x Battle Trance, Stoke, Bloodletting, Evil Eye, Bully, Spite, Dramatic
+Entrance, Cruelty, Bash++, Strike++...). Fight opens: Kin Follower 59 + Kin
+Follower 58 + Kin Priest 190. Bot lost in 15 turns, drinking 6 of 7 potions as
+reactive hail-maries. WATCH FOR: when you commit potions (turn 1-2 all-in vs
+staggered), and whether target discipline ever leaves the Priest.
+
+**MATRIARCH — seed `R9NZLD49C1`** (Ironclad A0). Fight at f17. Entry: 62/80 HP,
+179g, belt [Bottled Potential, Swift, Flex], relics [Burning Blood, Scroll
+Boxes, Potion Belt, Anchor], deck 15 (Perfected Strike, Sword Boomerang++,
+Dismantle, Uppercut, Tremble, True Grit, Spite + basics). Fight: Lagavulin
+Matriarch 222 HP. Bot lost in 18 turns, zero hail-maries — the drain spiral
+bled it out. WATCH FOR: your pacing — is there a turn-budget after which you
+consider the fight lost regardless of HP (all-in before drain stack ~2)?
+
 **Epoch caveat:** seeds are valid only if no unlock epoch advanced since the run
 (wins #7/#8 happened today). Verify one seed in-game before scheduling a session.
 
