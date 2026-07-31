@@ -1327,11 +1327,11 @@
   },
   "ROYAL_STAMP": {
    "class": "A",
-   "impact": "low",
+   "impact": "med",
    "confidence": "high",
    "trigger": null,
-   "notes": "\"Upon pickup, choose an Attack or Skill... to Enchant with Royally Approved.\" One-shot pickup; the enchanted card's live text is what the planner sees.",
-   "status": "n/a (class A)"
+   "notes": "Royally Approved enchant (Add Innate and Retain to a card) applies to ATTACKS AND SKILLS ONLY -- not Powers (owner live catch 2026-07-30: bought it planning to enchant Pyre, a Power; save-scummed). Value is deck-shape-conditional: prize with a premium attack/skill to make Innate+Retain (combo enablers, big openers); near-worthless if the intended target is a Power.",
+   "status": "note only (class A)"
   },
   "RUINED_HELMET": {
    "class": "C",
