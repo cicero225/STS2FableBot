@@ -415,6 +415,11 @@ class StandardRouter:
         survival = self._survival_card(state)
         if survival is not None:
             return survival
+        # death-rider save BEFORE hail-mary potions: if The Gambit fully saves the
+        # turn, the belt stays banked for the fight it just bought us
+        rider_save = self._death_rider_save(state, plan)
+        if rider_save is not None:
+            return rider_save
         potion_play = self._combat_potion(state, ctx, plan)
         if potion_play is not None:
             return potion_play
@@ -519,6 +524,46 @@ class StandardRouter:
         if not hand or any(c.can_play for c in hand):
             return False
         return any((c.unplayable_reason or "") == "BlockedByHook" for c in hand)
+
+    def _death_rider_save(self, state: CombatState, plan) -> Decision | None:
+        """The Gambit ('Gain 50 Block. If you take unblocked attack damage this
+        combat, die.') is vetoed from every normal plan — a one-turn planner can't
+        certify combat-long perfect blocking (delta audit). Owner edge case
+        2026-07-31 (KD r7: 10 HP, proj loss 52, cost-0 Gambit playable through the
+        whole doomed turn): when THIS turn already kills us, the veto inverts —
+        certain death now loses to conditional death later, and the save carried
+        real kill equity next turn."""
+        battle, player = state.battle, state.player
+        if battle is None or player is None:
+            return None
+        if battle.turn != "player" or battle.is_play_phase is False:
+            return None
+        if battle.actions_disabled:
+            return None
+        incoming = sum(
+            parse_intent_damage(i.label)
+            for e in battle.enemies if e.hp > 0
+            for i in e.intents if i.type.lower() == "attack"
+        )
+        proj_loss = incoming - (player.block or 0)
+        if isinstance(plan, Decision) and plan.scores and "hp_loss" in plan.scores:
+            proj_loss = plan.scores["hp_loss"]
+        if proj_loss < player.hp:
+            return None  # not doomed: the veto stands
+        for card_ in player.hand or []:
+            if not card_.can_play:
+                continue
+            fx = parse_card_description(card_.description)
+            if not fx.self_death_rider or fx.block <= 0:
+                continue
+            if incoming - (player.block or 0) - fx.block < player.hp:
+                return Decision(
+                    action=act.PlayCard(card_index=card_.index, target=None),
+                    rationale=(f"death-rider save: {card_.name} blocks {fx.block} "
+                               f"(proj loss {proj_loss:.0f} >= {player.hp} HP) — "
+                               "certain death now loses to conditional death later"),
+                )
+        return None
 
     def _survival_card(self, state: CombatState) -> Decision | None:
         """Death-countdown mechanics (The Insatiable's Sandpit): an enemy status
@@ -659,6 +704,19 @@ class StandardRouter:
 
         def first(*want: str) -> Potion | None:
             return next((p for p in available if cat[p.slot] in want), None)
+
+        # 0. Entropic Brew-class (owner 2026-07-31): 'Fill all available potion
+        #    slots' is free value whenever every OTHER slot is empty — banking it
+        #    as a future potion bank is overthinking. After it resolves, the next
+        #    poll re-reads the belt, so the hail-mary lane naturally re-evaluates
+        #    the new potions (stateless per-poll re-decision).
+        if len(player.potions) == 1:
+            lone = player.potions[0]
+            if (lone.slot not in used_slots
+                    and re.search(r"fill all .*potion slots",
+                                  lone.description or "", re.IGNORECASE)):
+                return drink(lone, None, f"drink {lone.name} (belt otherwise "
+                                         "empty: free refill)")
 
         # 1. Hail-mary (run 10: died holding buff potions): dying even after our cards
         #    block — throw a potion, preferring one that can actually save us.

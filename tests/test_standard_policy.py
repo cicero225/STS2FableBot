@@ -4050,3 +4050,91 @@ def test_capability_delta_is_clamped_and_barricade_cannot_bury_offering() -> Non
     d = r_.decide(parse_state(payload), LoopContext())
     assert isinstance(d, Decision)
     assert d.scores["Offering"] > d.scores["Barricade"], d.scores
+
+
+def _gambit_state(hp=10, block=0, incoming="52", gambit_playable=True):
+    hand = [
+        {"index": 0, "id": "THE_GAMBIT", "name": "The Gambit", "type": "Skill",
+         "cost": "0", "star_cost": None,
+         "description": "Gain 50 Block. If you take unblocked attack damage "
+                        "this combat, die.",
+         "target_type": "None", "can_play": gambit_playable,
+         "unplayable_reason": None, "is_upgraded": False, "keywords": []},
+        {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack",
+         "cost": "1", "star_cost": None, "description": "Deal 6 damage.",
+         "target_type": "AnyEnemy", "can_play": True, "unplayable_reason": None,
+         "is_upgraded": False, "keywords": []},
+    ]
+    return parse_state({
+        "state_type": "boss",
+        "battle": {"round": 7, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "E0", "combat_id": 1,
+                                "name": "Knowledge Demon", "hp": 120, "max_hp": 250,
+                                "block": 0, "status": [],
+                                "intents": [{"type": "Attack", "label": incoming,
+                                             "title": "Attack", "description": ""}]}]},
+        "run": {"act": 2, "floor": 33, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80,
+                   "block": block, "energy": 3, "max_energy": 3, "gold": 0,
+                   "hand": hand, "status": [], "relics": [], "potions": [],
+                   "max_potion_slots": 3, "in_combat": True, "deck": []},
+    })
+
+
+def test_gambit_saves_the_doomed_turn() -> None:
+    """Owner edge case 2026-07-31 (YL8MY7QB4K, KD r7): died at 10 HP vs proj 52
+    with a cost-0 Gambit playable all turn. The self-death-rider veto is right on
+    normal turns and inverts on doomed ones: certain death now loses to
+    conditional death later."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    d = r.decide(_gambit_state(), LoopContext())
+    assert isinstance(d, Decision)
+    p = d.action.payload()
+    assert p.get("action") == "play_card" and p.get("card_index") == 0, d.rationale
+    assert "death-rider save" in d.rationale
+
+
+def test_gambit_veto_stands_when_the_turn_is_survivable() -> None:
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    d = r.decide(_gambit_state(hp=60, incoming="12"), LoopContext())
+    assert isinstance(d, Decision)
+    p = d.action.payload()
+    # survivable turn: the Gambit must NOT be played (veto stands); any other
+    # action (Strike, end turn) is acceptable
+    assert not (p.get("action") == "play_card" and p.get("card_index") == 0), d.rationale
+
+
+def test_entropic_brew_drunk_when_belt_otherwise_empty() -> None:
+    """Owner 2026-07-31: 'Fill all available potion slots' is free value when
+    every other slot is empty; banking it is overthinking. Post-drink, the next
+    poll re-reads the belt so hail-mary re-evaluates the new potions naturally."""
+    from sts2bot.policy.standard import StandardRouter
+
+    d_payload = json.loads(json.dumps({
+        "state_type": "boss",
+        "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "E0", "combat_id": 1,
+                                "name": "Chomper", "hp": 40, "max_hp": 40,
+                                "block": 0, "status": [],
+                                "intents": [{"type": "Attack", "label": "8",
+                                             "title": "Attack", "description": ""}]}]},
+        "run": {"act": 1, "floor": 5, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 0,
+                   "energy": 3, "max_energy": 3, "gold": 0, "hand": [], "status": [],
+                   "relics": [],
+                   "potions": [{"id": "ENTROPIC_BREW", "name": "Entropic Brew",
+                                "slot": 0, "can_use_in_combat": True,
+                                "target_type": "None", "keywords": [],
+                                "description": "Fill all available potion slots "
+                                               "with random potions."}],
+                   "max_potion_slots": 3, "in_combat": True, "deck": []},
+    }))
+    r = StandardRouter(combat_stats=None, bestiary={})
+    d = r.decide(parse_state(d_payload), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("action") == "use_potion", d.rationale
+    assert "free refill" in d.rationale
