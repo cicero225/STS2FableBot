@@ -4138,3 +4138,33 @@ def test_entropic_brew_drunk_when_belt_otherwise_empty() -> None:
     assert isinstance(d, Decision)
     assert d.action.payload().get("action") == "use_potion", d.rationale
     assert "free refill" in d.rationale
+
+
+def test_stage_boss_variant_passes_the_dfs_rest_gate_guard() -> None:
+    """GLTQT0XBN7 (2026-07-31, Test Subject f48 death): the run's '#C31'-class
+    variant name isn't a bestiary key, so both DFS gates fell back to aggregate
+    history and the 600-HP stage model never got asked. _boss_is_known accepts
+    stage-table bases; the rest gate must produce a DFS estimate."""
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    ctx = LoopContext()
+    ctx.screen_mem["act_boss_name"] = "Test Subject #C31"
+    loss = r._dfs_boss_loss(
+        ctx,
+        parse_state(json.loads(json.dumps({
+            "state_type": "rest_site",
+            "rest_site": {"options": []},
+            "run": {"act": 3, "floor": 47, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                       "gold": 0, "relics": [], "potions": [],
+                       "max_potion_slots": 3,
+                       "deck": [{"index": i, "id": "STRIKE_IRONCLAD",
+                                 "name": "Strike", "type": "Attack", "cost": "1",
+                                 "description": "Deal 6 damage.",
+                                 "is_upgraded": False, "keywords": []}
+                                for i in range(10)]},
+        }))).player,
+        3,
+    )
+    assert loss is not None and loss > 60  # 600 kill-HP fight: starter loses big

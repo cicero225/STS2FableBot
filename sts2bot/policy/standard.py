@@ -103,6 +103,18 @@ _BOSS_SUMMONS: dict[str, list[str]] = {"QUEEN": ["Torch Head Amalgam"]}
 _BOSS_STAGES: dict[str, list[tuple[int, int]]] = {
     "TEST SUBJECT": [(100, 19), (200, 36), (300, 40)],
 }
+
+
+def _boss_is_known(bestiary: dict, boss_name: str) -> bool:
+    """A boss the forecast machinery can price: a direct bestiary entry, OR a stage
+    boss whose suffix-stripped base is in the observed table (GLTQT0XBN7 2026-07-31:
+    the run's 'Test Subject #C31' variant wasn't a bestiary key, so BOTH DFS gates
+    fell back to history and the 600-HP stage model never got asked)."""
+    if not boss_name:
+        return False
+    if bestiary.get(boss_name):
+        return True
+    return boss_name.split("#")[0].strip().upper() in _BOSS_STAGES
 _BIG_HIT_DAMAGE = 12  # "real hit" threshold for the first-big-hit draft switch (owner)
 # Uncatalogued ancient boons compete at their generic-heuristic value clamped to this
 # (catalog scale: relic ~ 6; the raw heuristic runs far hotter and must not hijack)
@@ -1141,7 +1153,7 @@ class StandardRouter:
             if boss_members:
                 boss_name = ctx.screen_mem.get("act_boss_name", "")
                 use_dfs = (self.config.map.use_dfs_boss_rollouts
-                           and boss_name and self.bestiary.get(boss_name))
+                           and _boss_is_known(self.bestiary, boss_name))
                 if use_dfs:
                     # P1.7: DFS-policy rollout for the KNOWN boss, cached per
                     # (deck, boss, belt) -- ~1.1s fresh, free on cache hits
@@ -1865,7 +1877,7 @@ class StandardRouter:
         cache = ctx.screen_mem.setdefault("boss_roll_cache", {})
         if key in cache:
             return cache[key]
-        if not self.bestiary.get(boss_name):
+        if not _boss_is_known(self.bestiary, boss_name):
             return None  # unknown boss: nothing real to roll out against
         boss_members = self._upcoming_boss(ctx, cur_act)
         if not boss_members:
