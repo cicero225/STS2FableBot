@@ -717,14 +717,7 @@
    "status": "verified"
   },
   "HOWL_FROM_BEYOND": {
-   "name": "Howl from Beyond",
-   "class": "D",
-   "impact": "low",
-   "confidence": "high",
-   "shared_pattern": "exhaust-pile-trigger",
-   "evidence": "Parse: {damage:16, hits:1, aoe:True} (21 upgraded) \u2014 the direct play is priced exactly right (3 energy, 16 AoE). The hidden mechanic ('if this is in your Exhaust Pile at end of turn, play it') is a recurring free replay once exhausted (e.g. via Fiend Fire's hand-exhaust, which _to_planned already models for damage but not for what lands in the exhaust pile) \u2014 pure unpriced upside that fires on future turns; it never causes a this-turn misplay of the card itself.",
-   "proposal": "File: exhaust-pile end-of-turn triggers as an exhaust-synergy valuation item (credit exhausting this card when a hand-exhaust card is in the plan).",
-   "status": "open"
+   "notes": "Owner catch (2026-07-30): the replay trigger ('if this is in your Exhaust Pile, play it') needs an exhaust ENABLER FOR ATTACKS -- the card can't cheat itself out, and Second Wind only exhausts non-attacks from hand. Without an enabler (True Grit+-class: choose-a-card exhaust) the replay value is LATENT. Draft synergy: True Grit+ 'would go hard with it'."
   },
   "IMPERVIOUS": {
    "name": "Impervious",
@@ -887,14 +880,7 @@
    "status": "verified"
   },
   "OFFERING": {
-   "name": "Offering",
-   "class": "A",
-   "impact": "low",
-   "confidence": "high",
-   "shared_pattern": null,
-   "evidence": "Parser returns {'draw': 3, 'energy_gain': 2, 'self_hp_cost': 6} \u2014 the [ironclad_energy_icon.png] tokens are correctly counted as 2 energy, HP cost and draw are captured (5 draw upgraded parses the same way). The bot replans after every card play against live state, so the drawn cards are picked up by replanning.",
-   "proposal": "none",
-   "status": "verified"
+   "notes": "Owner (2026-07-30): remains the likely pick over Pact's End even in an exhaust deck -- a SINGLE exhausting energy source (Forgotten Ritual) isn't enough for an endgame deck and may fund other cards; Offering is ITSELF exhaust synergy. The greedy sim under-rates lose-HP-now-for-velocity engines (cap delta read it negative vs act-2 generic) -- known bias, tuning kept conservative per owner: 'we don't want to overcorrect'."
   },
   "OMNISLICE": {
    "name": "Omnislice",
@@ -917,14 +903,7 @@
    "status": "open"
   },
   "PACTS_END": {
-   "name": "Pact's End",
-   "class": "C",
-   "impact": "med",
-   "confidence": "high",
-   "shared_pattern": "exhaust-pile-threshold",
-   "evidence": "Parse: {'damage': 17, 'hits': 1, 'aoe': True, 'conditional': True} \u2014 the planner sims 17 AoE damage for 0 energy unconditionally, but the card deals NOTHING with fewer than 3 cards in the exhaust pile. Free phantom AoE inflates projected damage every early turn, and the planner 'cuts at lethal' \u2014 a fake lethal read means it skips blocking and eats a full enemy turn. models.py:137 exposes exhaust_pile_count but combat.py never reads it.",
-   "proposal": "Thread exhaust_pile_count into planning and gate: on regex 'if you have (\\d+) or more cards in your exhaust pile', zero fx.damage when the live count (plus cards exhausted so far this plan, if tracked) is below the threshold.",
-   "status": "open"
+   "notes": "Owner ruling on the f17 fixture deck (2026-07-30): compelling with a real exhaust package (Second Wind/Molten Fist feeding the pile -> recurring free 17 AoE), but Offering still the LIKELY pick -- close, 'would take both if legal'. Independent nuance: it is good FREE AOE, and if the deck lacked AoE (no Howl/Stomp) there's an argument to take it for coverage alone -- AoE need is deck-relative (card-pass tag material)."
   },
   "PECK": {
    "name": "Peck",
