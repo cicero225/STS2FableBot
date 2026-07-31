@@ -1632,3 +1632,26 @@ def test_rollout_belt_excludes_drinker_in_blast_by_text() -> None:
             NS(id="FIRE_POTION", name="Fire Potion", description="Deal 20 damage.")]
     belt = _classify_potions(pots)
     assert belt == [("damage", 20)]  # the blast never enters the sim's belt
+
+
+def test_energy_gain_chain_discovers_production_into_stomp() -> None:
+    # Owner live catch 2026-07-30 (run 20260730-232926, row 607): at 0 energy with
+    # Production[0] ('Gain [E][E]. Exhaust.') + Stomp[2] in hand, the bot ended the
+    # turn -- the game marks Stomp can_play=False (EnergyCostTooHigh) and _to_planned
+    # dropped it from the candidate pool, so the chain was undiscoverable. Energy-
+    # gated cards now stay in the pool; the DFS re-checks cost per state.
+    w = load_policy_config().combat
+    hand = [
+        _bcard(0, "PRODUCTION", "Production", 0,
+               "Gain [ironclad_energy_icon.png][ironclad_energy_icon.png]. Exhaust.",
+               "Skill", "None"),
+        _bcard(1, "STOMP", "Stomp", 2, "Deal 12 damage to ALL enemies.",
+               "Attack", "AllEnemy"),
+    ]
+    hand[1]["can_play"] = False
+    hand[1]["unplayable_reason"] = "EnergyCostTooHigh"
+    st = _beckon_state(3, hand, enemy_hp=30, hp=50, incoming="10")
+    st["player"]["energy"] = 0
+    d = plan_combat_turn(parse_state(st), w)
+    p = d.action.payload()
+    assert p.get("action") == "play_card" and p.get("card_index") == 0, d.rationale

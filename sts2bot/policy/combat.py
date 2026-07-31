@@ -455,7 +455,13 @@ class SimState:
 
 def _to_planned(card, energy: int, hand_attacks: int = 0,
                 exhaust_pile: int = 0, unupgraded_in_hand: int = 0) -> PlannedCard | None:
-    if not card.can_play:
+    # 'EnergyCostTooHigh' only gates on CURRENT energy, which the DFS re-checks per
+    # state — dropping the card here made energy-gain chains structurally
+    # undiscoverable (owner live catch 2026-07-30: Production[0]+Stomp[2] at 0 energy
+    # ended the turn as 'no play improves'; 7 stranded Productions in one run). Every
+    # other reason (Unplayable keyword, hooks, star cost) stays a hard drop.
+    if (not card.can_play
+            and (getattr(card, "unplayable_reason", None) or "") != "EnergyCostTooHigh"):
         return None
     cost_str = card.cost or "0"
     if cost_str.upper() == "X":
