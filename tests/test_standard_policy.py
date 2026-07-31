@@ -4168,3 +4168,37 @@ def test_stage_boss_variant_passes_the_dfs_rest_gate_guard() -> None:
         3,
     )
     assert loss is not None and loss > 60  # 600 kill-HP fight: starter loses big
+
+
+def test_pumpkin_candle_rekindled_when_low_not_when_fresh() -> None:
+    """Owner relic check 2026-07-31: Pumpkin Candle (+1 energy/turn, 5 combats,
+    Kindle at rest sites restores charges -- owner-sourced online, never seen
+    live). The SS8.4 specials ladder didn't know it -- it fell through to
+    smith, Girya-style. Kindle fires at
+    <=2 charges and stays away at 4+ (wasted campfire)."""
+    from sts2bot.policy.standard import StandardRouter
+
+    def rest_state(charges):
+        return parse_state(json.loads(json.dumps({
+            "state_type": "rest_site",
+            "rest_site": {"options": [
+                {"index": 0, "id": "HEAL", "name": "Rest", "is_enabled": True},
+                {"index": 1, "id": "SMITH", "name": "Smith", "is_enabled": True},
+                {"index": 2, "id": "KINDLE", "name": "Kindle",
+                 "is_enabled": True},
+            ]},
+            "run": {"act": 2, "floor": 22, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80,
+                       "gold": 0, "hand": [], "status": [],
+                       "relics": [{"id": "PUMPKIN_CANDLE", "name": "Pumpkin Candle",
+                                   "counter": charges, "keywords": [],
+                                   "description": "Gain Energy at the start of "
+                                                  "each turn. Lasts 5 combats."}],
+                       "potions": [], "max_potion_slots": 3, "deck": []},
+        })))
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    low = r.decide(rest_state(1), LoopContext())
+    assert low.action.payload()["index"] == 2 and "rekindle" in low.rationale.lower()
+    fresh = r.decide(rest_state(5), LoopContext())
+    assert fresh.action.payload()["index"] != 2  # fresh candle: don't waste the site

@@ -2458,14 +2458,16 @@ class StandardRouter:
             return Decision(
                 action=act.ChooseRestOption(index=enabled["rest"].index), rationale=rest_why
             )
-        # Non-standard campfire actions (§8.4 class, 4 known members): relic/quest-added
+        # Non-standard campfire actions (§8.4 class, 5 known members): relic/quest-added
         # options the fixed Rest/Smith menu was blind to — the Byrdonis Egg rode along
         # as a dead curse past 3 rest sites, Girya's Lift never fired, and two Ancient
         # boons (Pael's Growth / Meat Cleaver) were priced near-zero because their
         # actions were unreachable. Priority (owner guidance, Girya note 2026-06-25):
         # Hatch always (it's why the egg was taken) > Lift while healthy (permanent
-        # +1 Str, <=3 uses) > Cook when thinnables exist (remove 2, +9 max HP) >
-        # Clone only if a Clone-enchanted card exists. Rest already won above if needed.
+        # +1 Str, <=3 uses) > Rekindle when the Pumpkin Candle runs low (owner
+        # 2026-07-31: +1 energy/turn for 5 combats — Happy-Flower-plus; wasted if
+        # charges are still high) > Cook when thinnables exist (remove 2, +9 max HP)
+        # > Clone only if a Clone-enchanted card exists. Rest already won above.
         def _deck_has_clone_enchant() -> bool:
             for c in (player.deck if player else None) or []:
                 for k in getattr(c, "keywords", None) or []:
@@ -2482,10 +2484,22 @@ class StandardRouter:
                 specials.append((0, o, f"hatch the egg ({o.name})"))
             elif "lift" in nm:
                 specials.append((1, o, f"lift: permanent +1 Strength ({o.name})"))
+            elif "rekind" in nm or "kindle" in nm:  # owner: likely 'Kindle';
+                # NEVER OBSERVED LIVE (online description only) — matcher kept
+                # generous; verify the real option id/name on first sighting
+                cndl = next((r_ for r_ in ((player.relics if player else None) or [])
+                             if "PUMPKIN" in f"{r_.id or ''} {r_.name or ''}".upper()),
+                            None)
+                charges = (cndl.counter if cndl and cndl.counter is not None else 0)
+                # threshold 2 = a guess pending owner calibration: rekindling at
+                # 4-5 charges wastes the campfire; at 0-2 it beats a smith
+                if charges <= 2:
+                    specials.append((2, o, f"rekindle the Pumpkin Candle "
+                                           f"({charges} combats left -> 5)"))
             elif "cook" in nm and self._has_removable_card(player):
-                specials.append((2, o, f"cook: remove 2 + max HP ({o.name})"))
+                specials.append((3, o, f"cook: remove 2 + max HP ({o.name})"))
             elif "clone" in nm and _deck_has_clone_enchant():
-                specials.append((3, o, f"clone the enchanted card ({o.name})"))
+                specials.append((4, o, f"clone the enchanted card ({o.name})"))
         if specials:
             _, o, why = min(specials)
             return Decision(action=act.ChooseRestOption(index=o.index), rationale=why)
