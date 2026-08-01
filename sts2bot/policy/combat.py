@@ -328,6 +328,11 @@ class EnemySim:
     is_minion: bool = False  # "Minion" status: flees when its leader dies, so ignorable
     gains_strength: bool = False  # ramping (Strength buff / Empower intent): race to kill it
     is_big: bool = False  # the fight's largest max-HP body — the "focus" plan's target
+    # Bygone Effigy's Slow (owner 2026-08-01): 'Whenever you play a card, this
+    # enemy receives 10% more damage from Attacks this turn.' None = absent;
+    # otherwise the stacks ALREADY accumulated this turn (status amount).
+    # Direct attacks only; bonus floors (6 dmg needs 2 stacks to reach 7).
+    slow_stacks: int | None = None
     # Its player-debuff dies with it (owner 2026-07-17: Shrinker Beetle's big damage
     # debuff lifts on its death) — racing it down pays while OTHER enemies still live.
     debuff_carrier: bool = False
@@ -634,6 +639,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         summons = False
         illusion = False
         asleep = False
+        slow_stacks = None
         spawns_on_death = False
         burrowed = False
         ravenous = False
@@ -663,6 +669,9 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 illusion = True
             if p.id.upper().startswith("ASLEEP"):  # Asleep only — Slumber wakes differently
                 asleep = True
+            if ("receives 10% more damage from attacks" in (p.description or "").lower()
+                    or p.id.upper().startswith("SLOW")):
+                slow_stacks = p.amount or 0
             if p.id.upper().startswith("BURROWED"):  # Tunneler: block-strip = stun
                 burrowed = True
             if p.id.upper().startswith("RAVENOUS"):  # Corpse Slug: ally-death = self-stun
@@ -747,6 +756,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 crab_rage=crab_rage,
                 back_attack=back_attack,
                 asleep=asleep,
+                slow_stacks=slow_stacks,
                 spawns_on_death=spawns_on_death,
                 burrowed=burrowed,
                 ravenous=ravenous,
@@ -834,6 +844,12 @@ def _apply_attack(
     # different thing and is still modeled — see the landed_weak block in _apply_card.)
     if e.vulnerable > 0:
         per_hit = int(per_hit * (VULN_MULT + state.vuln_mult_bonus))
+    # Slow: +10% per card played this turn BEFORE this one (the attack doesn't
+    # count its own play — owner's example: 6-dmg Strike + 2 stacks = 7), direct
+    # attacks only, floored. The DFS discovers attacks-last ordering from this.
+    if e.slow_stacks is not None and card.is_attack:
+        k = e.slow_stacks + sum(1 for i, _ in state.played if i >= 0)
+        per_hit = int(per_hit * (1 + 0.10 * k))
     for _ in range(hits):
         if hp <= 0:
             break

@@ -1769,3 +1769,33 @@ def test_artifact_strip_scores_as_down_payment_not_waste() -> None:
          "description": "Negates 3 debuffs.", "keywords": []}]
     d = plan_combat_turn(parse_state(st), w)
     assert d.action.payload().get("action") == "play_card", d.rationale
+
+
+def test_slow_rounds_down_and_orders_attacks_last() -> None:
+    # Bygone Effigy's Slow (owner 2026-08-01): +10% damage taken per card played
+    # this turn, direct attacks only, FLOORED -- a 6-dmg Strike needs 2 stacks to
+    # reach 7 (6 * 1.2 = 7.2). And the DFS should discover attacks-LAST ordering.
+    w = load_policy_config().combat
+    slow_status = [{"id": "SLOW_POWER", "name": "Slow", "amount": 2,
+                    "description": "Whenever you play a card, this enemy receives "
+                                   "10% more damage from Attacks this turn.",
+                    "keywords": []}]
+    # rounding: 2 pre-existing stacks, single Strike -> 7 damage exactly
+    strike = _bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                    "Attack", "AnyEnemy")
+    st = _beckon_state(3, [strike], enemy_hp=7, hp=60, incoming="0")
+    st["battle"]["enemies"][0]["status"] = slow_status
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores and d.scores.get("lethal"), d.rationale  # 7 dmg kills the 7-HP body
+
+    # sequencing: [Defend, Bludgeon] vs fresh Slow (0 stacks) -- Defend first
+    # makes Bludgeon 32 -> 35; the plan must lead with the Defend
+    bludgeon = _bcard(0, "BLUDGEON", "Bludgeon", 3, "Deal 32 damage.",
+                      "Attack", "AnyEnemy")
+    defend = _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.",
+                    "Skill", "None")
+    st2 = _beckon_state(4, [bludgeon, defend], enemy_hp=200, hp=60, incoming="0")
+    st2["battle"]["enemies"][0]["status"] = [{**slow_status[0], "amount": 0}]
+    d2 = plan_combat_turn(parse_state(st2), w)
+    p2 = d2.action.payload()
+    assert p2["action"] == "play_card" and p2["card_index"] == 1, d2.rationale
