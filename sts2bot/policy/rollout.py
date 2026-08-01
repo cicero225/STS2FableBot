@@ -252,6 +252,7 @@ class _RolloutSim:
         self.rng = rng
         self.rfx = rfx or {}
         self.prefer_big = False  # set by rollout_fight(target_order="focus")
+        self.n_exhausted = 0  # exhaust events this fight (Pact's End gate)
         self.belt = list(pots)
         self.draw = cards[:]
         rng.shuffle(self.draw)
@@ -313,6 +314,7 @@ class _RolloutSim:
             self.hand.append(self.draw.pop())
 
     def exhaust_event(self):
+        self.n_exhausted += 1
         self.block += self.fnp
         for _ in range(self.de_draw):
             self.draw_one()
@@ -373,6 +375,9 @@ class _RolloutSim:
             # owner 2026-08-01; catalog preview numbers are stale, sim block isn't)
             per_hit = (self.block if pick.fx.dmg_equals_block
                        else pick.fx.damage + self.my_str)
+            if (pick.fx.requires_exhaust_pile
+                    and self.n_exhausted < pick.fx.requires_exhaust_pile):
+                per_hit = 0  # Pact's End-class: condition unmet, damage is a mirage
             for f in tgts:
                 if f is None or f.hp <= 0 or f.dormant:
                     continue

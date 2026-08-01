@@ -1799,3 +1799,22 @@ def test_slow_rounds_down_and_orders_attacks_last() -> None:
     d2 = plan_combat_turn(parse_state(st2), w)
     p2 = d2.action.payload()
     assert p2["action"] == "play_card" and p2["card_index"] == 1, d2.rationale
+
+
+def test_pacts_end_gated_on_exhaust_pile_no_phantom_lethal() -> None:
+    # Owner-caught 2026-08-01 ('how did that death occur?'): at 11 HP the plan
+    # read '[Strike > Strike > Pact's End] LETHAL' with the exhaust pile at 0 --
+    # Pact's End dealt nothing, the slugs lived, the bot died believing it had
+    # won. Threshold-conditional damage is now gated on pile + in-plan exhausts.
+    w = load_policy_config().combat
+    pact = _bcard(0, "PACTS_END", "Pact's End", 0,
+                  "If you have 3 or more cards in your Exhaust Pile, deal 17 "
+                  "damage to ALL enemies.", "Attack", "AllEnemy")
+    st = _beckon_state(3, [pact], enemy_hp=15, hp=30, incoming="5")
+    st["player"]["exhaust_pile_count"] = 0
+    d = plan_combat_turn(parse_state(st), w)
+    assert not (d.scores and d.scores.get("lethal")), d.rationale  # no mirage
+
+    st["player"]["exhaust_pile_count"] = 3
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert d2.scores and d2.scores.get("lethal"), d2.rationale  # real when met

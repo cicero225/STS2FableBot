@@ -450,6 +450,8 @@ class SimState:
     # attacks after the first must halve back to base (set once at plan start, never mutated)
     pen_turn_started_at_nine: bool = False
     exhausted_this_turn: bool = False  # a card was Exhausted this turn (Evil Eye/Ritual gates)
+    exhaust_pile0: int = 0  # live Exhaust Pile count at plan start (Pact's End gate)
+    n_exhaust_events: int = 0  # exhausting plays this plan (approx: 1 per such card)
     vuln_dmg_reduction: bool = False  # Colossus: 50% less damage from Vulnerable enemies
     potions_spent: int = 0  # pseudo-card potions drunk this plan (each pays w_potion_spend)
     fatal_bonuses: int = 0  # kills landed by "If Fatal, ..." cards (Feed) this plan
@@ -844,6 +846,13 @@ def _apply_attack(
     # different thing and is still modeled — see the landed_weak block in _apply_card.)
     if e.vulnerable > 0:
         per_hit = int(per_hit * (VULN_MULT + state.vuln_mult_bonus))
+    # Pact's End-class: the damage exists only if the Exhaust Pile (live count +
+    # in-plan exhausting plays) meets the threshold at play time — else it's 0
+    # (phantom-lethal death 2026-08-01: pile 0, 17 AoE credited, bot died)
+    if (card.fx.requires_exhaust_pile
+            and state.exhaust_pile0 + state.n_exhaust_events
+            < card.fx.requires_exhaust_pile):
+        per_hit = 0
     # Slow: +10% per card played this turn BEFORE this one (the attack doesn't
     # count its own play — owner's example: 6-dmg Strike + 2 stacks = 7), direct
     # attacks only, floored. The DFS discovers attacks-last ordering from this.
@@ -1127,6 +1136,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         self_damage=s.self_damage + card.fx.self_hp_cost,
         healing=s.healing + heal_applied,
         exhausted_this_turn=s.exhausted_this_turn or card.exhausts_a_card,
+        n_exhaust_events=s.n_exhaust_events + (1 if card.exhausts_a_card else 0),
         vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,
         hand_upgrades=s.hand_upgrades + card.upgrades_in_hand,
     )
@@ -1543,6 +1553,7 @@ def plan_combat_turn(
     )
     start = SimState(
         energy=energy,
+        exhaust_pile0=exhaust_pile,
         no_draw=fiddle_no_draw,
         enemies=enemy_sims,
         my_block=player.block,

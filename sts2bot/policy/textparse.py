@@ -31,6 +31,8 @@ _ALL_ENEMIES = re.compile(r"\bALL (?:other )?enem", re.IGNORECASE)
 # Barricade finisher). Harvested catalog texts carry a stale '(Deals N damage)'
 # preview or none; the flag lets the rollout compute dynamically.
 _DMG_EQ_BLOCK = re.compile(r"damage equal to your Block", re.IGNORECASE)
+_REQ_EXHAUST_PILE = re.compile(
+    r"If you have (\d+) or more cards? in your Exhaust Pile", re.IGNORECASE)
 # Foul-class blast that includes the DRINKER (owner ruling 2026-07-30: a mutual kill
 # is a loss). Single source — the guard text-drifted twice ('EVERYONE' -> 'ALL
 # players and enemies'), so every consumer must share one pattern. Public: used by
@@ -144,6 +146,12 @@ class CardEffects:
     # mod-baked preview number (parsed into `damage`, accurate per poll); harvested
     # catalog texts carry a STALE preview — the rollout computes from sim block.
     dmg_equals_block: bool = False
+    # Pact's End-class threshold: 'If you have N or more cards in your Exhaust
+    # Pile, deal X...' — the damage is REAL only when the pile (plus in-plan
+    # exhausts) meets N. Ungated, the sim planned phantom lethals (f9 death
+    # 2026-08-01: pile 0, 17 AoE credited, slugs survived, bot died believing
+    # it had won).
+    requires_exhaust_pile: int = 0
     recognized: list[str] = field(default_factory=list)
 
     @property
@@ -167,6 +175,8 @@ def parse_card_description(text: str | None) -> CardEffects:
     )
     if _DMG_EQ_BLOCK.search(full):
         fx.dmg_equals_block = True
+    if m := _REQ_EXHAUST_PILE.search(full):
+        fx.requires_exhaust_pile = int(m.group(1))
     if m := _DAMAGE_TIMES.search(text):
         n = m.group(2)
         fx.damage = int(m.group(1))
