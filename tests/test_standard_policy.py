@@ -4254,3 +4254,32 @@ def test_fiddle_blocks_draw_lanes_and_dampens_draw_drafts() -> None:
     bare = r._card_score(shrug, 15, "The Ironclad", 1, deck=[], relics=None)
     held = r._card_score(shrug, 15, "The Ironclad", 1, deck=[], relics=[fiddle])
     assert bare - held == 2.0  # dead draw rider docked
+
+
+def test_full_belt_drinks_a_heal_to_claim_the_reward_potion() -> None:
+    """Owner corner case 2026-08-01: belt [Blood, Blood, Block], a THIRD Blood
+    Potion dropped, bot skipped it. Even a paltry heal at high HP beats skipping:
+    drink the belt heal, claim the drop, net = same belt + a few HP. Fires only
+    below max HP; at full HP the rank-based discard logic keeps the wheel."""
+    payload = json.loads(json.dumps(FIXTURES["rewards"]))
+    payload["player"]["hp"] = 76
+    payload["player"]["max_hp"] = 80
+    payload["player"]["potions"] = [
+        {"id": "BLOOD_POTION", "name": "Blood Potion", "slot": 0,
+         "description": "Heal 20% of your Max HP."},
+        {"id": "BLOOD_POTION", "name": "Blood Potion", "slot": 1,
+         "description": "Heal 20% of your Max HP."},
+        {"id": "BLOCK_POTION", "name": "Block Potion", "slot": 2,
+         "description": "Gain 12 Block."},
+    ]
+    payload["player"]["max_potion_slots"] = 3
+    for item in payload["rewards"]["items"]:
+        if item.get("type") == "potion":
+            item["potion_id"] = "BLOOD_POTION"
+            item["potion_name"] = "Blood Potion"
+            item["potion_description"] = "Heal 20% of your Max HP."
+    d = router().decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    p = d.action.payload()
+    assert p["action"] == "use_potion" and p["slot"] in (0, 1), d.rationale
+    assert "free a belt slot" in d.rationale

@@ -2721,6 +2721,23 @@ class StandardRouter:
         if player is not None and len(player.potions) >= player.max_potion_slots:
             potion_items = [i for i in state.rewards.items if i.type == "potion"]
             if potion_items and not ctx.screen_mem.get("discarded_for_reward"):
+                # Owner corner case 2026-08-01 (belt of 2 Blood Potions + 1, a 3rd
+                # Blood dropped, bot skipped it): with a FULL belt at a potion
+                # reward, DRINKING a belt heal dominates skipping OR discarding —
+                # even a paltry 5 HP at 95% is free value, and the claimed reward
+                # refills the slot. Only heals qualify (their out-of-combat use
+                # has value whenever hp < max); at full HP fall through to the
+                # rank-based discard.
+                if player.hp < player.max_hp:
+                    heal = next((p for p in player.potions
+                                 if self._potion_category(p) == "heal"), None)
+                    if heal is not None:
+                        return Decision(
+                            action=act.UsePotion(slot=heal.slot),
+                            rationale=(f"drink {heal.name} to free a belt slot "
+                                       f"for the reward potion (heal beats "
+                                       f"discard/skip at {player.hp}/{player.max_hp})"),
+                        )
                 victim = self._worst_potion(player.potions)
                 # Discard only for a genuine upgrade (owner 2026-07-13: the belt's Foul
                 # — 100g at the next merchant — was ditched for an ordinary reward).
