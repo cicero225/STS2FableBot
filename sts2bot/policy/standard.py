@@ -2328,6 +2328,17 @@ class StandardRouter:
                                        enchant_kind=ctx.screen_mem.get("pending_enchant"))
             if mem["tries"] < self._CHOOSE_RETRIES and target is not None:
                 mem["tries"] += 1
+                # Record the pick: FORCED grid screens (no cancel/skip/confirm at
+                # the grid stage — this event upgrade, the June enchant) satisfy
+                # the needed==1-no-buttons arm and land here, but they TOGGLE and
+                # raise a preview. Without recording, the next poll's pick-N path
+                # selected AGAIN — toggling the card OFF under the open preview,
+                # after which every confirm clicked a dead container (the owner's
+                # double-selection theory, proven on the 2026-08-01 repro tape:
+                # 'choose Taunt' + 'select best Taunt' back to back). True
+                # choose-screens resolve instantly, so the record is harmless.
+                if target.index not in picked:
+                    picked.append(target.index)
                 return Decision(
                     action=act.SelectCard(index=target.index),
                     rationale=f"choose {target.name} for: {cs.prompt}",

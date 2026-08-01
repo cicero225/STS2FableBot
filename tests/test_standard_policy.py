@@ -4335,3 +4335,33 @@ def test_enchant_confirm_stall_never_reselects_and_cancels_to_reset() -> None:
     assert seq.count("cancel_selection") <= 2
     tail = seq[-6:]
     assert all(a == "wait" for a in tail), seq  # livelock impossible
+
+
+def test_forced_upgrade_grid_never_double_selects() -> None:
+    """The wedge's true root (proven on the owner's repro tape 2026-08-01): a
+    FORCED upgrade grid (no cancel/skip/confirm pre-selection) misroutes poll 1
+    into the resolves-on-select branch, which didn't record its pick -- poll 2's
+    pick-N path selected AGAIN, toggling the card OFF under the open preview.
+    Sequence must be: one select, settle waits, confirm. No second select."""
+    from sts2bot.policy.base import Wait
+
+    cards = [{"index": 10, "id": "TAUNT", "name": "Taunt", "type": "Skill",
+              "cost": "1", "description": "Gain 7 Block. Apply 1 Vulnerable.",
+              "rarity": "Uncommon", "is_upgraded": False, "keywords": []}]
+
+    def grid(preview, can_confirm, can_cancel):
+        st = _card_select_state("upgrade", "Choose a card to Upgrade.", cards,
+                                can_confirm=can_confirm, can_cancel=can_cancel)
+        st.card_select.preview_showing = preview
+        return st
+
+    r = router()
+    ctx = LoopContext()
+    d1 = r.decide(grid(False, False, False), ctx)  # forced: no buttons yet
+    assert d1.action.payload()["action"] == "select_card"
+    seq = []
+    for _ in range(6):  # preview now up, as the game presents it
+        d = r.decide(grid(True, True, True), ctx)
+        seq.append("wait" if isinstance(d, Wait) else d.action.payload()["action"])
+    assert "select_card" not in seq, seq  # THE fix: never a second toggle
+    assert "confirm_selection" in seq, seq
