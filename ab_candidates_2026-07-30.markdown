@@ -86,3 +86,32 @@ potions/burst by a turn budget), which the rollout can also price.
 - `6J4T046P13`/`F8ZVNDV045`/`KJPRHVQWU6` (f48): 5-7 turn overwhelm losses, no
   visible decision point; the Queen/Aeonglass picks above cover the same bosses
   with better tape.
+
+---
+
+## Act-3 boss A/B slate (2026-08-01 night — post-epoch seeds, all f48 deaths)
+
+**1. `E4ZW92AFP5` — Aeonglass (RECOMMENDED).** The purest "promising run died"
+case on record: the DFS forecast read **est loss 38** vs a 38-42 HP rest-gate
+margin — the closest-to-winnable read any act-3 death has produced — and the
+run still lost in 8 turns. Entry 62/91, 17 relics (Whispering Earring, History
+Course, Vajra, Happy Flower), 31-card deck with Barricade++/Dominate/Unmovable.
+Fight opens: Aeonglass 448. THE question: is the residual a play-quality gap
+(you win comfortably) or honest variance (you barely lose)? Highest information
+per minute of any candidate.
+
+**2. `U2T0A11MXZ` — Queen.** Peak +302 mid-fight = a winnable-looking position
+lost late. Entry 54/70, 18 relics (Brimstone, Kunai, Spiked Gauntlets — an aggro
+kit), 28 cards. Tape intel bonus: Torch Head Amalgam was ALREADY on field r1
+(199 HP beside Queen 400) — concurrent, not summoned late; matches the forecast
+model.
+
+**3. `SBBZ075SQX` — Test Subject #C33.** Densest decision profile (9 turns, 6
+potions, 4 hail-maries). Entry 73/78, Shuriken/Sai/White Beast Statue multi-
+attack kit + 3x Bloodletting++ engine vs the 100/200/300 Nemesis staircase.
+Best candidate for reading YOUR stage-transition pacing (when do you hold burst
+for the next heal-wall?).
+
+Caveat: a full act-3 A/B is a 48-floor climb (~45-90 min at 1x) — one seed is
+a full evening activity. Fingerprints above are boss-ENTRY states; the f1-f17
+segment should match the bot's route only loosely (your drafts will diverge).
