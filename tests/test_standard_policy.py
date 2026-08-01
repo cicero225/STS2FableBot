@@ -2062,9 +2062,13 @@ def test_multi_remove_picks_two_worst_then_confirms() -> None:
     picks = {d1.action.payload()["index"], d2.action.payload()["index"]}
     assert picks <= {1, 2, 3} and len(picks) == 2  # two distinct basics, never Bash(0)
     assert isinstance(r.decide(state, ctx), Wait)  # enough chosen; awaiting confirm
-    confirm = r.decide(
-        _card_select_state("select", "Choose 2 cards to Remove.", cards, can_confirm=True), ctx
-    )
+    confirm = None
+    for _ in range(5):  # settle-dwell polls (3b5f834) precede the confirm
+        confirm = r.decide(
+            _card_select_state("select", "Choose 2 cards to Remove.", cards,
+                               can_confirm=True), ctx)
+        if isinstance(confirm, Decision):
+            break
     assert isinstance(confirm, Decision)
     assert confirm.action.payload()["action"] == "confirm_selection"
 
@@ -2417,8 +2421,13 @@ def test_enchant_selects_full_count_before_confirming() -> None:
         assert p["action"] == "select_card", f"confirmed too early: {p}"
         picks.append(p["index"])
     assert len(set(picks)) == 3  # three distinct cards
-    # now that 3 are picked, confirm
-    assert r.decide(cardsel(), ctx).action.payload()["action"] == "confirm_selection"
+    # now that 3 are picked: settle-dwell polls (3b5f834), then the confirm
+    d = None
+    for _ in range(5):
+        d = r.decide(cardsel(), ctx)
+        if not isinstance(d, Wait):
+            break
+    assert d.action.payload()["action"] == "confirm_selection"
 
 
 def test_drafting_vs_slippery_boss_prefers_multi_hit() -> None:
