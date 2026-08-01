@@ -4305,17 +4305,22 @@ def test_enchant_confirm_stall_never_reselects_and_cancels_to_reset() -> None:
         st.card_select.preview_showing = preview
         return st
 
+    from sts2bot.policy.base import Wait
+
     r = router()
     ctx = LoopContext()
     d1 = r.decide(screen(False, False), ctx)
     assert d1.action.payload()["action"] == "select_card"  # first pick
-    actions = []
-    for _ in range(6):  # screen stuck: preview up, confirm never resolves
+    seq = []
+    for _ in range(40):  # screen stuck: preview up, confirm never resolves
         d = r.decide(screen(True, True), ctx)
-        actions.append(d.action.payload()["action"])
-    # the owner's exact recovery, mechanized: re-confirm (never re-select into
-    # the live preview), then cancel to reset, THEN a fresh select
-    assert actions[:4] == ["confirm_selection"] * 4
-    assert actions[4] == "cancel_selection"
-    assert actions[5] == "select_card"  # clean re-pick AFTER the reset
-    assert "select_card" not in actions[:4], actions  # never before the cancel
+        seq.append("wait" if isinstance(d, Wait)
+                   else d.action.payload()["action"])
+    # dwell-paced confirms (never hammering, never re-selecting into the live
+    # preview), a cancel-reset per cycle, and after 2 cycles: pure Waits so the
+    # stall rail can abort — NO livelock (owner-caught ping-pong 2026-08-01 #2)
+    assert seq[0] == "confirm_selection" and "wait" in seq[:4]
+    assert "select_card" not in [a for a in seq[:seq.index("cancel_selection")]]
+    assert seq.count("cancel_selection") <= 2
+    tail = seq[-6:]
+    assert all(a == "wait" for a in tail), seq  # livelock impossible

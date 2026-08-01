@@ -2380,14 +2380,29 @@ class StandardRouter:
         # back -> fresh select -> confirm; mirror it: re-confirm a few times, then
         # CancelSelection to reset the screen state and re-pick cleanly.
         if cs.can_confirm:
+            # Livelock guard (owner-caught 2026-08-01 #2, upgrade screen): the
+            # confirm->cancel->reselect cycle keeps the STATE changing, so the
+            # stall rail never trips. A cycle counter that survives the cancel
+            # caps recovery at 2 resets; after that, stop acting — the stall
+            # rail aborts the run cleanly instead of ping-ponging forever.
+            cyc_key = f"cardsel:cycles:{state.run.floor if state.run else 0}:{cs.prompt}"
+            if ctx.screen_mem.get(cyc_key, 0) >= 2:
+                return Wait(reason="card select: confirm unresolvable after 2 "
+                                   "reset cycles; letting the stall rail abort")
             mem["confirms"] = mem.get("confirms", 0) + 1
-            if mem["confirms"] <= 4:
+            # Dwell between confirms: the transient class looks like confirm
+            # racing the resolve animation — hammering (or worse, cancelling
+            # mid-resolve) can abort a confirm that was actually landing.
+            if mem["confirms"] % 2 == 0:
+                return Wait(reason="confirm sent; dwell for the resolve animation")
+            if mem["confirms"] <= 7:
                 return Decision(
                     action=act.ConfirmSelection(),
                     rationale=f"confirm {len(picked)}/{needed} selected",
                 )
             # stuck: reset like the owner did — cancel, clear tracking, re-pick
             ctx.screen_mem.pop(mem_key, None)
+            ctx.screen_mem[cyc_key] = ctx.screen_mem.get(cyc_key, 0) + 1
             if cs.can_cancel or cs.can_skip:
                 return Decision(
                     action=act.CancelSelection(),
