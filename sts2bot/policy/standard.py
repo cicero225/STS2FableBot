@@ -93,6 +93,12 @@ _ACT_BOSS = {1: (24, 2), 2: (30, 2), 3: (36, 3)}  # (dps, str_ramp) estimate for
 # name -> bestiary names of the summons. Consumed by _upcoming_boss (forecast side);
 # the summons are minions in the Kin sense (threat, not kill-HP).
 _BOSS_SUMMONS: dict[str, list[str]] = {"QUEEN": ["Torch Head Amalgam"]}
+# Relic -> card-type draft synergy: holding the relic makes that TYPE more
+# favorable to draft (owner 2026-07-31, Mummified Hand). Values are nudges on
+# the catalog scale (take threshold ~4), not mandates.
+_RELIC_TYPE_DRAFT_BONUS: dict[str, tuple[str, float]] = {
+    "MUMMIFIED_HAND": ("Power", 2.0),
+}
 # Stage bosses: (hp, dps) per sequential stage, owner-tape-observed (2026-07-30,
 # Test Subject #C29 full fight): stage transitions FULL-HEAL to the next pool
 # (100 -> 200 -> 300; his '#C__' suffix varies per run but every variant is ONE
@@ -1719,6 +1725,15 @@ class StandardRouter:
             boon_relic_context(relics, self.ancient_boons)
             if relics and self.ancient_boons else ({}, {})
         )
+        # Plain-relic -> card-TYPE draft synergies (owner 2026-07-31: Mummified Hand
+        # — 'whenever you play a Power, a random card in hand costs 0' — makes
+        # powers more favorable to draft; the in-fight discount rides per-poll
+        # replanning for free, but the draft layer must see the pull).
+        for r_ in relics or []:
+            rid = f"{getattr(r_, 'id', '') or ''} {getattr(r_, 'name', '') or ''}".upper()
+            for key, (syn_type, syn_bonus) in _RELIC_TYPE_DRAFT_BONUS.items():
+                if key in rid and (card.type or "") == syn_type:
+                    score += syn_bonus
         if fx.draw and deck is not None and self.draft_tags:
             from sts2bot.policy.drafttags import _providers, deck_tag_weights
             energy_sources = _providers("energy_source", deck_tag_weights(deck), deck,

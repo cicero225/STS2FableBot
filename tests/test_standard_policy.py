@@ -4202,3 +4202,30 @@ def test_pumpkin_candle_rekindled_when_low_not_when_fresh() -> None:
     assert low.action.payload()["index"] == 2 and "rekindle" in low.rationale.lower()
     fresh = r.decide(rest_state(5), LoopContext())
     assert fresh.action.payload()["index"] != 2  # fresh candle: don't waste the site
+
+
+def test_mummified_hand_nudges_power_drafts() -> None:
+    """Owner relic query 2026-07-31: Mummified Hand ('whenever you play a Power,
+    a random card in hand costs 0 for the turn') should make POWERS more
+    favorable at draft time. The in-fight discount rides per-poll replanning;
+    the draft layer needed the pull."""
+    from types import SimpleNamespace as NS
+
+    from sts2bot.policy.standard import StandardRouter
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    power = NS(index=0, id="INFLAME", name="Inflame", type="Power", cost="1",
+               description="Gain 2 Strength.", rarity="Uncommon",
+               is_upgraded=False, keywords=[])
+    hand_relic = [NS(id="MUMMIFIED_HAND", name="Mummified Hand",
+                     description="Whenever you play a Power, a random card in "
+                                 "your hand costs 0 for the turn.")]
+    bare = r._card_score(power, 15, "The Ironclad", 1, deck=[], relics=None)
+    held = r._card_score(power, 15, "The Ironclad", 1, deck=[], relics=hand_relic)
+    assert held - bare == 2.0
+    # non-powers unaffected
+    strike = NS(index=1, id="STRIKE_IRONCLAD", name="Strike", type="Attack",
+                cost="1", description="Deal 6 damage.", rarity="Basic",
+                is_upgraded=False, keywords=[])
+    assert (r._card_score(strike, 15, "The Ironclad", 1, deck=[], relics=hand_relic)
+            == r._card_score(strike, 15, "The Ironclad", 1, deck=[], relics=None))
