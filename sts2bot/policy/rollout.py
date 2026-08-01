@@ -226,6 +226,10 @@ _RELIC_FX = {
     # Fiddle (owner 2026-07-31): +2 cards at turn start, NO in-turn draws --
     # both halves matter or draw decks misprice badly
     "FIDDLE": ("fiddle", 2),
+    # Whispering Earring (owner 2026-08-01): +1 energy/turn is the big upside;
+    # the drawback (Vakuu autoplays turn 1 left-to-right) is modeled separately
+    # via the auto_turn1 flag below.
+    "WHISPERING_EARRING": ("energy_per_turn", 1),
 }
 
 
@@ -469,6 +473,20 @@ class _RolloutSim:
 
 # ---------------------------------------------------------------- turn policies
 
+def _auto_turn(sim: _RolloutSim) -> None:
+    """Whispering Earring turn 1: Vakuu plays cards left-to-right until no longer
+    possible -- no prioritization, no target selection beyond the first body, and
+    self-costed cards get dumped too. Deliberately dumber than the greedy."""
+    for _ in range(24):
+        if sim.outcome is not None:
+            return
+        pick = next((c for c in sim.hand
+                     if not c.unplayable and c.cost <= sim.energy), None)
+        if pick is None:
+            return
+        sim.apply_card(pick, next(iter(sim.targets()), None))
+
+
 def _greedy_turn(sim: _RolloutSim) -> None:
     """The P1 heuristic: generators -> powers -> kills -> vuln uptime -> needed
     block -> best damage. Calibrated on elites; behavior unchanged by the P1.7
@@ -650,6 +668,8 @@ def rollout_fight(
         for key2, (kind, amt) in _RELIC_FX.items():
             if key2 in rid:
                 rfx[kind] = rfx.get(kind, 0) + amt
+        if "WHISPERING_EARRING" in rid:
+            rfx["auto_turn1"] = 1  # Vakuu plays turn 1 left-to-right
 
     t0 = _time.perf_counter()
     end_hps: list[int] = []
@@ -662,7 +682,9 @@ def rollout_fight(
         sim.prefer_big = target_order == "focus"
         while sim.outcome is None and sim.turn < max_turns:
             sim.start_turn()
-            if policy == "dfs":
+            if sim.turn == 1 and rfx.get("auto_turn1"):
+                _auto_turn(sim)  # Whispering Earring: turn 1 is out of our hands
+            elif policy == "dfs":
                 _dfs_turn(sim, combat_weights)
             else:
                 _greedy_turn(sim)

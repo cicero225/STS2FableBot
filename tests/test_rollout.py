@@ -216,3 +216,17 @@ def test_fiddle_relic_shapes_the_sim_draws() -> None:
     # both must complete; the fiddle run sees bigger hands (7/turn) so it should
     # not do worse against a soft target
     assert with_f.win_rate >= without.win_rate
+
+
+def test_whispering_earring_models_both_halves() -> None:
+    # Owner 2026-08-01: '+1 energy at the start of each turn. Vakuu plays your
+    # first turn for you (left-to-right).' Upside: 4-energy turns. Drawback:
+    # turn 1 unprioritized. Net vs a soft target the energy should dominate;
+    # and the run must complete with the autopilot in the loop.
+    from types import SimpleNamespace as NS
+    ear = [NS(id="WHISPERING_EARRING", name="Whispering Earring", description="x")]
+    foe = [FightEnemy(hp=70, dps=9)]
+    deck = [*starter(), card("BLUDGEON", cost="3")]
+    with_e = rollout_fight(deck, foe, 60, 80, card_effects=FX, relics=ear)
+    without = rollout_fight(deck, foe, 60, 80, card_effects=FX)
+    assert (with_e.win_rate, with_e.exp_end_hp) >= (without.win_rate, without.exp_end_hp)
