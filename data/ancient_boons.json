@@ -666,7 +666,7 @@
      "cap": 2.0
     }
    ],
-   "note": "First card each combat played twice; scales with a big opener.",
+   "note": "First card each combat played twice; scales with a big opener. ENCODED 2026-08-01: planner doubles the combat's first card (armed approx: r1 + empty piles + full energy). FILED, not built: boon-pick value should scale with a high-impact innate/opener card in deck (owner: tabled).",
    "uncertain": false,
    "provides": {},
    "draft_bonus": {}

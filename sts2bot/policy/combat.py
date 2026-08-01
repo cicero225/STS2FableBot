@@ -55,6 +55,10 @@ _SELF_REPLAYS = re.compile(r"in your Exhaust Pile, play it", re.IGNORECASE)
 # NOT draw cards during your turn' -- no player status is surfaced, so the Battle
 # Trance NO_DRAW machinery never fires; the sim must start with draws dead.
 _RELIC_BLOCKS_DRAW = re.compile(r"not draw (?:any )?cards? during your turn", re.IGNORECASE)
+# Throwing Axe (Ancient, owner 2026-08-01): 'The first card you play each combat is
+# played an extra time.' Armed-state approximated from piles/energy (no counter API).
+_FIRST_CARD_TWICE = re.compile(r"first card you play each combat is played an extra time",
+                               re.IGNORECASE)
 _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 damage, 1 cost)
 # An enemy in its invincible/about-to-explode state (Waterfall Giant's Steam Eruption) is reported
 # at a sentinel HP — damage into it is wasted (it dies on its own after the explosion), only block
@@ -454,6 +458,7 @@ class SimState:
     n_attacks_played: int = 0
     n_skills_played: int = 0
     cent_puzzle_armed: bool = False  # Centennial Puzzle unfired (approx: entered at full HP)
+    axe_armed: bool = False  # Throwing Axe: the first CARD this combat plays twice
     demon_tongue_armed: bool = False  # Demon Tongue: first self-HP-loss this turn heals it
     # relic pass R2: end-of-turn conditional relics held (ids), evaluated in _score on
     # the plan's END state (Orichalcum, Cloak Clasp, Sturdy Clamp, Ice Cream, ...)
@@ -1472,7 +1477,7 @@ def plan_combat_turn(
     # (Nunchaku/Tuning Fork) continue from the live counter, Pen Nib-style.
     relic_triggers = []
     eot_relics = []
-    cent_armed = demon_armed = False
+    cent_armed = demon_armed = axe_armed = False
     for r in player.relics:
         rid = (r.id or r.name or "").upper().replace(" ", "_")
         if rid in _EOT_RELICS:  # R2: end-of-turn conditionals, evaluated in _score
@@ -1488,6 +1493,16 @@ def plan_combat_turn(
                 cent_armed = player.hp == player.max_hp
             if trig.kind == "first_self_hp_loss_turn":
                 demon_armed = True
+        if _FIRST_CARD_TWICE.search(r.description or ""):
+            # armed iff nothing has been played this combat yet: round 1, empty
+            # discard/exhaust, full energy (approx — 0-cost first plays evade the
+            # energy check, but piles catch non-power plays; documented tradeoff)
+            axe_armed = (
+                (state.battle.round or 1) == 1
+                and not (getattr(player, "discard_pile_count", None) or 0)
+                and not (getattr(player, "exhaust_pile_count", None) or 0)
+                and player.energy == (player.max_energy or player.energy)
+            )
         # Paper Phrog: "Enemies with Vulnerable take 75% more damage rather than 50%."
         # — rides the Cruelty vuln_mult_bonus lane (additive on VULN_MULT)
         if m := re.search(r"take (\d+)% more damage rather than 50%",
@@ -1531,6 +1546,7 @@ def plan_combat_turn(
                                   == _PEN_NIB_PERIOD - 1),
         relic_triggers=tuple(relic_triggers),
         cent_puzzle_armed=cent_armed,
+        axe_armed=axe_armed,
         demon_tongue_armed=demon_armed,
         eot_relics=tuple(eot_relics),
     )
@@ -1583,6 +1599,17 @@ def plan_combat_turn(
     # Beast's Ringing/attack cycle guarantees, or read the draw pile — is deferred to §5-C.
     max_plays = card_cap if card_cap is not None else len(playable)
 
+    def apply_play(sim: SimState, card: PlannedCard, ti: int | None) -> SimState:
+        nxt = _apply_card(sim, card, ti)
+        # Throwing Axe: the first CARD (not potion) of the combat replays free —
+        # full effects, no energy, no extra play friction
+        if (sim.axe_armed and card.potion_slot is None
+                and not any(i >= 0 for i, _ in sim.played)):
+            again = _apply_card(nxt, card, ti)
+            nxt = replace(again, energy=again.energy + card.cost,
+                          played=again.played[:-1], axe_armed=False)
+        return nxt
+
     def dfs(sim: SimState, remaining: list[PlannedCard], plays_left: int) -> None:
         nonlocal best_state, best_score, visited
         if visited >= weights.max_sequences:
@@ -1613,7 +1640,7 @@ def plan_combat_turn(
                 target_idx.sort(key=lambda i: (-sim.enemies[i].incoming, sim.enemies[i].hp))
                 for ti in target_idx[:3]:
                     visited += 1
-                    nxt = _apply_card(sim, card, ti)
+                    nxt = apply_play(sim, card, ti)
                     score = scored(nxt)
                     if score > best_score:
                         best_score, best_state = score, nxt
@@ -1622,7 +1649,7 @@ def plan_combat_turn(
                         dfs(nxt, rest, nl)
             else:
                 visited += 1
-                nxt = _apply_card(sim, card, None)
+                nxt = apply_play(sim, card, None)
                 score = scored(nxt)
                 if score > best_score:
                     best_score, best_state = score, nxt

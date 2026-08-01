@@ -1703,3 +1703,32 @@ def test_ice_cream_banks_energy_via_generators() -> None:
     st["player"]["relics"] = []
     d2 = plan_combat_turn(parse_state(st), w)
     assert d2.action.payload().get("action") != "play_card", d2.rationale
+
+
+def test_throwing_axe_doubles_the_first_card_of_combat() -> None:
+    # Owner relic pass 2026-08-01: 'The first card you play each combat is played
+    # an extra time.' Enemy at 12 with a 6-damage Strike: lethal WITH the axe on
+    # round 1, not without; and NOT armed on later rounds (piles non-empty).
+    w = load_policy_config().combat
+    strike = _bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                    "Attack", "AnyEnemy")
+    axe = {"id": "THROWING_AXE", "name": "Throwing Axe", "counter": None,
+           "keywords": [],
+           "description": "The first card you play each combat is played an "
+                          "extra time."}
+
+    st = _beckon_state(1, [strike], enemy_hp=12, hp=60, incoming="5")
+    st["player"]["relics"] = [axe]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores and d.scores.get("lethal"), d.rationale  # 6x2 = 12: kill seen
+
+    st["player"]["relics"] = []
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert not (d2.scores and d2.scores.get("lethal"))  # 6 < 12 without the axe
+
+    # round 3 with a used discard pile: axe long spent, no double
+    st["player"]["relics"] = [axe]
+    st["battle"]["round"] = 3
+    st["player"]["discard_pile_count"] = 4
+    d3 = plan_combat_turn(parse_state(st), w)
+    assert not (d3.scores and d3.scores.get("lethal"))
