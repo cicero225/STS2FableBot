@@ -1732,3 +1732,24 @@ def test_throwing_axe_doubles_the_first_card_of_combat() -> None:
     st["player"]["discard_pile_count"] = 4
     d3 = plan_combat_turn(parse_state(st), w)
     assert not (d3.scores and d3.scores.get("lethal"))
+
+
+def test_barricade_up_spends_leftover_energy_on_block() -> None:
+    # Owner question 2026-08-01: with BARRICADE_POWER active, excess block is
+    # future-useful (excess=0 in _score), so a leftover-energy Defend should be
+    # played; without it, overblock penalty + friction correctly hold the card.
+    w = load_policy_config().combat
+    defend = _bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.",
+                    "Skill", "None")
+    st = _beckon_state(4, [defend], enemy_hp=200, hp=60, incoming="0")
+    st["player"]["block"] = 0
+    st["player"]["status"] = [{"id": "BARRICADE_POWER", "name": "Barricade",
+                               "amount": 1, "description":
+                               "Block is not removed at the start of your turn.",
+                               "keywords": []}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload().get("action") == "play_card", d.rationale
+
+    st["player"]["status"] = []
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert d2.action.payload().get("action") != "play_card", d2.rationale
