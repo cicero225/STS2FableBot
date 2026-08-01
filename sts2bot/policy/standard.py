@@ -2370,18 +2370,31 @@ class StandardRouter:
                 return Decision(action=act.CancelSelection(), rationale="no target; skip")
             return Wait(reason="card select: no remaining candidates")
 
-        # Enough picked (or a previewed single pick): confirm. Clear pick-tracking ONLY once the
-        # game raises its preview (preview_showing) -- the honest "selection registered" signal. If
-        # cleared before that, a confirm that no-ops (picks not yet registered at 4x) would leave
-        # `picked` empty and we'd re-select, toggling cards back off (the f27 enchant over-toggle).
-        # Keeping `picked` means we just re-confirm next poll until it resolves. (Enchant/upgrade/
-        # remove screens all raise a preview.)
+        # Enough picked (or a previewed single pick): confirm — and NEVER clear the
+        # pick-tracking while still on this screen. The June fix cleared on
+        # preview_showing, which enabled the exact hang it targeted (owner-diagnosed
+        # 2026-08-01, batch 51476 f3): one transiently-failed confirm with the
+        # preview up -> picked cleared -> next poll RE-SELECTS Bash -> the game's
+        # selection toggles OFF internally while the preview still shows -> confirm
+        # no-ops for bot AND human alike. The owner's manual recovery was
+        # back -> fresh select -> confirm; mirror it: re-confirm a few times, then
+        # CancelSelection to reset the screen state and re-pick cleanly.
         if cs.can_confirm:
-            if cs.preview_showing:
-                ctx.screen_mem.pop(mem_key, None)
-            return Decision(
-                action=act.ConfirmSelection(), rationale=f"confirm {len(picked)}/{needed} selected"
-            )
+            mem["confirms"] = mem.get("confirms", 0) + 1
+            if mem["confirms"] <= 4:
+                return Decision(
+                    action=act.ConfirmSelection(),
+                    rationale=f"confirm {len(picked)}/{needed} selected",
+                )
+            # stuck: reset like the owner did — cancel, clear tracking, re-pick
+            ctx.screen_mem.pop(mem_key, None)
+            if cs.can_cancel or cs.can_skip:
+                return Decision(
+                    action=act.CancelSelection(),
+                    rationale="confirm not resolving; cancel to reset the "
+                              "selection state (owner recovery 2026-08-01)",
+                )
+            return Wait(reason="card select: confirm not resolving, no cancel")
         if not cs.cards:
             ctx.screen_mem.pop(mem_key, None)
             if cs.can_skip or cs.can_cancel:

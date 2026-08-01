@@ -4283,3 +4283,39 @@ def test_full_belt_drinks_a_heal_to_claim_the_reward_potion() -> None:
     p = d.action.payload()
     assert p["action"] == "use_potion" and p["slot"] in (0, 1), d.rationale
     assert "free a belt slot" in d.rationale
+
+
+def test_enchant_confirm_stall_never_reselects_and_cancels_to_reset() -> None:
+    """Owner-diagnosed 2026-08-01 (batch 51476 f3, Slither enchant): the June fix
+    cleared pick-tracking on preview_showing, so one transiently-failed confirm
+    made the bot RE-SELECT Bash -- toggling the game's internal selection OFF
+    while the preview stayed up; after that confirm no-oped for bot AND human.
+    Owner's manual recovery: back -> fresh select -> confirm. The handler now
+    re-confirms (never re-selects) and after 4 stuck confirms cancels to reset."""
+    from types import SimpleNamespace as NS  # noqa: F401
+
+    cards = [{"index": 0, "id": "BASH", "name": "Bash", "type": "Attack",
+              "cost": "2", "description": "Deal 8 damage. Apply 2 Vulnerable.",
+              "rarity": "Basic", "is_upgraded": False, "keywords": []}]
+
+    def screen(can_confirm, preview):
+        st = _card_select_state("NDeckEnchantSelectScreen",
+                                "Choose a card to Enchant.", cards,
+                                can_confirm=can_confirm)
+        st.card_select.preview_showing = preview
+        return st
+
+    r = router()
+    ctx = LoopContext()
+    d1 = r.decide(screen(False, False), ctx)
+    assert d1.action.payload()["action"] == "select_card"  # first pick
+    actions = []
+    for _ in range(6):  # screen stuck: preview up, confirm never resolves
+        d = r.decide(screen(True, True), ctx)
+        actions.append(d.action.payload()["action"])
+    # the owner's exact recovery, mechanized: re-confirm (never re-select into
+    # the live preview), then cancel to reset, THEN a fresh select
+    assert actions[:4] == ["confirm_selection"] * 4
+    assert actions[4] == "cancel_selection"
+    assert actions[5] == "select_card"  # clean re-pick AFTER the reset
+    assert "select_card" not in actions[:4], actions  # never before the cancel
