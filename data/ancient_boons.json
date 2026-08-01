@@ -1,14 +1,14 @@
 {
  "_meta": {
-  "source": "scripts/build_ancient_boons.py (Ancients pass, PLAN §8.5.5a)",
-  "scale": "event-heuristic units (relic ≈ 6.0)",
+  "source": "scripts/build_ancient_boons.py (Ancients pass, PLAN \u00a78.5.5a)",
+  "scale": "event-heuristic units (relic \u2248 6.0)",
   "n_boons": 99,
   "n_uncertain": 0
  },
  "boons": {
   "Fishing Rod": {
    "value": 5.0,
-   "note": "Every 3 combats upgrade a random card — live-validated (both A/B #3 runs carried it to good effect).",
+   "note": "Every 3 combats upgrade a random card \u2014 live-validated (both A/B #3 runs carried it to good effect).",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -176,7 +176,7 @@
   },
   "Phial Holster": {
    "value": 4.5,
-   "note": "+1 potion slot + 2 potions — the potion policy cashes these (win #3 picked it blind at the clamp cap and it played fine).",
+   "note": "+1 potion slot + 2 potions \u2014 the potion policy cashes these (win #3 picked it blind at the clamp cap and it played fine).",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -184,7 +184,7 @@
   },
   "Winged Boots": {
    "value": 4.5,
-   "note": "Ignore paths 3x — routing freedom the DP can spend on off-lane shops/rests.",
+   "note": "Ignore paths 3x \u2014 routing freedom the DP can spend on off-lane shops/rests.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -192,7 +192,7 @@
   },
   "Silken Tress": {
    "value": 2.5,
-   "note": "Lose all gold; Glam-enchant the first card reward (you keep ONE of its cards — one twice-a-combat card for ~99g). New-epoch boon, harvested live 2026-07-16.",
+   "note": "Lose all gold; Glam-enchant the first card reward (you keep ONE of its cards \u2014 one twice-a-combat card for ~99g). New-epoch boon, harvested live 2026-07-16.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -236,14 +236,14 @@
     "vulnerable_source": 2.0,
     "big_single_hit": 1.0
    },
-   "note": "Owner: Break = 1 energy, 20 dmg, 5 Vulnerable — a massive strict Bash upgrade. Provides are a proxy (BREAK has no tags/KB entry yet, so §5-C deck pricing is blind to it — filed).",
+   "note": "Owner: Break = 1 energy, 20 dmg, 5 Vulnerable \u2014 a massive strict Bash upgrade. Provides are a proxy (BREAK has no tags/KB entry yet, so \u00a75-C deck pricing is blind to it \u2014 filed).",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
   },
   "Driftwood": {
    "value": 5.0,
-   "note": "Reroll every card reward once — selection quality all run.",
+   "note": "Reroll every card reward once \u2014 selection quality all run.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -270,7 +270,7 @@
    "provides": {
     "energy_source": 1.5
    },
-   "note": "+1 energy/turn; reward-pool dilution is the only tax. Energy is king. NB drafting sees off-class/colorless offers without Spirebird priors or tags (text-parse + rarity only) → systematically undervalued vs in-class; conservative but safe (owner: 'probably for the best' — cross-class Spirebird samples are abysmal anyway). Deep-future: busted cross-class combos lurk (Shiv/Ethereal generators + Feel No Pain + Ashen Strike — owner).",
+   "note": "+1 energy/turn; reward-pool dilution is the only tax. Energy is king. NB drafting sees off-class/colorless offers without Spirebird priors or tags (text-parse + rarity only) \u2192 systematically undervalued vs in-class; conservative but safe (owner: 'probably for the best' \u2014 cross-class Spirebird samples are abysmal anyway). Deep-future: busted cross-class combos lurk (Shiv/Ethereal generators + Feel No Pain + Ashen Strike \u2014 owner).",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
@@ -280,14 +280,14 @@
    "provides": {
     "energy_source": 1.0
    },
-   "note": "Luminesce (KB): Retain, +2 energy, Exhaust — in hand every combat = ~2 flexible energy per fight.",
+   "note": "Luminesce (KB): Retain, +2 energy, Exhaust \u2014 in hand every combat = ~2 flexible energy per fight.",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
   },
   "Sand Castle": {
    "value": 5.5,
-   "note": "Upgrade 6 random cards on pickup — near Yummy Cookie tier for our mostly-unupgraded decks. (Day-one catalog gap: in the log harvest, missed from the wiki's Orobas list; fixed 2026-07-20.)",
+   "note": "Upgrade 6 random cards on pickup \u2014 near Yummy Cookie tier for our mostly-unupgraded decks. (Day-one catalog gap: in the log harvest, missed from the wiki's Orobas list; fixed 2026-07-20.)",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -295,7 +295,7 @@
   },
   "Noble Glass": {
    "value": 3.5,
-   "note": "See 15 Regent cards, add any number — free optionality (take zero if bad), but off-class cards draft blind (no priors/tags).",
+   "note": "See 15 Regent cards, add any number \u2014 free optionality (take zero if bad), but off-class cards draft blind (no priors/tags).",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -319,7 +319,7 @@
   },
   "Touch of Orobas": {
    "value": 6.0,
-   "note": "Owner-confirmed: Black Blood = heal 12 post-combat, a strict Burning Blood upgrade — +6/combat is major attrition relief for a bot that bleeds every fight.",
+   "note": "Owner-confirmed: Black Blood = heal 12 post-combat, a strict Burning Blood upgrade \u2014 +6/combat is major attrition relief for a bot that bleeds every fight.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -330,14 +330,14 @@
    "provides": {
     "draw_engine": 1.5
    },
-   "note": "Passive +1 draw/turn — costs no card slot, so the drafted-draw energy caveat only half-applies.",
+   "note": "Passive +1 draw/turn \u2014 costs no card slot, so the drafted-draw energy caveat only half-applies.",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
   },
   "Pael's Claw": {
    "value": 3.5,
-   "note": "Owner: Goopy = the Defend gains +1 Block permanently per play, but Exhausts on play — one use per fight, grows forever. Slow compounding for a real tempo tax.",
+   "note": "Owner: Goopy = the Defend gains +1 Block permanently per play, but Exhausts on play \u2014 one use per fight, grows forever. Slow compounding for a real tempo tax.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -356,14 +356,14 @@
    "provides": {
     "energy_source": 1.5
    },
-   "note": "+1 energy from turn 3 on — the strongest common Pael offer.",
+   "note": "+1 energy from turn 3 on \u2014 the strongest common Pael offer.",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
   },
   "Pael's Growth": {
    "value": 4.0,
-   "note": "Owner: Clone unlocks a rest-site action duplicating ALL Clone cards (1→2→4→8 with dedication). REPRICED 2026-07-21: the rest handler now takes Clone when an enchanted card exists (the §8.4 non-standard-action fix); still needs a premium enchant target to sing.",
+   "note": "Owner: Clone unlocks a rest-site action duplicating ALL Clone cards (1\u21922\u21924\u21928 with dedication). REPRICED 2026-07-21: the rest handler now takes Clone when an enchanted card exists (the \u00a78.4 non-standard-action fix); still needs a premium enchant target to sing.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -371,7 +371,7 @@
   },
   "Pael's Horn": {
    "value": 3.0,
-   "note": "Relax (KB): 3 energy, 16 Block, next turn +2 draw +2 energy, Exhaust — real but unexciting cards; owner rated average.",
+   "note": "Relax (KB): 3 energy, 16 Block, next turn +2 draw +2 energy, Exhaust \u2014 real but unexciting cards; owner rated average.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -405,7 +405,7 @@
   },
   "Pael's Tooth": {
    "value": 4.5,
-   "note": "Remove 5, return upgraded over combats — genuine thinning+upgrades. (The old event heuristic's '+5 for remove' bait overrated it vs Legion, but it isn't a bad boon.)",
+   "note": "Remove 5, return upgraded over combats \u2014 genuine thinning+upgrades. (The old event heuristic's '+5 for remove' bait overrated it vs Legion, but it isn't a bad boon.)",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -421,7 +421,7 @@
   },
   "Biiig Hug": {
    "value": 4.0,
-   "note": "Remove 4 for Soot-on-shuffle (Soot = unplayable Status). Thinning with a tax that grows as the deck thins (more shuffles) — self-limiting but net fine.",
+   "note": "Remove 4 for Soot-on-shuffle (Soot = unplayable Status). Thinning with a tax that grows as the deck thins (more shuffles) \u2014 self-limiting but net fine.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -458,7 +458,7 @@
    "provides": {
     "energy_source": 1.5
    },
-   "note": "Energy for 5g/turn — cheap tax at bot gold curves. (Log-only boon; wikis miss it.)",
+   "note": "Energy for 5g/turn \u2014 cheap tax at bot gold curves. (Log-only boon; wikis miss it.)",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
@@ -468,7 +468,7 @@
    "provides": {
     "energy_source": 1.0
    },
-   "note": "Brightest Flame (KB): gain 2 energy, draw 2, lose 1 Max HP — owner: 'by far one of the strongest picks from Tezcatara'.",
+   "note": "Brightest Flame (KB): gain 2 energy, draw 2, lose 1 Max HP \u2014 owner: 'by far one of the strongest picks from Tezcatara'.",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
@@ -485,7 +485,7 @@
   },
   "Toy Box": {
    "value": 4.5,
-   "note": "Owner: melt = leftmost goes permanently inactive every 3 combats — but on-pickup-effect relics lose nothing to melting, so expected value is better than it reads.",
+   "note": "Owner: melt = leftmost goes permanently inactive every 3 combats \u2014 but on-pickup-effect relics lose nothing to melting, so expected value is better than it reads.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -496,7 +496,7 @@
    "provides": {
     "energy_source": 1.5
    },
-   "note": "+4 energy on turn 1 every combat — huge tempo; slightly below Flesh in long fights, above it in short ones.",
+   "note": "+4 energy on turn 1 every combat \u2014 huge tempo; slightly below Flesh in long fights, above it in short ones.",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
@@ -537,7 +537,7 @@
   },
   "Delicate Frond": {
    "value": 6.0,
-   "note": "Full potion refill every combat — enormous with the potion policy actually drinking them.",
+   "note": "Full potion refill every combat \u2014 enormous with the potion policy actually drinking them.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -545,7 +545,7 @@
   },
   "Diamond Diadem": {
    "value": 2.5,
-   "note": "≤2 plays → half damage; fights the planner's nature.",
+   "note": "\u22642 plays \u2192 half damage; fights the planner's nature.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -553,7 +553,7 @@
   },
   "Fur Coat": {
    "value": 5.5,
-   "note": "7 marked combats at 1 HP — free Act-3 normals.",
+   "note": "7 marked combats at 1 HP \u2014 free Act-3 normals.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -585,7 +585,7 @@
   },
   "Signet Ring": {
    "value": 6.0,
-   "note": "999g — the A/B winner converted banked gold into 8 relics in Act 3. Requires shop competence; ours is adequate.",
+   "note": "999g \u2014 the A/B winner converted banked gold into 8 relics in Act 3. Requires shop competence; ours is adequate.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -600,7 +600,7 @@
      "cap": 1.6
     }
    ],
-   "note": "Owner: Maul = 1 energy, 5x2 dmg, ALL Mauls +1 dmg this combat — up to 6 self-ramping multi-hits from junk basics; multiplies with Strength. (MAUL still a KB gap for deck pricing.)",
+   "note": "Owner: Maul = 1 energy, 5x2 dmg, ALL Mauls +1 dmg this combat \u2014 up to 6 self-ramping multi-hits from junk basics; multiplies with Strength. (MAUL still a KB gap for deck pricing.)",
    "uncertain": false,
    "provides": {},
    "draft_bonus": {}
@@ -625,7 +625,7 @@
   },
   "Meat Cleaver": {
    "value": 5.0,
-   "note": "Owner: Cook = rest action, remove 2 cards + 9 Max HP — strong. REPRICED 2026-07-21: the rest handler now Cooks when thinnable cards exist (the §8.4 non-standard-action fix).",
+   "note": "Owner: Cook = rest action, remove 2 cards + 9 Max HP \u2014 strong. REPRICED 2026-07-21: the rest handler now Cooks when thinnable cards exist (the \u00a78.4 non-standard-action fix).",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -633,7 +633,7 @@
   },
   "Sai": {
    "value": 6.5,
-   "note": "Passive 7 block/turn — pure survival, no play needed.",
+   "note": "Passive 7 block/turn \u2014 pure survival, no play needed.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -644,14 +644,14 @@
    "provides": {
     "energy_source": 1.5
    },
-   "note": "+1 energy, Powers cost 1 more — mild tax. Owner picked it in the A/B #3 win.",
+   "note": "+1 energy, Powers cost 1 more \u2014 mild tax. Owner picked it in the A/B #3 win.",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
   },
   "Tanx's Whistle": {
    "value": 4.0,
-   "note": "Owner: Whistle = 3 energy, 33(44) dmg, Stun (delays the intent one turn; not a status — ignores Artifact; doesn't stack), Exhaust. One big tempo nuke per fight; best vs elites/bosses.",
+   "note": "Owner: Whistle = 3 energy, 33(44) dmg, Stun (delays the intent one turn; not a status \u2014 ignores Artifact; doesn't stack), Exhaust. One big tempo nuke per fight; best vs elites/bosses.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -680,14 +680,14 @@
      "cap": 2.0
     }
    ],
-   "note": "Owner: Instinct = doubles the card's attack damage — on your 3 best attacks. Scales with the deck's top-end.",
+   "note": "Owner: Instinct = doubles the card's attack damage \u2014 on your 3 best attacks. Scales with the deck's top-end.",
    "uncertain": false,
    "provides": {},
    "draft_bonus": {}
   },
   "War Hammer": {
    "value": 4.5,
-   "note": "Elite kill → 4 upgrades; the honest elite gate caps uptime until deck power rises.",
+   "note": "Elite kill \u2192 4 upgrades; the honest elite gate caps uptime until deck power rises.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -698,7 +698,7 @@
    "provides": {
     "energy_source": 1.5
    },
-   "note": "Owner: Enthralled = 2-cost must-play-first Exhaust curse — a once-per-combat 2-energy tax when drawn, cheap rent on +1 energy/turn.",
+   "note": "Owner: Enthralled = 2-cost must-play-first Exhaust curse \u2014 a once-per-combat 2-energy tax when drawn, cheap rent on +1 energy/turn.",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
@@ -713,7 +713,7 @@
   },
   "Distinguished Cape": {
    "value": 3.5,
-   "note": "Owner: Apparition = StS1's (1 energy, Ethereal, gain 1 Intangible; upgrade drops Ethereal). Premium for a human — but the combat sim doesn't model Intangible, so the planner scores it ~0 and lets it rot; bot-aware LOW until the sim learns Intangible, then reprice toward 6+.",
+   "note": "Owner: Apparition = StS1's (1 energy, Ethereal, gain 1 Intangible; upgrade drops Ethereal). Premium for a human \u2014 but the combat sim doesn't model Intangible, so the planner scores it ~0 and lets it rot; bot-aware LOW until the sim learns Intangible, then reprice toward 6+.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -724,7 +724,7 @@
    "provides": {
     "draw_engine": 2.0
    },
-   "note": "+2 draw/turn but no in-turn draw — anti-synergy with drafted draw.",
+   "note": "+2 draw/turn but NO in-turn draw. ENCODED 2026-07-31: sim starts no_draw, draw lanes gated (_draws_blocked reads relic text -- no status surfaced), draft docks dead draw riders -2.0, rollout draws 7/turn + suppresses card draws. FILED, not built: the boon-PICK value should scale down with the deck's existing draw density (a draw-heavy deck loses more taking it).",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
@@ -761,7 +761,7 @@
   },
   "Preserved Fog": {
    "value": 4.0,
-   "note": "Remove 3 for Folly (KB: unplayable Innate Ethereal Eternal curse) — permanently eats one turn-1 hand slot; the thinning usually still wins. (Log-only boon.)",
+   "note": "Remove 3 for Folly (KB: unplayable Innate Ethereal Eternal curse) \u2014 permanently eats one turn-1 hand slot; the thinning usually still wins. (Log-only boon.)",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -769,7 +769,7 @@
   },
   "Sere Talon": {
    "value": 4.0,
-   "note": "Owner: Wish = 0-cost chosen tutor from draw pile, Exhaust (upgrade: Retain). 3 tutors vs 2 random curses — better the spikier the deck's best card.",
+   "note": "Owner: Wish = 0-cost chosen tutor from draw pile, Exhaust (upgrade: Retain). 3 tutors vs 2 random curses \u2014 better the spikier the deck's best card.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -780,7 +780,7 @@
    "provides": {
     "energy_source": 1.5
    },
-   "note": "Owner: Vakuu spams your cards left-to-right until energy runs out (capped vs infinites). A dumb-but-energy-spending turn 1 as rent on +1 energy/turn — mild quality tax, worth it.",
+   "note": "Owner: Vakuu spams your cards left-to-right until energy runs out (capped vs infinites). A dumb-but-energy-spending turn 1 as rent on +1 energy/turn \u2014 mild quality tax, worth it.",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}
@@ -795,7 +795,7 @@
   },
   "Black Star": {
    "value": 5.0,
-   "note": "Elites drop 2 relics; pairs with routing income work — value rises when the elite gate opens up.",
+   "note": "Elites drop 2 relics; pairs with routing income work \u2014 value rises when the elite gate opens up.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -818,7 +818,7 @@
      "cap": 2.0
     }
    ],
-   "note": "Ironclad: Corruption+ — archetype-defining with exhaust payoffs (Feel No Pain), risky without.",
+   "note": "Ironclad: Corruption+ \u2014 archetype-defining with exhaust payoffs (Feel No Pain), risky without.",
    "uncertain": false,
    "provides": {},
    "draft_bonus": {}
@@ -843,7 +843,7 @@
   },
   "Pandora's Box": {
    "value": 3.5,
-   "note": "Transform ALL basics — high variance mid-run when basics still carry the defense.",
+   "note": "Transform ALL basics \u2014 high variance mid-run when basics still carry the defense.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -859,7 +859,7 @@
   },
   "Snecko Eye": {
    "value": 2.0,
-   "note": "Draw 2 + Confused: randomized costs BREAK the planner's cost model — mispriced until the sim learns Confused. Deliberately low for the bot, not a statement about the relic.",
+   "note": "Draw 2 + Confused: randomized costs BREAK the planner's cost model \u2014 mispriced until the sim learns Confused. Deliberately low for the bot, not a statement about the relic.",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},
@@ -870,7 +870,7 @@
    "provides": {
     "energy_source": 1.5
    },
-   "note": "Energy at ≤6 plays/turn; combat.py already models the card cap. (Log-only for DARV pool.)",
+   "note": "Energy at \u22646 plays/turn; combat.py already models the card cap. (Log-only for DARV pool.)",
    "uncertain": false,
    "deck_bonus": [],
    "draft_bonus": {}

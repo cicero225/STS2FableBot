@@ -203,3 +203,16 @@ def test_sleeper_gives_free_setup_turns_and_wakes_on_damage() -> None:
     r_sleep = rollout_fight(deck, [asleep], 44, 80, card_effects=fx)
     # the window is worth real progress (~2 turns of damage: probe 132 -> 104)
     assert r_sleep.exp_enemy_hp_left < r_awake.exp_enemy_hp_left - 15
+
+
+def test_fiddle_relic_shapes_the_sim_draws() -> None:
+    # Fiddle: 7-card turn starts, card-text draws dead (owner 2026-07-31)
+    from types import SimpleNamespace as NS
+    fiddle = [NS(id="FIDDLE", name="Fiddle", description="x")]
+    foe = [FightEnemy(hp=60, dps=8)]
+    deck = [*starter(), card("SHRUG_IT_OFF", typ="Skill")]
+    with_f = rollout_fight(deck, foe, 60, 80, card_effects=FX, relics=fiddle)
+    without = rollout_fight(deck, foe, 60, 80, card_effects=FX)
+    # both must complete; the fiddle run sees bigger hands (7/turn) so it should
+    # not do worse against a soft target
+    assert with_f.win_rate >= without.win_rate

@@ -111,6 +111,17 @@ _BOSS_STAGES: dict[str, list[tuple[int, int]]] = {
 }
 
 
+def _draws_blocked(player) -> bool:
+    """In-turn draws are dead: NO_DRAW status (Battle Trance) OR a Fiddle-class
+    relic ('you may not draw cards during your turn' — no status is surfaced,
+    owner 2026-07-31)."""
+    if any("NO_DRAW" in (st_.id or "").upper() for st_ in (player.status or [])):
+        return True
+    return any(re.search(r"not draw (?:any )?cards? during your turn",
+                         getattr(r_, "description", None) or "", re.IGNORECASE)
+               for r_ in (player.relics or []))
+
+
 def _boss_is_known(bestiary: dict, boss_name: str) -> bool:
     """A boss the forecast machinery can price: a direct bestiary entry, OR a stage
     boss whose suffix-stripped base is in the observed table (GLTQT0XBN7 2026-07-31:
@@ -457,8 +468,7 @@ class StandardRouter:
             return None
         if isinstance(plan, Decision) and plan.scores and plan.scores.get("lethal"):
             return None
-        no_draw = any("NO_DRAW" in (st_.id or "").upper()
-                      for st_ in (player.status or []))
+        no_draw = _draws_blocked(player)
         incoming = sum(
             parse_intent_damage(i.label)
             for e in state.battle.enemies
@@ -839,8 +849,7 @@ class StandardRouter:
             # at a big fight or on a full belt -> the draw converts dead energy
             # into plays THIS turn.
             energy_left = player.energy or 0
-            no_draw = any("NO_DRAW" in (st_.id or "").upper()
-                          for st_ in (player.status or []))
+            no_draw = _draws_blocked(player)
             if (energy_left >= 1 and not no_draw and (dangerous or belt_full)
                     and (dp := first("draw"))):
                 return drink(dp, None,
@@ -1725,6 +1734,13 @@ class StandardRouter:
             boon_relic_context(relics, self.ancient_boons)
             if relics and self.ancient_boons else ({}, {})
         )
+        # Fiddle-class (owner 2026-07-31): in-turn draws are DEAD while held, so a
+        # draw rider is dead weight at draft time (the +2/turn is already banked).
+        if fx.draw and any(
+                re.search(r"not draw (?:any )?cards? during your turn",
+                          getattr(r_, "description", None) or "", re.IGNORECASE)
+                for r_ in relics or []):
+            score -= 2.0
         # Plain-relic -> card-TYPE draft synergies (owner 2026-07-31: Mummified Hand
         # — 'whenever you play a Power, a random card in hand costs 0' — makes
         # powers more favorable to draft; the in-fight discount rides per-poll

@@ -223,6 +223,9 @@ _RELIC_FX = {
     "BLACK_BLOOD": ("post_win_heal", 12),
     "MEAT_ON_THE_BONE": ("post_win_heal", 12),  # if below half; approximate
     "PAPER_PHROG": ("vuln_mult", 1),  # vulnerable hits harder
+    # Fiddle (owner 2026-07-31): +2 cards at turn start, NO in-turn draws --
+    # both halves matter or draw decks misprice badly
+    "FIDDLE": ("fiddle", 2),
 }
 
 
@@ -336,7 +339,8 @@ class _RolloutSim:
             f.lost_this_turn = 0
             f.slipped_this_turn = False
         self.hand = []
-        for _ in range(5 + (rfx.get("t1_draw", 0) if self.turn == 1 else 0)):
+        for _ in range(5 + rfx.get("fiddle", 0)
+                       + (rfx.get("t1_draw", 0) if self.turn == 1 else 0)):
             self.draw_one()
         self.energy = (3 + rfx.get("energy_per_turn", 0)
                        + (rfx.get("t1_energy", 0) if self.turn == 1 else 0)
@@ -355,8 +359,9 @@ class _RolloutSim:
         self.hp = min(self.max_hp, self.hp + pick.fx.heal)
         self.block += pick.fx.block
         self.my_str += pick.fx.strength
-        for _ in range(pick.fx.draw):
-            self.draw_one()
+        if not self.rfx.get("fiddle"):  # Fiddle: in-turn draws are dead
+            for _ in range(pick.fx.draw):
+                self.draw_one()
         if pick.fx.total_damage > 0:
             tgts = (self.targets() if pick.fx.aoe
                     else ([target] if target is not None else []))

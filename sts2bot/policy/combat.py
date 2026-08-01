@@ -51,6 +51,10 @@ _GROWS_ON_EXHAUST = re.compile(r"add its damage to this card", re.IGNORECASE)
 # so exhausting it is SAFE -- even profitable (owner thought experiment 2026-07-30:
 # Thrash eating Howl banks 25 dmg AND fires a free end-of-turn 25 AoE)
 _SELF_REPLAYS = re.compile(r"in your Exhaust Pile, play it", re.IGNORECASE)
+# Fiddle-class relic (owner 2026-07-31): 'draw 2 at the start of each turn; you may
+# NOT draw cards during your turn' -- no player status is surfaced, so the Battle
+# Trance NO_DRAW machinery never fires; the sim must start with draws dead.
+_RELIC_BLOCKS_DRAW = re.compile(r"not draw (?:any )?cards? during your turn", re.IGNORECASE)
 _PRIMAL_ROCK_DAMAGE = 16  # Primal Force transforms Attacks into Giant Rock (16 damage, 1 cost)
 # An enemy in its invincible/about-to-explode state (Waterfall Giant's Steam Eruption) is reported
 # at a sentinel HP — damage into it is wasted (it dies on its own after the explosion), only block
@@ -1491,8 +1495,13 @@ def plan_combat_turn(
             cap = int(m.group(1))
             card_cap = cap if card_cap is None else min(card_cap, cap)
     enemy_sims = _enemy_sims(state.battle.enemies)
+    fiddle_no_draw = any(
+        _RELIC_BLOCKS_DRAW.search(getattr(r_, "description", None) or "")
+        for r_ in (player.relics or [])
+    )
     start = SimState(
         energy=energy,
+        no_draw=fiddle_no_draw,
         enemies=enemy_sims,
         my_block=player.block,
         my_strength=my_strength,

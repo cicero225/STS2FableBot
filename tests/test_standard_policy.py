@@ -4229,3 +4229,28 @@ def test_mummified_hand_nudges_power_drafts() -> None:
                 is_upgraded=False, keywords=[])
     assert (r._card_score(strike, 15, "The Ironclad", 1, deck=[], relics=hand_relic)
             == r._card_score(strike, 15, "The Ironclad", 1, deck=[], relics=None))
+
+
+def test_fiddle_blocks_draw_lanes_and_dampens_draw_drafts() -> None:
+    """Owner relic check 2026-07-31: Fiddle ('draw 2 at turn start; you may NOT
+    draw cards during your turn') surfaces NO player status, so the Battle Trance
+    NO_DRAW machinery never fired -- draw credit flowed to draws that silently do
+    nothing. _draws_blocked reads the relic text; drafting docks dead draw riders."""
+    from types import SimpleNamespace as NS
+
+    from sts2bot.policy.standard import StandardRouter, _draws_blocked
+
+    fiddle = NS(id="FIDDLE", name="Fiddle",
+                description="At the start of each turn, draw 2 additional cards. "
+                            "You may not draw cards during your turn.")
+    player = NS(status=[], relics=[fiddle])
+    assert _draws_blocked(player)
+    assert not _draws_blocked(NS(status=[], relics=[]))
+
+    r = StandardRouter(combat_stats=None, bestiary={})
+    shrug = NS(index=0, id="SHRUG_IT_OFF", name="Shrug It Off", type="Skill",
+               cost="1", description="Gain 8 Block. Draw 1 card.",
+               rarity="Common", is_upgraded=False, keywords=[])
+    bare = r._card_score(shrug, 15, "The Ironclad", 1, deck=[], relics=None)
+    held = r._card_score(shrug, 15, "The Ironclad", 1, deck=[], relics=[fiddle])
+    assert bare - held == 2.0  # dead draw rider docked
