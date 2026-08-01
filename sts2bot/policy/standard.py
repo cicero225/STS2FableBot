@@ -2380,6 +2380,16 @@ class StandardRouter:
         # back -> fresh select -> confirm; mirror it: re-confirm a few times, then
         # CancelSelection to reset the screen state and re-pick cleanly.
         if cs.can_confirm:
+            # Settle-dwell BEFORE the first confirm (live dissection 2026-08-01 on
+            # the owner's deterministic repro): a confirm fired during the
+            # preview's opening animation wedges the preview container — after
+            # that NO confirm lands (bot or human) until a cancel rebuilds it.
+            # The same select+confirm with a 1s gap resolved instantly. Engine
+            # animations run faster at 4x, so 3 polls of settle is generous.
+            if mem.get("settle", 0) < 3:
+                mem["settle"] = mem.get("settle", 0) + 1
+                return Wait(reason=f"preview settling ({mem['settle']}/3) "
+                                   "before confirm")
             # Livelock guard (owner-caught 2026-08-01 #2, upgrade screen): the
             # confirm->cancel->reselect cycle keeps the STATE changing, so the
             # stall rail never trips. A cycle counter that survives the cancel

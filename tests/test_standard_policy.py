@@ -4316,10 +4316,12 @@ def test_enchant_confirm_stall_never_reselects_and_cancels_to_reset() -> None:
         d = r.decide(screen(True, True), ctx)
         seq.append("wait" if isinstance(d, Wait)
                    else d.action.payload()["action"])
-    # dwell-paced confirms (never hammering, never re-selecting into the live
-    # preview), a cancel-reset per cycle, and after 2 cycles: pure Waits so the
-    # stall rail can abort — NO livelock (owner-caught ping-pong 2026-08-01 #2)
-    assert seq[0] == "confirm_selection" and "wait" in seq[:4]
+    # settle-dwell first (the root fix: a confirm during the preview's opening
+    # animation wedges the container -- live dissection 2026-08-01), then
+    # dwell-paced confirms, a cancel-reset per cycle, and after 2 cycles pure
+    # Waits so the stall rail can abort -- NO livelock
+    assert seq[:3] == ["wait"] * 3  # preview settling
+    assert seq[3] == "confirm_selection"
     assert "select_card" not in [a for a in seq[:seq.index("cancel_selection")]]
     assert seq.count("cancel_selection") <= 2
     tail = seq[-6:]
