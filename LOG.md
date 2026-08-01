@@ -2,6 +2,38 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-07-31/08-01 (Fable 5, session 18) — WIN #10; owner converts the act-3 residual live; relic-seam marathon
+
+**WIN #10 = AEONGLASS AGAIN (D86CSF7L7C)** — 2-for-2 since her model landed
+(0-for-5 before). Batch train ran all night at ~1 win/30 with the estimate
+layer now pre-calling every boss death by name (Test Subject stage-table gate
+fixed after GLTQT0XBN7 exposed the variant-name guard, e8659eb). **Batch 61328
+(the full relic-sweep stack) set BOTH depth records: act-reach 2.50, relics
+11.1/run, five act-3 arrivals** — the §5-C signature, pending aggregate.
+
+**Owner relic/potion marathon encoded** (each a live catch or query): Production
+energy-chain unblock (ae8a5fe — the DFS candidate pool dropped EnergyCostTooHigh
+cards, so NO generator chain was ever discoverable; likely a long-standing
+engine-deck tax), Barricade 92.5 overdraft (clamp + next-act boss pricing,
+2afcfbd), Thrash+Howl keeper-rule inversion (67a875d), Gambit death-rider save
++ Entropic refill (4a66e02), Pumpkin Candle Kindle lane — FIRED LIVE on its
+first-ever sighting (2cb6662), Mummified Hand draft pull (db11a78), Fiddle
+no-in-turn-draw at all four layers (6b1642e), Ice Cream proactive banking
+(de714f3), Whispering Earring both halves (a221879), Barricade block-banking
+pinned (f15978c), full-belt drink-to-claim (9983802), Man-Sized Holes
+catalog-first, egg ordering + shop-card-lane gap filed, Regal Pillow/Pantograph
+routing seams.
+
+**ACT-3 A/B (E4ZW92AFP5, Aeonglass): owner WON from a worse position than the
+bot's loss** (62/75 + 1 potion vs 62/91 + 3; HP loss 23 vs forecast 38). His
+line: strip Artifact 3 with cheap debuffs r2-r3, THEN land Vulnerable (250 dmg
+in r4), out-ramp Empower (Str 23 vs 7), block only the big singles. VERDICT:
+the promising-act-3-death residual is a PLAY-QUALITY GAP — convertible.
+Encoded same-session: w_artifact_strip (24ef300) — eaten debuffs price as a
+down payment, unblocking the strip-then-nuke line the bot structurally refused.
+461 tests. Standing: potion pass, fork session, act-3 attrition lane,
+boon-pick deck-conditioning (Fiddle/Throwing Axe class).
+
 ## 2026-07-30 (Fable 5, session 17) — WIN #7; P1.7 live latency measured; Phrog phase 2 root-caused; P2b lands
 
 **P1.7 MAIDEN BATCH (b0smoa0p0): 1/10 win** — HHB656AQ8P, act-3 f48. Third
