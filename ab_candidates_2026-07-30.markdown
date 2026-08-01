@@ -91,7 +91,15 @@ potions/burst by a turn budget), which the rollout can also price.
 
 ## Act-3 boss A/B slate (2026-08-01 night — post-epoch seeds, all f48 deaths)
 
-**1. `E4ZW92AFP5` — Aeonglass (RECOMMENDED).** The purest "promising run died"
+**1. `E4ZW92AFP5` — Aeonglass — PLAYED 2026-08-01, owner WON (verdict: play-quality gap, convertible).**
+Owner won from a WORSE position than the bot's loss (62/75 + one potion vs the
+bot's 62/91 + three; actual HP loss 23 vs the forecast's 38). The line: ate
+Artifact 3 with two cheap debuffs r2-r3, THEN landed Vulnerable — 250 damage in
+r4 — while out-ramping Empower (Str 23 vs her 7) and blocking only the big
+singles. Encoded immediately: w_artifact_strip (24ef300) — eaten debuffs now
+score as a down payment, so the bot can open the Vulnerable window itself. The
+out-ramp and block-pattern halves ride existing machinery; residual gap =
+multiturn pacing. Original brief: The purest "promising run died"
 case on record: the DFS forecast read **est loss 38** vs a 38-42 HP rest-gate
 margin — the closest-to-winnable read any act-3 death has produced — and the
 run still lost in 8 turns. Entry 62/91, 17 relics (Whispering Earring, History

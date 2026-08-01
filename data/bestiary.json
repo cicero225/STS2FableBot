@@ -1,5 +1,5 @@
 {
- "source": "785 run logs",
+ "source": "855 run logs",
  "enemies": {
   "Aeonglass": {
    "roles": [
@@ -8,7 +8,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 17,
+   "runs_seen": 21,
    "hp": [
     512,
     512
@@ -39,7 +39,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 69,
+   "runs_seen": 75,
    "hp": [
     18,
     23
@@ -70,7 +70,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 63,
+   "runs_seen": 67,
    "hp": [
     20,
     22
@@ -97,12 +97,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 21,
+   "runs_seen": 28,
    "hp": [
     70,
     78
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Axebot's turn, it loses 9 HP."
+    },
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 10 Strength until the end of this turn."
@@ -155,7 +159,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 4,
+   "runs_seen": 6,
    "hp": [
     150,
     150
@@ -168,6 +172,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -209,7 +217,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 127,
+   "runs_seen": 145,
    "hp": [
     21,
     22
@@ -236,7 +244,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 146,
+   "runs_seen": 159,
    "hp": [
     35,
     38
@@ -267,7 +275,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 262,
+   "runs_seen": 295,
    "hp": [
     45,
     48
@@ -302,7 +310,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 145,
+   "runs_seen": 162,
    "hp": [
     40,
     43
@@ -333,7 +341,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 72,
+   "runs_seen": 75,
    "hp": [
     30,
     33
@@ -360,7 +368,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 72,
+   "runs_seen": 85,
    "hp": [
     127,
     127
@@ -369,6 +377,10 @@
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 15 Strength until the end of this turn."
+    },
+    "SHACKLING_POTION_POWER": {
+     "name": "Shackling Potion",
+     "description": "Lose 7 Strength until the end of this turn."
     },
     "SHRINK_POWER": {
      "name": "Shrink",
@@ -399,7 +411,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 83,
+   "runs_seen": 94,
    "hp": [
     81,
     84
@@ -442,7 +454,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 179,
+   "runs_seen": 191,
    "hp": [
     38,
     41
@@ -485,7 +497,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 114,
+   "runs_seen": 125,
    "hp": [
     252,
     252
@@ -494,6 +506,10 @@
     "DEMISE_POWER": {
      "name": "Demise",
      "description": "At the end of Ceremonial Beast's turn, it loses 9 HP."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
     },
     "PLOW_POWER": {
      "name": "Plow",
@@ -528,7 +544,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 93,
+   "runs_seen": 107,
    "hp": [
     60,
     64
@@ -563,7 +579,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 270,
+   "runs_seen": 303,
    "hp": [
     25,
     27
@@ -594,7 +610,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 76,
+   "runs_seen": 79,
    "hp": [
     18,
     21
@@ -621,7 +637,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 77,
+   "runs_seen": 90,
    "hp": [
     209,
     209
@@ -673,7 +689,7 @@
     1,
     3
    ],
-   "runs_seen": 130,
+   "runs_seen": 141,
    "hp": [
     65,
     65
@@ -708,7 +724,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 110,
+   "runs_seen": 118,
    "hp": [
     51,
     53
@@ -747,7 +763,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 26,
+   "runs_seen": 29,
    "hp": [
     40,
     46
@@ -778,7 +794,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 50,
+   "runs_seen": 63,
    "hp": [
     162,
     162
@@ -813,7 +829,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 34,
+   "runs_seen": 37,
    "hp": [
     145,
     145
@@ -852,7 +868,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 227,
+   "runs_seen": 258,
    "hp": [
     24,
     28
@@ -922,7 +938,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 100,
+   "runs_seen": 112,
    "hp": [
     6,
     6
@@ -949,12 +965,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 16,
+   "runs_seen": 24,
    "hp": [
     150,
     150
    ],
    "statuses": {
+    "CRUSH_UNDER_POWER": {
+     "name": "Crush Under",
+     "description": "Lose 2 Strength until the end of this turn."
+    },
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 10 Strength until the end of this turn."
@@ -980,7 +1000,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 113,
+   "runs_seen": 123,
    "hp": [
     13,
     17
@@ -993,6 +1013,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 3 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -1030,7 +1054,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 151,
+   "runs_seen": 162,
    "hp": [
     47,
     49
@@ -1061,7 +1085,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 127,
+   "runs_seen": 139,
    "hp": [
     74,
     74
@@ -1088,7 +1112,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 107,
+   "runs_seen": 114,
    "hp": [
     51,
     53
@@ -1123,7 +1147,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 25,
+   "runs_seen": 27,
    "hp": [
     191,
     191
@@ -1158,7 +1182,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 338,
+   "runs_seen": 366,
    "hp": [
     55,
     57
@@ -1171,6 +1195,10 @@
     "DEBILITATE_POWER": {
      "name": "Debilitate",
      "description": "Vulnerable and Weak are twice as effective for the next 3 turns."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -1193,7 +1221,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 95,
+   "runs_seen": 98,
    "hp": [
     7,
     7
@@ -1212,7 +1240,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 29,
+   "runs_seen": 37,
    "hp": [
     148,
     148
@@ -1225,6 +1253,10 @@
     "GALVANIC_POWER": {
      "name": "Galvanic",
      "description": "Powers are afflicted with Galvanized."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 15 Strength until the end of this turn."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -1247,7 +1279,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 113,
+   "runs_seen": 123,
    "hp": [
     47,
     49
@@ -1294,15 +1326,23 @@
    "acts": [
     3
    ],
-   "runs_seen": 11,
+   "runs_seen": 14,
    "hp": [
     16,
     20
    ],
    "statuses": {
+    "CRUSH_UNDER_POWER": {
+     "name": "Crush Under",
+     "description": "Lose 2 Strength until the end of this turn."
+    },
     "MINION_POWER": {
      "name": "Minion",
      "description": "Minions abandon combat without their leader."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Decreases attack damage by 2."
     }
    }
   },
@@ -1313,7 +1353,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 105,
+   "runs_seen": 120,
    "hp": [
     14,
     21
@@ -1344,7 +1384,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 112,
+   "runs_seen": 129,
    "hp": [
     63,
     63
@@ -1379,7 +1419,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 104,
+   "runs_seen": 116,
    "hp": [
     121,
     121
@@ -1410,7 +1450,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 33,
+   "runs_seen": 46,
    "hp": [
     161,
     161
@@ -1419,6 +1459,10 @@
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 10 Strength until the end of this turn."
+    },
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Infested Prism's Attacks deal 30% less damage for the next 4 turns."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -1445,7 +1489,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 112,
+   "runs_seen": 120,
    "hp": [
     11,
     17
@@ -1476,7 +1520,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 136,
+   "runs_seen": 143,
    "hp": [
     58,
     59
@@ -1507,7 +1551,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 136,
+   "runs_seen": 143,
    "hp": [
     190,
     190
@@ -1554,7 +1598,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 72,
+   "runs_seen": 83,
    "hp": [
     379,
     379
@@ -1597,7 +1641,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 101,
+   "runs_seen": 111,
    "hp": [
     222,
     222
@@ -1606,6 +1650,10 @@
     "ASLEEP_POWER": {
      "name": "Asleep",
      "description": "Awakens upon losing HP or after 3 turns."
+    },
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Lagavulin Matriarch's turn, it loses 9 HP."
     },
     "MANGLE_POWER": {
      "name": "Mangle",
@@ -1640,7 +1688,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 236,
+   "runs_seen": 258,
    "hp": [
     32,
     35
@@ -1671,7 +1719,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 340,
+   "runs_seen": 368,
    "hp": [
     11,
     15
@@ -1698,7 +1746,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 97,
+   "runs_seen": 102,
    "hp": [
     80,
     80
@@ -1725,7 +1773,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 48,
+   "runs_seen": 60,
    "hp": [
     55,
     55
@@ -1756,7 +1804,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 105,
+   "runs_seen": 125,
    "hp": [
     134,
     136
@@ -1769,6 +1817,10 @@
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 15 Strength until the end of this turn."
+    },
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Louse Progenitor's Attacks deal 30% less damage for the next 4 turns."
     },
     "STRENGTH_POWER": {
      "name": "Strength",
@@ -1814,7 +1866,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 108,
+   "runs_seen": 112,
    "hp": [
     72,
     72
@@ -1841,7 +1893,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 5,
+   "runs_seen": 6,
    "hp": [
     300,
     300
@@ -1854,6 +1906,14 @@
     "STRENGTH_POWER": {
      "name": "Strength",
      "description": "Increases attack damage by 5."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 1 turn."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   },
@@ -1864,7 +1924,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 17,
+   "runs_seen": 22,
    "hp": [
     101,
     101
@@ -1895,12 +1955,16 @@
    "acts": [
     2
    ],
-   "runs_seen": 92,
+   "runs_seen": 107,
    "hp": [
     61,
     67
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Myte's turn, it loses 9 HP."
+    },
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 10 Strength until the end of this turn."
@@ -1926,7 +1990,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 333,
+   "runs_seen": 361,
    "hp": [
     42,
     46
@@ -1961,7 +2025,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 8,
+   "runs_seen": 10,
    "hp": [
     18,
     23
@@ -1980,7 +2044,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 114,
+   "runs_seen": 131,
    "hp": [
     124,
     130
@@ -2015,7 +2079,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 18,
+   "runs_seen": 29,
    "hp": [
     231,
     231
@@ -2050,7 +2114,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 125,
+   "runs_seen": 142,
    "hp": [
     21,
     21
@@ -2085,12 +2149,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 59,
+   "runs_seen": 69,
    "hp": [
     26,
     31
    ],
    "statuses": {
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Phantasmal Gardener's Attacks deal 30% less damage for the next 4 turns."
+    },
     "SKITTISH_POWER": {
      "name": "Skittish",
      "description": "The first time Phantasmal Gardener is hit each turn, it gains 6 Block."
@@ -2116,7 +2184,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 68,
+   "runs_seen": 79,
    "hp": [
     61,
     64
@@ -2148,7 +2216,7 @@
     1,
     3
    ],
-   "runs_seen": 130,
+   "runs_seen": 147,
    "hp": [
     55,
     55
@@ -2183,7 +2251,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 18,
+   "runs_seen": 22,
    "hp": [
     400,
     400
@@ -2218,7 +2286,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 77,
+   "runs_seen": 90,
    "hp": [
     199,
     199
@@ -2261,12 +2329,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 55,
+   "runs_seen": 71,
    "hp": [
     30,
     37
    ],
    "statuses": {
+    "CRUSH_UNDER_POWER": {
+     "name": "Crush Under",
+     "description": "Lose 2 Strength until the end of this turn."
+    },
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 10 Strength until the end of this turn."
@@ -2296,7 +2368,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 286,
+   "runs_seen": 308,
    "hp": [
     44,
     46
@@ -2327,12 +2399,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 102,
+   "runs_seen": 112,
    "hp": [
     56,
     56
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of Sewer Clam's turn, it loses 9 HP."
+    },
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 10 Strength until the end of this turn."
@@ -2366,7 +2442,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 345,
+   "runs_seen": 372,
    "hp": [
     38,
     40
@@ -2397,7 +2473,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 54,
+   "runs_seen": 66,
    "hp": [
     70,
     75
@@ -2432,7 +2508,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 19,
+   "runs_seen": 23,
    "hp": [
     261,
     261
@@ -2467,7 +2543,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 128,
+   "runs_seen": 134,
    "hp": [
     53,
     55
@@ -2494,7 +2570,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 264,
+   "runs_seen": 288,
    "hp": [
     37,
     39
@@ -2521,7 +2597,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 96,
+   "runs_seen": 109,
    "hp": [
     86,
     86
@@ -2568,7 +2644,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 119,
+   "runs_seen": 131,
    "hp": [
     31,
     33
@@ -2599,7 +2675,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 113,
+   "runs_seen": 123,
    "hp": [
     10,
     14
@@ -2622,7 +2698,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 108,
+   "runs_seen": 121,
    "hp": [
     211,
     211
@@ -2719,7 +2795,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 121,
+   "runs_seen": 139,
    "hp": [
     116,
     119
@@ -2758,15 +2834,23 @@
    "acts": [
     3
    ],
-   "runs_seen": 15,
+   "runs_seen": 22,
    "hp": [
     18,
     23
    ],
    "statuses": {
+    "CRUSH_UNDER_POWER": {
+     "name": "Crush Under",
+     "description": "Lose 2 Strength until the end of this turn."
+    },
     "MINION_POWER": {
      "name": "Minion",
      "description": "Minions abandon combat without their leader."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Decreases attack damage by 2."
     },
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
@@ -2781,7 +2865,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 52,
+   "runs_seen": 60,
    "hp": [
     140,
     140
@@ -3285,6 +3369,237 @@
     }
    }
   },
+  "Test Subject #C31": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    300
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C31 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "INTANGIBLE_POWER": {
+     "name": "Intangible",
+     "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."
+    },
+    "NEMESIS_POWER": {
+     "name": "Nemesis",
+     "description": "At the end of every other turn, gains Intangible 1."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 3 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
+    }
+   }
+  },
+  "Test Subject #C33": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    300
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C33 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "INTANGIBLE_POWER": {
+     "name": "Intangible",
+     "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."
+    },
+    "NEMESIS_POWER": {
+     "name": "Nemesis",
+     "description": "At the end of every other turn, gains Intangible 1."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 2 turns."
+    }
+   }
+  },
+  "Test Subject #C35": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    300
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C35 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "INTANGIBLE_POWER": {
+     "name": "Intangible",
+     "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."
+    },
+    "MANGLE_POWER": {
+     "name": "Mangle",
+     "description": "Lose 10 Strength until the end of this turn."
+    },
+    "NEMESIS_POWER": {
+     "name": "Nemesis",
+     "description": "At the end of every other turn, gains Intangible 1."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Decreases attack damage by 8."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 2 turns."
+    }
+   }
+  },
+  "Test Subject #C37": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    300
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C37 would be defeated, it instead revives even stronger."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "INTANGIBLE_POWER": {
+     "name": "Intangible",
+     "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."
+    },
+    "NEMESIS_POWER": {
+     "name": "Nemesis",
+     "description": "At the end of every other turn, gains Intangible 1."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 1 turn."
+    }
+   }
+  },
+  "Test Subject #C39": {
+   "roles": [
+    "boss"
+   ],
+   "acts": [
+    3
+   ],
+   "runs_seen": 1,
+   "hp": [
+    100,
+    300
+   ],
+   "statuses": {
+    "ADAPTABLE_POWER": {
+     "name": "Adaptable",
+     "description": "When Test Subject #C39 would be defeated, it instead revives even stronger."
+    },
+    "CRUSH_UNDER_POWER": {
+     "name": "Crush Under",
+     "description": "Lose 2 Strength until the end of this turn."
+    },
+    "ENRAGE_POWER": {
+     "name": "Enrage",
+     "description": "Whenever you play a Skill, gains 2 Strength."
+    },
+    "INTANGIBLE_POWER": {
+     "name": "Intangible",
+     "description": "Reduce all damage taken and HP loss to 1. Lasts for 1 turn."
+    },
+    "NEMESIS_POWER": {
+     "name": "Nemesis",
+     "description": "At the end of every other turn, gains Intangible 1."
+    },
+    "PAINFUL_STABS_POWER": {
+     "name": "Painful Stabs",
+     "description": "Shuffle 1 Wound into your Discard Pile each time you receive unblocked attack damage."
+    },
+    "STRENGTH_POWER": {
+     "name": "Strength",
+     "description": "Increases attack damage by 2."
+    },
+    "VULNERABLE_POWER": {
+     "name": "Vulnerable",
+     "description": "Receive 50% more damage from Attacks for 1 turn."
+    }
+   }
+  },
   "The Forgotten": {
    "roles": [
     "monster"
@@ -3292,7 +3607,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 25,
+   "runs_seen": 28,
    "hp": [
     106,
     106
@@ -3331,12 +3646,16 @@
    "acts": [
     2
    ],
-   "runs_seen": 62,
+   "runs_seen": 72,
    "hp": [
     321,
     321
    ],
    "statuses": {
+    "DEMISE_POWER": {
+     "name": "Demise",
+     "description": "At the end of The Insatiable's turn, it loses 9 HP."
+    },
     "MANGLE_POWER": {
      "name": "Mangle",
      "description": "Lose 10 Strength until the end of this turn."
@@ -3370,7 +3689,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 25,
+   "runs_seen": 28,
    "hp": [
     93,
     93
@@ -3401,7 +3720,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 125,
+   "runs_seen": 142,
    "hp": [
     123,
     123
@@ -3440,7 +3759,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 170,
+   "runs_seen": 192,
    "hp": [
     79,
     79
@@ -3487,12 +3806,16 @@
    "acts": [
     1
    ],
-   "runs_seen": 245,
+   "runs_seen": 277,
    "hp": [
     21,
     25
    ],
    "statuses": {
+    "SHRINK_POWER": {
+     "name": "Shrink",
+     "description": "Toadpole's Attacks deal 30% less damage for the next 4 turns."
+    },
     "SIC_EM_POWER": {
      "name": "Sic 'Em",
      "description": "Whenever Osty hits this enemy this turn, Summon 3."
@@ -3522,7 +3845,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 18,
+   "runs_seen": 22,
    "hp": [
     199,
     199
@@ -3557,7 +3880,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 114,
+   "runs_seen": 131,
    "hp": [
     14,
     18
@@ -3588,7 +3911,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 65,
+   "runs_seen": 67,
    "hp": [
     21,
     25
@@ -3611,7 +3934,7 @@
    "acts": [
     2
    ],
-   "runs_seen": 176,
+   "runs_seen": 197,
    "hp": [
     87,
     87
@@ -3646,7 +3969,7 @@
    "acts": [
     3
    ],
-   "runs_seen": 48,
+   "runs_seen": 60,
    "hp": [
     41,
     41
@@ -3673,7 +3996,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 252,
+   "runs_seen": 269,
    "hp": [
     26,
     28
@@ -3704,7 +4027,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 339,
+   "runs_seen": 367,
    "hp": [
     7,
     11
@@ -3727,7 +4050,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 102,
+   "runs_seen": 112,
    "hp": [
     17,
     21
@@ -3754,7 +4077,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 102,
+   "runs_seen": 115,
    "hp": [
     173,
     173
@@ -3801,7 +4124,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 103,
+   "runs_seen": 111,
    "hp": [
     61,
     61
@@ -3832,7 +4155,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 106,
+   "runs_seen": 115,
    "hp": [
     240,
     999999999
@@ -3876,7 +4199,7 @@
    "acts": [
     1
    ],
-   "runs_seen": 109,
+   "runs_seen": 123,
    "hp": [
     17,
     21
@@ -3903,12 +4226,16 @@
    "acts": [
     3
    ],
-   "runs_seen": 13,
+   "runs_seen": 18,
    "hp": [
     18,
     23
    ],
    "statuses": {
+    "CRUSH_UNDER_POWER": {
+     "name": "Crush Under",
+     "description": "Lose 2 Strength until the end of this turn."
+    },
     "HIGH_VOLTAGE_POWER": {
      "name": "High Voltage",
      "description": "At the end of Zapbot's turn, it gains 2 Strength."
@@ -3924,6 +4251,10 @@
     "VULNERABLE_POWER": {
      "name": "Vulnerable",
      "description": "Receive 50% more damage from Attacks for 2 turns."
+    },
+    "WEAK_POWER": {
+     "name": "Weak",
+     "description": "Attacks deal 25% less damage for 1 turn."
     }
    }
   }
