@@ -310,6 +310,24 @@ Root confirmation from three independent audits: the static capability estimate
 sustained dmg/turn, gate said 0/6 elites, owner went 3-for-3). The forward model must
 simulate DRAWS AND PLAYS over multiple turns, not summarize the deck as static output.
 
+**Engine-coherence gap (2026-08-01, same-seed deck diff E4ZW92AFP5 — the sharpest
+draft evidence on record):** owner (won) and bot (lost) shared an identical early
+spine off the same seed, then diverged: owner built TWO engines (Barricade + 2x
+Body Slam block-to-damage; Rupture++ + Crimson Mantle + Bloodlettings self-damage
+-> Strength, the Str-23 source) with support drafted FOR them; the bot amassed
+individually-excellent cards (Bludgeon++, Whirlwind, 2x Dominate...) with no
+engine — including Barricade++ with ZERO block payoff, violating the owner's
+stated Barricade criteria even post-clamp. Root: §5-C prices MARGINAL deltas;
+engine piece #1 always deltas weak (Body Slam alone ~ nothing), so multi-card
+engines are unreachable by greedy gradient. Candidate mechanisms, in cost order:
+(a) parser: 'damage equal to your Block' reads fx.damage=0/stale-preview — make
+block-scaling damage dynamic in the sim (unblocks Body Slam valuation NOW);
+(b) drafttags: engine-seed tags (barricade_core, self_damage_engine) with
+draft_bonus steering once a seed card is owned — cheap archetype commitment;
+(c) the honest version: pairwise/lookahead deltas (price card X assuming the
+deck also gets its partners later) — §5.2-scale. Owner: 'a comparison of exact
+decks may be worthwhile for insight' — it was.
+
 **Forward-model rollout status (2026-07-30):** P2a rollout elite gate live (win_rate +
 p25 tail floor; pass-side evidence logged since 185b7a9). P1.7 DFS-policy boss rollouts
 live for known bosses — one physics (_RolloutSim), two turn policies; backtest 52% vs
