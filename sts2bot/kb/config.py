@@ -51,6 +51,11 @@ class CombatWeights(_Section):
     hp_scarcity_base: float = 0.3
     hp_scarcity_slope: float = 2.0
     w_vulnerable: float = 6.0
+    # Artifact-strip credit (owner Aeonglass A/B 2026-08-01: he spent two cheap
+    # debuffs eating charges, then landed the real Vulnerable and dealt 250 in a
+    # round; the ~0 pricing made the bot hold debuffs forever vs Artifact). Half
+    # a Vulnerable per charge: worth spending SPARE debuffs, never the payoff.
+    w_artifact_strip: float = 3.0
     w_weak: float = 5.0
     w_strength: float = 7.0
     w_draw: float = 3.0

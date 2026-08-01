@@ -1753,3 +1753,19 @@ def test_barricade_up_spends_leftover_energy_on_block() -> None:
     st["player"]["status"] = []
     d2 = plan_combat_turn(parse_state(st), w)
     assert d2.action.payload().get("action") != "play_card", d2.rationale
+
+
+def test_artifact_strip_scores_as_down_payment_not_waste() -> None:
+    # Owner Aeonglass A/B 2026-08-01: he ate her Artifact 3 with cheap debuffs
+    # r2-r3, THEN landed Vulnerable and dealt 250 in a round. The ~0 pricing made
+    # the bot hold debuffs forever vs Artifact. With spare energy and a Bash, the
+    # planner should now spend it INTO Artifact rather than end the turn.
+    w = load_policy_config().combat
+    bash = _bcard(0, "BASH", "Bash", 2, "Deal 8 damage. Apply 2 Vulnerable.",
+                  "Attack", "AnyEnemy")
+    st = _beckon_state(3, [bash], enemy_hp=300, hp=60, incoming="0")
+    st["battle"]["enemies"][0]["status"] = [
+        {"id": "ARTIFACT_POWER", "name": "Artifact", "amount": 3,
+         "description": "Negates 3 debuffs.", "keywords": []}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload().get("action") == "play_card", d.rationale

@@ -416,6 +416,8 @@ class SimState:
     draws: int = 0
     weak_applied: int = 0
     vuln_applied: int = 0
+    # charges consumed — opening the debuff window has real value (Aeonglass A/B)
+    artifact_stripped: int = 0
     strength_gained: int = 0
     damage_dealt: int = 0
     kills: int = 0
@@ -988,7 +990,8 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         if art != e.artifact:
             enemies = list(s.enemies)
             enemies[target_i] = replace(e, artifact=art)
-            s = replace(s, enemies=tuple(enemies))
+            s = replace(s, enemies=tuple(enemies),
+                        artifact_stripped=s.artifact_stripped + (e.artifact - art))
     atk = card
     if card.hand_exhaust_scale > 0:
         # Fiend Fire & kin: hits once per card still in hand when it resolves
@@ -1273,6 +1276,10 @@ def _score(
         + self_term
         + death_wall
         + w.w_vulnerable * state.vuln_applied
+        # Artifact strips open the debuff window (owner's Aeonglass line: two cheap
+        # debuffs eaten r2-r3, THEN Vulnerable landed and r4 dealt 250) — an eaten
+        # debuff is a down payment, not pure waste
+        + w.w_artifact_strip * state.artifact_stripped
         + w.w_weak * state.weak_applied
         + w.w_strength * state.strength_gained
         + w.w_draw * state.draws
