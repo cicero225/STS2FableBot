@@ -1246,8 +1246,12 @@ def _score(
             eot_term += w.w_next_turn_draw * 3  # "<=3 cards played: draw 3 next turn"
         if "SELF_FORMING_CLAY" in eot and (state.self_damage > 0 or external_loss > 0):
             eot_term += w.w_next_turn_draw  # ~3 block next turn, tiny flat credit
-    # Ice Cream: energy is conserved between turns, so leftover energy is banked, not wasted
-    energy_waste_term = (0.0 if "ICE_CREAM" in eot
+    # Ice Cream: energy is conserved between turns — leftover energy is BANKED,
+    # scored mildly positive so the planner will play generators for future turns
+    # even with nothing to spend on now (owner 2026-07-31; must stay well below
+    # w_damage-per-point so spending this turn always beats banking). Deliberate
+    # underspend-toward-a-big-turn sequencing is multiturn-planner material.
+    energy_waste_term = (w.w_banked_energy * max(0, state.energy) if "ICE_CREAM" in eot
                          else w.w_energy_waste * max(0, state.energy))
     return (
         eot_term

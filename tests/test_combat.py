@@ -1680,3 +1680,26 @@ def test_thrash_growth_bonus_survives_howl_in_hand() -> None:
     assert _SELF_REPLAYS.search(hc.description)
     pc = _to_planned(hc, 3)
     assert pc is not None and pc.self_replays
+
+
+def test_ice_cream_banks_energy_via_generators() -> None:
+    # Owner micro-question 2026-07-31: with Ice Cream (energy carries over), will
+    # the planner play an energy generator with NOTHING to spend on this turn?
+    # Before: waste term was zeroed (neutral) so play friction said no. Now banked
+    # energy is mildly positive.
+    w = load_policy_config().combat
+    prod = _bcard(0, "PRODUCTION", "Production", 0,
+                  "Gain [ironclad_energy_icon.png][ironclad_energy_icon.png]. "
+                  "Exhaust.", "Skill", "None")
+    st = _beckon_state(1, [prod], enemy_hp=60, hp=60, incoming="0")
+    st["player"]["energy"] = 0
+    st["player"]["relics"] = [{"id": "ICE_CREAM", "name": "Ice Cream",
+                               "description": "Energy is conserved between turns.",
+                               "counter": None, "keywords": []}]
+    d = plan_combat_turn(parse_state(st), w)
+    p = d.action.payload()
+    assert p.get("action") == "play_card" and p.get("card_index") == 0, d.rationale
+    # without Ice Cream: same state must NOT bother (banked energy evaporates)
+    st["player"]["relics"] = []
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert d2.action.payload().get("action") != "play_card", d2.rationale

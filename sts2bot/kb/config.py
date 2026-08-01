@@ -55,6 +55,10 @@ class CombatWeights(_Section):
     w_strength: float = 7.0
     w_draw: float = 3.0
     w_energy_waste: float = -0.5
+    # Ice Cream only: leftover energy is banked for next turn -- mildly positive so
+    # generators get played for the future, well below w_damage so spending now
+    # always wins when something real is on offer (owner 2026-07-31)
+    w_banked_energy: float = 0.6
     w_play_friction: float = -0.35
     w_power_played: float = 8.0  # per-turn value of a banked Power; scaled by remaining-turns
     w_power_horizon_cap: float = 6.0  # cap on the remaining-turns multiplier for power value
