@@ -753,7 +753,7 @@
   },
   "Music Box": {
    "value": 5.5,
-   "note": "Ethereal copy of first attack each turn.",
+   "note": "'The first time you play an Attack, add an ethereal copy to your hand.' Owner combo intel 2026-08-01: fish DOUBLE Body Slams (block-scaling twice); the ethereal copy auto-EXHAUSTS if unplayed, feeding Pact's End / Howl from Beyond / Ashen Strike exhaust engines \u2014 value is deck-conditional both ways. Sim modeling of the first-attack copy: FILED, not built (armed-relic class, like Throwing Axe).",
    "uncertain": false,
    "deck_bonus": [],
    "provides": {},

@@ -341,18 +341,11 @@
   },
   "DEMON_TONGUE": {
    "class": "B",
-   "impact": "low",
-   "confidence": "med",
-   "trigger": {
-    "kind": "on_self_hp_loss",
-    "cadence": null,
-    "effect": {
-     "heal_equal_to_hp_lost": 1
-    },
-    "counter_persists_across_combats": false
-   },
-   "notes": "\"The first time you lose HP on your turn, heal HP equal to the amount lost.\" Mid-turn self-HP-loss trigger (first per player turn), heal magnitude equals the loss \u2014 matters when sequencing self-damage cards. Text says 'on your turn', so per-turn first, not per-combat.",
-   "status": "modeled (R1, 2026-07-13)"
+   "impact": "med",
+   "confidence": "high",
+   "trigger": "first_self_hp_loss_turn",
+   "notes": "'The first time you lose HP on your turn, heal it back.' ALREADY MODELED (RelicTrigger heal_eq_self_loss, demon_tongue_armed). Owner 2026-08-01: straightforward value with self-harm engines -- makes Bloodletting/Rupture/Brightest Flame effectively free once per turn; the drafttags self_damage_engine tag should count it as a provider.",
+   "status": "modeled"
   },
   "DINGY_RUG": {
    "class": "A",
