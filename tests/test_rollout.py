@@ -230,3 +230,24 @@ def test_whispering_earring_models_both_halves() -> None:
     with_e = rollout_fight(deck, foe, 60, 80, card_effects=FX, relics=ear)
     without = rollout_fight(deck, foe, 60, 80, card_effects=FX)
     assert (with_e.win_rate, with_e.exp_end_hp) >= (without.win_rate, without.exp_end_hp)
+
+
+def test_body_slam_scales_with_block_in_the_sim() -> None:
+    # Owner 2026-08-01: Body Slam is THE Barricade finisher -- 'often lack a
+    # finisher otherwise'. Catalog text has no/stale numbers so the sim computed
+    # ~0 damage, making the whole archetype invisible to draft deltas. Now:
+    # a Barricade + Defends + Body Slam deck must beat the same deck with the
+    # slams swapped for Strikes against a big single body.
+    FX2 = {**FX, "BODY_SLAM|0": "Deal damage equal to your Block.",
+           "BARRICADE|0": "Block is not removed at the start of your turn."}
+    boss = [FightEnemy(hp=260, dps=14)]
+    base = [*([card("DEFEND_IRONCLAD", typ="Skill")] * 6),
+            card("BARRICADE", typ="Power", cost="3"),
+            *([card("STRIKE_IRONCLAD")] * 2)]
+    slams = [*([card("DEFEND_IRONCLAD", typ="Skill")] * 6),
+             card("BARRICADE", typ="Power", cost="3"),
+             *([card("BODY_SLAM", cost="1")] * 2)]
+    r_strike = rollout_fight(base, boss, 65, 80, card_effects=FX2)
+    r_slam = rollout_fight(slams, boss, 65, 80, card_effects=FX2)
+    assert (r_slam.win_rate, r_slam.exp_end_hp - r_slam.exp_enemy_hp_left) > \
+        (r_strike.win_rate, r_strike.exp_end_hp - r_strike.exp_enemy_hp_left)

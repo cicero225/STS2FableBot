@@ -27,6 +27,10 @@ _DAMAGE_TIMES = re.compile(
 )
 # "ALL other enemies" = splash (Omnislice); close enough to AoE for the planner
 _ALL_ENEMIES = re.compile(r"\bALL (?:other )?enem", re.IGNORECASE)
+# Body Slam-class: damage computed from CURRENT block (owner 2026-08-01: THE
+# Barricade finisher). Harvested catalog texts carry a stale '(Deals N damage)'
+# preview or none; the flag lets the rollout compute dynamically.
+_DMG_EQ_BLOCK = re.compile(r"damage equal to your Block", re.IGNORECASE)
 # Foul-class blast that includes the DRINKER (owner ruling 2026-07-30: a mutual kill
 # is a loss). Single source — the guard text-drifted twice ('EVERYONE' -> 'ALL
 # players and enemies'), so every consumer must share one pattern. Public: used by
@@ -136,6 +140,10 @@ class CardEffects:
     # The Gambit-class: a rider that KILLS YOU under conditions no one-turn plan can certify
     # against ("If you take unblocked attack damage this combat, die.") — never play/draft.
     self_death_rider: bool = False
+    # Body Slam-class: 'Deal damage equal to your Block.' Live texts carry a
+    # mod-baked preview number (parsed into `damage`, accurate per poll); harvested
+    # catalog texts carry a STALE preview — the rollout computes from sim block.
+    dmg_equals_block: bool = False
     recognized: list[str] = field(default_factory=list)
 
     @property
@@ -157,6 +165,8 @@ def parse_card_description(text: str | None) -> CardEffects:
     text = ". ".join(
         s for s in full.split(". ") if not _TRIGGER_SENTENCE.match(s)
     )
+    if _DMG_EQ_BLOCK.search(full):
+        fx.dmg_equals_block = True
     if m := _DAMAGE_TIMES.search(text):
         n = m.group(2)
         fx.damage = int(m.group(1))

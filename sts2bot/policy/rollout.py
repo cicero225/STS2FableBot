@@ -366,15 +366,19 @@ class _RolloutSim:
         if not self.rfx.get("fiddle"):  # Fiddle: in-turn draws are dead
             for _ in range(pick.fx.draw):
                 self.draw_one()
-        if pick.fx.total_damage > 0:
+        if pick.fx.total_damage > 0 or pick.fx.dmg_equals_block:
             tgts = (self.targets() if pick.fx.aoe
                     else ([target] if target is not None else []))
+            # Body Slam-class: damage = CURRENT block (the Barricade finisher —
+            # owner 2026-08-01; catalog preview numbers are stale, sim block isn't)
+            per_hit = (self.block if pick.fx.dmg_equals_block
+                       else pick.fx.damage + self.my_str)
             for f in tgts:
                 if f is None or f.hp <= 0 or f.dormant:
                     continue
                 f.sleep = 0  # any damage wakes a Lagavulin-class sleeper early
                 for _h in range(max(1, pick.fx.hits)):
-                    _hit(f, pick.fx.damage + self.my_str, self.vm)
+                    _hit(f, per_hit, self.vm)
                     if f.thorns:
                         self.hp -= f.thorns
                 if pick.fx.vulnerable:
@@ -506,9 +510,13 @@ def _greedy_turn(sim: _RolloutSim) -> None:
         elif (powers := [c for c in playable if c.is_power]):
             pick = powers[0]
         elif target is not None:
-            atks = [c for c in playable if c.fx.total_damage > 0]
-            kill = [c for c in atks
-                    if (c.fx.damage + sim.my_str) * c.fx.hits >= target.hp]
+            atks = [c for c in playable
+                    if c.fx.total_damage > 0 or c.fx.dmg_equals_block]
+
+            def per_hit(c):
+                return sim.block if c.fx.dmg_equals_block else c.fx.damage + sim.my_str
+
+            kill = [c for c in atks if per_hit(c) * c.fx.hits >= target.hp]
             vulners = [c for c in atks if c.fx.vulnerable > 0]
             if kill:
                 pick = min(kill, key=lambda c: c.cost)
@@ -524,7 +532,7 @@ def _greedy_turn(sim: _RolloutSim) -> None:
                                                       if c.fx.block > 0]):
                 pick = max(blocks, key=lambda c: c.fx.block / max(1, c.cost))
             elif atks:
-                pick = max(atks, key=lambda c: (c.fx.damage + sim.my_str)
+                pick = max(atks, key=lambda c: per_hit(c)
                            * c.fx.hits / max(1, c.cost))
         if pick is None and (blocks := [c for c in playable if c.fx.block > 0]):
             pick = max(blocks, key=lambda c: c.fx.block)
@@ -578,8 +586,14 @@ def _synth_state(sim: _RolloutSim):
     hand = [{
         "index": i, "id": c.cid or c.name.upper().replace(" ", "_"), "name": c.name,
         "type": c.ctype, "cost": str(c.cost), "star_cost": None,
-        "description": (_rebake_strength(c.text, sim.my_str) if c.is_attack
-                        else c.text),
+        "description": (
+            # Body Slam-class: refresh the stale catalog preview with CURRENT sim
+            # block — the live parser reads the '(Deals N damage)' preview, so the
+            # DFS bridge prices the slam correctly as block accumulates
+            f"Deal damage equal to your Block. (Deals {sim.block} damage)"
+            if c.fx.dmg_equals_block
+            else _rebake_strength(c.text, sim.my_str) if c.is_attack
+            else c.text),
         "target_type": "AnyEnemy" if c.is_attack else "None",
         "can_play": not c.unplayable, "unplayable_reason": None,
         "is_upgraded": False, "keywords": [],
