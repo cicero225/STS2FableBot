@@ -4365,3 +4365,25 @@ def test_forced_upgrade_grid_never_double_selects() -> None:
         seq.append("wait" if isinstance(d, Wait) else d.action.payload()["action"])
     assert "select_card" not in seq, seq  # THE fix: never a second toggle
     assert "confirm_selection" in seq, seq
+
+
+def test_act3_spend_down_buys_negative_war_relics_with_dead_gold() -> None:
+    """Owner rule 2026-08-01: relics are USUALLY strict upsides; a negative
+    Spirebird WAR is correlational and must not veto a dead-gold purchase at the
+    run's last shops. Only active-downside texts (Ectoplasm-class) stay skips."""
+    payload = json.loads(json.dumps(FIXTURES["shop"]))
+    payload["player"]["gold"] = 1000
+    payload["run"]["act"] = 3
+    payload["player"]["potions"] = [{"id": f"P{i}", "name": f"P{i}", "slot": i}
+                                    for i in range(3)]
+    payload["player"]["max_potion_slots"] = 3
+    for it in payload["shop"]["items"]:
+        if it["category"] == "relic":
+            it["relic_id"] = "MOLTEN_EGG"  # Spirebird WAR negative
+            it["relic_name"] = "Molten Egg"
+            it["relic_description"] = ("Whenever you add an Attack to your deck, "
+                                       "upgrade it.")
+    d = router().decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    p = d.action.payload()
+    assert p["action"] == "shop_purchase", d.rationale

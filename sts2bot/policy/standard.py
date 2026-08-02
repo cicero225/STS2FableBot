@@ -2718,9 +2718,10 @@ class StandardRouter:
             for item in avail:
                 if item.category != "relic" or not item.can_afford:
                     continue
-                v = self.shop_stats.relic_value(item.relic_id) if self.shop_stats else None
-                if v is not None and v < 0:
-                    continue  # known dud stays a dud even free
+                # Owner rule 2026-08-01 (left a late-act-3 shop holding ~1000g):
+                # relics are USUALLY strict upsides — a negative Spirebird WAR is
+                # correlational and must not veto a purchase made with dead gold.
+                # Only ACTIVE-downside texts remain legitimate skips.
                 desc = (item.relic_description or "").lower()
                 if any(m in desc for m in downside_markers):
                     continue
