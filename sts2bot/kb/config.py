@@ -106,6 +106,16 @@ class CombatWeights(_Section):
     # unplayable; re-poll up to this many times before trusting it (cost a boss
     # fight: a planned triple-Defend collapsed to one, 14 HP -> 3, run 33)
     hook_retry_limit: int = 12
+    # Kaiser Crab freeze (seed 373PFAE7EE, runs 20260802-145346/-145648): long
+    # resolution chains (Pillage + Replay 1 drawing near a full hand while the
+    # Rocket death animation ran) leave the API serving stale state for seconds;
+    # the bot replanned every poll and re-sent plays + end-turn into the running
+    # animation (tape: 5 Defend sends with 3 in hand) and the scripted move
+    # wedged. Owner replayed the exact sequence by hand: no freeze — the input
+    # pressure is ours. After any combat action, WAIT until the state visibly
+    # changes; fall through after this many polls so a silently-failed action
+    # cannot soft-lock the turn (stall rail still backstops true hangs).
+    action_settle_polls: int = 40
 
 
 class EventWeights(_Section):

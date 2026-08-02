@@ -415,7 +415,45 @@ class StandardRouter:
         cache[sig] = plan
         return plan
 
+    @staticmethod
+    def _combat_sig(state: CombatState) -> tuple | None:
+        """Everything a resolved combat action would visibly change. None while
+        the battle block is missing (mid-load) — the guard never holds on it."""
+        player, battle = state.player, state.battle
+        if player is None or battle is None:
+            return None
+        return (
+            battle.round, battle.turn, battle.is_play_phase, battle.actions_disabled,
+            player.energy, player.block, player.hp,
+            tuple((c.name, c.index) for c in (player.hand or [])),
+            tuple((e.entity_id, e.hp) for e in battle.enemies),
+            tuple(p.slot for p in (player.potions or [])),
+        )
+
     def _combat(self, state: CombatState, ctx: LoopContext) -> Decision | Wait:
+        # Kaiser Crab freeze (373PFAE7EE): long resolution chains (Pillage with a
+        # Replay enchant + a death animation) serve stale state for seconds; every
+        # poll replanned and re-sent plays + end-turn into the running animation,
+        # and the engine's scripted move wedged (human replay of the same sequence
+        # is clean). Until the last action visibly lands, do not send another.
+        pending = ctx.screen_mem.get("action_settle")
+        if pending is not None:
+            sig = self._combat_sig(state)
+            limit = self.config.combat.action_settle_polls
+            if sig is not None and sig == pending.get("sig") and pending.get("waits", 0) < limit:
+                pending["waits"] = pending.get("waits", 0) + 1
+                return Wait(reason="last combat action not yet reflected "
+                            f"(settle {pending['waits']}/{limit})")
+            ctx.screen_mem.pop("action_settle", None)
+        decision = self._combat_inner(state, ctx)
+        if isinstance(decision, Decision) and isinstance(
+                decision.action, (act.PlayCard, act.UsePotion, act.EndTurn)):
+            sig = self._combat_sig(state)
+            if sig is not None:
+                ctx.screen_mem["action_settle"] = {"sig": sig, "waits": 0}
+        return decision
+
+    def _combat_inner(self, state: CombatState, ctx: LoopContext) -> Decision | Wait:
         # Transient 'BlockedByHook' hands report every card unplayable while the
         # engine resolves a hook; trusting that ends the turn early (run 33: a
         # planned triple-Defend became one, 14 HP -> 3). Re-poll, bounded.

@@ -628,44 +628,48 @@ def test_genuine_unplayable_hand_ends_turn() -> None:
 
 def test_hail_mary_throws_multiple_potions() -> None:
     """Owner: hail-mary on a boss used only one of two potions (the one-per-round
-    cap). With per-slot tracking it drinks both (different slots) across polls."""
+    cap). With per-slot tracking it drinks both (different slots) across polls.
+    The second poll's state reflects the first drink (belt slot emptied) — the
+    action-settle guard holds on a byte-identical re-poll by design."""
 
-    def state():
+    fysh = {
+        "id": "FYSH",
+        "name": "Fysh Oil",
+        "description": "Gain 1 Strength and 1 Dexterity.",
+        "slot": 0,
+        "can_use_in_combat": True,
+        "target_type": "None",
+        "keywords": [],
+    }
+    speed = {
+        "id": "SPEED",
+        "name": "Speed Potion",
+        "description": "Gain 1 Dexterity.",
+        "slot": 2,
+        "can_use_in_combat": True,
+        "target_type": "None",
+        "keywords": [],
+    }
+
+    def state(potions):
         return make_combat(
             hand=[card(0, "Strike", 1, "Deal 6 damage.")],
             enemies=[enemy("BOSS_0", 200, intent_label="30")],
             hp=10,
             max_hp=80,
             state_type="boss",
-            potions=[
-                {
-                    "id": "FYSH",
-                    "name": "Fysh Oil",
-                    "description": "Gain 1 Strength and 1 Dexterity.",
-                    "slot": 0,
-                    "can_use_in_combat": True,
-                    "target_type": "None",
-                    "keywords": [],
-                },
-                {
-                    "id": "SPEED",
-                    "name": "Speed Potion",
-                    "description": "Gain 1 Dexterity.",
-                    "slot": 2,
-                    "can_use_in_combat": True,
-                    "target_type": "None",
-                    "keywords": [],
-                },
-            ],
+            potions=potions,
         )
 
     r = router()
     ctx = LoopContext()
-    d1 = r.decide(state(), ctx)
-    d2 = r.decide(state(), ctx)
+    d1 = r.decide(state([fysh, speed]), ctx)
     assert isinstance(d1, Decision) and d1.action.payload()["action"] == "use_potion"
+    first = d1.action.payload()["slot"]
+    remaining = [p for p in (fysh, speed) if p["slot"] != first]
+    d2 = r.decide(state(remaining), ctx)
     assert isinstance(d2, Decision) and d2.action.payload()["action"] == "use_potion"
-    assert {d1.action.payload()["slot"], d2.action.payload()["slot"]} == {0, 2}
+    assert {first, d2.action.payload()["slot"]} == {0, 2}
 
 
 def test_low_hp_plays_block_instead_of_panic_drinking() -> None:
@@ -4432,3 +4436,53 @@ def test_desperation_activates_on_zero_elites_late_or_boss_doom() -> None:
     assert _desperation_active(w, 2, 4, 3, 75.0, 80)
     # boss beatable: not desperate
     assert not _desperation_active(w, 2, 4, 3, 40.0, 80)
+
+
+def test_combat_action_settle_guard_holds_until_state_changes() -> None:
+    """Kaiser Crab freeze (seed 373PFAE7EE, twice, deterministic): Pillage with a
+    Replay 1 enchant killed Rocket — a multi-second draw + death animation chain —
+    while the API kept serving the pre-play state. The bot replanned every poll,
+    re-sent plays (tape: 5 Defend sends with 3 in hand) and end-turn into the
+    running animation, and the engine's scripted move wedged. The owner replayed
+    the exact sequence by hand with no freeze: the input pressure is ours. After
+    any combat action the bot must WAIT until the state visibly changes."""
+    r = router()
+    ctx = LoopContext()
+    state = make_combat(hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+                        enemies=[enemy("CRAB_0", 60)], energy=3)
+    d1 = r.decide(state, ctx)
+    assert isinstance(d1, Decision)
+    assert d1.action.payload()["action"] == "play_card"
+    # identical state re-presented (animation still resolving) -> hold, repeatedly
+    for _ in range(5):
+        w = r.decide(state, ctx)
+        assert isinstance(w, Wait) and "settle" in w.reason
+    # state now reflects the play (hand spent, enemy damaged) -> act again
+    after = make_combat(hand=[], enemies=[enemy("CRAB_0", 54)], energy=2)
+    d2 = r.decide(after, ctx)
+    assert isinstance(d2, Decision)
+    assert d2.action.payload()["action"] == "end_turn"
+    # end-turn is guarded too (the freeze fired on end-turn into the animation)
+    w2 = r.decide(after, ctx)
+    assert isinstance(w2, Wait) and "settle" in w2.reason
+
+
+def test_combat_action_settle_guard_caps_out() -> None:
+    """A silently-failed action must not soft-lock the turn: after the cap the
+    guard falls through and the planner re-sends (pre-guard behavior)."""
+    r = router()
+    ctx = LoopContext()
+    state = make_combat(hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+                        enemies=[enemy("CRAB_0", 60)], energy=3)
+    assert isinstance(r.decide(state, ctx), Decision)
+    cap = r.config.combat.action_settle_polls
+    waits = 0
+    d = None
+    while True:
+        d = r.decide(state, ctx)
+        if not isinstance(d, Wait):
+            break
+        waits += 1
+        assert waits <= cap
+    assert waits == cap
+    assert d.action.payload()["action"] == "play_card"
