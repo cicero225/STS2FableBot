@@ -1990,7 +1990,7 @@ class StandardRouter:
         return loss
 
     def _capability_deltas(
-        self, deck, cards, max_hp: int, boss: list[FightEnemy], relics=None
+        self, deck, cards, max_hp: int, fights: list[list[FightEnemy]], relics=None
     ) -> dict[int, float]:
         """§5-C drafting: per card index, how much it improves the boss forecast in the
         *current deck's* context (deck-aware: a block-starved deck values block, a
@@ -2017,23 +2017,65 @@ class StandardRouter:
         seed = zlib.crc32(",".join(sorted(
             (getattr(c, "id", "") or "") for c in deck)).encode()) & 0x7FFFFFFF
 
-        def roll(d):
-            return rollout_fight(d, boss, max_hp, max_hp,
+        def roll(d, members):
+            return rollout_fight(d, members, max_hp, max_hp,
                                  card_effects=self.card_effects,
                                  relics=relics, n=w.draft_rollout_n, rng_seed=seed)
 
-        base_out = roll(deck)
-        base = progress(base_out)
+        # Elite-pool retarget (owner 2026-08-02): early-act drafts price against
+        # MULTIPLE target fights (the act's elite pool -- our best-calibrated
+        # estimator, 3 floors away) and average; boss-targeting passes a single
+        # fight as before. Chip-loss on normals remains unmodeled (owner note).
+        bases = [roll(deck, m) for m in fights]
+        base = sum(progress(b) for b in bases) / max(1, len(bases))
         deltas: dict[int, float] = {}
         clamp = w.capability_delta_clamp
         for c in cards:
-            out = roll([*deck, c])
-            delta = w.capability_weight * (progress(out) - base)
+            outs = [roll([*deck, c], m) for m in fights]
+            prog = sum(progress(o) for o in outs) / max(1, len(outs))
+            delta = w.capability_weight * (prog - base)
             delta = max(-clamp, min(clamp, delta))  # sim artifacts stay ordinal
-            if out.win and not base_out.win:
-                delta += w.capability_win_flip_bonus  # flips the boss lose->win: prize it
+            if (sum(o.win for o in outs) > len(outs) / 2
+                    and not sum(b.win for b in bases) > len(bases) / 2):
+                delta += w.capability_win_flip_bonus  # flips lose->win: prize it
             deltas[c.index] = delta
         return deltas
+
+    def _draft_target_fights(self, ctx: LoopContext, cur_act: int, floor_now: int,
+                             player) -> list[list[FightEnemy]]:
+        """What the draft rollout prices against (owner 2026-08-02): EARLY in the
+        act, the ELITE POOL (our best-calibrated estimator, 3 floors away -- the
+        human 'pick something that beats act elites' proxy, measured); late-act
+        and boss-floor rewards, the boss as before. Up to 3 pool fights spanning
+        the kill-HP range, deltas averaged."""
+        act_floor = floor_now - {1: 0, 2: 17, 3: 34}.get(cur_act, 0)
+        if act_floor in (17, 33) or act_floor == 0:
+            nxt = min(cur_act + 1, 3)
+            dps, ramp = _ACT_BOSS.get(nxt, _ACT_BOSS[1])
+            return [[FightEnemy(hp=_GENERIC_BOSS[0], dps=dps, str_ramp=ramp)]]
+        if act_floor >= 12:
+            return [self._upcoming_boss(ctx, cur_act)]
+        _ehp, edps, eramp = _GENERIC_ELITE.get(cur_act, _GENERIC_ELITE[1])
+        pool = [
+            (name, entry) for name, entry in self.bestiary.items()
+            if "elite" in (entry.get("roles") or [])
+            and cur_act in (entry.get("acts") or [])
+            and (((entry.get("hp") or [0, 0])[1] or 0) >= 50
+                 or any(k in name.upper() for k in _ELITE_COMPOSITIONS))
+        ]
+        pool = self._fresh_elite_pool(pool, ctx) or pool
+        if not pool:
+            return [self._upcoming_boss(ctx, cur_act)]
+        fights = [
+            elite_fight_members(name, entry, self.bestiary,
+                                dps=realized_dps(self.enemy_dps, name, edps),
+                                str_ramp=eramp, dps_table=self.enemy_dps)
+            for name, entry in pool
+        ]
+        fights.sort(key=lambda ms: sum(m.hp for m in ms if m.counts_toward_kill))
+        if len(fights) <= 3:
+            return fights
+        return [fights[0], fights[len(fights) // 2], fights[-1]]
 
     def _card_reward(self, state: CardRewardState, ctx: LoopContext) -> Decision | Wait:
         w = self.config.card_rewards
@@ -2049,18 +2091,14 @@ class StandardRouter:
         max_hp = state.player.max_hp if (state.player and state.player.max_hp) else 80
         # §5-C: value each card by how much it improves the estimate vs the *real* upcoming boss
         relics = state.player.relics if (state.player and state.player.relics) else None
-        # Boss-floor rewards (f17/f33) price vs the NEXT act's boss — act_boss_name
-        # still points at the boss just killed (owner live catch 2026-07-30: the
-        # Barricade draft was priced against a dead Waterfall Giant).
+        # Target selection (owner 2026-08-02): elite pool early in the act, the
+        # boss late; boss-floor rewards price vs the NEXT act (the 2026-07-30
+        # dead-boss catch lives inside _draft_target_fights now).
         floor_now = state.run.floor if state.run else 0
-        if floor_now in (17, 33):
-            nxt = min(run_act + 1, 3)
-            dps, ramp = _ACT_BOSS.get(nxt, _ACT_BOSS[1])
-            boss_members = [FightEnemy(hp=_GENERIC_BOSS[0], dps=dps, str_ramp=ramp)]
-        else:
-            boss_members = self._upcoming_boss(ctx, run_act)
-        cap = self._capability_deltas(deck, cr.cards, max_hp, boss_members,
-                                      relics=relics)
+        cap = self._capability_deltas(
+            deck, cr.cards, max_hp,
+            self._draft_target_fights(ctx, run_act, floor_now, state.player),
+            relics=relics)
         region = _act1_region(ctx.screen_mem.get("act_boss_name")) if run_act <= 1 else None
         boss_rule = _boss_draft_rule(ctx.screen_mem.get("act_boss_name"))
         scored = [

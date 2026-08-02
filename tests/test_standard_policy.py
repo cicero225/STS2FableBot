@@ -1342,7 +1342,7 @@ def test_capability_drafting_prefers_the_card_that_beats_the_boss() -> None:
     cantrip = Card(index=1, id="CANTRIP", name="Cantrip", type="Skill", cost="0",
                    description="Draw 1 card.")
     boss = [FightEnemy(hp=170, dps=24, str_ramp=2)]
-    deltas = r._capability_deltas(deck, [big, cantrip], 80, boss)
+    deltas = r._capability_deltas(deck, [big, cantrip], 80, [boss])
     assert deltas[0] > deltas[1]  # the attack helps beat the boss; the cantrip doesn't
     assert deltas[0] > 0
 
@@ -1505,12 +1505,16 @@ def test_weak_starter_deck_takes_card_a_polished_deck_skips() -> None:
     beats keeping a basic) but SKIPPED once the deck is polished. (Fixture recalibrated
     2026-07-30 for §5-C v2: rollout-priced deltas correctly punish the old cost-2-for-5-
     block fixture as strictly worse than a basic Defend; 'Gain 7 Block' at cost 1 is a
-    modest REAL improvement, which is what this test is about.) In the 0/5 batch the
-    bot skipped good cards (Molten Fist x4) holding a 9-starter deck."""
-    def reward(deck_ids):
-        deck = [{"index": i, "id": cid, "name": cid.title(), "type": "Attack", "cost": "1",
-                 "description": "Deal 6 damage.", "rarity": "Basic", "is_upgraded": False}
-                for i, cid in enumerate(deck_ids)]
+    modest REAL improvement, which is what this test is about. Recalibrated again
+    2026-08-02 for elite-pool targeting: the old 12x-Bash 'polished' deck had ZERO
+    block, so the rollout rightly took the first block card offered — a correction,
+    not a regression. Polished is now block-saturated, and the skip comes from the
+    rollout pricing the 13th card as pure dilution against the elite pool.) In the
+    0/5 batch the bot skipped good cards (Molten Fist x4) holding a 9-starter deck."""
+    def reward(deck_cards):
+        deck = [{"index": i, "id": cid, "name": cid.title(), "type": typ, "cost": "1",
+                 "description": desc, "rarity": "Basic", "is_upgraded": False}
+                for i, (cid, typ, desc) in enumerate(deck_cards)]
         return parse_state({
             "state_type": "card_reward",
             "card_reward": {"cards": [
@@ -1522,8 +1526,10 @@ def test_weak_starter_deck_takes_card_a_polished_deck_skips() -> None:
         })
 
     r = router()
-    weak = ["STRIKE_IRONCLAD"] * 8 + ["DEFEND_IRONCLAD"] * 4   # 100% basic -> low bar
-    polished = ["BASH"] * 12                                   # 0% basic -> full bar
+    weak = ([("STRIKE_IRONCLAD", "Attack", "Deal 6 damage.")] * 8
+            + [("DEFEND_IRONCLAD", "Skill", "Gain 5 Block.")] * 4)  # 100% basic -> low bar
+    polished = ([("BASH", "Attack", "Deal 8 damage. Apply 2 Vulnerable.")] * 6
+                + [("SHRUG", "Skill", "Gain 11 Block. Draw 1 card.")] * 6)  # full bar
     assert r.decide(reward(weak), LoopContext()).action.payload()["action"] == "select_card_reward"
     skipped = r.decide(reward(polished), LoopContext()).action.payload()
     assert skipped == {"action": "skip_card_reward"}
@@ -2451,7 +2457,7 @@ def test_drafting_vs_slippery_boss_prefers_multi_hit() -> None:
     big = Card(index=1, id="BIG", name="Big", type="Attack", cost="2",
                description="Deal 20 damage.")  # 20 total, one big hit
     slippery_boss = [FightEnemy(hp=173, dps=20, slippery=True)]
-    deltas = r._capability_deltas(deck, [multi, big], 80, slippery_boss)
+    deltas = r._capability_deltas(deck, [multi, big], 80, [slippery_boss])
     assert deltas[0] > deltas[1]  # multi-hit beats Slippery; the big swing is wasted
 
 
