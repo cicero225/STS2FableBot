@@ -4412,3 +4412,23 @@ def test_chest_settle_dwell_and_claim_cap() -> None:
     assert seq[:3] == ["wait"] * 3                      # settle before first claim
     assert seq.count("claim_treasure_relic") == 3       # capped hammering
     assert all(a == "wait" for a in seq[6:]), seq       # then stall-rail territory
+
+
+def test_desperation_activates_on_zero_elites_late_or_boss_doom() -> None:
+    """Owner rule 2026-08-02: 'any run that has taken 0 Elites in all of Act 1
+    is probably doomed in the long-term.' Zero elites at act-floor >= 8, or a
+    DFS boss forecast >= 90% of max HP, lowers the elite gate's bar."""
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.standard import _desperation_active
+
+    w = load_policy_config().map
+    # healthy early run: not desperate
+    assert not _desperation_active(w, 1, 5, 0, None, 80)
+    # zero elites late in act 1: desperate
+    assert _desperation_active(w, 1, 9, 0, None, 80)
+    # elites taken: the late-act arm stands down
+    assert not _desperation_active(w, 1, 9, 2, None, 80)
+    # boss forecast near-unwinnable: desperate regardless of elites
+    assert _desperation_active(w, 2, 4, 3, 75.0, 80)
+    # boss beatable: not desperate
+    assert not _desperation_active(w, 2, 4, 3, 40.0, 80)

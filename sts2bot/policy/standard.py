@@ -122,6 +122,19 @@ def _draws_blocked(player) -> bool:
                for r_ in (player.relics or []))
 
 
+def _desperation_active(w, cur_act: int, act_floor: int, elites_this_act: int,
+                        dfs_boss_loss: float | None, max_hp: int) -> bool:
+    """Owner rule 2026-08-02: a run with 0 elites late into the act is on the
+    slow-loss track, and a DFS boss forecast reading near-unwinnable makes a
+    risky elite strictly better than the certain boss loss. Either condition
+    lowers the elite gate's bar."""
+    zero_elite_late = (elites_this_act == 0
+                       and act_floor >= w.desperation_zero_elite_floor)
+    boss_doomed = (dfs_boss_loss is not None
+                   and dfs_boss_loss >= w.desperation_boss_loss_pct * max_hp)
+    return zero_elite_late or boss_doomed
+
+
 def _boss_is_known(bestiary: dict, boss_name: str) -> bool:
     """A boss the forecast machinery can price: a direct bestiary entry, OR a stage
     boss whose suffix-stripped base is in the observed table (GLTQT0XBN7 2026-07-31:
@@ -1135,15 +1148,30 @@ class StandardRouter:
                         for members in members_by_name.values()
                     ]
                     gate_ms = (time.perf_counter() - t0) * 1000.0
+                    # Desperation coupling (owner rule 2026-08-02): zero elites
+                    # late in the act, or a near-unwinnable DFS boss forecast,
+                    # lowers the bar -- a risky elite beats a certain slow loss.
+                    floor_now = state.run.floor if state.run else 0
+                    act_floor = floor_now - {1: 0, 2: 17, 3: 34}.get(cur_act, 0)
+                    elites_this_act = sum(
+                        1 for (a, _f) in (ctx.screen_mem.get("elite_floors") or ())
+                        if a == cur_act)
+                    desperate = _desperation_active(
+                        w, cur_act, act_floor, elites_this_act,
+                        self._dfs_boss_loss(ctx, player, cur_act), int(max_hp))
+                    eff_bar = (w.rollout_gate_win_rate
+                               - (w.desperation_gate_discount if desperate else 0.0))
+                    eff_floor = floor_hp * (0.5 if desperate else 1.0)
                     won_n = sum(
                         1 for r in rolls
-                        if r.win_rate >= w.rollout_gate_win_rate
-                        and r.p25_end_hp >= floor_hp
+                        if r.win_rate >= eff_bar
+                        and r.p25_end_hp >= eff_floor
                     )
                     can_win_elite = won_n >= len(pool) * w.elite_gate_pool_win_frac
                     losses = sorted(max_hp - r.exp_end_hp for r in rolls)
                     est_elite_loss = losses[len(losses) // 2]
                     gate_detail = {
+                        "gate_desperate": 1.0 if desperate else 0.0,
                         "gate_won_n": float(won_n),
                         "gate_pool_n": float(len(pool)),
                         "gate_min_win": round(min(r.win_rate for r in rolls), 2),

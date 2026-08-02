@@ -173,6 +173,14 @@ class MapWeights(_Section):
     # elite outcomes with zero attributable deaths; "I prefer slightly more
     # aggression if it has no discernable downside."
     rollout_gate_win_rate: float = 0.55
+    # Desperation coupling (owner rule 2026-08-02: "any run that has taken 0
+    # Elites in all of Act 1 is probably doomed in the long-term"): when the run
+    # is on the slow-loss track — zero elites late into the act, or the DFS boss
+    # forecast reads near-unwinnable — a risky elite beats a certain boss loss,
+    # so the gate's win-rate bar drops and the tail floor halves.
+    desperation_gate_discount: float = 0.15
+    desperation_boss_loss_pct: float = 0.90  # DFS est loss >= this x max_hp = doomed
+    desperation_zero_elite_floor: int = 8    # act-floor from which 0 elites = desperate
     # P1.7 (2026-07-30): KNOWN bosses are priced by DFS-policy rollouts (the real
     # one-turn planner drives each simulated turn) -- backtest: 52% predicted vs
     # greedy's 38% (actual 65%), bias +7. Median ~1.1s/estimate at n=8, so results
