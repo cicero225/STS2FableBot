@@ -245,7 +245,13 @@ def test_treasure_waits_through_opening_transition() -> None:
     assert isinstance(router.decide(opening, LoopContext()), Wait)  # do not act mid-open
 
     claimable = tstate({"relics": [{"index": 0, "id": "WAR_PAINT", "name": "War Paint"}]})
-    claim = router.decide(claimable, LoopContext()).action.payload()["action"]
+    ctx = LoopContext()
+    claim = None
+    for _ in range(5):  # settle-dwell polls precede the claim (black-screen fix)
+        d = router.decide(claimable, ctx)
+        if not isinstance(d, Wait):
+            claim = d.action.payload()["action"]
+            break
     assert claim == "claim_treasure_relic"
 
     done = tstate({"relics": [], "can_proceed": True})

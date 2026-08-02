@@ -315,13 +315,31 @@ class TrivialRouter:
         # appears, racing the open/upgrade animation and freezing the map node (esp. at high speed:
         # War Paint on a ?-node, seed ZWSK88UNQN, clean at 1x / frozen at 4x, 2026-06-25).
         if t.message:
+            ctx.screen_mem["chest_settle"] = 0  # animation restarted: re-settle
             return Wait(reason=f"treasure opening: {t.message}")
         if t.relics:
+            # Settle-dwell + claim cap (2 black screens on 2026-08-01, f41+f26,
+            # same anatomy as the card-select wedge): the first claim right after
+            # the message clears lands mid-animation and wedges the chest; the
+            # 11-tick debounce hammering then escalates the wedge to a BLACK
+            # SCREEN. Dwell before the first claim; after 3 ok'd-but-ignored
+            # claims stop entirely and let the stall rail abort the run.
+            settle = ctx.screen_mem.get("chest_settle", 0)
+            if settle < 3:
+                ctx.screen_mem["chest_settle"] = settle + 1
+                return Wait(reason=f"chest settling ({settle + 1}/3) before claim")
+            claims = ctx.screen_mem.get("chest_claims", 0)
+            if claims >= 3:
+                return Wait(reason="chest claim unresolvable after 3 attempts; "
+                                   "letting the stall rail abort")
+            ctx.screen_mem["chest_claims"] = claims + 1
             relic = t.relics[0]
             return Decision(
                 action=act.ClaimTreasureRelic(index=relic.index or 0),
                 rationale=f"claim treasure relic {relic.name}",
             )
+        ctx.screen_mem.pop("chest_settle", None)
+        ctx.screen_mem.pop("chest_claims", None)
         if t.can_proceed:
             return Decision(action=act.Proceed(), rationale="treasure claimed; proceed")
         return Wait(reason="treasure chest still opening")

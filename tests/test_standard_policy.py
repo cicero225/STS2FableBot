@@ -4387,3 +4387,28 @@ def test_act3_spend_down_buys_negative_war_relics_with_dead_gold() -> None:
     assert isinstance(d, Decision)
     p = d.action.payload()
     assert p["action"] == "shop_purchase", d.rationale
+
+
+def test_chest_settle_dwell_and_claim_cap() -> None:
+    """Two treasure black screens in one day (2026-08-01, f41+f26): the first
+    claim right after 'Opening chest...' clears lands mid-animation, wedges the
+    chest, and the 11-tick debounce hammering escalates it to a BLACK SCREEN.
+    Now: 3 settle Waits before the first claim; after 3 ok'd-but-ignored claims,
+    pure Waits so the stall rail aborts instead of deepening the wedge."""
+    from sts2bot.policy.base import Wait
+
+    payload = json.loads(json.dumps(FIXTURES["treasure"]))
+    payload["treasure"]["message"] = None
+    payload["treasure"]["relics"] = [{"index": 0, "id": "TEA_SET",
+                                      "name": "Venerable Tea Set",
+                                      "description": "x", "keywords": []}]
+    payload["treasure"]["can_proceed"] = True
+    r = router()
+    ctx = LoopContext()
+    seq = []
+    for _ in range(12):  # chest wedged: state never changes
+        d = r.decide(parse_state(payload), ctx)
+        seq.append("wait" if isinstance(d, Wait) else d.action.payload()["action"])
+    assert seq[:3] == ["wait"] * 3                      # settle before first claim
+    assert seq.count("claim_treasure_relic") == 3       # capped hammering
+    assert all(a == "wait" for a in seq[6:]), seq       # then stall-rail territory
