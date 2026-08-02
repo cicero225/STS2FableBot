@@ -116,6 +116,13 @@ class CombatWeights(_Section):
     # changes; fall through after this many polls so a silently-failed action
     # cannot soft-lock the turn (stall rail still backstops true hangs).
     action_settle_polls: int = 40
+    # v2 (same seed, guard v1 failed 2026-08-02): release-on-first-change is not
+    # enough — the Pillage chain mutates state EVERY poll (HP ticks, draws land
+    # one by one), so v1 released mid-animation and the freeze recurred, 3-for-3
+    # under bot pacing vs 0-for-1 under the owner's hand replay. Combat actions
+    # are only sent once the signature has been IDENTICAL for this many
+    # consecutive polls (quiescent = the previous resolution actually finished).
+    action_quiesce_polls: int = 3
 
 
 class EventWeights(_Section):

@@ -667,7 +667,13 @@ def test_hail_mary_throws_multiple_potions() -> None:
     assert isinstance(d1, Decision) and d1.action.payload()["action"] == "use_potion"
     first = d1.action.payload()["slot"]
     remaining = [p for p in (fysh, speed) if p["slot"] != first]
-    d2 = r.decide(state(remaining), ctx)
+    # the post-drink state must repeat through the quiescence dwell before the
+    # second drink goes out (action-settle guard)
+    d2 = None
+    for _ in range(1 + r.config.combat.action_quiesce_polls):
+        d2 = r.decide(state(remaining), ctx)
+        if not isinstance(d2, Wait):
+            break
     assert isinstance(d2, Decision) and d2.action.payload()["action"] == "use_potion"
     assert {first, d2.action.payload()["slot"]} == {0, 2}
 
@@ -4444,27 +4450,44 @@ def test_desperation_activates_on_zero_elites_late_or_boss_doom() -> None:
     assert not _desperation_active(w, 2, 4, 3, 40.0, 80)
 
 
-def test_combat_action_settle_guard_holds_until_state_changes() -> None:
-    """Kaiser Crab freeze (seed 373PFAE7EE, twice, deterministic): Pillage with a
-    Replay 1 enchant killed Rocket — a multi-second draw + death animation chain —
-    while the API kept serving the pre-play state. The bot replanned every poll,
-    re-sent plays (tape: 5 Defend sends with 3 in hand) and end-turn into the
-    running animation, and the engine's scripted move wedged. The owner replayed
-    the exact sequence by hand with no freeze: the input pressure is ours. After
-    any combat action the bot must WAIT until the state visibly changes."""
+def test_combat_action_settle_guard_holds_until_quiescent() -> None:
+    """Kaiser Crab freeze (seed 373PFAE7EE, deterministic, 3-for-3 under bot
+    pacing vs 0-for-1 under the owner's hand replay): Pillage with a Replay 1
+    enchant killing Rocket is a multi-second resolution chain. Guard v1 held
+    only until the state FIRST changed -- but the chain mutates state every
+    poll (HP ticks, draws landing one by one), so v1 released mid-animation,
+    plays + end-turn fired into the running resolution, and the engine's
+    scripted move wedged again. v2 semantics: a combat action is sent only
+    when the state has been IDENTICAL for action_quiesce_polls consecutive
+    polls, and a sent action must visibly land before the next send. The gate
+    is scoped to the action->settled window: with nothing in flight (fight
+    start), the first action goes out immediately."""
     r = router()
+    q = r.config.combat.action_quiesce_polls
     ctx = LoopContext()
     state = make_combat(hand=[card(0, "Strike", 1, "Deal 6 damage.")],
                         enemies=[enemy("CRAB_0", 60)], energy=3)
     d1 = r.decide(state, ctx)
     assert isinstance(d1, Decision)
     assert d1.action.payload()["action"] == "play_card"
-    # identical state re-presented (animation still resolving) -> hold, repeatedly
+    # identical state re-presented (action not yet reflected) -> hold
     for _ in range(5):
         w = r.decide(state, ctx)
         assert isinstance(w, Wait) and "settle" in w.reason
-    # state now reflects the play (hand spent, enemy damaged) -> act again
+    # the resolution chain: state changes EVERY poll -> keep holding (the v1 bug
+    # released here); three distinct mid-animation snapshots, never quiescent
+    mid1 = make_combat(hand=[], enemies=[enemy("CRAB_0", 57)], energy=2)
+    mid2 = make_combat(hand=[], enemies=[enemy("CRAB_0", 55)], energy=2)
+    mid3 = make_combat(hand=[], enemies=[enemy("CRAB_0", 54)], energy=2)
+    for mid in (mid1, mid2, mid3):
+        w = r.decide(mid, ctx)
+        assert isinstance(w, Wait) and "quiesce" in w.reason
+    # resolution finished: the settled state repeats -> quiesce, then act
+    # (mid3 was the settled state's first sighting, so q-2 more holds remain)
     after = make_combat(hand=[], enemies=[enemy("CRAB_0", 54)], energy=2)
+    for _ in range(q - 2):
+        w = r.decide(after, ctx)
+        assert isinstance(w, Wait) and "quiesce" in w.reason
     d2 = r.decide(after, ctx)
     assert isinstance(d2, Decision)
     assert d2.action.payload()["action"] == "end_turn"
@@ -4474,8 +4497,8 @@ def test_combat_action_settle_guard_holds_until_state_changes() -> None:
 
 
 def test_combat_action_settle_guard_caps_out() -> None:
-    """A silently-failed action must not soft-lock the turn: after the cap the
-    guard falls through and the planner re-sends (pre-guard behavior)."""
+    """A silently-failed action must not soft-lock the turn: after the hold cap
+    the guard falls through and the planner re-sends (pre-guard behavior)."""
     r = router()
     ctx = LoopContext()
     state = make_combat(hand=[card(0, "Strike", 1, "Deal 6 damage.")],

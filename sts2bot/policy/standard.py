@@ -432,25 +432,39 @@ class StandardRouter:
 
     def _combat(self, state: CombatState, ctx: LoopContext) -> Decision | Wait:
         # Kaiser Crab freeze (373PFAE7EE): long resolution chains (Pillage with a
-        # Replay enchant + a death animation) serve stale state for seconds; every
-        # poll replanned and re-sent plays + end-turn into the running animation,
-        # and the engine's scripted move wedged (human replay of the same sequence
-        # is clean). Until the last action visibly lands, do not send another.
+        # Replay enchant + a death animation) run for seconds while the bot's
+        # 0.15s polls replan and fire more plays + end-turn into the animation —
+        # the engine's scripted move wedges (the owner's hand replay of the exact
+        # same sequence is clean; guard-v1's release-on-first-change re-froze it
+        # because the chain mutates state EVERY poll). v2: an action is sent only
+        # when the state has been QUIESCENT (signature identical) for the last N
+        # polls, and a sent action must visibly land before the next one.
+        sig = self._combat_sig(state)
+        limit = self.config.combat.action_settle_polls
+        quiesce = self.config.combat.action_quiesce_polls
+        holds = ctx.screen_mem.get("settle_holds", 0)
         pending = ctx.screen_mem.get("action_settle")
-        if pending is not None:
-            sig = self._combat_sig(state)
-            limit = self.config.combat.action_settle_polls
-            if sig is not None and sig == pending.get("sig") and pending.get("waits", 0) < limit:
-                pending["waits"] = pending.get("waits", 0) + 1
+        if sig is not None and pending is not None and holds < limit:
+            if sig == pending.get("sig"):
+                ctx.screen_mem["settle_holds"] = holds + 1
                 return Wait(reason="last combat action not yet reflected "
-                            f"(settle {pending['waits']}/{limit})")
-            ctx.screen_mem.pop("action_settle", None)
+                            f"(settle {holds + 1}/{limit})")
+            stable = ctx.screen_mem.get("sig_stable")
+            if not isinstance(stable, dict) or stable.get("sig") != sig:
+                stable = {"sig": sig, "n": 0}
+            stable["n"] += 1
+            ctx.screen_mem["sig_stable"] = stable
+            if stable["n"] < quiesce:
+                ctx.screen_mem["settle_holds"] = holds + 1
+                return Wait(reason="combat action resolving (quiesce "
+                            f"{stable['n']}/{quiesce}, hold {holds + 1}/{limit})")
+        ctx.screen_mem.pop("action_settle", None)
+        ctx.screen_mem.pop("sig_stable", None)
+        ctx.screen_mem["settle_holds"] = 0  # gate passed (or capped): fresh budget
         decision = self._combat_inner(state, ctx)
-        if isinstance(decision, Decision) and isinstance(
-                decision.action, (act.PlayCard, act.UsePotion, act.EndTurn)):
-            sig = self._combat_sig(state)
-            if sig is not None:
-                ctx.screen_mem["action_settle"] = {"sig": sig, "waits": 0}
+        if (sig is not None and isinstance(decision, Decision) and isinstance(
+                decision.action, (act.PlayCard, act.UsePotion, act.EndTurn))):
+            ctx.screen_mem["action_settle"] = {"sig": sig}
         return decision
 
     def _combat_inner(self, state: CombatState, ctx: LoopContext) -> Decision | Wait:
