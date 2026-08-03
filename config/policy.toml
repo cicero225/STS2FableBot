@@ -62,6 +62,14 @@ hp_cost_refuse_below = 0.45
 unknown_take_first_above = 0.70
 
 [map]
+# ATTRIBUTION EXPERIMENT (2026-08-02 night, NOT a retune): first live batches
+# with the desperation coupling ran 2/60 (~3%) vs ~12% recent baseline, with
+# gate_desperate latching run-long in every run (PLAN s7 watch item). Toggle
+# the coupling OFF for the next batches to attribute the drop between
+# desperation / elite-pool retarget / new-epoch content. Revert = delete
+# these two lines (code defaults: boss_loss_pct 0.90, zero_elite_floor 8).
+desperation_boss_loss_pct = 9.9
+desperation_zero_elite_floor = 99
 # node desirability by type (base scores; modified by state)
 score_monster = 10.0
 score_unknown = 12.0
