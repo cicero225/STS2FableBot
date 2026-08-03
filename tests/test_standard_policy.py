@@ -4758,34 +4758,19 @@ def test_star_cost_cards_vetoed_off_class() -> None:
     Regent star-cost cards are DEAD without a star source -- unlike cross-class
     'gain 15 Block' cards, which just work. Vetoed unless the deck generates
     stars (or we ARE the Regent)."""
-    deck = [{"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack",
-             "cost": "1", "description": "Deal 6 damage.", "rarity": "Basic",
-             "is_upgraded": False}]
-    state = parse_state({
-        "state_type": "card_reward",
-        "card_reward": {"cards": [
-            {"index": 0, "id": "REFLECT", "name": "Reflect", "type": "Skill",
-             "cost": "0", "star_cost": "3", "rarity": "Rare", "is_upgraded": False,
-             "description": "Gain 12 Block. Deal damage equal to Block gained.",
-             "keywords": []}], "can_skip": True},
-        "run": {"act": 2, "floor": 20, "ascension": 0},
-        "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "deck": deck},
-    })
-    d = router().decide(state, LoopContext())
-    assert d.action.payload()["action"] == "skip_card_reward"
-    # a star GENERATOR in deck lifts the veto
-    deck2 = [*deck, {"index": 1, "id": "STARFALL", "name": "Starfall", "type": "Skill",
-                     "cost": "1", "description": "Gain 3 Stars.", "rarity": "Common",
-                     "is_upgraded": False}]
-    state2 = parse_state({**json.loads(json.dumps({
-        "state_type": "card_reward",
-        "card_reward": {"cards": [
-            {"index": 0, "id": "REFLECT", "name": "Reflect", "type": "Skill",
-             "cost": "0", "star_cost": "3", "rarity": "Rare", "is_upgraded": False,
-             "description": "Gain 12 Block. Deal damage equal to Block gained.",
-             "keywords": []}], "can_skip": True},
-        "run": {"act": 2, "floor": 20, "ascension": 0},
-        "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80}})),
-        "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "deck": deck2}})
-    d2 = router().decide(state2, LoopContext())
-    assert d2.action.payload()["action"] != "skip_card_reward" or True  # veto lifted: scored normally
+    from sts2bot.client.models import Card, DeckCard
+
+    r = router()
+    reflect = Card(index=0, id="REFLECT", name="Reflect", type="Skill", cost="0",
+                   star_cost="3", rarity="Rare",
+                   description="Gain 12 Block. Deal damage equal to Block gained.")
+    strike = DeckCard(index=0, id="STRIKE_IRONCLAD", name="Strike", type="Attack",
+                      cost="1", is_upgraded=False, description="Deal 6 damage.")
+    starfall = DeckCard(index=1, id="STARFALL", name="Starfall", type="Skill",
+                        cost="1", is_upgraded=False, description="Gain 3 Stars.")
+    # Ironclad, no star source: hard veto
+    assert r._card_score(reflect, 10, "The Ironclad", 2, deck=[strike]) == -100.0
+    # star generator in deck lifts the veto
+    assert r._card_score(reflect, 10, "The Ironclad", 2, deck=[strike, starfall]) > -100.0
+    # the Regent never needs the generator
+    assert r._card_score(reflect, 10, "The Regent", 2, deck=[strike]) > -100.0
