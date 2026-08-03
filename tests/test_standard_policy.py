@@ -4805,3 +4805,45 @@ def test_entropic_minted_buff_deploys_after_round_gates_close() -> None:
             break
     assert d2.action.payload().get("action") == "use_potion"
     assert "Bronze" in (d2.rationale or "")
+
+
+def test_boots_lookahead_prefers_the_one_charge_line() -> None:
+    """Owner catch 2026-08-03: with an unwinnable elite behind the ON-PATH rest
+    and a second rest reachable by jump, the bot spent TWO boots charges
+    (jump-rest, jump-rest) where on-path-rest-THEN-jump buys the same dodge for
+    one. The lookahead now carries a charge dimension with jump edges, so the
+    deferred-jump plan is representable and the tax discount makes it win."""
+    payload = {
+        "state_type": "map",
+        "map": {
+            "current_position": {"col": 2, "row": 0, "type": "Start"},
+            "next_options": [
+                {"index": 0, "col": 1, "row": 1, "type": "RestSite",
+                 "leads_to": [{"col": 1, "row": 2}]},  # on-path (Start's only child)
+                {"index": 1, "col": 0, "row": 1, "type": "RestSite",
+                 "leads_to": [{"col": 0, "row": 2}]},  # boots jump
+            ],
+            "nodes": [
+                {"col": 2, "row": 0, "type": "Start", "children": [[1, 1]]},
+                {"col": 1, "row": 1, "type": "RestSite", "children": [[1, 2]]},
+                {"col": 0, "row": 1, "type": "RestSite", "children": [[0, 2]]},
+                {"col": 1, "row": 2, "type": "Elite", "children": [[0, 3]]},
+                {"col": 0, "row": 2, "type": "Monster", "children": [[0, 3]]},
+                {"col": 0, "row": 3, "type": "Monster", "children": []},
+            ],
+            "boss": {"col": 0, "row": 4, "id": "B", "name": "Boss"},
+            "bosses": [],
+        },
+        "run": {"act": 1, "floor": 7, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 55, "max_hp": 80, "gold": 50,
+                   "deck": _STARTER_DECK,
+                   "status": [],
+                   "relics": [{"id": "WINGED_BOOTS", "name": "Winged Boots",
+                               "counter": 2}],
+                   "potions": [], "max_potion_slots": 3},
+    }
+    d = _router_for_routing().decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    # on-path rest (index 0): the elite behind it is dodged by a LATER jump,
+    # paying the tax once and discounted -- beats jumping right now
+    assert d.action.payload()["index"] == 0

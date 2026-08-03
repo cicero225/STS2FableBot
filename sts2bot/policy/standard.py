@@ -1444,10 +1444,24 @@ class StandardRouter:
             return hp_after, (w.elite_relic_value + sword_bonus
                               if t == "elite" else 0.0)
 
-        memo: dict[tuple[int, int, int], float] = {}
+        # Winged Boots charge-aware lookahead (owner catch 2026-08-03: the bot
+        # spent TWO jumps -- rest, jump, rest -- where on-path-rest-THEN-jump
+        # buys the same line for one; the old lookahead walked only graph
+        # children, so plan-a-jump-later was unrepresentable). Jump edges: from
+        # any node, any next-row node is reachable at boots_jump_cost with one
+        # fewer charge; memo carries the charge dimension.
+        boots_charges = 0
+        for r_ in ((player.relics if player else None) or []):
+            if "WINGED" in f"{r_.id or ''} {r_.name or ''}".upper():
+                boots_charges = min(3, r_.counter if r_.counter is not None else 3)
+        nodes_by_row: dict[int, list] = {}
+        for n_ in state.map.nodes:
+            nodes_by_row.setdefault(n_.row, []).append(n_)
 
-        def path_value(col: int, row: int, hp: float) -> float:
-            key = (col, row, int(hp) // 4)
+        memo: dict[tuple[int, int, int, int], float] = {}
+
+        def path_value(col: int, row: int, hp: float, charges: int = 0) -> float:
+            key = (col, row, int(hp) // 4, charges)
             if key in memo:
                 return memo[key]
             node = node_by_pos.get((col, row))
@@ -1457,9 +1471,20 @@ class StandardRouter:
             memo[key] = 0.0  # cycle guard (map is a DAG, but be safe)
             hp_after, adj = project(node.type, row, hp) if hp_aware else (hp, 0.0)
             future = max(
-                (path_value(c_col, c_row, hp_after) for c_col, c_row in node.children),
+                (path_value(c_col, c_row, hp_after, charges)
+                 for c_col, c_row in node.children),
                 default=0.0,
             )
+            if charges > 0:
+                kid_set = {tuple(c) for c in node.children}
+                jump_future = max(
+                    (path_value(j.col, j.row, hp_after, charges - 1)
+                     - w.boots_jump_cost
+                     for j in nodes_by_row.get(row + 1, [])
+                     if (j.col, j.row) not in kid_set),
+                    default=float("-inf"),
+                )
+                future = max(future, jump_future)
             value = type_score(node.type, row) + adj + w.path_step_discount * future
             memo[key] = value
             return value
@@ -1477,17 +1502,30 @@ class StandardRouter:
         best_score = float("-inf")
         for opt in opts:
             hp_after, adj = project(opt.type, opt.row, cur_hp) if hp_aware else (cur_hp, 0.0)
+            is_jump = bool(cur_kids and (opt.col, opt.row) not in cur_kids)
+            charges_after = max(0, boots_charges - (1 if is_jump else 0))
+            kid_pairs = ([(c.col, c.row) for c in opt.leads_to]
+                         or [(c_col, c_row) for c_col, c_row in (
+                             node_by_pos.get((opt.col, opt.row)).children
+                             if node_by_pos.get((opt.col, opt.row)) else [])])
             future = max(
-                (path_value(c.col, c.row, hp_after) for c in opt.leads_to),
+                (path_value(c_col, c_row, hp_after, charges_after)
+                 for c_col, c_row in kid_pairs),
                 default=0.0,
             )
-            if not opt.leads_to and (node := node_by_pos.get((opt.col, opt.row))):
-                future = max(
-                    (path_value(c_col, c_row, hp_after) for c_col, c_row in node.children),
-                    default=0.0,
+            # a remaining charge can also jump FROM this option's node next floor
+            # (the owner's one-charge line: on-path rest, THEN jump past its elite)
+            if charges_after > 0:
+                jump_future = max(
+                    (path_value(j.col, j.row, hp_after, charges_after - 1)
+                     - w.boots_jump_cost
+                     for j in nodes_by_row.get(opt.row + 1, [])
+                     if (j.col, j.row) not in set(kid_pairs)),
+                    default=float("-inf"),
                 )
+                future = max(future, jump_future)
             score = type_score(opt.type, opt.row) + adj + w.path_step_discount * future
-            if cur_kids and (opt.col, opt.row) not in cur_kids:
+            if is_jump:
                 score -= w.boots_jump_cost
             scored[f"{opt.index}:{opt.type}"] = round(score, 2)
             if score > best_score:
