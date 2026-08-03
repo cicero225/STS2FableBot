@@ -2,6 +2,39 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-02 (Fable 5, session 20) — Kaiser Crab freeze KILLED (settle guard v2); Queen A/B; epoch relics
+
+**THE FREEZE IS OURS, AND IT'S FIXED.** Kaiser Crab f33 (373PFAE7EE) froze
+deterministically 4x under bot pacing. Dissection: Pillage + Replay 1 killing
+Rocket = multi-second resolution; the bot replanned per 0.15s poll and fired
+plays + end-turn into the running animation (tape: 5 Defend sends, 3 in hand).
+Owner hand-replayed the bot's EXACT sequence: no freeze — input pressure, not
+game script. Guard v1 (release on first state change) RE-FROZE: the chain
+mutates state every poll. v2 = QUIESCENCE (5260dbc, b9335e0): after any combat
+action, send nothing until the signature is identical 3 consecutive polls.
+Validation savescum: crossed the freeze beat, killed the crab r7, ran to the
+act-3 Queen. Bonus: post-draw replans now see drawn cards (owner's 'reassess
+after Pillage' for free). WG-knockdown (#3/#4) plausibly same class — next WG
+in a batch is the test.
+
+**QUEEN A/B (owner played 2x from a handoff replay; --stop-at-floor recorder)**:
+torch death = PHASE FLIP — no resummon, her Buff/Defend(20 blk) mode ends, she
+attacks (7x5..10x5 ramping with banked buffs). Torch-first is the strategy
+(fast: every torch turn buffs BOTH bodies); Queen-first only for extreme burst.
+Bot's real error = uncommitted fight plan (both rolls lose -> plan None -> DFS
+flipped targets, split 203 dmg, killed neither). Encoded 5f8c64c: guarded-
+leader phase model in rollout physics + commit-when-losing plans. EXONERATED
+by the same dissection: the 'unplayed Defend' turns were correct ORICHALCUM
+play (6 free block > 5 played); Bound keyword visible at turn start, existing
+one-bound-play constraint already right (owner spec'd full mechanics).
+
+**Elite-pool draft retarget landed (13247be, owner-approved)**: early-act picks
+price vs up to 3 fresh elite-pool fights averaged; boss late-act; next-act at
+boss floors. **New epoch** (seeds invalidated): Miniature Cannon, Tungsten Rod
+(with the ==1-HP-cost Brand countersynergy veto), White Star encoded (5f8c64c).
+476 tests. Handoff infra note: --stop-at-floor 48 + recorder taped the owner's
+fights turn-by-turn into the run log — the A/B workflow is now one flag.
+
 ## 2026-07-31/08-01 (Fable 5, session 18) — WIN #10; owner converts the act-3 residual live; relic-seam marathon
 
 **WIN #10 = AEONGLASS AGAIN (D86CSF7L7C)** — 2-for-2 since her model landed
