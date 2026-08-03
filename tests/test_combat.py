@@ -1852,3 +1852,43 @@ def test_mummified_hand_sequences_power_before_the_freed_card() -> None:
     d = plan_combat_turn(state, load_policy_config().combat)
     assert d.action.payload()["card_index"] == 0  # the Power first
     assert "Strike" in d.rationale  # and the freed Strike is IN the plan
+
+
+def test_cascade_class_vetoed_under_ringing_cap() -> None:
+    """Owner 2026-08-03: Cascade/Havoc's 'play the top card' plays COUNT toward
+    Ringing's card cap, so under a cap the card burns the turn's only slot for
+    nothing. Vetoed while a cap is active; normal turns unaffected."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(with_ring):
+        status = ([{"id": "RINGING_POWER", "name": "Ringing", "amount": 1,
+                    "description": "You can only play 1 card this turn."}]
+                  if with_ring else [])
+        return parse_state({
+            "state_type": "monster", "run": {"act": 1, "floor": 5, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                       "block": 0, "energy": 3, "status": status,
+                       "hand": [
+                           {"index": 0, "id": "CASCADE", "name": "Cascade",
+                            "type": "Skill", "cost": "1",
+                            "description": "Gain 1 Energy. Play the top card of "
+                            "your draw pile.", "can_play": True, "target_type": "None"},
+                           {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                            "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                            "can_play": True, "target_type": "AnyEnemy"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Beast", "hp": 60,
+                                    "max_hp": 60, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "8"}]}]},
+        })
+
+    cfg = load_policy_config()
+    # Ringing up: the energy-rider Cascade must NOT eat the one slot -- Strike plays
+    d = plan_combat_turn(st(True), cfg.combat)
+    assert d.action.payload()["card_index"] == 1
+    # no cap: Cascade is an ordinary candidate again (energy rider makes it playable)
+    d2 = plan_combat_turn(st(False), cfg.combat)
+    assert d2.action.payload()["card_index"] in (0, 1)

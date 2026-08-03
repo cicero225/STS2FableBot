@@ -302,6 +302,14 @@ class PlannedCard:
     # worth doubling (toggle cards like Barricade replay for ~nothing naturally:
     # their parsed fx is empty, so the second application adds ~0)
     arms_duplicate: bool = False
+    # Cascade/Havoc-class: 'play the top card(s) of your draw pile'. Those plays
+    # COUNT AGAINST Ringing-class card caps (owner 2026-08-03), so under a cap
+    # the card burns a slot for nothing and is vetoed from the pool. (Replay
+    # enchant copies are cap-EXEMPT, owner-confirmed -- the sim's replay
+    # bookkeeping already models them without consuming plays.) Cascade value
+    # is otherwise unmodeled today; this veto future-proofs the cap interaction
+    # for whenever it gets priced.
+    plays_top_cards: bool = False
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
     # debuff types this card applies to the *target* enemy, in card-TEXT order (Uppercut = Weak
     # then Vulnerable). Order matters for Artifact, which eats one debuff per unique status.
@@ -638,6 +646,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
             any((k.name or "") == "Bound" for k in getattr(card, "keywords", None) or [])
             or bool(re.search(r"\bBound\b", desc))
         ),
+        plays_top_cards=bool(re.search(r"play(s)? the top", desc, re.IGNORECASE)),
         grows_on_exhaust=bool(_GROWS_ON_EXHAUST.search(desc)),
         grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
         on_fatal_bonus=bool(re.search(r"\bIf Fatal\b", desc, re.IGNORECASE)),
@@ -1465,6 +1474,8 @@ def plan_combat_turn(
         # broke on Bloodletting's energy bonus and the bot suicided (owner-caught
         # 2026-07-13). Certain self-death loses now; the enemy turn at least has variance.
         and not (c.fx.self_hp_cost > 0 and c.fx.self_hp_cost >= player.hp)
+        # Cascade/Havoc under an active card cap: vetoed (see plays_top_cards)
+        and not (card_cap is not None and c.plays_top_cards)
     ]
     # Damage potions as pseudo-cards: 0-cost, exempt from the card cap (potions aren't card
     # plays), negative index -(slot+1) mapped back to UsePotion below. is_attack stays False
