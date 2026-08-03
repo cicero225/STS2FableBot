@@ -1402,7 +1402,7 @@ def plan_combat_turn(
             per_exhaust_block = p.amount
         # Living Fog's Smoggy (owner 2026-07-20): only one Skill per turn
         if pid.startswith("SMOGGY") or re.search(
-                r"only (?:one|1) Skill", p.description or "", re.I):
+                r"only (?:play )?(?:one|1) skill", p.description or "", re.I):
             smoggy = True
         # Knowledge Demon's Disintegration (and kin): end-of-turn blockable self-damage as a
         # PLAYER status. Parse the amount from the text so escalation (6->7->8) tracks live.
