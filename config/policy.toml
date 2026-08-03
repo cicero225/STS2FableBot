@@ -62,14 +62,6 @@ hp_cost_refuse_below = 0.45
 unknown_take_first_above = 0.70
 
 [map]
-# ATTRIBUTION EXPERIMENT (2026-08-02 night, NOT a retune): first live batches
-# with the desperation coupling ran 2/60 (~3%) vs ~12% recent baseline, with
-# gate_desperate latching run-long in every run (PLAN s7 watch item). Toggle
-# the coupling OFF for the next batches to attribute the drop between
-# desperation / elite-pool retarget / new-epoch content. Revert = delete
-# these two lines (code defaults: boss_loss_pct 0.90, zero_elite_floor 8).
-desperation_boss_loss_pct = 9.9
-desperation_zero_elite_floor = 99
 # node desirability by type (base scores; modified by state)
 score_monster = 10.0
 score_unknown = 12.0
@@ -89,9 +81,6 @@ lookahead_discount = 0.35              # (legacy 1-ply; kept for config compat)
 path_step_discount = 0.80
 
 [card_rewards]
-# Overnight both-off attribution arm (2026-08-03): boss-only draft pricing.
-# Revert = delete these three comment/flag lines (code default: true).
-use_elite_pool_targets = false
 # pick the best-scoring card if it clears the threshold, else skip
 take_threshold = 4.0
 # community prior (Spirebird Elo delta, ~±8) weight; heuristics fill the gaps
