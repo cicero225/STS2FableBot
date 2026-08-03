@@ -902,6 +902,13 @@ class StandardRouter:
                          f"drink {rg.name} (start the regen clock at "
                          f"{player.hp}/{player.max_hp})")
 
+        # 3c. Heart of Iron-class Plating (owner 2026-08-02): ~28 block streamed
+        #     over 7 turns -- a long-fight clock. Deploy at boss/elite start;
+        #     normal fights end before it pays out, so hold it there.
+        if dangerous and round_ <= 2 and (pl_ := first("plating")):
+            return drink(pl_, None,
+                         f"drink {pl_.name} ({state.state_type}: plating clock)")
+
         # 4a. Card-generating potions (Skill/Attack/Power/Colorless/Orobic): drop
         #     immediately at a BOSS or ELITE start (owner 2026-07-29: "obvious turn 1
         #     plays") — the generated cards compound over the fight's length, and held
@@ -1014,6 +1021,18 @@ class StandardRouter:
                      re.IGNORECASE):
             # Powdered Demise-class enemy DoT (owner 2026-08-02) -- own throw lane
             return "dot_throw"
+        if re.search(r"gain \d+ plating", potion.description or "", re.IGNORECASE):
+            # Heart of Iron-class (owner 2026-08-02): Plating N = decaying
+            # end-of-turn block, ~N(N+1)/2 over N turns -- a long-fight clock
+            # like Regen; own boss/elite deploy lane, held in normal fights
+            return "plating"
+        if re.search(r"gain \d+ buffer", potion.description or "", re.IGNORECASE):
+            # Lucky Tonic-class (owner 2026-08-02): 1 Buffer absorbs ONE damage
+            # instance of any size. Optimal use = the enemy's biggest single-hit
+            # turn, which needs the multiturn planner -- PARKED by owner. Until
+            # then: high keep-value, no proactive lane (hail-mary fallback may
+            # still drink it facing death, where absorbing an instance is right).
+            return "buffer"
         if ("REGEN" in nid
                 or re.search(r"gain \d+ regen", potion.description or "", re.IGNORECASE)):
             # Regen Potion (owner 2026-08-02): heal streamed over 5 turns; its own
@@ -3087,7 +3106,7 @@ class StandardRouter:
     _DISCARD_RANK: ClassVar[dict[str, int]] = {
         "downside": 0, "other": 1, "debuff": 3, "block": 3, "value": 4, "draw": 4,
         "damage": 4, "aoe_damage": 4, "card_gen": 4, "dot_throw": 4, "buff": 5,
-        "heal": 6, "regen": 6, "fruit_juice": 7,
+        "plating": 5, "buffer": 6, "heal": 6, "regen": 6, "fruit_juice": 7,
     }
 
     def _potion_rank(self, potion) -> int:

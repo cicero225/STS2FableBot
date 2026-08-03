@@ -4700,3 +4700,37 @@ def test_fruit_juice_drunk_on_sight_at_rewards() -> None:
     d = router().decide(state, LoopContext())
     assert d.action.payload() == {"action": "use_potion", "slot": 0}
     assert "sight" in d.rationale
+
+
+def test_heart_of_iron_deployed_at_boss_held_in_normal_fights() -> None:
+    """Owner 2026-08-02: Plating 7 pays out over ~7 turns -- deploy at
+    boss/elite start, hold in normal fights that end before it matters."""
+    hoi = _potion("HEART_OF_IRON", "Heart of Iron", "Gain 7 Plating.")
+
+    def st(state_type):
+        return make_combat(
+            hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+            enemies=[enemy("FOE_0", 250, intent_label="12")],
+            hp=70, max_hp=80, state_type=state_type, potions=[hoi],
+        )
+
+    r = router()
+    d = r.decide(st("boss"), LoopContext())
+    assert d.action.payload()["action"] == "use_potion"
+    assert "plating" in (d.rationale or "").lower()
+    d2 = r.decide(st("monster"), LoopContext())
+    assert d2.action.payload().get("action") != "use_potion"
+
+
+def test_lucky_tonic_not_drunk_proactively() -> None:
+    """Owner 2026-08-02 (parked for the multiturn planner): 1 Buffer absorbs one
+    instance of ANY size -- optimal is the biggest-hit turn, which a one-turn
+    planner can't see. Until then it must not leak out at fight starts."""
+    tonic = _potion("LUCKY_TONIC", "Lucky Tonic", "Gain 1 Buffer.")
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BOSS_0", 300, intent_label="12")],
+        hp=70, max_hp=80, state_type="boss", potions=[tonic],
+    )
+    d = router().decide(state, LoopContext())
+    assert d.action.payload().get("action") != "use_potion"
