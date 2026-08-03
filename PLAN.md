@@ -352,6 +352,7 @@ bridge v1 gaps (Strength not re-baked into card texts) — next calibration leve
 
 | Item | Phase | Notes |
 |------|-------|-------|
+| **Desperation coupling firing persistence (WATCH, 2026-08-02 evening)** | P2a | First live batches with 20c99fa: gate_desperate active in ALL 20 runs — the boss-loss trigger (dfs_boss_loss ≥ 0.90×max_hp) LATCHES for entire runs once a mid deck forecasts doomed (run 175257: 46/47 map rows desperate, still reached f48), and zero-elites-by-f8 fires near every act-1 boss in elite-light starts. Net effect: the elite bar is effectively 0.40 for much of the fleet — a broader retune than intended. Evening result 0/20 (vs ~1/10 recent), depth mixed (batch 1: two act-3; batch 2: five f17 act-1-boss deaths). CONFOUNDS: new epoch (relic pool shift), elite-pool draft retarget landed same day. Do NOT retune mid-aggregate; needs 40+ runs, then attribute across the three same-day changes (desperation / retarget / epoch). If desperation is the driver: candidates are a latch-release (re-forecast after each elite/relic gain — the cache DOES refresh per deck change, so persistence means the forecast genuinely stays doomed), or trigger at 0.95, or cap the discount to one act. |
 | Modded non-interactive launch (CLI arg vs launcher memory) | P0.8 | check Steam launch options / Godot args |
 | Real save path + Steam Cloud behavior per profile | P0.7 | decide cloud on/off before first bot launch |
 | Locked character/ascension representation in API | P0.8 | affects climb manager |
