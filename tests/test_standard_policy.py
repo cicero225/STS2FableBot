@@ -4774,3 +4774,34 @@ def test_star_cost_cards_vetoed_off_class() -> None:
     assert r._card_score(reflect, 10, "The Ironclad", 2, deck=[strike, starfall]) > -100.0
     # the Regent never needs the generator
     assert r._card_score(reflect, 10, "The Regent", 2, deck=[strike]) > -100.0
+
+
+def test_entropic_minted_buff_deploys_after_round_gates_close() -> None:
+    """Owner catch 2026-08-03 (KD win, undrunk Liquid Bronze): Entropic Brew
+    MINTS potions mid-fight, after the boss-start lanes' round gates close.
+    Later-arriving potions are FRESH: their round gates are waived."""
+    bronze = _potion("LIQUID_BRONZE", "Liquid Bronze", "Gain 3 Thorns.")
+
+    def st(round_, potions):
+        s = make_combat(
+            hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+            enemies=[enemy("KD_0", 300, intent_label="12")],
+            hp=70, max_hp=80, state_type="boss", potions=potions,
+        )
+        s.battle.round = round_
+        return s
+
+    r = router()
+    ctx = LoopContext()
+    # round 1: belt is EMPTY (snapshot taken)
+    d1 = r.decide(st(1, []), ctx)
+    assert d1.action.payload().get("action") != "use_potion"
+    # round 4: Bronze appeared mid-fight (Entropic refill) -> fresh -> deploys
+    # (poll through the action-settle quiescence dwell; same ctx keeps the snapshot)
+    d2 = None
+    for _ in range(2 + r.config.combat.action_quiesce_polls):
+        d2 = r.decide(st(4, [bronze]), ctx)
+        if not isinstance(d2, Wait):
+            break
+    assert d2.action.payload().get("action") == "use_potion"
+    assert "Bronze" in (d2.rationale or "")

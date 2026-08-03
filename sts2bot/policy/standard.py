@@ -762,6 +762,19 @@ class StandardRouter:
             ctx.screen_mem["potions_used"] = used
         used_slots: list[int] = used["slots"]
 
+        # Entropic-refill visibility (owner catch 2026-08-03, KD win with an
+        # undrunk Liquid Bronze): the Brew MINTS potions mid-fight, after the
+        # boss-start deploy lanes' round gates have closed. Snapshot the belt
+        # when the fight is FIRST seen (even if empty -- the early-outs below
+        # must not skip this); later arrivals are FRESH and the deploy lanes
+        # waive their round gates for them.
+        floor_now = state.run.floor if state.run else -1
+        belt_mem = ctx.screen_mem.get("fight_belt_r1")
+        if not isinstance(belt_mem, dict) or belt_mem.get("floor") != floor_now:
+            belt_mem = {"floor": floor_now,
+                        "ids": {f"{p.slot}:{p.id}" for p in player.potions or []}}
+            ctx.screen_mem["fight_belt_r1"] = belt_mem
+
         def drink(potion: Potion, target: str | None, why: str) -> Decision:
             # Targeting is enforced HERE, off the potion's own target_type, not the caller's
             # category guess: a hail-mary Beetle Juice (enemy-debuff, category "other") was
@@ -817,6 +830,9 @@ class StandardRouter:
         if not available:
             return None
         cat = {p.slot: self._potion_category(p) for p in available}
+
+        def fresh(p: Potion) -> bool:
+            return f"{p.slot}:{p.id}" not in belt_mem["ids"]
 
         def first(*want: str) -> Potion | None:
             return next((p for p in available if cat[p.slot] in want), None)
@@ -905,7 +921,8 @@ class StandardRouter:
         # 3c. Heart of Iron-class Plating (owner 2026-08-02): ~28 block streamed
         #     over 7 turns -- a long-fight clock. Deploy at boss/elite start;
         #     normal fights end before it pays out, so hold it there.
-        if dangerous and round_ <= 2 and (pl_ := first("plating")):
+        if (dangerous and (pl_ := first("plating")) is not None
+                and (round_ <= 2 or fresh(pl_))):
             return drink(pl_, None,
                          f"drink {pl_.name} ({state.state_type}: plating clock)")
 
@@ -914,8 +931,9 @@ class StandardRouter:
         #     plays") — the generated cards compound over the fight's length, and held
         #     ones historically died in the belt or fired as pointless hail-maries
         #     (owner 2026-07-09). Window is two rounds so a buff (4b) also lands.
-        if ((state.state_type in ("boss", "elite") or frond) and round_ <= 2
-                and (cg := first("card_gen"))):
+        if ((state.state_type in ("boss", "elite") or frond)
+                and (cg := first("card_gen")) is not None
+                and (round_ <= 2 or fresh(cg))):
             return drink(cg, None,
                          f"drink {cg.name} ({state.state_type} start: bank cards early)")
 
@@ -945,14 +963,16 @@ class StandardRouter:
 
         # 4. Proactive at an elite/boss start: deploy long-term buffs/debuffs early (the
         #    bot struggles with these fights, so bank the value rather than hoard it).
-        if dangerous and round_ <= 1 and (buff := first("buff", "debuff")):
+        if (dangerous and (buff := first("buff", "debuff")) is not None
+                and (round_ <= 1 or fresh(buff))):
             tgt = biggest_threat() if cat[buff.slot] == "debuff" else None
             return drink(buff, tgt, f"drink {buff.name} (deploy at {state.state_type} start)")
 
         # 4a-2. Cost-zero potions (Touch of Insanity): deploy early at a boss,
         #     but ONLY when a worthy target (cost >= 2) is in hand — the owner nuance:
         #     turn 1 full of cheap cards -> WAIT for the turn the 3-cost shows up.
-        if dangerous and round_ <= 4 and (cz := first("cost_zero")):
+        if (dangerous and (cz := first("cost_zero")) is not None
+                and (round_ <= 4 or fresh(cz))):
             hand_costs = [int(c.cost) for c in (player.hand or [])
                           if c.cost and str(c.cost).lstrip("-").isdigit()]
             if hand_costs and max(hand_costs) >= 2:
