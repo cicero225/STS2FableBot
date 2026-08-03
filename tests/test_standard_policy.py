@@ -4677,3 +4677,26 @@ def test_duplicator_joins_the_dfs_and_doubles_the_kill() -> None:
     )
     d2 = r.decide(state2, LoopContext())
     assert d2.action.payload().get("action") != "use_potion"
+
+
+def test_fruit_juice_drunk_on_sight_at_rewards() -> None:
+    """Owner 2026-08-02 (live miss): a Fruit Juice sat in the belt through a
+    rest site and was traded away at an event -- the only on-sight lane lived
+    in combat, and the run never fought while holding it. +Max HP compounds
+    (rest heals scale off max), so drink at the first legal screen: rewards,
+    where the potion was just claimed."""
+    state = parse_state({
+        "state_type": "rewards",
+        "run": {"act": 1, "floor": 6, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 50, "max_hp": 75,
+                   "status": [], "relics": [],
+                   "potions": [{"id": "FRUIT_JUICE", "name": "Fruit Juice",
+                                "slot": 0, "can_use_in_combat": True,
+                                "description": "Gain 5 Max HP."}],
+                   "max_potion_slots": 3},
+        "rewards": {"items": [{"index": 0, "type": "gold", "description": "25 Gold",
+                               "gold_amount": 25}], "can_proceed": True},
+    })
+    d = router().decide(state, LoopContext())
+    assert d.action.payload() == {"action": "use_potion", "slot": 0}
+    assert "sight" in d.rationale

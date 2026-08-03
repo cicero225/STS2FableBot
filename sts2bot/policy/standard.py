@@ -2960,6 +2960,22 @@ class StandardRouter:
 
     def _rewards(self, state: RewardsState, ctx: LoopContext) -> Decision | Wait:
         player = state.player
+        # Fruit Juice on sight, OUT of combat (owner 2026-08-02, live miss: one sat
+        # in the belt through a rest site and got traded at an event — the only
+        # on-sight lane lived in _combat_potion, and the run never fought while
+        # holding it). +Max HP compounds from the moment it's drunk (rest heals
+        # scale off max), so the first legal screen is the right screen; rewards
+        # is where potions are claimed AND where out-of-combat UsePotion is
+        # live-proven (the drink-to-claim lane). Event/shop-acquired juice still
+        # waits for the next rewards/combat — rest-site use is unverified API.
+        if player is not None:
+            juice = next((p for p in player.potions or []
+                          if self._potion_category(p) == "fruit_juice"), None)
+            if juice is not None:
+                return Decision(
+                    action=act.UsePotion(slot=juice.slot),
+                    rationale=f"drink {juice.name} on sight (+max HP compounds; "
+                    "never hold through a rest)")
         # Downside potions (Foul/Glowwater) are merchant ammo (100g thrown at a shop),
         # NOT combat resources — so past the point where a merchant is plausibly still
         # reachable, claiming one just wastes a slot (owner catch 2026-07-25: the WIN
