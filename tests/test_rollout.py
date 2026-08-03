@@ -193,9 +193,14 @@ def test_sleeper_gives_free_setup_turns_and_wakes_on_damage() -> None:
     entry = {"hp": [222, 222], "statuses": {}}
     # the empirical row now carries sleep_turns=3 for every Matriarch, so the
     # awake control must override it explicitly
-    awake = bestiary_enemy(entry, dps=13, name="Lagavulin Matriarch", sleep_turns=0)
-    asleep = bestiary_enemy(entry, dps=13, name="Lagavulin Matriarch")
-    assert asleep.sleep_turns == 3 and asleep.drains_player  # empirical row rides along
+    # drain-free overrides isolate the SLEEP effect: since 2026-08-03 the rollout
+    # models Soul Siphon too, which decays both arms and would blur this margin
+    awake = bestiary_enemy(entry, dps=13, name="Lagavulin Matriarch",
+                           sleep_turns=0, drains_player=0, drain_every=0)
+    asleep = bestiary_enemy(entry, dps=13, name="Lagavulin Matriarch",
+                            drains_player=0, drain_every=0)
+    assert asleep.sleep_turns == 3  # empirical row still rides along
+    assert bestiary_enemy(entry, dps=13, name="Lagavulin Matriarch").drains_player
     fx = {**FX, "INFLAME|0": "Gain 2 Strength."}
     deck = [*starter(), *([card("BLUDGEON", cost="3")] * 3),
             *([card("INFLAME", typ="Power", cost="1")] * 2)]
