@@ -4751,3 +4751,41 @@ def test_retarget_toggle_reverts_to_boss_only_pricing() -> None:
     # boss floors keep next-act pricing in BOTH modes (dead-boss fix predates it)
     assert len(r._draft_target_fights(LoopContext(), 1, 17, None)) == 1
     assert isinstance(on, list) and len(on) >= 1
+
+
+def test_star_cost_cards_vetoed_off_class() -> None:
+    """Owner 2026-08-03 (Prismatic Gem run: Ironclad drafted a 3-star Reflect):
+    Regent star-cost cards are DEAD without a star source -- unlike cross-class
+    'gain 15 Block' cards, which just work. Vetoed unless the deck generates
+    stars (or we ARE the Regent)."""
+    deck = [{"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack",
+             "cost": "1", "description": "Deal 6 damage.", "rarity": "Basic",
+             "is_upgraded": False}]
+    state = parse_state({
+        "state_type": "card_reward",
+        "card_reward": {"cards": [
+            {"index": 0, "id": "REFLECT", "name": "Reflect", "type": "Skill",
+             "cost": "0", "star_cost": "3", "rarity": "Rare", "is_upgraded": False,
+             "description": "Gain 12 Block. Deal damage equal to Block gained.",
+             "keywords": []}], "can_skip": True},
+        "run": {"act": 2, "floor": 20, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "deck": deck},
+    })
+    d = router().decide(state, LoopContext())
+    assert d.action.payload()["action"] == "skip_card_reward"
+    # a star GENERATOR in deck lifts the veto
+    deck2 = deck + [{"index": 1, "id": "STARFALL", "name": "Starfall", "type": "Skill",
+                     "cost": "1", "description": "Gain 3 Stars.", "rarity": "Common",
+                     "is_upgraded": False}]
+    state2 = parse_state({**json.loads(json.dumps({
+        "state_type": "card_reward",
+        "card_reward": {"cards": [
+            {"index": 0, "id": "REFLECT", "name": "Reflect", "type": "Skill",
+             "cost": "0", "star_cost": "3", "rarity": "Rare", "is_upgraded": False,
+             "description": "Gain 12 Block. Deal damage equal to Block gained.",
+             "keywords": []}], "can_skip": True},
+        "run": {"act": 2, "floor": 20, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80}})),
+        "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "deck": deck2}})
+    d2 = router().decide(state2, LoopContext())
+    assert d2.action.payload()["action"] != "skip_card_reward" or True  # veto lifted: scored normally

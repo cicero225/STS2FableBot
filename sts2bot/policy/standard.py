@@ -1854,6 +1854,17 @@ class StandardRouter:
         # drafting one buys a permanent dead card — worse than skipping, below any threshold.
         if fx.self_death_rider:
             return -100.0
+        # Star-cost trap (owner 2026-08-03, Prismatic Gem run: Ironclad drafted a
+        # 3-star Reflect): Regent star-cost cards are DEAD in hand without a star
+        # source — unlike cross-class 'gain 15 Block' cards, which just work.
+        # Veto unless we're the Regent or the deck already generates stars.
+        if getattr(card, "star_cost", None) not in (None, "", "0", 0):
+            generates = character == "The Regent" or any(
+                re.search(r"\bgain(s)? \d+ star|\bgenerate(s)? \d+ star",
+                          getattr(c_, "description", None) or "", re.IGNORECASE)
+                for c_ in (deck or []))
+            if not generates:
+                return -100.0
         score = {
             "Common": w.w_rarity_common,
             "Uncommon": w.w_rarity_uncommon,
