@@ -89,6 +89,9 @@ lookahead_discount = 0.35              # (legacy 1-ply; kept for config compat)
 path_step_discount = 0.80
 
 [card_rewards]
+# Overnight both-off attribution arm (2026-08-03): boss-only draft pricing.
+# Revert = delete these three comment/flag lines (code default: true).
+use_elite_pool_targets = false
 # pick the best-scoring card if it clears the threshold, else skip
 take_threshold = 4.0
 # community prior (Spirebird Elo delta, ~±8) weight; heuristics fill the gaps
