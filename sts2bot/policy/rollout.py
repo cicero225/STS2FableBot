@@ -110,6 +110,13 @@ class _Foe:
     guarded: bool = False
     awakened_dps: int = 0
     awakened_buff: int = 0
+    # Soul Siphon-class player-stat drain (Matriarch forensics 2026-08-03: the
+    # STATIC estimator modeled this but the rollout never did, so DFS forecasts
+    # blessed 10-12 round grinds whose dps decays -2 Str per cast -- 6 of the
+    # week's razor boss losses died with the boss under 50 HP). Dex side
+    # (block decay) is unmodeled; the damage race is the dominant term.
+    drains: int = 0
+    drain_every: int = 0
 
 
 @dataclass(frozen=True)
@@ -274,7 +281,8 @@ class _RolloutSim:
                           sleep=e.sleep_turns,
                           guarded=e.guarded_by_minions,
                           awakened_dps=e.awakened_dps,
-                          awakened_buff=e.awakened_buff_per_turn)
+                          awakened_buff=e.awakened_buff_per_turn,
+                          drains=e.drains_player, drain_every=e.drain_every)
                      for e in enemies]
         for f in self.foes:
             if f.guarded:
@@ -519,6 +527,8 @@ class _RolloutSim:
                 # every turn her minion lives, the Queen buffs BOTH bodies (owner):
                 # her own eventual attack grows — torch speed is imperative
                 f.awakened_dps += f.awakened_buff
+            if f.drain_every and self.turn % f.drain_every == 0:
+                self.my_str -= f.drains  # Soul Siphon: damage decay
             f.str_gained += f.ramp
             if f.heals:
                 f.hp += f.heals

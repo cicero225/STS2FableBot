@@ -301,3 +301,18 @@ def test_tungsten_rod_reduces_chip_losses() -> None:
     with_r = rollout_fight(deck, foe, 70, 80, card_effects=FX, relics=rod)
     assert (with_r.win_rate, with_r.exp_end_hp) >= (without.win_rate, without.exp_end_hp)
     assert with_r.exp_end_hp > without.exp_end_hp or with_r.win_rate > without.win_rate
+
+
+def test_player_stat_drain_decays_long_fights() -> None:
+    """Matriarch forensics 2026-08-03: Soul Siphon (-2 Str per cast, every 4th
+    turn) was modeled in the static estimator but NOT the rollout -- forecasts
+    blessed 10-12 round grinds whose damage decays, producing razor losses
+    (boss at 6-18 HP). A draining foe must roll out strictly worse than the
+    same foe without the drain."""
+    deck = starter()
+    plain = FightEnemy(hp=200, dps=10)
+    drainer = FightEnemy(hp=200, dps=10, drains_player=2, drain_every=4)
+    a = rollout_fight(deck, [plain], 80, 80, card_effects=FX)
+    b = rollout_fight(deck, [drainer], 80, 80, card_effects=FX)
+    assert (b.win_rate, b.exp_end_hp) <= (a.win_rate, a.exp_end_hp)
+    assert b.win_rate < a.win_rate or b.exp_enemy_hp_left > a.exp_enemy_hp_left
