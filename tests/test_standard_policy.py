@@ -4602,3 +4602,76 @@ def test_regen_potion_deployed_early_at_boss_when_below_max_minus_5() -> None:
     # plain monster fight at 70/80: hold for a fight that runs the clock
     d3 = r.decide(st(70, "monster"), LoopContext())
     assert d3.action.payload().get("action") != "use_potion"
+
+
+def test_powdered_demise_thrown_at_biggest_body_unless_artifacted() -> None:
+    """Owner 2026-08-02: 'target loses 9 HP at the end of each of its turns' --
+    throw early at bosses/elites at the max-HP body (leader for minion bosses;
+    the max-HP Decimillipede segment approximates 'a part not otherwise
+    targeted'). It's a STATUS: Artifact charges eat it, so charged targets are
+    skipped; vs the staged Test Subject hold for the 300-HP final stage."""
+    demise = _potion("POWDERED_DEMISE", "Powdered Demise",
+                     "Target loses 9 HP at the end of each of its turns.")
+
+    def st(enemies, state_type="boss"):
+        return parse_state({
+            "state_type": state_type, "run": {"act": 3, "floor": 45, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "block": 0,
+                       "energy": 3, "status": [],
+                       "hand": [card(0, "Defend", 1, "Gain 5 Block.",
+                                     target="Self", ctype="Skill")],
+                       "potions": [demise], "max_potion_slots": 3},
+            "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                       "enemies": enemies},
+        })
+
+    def foe(eid, name, hp, max_hp=None, status=()):
+        return {"entity_id": eid, "combat_id": 1, "name": name, "hp": hp,
+                "max_hp": max_hp or hp, "block": 0, "status": list(status),
+                "intents": [{"type": "Attack", "label": "10", "title": "Attack",
+                             "description": ""}]}
+
+    r = router()
+    # minion boss: the 400-HP leader gets the DoT, not the 199-HP torch
+    d = r.decide(st([foe("T0", "Torch Head Amalgam", 199),
+                     foe("Q0", "Queen", 400)]), LoopContext())
+    assert d.action.payload()["action"] == "use_potion"
+    assert d.action.payload()["target"] == "Q0"
+    # artifact on the leader: skip it, take the next body instead
+    art = {"id": "ARTIFACT_POWER", "name": "Artifact", "amount": 2, "description": ""}
+    d2 = r.decide(st([foe("T0", "Torch Head Amalgam", 199),
+                      foe("Q0", "Queen", 400, status=[art])]), LoopContext())
+    assert d2.action.payload()["action"] == "use_potion"
+    assert d2.action.payload()["target"] == "T0"
+    # Test Subject stage 1 (100 max): hold for the 300-HP final stage
+    d3 = r.decide(st([foe("TS0", "Test Subject #C29", 100)]), LoopContext())
+    assert d3.action.payload().get("action") != "use_potion"
+    # Test Subject stage 3 (300 max): now it flies
+    d4 = r.decide(st([foe("TS0", "Test Subject #C29", 300)]), LoopContext())
+    assert d4.action.payload()["action"] == "use_potion"
+
+
+def test_duplicator_joins_the_dfs_and_doubles_the_kill() -> None:
+    """Owner 2026-08-02: 'the next card played is played an extra time' -- a DFS
+    pseudo-card so the doubled play is CHOSEN (w_potion_spend banks it until the
+    duplication flips something real, the 'save it for impactful plays' proxy)."""
+    dup = _potion("DUPLICATOR", "Duplication Potion",
+                  "The next card you play is played an extra time.")
+    state = make_combat(
+        hand=[card(0, "Bludgeon", 3, "Deal 32 damage.")],
+        enemies=[enemy("BOSS_0", 60, intent_label="20")],
+        energy=3, hp=70, max_hp=80, state_type="boss", potions=[dup],
+    )
+    r = router()
+    d = r.decide(state, LoopContext())
+    # 32 alone doesn't kill the 60-HP boss; duplicated 64 does -> drink first
+    assert d.action.payload()["action"] == "use_potion"
+    assert d.scores and d.scores.get("lethal") == 1.0
+    # no kill to flip (300 HP): the potion stays banked
+    state2 = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BOSS_0", 300, intent_label="10")],
+        energy=3, hp=70, max_hp=80, state_type="boss", potions=[dup],
+    )
+    d2 = r.decide(state2, LoopContext())
+    assert d2.action.payload().get("action") != "use_potion"

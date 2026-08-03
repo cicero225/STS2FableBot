@@ -912,6 +912,30 @@ class StandardRouter:
             return drink(cg, None,
                          f"drink {cg.name} ({state.state_type} start: bank cards early)")
 
+        # 4a-3. Powdered Demise-class DoT throw (owner 2026-08-02): 'target loses
+        #     9 HP at the end of each of its turns' -- premium at bosses/elites,
+        #     thrown at the biggest body (the leader for minion bosses; on the
+        #     Decimillipede the max-HP segment approximates the owner's 'a part
+        #     not otherwise targeted', since kill lines chew from the low end).
+        #     Caveats (owner): it's a STATUS -- Artifact charges eat it, so skip
+        #     charged targets (a later poll rethrows once charges are stripped);
+        #     vs the staged Test Subject hold for the 300-HP final stage.
+        if dangerous and (dot := first("dot_throw")):
+            alive = [e for e in state.battle.enemies if e.hp > 0]
+
+            def _artifacted(e) -> bool:
+                return any("ARTIFACT" in f"{s.id or ''} {s.name or ''}".upper()
+                           and (s.amount or 0) > 0 for s in e.status)
+
+            staged = any("TEST SUBJECT" in (e.name or "").upper() for e in alive)
+            if not (staged and not any((e.max_hp or 0) >= 300 for e in alive)):
+                dot_tgts = [e for e in alive if not _artifacted(e)]
+                if dot_tgts:
+                    dt = max(dot_tgts, key=lambda e: e.hp)
+                    return drink(dot, dt.entity_id,
+                                 f"throw {dot.name} at {dt.name} (DoT clock on "
+                                 f"{dt.hp} HP)")
+
         # 4. Proactive at an elite/boss start: deploy long-term buffs/debuffs early (the
         #    bot struggles with these fights, so bank the value rather than hoard it).
         if dangerous and round_ <= 1 and (buff := first("buff", "debuff")):
@@ -986,6 +1010,10 @@ class StandardRouter:
         # to your hand"). Their text parses to no effect -> they fell to "other" and only ever
         # fired as the hail-mary fallback, way too late value-wise (owner 2026-07-09): the
         # earlier the card arrives, the longer it works. Deployed at boss start (rule 4a).
+        if re.search(r"loses? \d+ hp at the end of each", potion.description or "",
+                     re.IGNORECASE):
+            # Powdered Demise-class enemy DoT (owner 2026-08-02) -- own throw lane
+            return "dot_throw"
         if ("REGEN" in nid
                 or re.search(r"gain \d+ regen", potion.description or "", re.IGNORECASE)):
             # Regen Potion (owner 2026-08-02): heal streamed over 5 turns; its own
@@ -3042,8 +3070,8 @@ class StandardRouter:
     # keep the good stuff (heals, buffs, energy/draw value, damage). Tie-break by slot.
     _DISCARD_RANK: ClassVar[dict[str, int]] = {
         "downside": 0, "other": 1, "debuff": 3, "block": 3, "value": 4, "draw": 4,
-        "damage": 4, "aoe_damage": 4, "card_gen": 4, "buff": 5, "heal": 6, "regen": 6,
-        "fruit_juice": 7,
+        "damage": 4, "aoe_damage": 4, "card_gen": 4, "dot_throw": 4, "buff": 5,
+        "heal": 6, "regen": 6, "fruit_juice": 7,
     }
 
     def _potion_rank(self, potion) -> int:

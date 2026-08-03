@@ -286,6 +286,11 @@ class PlannedCard:
     grows_on_exhaust: bool = False
     growth_bonus: float = 0.0
     is_skill: bool = False  # card.type == "Skill" (for Smoggy's one-Skill-per-turn cap)
+    # Duplicator Potion (owner 2026-08-02): drinking arms a one-shot 'next card
+    # is played an extra time' -- a pseudo-card the DFS sequences before the play
+    # worth doubling (toggle cards like Barricade replay for ~nothing naturally:
+    # their parsed fx is empty, so the second application adds ~0)
+    arms_duplicate: bool = False
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
     # debuff types this card applies to the *target* enemy, in card-TEXT order (Uppercut = Weak
     # then Vulnerable). Order matters for Artifact, which eats one debuff per unique status.
@@ -475,6 +480,7 @@ class SimState:
     # Tungsten Rod: each HP-loss instance loses 1 less — approximated as -1 per
     # attacking enemy in the incoming pool (multi-hit intents under-counted)
     hp_loss_reduction: int = 0
+    dup_armed: bool = False  # Duplicator drunk: the next card play applies twice
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
@@ -1481,12 +1487,20 @@ def plan_combat_turn(
             # than this". w_potion_spend still keeps it out of non-lethal lines.
             str_pseudo = pfx.strength > 0 and any(
                 pc.is_attack for pc in playable if pc.potion_slot is None)
-            if pfx.total_damage <= 0 and not str_pseudo:
+            # Duplicator (owner 2026-08-02): joins the DFS so the DOUBLED play is
+            # chosen, not guessed -- w_potion_spend keeps it banked until the
+            # duplication flips something worth ~a potion (a lethal, an Offering),
+            # which is the owner's 'save it for impactful plays' proxy.
+            dup_pseudo = bool(re.search(
+                r"next card (you )?play(ed)? .*(extra time|twice|additional time)",
+                potion.description or "", re.IGNORECASE))
+            if pfx.total_damage <= 0 and not str_pseudo and not dup_pseudo:
                 continue
             playable.append(PlannedCard(
                 index=-(potion.slot + 1), name=f"{potion.name} (potion)", cost=0, fx=pfx,
                 targets_enemy=pfx.total_damage > 0 and not pfx.aoe,
                 potion_slot=potion.slot,
+                arms_duplicate=dup_pseudo,
             ))
     # Thrash-class growth bonus: the exhausted attack's damage banks into the NEXT
     # play + thinning — future value the one-turn tally can't see. Granted only when
@@ -1643,6 +1657,13 @@ def plan_combat_turn(
 
     def apply_play(sim: SimState, card: PlannedCard, ti: int | None) -> SimState:
         nxt = _apply_card(sim, card, ti)
+        if card.arms_duplicate:
+            return replace(nxt, dup_armed=True)
+        # Duplicator armed: this card applies twice (free replay, one played entry)
+        if sim.dup_armed and card.potion_slot is None:
+            again = _apply_card(nxt, card, ti)
+            nxt = replace(again, energy=again.energy + card.cost,
+                          played=again.played[:-1], dup_armed=False)
         # Throwing Axe: the first CARD (not potion) of the combat replays free —
         # full effects, no energy, no extra play friction
         if (sim.axe_armed and card.potion_slot is None
