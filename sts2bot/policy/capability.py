@@ -340,6 +340,13 @@ _EMPIRICAL_MOVES: dict[str, dict[str, int]] = {
     # race must out-damage) and the forced Disintegration picks average ~+5/turn blockable
     # load on the player by mid-fight (6+7+8 escalation)
     "KNOWLEDGE DEMON": {"heals_per_turn": 7, "player_dot_avg": 5},
+    # Soul Fysh (owner hunch + tape audit 2026-08-03, 8 fights): she shoves Beckon
+    # cards ("end of turn, if in Hand, lose 6 HP", cost 1 to clear) into the deck
+    # -- ramping to 2-3 in hand by mid-fight. Not an enemy STATUS, so
+    # detect_mechanics can't see it; the rollout priced her as a plain beatstick
+    # (the Matriarch pattern again). ~4/turn average bleed-or-tempo tax, plus a
+    # gentle ramp for the escalating shove rate.
+    "SOUL FYSH": {"player_dot_avg": 4, "str_ramp": 1},
 }
 
 # Multi-body elites the harvest records as ONE body (PLAN §8.5.6 sub-item, 2026-07-09: the pool

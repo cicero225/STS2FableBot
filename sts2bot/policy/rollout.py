@@ -117,6 +117,11 @@ class _Foe:
     # (block decay) is unmodeled; the damage race is the dominant term.
     drains: int = 0
     drain_every: int = 0
+    # rollout-parity audit 2026-08-03 (owner: 'may be worth a full audit'): the
+    # last two FightEnemy fields the rollout never consumed.
+    stun_threshold: int = 0  # crossing to/below this HP stuns it once (skips a turn)
+    stunned_used: bool = False
+    skittish: int = 0  # +Block against the FIRST hit it takes each turn
 
 
 @dataclass(frozen=True)
@@ -187,7 +192,10 @@ def _hit(foe: _Foe, amount: int, vuln_mult: float = 1.5) -> int:
     if foe.slippery and not foe.slipped_this_turn:
         foe.slipped_this_turn = True
         amount = min(amount, 1)
-    amount = max(0, amount - foe.self_block)
+    block_now = foe.self_block
+    if foe.skittish and foe.lost_this_turn == 0:
+        block_now += foe.skittish  # Skittish: first hit each turn eats extra block
+    amount = max(0, amount - block_now)
     if foe.vuln > 0:
         amount = int(amount * vuln_mult)
     if foe.cap is not None:
@@ -282,7 +290,8 @@ class _RolloutSim:
                           guarded=e.guarded_by_minions,
                           awakened_dps=e.awakened_dps,
                           awakened_buff=e.awakened_buff_per_turn,
-                          drains=e.drains_player, drain_every=e.drain_every)
+                          drains=e.drains_player, drain_every=e.drain_every,
+                          stun_threshold=e.stun_threshold, skittish=e.skittish)
                      for e in enemies]
         for f in self.foes:
             if f.guarded:
@@ -503,8 +512,15 @@ class _RolloutSim:
         # enemy turn (block/heal potions as death-preventers — live lanes 1/5);
         # sleepers don't attack
         rod = self.rfx.get("hp_loss_reduction", 0)  # Tungsten: -1 per attacker
-        strike = sum(max(0, f.dps + f.str_gained + f.dot - rod)
-                     for f in self.targets() if f.sleep <= 0)
+        strike = 0
+        for f in self.targets():
+            if f.sleep > 0:
+                continue
+            if (f.stun_threshold and not f.stunned_used
+                    and f.hp <= f.stun_threshold):
+                f.stunned_used = True  # crossed the stun line: it skips this turn
+                continue
+            strike += max(0, f.dps + f.str_gained + f.dot - rod)
         if self.hp - max(0, strike - self.block) <= 0:
             self.block += self.spend("block")
         if self.hp - max(0, strike - self.block) <= 0:
