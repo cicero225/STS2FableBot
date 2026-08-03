@@ -4576,3 +4576,29 @@ def test_tungsten_rod_skipped_with_one_hp_cost_engine() -> None:
     # no 1-HP-cost cards: the rod is a normal take
     d3 = r.decide(rs_state([rod], plain_deck), LoopContext())
     assert d3.action.payload()["action"] == "select_relic"
+
+
+def test_regen_potion_deployed_early_at_boss_when_below_max_minus_5() -> None:
+    """Owner 2026-08-02: Regen 5 = 5+4+3+2+1 = 15 HP over 5 turns -- worthless
+    in short fights, premium in bosses/elites. Rule: drink the moment HP drops
+    below max-5 (first tick can't overheal; bosses run the clock easily)."""
+    regen = _potion("REGEN_POTION", "Regen Potion", "Gain 5 Regen.")
+
+    def st(hp, state_type):
+        return make_combat(
+            hand=[card(0, "Defend", 1, "Gain 5 Block.", target="Self", ctype="Skill")],
+            enemies=[enemy("BOSS_0", 300, intent_label="10")],
+            hp=hp, max_hp=80, state_type=state_type, potions=[regen],
+        )
+
+    r = router()
+    # boss, HP 70/80 (missing > 5): drink now
+    d = r.decide(st(70, "boss"), LoopContext())
+    assert d.action.payload()["action"] == "use_potion"
+    assert "regen" in (d.rationale or "").lower()
+    # boss, HP 77/80 (missing < 5): hold -- the first tick would overheal
+    d2 = r.decide(st(77, "boss"), LoopContext())
+    assert d2.action.payload().get("action") != "use_potion"
+    # plain monster fight at 70/80: hold for a fight that runs the clock
+    d3 = r.decide(st(70, "monster"), LoopContext())
+    assert d3.action.payload().get("action") != "use_potion"

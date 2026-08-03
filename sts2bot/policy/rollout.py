@@ -201,8 +201,14 @@ def _classify_potions(potions) -> list[tuple[str, int]]:
                 # drinker-in-the-blast by TEXT (names lie; a mutual kill is a loss)
                 or HITS_EVERYONE.search(getattr(p, "description", None) or "")):
             continue
-        fx = parse_card_description(getattr(p, "description", None) or "")
-        if fx.heal > 0 or "BLOOD" in nid:
+        desc = getattr(p, "description", None) or ""
+        fx = parse_card_description(desc)
+        if m := re.search(r"gain (\d+) regen", desc, re.IGNORECASE):
+            n_ = int(m.group(1))
+            # streamed 5+4+3+2+1 live; credited as its triangular total here
+            # (instant in sim -- a mild over-credit on very short fights)
+            out.append(("heal", n_ * (n_ + 1) // 2))
+        elif fx.heal > 0 or "BLOOD" in nid:
             out.append(("heal", fx.heal or 20))
         elif fx.block > 0:
             out.append(("block", fx.block))

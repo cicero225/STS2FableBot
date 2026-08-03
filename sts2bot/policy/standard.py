@@ -891,6 +891,17 @@ class StandardRouter:
         if hp_pct < heal_bar and (healp := first("heal")):
             return drink(healp, None, f"drink {healp.name} to heal at {hp_pct:.0%} HP")
 
+        # 3b. Regen Potion (owner 2026-08-02): 'Gain 5 Regen' = 5+4+3+2+1 = 15 HP
+        #     streamed over 5 turns -- worthless in short fights, premium in long
+        #     ones. Boss/elite rule: drink the moment HP drops below max-5 (the
+        #     first tick can't overheal, and bosses easily run the 5-turn clock).
+        #     Overheal edges (post-boss ancient heal, A3+ 80%% boss heal) waved off
+        #     by the owner as overthinking.
+        if dangerous and player.hp < player.max_hp - 5 and (rg := first("regen")):
+            return drink(rg, None,
+                         f"drink {rg.name} (start the regen clock at "
+                         f"{player.hp}/{player.max_hp})")
+
         # 4a. Card-generating potions (Skill/Attack/Power/Colorless/Orobic): drop
         #     immediately at a BOSS or ELITE start (owner 2026-07-29: "obvious turn 1
         #     plays") — the generated cards compound over the fight's length, and held
@@ -975,6 +986,12 @@ class StandardRouter:
         # to your hand"). Their text parses to no effect -> they fell to "other" and only ever
         # fired as the hail-mary fallback, way too late value-wise (owner 2026-07-09): the
         # earlier the card arrives, the longer it works. Deployed at boss start (rule 4a).
+        if ("REGEN" in nid
+                or re.search(r"gain \d+ regen", potion.description or "", re.IGNORECASE)):
+            # Regen Potion (owner 2026-08-02): heal streamed over 5 turns; its own
+            # boss/elite deploy lane drinks it -- categorized so it ranks like a
+            # heal for keep-value and never falls to the 'other' bucket
+            return "regen"
         if any(k in nid for k in ("SKILL", "ATTACK", "COLORLESS", "POWER POTION",
                                   "OROBIC")):
             # Orobic Acid: 3 random cards, free this turn — a turn-1 tempo bomb
@@ -3025,7 +3042,8 @@ class StandardRouter:
     # keep the good stuff (heals, buffs, energy/draw value, damage). Tie-break by slot.
     _DISCARD_RANK: ClassVar[dict[str, int]] = {
         "downside": 0, "other": 1, "debuff": 3, "block": 3, "value": 4, "draw": 4,
-        "damage": 4, "aoe_damage": 4, "card_gen": 4, "buff": 5, "heal": 6, "fruit_juice": 7,
+        "damage": 4, "aoe_damage": 4, "card_gen": 4, "buff": 5, "heal": 6, "regen": 6,
+        "fruit_juice": 7,
     }
 
     def _potion_rank(self, potion) -> int:
