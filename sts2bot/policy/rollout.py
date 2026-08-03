@@ -76,6 +76,7 @@ class _Card:
     text: str = ""  # original rules text (the DFS bridge synthesizes states from it)
     ctype: str = "Attack"
     cid: str = ""
+    upgraded: bool = False  # Miniature Cannon: upgraded Attacks hit +3 per swing
 
 
 @dataclass
@@ -101,6 +102,14 @@ class _Foe:
     dormant: bool = False  # wave>0 body not yet spawned: untargetable, not attacking
     artifact: int = 0  # charges that eat incoming debuffs (Aeonglass opens with 3)
     sleep: int = 0  # Lagavulin-class: turns left asleep (no attacks); ANY damage wakes
+    # Queen-class guarded leader (owner A/B 2026-08-02, taped both ways): while any
+    # other body lives she doesn't attack (dps 0) — she Buffs (awakened_dps grows by
+    # awakened_buff each turn) and re-blocks self_block. The last minion's death
+    # breaks the guard permanently: self_block ends and she attacks at the
+    # accumulated awakened_dps. No resummon (taped).
+    guarded: bool = False
+    awakened_dps: int = 0
+    awakened_buff: int = 0
 
 
 @dataclass(frozen=True)
@@ -155,6 +164,7 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             exhausts=bool(_EXHAUST_SELF.search(text)),
             ethereal=bool(_ETHEREAL.search(text)),
             eot_hand_loss=int(m.group(1)) if m else 0,
+            upgraded=bool(up),
             shreds_hand=("exhaust your hand" in text.lower()
                          and bool(_ADD_RANDOM_PER_EXHAUST.search(text))),
             text=text,
@@ -230,6 +240,14 @@ _RELIC_FX = {
     # the drawback (Vakuu autoplays turn 1 left-to-right) is modeled separately
     # via the auto_turn1 flag below.
     "WHISPERING_EARRING": ("energy_per_turn", 1),
+    # Epoch relics (owner 2026-08-02). Miniature Cannon: upgraded Attacks +3 —
+    # applied per hit at attack time (upgraded multi-hits benefit per swing).
+    "MINIATURE_CANNON": ("upgraded_attack_bonus", 3),
+    # Tungsten Rod: every HP-loss instance loses 1 less. Approximated as -1 per
+    # attacking foe per turn (multi-hit intents under-counted — conservative)
+    # and -1 on card self-HP costs. The Brand-class ==1-cost countersynergy is
+    # handled at relic-TAKE time (standard.py), not here.
+    "TUNGSTEN_ROD": ("hp_loss_reduction", 1),
 }
 
 
@@ -247,8 +265,14 @@ class _RolloutSim:
                           heals=e.heals_per_turn, dot=e.player_dot_avg,
                           death_timer=e.death_timer, wave=e.wave,
                           dormant=e.wave > 0, artifact=e.artifact,
-                          sleep=e.sleep_turns)
+                          sleep=e.sleep_turns,
+                          guarded=e.guarded_by_minions,
+                          awakened_dps=e.awakened_dps,
+                          awakened_buff=e.awakened_buff_per_turn)
                      for e in enemies]
+        for f in self.foes:
+            if f.guarded:
+                f.dps = 0  # a guarded leader doesn't attack until the guard breaks
         self.rng = rng
         self.rfx = rfx or {}
         self.prefer_big = False  # set by rollout_fight(target_order="focus")
@@ -361,7 +385,10 @@ class _RolloutSim:
         self.hand.remove(pick)
         self.energy -= pick.cost
         self.energy += pick.fx.energy_gain
-        self.hp = max(0, self.hp - pick.fx.self_hp_cost)
+        self_cost = pick.fx.self_hp_cost
+        if self_cost > 0 and self.rfx.get("hp_loss_reduction"):
+            self_cost = max(0, self_cost - self.rfx["hp_loss_reduction"])  # Tungsten Rod
+        self.hp = max(0, self.hp - self_cost)
         self.hp = min(self.max_hp, self.hp + pick.fx.heal)
         self.block += pick.fx.block
         self.my_str += pick.fx.strength
@@ -375,6 +402,8 @@ class _RolloutSim:
             # owner 2026-08-01; catalog preview numbers are stale, sim block isn't)
             per_hit = (self.block if pick.fx.dmg_equals_block
                        else pick.fx.damage + self.my_str)
+            if pick.upgraded and pick.ctype == "Attack":
+                per_hit += self.rfx.get("upgraded_attack_bonus", 0)  # Miniature Cannon
             if (pick.fx.requires_exhaust_pile
                     and self.n_exhausted < pick.fx.requires_exhaust_pile):
                 per_hit = 0  # Pact's End-class: condition unmet, damage is a mirage
@@ -448,9 +477,19 @@ class _RolloutSim:
                 if not self.alive_leaders():
                     self._win()
                     return
+        # guard-break check: the last minion's death wakes a guarded leader
+        # (Queen A/B 2026-08-02) — self-block ends, attacks begin at the
+        # dps she accumulated Buffing while her torch lived
+        for f in self.foes:
+            if f.guarded and f.hp > 0 and not any(
+                    o is not f and o.hp > 0 for o in self.foes):
+                f.guarded = False
+                f.dps = f.awakened_dps
+                f.self_block = 0
         # enemy turn (block/heal potions as death-preventers — live lanes 1/5);
         # sleepers don't attack
-        strike = sum(f.dps + f.str_gained + f.dot
+        rod = self.rfx.get("hp_loss_reduction", 0)  # Tungsten: -1 per attacker
+        strike = sum(max(0, f.dps + f.str_gained + f.dot - rod)
                      for f in self.targets() if f.sleep <= 0)
         if self.hp - max(0, strike - self.block) <= 0:
             self.block += self.spend("block")
@@ -470,6 +509,10 @@ class _RolloutSim:
             if f.sleep > 0:
                 f.sleep -= 1  # sleeping: no ramp/heal ticks, just the countdown
                 continue
+            if f.guarded:
+                # every turn her minion lives, the Queen buffs BOTH bodies (owner):
+                # her own eventual attack grows — torch speed is imperative
+                f.awakened_dps += f.awakened_buff
             f.str_gained += f.ramp
             if f.heals:
                 f.hp += f.heals

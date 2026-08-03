@@ -472,6 +472,9 @@ class SimState:
     # relic pass R2: end-of-turn conditional relics held (ids), evaluated in _score on
     # the plan's END state (Orichalcum, Cloak Clasp, Sturdy Clamp, Ice Cream, ...)
     eot_relics: tuple = ()
+    # Tungsten Rod: each HP-loss instance loses 1 less — approximated as -1 per
+    # attacking enemy in the incoming pool (multi-hit intents under-counted)
+    hp_loss_reduction: int = 0
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
@@ -1168,9 +1171,10 @@ def _score(
     # A stunned enemy (dropped to/below its stun threshold this turn) skips its turn, so its
     # intent doesn't land — attacking down to the threshold can cancel an otherwise-lethal hit.
     incoming = sum(
-        (e.incoming // 2 if state.vuln_dmg_reduction and e.vulnerable > 0 else e.incoming)
+        max(0, (e.incoming // 2 if state.vuln_dmg_reduction and e.vulnerable > 0
+                else e.incoming) - state.hp_loss_reduction)
         for e in state.enemies if _enemy_attacking(e)
-    )  # Colossus: 50% less damage from Vulnerable enemies this turn
+    )  # Colossus: 50% less dmg from Vulnerable enemies; Tungsten: -1 per attacker
     # Stranded status cards (Beckon "lose N HP" / Toxic "take N damage") bite at end of turn
     # UNLESS played — so the penalty must live in the scored objective, not just the post-hoc
     # hp_loss diagnostic, or the search can never prefer spending energy to clear one (the
@@ -1546,6 +1550,9 @@ def plan_combat_turn(
                           re.IGNORECASE):
             cap = int(m.group(1))
             card_cap = cap if card_cap is None else min(card_cap, cap)
+    hp_loss_reduction = sum(
+        1 for r in player.relics
+        if "TUNGSTEN" in (r.id or r.name or "").upper())
     enemy_sims = _enemy_sims(state.battle.enemies)
     fiddle_no_draw = any(
         _RELIC_BLOCKS_DRAW.search(getattr(r_, "description", None) or "")
@@ -1583,6 +1590,7 @@ def plan_combat_turn(
         axe_armed=axe_armed,
         demon_tongue_armed=demon_armed,
         eot_relics=tuple(eot_relics),
+        hp_loss_reduction=hp_loss_reduction,
     )
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")

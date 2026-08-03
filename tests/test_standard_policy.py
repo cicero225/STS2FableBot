@@ -4515,3 +4515,64 @@ def test_combat_action_settle_guard_caps_out() -> None:
         assert waits <= cap
     assert waits == cap
     assert d.action.payload()["action"] == "play_card"
+
+
+def test_fight_plan_commits_even_when_both_orders_lose() -> None:
+    """Queen A/B (owner 2026-08-02): both target orders projected losses, the
+    margins collapsed to ~0, and no plan was committed -- the per-turn DFS then
+    flipped targets mid-fight and split damage across two bodies with neither
+    dying. In losing positions coherence matters MOST: commit to the less-bad
+    order anyway."""
+    r = router()
+    deck = [{"index": i, "id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack",
+             "cost": "1", "description": "Deal 6 damage.", "rarity": "Basic",
+             "is_upgraded": False} for i in range(10)]
+    state = parse_state({
+        "state_type": "boss", "run": {"act": 2, "floor": 33, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 40, "max_hp": 80, "block": 0,
+                   "energy": 3, "status": [], "deck": deck,
+                   "hand": [card(0, "Strike", 1, "Deal 6 damage.")],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                   "enemies": [enemy("HULK_0", 900, intent_label="40"),
+                               enemy("BRUTE_0", 700, intent_label="35")]},
+    })
+    plan = r._fight_plan(state, LoopContext())
+    assert plan in ("sweep", "focus")
+
+
+def test_tungsten_rod_skipped_with_one_hp_cost_engine() -> None:
+    """Epoch relic (owner 2026-08-02): 'lose 1 less' zeroes EXACTLY-1-HP card
+    costs (Brand-class), breaking their loss-keyed engines -- one of the few
+    genuinely negative relic takes. Costs of 2+ are unaffected."""
+    def rs_state(relics, deck_cards):
+        return parse_state({
+            "state_type": "relic_select",
+            "relic_select": {"relics": relics, "can_skip": True},
+            "run": {"act": 2, "floor": 20, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                       "deck": deck_cards},
+        })
+
+    brand_deck = [
+        {"index": 0, "id": "BRAND", "name": "Brand", "type": "Attack", "cost": "1",
+         "description": "Lose 1 HP. Deal 8 damage. Gain 1 Energy.",
+         "rarity": "Common", "is_upgraded": False},
+        {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike", "type": "Attack",
+         "cost": "1", "description": "Deal 6 damage.", "rarity": "Basic",
+         "is_upgraded": False},
+    ]
+    plain_deck = [dict(brand_deck[1], index=i) for i in range(2)]
+    rod = {"id": "TUNGSTEN_ROD", "name": "Tungsten Rod", "index": 0}
+    other = {"id": "ANCHOR", "name": "Anchor", "index": 1}
+
+    r = router()
+    # Brand deck, rod + alternative offered: take the alternative
+    d = r.decide(rs_state([rod, other], brand_deck), LoopContext())
+    assert d.action.payload()["index"] == 1
+    # Brand deck, rod alone: skip outright
+    d2 = r.decide(rs_state([rod], brand_deck), LoopContext())
+    assert d2.action.payload()["action"] == "skip_relic_selection"
+    # no 1-HP-cost cards: the rod is a normal take
+    d3 = r.decide(rs_state([rod], plain_deck), LoopContext())
+    assert d3.action.payload()["action"] == "select_relic"

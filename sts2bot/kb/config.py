@@ -174,6 +174,10 @@ class MapWeights(_Section):
     # (+3 Str permanent) -- worth a real nudge on top of the relic value when the
     # gate already says the fight is winnable (owner 2026-07-29).
     sword_completion_bonus: float = 8.0
+    # White Star (epoch relic 2026-08-02): elites drop an extra RARE card reward.
+    # A rare pick is worth a few catalog points; kept below elite_relic_value so
+    # it sweetens winnable elites without overriding the win gate.
+    white_star_elite_bonus: float = 10.0
     # P2a (2026-07-29): the elite gate judges the pool with Monte-Carlo ROLLOUTS
     # (calibrated: act-1 93%/95%, act-2 86%/81%) instead of the closed-form race.
     # Tail-aware: a pool member is "won" at win_rate >= rollout_gate_win_rate AND

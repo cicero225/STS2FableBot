@@ -8,6 +8,7 @@ TrivialRouter, which is already battle-tested plumbing.
 
 from __future__ import annotations
 
+import dataclasses
 import re
 import time
 import zlib
@@ -93,6 +94,13 @@ _ACT_BOSS = {1: (24, 2), 2: (30, 2), 3: (36, 3)}  # (dps, str_ramp) estimate for
 # name -> bestiary names of the summons. Consumed by _upcoming_boss (forecast side);
 # the summons are minions in the Kin sense (threat, not kill-HP).
 _BOSS_SUMMONS: dict[str, list[str]] = {"QUEEN": ["Torch Head Amalgam"]}
+# Guarded summoner leaders (owner A/B 2026-08-02, both target orders taped on
+# 373PFAE7EE): while her torch lives the Queen never attacks — she Buffs BOTH
+# bodies and re-blocks ~20; the torch's death breaks the guard permanently (no
+# resummon, block ends, she attacks at the dps her Buffs accumulated). Values:
+# awakened base 18 + 2/turn of torch life ≈ the taped 35/19/Buff/50 pattern
+# after a 7-turn phase 1. (self_block, awakened_dps, awakened_buff_per_turn)
+_BOSS_GUARDED: dict[str, tuple[int, int, int]] = {"QUEEN": (20, 18, 2)}
 # Relic -> card-type draft synergy: holding the relic makes that TYPE more
 # favorable to draft (owner 2026-07-31, Mummified Hand). Values are nudges on
 # the catalog scale (take threshold ~4), not mandates.
@@ -412,6 +420,21 @@ class StandardRouter:
             plan = "focus"
         elif s.p25_end_hp - f.p25_end_hp > 5:
             plan = "sweep"
+        # Queen A/B 2026-08-02: when BOTH orders project a loss the margins
+        # collapse to ~0 and no plan was committed — the per-turn DFS then
+        # flipped targets mid-fight (Queen 4 rounds, torch 2) and split 203
+        # damage across two bodies with neither dying. In losing positions
+        # coherence matters MOST: commit to the less-bad order anyway.
+        # Tie-break: pessimistic tail, then kill progress, then sweep (killing
+        # the dps source first is the safer human default vs summoners).
+        if plan is None and max(s.win_rate, f.win_rate) < 0.15:
+            if abs(f.p25_end_hp - s.p25_end_hp) > 1:
+                plan = "focus" if f.p25_end_hp > s.p25_end_hp else "sweep"
+            elif abs(f.exp_enemy_hp_left - s.exp_enemy_hp_left) > 1:
+                plan = ("focus" if f.exp_enemy_hp_left < s.exp_enemy_hp_left
+                        else "sweep")
+            else:
+                plan = "sweep"
         cache[sig] = plan
         return plan
 
@@ -1076,6 +1099,12 @@ class StandardRouter:
         sword_bonus = w.sword_completion_bonus if any(
             "SWORD OF STONE" in f"{r.id or ''} {r.name or ''}".upper()
             and (r.counter or 0) == 4
+            for r in ((player.relics if player else None) or [])
+        ) else 0.0
+        # White Star (epoch relic, owner 2026-08-02): elites drop an extra RARE
+        # card reward — a flat sweetener on every winnable elite while held.
+        sword_bonus += w.white_star_elite_bonus if any(
+            "WHITE_STAR" in (r.id or "").upper() or "WHITE STAR" in (r.name or "").upper()
             for r in ((player.relics if player else None) or [])
         ) else 0.0
         # Planisphere: +5 HP on entering a '?' room (owner nuance check 2026-07-29).
@@ -1955,6 +1984,15 @@ class StandardRouter:
                                 m_entry,
                                 dps=realized_dps(self.enemy_dps, mname, dps),
                                 name=mname, counts_toward_kill=False))
+                    # guarded leader (Queen): only meaningful once the minion
+                    # actually joined the forecast — a lone guarded foe would
+                    # read as a 0-dps fight
+                    guard = _BOSS_GUARDED.get(key)
+                    if guard and len(members) > 1:
+                        blk, awd, buff = guard
+                        members[0] = dataclasses.replace(
+                            members[0], guarded_by_minions=True, self_block=blk,
+                            awakened_dps=awd, awakened_buff_per_turn=buff)
             return members
         return [FightEnemy(*_GENERIC_BOSS)]
 
@@ -2843,6 +2881,13 @@ class StandardRouter:
                 desc = (item.relic_description or "").lower()
                 if any(m in desc for m in downside_markers):
                     continue
+                # Tungsten Rod vs a ==1-HP-cost engine (owner 2026-08-02): an
+                # actively negative take even with dead gold
+                if ("TUNGSTEN" in f"{item.relic_name or ''}".upper()
+                        and self._one_hp_cost_cards(
+                            state.player.deck if (state.player and state.player.deck)
+                            else [])):
+                    continue
                 spend_relics.append(item)
             if spend_relics:
                 item = min(spend_relics, key=lambda i: i.gold_price or 0)  # most items per gold
@@ -2928,16 +2973,46 @@ class StandardRouter:
             ctx.screen_mem.pop("discarded_for_reward", None)
         return decision
 
+    def _one_hp_cost_cards(self, deck) -> list[str]:
+        """Names of deck cards whose self-HP cost is EXACTLY 1 (Brand-class).
+        Tungsten Rod's 'lose 1 less' zeroes that loss, breaking the card's own
+        loss-keyed engine (owner 2026-08-02: costs of 2+ are unaffected)."""
+        hits = []
+        for c in deck or []:
+            cid = (c.id or "").upper()
+            up = 1 if getattr(c, "is_upgraded", False) else 0
+            text = getattr(c, "description", None) or (
+                (self.card_effects or {}).get(f"{cid}|{up}")
+                or (self.card_effects or {}).get(f"{cid}|0") or "")
+            if parse_card_description(text).self_hp_cost == 1:
+                hits.append(c.name or cid)
+        return hits
+
     def _relic_select(self, state: RelicSelectState, ctx: LoopContext) -> Decision | Wait:
         """Ancient / elite / treasure relic choice: take the highest-value relic by Spirebird raw
         WAR, not the first offered (the trivial fallback took relics[0] -> effectively random).
         Unknown relics get a neutral 0 (taken over a known-bad, not over a known-good relic)."""
         rs = state.relic_select
         if rs.relics:
+            deck = state.player.deck if (state.player and state.player.deck) else []
+            rod_conflicts = self._one_hp_cost_cards(deck)
+
             def war(relic) -> float:
                 v = self.shop_stats.relic_war(relic.id) if self.shop_stats else None
-                return v if v is not None else 0.0
+                v = v if v is not None else 0.0
+                # Tungsten Rod countersynergy (owner 2026-08-02): with Brand-class
+                # ==1-HP-cost cards in the deck, 'lose 1 less' nulls the loss the
+                # engine keys off — one of the game's few genuinely negative takes.
+                if "TUNGSTEN" in f"{relic.id or ''} {relic.name or ''}".upper() and rod_conflicts:
+                    v -= 800.0
+                return v
+
             best = max(rs.relics, key=war)
+            if war(best) < -400.0 and rs.can_skip:
+                return Decision(
+                    action=act.SkipRelicSelection(),
+                    rationale=f"skip: Tungsten Rod vs 1-HP-cost engine "
+                    f"({', '.join(rod_conflicts[:3])})")
             return Decision(
                 action=act.SelectRelic(index=best.index or 0),
                 rationale=f"take {best.name} (relic WAR {war(best):.0f})",

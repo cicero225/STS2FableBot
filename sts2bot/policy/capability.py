@@ -108,6 +108,16 @@ class FightEnemy:
     # (damage wakes early). Free setup turns the estimator must price — Matriarch
     # read est-loss 80+ while the owner won taking 25 (A/B 2026-07-30).
     sleep_turns: int = 0
+    # Queen-class guarded leader (owner A/B 2026-08-02, both target orders taped):
+    # while any minion lives she doesn't attack — she Buffs (awakened_dps grows by
+    # awakened_buff_per_turn) and re-blocks self_block. The last minion's death
+    # breaks the guard permanently (self_block ends, attacks begin at accumulated
+    # awakened_dps); she never resummons. Torch-first is usually right, and FAST —
+    # every torch turn makes phase 2 hit harder. Queen-first stays representable
+    # for extreme-burst decks (owner: rare but real).
+    guarded_by_minions: bool = False
+    awakened_dps: int = 0
+    awakened_buff_per_turn: int = 0
 
 
 @dataclass(frozen=True)

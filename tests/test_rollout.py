@@ -251,3 +251,53 @@ def test_body_slam_scales_with_block_in_the_sim() -> None:
     r_slam = rollout_fight(slams, boss, 65, 80, card_effects=FX2)
     assert (r_slam.win_rate, r_slam.exp_end_hp - r_slam.exp_enemy_hp_left) > \
         (r_strike.win_rate, r_strike.exp_end_hp - r_strike.exp_enemy_hp_left)
+
+
+def test_guarded_queen_torch_first_beats_queen_first() -> None:
+    """Queen A/B (owner 2026-08-02, seed 373PFAE7EE, both orders taped): while
+    her torch lives the Queen never attacks -- she Buffs both bodies and
+    re-blocks 20; the torch's death breaks the guard (block ends, she attacks
+    at the accumulated dps, no resummon). Torch-first unlocks her HP bar; the
+    sim must rank it over racing 400 HP through 20 block/turn under a ramping
+    torch."""
+    deck = ([card("STRIKE_IRONCLAD", up=True)] * 6
+            + [card("BLUDGEON", cost="3")] * 2
+            + [card("SHRUG_IT_OFF", typ="Skill")] * 3
+            + [card("BASH", cost="2")])
+    queen = FightEnemy(hp=400, dps=0, self_block=20, guarded_by_minions=True,
+                       awakened_dps=18, awakened_buff_per_turn=2)
+    torch = FightEnemy(hp=150, dps=18, str_ramp=2, counts_toward_kill=False)
+    sweep = rollout_fight(deck, [torch, queen], 83, 98, card_effects=FX,
+                          target_order="sweep")
+    focus = rollout_fight(deck, [torch, queen], 83, 98, card_effects=FX,
+                          target_order="focus")
+    assert (sweep.win_rate, sweep.p25_end_hp, -sweep.exp_enemy_hp_left) >= \
+           (focus.win_rate, focus.p25_end_hp, -focus.exp_enemy_hp_left)
+    # and the guard must actually bite: queen-first can't be a cakewalk
+    assert focus.win_rate < 0.9
+
+
+def test_miniature_cannon_boosts_upgraded_attack_decks() -> None:
+    """Epoch relic (owner 2026-08-02): 'Upgraded Attacks deal 3 additional
+    damage' -- an upgraded-strike deck must roll out strictly better holding it."""
+    deck = [card("STRIKE_IRONCLAD", up=True)] * 7 + [card("DEFEND_IRONCLAD", typ="Skill")] * 3
+    foe = [FightEnemy(hp=120, dps=12, str_ramp=1)]
+    cannon = [NS(id="MINIATURE_CANNON", name="Miniature Cannon",
+                 description="Upgraded Attacks deal 3 additional damage.", counter=None)]
+    without = rollout_fight(deck, foe, 70, 80, card_effects=FX)
+    with_c = rollout_fight(deck, foe, 70, 80, card_effects=FX, relics=cannon)
+    assert (with_c.win_rate, with_c.exp_end_hp) > (without.win_rate, without.exp_end_hp) or \
+           with_c.exp_enemy_hp_left < without.exp_enemy_hp_left
+
+
+def test_tungsten_rod_reduces_chip_losses() -> None:
+    """Epoch relic (owner 2026-08-02): 'Whenever you would lose hp, lose 1 less'
+    -- modeled as -1 per attacker per turn and -1 on card self-HP costs."""
+    deck = starter()
+    foe = [FightEnemy(hp=100, dps=10)]
+    rod = [NS(id="TUNGSTEN_ROD", name="Tungsten Rod",
+              description="Whenever you would lose HP, lose 1 less.", counter=None)]
+    without = rollout_fight(deck, foe, 70, 80, card_effects=FX)
+    with_r = rollout_fight(deck, foe, 70, 80, card_effects=FX, relics=rod)
+    assert (with_r.win_rate, with_r.exp_end_hp) >= (without.win_rate, without.exp_end_hp)
+    assert with_r.exp_end_hp > without.exp_end_hp or with_r.win_rate > without.win_rate
