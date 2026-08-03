@@ -4774,7 +4774,7 @@ def test_star_cost_cards_vetoed_off_class() -> None:
     d = router().decide(state, LoopContext())
     assert d.action.payload()["action"] == "skip_card_reward"
     # a star GENERATOR in deck lifts the veto
-    deck2 = deck + [{"index": 1, "id": "STARFALL", "name": "Starfall", "type": "Skill",
+    deck2 = [*deck, {"index": 1, "id": "STARFALL", "name": "Starfall", "type": "Skill",
                      "cost": "1", "description": "Gain 3 Stars.", "rarity": "Common",
                      "is_upgraded": False}]
     state2 = parse_state({**json.loads(json.dumps({
