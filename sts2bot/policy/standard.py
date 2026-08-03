@@ -2169,6 +2169,8 @@ class StandardRouter:
             nxt = min(cur_act + 1, 3)
             dps, ramp = _ACT_BOSS.get(nxt, _ACT_BOSS[1])
             return [[FightEnemy(hp=_GENERIC_BOSS[0], dps=dps, str_ramp=ramp)]]
+        if not self.config.card_rewards.use_elite_pool_targets:
+            return [self._upcoming_boss(ctx, cur_act)]  # attribution arm: boss-only
         if act_floor >= 12:
             return [self._upcoming_boss(ctx, cur_act)]
         _ehp, edps, eramp = _GENERIC_ELITE.get(cur_act, _GENERIC_ELITE[1])

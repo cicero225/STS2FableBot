@@ -4734,3 +4734,20 @@ def test_lucky_tonic_not_drunk_proactively() -> None:
     )
     d = router().decide(state, LoopContext())
     assert d.action.payload().get("action") != "use_potion"
+
+
+def test_retarget_toggle_reverts_to_boss_only_pricing() -> None:
+    """Attribution toggle (2026-08-02 night): use_elite_pool_targets=False must
+    reproduce the pre-retarget behavior -- early-act drafts price vs the act
+    boss, not the elite pool."""
+    r = router()
+    ctx = LoopContext()
+    on = r._draft_target_fights(ctx, 1, 5, None)
+    object.__setattr__(r.config.card_rewards, "use_elite_pool_targets", False) \
+        if hasattr(r.config.card_rewards, "__dataclass_fields__") \
+        else setattr(r.config.card_rewards, "use_elite_pool_targets", False)
+    off = r._draft_target_fights(LoopContext(), 1, 5, None)
+    assert len(off) == 1  # boss-only: a single target fight
+    # boss floors keep next-act pricing in BOTH modes (dead-boss fix predates it)
+    assert len(r._draft_target_fights(LoopContext(), 1, 17, None)) == 1
+    assert isinstance(on, list) and len(on) >= 1

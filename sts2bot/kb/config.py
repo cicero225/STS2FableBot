@@ -226,6 +226,11 @@ class MapWeights(_Section):
 
 class CardRewardWeights(_Section):
     take_threshold: float = 4.0
+    # Attribution toggle (2026-08-02 night): early-act draft pricing vs the act's
+    # ELITE POOL (owner-approved retarget, 13247be) vs the pre-retarget behavior
+    # (always the act boss). False = boss-only pricing, for A/B arms isolating
+    # the retarget from the desperation coupling in the 0/60-evening regression.
+    use_elite_pool_targets: bool = True
     # 8.1d: a weak, starter-heavy deck should take cards readily (a Strike-tier card beats keeping
     # a basic). Drop the take threshold by this much times the fraction of the deck that's still
     # Basic Strikes/Defends — near-starter decks take almost anything; polished ones stay picky.
