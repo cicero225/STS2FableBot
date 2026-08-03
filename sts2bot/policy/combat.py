@@ -127,6 +127,12 @@ _RELIC_TRIGGERS: dict[str, RelicTrigger] = {
     "CHARONS_ASHES": RelicTrigger(kind="exhaust", damage=3, aoe=True),
     "CENTENNIAL_PUZZLE": RelicTrigger(kind="first_hp_loss_combat", draw=3),
     "DEMON_TONGUE": RelicTrigger(kind="first_self_hp_loss_turn", heal_eq_self_loss=True),
+    # Mummified Hand (owner check 2026-08-02): each Power played zeroes a RANDOM
+    # hand card's cost. +1 energy per Power is the tractable proxy -- EXACT in the
+    # deterministic case the owner named (power + one other card at 1 energy:
+    # power-first now beats card-first in the DFS), expected-value elsewhere
+    # (over-credits when the freed card goes unplayed or already cost 0).
+    "MUMMIFIED_HAND": RelicTrigger(kind="power", cadence=1, energy=1),
     "NUNCHAKU": RelicTrigger(kind="attack", cadence=10, per_turn=False, energy=1),
     "TUNING_FORK": RelicTrigger(kind="skill", cadence=10, per_turn=False, block=7),
 }

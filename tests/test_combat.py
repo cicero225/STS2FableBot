@@ -1818,3 +1818,37 @@ def test_pacts_end_gated_on_exhaust_pile_no_phantom_lethal() -> None:
     st["player"]["exhaust_pile_count"] = 3
     d2 = plan_combat_turn(parse_state(st), w)
     assert d2.scores and d2.scores.get("lethal"), d2.rationale  # real when met
+
+
+def test_mummified_hand_sequences_power_before_the_freed_card() -> None:
+    """Owner check 2026-08-02: Mummified Hand zeroes a random hand card per Power
+    played. Deterministic case: 1 energy, a 1-cost Power + a 1-cost attack --
+    power-first frees the attack (both play); attack-first strands the Power.
+    The +1-energy-per-Power trigger proxy makes the DFS find the right order."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 1, "floor": 5, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 0,
+                   "energy": 1, "status": [],
+                   "relics": [{"id": "MUMMIFIED_HAND", "name": "Mummified Hand",
+                               "description": "Whenever you play a Power, a random "
+                               "card in your hand costs 0."}],
+                   "hand": [
+                       {"index": 0, "id": "INFLAME", "name": "Inflame", "type": "Power",
+                        "cost": "1", "description": "Gain 2 Strength.",
+                        "can_play": True, "target_type": "None"},
+                       {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                        "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                        "can_play": True, "target_type": "AnyEnemy"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "e0", "name": "Slug", "hp": 40,
+                                "max_hp": 40, "block": 0, "status": [],
+                                "intents": [{"type": "attack", "label": "8"}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    assert d.action.payload()["card_index"] == 0  # the Power first
+    assert "Strike" in d.rationale  # and the freed Strike is IN the plan
