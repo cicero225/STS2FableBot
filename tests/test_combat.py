@@ -1892,3 +1892,48 @@ def test_cascade_class_vetoed_under_ringing_cap() -> None:
     # no cap: Cascade is an ordinary candidate again (energy rider makes it playable)
     d2 = plan_combat_turn(st(False), cfg.combat)
     assert d2.action.payload()["card_index"] in (0, 1)
+
+
+def test_fortifier_sequenced_after_block_for_the_big_hit() -> None:
+    """Owner 2026-08-03: Fortifier ('Triple your current Block') as a DFS
+    pseudo-card -- the planner must sequence it AFTER block plays (5+5=10 ->
+    30) when that flips survival against a big hit, and bank it on calm turns
+    (w_potion_spend)."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(intent):
+        return parse_state({
+            "state_type": "boss", "run": {"act": 2, "floor": 33, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 24, "max_hp": 80,
+                       "block": 0, "energy": 2, "status": [],
+                       "hand": [
+                           {"index": 0, "id": "DEF1", "name": "Defend", "type": "Skill",
+                            "cost": "1", "description": "Gain 5 Block.",
+                            "can_play": True, "target_type": "None"},
+                           {"index": 1, "id": "DEF2", "name": "Defend", "type": "Skill",
+                            "cost": "1", "description": "Gain 5 Block.",
+                            "can_play": True, "target_type": "None"}],
+                       "potions": [{"slot": 0, "id": "FORTIFIER", "name": "Fortifier Potion",
+                                    "can_use_in_combat": True, "target_type": "None",
+                                    "description": "Triple your current Block."}],
+                       "max_potion_slots": 3},
+            "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "b0", "name": "Boss", "hp": 300,
+                                    "max_hp": 300, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": intent}]}]},
+        })
+
+    cfg = load_policy_config()
+    # 28 incoming vs 24 HP: two Defends = 10 block (death); tripled = 30 (survives).
+    # The plan must contain the potion and play it AFTER at least one Defend.
+    d = plan_combat_turn(st("28"), cfg.combat)
+    assert "Fortifier" in (d.rationale or "")
+    plan_part = d.rationale.split("plan [")[1].split("]")[0]
+    seq = [x.strip() for x in plan_part.split(">")]
+    fort_pos = next(i for i, x in enumerate(seq) if "Fortifier" in x)
+    assert any("Defend" in x for x in seq[:fort_pos])  # block BEFORE the triple
+    # calm turn (6 incoming): 10 block covers it -- the potion stays banked
+    d2 = plan_combat_turn(st("6"), cfg.combat)
+    assert "Fortifier" not in (d2.rationale or "")

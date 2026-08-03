@@ -310,6 +310,10 @@ class PlannedCard:
     # is otherwise unmodeled today; this veto future-proofs the cap interaction
     # for whenever it gets priced.
     plays_top_cards: bool = False
+    # Fortifier Potion (owner 2026-08-03): 'Triple your current Block' -- a DFS
+    # pseudo-card whose value depends on in-plan block, so the planner SEQUENCES
+    # it (Defend > Defend > Fortifier) instead of guessing a drink lane.
+    triples_block: bool = False
     hand_exhaust_scale: int = 0  # Fiend Fire: damage per card exhausted from hand (0 = n/a)
     # debuff types this card applies to the *target* enemy, in card-TEXT order (Uppercut = Weak
     # then Vulnerable). Order matters for Artifact, which eats one debuff per unique status.
@@ -1154,9 +1158,10 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     energy_gain = card.fx.energy_gain
     if card.energy_requires_exhausted and not s.exhausted_this_turn:
         energy_gain = 0
+    tripled = (s.my_block + block_gain) * 2 if card.triples_block else 0
     nxt = replace(
         s,
-        my_block=s.my_block + block_gain,
+        my_block=s.my_block + block_gain + tripled,
         my_strength=s.my_strength + card.fx.strength,
         strength_gained=s.strength_gained + card.fx.strength,
         draws=s.draws + (0 if s.no_draw else card.fx.draw),
@@ -1516,13 +1521,20 @@ def plan_combat_turn(
             dup_pseudo = bool(re.search(
                 r"next card (you )?play(ed)? .*(extra time|twice|additional time)",
                 potion.description or "", re.IGNORECASE))
-            if pfx.total_damage <= 0 and not str_pseudo and not dup_pseudo:
+            # Fortifier (owner 2026-08-03): value = 2x in-plan block at drink
+            # time; w_potion_spend banks it until the tripled block saves real
+            # HP (a big-block turn against big incoming)
+            fort_pseudo = bool(re.search(r"triple[^.]*block",
+                                         potion.description or "", re.IGNORECASE))
+            if (pfx.total_damage <= 0 and not str_pseudo and not dup_pseudo
+                    and not fort_pseudo):
                 continue
             playable.append(PlannedCard(
                 index=-(potion.slot + 1), name=f"{potion.name} (potion)", cost=0, fx=pfx,
                 targets_enemy=pfx.total_damage > 0 and not pfx.aoe,
                 potion_slot=potion.slot,
                 arms_duplicate=dup_pseudo,
+                triples_block=fort_pseudo,
             ))
     # Thrash-class growth bonus: the exhausted attack's damage banks into the NEXT
     # play + thinning — future value the one-turn tally can't see. Granted only when
