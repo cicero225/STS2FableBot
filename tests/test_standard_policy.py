@@ -4434,10 +4434,12 @@ def test_desperation_activates_on_zero_elites_late_or_boss_doom() -> None:
     """Owner rule 2026-08-02: 'any run that has taken 0 Elites in all of Act 1
     is probably doomed in the long-term.' Zero elites at act-floor >= 8, or a
     DFS boss forecast >= 90% of max HP, lowers the elite gate's bar."""
-    from sts2bot.kb.config import load_policy_config
+    from sts2bot.kb.config import MapWeights
     from sts2bot.policy.standard import _desperation_active
 
-    w = load_policy_config().map
+    # dataclass DEFAULTS, not the deployed toml: config/policy.toml may toggle
+    # the coupling off for attribution batches; this test covers the mechanism
+    w = MapWeights()
     # healthy early run: not desperate
     assert not _desperation_active(w, 1, 5, 0, None, 80)
     # zero elites late in act 1: desperate
