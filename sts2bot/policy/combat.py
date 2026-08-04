@@ -1790,6 +1790,14 @@ def plan_combat_turn(
             if sim.smoggy and card.is_skill and sim.n_skills_played >= 1:
                 continue  # Smoggy: only one Skill per turn (Living Fog)
             rest = remaining[:ci] + remaining[ci + 1 :]
+            # Hand-exhausters (Fiend Fire, Stoke): the REST OF THE HAND is gone
+            # (owner catch 2026-08-04: the plan read [Fiend Fire > Sword
+            # Boomerang > Feel No Pain > Pyre] -- phantom post-exhaust plays
+            # double-dipped the score, and the bot torched two potions' worth of
+            # free Powers as 7-damage fodder). Potions survive; cards don't --
+            # which also teaches the DFS to play free cards BEFORE the exhaust.
+            if card.exhaust_count == -1:  # covers Stoke too (same text)
+                rest = [c_ for c_ in rest if c_.potion_slot is not None]
             if card.targets_enemy and not card.fx.aoe:
                 target_idx = [i for i, e in enumerate(sim.enemies) if e.hp > 0]
                 # prefer distinct targets; cap target branching at 3 biggest threats

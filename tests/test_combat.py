@@ -2265,3 +2265,47 @@ def test_ashen_strike_pile_bonus_not_double_counted() -> None:
     d = plan_combat_turn(state, load_policy_config().combat)
     # 30 x 1.5 vuln = 45 < 57: NOT lethal (the double-count claimed 63 and was)
     assert not (d.scores or {}).get("lethal")
+
+
+def test_fiend_fire_hand_exhaust_clears_the_dfs_hand() -> None:
+    """Owner catch 2026-08-04 (Ceremonial Beast R1): the plan read [Fiend Fire >
+    Sword Boomerang > Feel No Pain > Pyre] -- the DFS kept playing cards AFTER
+    the hand-exhauster, double-dipping the score, and the bot torched freshly
+    potion-minted free Powers as 7-damage fodder. Post-exhaust the hand is
+    GONE; the DFS must therefore play free cards BEFORE Fiend Fire."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "boss", "run": {"act": 1, "floor": 17, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 80, "max_hp": 80, "block": 0,
+                   "energy": 1, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "FIEND_FIRE", "name": "Fiend Fire",
+                        "type": "Attack", "cost": "0",
+                        "description": "Exhaust your Hand. Deal 7 damage for each "
+                        "card Exhausted. Exhaust.", "can_play": True,
+                        "target_type": "AnyEnemy"},
+                       {"index": 1, "id": "PYRE", "name": "Pyre", "type": "Power",
+                        "cost": "0", "description": "Gain 1 Energy at the start of "
+                        "each turn.", "can_play": True, "target_type": "None"},
+                       {"index": 2, "id": "FEEL_NO_PAIN", "name": "Feel No Pain",
+                        "type": "Power", "cost": "0",
+                        "description": "Whenever a card is Exhausted, gain 3 Block.",
+                        "can_play": True, "target_type": "None"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "CB_0", "name": "Ceremonial Beast",
+                                "hp": 243, "max_hp": 243, "block": 0, "status": [],
+                                "intents": [{"type": "buff", "label": "Buff"}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    rat = d.rationale or ""
+    # the free Powers must precede Fiend Fire in the plan; nothing may follow it
+    if "Fiend Fire" in rat:
+        plan_part = rat.split("plan [")[1].split("]")[0]
+        seq = [x.strip() for x in plan_part.split(">")]
+        ff = next(i for i, x in enumerate(seq) if "Fiend Fire" in x)
+        assert ff == len(seq) - 1  # hand-exhauster is terminal
+    assert d.action.payload()["card_index"] in (1, 2)  # a free Power leads
