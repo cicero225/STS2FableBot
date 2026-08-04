@@ -4866,3 +4866,31 @@ def test_mazaleths_gift_deployed_at_boss_start() -> None:
     assert d.action.payload()["action"] == "use_potion"
     d2 = r.decide(st("monster"), LoopContext())
     assert d2.action.payload().get("action") != "use_potion"
+
+
+def test_shovel_dig_beats_smith_but_not_a_needed_rest() -> None:
+    """Owner 2026-08-03: Shovel adds Dig (random relic) at rest sites. Relics
+    are usually strict upsides, so dig > smith; a needed rest still wins."""
+    def rest_state(hp):
+        return parse_state({
+            "state_type": "rest_site",
+            "rest_site": {"options": [
+                {"index": 0, "id": "rest", "name": "Rest", "is_enabled": True},
+                {"index": 1, "id": "smith", "name": "Smith", "is_enabled": True},
+                {"index": 2, "id": "dig", "name": "Dig", "is_enabled": True}]},
+            "run": {"act": 2, "floor": 22, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80,
+                       "deck": [{"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                                 "type": "Attack", "cost": "1", "is_upgraded": False,
+                                 "description": "Deal 6 damage."}],
+                       "relics": [{"id": "SHOVEL", "name": "Shovel"}],
+                       "potions": [], "max_potion_slots": 3},
+        })
+
+    r = router()
+    # healthy: dig (not smith)
+    d = r.decide(rest_state(75), LoopContext())
+    assert "dig" in (d.rationale or "").lower()
+    # hurt: rest wins
+    d2 = r.decide(rest_state(25), LoopContext())
+    assert (d2.rationale or "").lower().startswith("rest")

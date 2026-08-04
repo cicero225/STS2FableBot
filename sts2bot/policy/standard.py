@@ -2871,6 +2871,12 @@ class StandardRouter:
                 specials.append((0, o, f"hatch the egg ({o.name})"))
             elif "lift" in nm:
                 specials.append((1, o, f"lift: permanent +1 Strength ({o.name})"))
+            elif "dig" in nm:
+                # Shovel (owner 2026-08-03): Dig = retrieve a random relic.
+                # Relics are usually strict upsides (owner rule), so a dig beats
+                # a smith; needed rests still win (the rest lane returns before
+                # specials). Priority between Lift and Rekindle.
+                specials.append((1.5, o, f"dig: random relic ({o.name})"))
             elif "rekind" in nm or "kindle" in nm:  # owner: likely 'Kindle';
                 # NEVER OBSERVED LIVE (online description only) — matcher kept
                 # generous; verify the real option id/name on first sighting
