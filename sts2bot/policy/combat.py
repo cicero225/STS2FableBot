@@ -995,6 +995,9 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         energy=state.energy - card.cost,
         damage_dealt=state.damage_dealt + retaliation,
         potions_spent=state.potions_spent + (1 if card.potion_slot is not None else 0),
+        # FNP played mid-plan: later exhausts in THIS plan earn its block
+        # (owner 2026-08-03: FNP -> Infernal Blade+ ordering must be discoverable)
+        per_exhaust_block=state.per_exhaust_block + card.fx.per_exhaust_block_grant,
         rage_block_active=max(state.rage_block_active, card.rage_block),
         rage_block_granted=state.rage_block_granted + rage_bonus,
         powers_played=state.powers_played + (1 if card.is_power else 0),

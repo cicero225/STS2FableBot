@@ -94,6 +94,7 @@ _HEAL = re.compile(r"\bHeal (\d+) HP", re.IGNORECASE)
 # this turn, deal N damage back." Not CALLED Thorns, but that's what it does — the
 # planner credits N per incoming hit this turn.
 _RETALIATE = re.compile(r"attacked this turn, deal (\d+) damage back", re.IGNORECASE)
+_FNP_GRANT = re.compile(r"[Ww]henever a card is Exhausted,? gain (\d+) Block")
 # Fisticuffs: "Gain Block equal to damage dealt" — approximate block = damage (delta audit)
 _BLOCK_EQ_DAMAGE = re.compile(r"Gain Block equal to (?:the )?damage dealt", re.IGNORECASE)
 # The Gambit: "Gain 50 Block. If you take unblocked attack damage this combat, die." A
@@ -127,6 +128,9 @@ class CardEffects:
     # playing it EARLY reveals the option while the rest of the turn can still
     # use it (the per-poll replan sees the real card next poll)
     reveals_random: bool = False
+    # Feel No Pain-class grant: playing this card makes every LATER exhaust
+    # this combat yield N block (owner FNP->Infernal Blade+ case 2026-08-03)
+    per_exhaust_block_grant: int = 0
     block: int = 0
     draw: int = 0
     energy_gain: int = 0
@@ -268,6 +272,8 @@ def parse_card_description(text: str | None) -> CardEffects:
         if "block" not in fx.recognized:
             fx.recognized.append("block")
     fx.self_death_rider = bool(_SELF_DEATH_RIDER.search(full))
+    if m := _FNP_GRANT.search(full):  # trigger sentence: lives only in the FULL text
+        fx.per_exhaust_block_grant = int(m.group(1))
     # Replay N: the whole card resolves N+1 times — scale every effect, costs included
     # (self-HP riders repeat too). Damage scales via hits so multi-hit stays per-hit.
     if m := _REPLAY.search(text):

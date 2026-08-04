@@ -2089,3 +2089,35 @@ def test_gamble_cards_sequenced_early_all_else_equal() -> None:
     d = plan_combat_turn(state, load_policy_config().combat)
     # the gamble leads the plan: reveal first, Strikes after
     assert d.action.payload()["card_index"] == 2
+
+
+def test_fnp_before_infernal_blade_beats_the_reveal_nudge() -> None:
+    """Owner counter-case 2026-08-03: Infernal Blade+ EXHAUSTS, so with Feel No
+    Pain in hand the right order is FNP -> Blade (the exhaust earns FNP's 3
+    block). Playing the FNP CARD mid-plan now grants per_exhaust_block in-sim,
+    so the concrete 3-block credit outweighs the 0.2 reveal-early tie-break."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 1, "floor": 9, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 0,
+                   "energy": 2, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "INFERNAL_BLADE", "name": "Infernal Blade+",
+                        "type": "Skill", "cost": "0",
+                        "description": "Add a random Attack into your Hand. It costs 0 "
+                        "this turn. Exhaust.", "can_play": True, "target_type": "None"},
+                       {"index": 1, "id": "FEEL_NO_PAIN", "name": "Feel No Pain",
+                        "type": "Power", "cost": "1",
+                        "description": "Whenever a card is Exhausted, gain 3 Block.",
+                        "can_play": True, "target_type": "None"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "e0", "name": "Brute", "hp": 60,
+                                "max_hp": 60, "block": 0, "status": [],
+                                "intents": [{"type": "attack", "label": "9"}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    assert d.action.payload()["card_index"] == 1  # FNP first; the Blade's exhaust pays
