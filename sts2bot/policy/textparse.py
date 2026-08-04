@@ -222,6 +222,12 @@ def parse_card_description(text: str | None) -> CardEffects:
     if m := _WEAK.search(text):
         fx.weak = int(m.group(1))
         fx.recognized.append("weak")
+    # Mass-debuff AoE (owner Shockwave check 2026-08-03): 'Apply 3 Weak and
+    # Vulnerable to ALL enemies' carries no damage, so the damage-gated aoe
+    # flag above missed it — both sims then debuffed ONE enemy, undercrediting
+    # exactly the multi-enemy fights mass-debuffs are for.
+    if (fx.vulnerable or fx.weak) and not fx.aoe and _ALL_ENEMIES.search(text):
+        fx.aoe = True
     if m := _STRENGTH.search(text):
         fx.strength = int(m.group(1))
         fx.recognized.append("strength")

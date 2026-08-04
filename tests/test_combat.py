@@ -1976,3 +1976,44 @@ def test_forgotten_ritual_stays_live_after_midturn_exhaust() -> None:
     d1 = plan_combat_turn(state, cfg.combat, exhausted_this_turn=True)
     assert d1.action.payload().get("card_index") == 0  # Ritual first
     assert "Bludgeon" in (d1.rationale or "")  # the 32-damage payoff is IN the plan
+
+
+def test_shockwave_mass_debuff_is_aoe_and_credits_all_enemies() -> None:
+    """Owner check 2026-08-03: 'Apply 3 Weak and Vulnerable to ALL enemies.
+    Exhaust.' parsed weak/vuln fine but the aoe flag was damage-gated, so both
+    sims debuffed ONE enemy. Now AoE: in a two-enemy fight the plan's vuln
+    credit doubles and Shockwave leads the attack sequence."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+    from sts2bot.policy.textparse import parse_card_description
+
+    fx = parse_card_description("Apply 3 Weak and Vulnerable to ALL enemies. Exhaust.")
+    assert fx.aoe and fx.weak == 3 and fx.vulnerable == 3
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 2, "floor": 20, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 20,
+                   "energy": 3, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "SHOCKWAVE", "name": "Shockwave", "type": "Skill",
+                        "cost": "2", "description": "Apply 3 Weak and Vulnerable to ALL "
+                        "enemies. Exhaust.", "can_play": True, "target_type": "AllEnemies"},
+                       {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                        "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                        "can_play": True, "target_type": "AnyEnemy"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                   "enemies": [
+                       {"entity_id": "a0", "name": "Bruiser", "hp": 80, "max_hp": 80,
+                        "block": 0, "status": [],
+                        "intents": [{"type": "attack", "label": "14"}]},
+                       {"entity_id": "b0", "name": "Bruiser", "hp": 80, "max_hp": 80,
+                        "block": 0, "status": [],
+                        "intents": [{"type": "attack", "label": "14"}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    # Shockwave first (debuff before attacks), and its double-Weak halves both
+    # attackers -- the plan must include it, not strand it
+    assert "Shockwave" in (d.rationale or "")
+    assert d.action.payload()["card_index"] == 0
