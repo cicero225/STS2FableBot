@@ -256,3 +256,30 @@ def test_treasure_waits_through_opening_transition() -> None:
 
     done = tstate({"relics": [], "can_proceed": True})
     assert router.decide(done, LoopContext()).action.payload()["action"] == "proceed"
+
+
+def test_three_identical_potion_rewards_all_claimed() -> None:
+    """Owner catch 2026-08-03 (f20, 3x Foul Potion, empty belt): identical items
+    hash to one attempts-key as indices shift to 0, so two SUCCESSFUL claims
+    counted as attempts and the third was abandoned. Remaining-count in the key
+    gives each success a fresh counter; true no-ops (list unchanged) still cap."""
+    router = TrivialRouter()
+    ctx = LoopContext()
+
+    def rewards_state(n):
+        return parse_state({
+            "state_type": "rewards",
+            "run": {"act": 2, "floor": 20, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 50, "max_hp": 75,
+                       "status": [], "potions": [], "max_potion_slots": 3},
+            "rewards": {"items": [
+                {"index": i, "type": "potion", "description": "Foul Potion",
+                 "potion_id": "FOUL_POTION", "potion_name": "Foul Potion"}
+                for i in range(n)], "can_proceed": True},
+        })
+
+    for remaining in (3, 2, 1):  # each successful claim shrinks the list
+        d = router.decide(rewards_state(remaining), ctx)
+        assert d.action.payload() == {"action": "claim_reward", "index": 0}, remaining
+    done = router.decide(rewards_state(0), ctx)
+    assert done.action.payload() == {"action": "proceed"}

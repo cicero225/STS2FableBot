@@ -233,9 +233,19 @@ class TrivialRouter:
         # loop spins until the stall rail kills the run.
         floor = state.run.floor if state.run else -1
         attempts: dict[str, int] = ctx.screen_mem.setdefault("reward_attempts", {})
+        # deliberate skips (late-act-3 Foul claims) live in their own set -- they
+        # used to ride the attempts dict, which collided with the counter below
+        skip_set = ctx.screen_mem.get("reward_skip") or set()
         for item in r.items:
             marker = item.potion_id or item.gold_amount or item.description or ""
-            key = f"{floor}:{item.index}:{item.type}:{marker}"
+            if (floor, item.type, str(marker)) in skip_set:
+                continue
+            # remaining-count in the key (owner catch 2026-08-03: THREE identical
+            # Foul Potions -- index shifts to 0 as each claims, so all three hashed
+            # to one key, two SUCCESSES counted as 'attempts', and the third was
+            # abandoned as unclaimable). A successful claim shrinks the list ->
+            # fresh key; a true no-op keeps the same count -> the cap still bites.
+            key = f"{floor}:{item.index}:{item.type}:{marker}:{len(r.items)}"
             if attempts.get(key, 0) < 2:
                 attempts[key] = attempts.get(key, 0) + 1
                 label = item.potion_name or item.type

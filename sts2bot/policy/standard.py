@@ -3101,9 +3101,8 @@ class StandardRouter:
                 nid = f"{item.potion_id or ''} {item.potion_name or ''}".upper()
                 if item.type == "potion" and ("FOUL" in nid or "GLOWWATER" in nid):
                     marker = item.potion_id or item.gold_amount or item.description or ""
-                    ctx.screen_mem.setdefault("reward_attempts", {})[
-                        f"{run.floor}:{item.index}:{item.type}:{marker}"
-                    ] = 99  # mark exhausted: the fallback claims everything else
+                    skip = ctx.screen_mem.setdefault("reward_skip", set())
+                    skip.add((run.floor, item.type, str(marker)))  # fallback skips these
         if player is not None and len(player.potions) >= player.max_potion_slots:
             potion_items = [i for i in state.rewards.items if i.type == "potion"]
             if potion_items and not ctx.screen_mem.get("discarded_for_reward"):
