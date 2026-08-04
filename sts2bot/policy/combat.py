@@ -285,6 +285,9 @@ class PlannedCard:
     primal_fodder: bool = False
     self_replays: bool = False  # Howl class: returns from the Exhaust Pile on its own
     reveal_nudge: float = 0.0  # per-remaining-card credit for playing a gamble card early
+    # Ashen Strike-class: +N damage per exhaust EVENT within this plan (the live
+    # preview already carries the pre-plan pile)
+    dmg_per_exhaust_event: int = 0
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
     exhaust_count: int = 0  # cards this play exhausts (-1 = remaining hand); FNP credit
     # Queen's Chains of Binding (owner 2026-07-18): first 3 draws each turn are Bound —
@@ -608,8 +611,12 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         fx.energy_gain = hand_attacks
         if "energy" not in fx.recognized:
             fx.recognized.append("energy")
-    if m := _PER_EXHAUST_PILE.search(desc):  # Ashen Strike: +N per exhaust-pile card
-        fx.damage += int(m.group(1)) * exhaust_pile
+    # Ashen Strike '+N per exhaust-pile card': the LIVE preview already bakes
+    # the pile-so-far into 'Deal X' (tape 2026-08-04: 22->26->30 as the pile
+    # grew mid-turn) -- folding pile*N on top DOUBLE-COUNTED and produced a
+    # false LETHAL at 2 HP (57-HP Obscura, sim 63, game 45; survival lanes
+    # suppressed, died with Stoke in hand). Only IN-PLAN exhaust events add.
+    dmg_per_exhaust_event = int(m.group(1)) if (m := _PER_EXHAUST_PILE.search(desc)) else 0
     return PlannedCard(
         index=card.index,
         name=card.name,
@@ -621,6 +628,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         # audit 2026-07-12). Real target choice is irrelevant; the credit just needs to land.
         targets_enemy=(card.target_type == "AnyEnemy")
         or (fx.damage > 0 and not fx.aoe),
+        dmg_per_exhaust_event=dmg_per_exhaust_event,
         is_attack=(card.type == "Attack"),
         is_skill=(card.type == "Skill"),
         is_power=is_power,
@@ -872,6 +880,8 @@ def _apply_attack(
     per_hit = base_damage + state.str_unbaked  # text already carries turn-start Strength
     if card.fx.double_hits_if_vuln and e.vulnerable > 0:
         hits *= 2  # Dismantle-class: vs a Vulnerable target every hit doubles
+    if card.dmg_per_exhaust_event:  # Ashen: in-plan exhausts beyond the preview
+        per_hit += card.dmg_per_exhaust_event * state.n_exhaust_events
     if card.dmg_per_target_vuln:  # Bully: +N per Vulnerable already on the target
         per_hit += card.dmg_per_target_vuln * e.vulnerable
     if pen_halve:

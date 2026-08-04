@@ -2231,3 +2231,37 @@ def test_stomp_dynamic_cost_discovered_in_plan() -> None:
     rat = d.rationale or ""
     assert "Stomp" in rat  # the free-Stomp line is in the chosen plan
     assert rat.count("Jab") == 2  # after both jabs
+
+
+def test_ashen_strike_pile_bonus_not_double_counted() -> None:
+    """False-lethal death 2026-08-04 (Obscura f?, died at 2 HP with Stoke in
+    hand): Ashen Strike's live preview ALREADY bakes the exhaust-pile bonus
+    into 'Deal X' (taped 22->26->30 as the pile grew), but _to_planned folded
+    pile*N on top -- sim 63 vs game 45 vs 57 HP = phantom LETHAL that
+    suppressed every survival lane. Preview is authoritative for the pre-plan
+    pile; only IN-PLAN exhaust events add."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 3, "floor": 40, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 20, "max_hp": 80, "block": 0,
+                   "energy": 2, "status": [], "exhaust_pile_count": 3,
+                   "hand": [
+                       {"index": 0, "id": "ASHEN_STRIKE", "name": "Ashen Strike+",
+                        "type": "Attack", "cost": "2",
+                        "description": "Deal 30 damage. Deals 4 additional damage "
+                        "for each card in your Exhaust Pile.",
+                        "can_play": True, "target_type": "AnyEnemy"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 7, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "OB_0", "name": "The Obscura", "hp": 57,
+                                "max_hp": 123, "block": 0,
+                                "status": [{"id": "VULNERABLE_POWER", "name": "Vulnerable",
+                                            "amount": 4, "description": ""}],
+                                "intents": [{"type": "buff", "label": "Buff"}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    # 30 x 1.5 vuln = 45 < 57: NOT lethal (the double-count claimed 63 and was)
+    assert not (d.scores or {}).get("lethal")
