@@ -2121,3 +2121,47 @@ def test_fnp_before_infernal_blade_beats_the_reveal_nudge() -> None:
     })
     d = plan_combat_turn(state, load_policy_config().combat)
     assert d.action.payload()["card_index"] == 1  # FNP first; the Blade's exhaust pays
+
+
+def test_daze_ethereal_feeds_fnp_end_of_turn_block() -> None:
+    """Owner check 2026-08-03: an unplayed Ethereal card (Daze) exhausts at end
+    of turn -- with Feel No Pain up that's free pre-enemy-turn block. At low HP
+    vs small incoming, the planner may attack instead of Defending ONLY when
+    the ethereal FNP block covers the hit."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(daze_desc):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 2, "floor": 21, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 10, "max_hp": 80, "block": 0,
+                       "energy": 1,
+                       "status": [{"id": "FEEL_NO_PAIN_POWER", "name": "Feel No Pain",
+                                   "amount": 4,
+                                   "description": "Whenever a card is Exhausted, "
+                                   "gain 4 Block."}],
+                       "hand": [
+                           {"index": 0, "id": "DAZE", "name": "Daze", "type": "Status",
+                            "cost": "-2", "description": daze_desc, "can_play": False,
+                            "unplayable_reason": "Unplayable", "target_type": "None"},
+                           {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                            "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                            "can_play": True, "target_type": "AnyEnemy"},
+                           {"index": 2, "id": "DEFEND_IRONCLAD", "name": "Defend",
+                            "type": "Skill", "cost": "1", "description": "Gain 5 Block.",
+                            "can_play": True, "target_type": "None"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Byrd", "hp": 60,
+                                    "max_hp": 60, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "4"}]}]},
+        })
+
+    cfg = load_policy_config()
+    # ethereal Daze + FNP 4: the end-of-turn exhaust covers the 4 incoming -> attack
+    d_eth = plan_combat_turn(st("Unplayable. Ethereal."), cfg.combat)
+    assert d_eth.action.payload().get("card_index") == 1
+    # plain Daze: no free block -- at 10 HP the Defend must win
+    d_plain = plan_combat_turn(st("Unplayable."), cfg.combat)
+    assert d_plain.action.payload().get("card_index") == 2

@@ -505,6 +505,10 @@ class SimState:
     # attacking enemy in the incoming pool (multi-hit intents under-counted)
     hp_loss_reduction: int = 0
     dup_armed: bool = False  # Duplicator drunk: the next card play applies twice
+    # hand indices of Ethereal cards (Daze etc.): unplayed at end of turn they
+    # EXHAUST -- with Feel No Pain up that's free end-of-turn block the
+    # block/attack tradeoff must see (owner check 2026-08-03)
+    ethereal_hand: tuple = ()
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
@@ -1252,6 +1256,12 @@ def _score(
     my_block_eff = state.my_block
     if state.end_turn_block and not lethal_end:  # Plating lands before the enemy turn
         my_block_eff += state.end_turn_block
+    # Ethereal x Feel No Pain (owner 2026-08-03): unplayed Ethereal cards (Daze)
+    # exhaust at end of turn -- each one fires FNP before the enemy turn
+    if state.per_exhaust_block and state.ethereal_hand and not lethal_end:
+        _played_idx = {i for i, _ in state.played}
+        my_block_eff += state.per_exhaust_block * sum(
+            1 for i in state.ethereal_hand if i not in _played_idx)
     if eot and not lethal_end:
         if "CLOAK_CLASP" in eot:  # "gain 1 Block for each card in your Hand" at end of turn
             my_block_eff += retained
@@ -1665,6 +1675,9 @@ def plan_combat_turn(
         demon_tongue_armed=demon_armed,
         eot_relics=tuple(eot_relics),
         hp_loss_reduction=hp_loss_reduction,
+        ethereal_hand=tuple(
+            c.index for c in hand
+            if re.search(r"ethereal", c.description or "", re.IGNORECASE)),
     )
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")
