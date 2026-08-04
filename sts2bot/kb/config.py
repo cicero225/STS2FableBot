@@ -79,7 +79,11 @@ class CombatWeights(_Section):
     # joins a line when it flips something real (lethal's w_kill=25 + the damage clears it;
     # casual chip never does). Potions persist across fights -- hoard by default.
     w_potion_spend: float = -18.0
-    w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
+    w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
+    # gamble cards (Infernal Blade+/Discovery): reveal EARLY so the rest of the
+    # turn can use what they generate (owner 2026-08-03) -- per remaining card,
+    # sized as a tie-break well below any real effect
+    w_reveal_early: float = 0.2
     w_ramp_damage: float = 1.5  # extra value for damaging strength-gaining enemies (race them)
     # Fight-open plan selection (Kin A/B 2026-07-30: owner's scaling deck killed
     # the Followers first and won where the bot's static race-the-leader lost;

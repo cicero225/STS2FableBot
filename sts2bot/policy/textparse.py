@@ -123,6 +123,10 @@ class CardEffects:
     damage: int = 0
     hits: int = 1
     aoe: bool = False
+    # Infernal Blade-class gamble (owner 2026-08-03): generates a random card --
+    # playing it EARLY reveals the option while the rest of the turn can still
+    # use it (the per-poll replan sees the real card next poll)
+    reveals_random: bool = False
     block: int = 0
     draw: int = 0
     energy_gain: int = 0
@@ -195,9 +199,11 @@ def parse_card_description(text: str | None) -> CardEffects:
     if (m := _RANDOM_ATTACK.search(text)) and fx.damage == 0:  # Infernal Blade & kin
         n = 1 if m.group(1).lower() in ("a", "an") else int(m.group(1))
         fx.damage, fx.hits = _RANDOM_ATTACK_DMG, n
+        fx.reveals_random = True
         fx.recognized.append("damage")
     elif _DISCOVER_CARD.search(text) and fx.damage == 0:  # Discovery: average-card EV
         fx.damage = _RANDOM_ATTACK_DMG
+        fx.reveals_random = True
         fx.recognized.append("damage")
     if fx.damage and _ALL_ENEMIES.search(text):
         fx.aoe = True

@@ -2054,3 +2054,38 @@ def test_battle_trance_not_replayed_under_active_no_draw() -> None:
            "description": "You cannot draw additional cards this turn."}]
     d_dead = plan_combat_turn(st(nd), cfg.combat)
     assert d_dead.action.payload().get("action") == "end_turn"
+
+
+def test_gamble_cards_sequenced_early_all_else_equal() -> None:
+    """Owner 2026-08-03: Infernal Blade-class gambles are best played EARLY --
+    knowing the generated option leaves the rest of the turn able to use it
+    (the per-poll replan sees the real card next poll). Position-scaled nudge,
+    tie-break sized."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 1, "floor": 9, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 0,
+                   "energy": 3, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                        "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                        "can_play": True, "target_type": "AnyEnemy"},
+                       {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                        "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                        "can_play": True, "target_type": "AnyEnemy"},
+                       {"index": 2, "id": "INFERNAL_BLADE", "name": "Infernal Blade+",
+                        "type": "Skill", "cost": "0",
+                        "description": "Add a random Attack into your Hand. "
+                        "It costs 0 this turn.", "can_play": True, "target_type": "None"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "e0", "name": "Brute", "hp": 60,
+                                "max_hp": 60, "block": 0, "status": [],
+                                "intents": [{"type": "attack", "label": "9"}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    # the gamble leads the plan: reveal first, Strikes after
+    assert d.action.payload()["card_index"] == 2

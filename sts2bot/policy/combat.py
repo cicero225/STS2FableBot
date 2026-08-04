@@ -284,6 +284,7 @@ class PlannedCard:
     # anything with debuffs/draw/block riders or big base damage is a keeper.
     primal_fodder: bool = False
     self_replays: bool = False  # Howl class: returns from the Exhaust Pile on its own
+    reveal_nudge: float = 0.0  # per-remaining-card credit for playing a gamble card early
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
     exhaust_count: int = 0  # cards this play exhausts (-1 = remaining hand); FNP credit
     # Queen's Chains of Binding (owner 2026-07-18): first 3 draws each turn are Bound —
@@ -1006,7 +1007,12 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             else 0
         ),
         bound_played=state.bound_played or card.bound,
-        flat_bonus=state.flat_bonus + card.growth_bonus,
+        # reveal-early nudge (owner 2026-08-03): gamble cards (Infernal Blade+)
+        # played sooner leave more of the turn able to use what they generate --
+        # position-scaled tie-break, sized below any real effect
+        flat_bonus=state.flat_bonus + card.growth_bonus
+        + (card.reveal_nudge * max(0, state.hand_size - len(state.played) - 1)
+           if card.fx.reveals_random else 0.0),
         # Prolong-class: next-turn block equal to block AT PLAY TIME (snapshot —
         # review #13). Future value the one-turn tally can't see; the DFS discovers
         # on its own that it plays best AFTER the block cards (live 2026-07-25:
@@ -1540,6 +1546,9 @@ def plan_combat_turn(
     # Thrash-class growth bonus: the exhausted attack's damage banks into the NEXT
     # play + thinning — future value the one-turn tally can't see. Granted only when
     # every OTHER attack in hand is fodder (owner: never risk eating a keeper).
+    for i, pc in enumerate(playable):
+        if pc.fx.reveals_random:
+            playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
     grow_attacks = [pc for pc in playable if pc.is_attack and pc.potion_slot is None]
     for i, pc in enumerate(playable):
         if pc.grows_on_exhaust:
