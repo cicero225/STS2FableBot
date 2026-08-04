@@ -514,10 +514,21 @@ class StandardRouter:
             pused = {"round": round_, "slots": []}
             ctx.screen_mem["potions_used"] = pused
         fp = self._fight_plan(state, ctx)
+        # turn-start exhaust-pile snapshot (owner 2026-08-03): lets the planner
+        # know a card was ALREADY exhausted this turn across replans, so
+        # Forgotten Ritual / Evil Eye-class conditionals stay live mid-turn
+        pile_now = getattr(state.player, "exhaust_pile_count", None) or 0
+        exmem = ctx.screen_mem.get("turn_exhaust0")
+        floor_now = state.run.floor if state.run else -1
+        if (not isinstance(exmem, dict) or exmem.get("round") != round_
+                or exmem.get("floor") != floor_now):
+            exmem = {"round": round_, "floor": floor_now, "pile": pile_now}
+            ctx.screen_mem["turn_exhaust0"] = exmem
         plan = plan_combat_turn(state, self.config.combat,
                                 used_potion_slots=tuple(pused["slots"]),
                                 hold_aoe_potions=self._aoe_hold(state, ctx),
-                                fight_plan=fp)
+                                fight_plan=fp,
+                                exhausted_this_turn=pile_now > exmem["pile"])
         if fp and isinstance(plan, Decision) and plan.rationale:
             plan.rationale += f" |plan={fp}"
         if (isinstance(plan, Decision) and isinstance(plan.action, act.UsePotion)

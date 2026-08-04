@@ -1937,3 +1937,42 @@ def test_fortifier_sequenced_after_block_for_the_big_hit() -> None:
     # calm turn (6 incoming): 10 block covers it -- the potion stays banked
     d2 = plan_combat_turn(st("6"), cfg.combat)
     assert "Fortifier" not in (d2.rationale or "")
+
+
+def test_forgotten_ritual_stays_live_after_midturn_exhaust() -> None:
+    """Owner 2026-08-03: Forgotten Ritual ('if you Exhausted a card this turn,
+    gain 3 energy. Exhaust.') died in hand across replans -- the API has no
+    exhausted-this-turn field, so post-exhaust polls priced its energy at zero.
+    Seeded via the caller's turn-start exhaust-pile snapshot, the conditional
+    stays live and the Ritual chains."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 2, "floor": 24, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 0,
+                   "energy": 1, "status": [], "exhaust_pile_count": 3,
+                   "hand": [
+                       {"index": 0, "id": "FORGOTTEN_RITUAL", "name": "Forgotten Ritual",
+                        "type": "Skill", "cost": "1",
+                        "description": "If you Exhausted a card this turn, gain 3 Energy. "
+                        "Exhaust.", "can_play": True, "target_type": "None"},
+                       {"index": 1, "id": "BLUDGEON", "name": "Bludgeon", "type": "Attack",
+                        "cost": "3", "description": "Deal 32 damage.",
+                        "can_play": False, "unplayable_reason": "EnergyCostTooHigh",
+                        "target_type": "AnyEnemy"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 4, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "e0", "name": "Toad", "hp": 60,
+                                "max_hp": 60, "block": 0, "status": [],
+                                "intents": [{"type": "attack", "label": "10"}]}]},
+    })
+    cfg = load_policy_config()
+    # without the seed: Ritual's energy reads 0 -> the Bludgeon stays unreachable
+    d0 = plan_combat_turn(state, cfg.combat)
+    assert "Bludgeon" not in (getattr(d0, "rationale", "") or "")
+    # seeded (a card was exhausted earlier this turn): Ritual -> 3 energy -> Bludgeon
+    d1 = plan_combat_turn(state, cfg.combat, exhausted_this_turn=True)
+    assert d1.action.payload().get("card_index") == 0  # Ritual first
+    assert "Bludgeon" in (d1.rationale or "")  # the 32-damage payoff is IN the plan

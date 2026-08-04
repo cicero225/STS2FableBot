@@ -1378,6 +1378,7 @@ _HAND_TAKE_DMG_RE = re.compile(r"take (\d+) damage", re.I)  # Toxic-type: blocka
 def plan_combat_turn(
     state: CombatState, weights: CombatWeights, used_potion_slots: tuple[int, ...] = (),
     hold_aoe_potions: bool = False, fight_plan: str | None = None,
+    exhausted_this_turn: bool = False,
 ) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences. Damage potions
     (minus already-used slots) join the search as pseudo-cards so card+potion lethals are
@@ -1609,6 +1610,11 @@ def plan_combat_turn(
     start = SimState(
         energy=energy,
         exhaust_pile0=exhaust_pile,
+        # Forgotten Ritual dead-in-hand (owner 2026-08-03): the API has no
+        # 'exhausted this turn' field, so post-exhaust REPLANS priced the
+        # conditional energy at zero and Ritual slid out of every plan. The
+        # caller tracks the turn-start exhaust pile and seeds this flag.
+        exhausted_this_turn=exhausted_this_turn,
         no_draw=fiddle_no_draw,
         enemies=enemy_sims,
         my_block=player.block,
