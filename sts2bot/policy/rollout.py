@@ -218,7 +218,11 @@ def _classify_potions(potions) -> list[tuple[str, int]]:
             continue
         desc = getattr(p, "description", None) or ""
         fx = parse_card_description(desc)
-        if m := re.search(r"gain (\d+) regen", desc, re.IGNORECASE):
+        if m := re.search(r"gain (\d+) ritual", desc, re.IGNORECASE):
+            # Mazaleth's Gift: +N Str/turn compounding; credited as flat Str 3
+            # per stack (conservative vs a long boss fight's triangular payout)
+            out.append(("strength", 3 * int(m.group(1))))
+        elif m := re.search(r"gain (\d+) regen", desc, re.IGNORECASE):
             n_ = int(m.group(1))
             # streamed 5+4+3+2+1 live; credited as its triangular total here
             # (instant in sim -- a mild over-credit on very short fights)

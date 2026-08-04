@@ -4847,3 +4847,22 @@ def test_boots_lookahead_prefers_the_one_charge_line() -> None:
     # on-path rest (index 0): the elite behind it is dodged by a LATER jump,
     # paying the tax once and discounted -- beats jumping right now
     assert d.action.payload()["index"] == 0
+
+
+def test_mazaleths_gift_deployed_at_boss_start() -> None:
+    """Owner 2026-08-03: Ritual (+1 Str at end of every turn) compounds -- the
+    definition of a boss/elite-start buff. Held in normal fights."""
+    gift = _potion("MAZALETHS_GIFT", "Mazaleth's Gift", "Gain 1 Ritual.")
+
+    def st(state_type):
+        return make_combat(
+            hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+            enemies=[enemy("BOSS_0", 300, intent_label="12")],
+            hp=70, max_hp=80, state_type=state_type, potions=[gift],
+        )
+
+    r = router()
+    d = r.decide(st("boss"), LoopContext())
+    assert d.action.payload()["action"] == "use_potion"
+    d2 = r.decide(st("monster"), LoopContext())
+    assert d2.action.payload().get("action") != "use_potion"

@@ -1064,6 +1064,11 @@ class StandardRouter:
             # then: high keep-value, no proactive lane (hail-mary fallback may
             # still drink it facing death, where absorbing an instance is right).
             return "buffer"
+        if re.search(r"gain \d+ ritual", potion.description or "", re.IGNORECASE):
+            # Mazaleth's Gift (owner 2026-08-03): Ritual = +1 Str at end of EVERY
+            # turn -- compounding, i.e. the definition of a boss/elite-start
+            # buff. Rides deploy lane 4 (round 1 + Entropic-fresh waiver).
+            return "buff"
         if ("REGEN" in nid
                 or re.search(r"gain \d+ regen", potion.description or "", re.IGNORECASE)):
             # Regen Potion (owner 2026-08-02): heal streamed over 5 turns; its own
