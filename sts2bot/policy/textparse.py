@@ -95,6 +95,9 @@ _HEAL = re.compile(r"\bHeal (\d+) HP", re.IGNORECASE)
 # planner credits N per incoming hit this turn.
 _RETALIATE = re.compile(r"attacked this turn, deal (\d+) damage back", re.IGNORECASE)
 _FNP_GRANT = re.compile(r"[Ww]henever a card is Exhausted,? gain (\d+) Block")
+_DOUBLE_IF_VULN = re.compile(r"[Ii]f the (?:enemy|target) is Vulnerable,? hits twice")
+_COST_LESS_PER_ATTACK = re.compile(
+    r"Costs? (\d+) less .{0,40}for each Attack played this turn", re.IGNORECASE)
 # Fisticuffs: "Gain Block equal to damage dealt" — approximate block = damage (delta audit)
 _BLOCK_EQ_DAMAGE = re.compile(r"Gain Block equal to (?:the )?damage dealt", re.IGNORECASE)
 # The Gambit: "Gain 50 Block. If you take unblocked attack damage this combat, die." A
@@ -131,6 +134,14 @@ class CardEffects:
     # Feel No Pain-class grant: playing this card makes every LATER exhaust
     # this combat yield N block (owner FNP->Infernal Blade+ case 2026-08-03)
     per_exhaust_block_grant: int = 0
+    # Dismantle-class (owner 2026-08-04): 'If the enemy is Vulnerable, hits
+    # twice' -- conditional hit-doubling the flat parse missed (8 read as 8,
+    # real value vs a vuln target is 16, exactly the synergy line)
+    double_hits_if_vuln: bool = False
+    # Stomp-class (owner 2026-08-04): 'Costs 1 less energy for each Attack
+    # played this turn' -- dynamic in-plan cost so attack->Stomp ordering is
+    # discoverable inside ONE plan, not just across replans
+    cost_less_per_attack: int = 0
     block: int = 0
     draw: int = 0
     energy_gain: int = 0
@@ -274,6 +285,9 @@ def parse_card_description(text: str | None) -> CardEffects:
     fx.self_death_rider = bool(_SELF_DEATH_RIDER.search(full))
     if m := _FNP_GRANT.search(full):  # trigger sentence: lives only in the FULL text
         fx.per_exhaust_block_grant = int(m.group(1))
+    fx.double_hits_if_vuln = bool(_DOUBLE_IF_VULN.search(full))
+    if m := _COST_LESS_PER_ATTACK.search(full):
+        fx.cost_less_per_attack = int(m.group(1))
     # Replay N: the whole card resolves N+1 times — scale every effect, costs included
     # (self-HP riders repeat too). Damage scales via hits so multi-hit stays per-hit.
     if m := _REPLAY.search(text):

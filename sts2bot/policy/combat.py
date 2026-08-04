@@ -870,6 +870,8 @@ def _apply_attack(
     if state.primal_active and card.is_attack:
         base_damage, hits = _PRIMAL_ROCK_DAMAGE, 1  # transformed into a Giant Rock
     per_hit = base_damage + state.str_unbaked  # text already carries turn-start Strength
+    if card.fx.double_hits_if_vuln and e.vulnerable > 0:
+        hits *= 2  # Dismantle-class: vs a Vulnerable target every hit doubles
     if card.dmg_per_target_vuln:  # Bully: +N per Vulnerable already on the target
         per_hit += card.dmg_per_target_vuln * e.vulnerable
     if pen_halve:
@@ -994,9 +996,13 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     # takes the +50% back-attack. AoE doesn't rotate. What matters is who you face LAST this turn
     # (owner), so just track the most recent single-target target through the sequence.
     facing = target_id if target_i is not None else state.facing
+    eff_cost = card.cost
+    if card.fx.cost_less_per_attack:  # Stomp-class: cheaper per Attack already played
+        eff_cost = max(0, card.cost
+                       - card.fx.cost_less_per_attack * state.n_attacks_played)
     s = replace(
         state,
-        energy=state.energy - card.cost,
+        energy=state.energy - eff_cost,
         damage_dealt=state.damage_dealt + retaliation,
         potions_spent=state.potions_spent + (1 if card.potion_slot is not None else 0),
         # FNP played mid-plan: later exhausts in THIS plan earn its block
@@ -1763,7 +1769,11 @@ def plan_combat_turn(
             # observed, but the class is real). Potions aren't cards: still legal.
             if plays_left <= 0 and card.potion_slot is None:
                 continue
-            if card.cost > sim.energy:
+            eff_cost = card.cost
+            if card.fx.cost_less_per_attack:
+                eff_cost = max(0, card.cost
+                               - card.fx.cost_less_per_attack * sim.n_attacks_played)
+            if eff_cost > sim.energy:
                 continue
             if card.bound and sim.bound_played:  # Chains of Binding: one Bound play/turn
                 continue

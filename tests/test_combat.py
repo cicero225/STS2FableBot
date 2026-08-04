@@ -2165,3 +2165,69 @@ def test_daze_ethereal_feeds_fnp_end_of_turn_block() -> None:
     # plain Daze: no free block -- at 10 HP the Defend must win
     d_plain = plan_combat_turn(st("Unplayable."), cfg.combat)
     assert d_plain.action.payload().get("card_index") == 2
+
+
+def test_dismantle_doubles_hits_on_vulnerable_and_sequences_after_bash() -> None:
+    """Owner 2026-08-04: 'Deal 8 damage. If the enemy is Vulnerable, hits
+    twice.' parsed flat 8 -- underrated by half in the vuln lines the bot
+    builds. Now: Bash FIRST (applies vuln), Dismantle second for 16."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 2, "floor": 20, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 20,
+                   "energy": 3, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "DISMANTLE", "name": "Dismantle",
+                        "type": "Attack", "cost": "1",
+                        "description": "Deal 8 damage. If the enemy is Vulnerable, "
+                        "hits twice.", "can_play": True, "target_type": "AnyEnemy"},
+                       {"index": 1, "id": "BASH", "name": "Bash", "type": "Attack",
+                        "cost": "2", "description": "Deal 8 damage. Apply 2 Vulnerable.",
+                        "can_play": True, "target_type": "AnyEnemy"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "e0", "name": "Wall", "hp": 100,
+                                "max_hp": 100, "block": 0, "status": [],
+                                "intents": [{"type": "attack", "label": "10"}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    assert d.action.payload()["card_index"] == 1  # Bash first: vuln enables the double
+
+
+def test_stomp_dynamic_cost_discovered_in_plan() -> None:
+    """Owner 2026-08-04: Stomp 'Costs 1 less for each Attack played this turn'
+    was static in-plan -- attack->attack->free-Stomp was undiscoverable inside
+    one plan. Energy 2, two 0-cost attacks + 2-cost Stomp: the plan must
+    contain all three (Stomp's effective cost reaches 0)."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 2, "floor": 20, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 20,
+                   "energy": 2, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "STOMP", "name": "Stomp", "type": "Attack",
+                        "cost": "2", "description": "Deal 9 damage to ALL enemies. "
+                        "Costs 1 less [ironclad_energy_icon.png] for each Attack "
+                        "played this turn.", "can_play": True, "target_type": "AllEnemies"},
+                       {"index": 1, "id": "SHIV1", "name": "Jab", "type": "Attack",
+                        "cost": "0", "description": "Deal 4 damage.",
+                        "can_play": True, "target_type": "AnyEnemy"},
+                       {"index": 2, "id": "SHIV2", "name": "Jab", "type": "Attack",
+                        "cost": "0", "description": "Deal 4 damage.",
+                        "can_play": True, "target_type": "AnyEnemy"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "e0", "name": "Wall", "hp": 100,
+                                "max_hp": 100, "block": 0, "status": [],
+                                "intents": [{"type": "attack", "label": "10"}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    rat = d.rationale or ""
+    assert "Stomp" in rat  # the free-Stomp line is in the chosen plan
+    assert rat.count("Jab") == 2  # after both jabs
