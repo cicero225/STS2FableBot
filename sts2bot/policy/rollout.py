@@ -117,6 +117,7 @@ class _Foe:
     # (block decay) is unmodeled; the damage race is the dominant term.
     drains: int = 0
     drain_every: int = 0
+    surround_bonus: int = 0  # extra dps ONLY while 2+ foes live (Kaiser back-attack)
     # rollout-parity audit 2026-08-03 (owner: 'may be worth a full audit'): the
     # last two FightEnemy fields the rollout never consumed.
     stun_threshold: int = 0  # crossing to/below this HP stuns it once (skips a turn)
@@ -295,7 +296,8 @@ class _RolloutSim:
                           awakened_dps=e.awakened_dps,
                           awakened_buff=e.awakened_buff_per_turn,
                           drains=e.drains_player, drain_every=e.drain_every,
-                          stun_threshold=e.stun_threshold, skittish=e.skittish)
+                          stun_threshold=e.stun_threshold, skittish=e.skittish,
+                          surround_bonus=e.surround_bonus_dps)
                      for e in enemies]
         for f in self.foes:
             if f.guarded:
@@ -516,6 +518,7 @@ class _RolloutSim:
         # enemy turn (block/heal potions as death-preventers — live lanes 1/5);
         # sleepers don't attack
         rod = self.rfx.get("hp_loss_reduction", 0)  # Tungsten: -1 per attacker
+        n_alive = sum(1 for f in self.foes if f.hp > 0 and not f.dormant)
         strike = 0
         for f in self.targets():
             if f.sleep > 0:
@@ -524,7 +527,8 @@ class _RolloutSim:
                     and f.hp <= f.stun_threshold):
                 f.stunned_used = True  # crossed the stun line: it skips this turn
                 continue
-            strike += max(0, f.dps + f.str_gained + f.dot - rod)
+            strike += max(0, f.dps + f.str_gained + f.dot - rod
+                          + (f.surround_bonus if n_alive >= 2 else 0))
         if self.hp - max(0, strike - self.block) <= 0:
             self.block += self.spend("block")
         if self.hp - max(0, strike - self.block) <= 0:

@@ -321,3 +321,37 @@ def test_player_stat_drain_decays_long_fights() -> None:
     b = rollout_fight(deck, [drainer], 80, 80, card_effects=FX)
     assert (b.win_rate, b.exp_end_hp) <= (a.win_rate, a.exp_end_hp)
     assert b.win_rate < a.win_rate or b.exp_enemy_hp_left > a.exp_enemy_hp_left
+
+
+def test_surround_bonus_prices_the_two_claw_clock() -> None:
+    """Kaiser A/B (owner 2026-08-03, won 68->20 by all-in Rocket-first): while
+    both claws live the back-attack makes the phase a ~10 HP/round clock;
+    killing one claw ends it. The pair with surround bonuses must price worse
+    than the same pair without -- the delta is the claw-kill-speed incentive."""
+    deck = starter() + [card("BLUDGEON", cost="3")] * 2
+    plain = [FightEnemy(hp=180, dps=8), FightEnemy(hp=140, dps=10)]
+    crabs = [FightEnemy(hp=180, dps=8, surround_bonus_dps=5),
+             FightEnemy(hp=140, dps=10, surround_bonus_dps=5)]
+    a = rollout_fight(deck, plain, 70, 80, card_effects=FX)
+    b = rollout_fight(deck, crabs, 70, 80, card_effects=FX)
+    assert (b.win_rate, b.exp_end_hp) <= (a.win_rate, a.exp_end_hp)
+    # both arms can floor at 0% for a modest deck -- the loss GRADIENT still
+    # shows the surcharge: dying faster leaves more claw standing
+    assert (b.win_rate < a.win_rate or b.exp_end_hp < a.exp_end_hp
+            or b.exp_enemy_hp_left > a.exp_enemy_hp_left)
+
+
+def test_every_fightenemy_field_reaches_the_rollout() -> None:
+    """Parity regression guard (the Matriarch-drain class, owner 2026-08-03
+    'may be worth a full audit'): every FightEnemy field must be consumed by
+    the _RolloutSim constructor mapping, or forecasts silently diverge from
+    the static estimator's knowledge."""
+    import dataclasses
+    import inspect
+    import re as _re
+
+    import sts2bot.policy.rollout as ro
+    src = inspect.getsource(ro._RolloutSim.__init__)
+    mapped = set(_re.findall(r"e\.(\w+)", src))
+    missing = [f.name for f in dataclasses.fields(FightEnemy) if f.name not in mapped]
+    assert not missing, f"FightEnemy fields invisible to the rollout: {missing}"

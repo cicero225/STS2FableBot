@@ -118,6 +118,12 @@ class FightEnemy:
     guarded_by_minions: bool = False
     awakened_dps: int = 0
     awakened_buff_per_turn: int = 0
+    # Kaiser Crab surround parity (owner A/B 2026-08-03, won 68->20 by all-in
+    # Rocket-first): while 2+ bodies live, the unfaced claw back-attacks +50% --
+    # the two-claw phase is a CLOCK (~10 HP/round nearly regardless of block).
+    # Extra dps this foe contributes ONLY while another foe lives; killing one
+    # claw ends it, which is what makes claw-kill speed the whole fight.
+    surround_bonus_dps: int = 0
 
 
 @dataclass(frozen=True)
@@ -347,6 +353,9 @@ _EMPIRICAL_MOVES: dict[str, dict[str, int]] = {
     # (the Matriarch pattern again). ~4/turn average bleed-or-tempo tax, plus a
     # gentle ramp for the escalating shove rate.
     "SOUL FYSH": {"player_dot_avg": 4, "str_ramp": 1},
+    # Kaiser claws (owner A/B 2026-08-03): back-attack surcharge while both live
+    "CRUSHER": {"surround_bonus_dps": 5},
+    "ROCKET": {"surround_bonus_dps": 5},
 }
 
 # Multi-body elites the harvest records as ONE body (PLAN §8.5.6 sub-item, 2026-07-09: the pool
