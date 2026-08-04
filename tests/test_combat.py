@@ -2017,3 +2017,40 @@ def test_shockwave_mass_debuff_is_aoe_and_credits_all_enemies() -> None:
     # attackers -- the plan must include it, not strand it
     assert "Shockwave" in (d.rationale or "")
     assert d.action.payload()["card_index"] == 0
+
+
+def test_battle_trance_not_replayed_under_active_no_draw() -> None:
+    """Owner catch 2026-08-03 (pre-Kaiser fight): a turn ended Battle Trance
+    (draws already dead) -> Stoke. The planner's no_draw seed only knew about
+    Fiddle, so the live NO_DRAW status (set by an earlier Trance this turn) was
+    invisible and a second Trance was played for phantom +3-draw credit."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(status):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 2, "floor": 28, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 10,
+                       "energy": 1, "status": status,
+                       "hand": [
+                           {"index": 0, "id": "BATTLE_TRANCE", "name": "Battle Trance",
+                            "type": "Skill", "cost": "0",
+                            "description": "Draw 3 cards. You cannot draw additional "
+                            "cards this turn.", "can_play": True, "target_type": "None"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Byrd", "hp": 40,
+                                    "max_hp": 40, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "8"}]}]},
+        })
+
+    cfg = load_policy_config()
+    # draws alive: free Trance is a fine play
+    d_live = plan_combat_turn(st([]), cfg.combat)
+    assert d_live.action.payload().get("card_index") == 0
+    # NO_DRAW active (earlier Trance): the second Trance is phantom value -- hold
+    nd = [{"id": "NO_DRAW_POWER", "name": "No Draw", "amount": None,
+           "description": "You cannot draw additional cards this turn."}]
+    d_dead = plan_combat_turn(st(nd), cfg.combat)
+    assert d_dead.action.payload().get("action") == "end_turn"

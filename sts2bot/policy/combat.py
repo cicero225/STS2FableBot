@@ -1615,7 +1615,15 @@ def plan_combat_turn(
         # conditional energy at zero and Ritual slid out of every plan. The
         # caller tracks the turn-start exhaust pile and seeds this flag.
         exhausted_this_turn=exhausted_this_turn,
-        no_draw=fiddle_no_draw,
+        # no_draw must ALSO read the live NO_DRAW status (owner catch 2026-08-03:
+        # a second Battle Trance was played under an active no-draw for phantom
+        # +3-draw credit -- the seed only knew about Fiddle). The status IS in
+        # the API; earlier-in-turn Trances set it.
+        no_draw=fiddle_no_draw or any(
+            "NO_DRAW" in (st_.id or "").upper()
+            or re.search(r"(cannot|may not) draw", st_.description or "", re.IGNORECASE)
+            is not None
+            for st_ in (player.status or [])),
         enemies=enemy_sims,
         my_block=player.block,
         my_strength=my_strength,
