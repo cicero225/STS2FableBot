@@ -985,24 +985,32 @@ def _apply_attack(
     # live leak, batch bnyka47dn run 3: Volley/Tremble woke her on round 1), so the planner
     # spends sleep turns on powers/block/clears. Conservative side effect: multi-card lethals
     # THROUGH the sleep window must kill from full HP (acceptable — rare at boss HP).
-    if e.asleep and not killed:
-        # zero-credit stops attacks played FOR damage, but rider-carrying attacks
-        # (Pommel's draw, Pillage) still beat friction and wake her as an unpriced
-        # side effect (owner 2026-08-06: 'never seen it deliberately stall').
-        # sleepers_woken carries an explicit wake penalty into _score.
-        enemies[target_i] = e  # restore untouched: no hp/block progress to leak anywhere
-        return replace(state, enemies=tuple(enemies),
-                       self_damage=state.self_damage + thorns_taken,
-                       sleepers_woken=state.sleepers_woken + 1)
+    # Sleeper model v3 (owner 2026-08-06): damage COUNTS (she keeps the HP loss
+    # -- the old restore-untouched hack denied real burst progress, so 'wake her
+    # with the deck's best burst' was unrepresentable), and the WAKING hit pays
+    # w_wake_sleeper once. Pokes lose (9 < 12), bursts clear the bar, kills were
+    # always exempt. The R2 tape leak (energy-waste bribing score-negative pokes
+    # into a sleeper) dies to the same penalty.
+    woke = 1 if (e.asleep and not killed) else 0
+    if woke:
+        enemies[target_i] = replace(enemies[target_i], asleep=False)
     return replace(
         state,
         enemies=tuple(enemies),
+        sleepers_woken=state.sleepers_woken + woke,
         damage_dealt=state.damage_dealt + dealt_total,
         kills=state.kills + (1 if killed else 0),
         overkill=state.overkill + overkill_amt,
         vuln_applied=state.vuln_applied + (card.fx.vulnerable if hp > 0 else 0),
-        ramp_damage=state.ramp_damage + (dealt_total if e.gains_strength else 0),
-        focus_damage=state.focus_damage + (dealt_total if e.is_big else 0),
+        # a sleeping 'ramper' isn't ramping: the waking hit earns plain damage
+        # credit only (with focus_damage below, the third sleeper-bribe term)
+        ramp_damage=state.ramp_damage + (
+            dealt_total if e.gains_strength and not woke else 0),
+        # the fight-plan race bias must not bribe a WAKING hit (Matriarch is a
+        # drain boss -> plan=focus, and its +0.8/dmg amplifier out-bid the wake
+        # penalty): her clock isn't ticking while she sleeps, so sleep-phase
+        # damage earns plain credit, not race credit
+        focus_damage=state.focus_damage + (dealt_total if e.is_big and not woke else 0),
         carrier_damage=state.carrier_damage + (
             dealt_total
             if e.debuff_carrier
@@ -1425,7 +1433,8 @@ def _score(
         # +5/turn Ritual, died at full-HP enemy) — damageless turns pay while one lives
         + (w.w_ramp_stall
            if (state.damage_dealt == 0 and not lethal_end
-               and any(e.gains_strength and e.hp > 0 for e in state.enemies))
+               and any(e.gains_strength and e.hp > 0 and not e.asleep
+                       for e in state.enemies))
            else 0.0)
         + w.w_potion_spend * state.potions_spent
         + w.w_wake_sleeper * state.sleepers_woken

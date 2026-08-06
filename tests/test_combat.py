@@ -678,13 +678,15 @@ def test_player_disintegration_counts_as_blockable_incoming() -> None:
     assert d.scores["hp_loss"] == 0.0  # 6 end-damage fully soaked by the 8 block
 
 
-def test_sleeper_damage_is_a_complete_sim_noop() -> None:
-    # The partial deny leaked reward through _score's focus term (live: Volley/Tremble woke
-    # Lagavulin round 1, batch bnyka47dn) -- a non-killing hit on a sleeper must leave the
-    # sim enemy UNTOUCHED so no downstream term (focus, stun crossing) sees progress.
+def test_sleeper_damage_counts_but_the_waking_hit_pays() -> None:
+    # Sleeper model v3 (owner 2026-08-06): the old restore-untouched hack denied
+    # real burst progress ('wake her with the deck's best burst' was
+    # unrepresentable). Damage now COUNTS, asleep clears, and sleepers_woken
+    # carries the wake penalty into _score.
     out = _apply_attack(_state(_enemy(asleep=True)), 0, _attack(30))
-    assert out.enemies[0].hp == 100  # no hp progress at all
-    assert out.damage_dealt == 0
+    assert out.enemies[0].hp == 70          # she keeps the damage
+    assert out.enemies[0].asleep is False   # and wakes
+    assert out.sleepers_woken == 1          # the waking hit pays once
 
 
 def _fysh_with_potion(enemy_hp: int, hand: list, potions: list) -> dict:
@@ -2393,11 +2395,12 @@ def test_flutter_halves_attacks_and_kills_the_false_lethal() -> None:
     assert not (d.scores or {}).get("lethal")
 
 
-def test_rider_attack_holds_against_a_sleeper() -> None:
-    """Owner 2026-08-06 ('never seen it deliberately stall'): zero damage-credit
-    vs sleepers stopped attacks played FOR damage, but rider attacks (Pommel's
-    draw) still beat friction and woke her as an unpriced side effect. The
-    explicit wake penalty holds them; a power leads instead."""
+def test_sleeper_pokes_hold_bursts_play() -> None:
+    """Owner 2026-08-06: sleeper model v3 -- damage counts, the waking hit pays
+    w_wake_sleeper. A plain poke (Strike) holds behind the power; a real burst
+    (Bludgeon) clears the penalty and wakes her deliberately, per the owner's
+    'waking is not always wrong'. Rider pokes (Pommel) sit ON the margin by
+    design and are deliberately not pinned."""
     from sts2bot.client.models import parse_state
     from sts2bot.kb.config import load_policy_config
     from sts2bot.policy.combat import plan_combat_turn
@@ -2405,11 +2408,11 @@ def test_rider_attack_holds_against_a_sleeper() -> None:
     state = parse_state({
         "state_type": "boss", "run": {"act": 1, "floor": 17, "ascension": 0},
         "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "block": 0,
-                   "energy": 2, "status": [],
+                   "energy": 3, "status": [],
                    "hand": [
-                       {"index": 0, "id": "POMMEL_STRIKE", "name": "Pommel Strike",
+                       {"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike",
                         "type": "Attack", "cost": "1",
-                        "description": "Deal 9 damage. Draw 1 card.",
+                        "description": "Deal 9 damage.",
                         "can_play": True, "target_type": "AnyEnemy"},
                        {"index": 1, "id": "INFLAME", "name": "Inflame", "type": "Power",
                         "cost": "1", "description": "Gain 2 Strength.",
@@ -2424,5 +2427,12 @@ def test_rider_attack_holds_against_a_sleeper() -> None:
                                 "intents": [{"type": "sleep", "label": ""}]}]},
     })
     d = plan_combat_turn(state, load_policy_config().combat)
-    assert d.action.payload()["card_index"] == 1  # Inflame; the Pommel poke holds
-    assert "Pommel" not in (d.rationale or "")
+    assert d.action.payload()["card_index"] == 1  # Inflame; the Strike poke holds
+    assert "Strike" not in (d.rationale or "")
+    # owner nuance: a genuine BURST clears the wake penalty -- damage now counts
+    state.player.hand[0] = state.player.hand[0].model_copy(update={
+        "id": "BLUDGEON", "name": "Bludgeon", "cost": "2",
+        "description": "Deal 32 damage."})
+    d2 = plan_combat_turn(state, load_policy_config().combat)
+    assert d2.action.payload()["card_index"] in (0, 1)
+    assert "Bludgeon" in (d2.rationale or "")  # the burst-wake line is IN the plan

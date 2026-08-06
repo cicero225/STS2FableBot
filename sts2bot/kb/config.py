@@ -83,7 +83,7 @@ class CombatWeights(_Section):
     # free setup turns (owner 2026-08-06: rider-attacks like Pommel woke her for
     # the draw credit -- the zero-damage-credit rule alone wasn't a penalty).
     # Sized near her per-turn threat; a kill or big burst still clears it.
-    w_wake_sleeper: float = -12.0
+    w_wake_sleeper: float = -16.0  # > poke+rider (~15); bursts (25+) clear it
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     # gamble cards (Infernal Blade+/Discovery): reveal EARLY so the rest of the
     # turn can use what they generate (owner 2026-08-03) -- per remaining card,
