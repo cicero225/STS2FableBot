@@ -118,6 +118,7 @@ class _Foe:
     drains: int = 0
     drain_every: int = 0
     surround_bonus: int = 0  # extra dps ONLY while 2+ foes live (Kaiser back-attack)
+    atk_mult: float = 1.0  # Flutter-class: attack damage it takes is scaled by this
     # rollout-parity audit 2026-08-03 (owner: 'may be worth a full audit'): the
     # last two FightEnemy fields the rollout never consumed.
     stun_threshold: int = 0  # crossing to/below this HP stuns it once (skips a turn)
@@ -193,6 +194,8 @@ def _hit(foe: _Foe, amount: int, vuln_mult: float = 1.5) -> int:
     if foe.slippery and not foe.slipped_this_turn:
         foe.slipped_this_turn = True
         amount = min(amount, 1)
+    if foe.atk_mult != 1.0:
+        amount = int(amount * foe.atk_mult)  # Flutter: attacks halved
     block_now = foe.self_block
     if foe.skittish and foe.lost_this_turn == 0:
         block_now += foe.skittish  # Skittish: first hit each turn eats extra block
@@ -297,7 +300,8 @@ class _RolloutSim:
                           awakened_buff=e.awakened_buff_per_turn,
                           drains=e.drains_player, drain_every=e.drain_every,
                           stun_threshold=e.stun_threshold, skittish=e.skittish,
-                          surround_bonus=e.surround_bonus_dps)
+                          surround_bonus=e.surround_bonus_dps,
+                          atk_mult=e.attack_dmg_taken_mult)
                      for e in enemies]
         for f in self.foes:
             if f.guarded:

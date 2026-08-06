@@ -122,6 +122,13 @@ def audit(paths, min_n: int):
             if any((i.get("type") or "").lower() == "heal"
                    for e in e0.values() for i in (e.get("intents") or [])):
                 continue
+            # Player THORNS makes the damage channel lie the other way: enemies
+            # attacking into our thorns lose HP during THEIR turn -- counted in
+            # the e0->e1 delta, never in plan_damage (the +11.6 THORNS_POWER
+            # bucket was this artifact, not a model error). Accounting noise.
+            if any("THORNS" in (s.get("id") or "").upper()
+                   for s in (pl0.get("status") or [])):
+                continue
             # A killed enemy DROPS OUT of the next state's list, so `k not in e1` means we
             # dealt its full remaining HP (skipping those under-counted our own damage —
             # it read as the Nibbit "-18.6 less than predicted" artifact).
@@ -160,7 +167,8 @@ def audit(paths, min_n: int):
     report("DAMAGE DEALT", dmg_buckets)
 
 
-def drill(paths, enemy_name: str, max_rows: int = 12) -> None:
+def drill(paths, enemy_name: str | None, status_id: str | None = None,
+          max_rows: int = 12) -> None:
     """Show the divergent turns for one enemy: prediction, actual, intents, block,
     player statuses — the raw material for diagnosing an unmodeled mechanic."""
     shown = 0
@@ -175,7 +183,13 @@ def drill(paths, enemy_name: str, max_rows: int = 12) -> None:
             if shown >= max_rows:
                 break
             e0 = first["state"]["battle"].get("enemies") or []
-            if not any(enemy_name.lower() in (e.get("name") or "").lower() for e in e0):
+            pl0_ = first["state"]["player"]
+            if status_id and not any(
+                    status_id.upper() in (s.get("id") or "").upper()
+                    for s in (pl0_.get("status") or [])):
+                continue
+            if enemy_name and not any(
+                    enemy_name.lower() in (e.get("name") or "").lower() for e in e0):
                 continue
             sc = last.get("scores") or {}
             pl0, pl1 = first["state"]["player"], nxt["state"]["player"]
@@ -206,11 +220,13 @@ def main() -> None:
     ap.add_argument("--min-n", type=int, default=5)
     ap.add_argument("--enemy", type=str, default=None,
                     help="drill into divergent turns vs this enemy instead of the summary")
+    ap.add_argument("--status", type=str, default=None,
+                    help="drill into divergent turns where the PLAYER has this status id")
     args = ap.parse_args()
     paths = sorted(glob.glob(os.path.join(ROOT, "logs", "runs", "*", "decisions.jsonl")),
                    key=os.path.getmtime, reverse=True)[: args.limit]
-    if args.enemy:
-        drill(paths, args.enemy)
+    if args.enemy or args.status:
+        drill(paths, args.enemy, status_id=args.status)
         return
     print(f"auditing {len(paths)} runs\n")
     audit(paths, args.min_n)

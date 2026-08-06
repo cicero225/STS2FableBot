@@ -385,6 +385,10 @@ class EnemySim:
     # cap (Hardened Shell, Intangible); thorns per hit. hp_lost_this_turn accrues so the planner
     # stops over-investing (don't dump a big hit into Slippery, don't burst past a cap).
     slippery_stacks: int = 0  # Slippery charges: each reduces the NEXT HP-loss to 1, then is spent
+    # Flutter-class (Thieving Hopper, owner-audit find 2026-08-06): 'Receives 50%
+    # less damage from Attacks' -- unparsed, it produced FALSE LETHALS (sim 36 vs
+    # game ~17 vs 24 HP) that suppressed survival lanes two turns running
+    attack_dmg_mult: float = 1.0
     dmg_cap_per_turn: int | None = None
     thorns: int = 0
     hp_lost_this_turn: int = 0
@@ -687,6 +691,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
         vuln = 0
         artifact = 0
         slippery_stacks = 0
+        attack_dmg_mult = 1.0
         crab_rage = False
         back_attack = False
         is_minion = False
@@ -716,6 +721,9 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
             # instance to 1, so multi-hit strips it cheaply and a big single hit is wasted.
             if "SLIPPERY" in p.id.upper():
                 slippery_stacks = p.amount if p.amount else 1
+            if m_ := re.search(r"receives? (\d+)% less damage from attacks",
+                               (p.description or ""), re.IGNORECASE):
+                attack_dmg_mult = 1.0 - int(m_.group(1)) / 100.0
             if "MINION" in p.id.upper() or "abandon combat" in (p.description or "").lower():
                 is_minion = True
             if "STRENGTH" in p.id.upper() and (p.amount or 0) > 0:
@@ -802,6 +810,7 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 summons=summons,
                 illusion=illusion,
                 slippery_stacks=slippery_stacks,
+                attack_dmg_mult=attack_dmg_mult,
                 dmg_cap_per_turn=mech.get("dmg_cap_per_turn"),
                 thorns=mech.get("thorns", 0),
                 skittish=mech.get("skittish", 0),
@@ -887,6 +896,8 @@ def _apply_attack(
     per_hit = base_damage + state.str_unbaked  # text already carries turn-start Strength
     if card.fx.double_hits_if_vuln and e.vulnerable > 0:
         hits *= 2  # Dismantle-class: vs a Vulnerable target every hit doubles
+    if e.attack_dmg_mult != 1.0 and card.is_attack:
+        per_hit = int(per_hit * e.attack_dmg_mult)  # Flutter: attacks halved
     if card.dmg_per_exhaust_event:  # Ashen: in-plan exhausts beyond the preview
         per_hit += card.dmg_per_exhaust_event * state.n_exhaust_events
     if card.dmg_per_target_vuln:  # Bully: +N per Vulnerable already on the target

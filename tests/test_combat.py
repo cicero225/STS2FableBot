@@ -2353,3 +2353,41 @@ def test_stampede_banks_the_last_attack_behind_a_defend() -> None:
     d_off = plan_combat_turn(st([]), cfg.combat)
     gain = (d_on.scores or {}).get("plan_score", 0) - (d_off.scores or {}).get("plan_score", 0)
     assert 3.0 < gain < 8.0, gain
+
+
+def test_flutter_halves_attacks_and_kills_the_false_lethal() -> None:
+    """Audit find 2026-08-06 (Thieving Hopper, replayed from tape): 'Receives
+    50% less damage from Attacks' was unparsed in BOTH sims -- a 36-damage plan
+    read LETHAL vs a 24-HP Hopper the game only let us hit for ~17, and the
+    phantom kill suppressed survival lanes two turns running."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.capability import detect_mechanics
+    from sts2bot.policy.combat import plan_combat_turn
+
+    flutter = {"id": "FLUTTER_POWER", "name": "Flutter", "amount": 5,
+               "description": "Receives 50% less damage from Attacks. "
+               "Deal attack damage 5 times to Stun it."}
+    assert detect_mechanics([flutter]).get("attack_dmg_taken_mult") == 0.5
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 2, "floor": 21, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 45, "max_hp": 80, "block": 0,
+                   "energy": 3, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "BREAK", "name": "Break", "type": "Attack",
+                        "cost": "1", "description": "Deal 23 damage. Apply 5 Vulnerable.",
+                        "can_play": True, "target_type": "AnyEnemy"},
+                       {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                        "type": "Attack", "cost": "1", "description": "Deal 9 damage.",
+                        "can_play": True, "target_type": "AnyEnemy"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "TH_0", "name": "Thieving Hopper",
+                                "hp": 24, "max_hp": 40, "block": 0,
+                                "status": [flutter],
+                                "intents": [{"type": "attack", "label": "21"}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    # halved: ~11 + ~6x1.5 = well under 24 -- the phantom kill must not fire
+    assert not (d.scores or {}).get("lethal")

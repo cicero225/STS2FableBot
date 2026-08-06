@@ -124,6 +124,10 @@ class FightEnemy:
     # Extra dps this foe contributes ONLY while another foe lives; killing one
     # claw ends it, which is what makes claw-kill speed the whole fight.
     surround_bonus_dps: int = 0
+    # Flutter-class: multiplier on ATTACK damage this foe takes (Thieving Hopper
+    # 0.5 -- audit find 2026-08-06: unparsed, it made 36-damage plans read
+    # lethal vs a 24-HP body the game only let us hit for ~17)
+    attack_dmg_taken_mult: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -236,6 +240,9 @@ _RAMP_RE = re.compile(r"end of (?:its|each|your)?\s*turn,?\s*gain[s]? (\d+) Stre
 _ARTIFACT_RE = re.compile(r"Negates? (\d+) debuffs?", re.I)  # Aeonglass opens with 3
 _TIMER_RE = re.compile(r"in (\d+) turns?[^.]*?\bdie\b", re.I)  # Sandpit: "In N turns ... you die"
 _SKITTISH_RE = re.compile(r"first time.*?hit each turn.*?gains? (\d+) block", re.I)  # Skittish
+# Flutter-class attack-damage reduction (Thieving Hopper, audit find 2026-08-06):
+# 'Receives 50% less damage from Attacks.' Unparsed it caused false lethals.
+_ATK_REDUCTION_RE = re.compile(r"receives? (\d+)% less damage from attacks", re.I)
 
 
 def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
@@ -245,6 +252,7 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
     block = death = stun = thorns = ramp = skittish = artifact = 0
     timer = 0  # soonest "you will die in N turns" deadline (Sandpit)
     slippery = False
+    atk_mult = 1.0
     for s in statuses:
         d = s.get("description") or ""
         if m := _ARTIFACT_RE.search(d):
@@ -257,6 +265,8 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
             timer = t if not timer else min(timer, t)
         if m := _SKITTISH_RE.search(d):
             skittish = max(skittish, int(m.group(1)))
+        if m := _ATK_REDUCTION_RE.search(d):
+            atk_mult = min(atk_mult, 1.0 - int(m.group(1)) / 100.0)
         if m := _BLOCK_RE.search(d):
             block += int(m.group(1))
         if m := _DEATH_RE.search(d):
@@ -270,6 +280,8 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
         if "only loses 1 hp" in d.lower():
             slippery = True
     out: dict[str, Any] = {}
+    if atk_mult != 1.0:
+        out["attack_dmg_taken_mult"] = atk_mult
     if cap is not None:
         out["dmg_cap_per_turn"] = cap
     if block:
