@@ -52,7 +52,16 @@ def _build_router(policy: str):
 
         config = load_policy_config()
         return StandardRouter(config), config.config_hash
-    raise typer.BadParameter(f"unknown policy '{policy}' (trivial|standard)")
+    if policy == "fuzz":
+        # owner experiment (PLAN: prediction fuzzing, 2026-08-06): random legal
+        # combat plays with per-play prediction logging; ATTENDED ONLY -- the
+        # safety rail pauses for owner savescums instead of dying
+        from sts2bot.kb.config import load_policy_config
+        from sts2bot.policy.fuzz import FuzzRouter
+
+        config = load_policy_config()
+        return FuzzRouter(config), config.config_hash
+    raise typer.BadParameter(f"unknown policy '{policy}' (trivial|standard|fuzz)")
 
 
 @app.command()
