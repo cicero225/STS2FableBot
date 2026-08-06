@@ -2309,3 +2309,44 @@ def test_fiend_fire_hand_exhaust_clears_the_dfs_hand() -> None:
         ff = next(i for i, x in enumerate(seq) if "Fiend Fire" in x)
         assert ff == len(seq) - 1  # hand-exhauster is terminal
     assert d.action.payload()["card_index"] in (1, 2)  # a free Power leads
+
+
+def test_stampede_banks_the_last_attack_behind_a_defend() -> None:
+    """Owner check 2026-08-06: Stampede plays 1 random retained Attack free at
+    end of turn. With it up, Defend + banked Strike beats playing the Strike
+    (same damage, plus block); without it, the attack plays normally. Targeted
+    lethals still outprice the gamble (w_kill), preserving the owner's
+    multi-enemy nuance."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(status):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 2, "floor": 22, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 30, "max_hp": 80, "block": 0,
+                       "energy": 1, "status": status,
+                       "hand": [
+                           {"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                            "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                            "can_play": True, "target_type": "AnyEnemy"},
+                           {"index": 1, "id": "DEFEND_IRONCLAD", "name": "Defend",
+                            "type": "Skill", "cost": "1", "description": "Gain 5 Block.",
+                            "can_play": True, "target_type": "None"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Byrd", "hp": 60,
+                                    "max_hp": 60, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "8"}]}]},
+        })
+
+    cfg = load_policy_config()
+    stampede = [{"id": "STAMPEDE_POWER", "name": "Stampede", "amount": 1,
+                 "description": "At the end of your turn, 1 random Attack in your "
+                 "Hand is played against a random enemy."}]
+    # Stampede up: Defend leads, the Strike is banked for the free EOT play
+    d_on = plan_combat_turn(st(stampede), cfg.combat)
+    assert d_on.action.payload()["card_index"] == 1
+    # no Stampede: banking earns nothing -- the attack plays normally
+    d_off = plan_combat_turn(st([]), cfg.combat)
+    assert d_off.action.payload()["card_index"] == 0

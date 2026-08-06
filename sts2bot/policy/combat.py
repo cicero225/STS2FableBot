@@ -512,6 +512,13 @@ class SimState:
     # EXHAUST -- with Feel No Pain up that's free end-of-turn block the
     # block/attack tradeoff must see (owner check 2026-08-03)
     ethereal_hand: tuple = ()
+    # Stampede (owner check 2026-08-06): 'At the end of your turn, 1 random
+    # Attack in your Hand is played against a random enemy.' A RETAINED attack
+    # is a free EOT play -- (index, damage) pairs of hand attacks, credited at
+    # mean damage x0.9 (random target discount). Targeted kills still price
+    # higher (w_kill), so deliberately spending the attack on a lethal beats
+    # the gamble -- the owner's multi-enemy nuance, preserved by the weights.
+    stampede_hand: tuple = ()
     facing: str | None = None  # entity_id of last single-target click (Kaiser Crab back-attack)
     played: tuple[tuple[int, str | None], ...] = ()  # (hand index, target entity_id)
 
@@ -1278,6 +1285,13 @@ def _score(
         _played_idx = {i for i, _ in state.played}
         my_block_eff += state.per_exhaust_block * sum(
             1 for i in state.ethereal_hand if i not in _played_idx)
+    # Stampede: one RETAINED attack fires free at end of turn (random target)
+    stampede_term = 0.0
+    if state.stampede_hand and not lethal_end:
+        _sp_idx = {i for i, _ in state.played}
+        _retained = [dmg for i, dmg in state.stampede_hand if i not in _sp_idx]
+        if _retained:
+            stampede_term = w.w_damage * (sum(_retained) / len(_retained)) * 0.9
     if eot and not lethal_end:
         if "CLOAK_CLASP" in eot:  # "gain 1 Block for each card in your Hand" at end of turn
             my_block_eff += retained
@@ -1359,6 +1373,7 @@ def _score(
                          else w.w_energy_waste * max(0, state.energy))
     return (
         eot_term
+        + stampede_term
         + crab_split
         + w.w_focus * focus
         + w.w_damage * state.damage_dealt
@@ -1694,6 +1709,14 @@ def plan_combat_turn(
         ethereal_hand=tuple(
             c.index for c in hand
             if re.search(r"ethereal", c.description or "", re.IGNORECASE)),
+        stampede_hand=tuple(
+            (pc.index, pc.fx.damage * max(1, pc.fx.hits))
+            for pc in playable
+            if pc.is_attack and pc.potion_slot is None and pc.fx.damage > 0
+        ) if any(
+            "STAMPEDE" in (s_.id or "").upper()
+            or "random attack in your hand is played" in (s_.description or "").lower()
+            for s_ in (player.status or [])) else (),
     )
     if not start.enemies:
         return Decision(action=act.EndTurn(), rationale="no living enemies; end turn")
