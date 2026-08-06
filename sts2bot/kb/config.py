@@ -79,6 +79,11 @@ class CombatWeights(_Section):
     # joins a line when it flips something real (lethal's w_kill=25 + the damage clears it;
     # casual chip never does). Potions persist across fights -- hoard by default.
     w_potion_spend: float = -18.0
+    # waking a Lagavulin-class sleeper without killing it forfeits the remaining
+    # free setup turns (owner 2026-08-06: rider-attacks like Pommel woke her for
+    # the draw credit -- the zero-damage-credit rule alone wasn't a penalty).
+    # Sized near her per-turn threat; a kill or big burst still clears it.
+    w_wake_sleeper: float = -12.0
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     # gamble cards (Infernal Blade+/Discovery): reveal EARLY so the rest of the
     # turn can use what they generate (owner 2026-08-03) -- per remaining card,

@@ -512,6 +512,7 @@ class SimState:
     # attacking enemy in the incoming pool (multi-hit intents under-counted)
     hp_loss_reduction: int = 0
     dup_armed: bool = False  # Duplicator drunk: the next card play applies twice
+    sleepers_woken: int = 0  # plan hits on a sleeper (non-kill): each pays w_wake_sleeper
     # hand indices of Ethereal cards (Daze etc.): unplayed at end of turn they
     # EXHAUST -- with Feel No Pain up that's free end-of-turn block the
     # block/attack tradeoff must see (owner check 2026-08-03)
@@ -985,8 +986,14 @@ def _apply_attack(
     # spends sleep turns on powers/block/clears. Conservative side effect: multi-card lethals
     # THROUGH the sleep window must kill from full HP (acceptable — rare at boss HP).
     if e.asleep and not killed:
+        # zero-credit stops attacks played FOR damage, but rider-carrying attacks
+        # (Pommel's draw, Pillage) still beat friction and wake her as an unpriced
+        # side effect (owner 2026-08-06: 'never seen it deliberately stall').
+        # sleepers_woken carries an explicit wake penalty into _score.
         enemies[target_i] = e  # restore untouched: no hp/block progress to leak anywhere
-        return replace(state, enemies=tuple(enemies), self_damage=state.self_damage + thorns_taken)
+        return replace(state, enemies=tuple(enemies),
+                       self_damage=state.self_damage + thorns_taken,
+                       sleepers_woken=state.sleepers_woken + 1)
     return replace(
         state,
         enemies=tuple(enemies),
@@ -1421,6 +1428,7 @@ def _score(
                and any(e.gains_strength and e.hp > 0 for e in state.enemies))
            else 0.0)
         + w.w_potion_spend * state.potions_spent
+        + w.w_wake_sleeper * state.sleepers_woken
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
         # picked a target order; these terms make the DFS serve it every turn.
         + (w.w_plan_focus_damage * state.focus_damage if fight_plan == "focus" else 0.0)

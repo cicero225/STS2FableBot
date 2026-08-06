@@ -2391,3 +2391,38 @@ def test_flutter_halves_attacks_and_kills_the_false_lethal() -> None:
     d = plan_combat_turn(state, load_policy_config().combat)
     # halved: ~11 + ~6x1.5 = well under 24 -- the phantom kill must not fire
     assert not (d.scores or {}).get("lethal")
+
+
+def test_rider_attack_holds_against_a_sleeper() -> None:
+    """Owner 2026-08-06 ('never seen it deliberately stall'): zero damage-credit
+    vs sleepers stopped attacks played FOR damage, but rider attacks (Pommel's
+    draw) still beat friction and woke her as an unpriced side effect. The
+    explicit wake penalty holds them; a power leads instead."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "boss", "run": {"act": 1, "floor": 17, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "block": 0,
+                   "energy": 2, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "POMMEL_STRIKE", "name": "Pommel Strike",
+                        "type": "Attack", "cost": "1",
+                        "description": "Deal 9 damage. Draw 1 card.",
+                        "can_play": True, "target_type": "AnyEnemy"},
+                       {"index": 1, "id": "INFLAME", "name": "Inflame", "type": "Power",
+                        "cost": "1", "description": "Gain 2 Strength.",
+                        "can_play": True, "target_type": "None"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "LM_0", "name": "Lagavulin Matriarch",
+                                "hp": 220, "max_hp": 220, "block": 0,
+                                "status": [{"id": "ASLEEP_POWER", "name": "Asleep",
+                                            "amount": 3, "description":
+                                            "Asleep. Wakes when damaged."}],
+                                "intents": [{"type": "sleep", "label": ""}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    assert d.action.payload()["card_index"] == 1  # Inflame; the Pommel poke holds
+    assert "Pommel" not in (d.rationale or "")
