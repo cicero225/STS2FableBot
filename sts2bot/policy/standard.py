@@ -974,10 +974,27 @@ class StandardRouter:
 
         # 4. Proactive at an elite/boss start: deploy long-term buffs/debuffs early (the
         #    bot struggles with these fights, so bank the value rather than hoard it).
-        if (dangerous and (buff := first("buff", "debuff")) is not None
+        if (dangerous and (buff := first("buff")) is not None
                 and (round_ <= 1 or fresh(buff))):
-            tgt = biggest_threat() if cat[buff.slot] == "debuff" else None
-            return drink(buff, tgt, f"drink {buff.name} (deploy at {state.state_type} start)")
+            return drink(buff, None, f"drink {buff.name} (deploy at {state.state_type} start)")
+
+        # 4-d. Enemy-debuff potions (Beetle Juice 'deals 30% less damage for 4
+        #     turns' -- owner 2026-08-06): throw on the FIRST turn the target
+        #     shows a DAMAGING intent (round 1 is often a Buff turn; a blind
+        #     early throw wastes duration). It's a STATUS: Artifact eats it, so
+        #     charged targets are skipped and a later poll rethrows post-strip.
+        #     Reapplication extends duration (not stacking) and it's independent
+        #     of Weak -- both fine to layer, no special casing needed.
+        if dangerous and (db := first("debuff")) is not None:
+            atkers = [e for e in state.battle.enemies
+                      if (e.hp or 0) > 0
+                      and any((i.type or "").lower() == "attack" for i in e.intents)
+                      and not any("ARTIFACT" in f"{s.id or ''} {s.name or ''}".upper()
+                                  and (s.amount or 0) > 0 for s in e.status)]
+            if atkers:
+                dt = max(atkers, key=lambda e: e.hp or 0)
+                return drink(db, dt.entity_id,
+                             f"throw {db.name} at {dt.name} (first damaging intent)")
 
         # 4a-2. Cost-zero potions (Touch of Insanity): deploy early at a boss,
         #     but ONLY when a worthy target (cost >= 2) is in hand — the owner nuance:

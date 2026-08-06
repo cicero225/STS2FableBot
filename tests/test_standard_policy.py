@@ -4894,3 +4894,37 @@ def test_shovel_dig_beats_smith_but_not_a_needed_rest() -> None:
     # hurt: rest wins
     d2 = r.decide(rest_state(25), LoopContext())
     assert (d2.rationale or "").lower().startswith("rest")
+
+
+def test_beetle_juice_waits_for_a_damaging_intent_and_respects_artifact() -> None:
+    """Owner 2026-08-06: Beetle Juice ('deals 30% less damage for 4 turns') is a
+    STATUS -- throw on the first turn the target shows a DAMAGING intent (round
+    1 Buff turns waste duration), skip Artifact-charged targets."""
+    juice = _potion("BEETLE_JUICE", "Beetle Juice",
+                    "Enemy's attacks deal 30% less damage for 4 turns.")
+    juice["target_type"] = "AnyEnemy"
+
+    def st(intent, status=()):
+        return parse_state({
+            "state_type": "boss", "run": {"act": 2, "floor": 33, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "block": 0,
+                       "energy": 3, "status": [],
+                       "hand": [card(0, "Strike", 1, "Deal 6 damage.")],
+                       "potions": [juice], "max_potion_slots": 3},
+            "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "B0", "name": "Boss", "hp": 300,
+                                    "max_hp": 300, "block": 0, "status": list(status),
+                                    "intents": [intent]}]},
+        })
+
+    r = router()
+    # Buff intent: hold (duration would tick against no damage)
+    d0 = r.decide(st({"type": "buff", "label": "Buff"}), LoopContext())
+    assert d0.action.payload().get("action") != "use_potion"
+    # damaging intent: throw
+    d1 = r.decide(st({"type": "attack", "label": "24"}), LoopContext())
+    assert d1.action.payload().get("action") == "use_potion"
+    # artifact up: hold for the strip
+    art = {"id": "ARTIFACT_POWER", "name": "Artifact", "amount": 2, "description": ""}
+    d2 = r.decide(st({"type": "attack", "label": "24"}, status=[art]), LoopContext())
+    assert d2.action.payload().get("action") != "use_potion"
