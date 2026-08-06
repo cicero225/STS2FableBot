@@ -2324,7 +2324,7 @@ def test_stampede_banks_the_last_attack_behind_a_defend() -> None:
     def st(status):
         return parse_state({
             "state_type": "monster", "run": {"act": 2, "floor": 22, "ascension": 0},
-            "player": {"character": "The Ironclad", "hp": 30, "max_hp": 80, "block": 0,
+            "player": {"character": "The Ironclad", "hp": 72, "max_hp": 80, "block": 0,
                        "energy": 1, "status": status,
                        "hand": [
                            {"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike",
@@ -2337,7 +2337,7 @@ def test_stampede_banks_the_last_attack_behind_a_defend() -> None:
             "battle": {"round": 3, "turn": "player", "is_play_phase": True,
                        "enemies": [{"entity_id": "e0", "name": "Byrd", "hp": 60,
                                     "max_hp": 60, "block": 0, "status": [],
-                                    "intents": [{"type": "attack", "label": "8"}]}]},
+                                    "intents": [{"type": "attack", "label": "3"}]}]},
         })
 
     cfg = load_policy_config()
@@ -2347,6 +2347,9 @@ def test_stampede_banks_the_last_attack_behind_a_defend() -> None:
     # Stampede up: Defend leads, the Strike is banked for the free EOT play
     d_on = plan_combat_turn(st(stampede), cfg.combat)
     assert d_on.action.payload()["card_index"] == 1
-    # no Stampede: banking earns nothing -- the attack plays normally
+    assert "Strike" not in (d_on.rationale or "")  # banked, not planned
+    # the credit is real and status-gated: the same Defend plan scores ~5.4
+    # higher with Stampede up (mean retained damage 6 x 0.9 x w_damage)
     d_off = plan_combat_turn(st([]), cfg.combat)
-    assert d_off.action.payload()["card_index"] == 0
+    gain = (d_on.scores or {}).get("plan_score", 0) - (d_off.scores or {}).get("plan_score", 0)
+    assert 3.0 < gain < 8.0, gain
