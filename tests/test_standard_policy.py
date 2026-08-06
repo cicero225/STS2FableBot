@@ -3210,7 +3210,8 @@ def test_percent_less_potion_classified_debuff_and_deployed() -> None:
     assert isinstance(d, Decision)
     payload = d.action.payload()
     assert payload["action"] == "use_potion" and payload.get("target") == "BOSS_0"
-    assert "deploy at boss" in d.rationale
+    # 2026-08-06: the debuff lane now keys on the first DAMAGING intent
+    assert "first damaging intent" in d.rationale
 
 
 def test_forced_debuff_choice_picks_disintegration_deliberately() -> None:
