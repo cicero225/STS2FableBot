@@ -2,6 +2,54 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-03..07 (Fable 5, sessions 21-23) — wins 12->36; the audit engine; owner-spotting golden age
+
+**WIN EXPLOSION**: 3 lifetime wins pre-week -> ~36 by 08-07. Best day 08-03/04
+(9/121); first fully clean unattended nights (40/40 runs, zero intervention).
+Aeonglass 5+ kills post-model, Queen 3-in-a-night (torch-first converting),
+Test Subject repeatedly, Kaiser appearing in win ROUTES post-surround-parity.
+Funnel at 08-03 morning: act-1 boss 62->71%, act-3 boss 7->15%. Standing
+baseline lesson (the 'regression' that wasn't): compute from the full ledger,
+never a remembered streak -- one night was spent exonerating desperation +
+elite-pool retarget with toggle arms before the 1/91 truth surfaced.
+
+**THE PREDICTION-AUDIT ENGINE (owner directive 'resolve forecast-vs-actual
+discrepancies; prioritization yours')**: predict_audit hardened into the
+edge-case factory. Frame fixes (HP channel measures from the LAST decision;
+damage channel = dealt-so-far + remaining projection) took HP accuracy 84->94%
+and killed two artifact buckets (STRENGTH n=106 = Bloodletting self-costs;
+uniform damage-MORE = replan additions). REAL kills: Flutter 50% attack
+reduction unparsed (FL#5, Thieving Hopper), Slow's cumulative DISPLAY seeded
+as this-turn stacks (FL#6, Bygone Effigy; plays-this-turn now router-tracked),
+Axebot Stock respawn = spawns_on_death (-25 bucket), Ashen Strike pile bonus
+double-baked vs live preview (FL#4, phantom lethal at 2 HP with Stoke in
+hand). False-lethal species now number 6, all with regression tests.
+
+**OWNER LIVE-SPOTTING (hit rate ~100% this week)**: Fiend Fire phantom
+follow-ups (DFS hand-exhaust never cleared the hand -- potion-minted Powers
+torched as 7-dmg fodder), Forgotten Ritual dead-in-hand (exhausted-this-turn
+now snapshot-seeded), phantom Battle Trance under live NO_DRAW, Stampede
+retained-attack credit, sleeper model v3 (Matriarch: damage counts + waking
+hit pays; three scoring bribes cut -- energy-waste, ramp-race, ramp-stall;
+burst-wakes representable per owner nuance), boots double-jump (charge-aware
+map lookahead), 3x-Foul reward key collision, star-cost off-class veto
+(Prismatic Gem trap), Shockwave mass-debuff AoE, Dismantle vuln-double, Stomp
+dynamic cost, ethereal x FNP, FNP mid-plan grant, Mummified Hand trigger.
+Potion sweep: Regen/Demise/Duplicator/Fortifier/Heart of Iron/Lucky
+Tonic/Mazaleth/Beetle Juice(intent-keyed)/Fruit Juice(out-of-combat) +
+Entropic freshness (minted potions re-open deploy lanes). Shovel dig lane.
+
+**INFRA**: settle-guard family complete (armed-state seeds: NO_DRAW, exhaust
+pile, DUPLICATION status, plays-this-turn). FightEnemy-parity guard test =
+the Matriarch-drain gap class extinct. Fuzz harness ready (--policy fuzz,
+owner-designed off-policy experiment; savescum-pause rail; per-fight
+deterministic RNG). Fork asks now 4 (UI-ref re-resolution, scene liveness,
+abandon-to-menu, in-fight event labels -- KD Curse-of-Knowledge choices are
+TEXTLESS via API; owner's choice table recorded for when labels land).
+Game crashes x2 (WinError 10054, unattended-morning class) -- port watcher
+auto-resumes trains on relaunch. 'Silent batch exits' solved: C5 wedge halts
+with stdout discarded; all launches now capture output. 516 tests.
+
 ## 2026-08-02 (Fable 5, session 20) — Kaiser Crab freeze KILLED (settle guard v2); Queen A/B; epoch relics
 
 **THE FREEZE IS OURS, AND IT'S FIXED.** Kaiser Crab f33 (373PFAE7EE) froze
