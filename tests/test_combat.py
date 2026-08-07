@@ -2436,3 +2436,37 @@ def test_sleeper_pokes_hold_bursts_play() -> None:
     d2 = plan_combat_turn(state, load_policy_config().combat)
     assert d2.action.payload()["card_index"] in (0, 1)
     assert "Bludgeon" in (d2.rationale or "")  # the burst-wake line is IN the plan
+
+
+def test_duplication_status_seeds_the_armed_state_across_replans() -> None:
+    """Audit find 2026-08-06: DUPLICATION_POWER ('your next card is played an
+    extra time') is a live status after the potion resolves, but replans forgot
+    the armed state -- the doubled play was planned as single. Seeded, a lone
+    16-damage Bludgeon reads as 32 and takes the kill on a 30-HP enemy."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(status):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 2, "floor": 20, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 0,
+                       "energy": 2, "status": status,
+                       "hand": [{"index": 0, "id": "BLUDGEON", "name": "Bludgeon",
+                                 "type": "Attack", "cost": "2",
+                                 "description": "Deal 16 damage.",
+                                 "can_play": True, "target_type": "AnyEnemy"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Brute", "hp": 30,
+                                    "max_hp": 40, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "10"}]}]},
+        })
+
+    cfg = load_policy_config()
+    dup = [{"id": "DUPLICATION_POWER", "name": "Duplication", "amount": 1,
+            "description": "Your next card is played an extra time."}]
+    d_armed = plan_combat_turn(st(dup), cfg.combat)
+    assert (d_armed.scores or {}).get("lethal") == 1.0  # 16x2 = 32 >= 30
+    d_plain = plan_combat_turn(st([]), cfg.combat)
+    assert not (d_plain.scores or {}).get("lethal")  # 16 < 30

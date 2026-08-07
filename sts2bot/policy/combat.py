@@ -1696,6 +1696,14 @@ def plan_combat_turn(
         # conditional energy at zero and Ritual slid out of every plan. The
         # caller tracks the turn-start exhaust pile and seeds this flag.
         exhausted_this_turn=exhausted_this_turn,
+        # Duplicator armed-state (audit find 2026-08-06): after the potion is
+        # drunk the game exposes DUPLICATION_POWER ('your next card is played an
+        # extra time') as a live status -- but a REPLAN between the drink and
+        # the doubled play forgot the armed state entirely. Seed it.
+        dup_armed=any(
+            "DUPLICATION" in (s_.id or "").upper()
+            or "played an extra time" in (s_.description or "").lower()
+            for s_ in (player.status or [])),
         # no_draw must ALSO read the live NO_DRAW status (owner catch 2026-08-03:
         # a second Battle Trance was played under an active no-draw for phantom
         # +3-draw credit -- the seed only knew about Fiddle). The status IS in
