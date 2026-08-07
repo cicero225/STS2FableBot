@@ -93,6 +93,13 @@ def audit(paths, min_n: int):
             if pred_loss is None:
                 continue
             pl0, pl1 = first["state"]["player"], nxt["state"]["player"]
+            # HP channel frame fix (Axebot false-positive 2026-08-07): the LAST
+            # plan's hp_loss covers only the REMAINING plays + enemy turn, so the
+            # actual must be measured from the LAST decision's hp -- measuring
+            # from the turn's first poll charged already-paid self-costs (the
+            # Bloodletting/Hemokinesis decks == the entire STRENGTH_POWER n=106
+            # bucket) against a prediction that never claimed to cover them.
+            pl_last = last["state"]["player"]
             e0 = {e["entity_id"]: e for e in first["state"]["battle"].get("enemies") or []}
             e1 = {e["entity_id"]: e for e in nxt["state"]["battle"].get("enemies") or []}
             if pl0.get("hp") is None or pl1.get("hp") is None:
@@ -104,7 +111,7 @@ def audit(paths, min_n: int):
             relics = ",".join(sorted({r.get("id", "") for r in (pl0.get("relics") or [])}))
 
             # --- HP check
-            actual_loss = pl0["hp"] - pl1["hp"]
+            actual_loss = (pl_last.get("hp") or pl0["hp"]) - pl1["hp"]
             if abs(actual_loss - pred_loss) <= TOL:
                 totals["hp_ok"] += 1
             else:
