@@ -755,6 +755,10 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
             # respawns left. A kill with stock remaining is NOT fight progress
             # the way the sim thought -- _fight_over already refuses wins over
             # dead spawners, so the flag alone fixes false lethals too.
+            # Owner (undocumented, 2026-08-07): the STOCK-spawned replacement
+            # NEVER attacks -- it only buffs. So the kill still ends the
+            # incoming threat (dead = no incoming is correct), the fight just
+            # is not over; do not model phantom incoming for replacements.
             if ("when killed" in low_desc and "summoned" in low_desc
                     and (p.amount or 0) > 0):
                 spawns_on_death = True
