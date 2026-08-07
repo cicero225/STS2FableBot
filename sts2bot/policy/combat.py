@@ -684,7 +684,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
     )
 
 
-def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
+def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySim, ...]:
     sims = []
     for e in enemies:
         if e.hp <= 0:
@@ -735,7 +735,12 @@ def _enemy_sims(enemies: list[Enemy]) -> tuple[EnemySim, ...]:
                 asleep = True
             if ("receives 10% more damage from attacks" in (p.description or "").lower()
                     or p.id.upper().startswith("SLOW")):
-                slow_stacks = p.amount or 0
+                # Slow's AMOUNT is a cumulative-combat display, but the effect
+                # is per card played THIS TURN (owner spec 'this turn'; audit
+                # 2026-08-07: display-seeding read every attack x2 by round 3 --
+                # false lethal #6). The caller passes its own plays-this-turn
+                # count (router-tracked across replans, exhaust-snapshot family).
+                slow_stacks = plays_this_turn
             if p.id.upper().startswith("BURROWED"):  # Tunneler: block-strip = stun
                 burrowed = True
             if p.id.upper().startswith("RAVENOUS"):  # Corpse Slug: ally-death = self-stun
@@ -1456,7 +1461,7 @@ _HAND_TAKE_DMG_RE = re.compile(r"take (\d+) damage", re.I)  # Toxic-type: blocka
 def plan_combat_turn(
     state: CombatState, weights: CombatWeights, used_potion_slots: tuple[int, ...] = (),
     hold_aoe_potions: bool = False, fight_plan: str | None = None,
-    exhausted_this_turn: bool = False,
+    exhausted_this_turn: bool = False, plays_this_turn: int = 0,
 ) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences. Damage potions
     (minus already-used slots) join the search as pseudo-cards so card+potion lethals are
@@ -1683,7 +1688,7 @@ def plan_combat_turn(
     hp_loss_reduction = sum(
         1 for r in player.relics
         if "TUNGSTEN" in (r.id or r.name or "").upper())
-    enemy_sims = _enemy_sims(state.battle.enemies)
+    enemy_sims = _enemy_sims(state.battle.enemies, plays_this_turn)
     fiddle_no_draw = any(
         _RELIC_BLOCKS_DRAW.search(getattr(r_, "description", None) or "")
         for r_ in (player.relics or [])

@@ -488,6 +488,14 @@ class StandardRouter:
         if (sig is not None and isinstance(decision, Decision) and isinstance(
                 decision.action, (act.PlayCard, act.UsePotion, act.EndTurn))):
             ctx.screen_mem["action_settle"] = {"sig": sig}
+            # plays-this-turn counter (Slow seeding; exhaust-snapshot family)
+            if isinstance(decision.action, act.PlayCard) and state.battle is not None:
+                tp = ctx.screen_mem.get("turn_plays")
+                key = (state.run.floor if state.run else -1, state.battle.round)
+                if not isinstance(tp, dict) or tp.get("key") != key:
+                    tp = {"key": key, "n": 0}
+                tp["n"] += 1
+                ctx.screen_mem["turn_plays"] = tp
         return decision
 
     def _combat_inner(self, state: CombatState, ctx: LoopContext) -> Decision | Wait:
@@ -524,11 +532,15 @@ class StandardRouter:
                 or exmem.get("floor") != floor_now):
             exmem = {"round": round_, "floor": floor_now, "pile": pile_now}
             ctx.screen_mem["turn_exhaust0"] = exmem
+        tp = ctx.screen_mem.get("turn_plays")
+        plays_now = (tp["n"] if isinstance(tp, dict)
+                     and tp.get("key") == (floor_now, round_) else 0)
         plan = plan_combat_turn(state, self.config.combat,
                                 used_potion_slots=tuple(pused["slots"]),
                                 hold_aoe_potions=self._aoe_hold(state, ctx),
                                 fight_plan=fp,
-                                exhausted_this_turn=pile_now > exmem["pile"])
+                                exhausted_this_turn=pile_now > exmem["pile"],
+                                plays_this_turn=plays_now)
         if fp and isinstance(plan, Decision) and plan.rationale:
             plan.rationale += f" |plan={fp}"
         if (isinstance(plan, Decision) and isinstance(plan.action, act.UsePotion)

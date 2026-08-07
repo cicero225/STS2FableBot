@@ -1787,7 +1787,9 @@ def test_slow_rounds_down_and_orders_attacks_last() -> None:
                     "Attack", "AnyEnemy")
     st = _beckon_state(3, [strike], enemy_hp=7, hp=60, incoming="0")
     st["battle"]["enemies"][0]["status"] = slow_status
-    d = plan_combat_turn(parse_state(st), w)
+    # 2026-08-07: stacks come from the router-tracked plays-this-turn parameter,
+    # not the cumulative display amount (false lethal #6)
+    d = plan_combat_turn(parse_state(st), w, plays_this_turn=2)
     assert d.scores and d.scores.get("lethal"), d.rationale  # 7 dmg kills the 7-HP body
 
     # sequencing: [Defend, Bludgeon] vs fresh Slow (0 stacks) -- Defend first
@@ -2470,3 +2472,40 @@ def test_duplication_status_seeds_the_armed_state_across_replans() -> None:
     assert (d_armed.scores or {}).get("lethal") == 1.0  # 16x2 = 32 >= 30
     d_plain = plan_combat_turn(st([]), cfg.combat)
     assert not (d_plain.scores or {}).get("lethal")  # 16 < 30
+
+
+def test_slow_display_amount_does_not_inflate_the_multiplier() -> None:
+    """False lethal #6 (audit 2026-08-07): SLOW_POWER's amount is a cumulative
+    display; the effect is per card played THIS TURN. Seeding from the display
+    made every attack read x2 by round 3 -- a 47-damage turn tagged LETHAL vs
+    a 69-HP Effigy, and the 23-damage counterattack landed unblocked."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 1, "floor": 10, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 75, "max_hp": 80, "block": 0,
+                   "energy": 3, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "BASH", "name": "Bash", "type": "Attack",
+                        "cost": "2", "description": "Deal 8 damage. Apply 2 Vulnerable.",
+                        "can_play": True, "target_type": "AnyEnemy"},
+                       {"index": 1, "id": "HEMOKINESIS", "name": "Hemokinesis",
+                        "type": "Attack", "cost": "1",
+                        "description": "Lose 2 HP. Deal 15 damage.",
+                        "can_play": True, "target_type": "AnyEnemy"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "BE_0", "name": "Bygone Effigy", "hp": 69,
+                                "max_hp": 120, "block": 0,
+                                "status": [{"id": "SLOW_POWER", "name": "Slow",
+                                            "amount": 10,
+                                            "description": "Whenever you play a card, "
+                                            "this enemy receives 10% more damage from "
+                                            "Attacks this turn."}],
+                                "intents": [{"type": "attack", "label": "23"}]}]},
+    })
+    d = plan_combat_turn(state, load_policy_config().combat)
+    # 8 + 15x1.1x1.5 = ~33 < 69: no phantom kill from the display amount
+    assert not (d.scores or {}).get("lethal")
