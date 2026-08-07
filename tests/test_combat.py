@@ -2509,3 +2509,39 @@ def test_slow_display_amount_does_not_inflate_the_multiplier() -> None:
     d = plan_combat_turn(state, load_policy_config().combat)
     # 8 + 15x1.1x1.5 = ~33 < 69: no phantom kill from the display amount
     assert not (d.scores or {}).get("lethal")
+
+
+def test_axebot_stock_respawn_blocks_false_fight_over() -> None:
+    """Audit 2026-08-07: Axebot's Stock ('When killed, a new Axebot is summoned
+    in its place', amount = respawns left) made kills read as fight-enders --
+    -25 damage overprediction bucket and phantom fight-over. With the
+    spawns_on_death flag, killing the last visible Axebot is NOT lethal while
+    stock remains."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(stock):
+        status = ([{"id": "STOCK_POWER", "name": "Stock", "amount": stock,
+                    "description": "When killed, a new Axebot is summoned in its "
+                    "place."}] if stock else [])
+        return parse_state({
+            "state_type": "monster", "run": {"act": 3, "floor": 39, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80, "block": 0,
+                       "energy": 2, "status": [],
+                       "hand": [{"index": 0, "id": "BLUDGEON", "name": "Bludgeon",
+                                 "type": "Attack", "cost": "2",
+                                 "description": "Deal 32 damage.",
+                                 "can_play": True, "target_type": "AnyEnemy"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "AX_0", "name": "Axebot", "hp": 20,
+                                    "max_hp": 72, "block": 0, "status": status,
+                                    "intents": [{"type": "attack", "label": "13"}]}]},
+        })
+
+    cfg = load_policy_config()
+    d_stock = plan_combat_turn(st(2), cfg.combat)
+    assert not (d_stock.scores or {}).get("lethal")  # respawn coming: not over
+    d_last = plan_combat_turn(st(0), cfg.combat)
+    assert (d_last.scores or {}).get("lethal") == 1.0  # no stock: a real kill

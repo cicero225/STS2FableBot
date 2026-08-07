@@ -120,9 +120,22 @@ def audit(paths, min_n: int):
                     hp_buckets[("status", statuses)].append((pred_loss, actual_loss))
 
             # --- DAMAGE check: the FIRST plan of the turn covers the whole turn
-            pred_dmg = (first_plan.get("scores") or {}).get("plan_damage")
-            if pred_dmg is None:
+            # DAMAGE frame fix (2026-08-07, mirror of the HP-channel fix): the
+            # first plan can't see mid-turn additions (cards drawn and played
+            # via replans, generated attacks, potions), which produced a
+            # near-uniform 'dealt MORE than predicted' residue. Frame-aligned
+            # estimator: damage already dealt by the LAST plan's poll (enemy HP
+            # lost so far this turn) + that plan's remaining projection.
+            last_pd = (last.get("scores") or {}).get("plan_damage")
+            first_pd = (first_plan.get("scores") or {}).get("plan_damage")
+            if last_pd is None or first_pd is None:
                 continue
+            e_last = {e["entity_id"]: e for e in
+                      last["state"]["battle"].get("enemies") or []}
+            dealt_so_far = sum(
+                max(0, e0[k]["hp"] - e_last[k]["hp"]) if k in e_last else e0[k]["hp"]
+                for k in e0)
+            pred_dmg = dealt_so_far + last_pd
             # A Heal intent makes the HP-delta channel lie (Knowledge Demon healed ~30/
             # cycle: a 29-damage turn read as -16 "dealt") — those turns are accounting
             # noise, not model error; skip them rather than pollute the buckets.

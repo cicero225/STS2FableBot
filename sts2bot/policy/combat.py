@@ -750,6 +750,14 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
             low_desc = (p.description or "").lower()
             if "INFESTED" in p.id.upper() or ("dying" in low_desc and "summon" in low_desc):
                 spawns_on_death = True
+            # Axebot's Stock (audit 2026-08-07, -25 damage overprediction):
+            # 'When killed, a new Axebot is summoned in its place', amount =
+            # respawns left. A kill with stock remaining is NOT fight progress
+            # the way the sim thought -- _fight_over already refuses wins over
+            # dead spawners, so the flag alone fixes false lethals too.
+            if ("when killed" in low_desc and "summoned" in low_desc
+                    and (p.amount or 0) > 0):
+                spawns_on_death = True
         for i in e.intents:
             text = f"{i.type or ''} {i.title or ''} {i.description or ''}".lower()
             if (i.type or "").lower() == "buff" and (
