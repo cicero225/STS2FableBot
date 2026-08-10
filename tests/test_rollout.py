@@ -355,3 +355,22 @@ def test_every_fightenemy_field_reaches_the_rollout() -> None:
     mapped = set(_re.findall(r"e\.(\w+)", src))
     missing = [f.name for f in dataclasses.fields(FightEnemy) if f.name not in mapped]
     assert not missing, f"FightEnemy fields invisible to the rollout: {missing}"
+
+
+def test_wg_eruption_is_delayed_and_blockable_not_instant() -> None:
+    """WG decode (owner 2026-08-09): 0 HP -> untargetable 'preparing' shell for
+    one turn (deals nothing) -> the accumulated eruption lands as a NORMAL
+    BLOCKABLE strike -> the shell dies. The old model charged it instantly and
+    unavoidably at the kill, which over-priced WG fights (audit -22.9 bucket)
+    and could scare low-HP decks away from the kill."""
+    # a deck that kills turn 1: eruption should NOT hit instantly; with enough
+    # block income the eruption turn is survivable where the instant model died
+    deck = ([card("BLUDGEON", cost="3")] * 5
+            + [card("SHRUG_IT_OFF", typ="Skill")] * 5)
+    wg = FightEnemy(hp=25, dps=10, death_damage=15, death_damage_growth=3)
+    r = rollout_fight(deck, [wg], 30, 80, card_effects=FX)
+    # the fight is winnable: the eruption is blockable and the shell then dies
+    assert r.win_rate > 0.0
+    # and the win is not instant-turn-1 with zero consequence either: fights
+    # run at least 3 sim turns (kill + preparing + eruption)
+    assert r.mean_turns >= 3.0

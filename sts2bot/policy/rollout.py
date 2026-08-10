@@ -118,6 +118,12 @@ class _Foe:
     drains: int = 0
     drain_every: int = 0
     surround_bonus: int = 0  # extra dps ONLY while 2+ foes live (Kaiser back-attack)
+    # WG decode (owner 2026-08-09): a death-damage foe at 0 HP does NOT explode
+    # instantly -- it becomes an untargetable 'preparing' shell (sentinel HP in
+    # game) for one turn, then delivers the accumulated eruption as a NORMAL
+    # BLOCKABLE strike, then dies. erupting counts down 2 -> 1 -> dead.
+    erupting: int = 0
+    erupt_dmg: int = 0
     atk_mult: float = 1.0  # Flutter-class: attack damage it takes is scaled by this
     # rollout-parity audit 2026-08-03 (owner: 'may be worth a full audit'): the
     # last two FightEnemy fields the rollout never consumed.
@@ -341,7 +347,8 @@ class _RolloutSim:
 
     def targets(self):
         # what's actually on the field: alive AND spawned
-        return [f for f in self.foes if f.hp > 0 and not f.dormant]
+        return [f for f in self.foes
+                if f.hp > 0 and not f.dormant and not f.erupting]
 
     def best_target(self):
         # "sweep" (default): lowest-HP body first — clear the board, shed dps.
@@ -453,8 +460,15 @@ class _RolloutSim:
                         f.artifact -= 1  # charge eats the debuff (Aeonglass tape)
                     else:
                         f.vuln += pick.fx.vulnerable
-                if f.hp <= 0:
-                    self.hp -= f.death_damage + f.death_damage_growth * self.turn
+                if (f.hp <= 0 and not f.erupting
+                        and (f.death_damage or f.death_damage_growth)):
+                    # delayed blockable eruption, not an instant unavoidable hit
+                    f.hp = 1
+                    f.erupting = 2
+                    f.erupt_dmg = (f.death_damage
+                                   + f.death_damage_growth * self.turn)
+                    f.dps = f.ramp = f.dot = 0
+                    f.str_gained = 0
             self._advance_wave()  # Phrog: killing the leader spawns the next wave
         if pick.shreds_hand:
             # Stoke: exhaust hand, add a random card per exhausted — average-quality
@@ -502,7 +516,8 @@ class _RolloutSim:
         # damage-potion finisher (live lane 5)
         for kind in ("damage", "aoe"):
             tgt = next((f for f in self.foes
-                        if f.counts and f.hp > 0 and not f.dormant), None)
+                        if f.counts and f.hp > 0 and not f.dormant
+                        and not f.erupting), None)
             if tgt is not None and any(k == kind and a >= tgt.hp for k, a in self.belt):
                 tgt.hp = 0
                 self.spend(kind)
@@ -522,8 +537,10 @@ class _RolloutSim:
         # enemy turn (block/heal potions as death-preventers — live lanes 1/5);
         # sleepers don't attack
         rod = self.rfx.get("hp_loss_reduction", 0)  # Tungsten: -1 per attacker
+        strike_erupt = sum(f.erupt_dmg for f in self.foes
+                           if f.hp > 0 and f.erupting == 1)
         n_alive = sum(1 for f in self.foes if f.hp > 0 and not f.dormant)
-        strike = 0
+        strike = strike_erupt
         for f in self.targets():
             if f.sleep > 0:
                 continue
@@ -548,6 +565,11 @@ class _RolloutSim:
         for f in self.foes:
             if f.hp <= 0 or f.dormant:
                 continue
+            if f.erupting:
+                f.erupting -= 1
+                if f.erupting == 0:
+                    f.hp = 0  # the eruption fired above; the shell dies
+                continue
             if f.sleep > 0:
                 f.sleep -= 1  # sleeping: no ramp/heal ticks, just the countdown
                 continue
@@ -565,6 +587,9 @@ class _RolloutSim:
             if f.death_timer and self.turn >= f.death_timer:
                 self.outcome = (False, 0)
                 return
+        # an eruption shell that just died may have been the last body standing
+        if self.outcome is None and not self.alive_leaders():
+            self._win()
 
 
 # ---------------------------------------------------------------- turn policies
