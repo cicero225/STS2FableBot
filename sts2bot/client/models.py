@@ -193,6 +193,10 @@ class BaseState(ApiModel):
 
     run: RunInfo | None = None
     player: Player | None = None
+    # passive-/state fork mod (2026-08-10): engine-liveness observables
+    # (process_frames, action_queue_empty, action_queue_next_id, passive_state).
+    # None on pre-fork builds. Consumed by wedge detection; not policy input.
+    engine: dict[str, Any] | None = None
 
     @property
     def kind(self) -> str:
@@ -402,6 +406,9 @@ class ShopInfo(ApiModel):
     items: list[ShopItem] = Field(default_factory=list)
     can_proceed: bool = True
     error: str | None = None  # inventory not ready; retry
+    # passive-/state fork mod (2026-08-10): False = shopkeeper screen up,
+    # inventory closed -- send OpenShopInventory. None = pre-fork mod.
+    inventory_open: bool | None = None
 
 
 class ShopState(BaseState):
@@ -415,6 +422,8 @@ class FakeMerchantInfo(ApiModel):
     started_fight: bool = False
     shop: ShopInfo | None = None
     message: str | None = None
+    # passive-/state fork mod (2026-08-10): see ShopInfo.inventory_open
+    inventory_open: bool | None = None
 
 
 class FakeMerchantState(BaseState):
@@ -426,6 +435,9 @@ class TreasureInfo(ApiModel):
     message: str | None = None  # transitional "Opening chest..." — re-query
     relics: list[Relic] = Field(default_factory=list)
     can_proceed: bool = True
+    # passive-/state fork mod (2026-08-10): the chest no longer auto-opens on
+    # poll; False = send OpenChest. None = pre-fork mod (auto-open behavior).
+    chest_open: bool | None = None
 
 
 class TreasureState(BaseState):

@@ -178,8 +178,54 @@ def play(
                 typer.echo("  handoff done: bot + human halves are in this run's log.")
                 break
             if outcome.status != "completed":
-                typer.echo("  stopping: run did not complete cleanly (C5).")
+                # Fork-mod batch resilience (2026-08-10, after the treasure wedge
+                # killed two 40-run batches in 24h): abandon_run is a direct
+                # RunManager teardown that bypasses the wedged action queue. On
+                # pre-fork builds the action errors and we halt exactly as before.
+                typer.echo("  run did not complete cleanly (C5); "
+                           "attempting abandon-to-menu recovery...")
+                if _try_abandon_recovery(client):
+                    typer.echo("  recovered to main menu; batch continues.")
+                    continue
+                typer.echo("  stopping: abandon recovery unavailable or failed (C5).")
                 break
+
+
+def _try_abandon_recovery(client: Sts2Client, timeout_s: float = 45.0) -> bool:
+    """Recover a stall-aborted run to the main menu via the fork mod's abandon_run
+    (direct RunManager.Abandon teardown -- works where UI clicks are void because it
+    never enters the wedged action queue). Returns True once the menu is reached.
+    Pre-fork mod builds answer 'Unknown action' -> False, batch halts as before.
+    Caveat recorded up front: a HARD engine freeze (frames stopped) may swallow
+    even this; the stall-abort report + manual force-close remains the backstop."""
+    import time as _time
+
+    from sts2bot.client import actions as act
+
+    try:
+        res = client.act(act.AbandonRun())
+    except Exception:
+        return False
+    if getattr(res, "status", None) != "ok":
+        return False
+    deadline = _time.monotonic() + timeout_s
+    while _time.monotonic() < deadline:
+        try:
+            st = client.get_state()
+        except Exception:
+            _time.sleep(1.0)
+            continue
+        stt = getattr(st, "state_type", None)
+        if stt == "menu":
+            return True
+        if stt == "game_over":
+            # Abandon lands on the game-over screen; step through to the menu
+            import contextlib
+
+            with contextlib.suppress(Exception):
+                client.act(act.MenuSelect(option="main_menu"))
+        _time.sleep(1.0)
+    return False
 
 
 @app.command()

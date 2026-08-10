@@ -311,6 +311,10 @@ class TrivialRouter:
         return Wait(reason="rest site with nothing enabled and no proceed")
 
     def _shop(self, state: ShopState, ctx: LoopContext) -> Decision | Wait:
+        # passive-/state fork mod: shopkeeper screen persists until we open
+        if state.shop.inventory_open is False:
+            return Decision(action=act.OpenShopInventory(),
+                            rationale="open shop inventory (passive mod)")
         if state.shop.error:
             return Wait(reason=f"shop inventory not ready: {state.shop.error}")
         return Decision(action=act.Proceed(), rationale="trivial policy buys nothing")
@@ -320,6 +324,21 @@ class TrivialRouter:
 
     def _treasure(self, state: TreasureState, ctx: LoopContext) -> Decision | Wait:
         t = state.treasure
+        # Passive-/state fork mod (2026-08-10): the chest no longer auto-opens on
+        # every poll (the old auto-click barrage is the prime re-entrancy suspect
+        # for the claim wedge that killed two batches). Open it EXPLICITLY, gently:
+        # one click, an 8-poll dwell before any retry, 3 attempts max, then let
+        # the stall rail abort. chest_open None = pre-fork mod, old flow below.
+        if t.chest_open is False:
+            tick = ctx.screen_mem.get("chest_open_tick", 0)
+            ctx.screen_mem["chest_open_tick"] = tick + 1
+            if tick // 8 >= 3:
+                return Wait(reason="chest open unresolvable after 3 attempts; "
+                                   "letting the stall rail abort")
+            if tick % 8 == 0:
+                return Decision(action=act.OpenChest(),
+                                rationale=f"open chest (attempt {tick // 8 + 1}/3)")
+            return Wait(reason="chest opening (passive mod)")
         # Wait through the chest's transitional "Opening chest..." state -- `can_proceed` defaults
         # True, so without this guard the bot fires a *premature* proceed before the relic even
         # appears, racing the open/upgrade animation and freezing the map node (esp. at high speed:
@@ -350,6 +369,7 @@ class TrivialRouter:
             )
         ctx.screen_mem.pop("chest_settle", None)
         ctx.screen_mem.pop("chest_claims", None)
+        ctx.screen_mem.pop("chest_open_tick", None)
         if t.can_proceed:
             return Decision(action=act.Proceed(), rationale="treasure claimed; proceed")
         return Wait(reason="treasure chest still opening")

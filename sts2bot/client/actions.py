@@ -179,6 +179,20 @@ class CrystalSphereProceed(_ActionBase):
     action: Literal["crystal_sphere_proceed"] = "crystal_sphere_proceed"
 
 
+# fork additions (passive /state + wedge recovery, 2026-08-10). On pre-fork mod
+# builds these return "Unknown action: ..." -- callers treat that as absence.
+class AbandonRun(_ActionBase):
+    action: Literal["abandon_run"] = "abandon_run"
+
+
+class OpenChest(_ActionBase):
+    action: Literal["open_chest"] = "open_chest"
+
+
+class OpenShopInventory(_ActionBase):
+    action: Literal["open_shop_inventory"] = "open_shop_inventory"
+
+
 Action = (
     MenuSelect
     | PlayCard
@@ -197,6 +211,9 @@ Action = (
     | ChooseRestOption
     | ShopPurchase
     | ClaimTreasureRelic
+    | AbandonRun
+    | OpenChest
+    | OpenShopInventory
     | SelectCard
     | ConfirmSelection
     | CancelSelection

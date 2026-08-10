@@ -5028,3 +5028,58 @@ def test_forecast_dfs_weights_cap_node_budget() -> None:
     assert w.max_sequences < r.config.combat.max_sequences
     # untouched: the live planner's weights
     assert r.config.combat.max_sequences == 4000
+
+
+def test_passive_mod_chest_opens_explicitly_and_gently() -> None:
+    """Passive-/state fork mod (2026-08-10): the chest no longer auto-opens on
+    poll (the auto-click barrage on every /state was the prime re-entrancy
+    suspect for the treasure wedge -- 2 batch kills in 24h). With chest_open
+    False the bot sends open_chest ONCE, dwells 8 polls between retries, caps
+    at 3 attempts, then Waits into the stall rail. Pre-fork payloads (no
+    chest_open field) keep the old flow untouched."""
+    from sts2bot.policy.base import Wait
+
+    payload = json.loads(json.dumps(FIXTURES["treasure"]))
+    payload["treasure"]["message"] = "Chest unopened; send open_chest"
+    payload["treasure"]["chest_open"] = False
+    payload["treasure"]["relics"] = []
+    r = router()
+    ctx = LoopContext()
+    seq = []
+    for _ in range(30):  # chest never opens: worst case
+        d = r.decide(parse_state(payload), ctx)
+        seq.append("wait" if isinstance(d, Wait) else d.action.payload()["action"])
+    assert seq[0] == "open_chest"
+    assert seq.count("open_chest") == 3          # gentle retries, capped
+    assert seq[8] == "open_chest" and seq[16] == "open_chest"  # 8-poll dwell
+    assert all(a == "wait" for a in seq[24:])    # stall-rail territory
+
+
+def test_passive_mod_shop_opens_inventory_first() -> None:
+    """Passive-/state fork mod: the shopkeeper screen persists (no auto-open on
+    poll); the router opens the inventory explicitly before shopping."""
+    payload = json.loads(json.dumps(FIXTURES["shop"]))
+    payload["shop"]["inventory_open"] = False
+    d = router().decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] == "open_shop_inventory"
+
+
+def test_fork_action_payloads() -> None:
+    from sts2bot.client import actions as act
+
+    assert act.AbandonRun().payload() == {"action": "abandon_run"}
+    assert act.OpenChest().payload() == {"action": "open_chest"}
+    assert act.OpenShopInventory().payload() == {"action": "open_shop_inventory"}
+
+
+def test_engine_liveness_parses_and_is_optional() -> None:
+    """engine dict (fork liveness) parses when present, None on pre-fork payloads."""
+    payload = json.loads(json.dumps(FIXTURES["treasure"]))
+    st = parse_state(payload)
+    assert st.engine is None
+    payload["engine"] = {"process_frames": 123456, "action_queue_empty": False,
+                         "action_queue_next_id": 42, "passive_state": True}
+    st2 = parse_state(payload)
+    assert st2.engine["action_queue_empty"] is False
+    assert st2.engine["passive_state"] is True

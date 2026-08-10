@@ -3009,6 +3009,14 @@ class StandardRouter:
 
     def _shop(self, state: ShopState, ctx: LoopContext) -> Decision | Wait:
         w = self.config.shop
+        # Passive-/state fork mod (2026-08-10): the shopkeeper screen now PERSISTS
+        # until we open the inventory (the old auto-open on poll is gone). Open
+        # explicitly; the stable shopkeeper window also obsoletes the blind Foul
+        # throw timing dance eventually (orchestrator keeps the blind hook for
+        # pre-fork builds; on the fork the throw can land aimed, later refinement).
+        if state.shop.inventory_open is False:
+            return Decision(action=act.OpenShopInventory(),
+                            rationale="open shop inventory (passive mod)")
         if state.shop.error:
             return Wait(reason=f"shop inventory not ready: {state.shop.error}")
         player = state.player
