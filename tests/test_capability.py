@@ -380,3 +380,18 @@ def test_knights_compose_as_the_full_trio() -> None:
     assert len(trio) == 3 and sum(e.hp for e in trio) == 276
     solo = elite_fight_members("Mecha Knight", bestiary["Mecha Knight"], bestiary, dps=29)
     assert len(solo) == 1 and solo[0].hp == 300
+
+
+def test_bestiary_sentinel_hp_falls_back_to_real_observation() -> None:
+    """2026-08-10 (found via the owner's slow-map-decision report): WG's
+    eruption 'preparing' phase displays HP 2^32-1 and the harvest recorded it
+    as max HP (hp [240, 999999999]) -- every WG forecast read unkillable and
+    win_rate 0.0 poisoned routing/desperation whenever WG was the act boss.
+    A sentinel-sized max (>=1e8, the combat sim's invincibility threshold)
+    now falls back to the LOW observed HP."""
+    entry = {"hp": [240, 999999999], "statuses": {}}
+    e = bestiary_enemy(entry, dps=24, name="Waterfall Giant")
+    assert e.hp == 240
+    # honest big-but-real HP is untouched
+    e2 = bestiary_enemy({"hp": [240, 400], "statuses": {}}, dps=24, name="X")
+    assert e2.hp == 400

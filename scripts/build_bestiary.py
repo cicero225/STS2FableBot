@@ -50,6 +50,11 @@ def main() -> int:
                 if act is not None:
                     ent["acts"].add(act)
                 mhp = e.get("max_hp")
+                if mhp and mhp >= 1e8:
+                    # WG eruption 'preparing' sentinel (2^32-1 shown as HP):
+                    # not a real max-HP observation -- recording it once made
+                    # every WG forecast read unkillable (caught 2026-08-10)
+                    mhp = None
                 if mhp:
                     ent["hp_min"] = mhp if ent["hp_min"] is None else min(ent["hp_min"], mhp)
                     ent["hp_max"] = mhp if ent["hp_max"] is None else max(ent["hp_max"], mhp)

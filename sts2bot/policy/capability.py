@@ -435,7 +435,16 @@ def bestiary_enemy(entry: dict, *, dps: int, name: str = "", **overrides: Any) -
     per-act estimate; HP and the mechanics are the real, race-relevant parts. Entries carry no
     name (the bestiary is name-keyed), so callers pass it for the _EMPIRICAL_MOVES lookup.
     `overrides` win."""
-    hp = (entry.get("hp") or [None, None])[1] or 1
+    hp_lo, hp_hi = (entry.get("hp") or [None, None])[:2]
+    # Sentinel guard (found 2026-08-10 via the slow-map-decision hunt): WG's
+    # eruption 'preparing' phase displays HP 2^32-1, and the harvest recorded it
+    # as the boss's max HP (240 -> 999999999) -- every WG forecast read
+    # unkillable (win 0.0), poisoning routing/desperation whenever WG was the
+    # act boss. The live combat sim already treats >=1e8 as the invincible
+    # sentinel; apply the same threshold here and fall back to the LOW seen HP.
+    hp = hp_hi or 1
+    if hp >= 1e8:
+        hp = hp_lo or 1
     flags = detect_mechanics(list((entry.get("statuses") or {}).values()))
     for key, move_flags in _EMPIRICAL_MOVES.items():
         if key in name.upper():
