@@ -57,7 +57,7 @@ from sts2bot.policy.drafttags import (
     load_event_choices,
     score_adjustment,
 )
-from sts2bot.policy.rollout import rollout_fight
+from sts2bot.policy.rollout import _EXHAUST_SELF, rollout_fight
 from sts2bot.policy.textparse import (
     HITS_EVERYONE,
     parse_card_description,
@@ -270,6 +270,13 @@ def _act1_region(boss_name: str | None) -> str | None:
 # filed for the Silent pass, it needs discard-priority handling, not exhaust.)
 _WANTS_EXHAUST_RE = re.compile(
     r"in your Exhaust Pile, play it|When this card is Exhausted", re.IGNORECASE)
+
+# Enchant riders as they render appended to card text (Spiral shows as
+# "Replay N" -- live shape 2026-07-12). Used only to tell an enchanted basic
+# from its plain twin on permanent-removal screens.
+_ENCHANT_TEXT_RE = re.compile(
+    r"\b(nimble|sharp|slither|swift|sown|adroit|momentum|imbued"
+    r"|perfect fit|replay \d)\b", re.IGNORECASE)
 
 
 class StandardRouter:
@@ -2525,6 +2532,22 @@ class StandardRouter:
                 return max(candidates,
                            key=lambda c: (slither_cost(c),
                                           self._card_quality(c, character)))
+            # Nimble enchant (owner live catch 2026-08-09: the bot Nimble'd
+            # Impervious 'Gain 30 Block. Exhaust.'): the rider pays out every
+            # PLAY, so play-frequency across the run beats card quality. A
+            # self-exhausting blocker fires once per fight and usually
+            # overblocks -- worse value than a plain Defend. Prefer block
+            # cards; among those, sticking around beats premium-but-
+            # exhausting. (True multi-block cards would be the dream target;
+            # Ironclad has none today, so there's nothing to detect.)
+            if "nimble" in prompt:
+                def nimble_key(c):
+                    fxc = parse_card_description(c.description)
+                    blocky = 1 if fxc.block > 0 else 0
+                    sticky = int(bool(blocky) and not
+                                 _EXHAUST_SELF.search(c.description or ""))
+                    return (blocky, sticky, self._card_quality(c, character))
+                return max(candidates, key=nimble_key)
             # Upgrade the card that GAINS the most (Spirebird upgraded-vs-base delta),
             # tie-broken by base quality; missing deltas default to a typical gain.
             # Boss-aware Smith (owner lever 2026-07-17): an upgrade that pushes an
@@ -2605,6 +2628,15 @@ class StandardRouter:
             if (prefer_worst and "discard" in prompt and (c.type or "") == "Curse"
                     and "retain" in (c.description or "").lower()):
                 q += 30.0  # curse -100 -> -70: after junk, before anything playable
+            # Enchanted basics go LAST among basics on permanent removal
+            # (owner 2026-08-09: the enchant is a small permanent asset --
+            # strip the plain Defends first; the Nimble'd twin stays until
+            # it's the only basic left). Scoped to Basic rarity so it can
+            # only reorder twins, never shield a bad card class.
+            if (prefer_worst and (c.rarity or "") == "Basic"
+                    and any(v in prompt for v in ("remove", "destroy", "transform"))
+                    and _ENCHANT_TEXT_RE.search(c.description or "")):
+                q += 5.0  # basics -50 -> -45: after plain basics, before keepers
             return q
 
         chooser = min if prefer_worst else max

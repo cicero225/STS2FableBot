@@ -4952,3 +4952,65 @@ def test_aeonglass_boss_rule_drafts_exhaust_tools() -> None:
     base_rider = r._card_score(rider, 15, "The Ironclad", 3)
     boosted_rider = r._card_score(rider, 15, "The Ironclad", 3, boss_rule=rule)
     assert boosted_rider == base_rider  # 'Exhaust.' rider is not a tool
+
+
+def test_nimble_enchant_prefers_repeatable_block_over_exhausting_premium() -> None:
+    """Owner live catch 2026-08-09: the bot put Nimble on Impervious ('Gain 30
+    Block. Exhaust.'). Nimble pays out on every PLAY, so a self-exhausting
+    blocker triggers once per fight (and usually overblocks) -- worse value
+    than a plain Defend. The picker now takes the best NON-exhausting block
+    card; a plain Defend beats Impervious; Shrug It Off beats the Defend."""
+    r = router()
+
+    class CS:
+        prompt = "Choose a card to Enchant with Nimble 2."
+
+        def __init__(self, cards):
+            self.cards = cards
+
+    class C:
+        def __init__(self, i, cid, name, desc, rarity="Common"):
+            self.index, self.id, self.name = i, cid, name
+            self.cost, self.type, self.rarity = "1", "Skill", rarity
+            self.is_upgraded = False
+            self.description = desc
+
+    imperv = C(0, "IMPERVIOUS", "Impervious", "Gain 30 Block. Exhaust.", "Rare")
+    defend = C(1, "DEFEND_IRONCLAD", "Defend", "Gain 5 Block.", "Basic")
+    shrug = C(2, "SHRUG_IT_OFF", "Shrug It Off", "Gain 8 Block. Draw 1 card.")
+
+    pick = r._pick_target(CS([imperv, defend, shrug]),
+                          prefer_worst=False, character="The Ironclad")
+    assert pick.id == "SHRUG_IT_OFF"
+    # even with only basics available, the exhauster still loses
+    pick = r._pick_target(CS([imperv, defend]),
+                          prefer_worst=False, character="The Ironclad")
+    assert pick.id == "DEFEND_IRONCLAD"
+
+
+def test_remove_strips_plain_basic_before_enchanted_twin() -> None:
+    """Owner 2026-08-09: an enchanted basic is a small permanent asset -- on
+    permanent removal screens the plain Defend goes first and the Nimble'd
+    twin last. (In practice you rarely remove ALL basics, so the enchanted
+    one effectively never gets stripped.)"""
+    r = router()
+
+    class CS:
+        prompt = "Choose a card to Remove."
+
+        def __init__(self, cards):
+            self.cards = cards
+
+    class C:
+        def __init__(self, i, cid, desc):
+            self.index, self.id, self.name = i, cid, "Defend"
+            self.cost, self.type, self.rarity = "1", "Skill", "Basic"
+            self.is_upgraded = False
+            self.description = desc
+
+    plain = C(0, "DEFEND_IRONCLAD", "Gain 5 Block.")
+    enchanted = C(1, "DEFEND_IRONCLAD", "Gain 5 Block. Nimble 2.")
+    pick = r._pick_target(CS([enchanted, plain]),
+                          prefer_worst=True, character="The Ironclad")
+    assert pick.index == 0 or pick.description == "Gain 5 Block."
+    assert "Nimble" not in pick.description
