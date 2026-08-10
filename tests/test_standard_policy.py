@@ -5014,3 +5014,17 @@ def test_remove_strips_plain_basic_before_enchanted_twin() -> None:
                           prefer_worst=True, character="The Ironclad")
     assert pick.index == 0 or pick.description == "Gain 5 Block."
     assert "Nimble" not in pick.description
+
+
+def test_forecast_dfs_weights_cap_node_budget() -> None:
+    """2026-08-10 (owner: 'this run takes unusually long at every node'):
+    forecast DFS rollouts hit the live 4000-node cap on every simulated turn
+    with branchy decks -- one fresh boss estimate ~19s, re-paid per deck
+    change (~38% of the run's wall time). Forecasts use a tightened budget;
+    live in-fight planning keeps the full cap."""
+    r = router()
+    w = r._dfs_forecast_weights
+    assert w.max_sequences == r.config.map.rollout_dfs_max_sequences
+    assert w.max_sequences < r.config.combat.max_sequences
+    # untouched: the live planner's weights
+    assert r.config.combat.max_sequences == 4000

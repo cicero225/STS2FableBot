@@ -1441,7 +1441,8 @@ class StandardRouter:
                             card_effects=self.card_effects,
                             potions=player.potions, relics=player.relics,
                             n=self.config.map.dfs_boss_rollout_n,
-                            policy="dfs", combat_weights=self.config.combat,
+                            policy="dfs",
+                            combat_weights=self._dfs_forecast_weights,
                             timing_out=timing,
                         )
                         est_boss_loss = max_hp - roll.exp_end_hp
@@ -2208,6 +2209,20 @@ class StandardRouter:
                 or n_fought - seen_at[name.upper()] >= 3)
         ]
 
+    @property
+    def _dfs_forecast_weights(self):
+        """Combat weights for FORECAST DFS rollouts (boss pricing): the live
+        max_sequences cap, tightened to map.rollout_dfs_max_sequences. See the
+        config comment -- forecast turns hit the full cap on branchy decks and
+        one boss refresh cost ~19s of map-decision stall."""
+        w = getattr(self, "_dfs_forecast_weights_cache", None)
+        if w is None:
+            w = self.config.combat.model_copy(update={"max_sequences": min(
+                self.config.combat.max_sequences,
+                self.config.map.rollout_dfs_max_sequences)})
+            self._dfs_forecast_weights_cache = w
+        return w
+
     def _dfs_boss_loss(self, ctx: LoopContext, player, cur_act: int) -> float | None:
         """P2b: THIS deck vs THIS boss loss estimate for the pre-boss rest gate,
         sharing the map block's cache (warm in practice — a map screen precedes every
@@ -2234,7 +2249,8 @@ class StandardRouter:
                              card_effects=self.card_effects, potions=player.potions,
                              relics=player.relics,
                              n=self.config.map.dfs_boss_rollout_n,
-                             policy="dfs", combat_weights=self.config.combat)
+                             policy="dfs",
+                             combat_weights=self._dfs_forecast_weights)
         loss = max_hp - roll.exp_end_hp
         cache[key] = loss
         return loss

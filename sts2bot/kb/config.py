@@ -84,10 +84,10 @@ class CombatWeights(_Section):
     # the draw credit -- the zero-damage-credit rule alone wasn't a penalty).
     # Sized near her per-turn threat; a kill or big burst still clears it.
     w_wake_sleeper: float = -16.0  # > poke+rider (~15); bursts (25+) clear it
-    w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
-    # gamble cards (Infernal Blade+/Discovery): reveal EARLY so the rest of the
-    # turn can use what they generate (owner 2026-08-03) -- per remaining card,
-    # sized as a tie-break well below any real effect
+    w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
+    # gamble cards (Infernal Blade+/Discovery): reveal EARLY so the rest of the
+    # turn can use what they generate (owner 2026-08-03) -- per remaining card,
+    # sized as a tie-break well below any real effect
     w_reveal_early: float = 0.2
     w_ramp_damage: float = 1.5  # extra value for damaging strength-gaining enemies (race them)
     # Fight-open plan selection (Kin A/B 2026-07-30: owner's scaling deck killed
@@ -219,6 +219,15 @@ class MapWeights(_Section):
     # closed form.
     use_dfs_boss_rollouts: bool = True
     dfs_boss_rollout_n: int = 8
+    # Forecast-DFS node budget (2026-08-10, owner noticed slow map decisions):
+    # branchy decks (Offering/Pommel draw + double Bloodletting energy) hit the
+    # live 4000-node cap on EVERY simulated turn, so one fresh boss estimate ran
+    # 8 rollouts x ~4 turns x 4000 nodes ~= 19s -- re-paid per deck change
+    # (~38% of that run's wall time went to map decisions). Forecasts need
+    # representative play, not optimal: 800 nodes reproduced identical
+    # win/turns/HP verdicts on both probe fights (Queen a3 deck, Insatiable a2
+    # deck) at ~5x speed. Live in-fight planning keeps the full max_sequences.
+    rollout_dfs_max_sequences: int = 800
     # §5-C elite gate: chase an elite only if the deck wins it (at full HP) with at least this HP
     # fraction left — a pyrrhic 2-HP win is a loss for the next node, so don't chase it.
     # 0.30 -> 0.20 (A/B #5): a 20%-HP win + relic beat our 90%-HP no-relic arrival.
