@@ -33,7 +33,7 @@ import time as _time
 import zlib
 from dataclasses import dataclass
 
-from sts2bot.policy.capability import FightEnemy
+from sts2bot.policy.capability import _SANDPIT_TIMER_PAD, FightEnemy
 from sts2bot.policy.textparse import (
     HITS_EVERYONE,
     CardEffects,
@@ -305,7 +305,12 @@ class _RolloutSim:
                           thorns=e.thorns, death_damage=e.death_damage,
                           death_damage_growth=e.death_damage_growth,
                           heals=e.heals_per_turn, dot=e.player_dot_avg,
-                          death_timer=e.death_timer, wave=e.wave,
+                          # Sandpit: pad like the closed form (late application +
+                          # Frantic Escapes) -- racing the RAW deadline read every
+                          # Insatiable forecast as 0% (see capability.py decode)
+                          death_timer=(e.death_timer + _SANDPIT_TIMER_PAD)
+                          if e.death_timer else 0,
+                          wave=e.wave,
                           dormant=e.wave > 0, artifact=e.artifact,
                           sleep=e.sleep_turns,
                           guarded=e.guarded_by_minions,

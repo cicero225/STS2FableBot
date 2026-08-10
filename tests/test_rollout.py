@@ -374,3 +374,21 @@ def test_wg_eruption_is_delayed_and_blockable_not_instant() -> None:
     # and the win is not instant-turn-1 with zero consequence either: fights
     # run at least 3 sim turns (kill + preparing + eruption)
     assert r.mean_turns >= 3.0
+
+
+def test_rollout_sandpit_timer_padded_for_late_application_and_escapes() -> None:
+    """Owner decode (told THREE times -- now canonical in data/enemy_notes.json):
+    Sandpit lands AFTER turn 1 (~turn-5 base expiry) and 6 Frantic Escape status
+    cards extend it +1 turn each at escalating cost (1,2,3...). The closed form
+    padded the deadline; the ROLLOUT raced the raw turn-4 clock, so every
+    Insatiable forecast read 0% while run 20260809-230646 beat it live.
+    Pin: a pure-survival deck against a timed foe dies AT the deadline -- the
+    recorded loss turn shows which clock ran (raw 4 = the bug, padded 8 = fix)."""
+    deck = [card("SHRUG_IT_OFF", typ="Skill")] * 10
+    timed = FightEnemy(hp=170, dps=1, death_timer=4)
+    r = rollout_fight(deck, [timed], 80, 80, card_effects=FX)
+    assert r.win_rate == 0.0
+    assert r.mean_turns >= 7.5  # eaten at the padded deadline, not the raw 4
+    # no timer: the same unkillable stall runs to the sim cap instead
+    r2 = rollout_fight(deck, [FightEnemy(hp=170, dps=1)], 80, 80, card_effects=FX)
+    assert r2.mean_turns > r.mean_turns

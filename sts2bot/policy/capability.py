@@ -40,11 +40,20 @@ def load_card_descriptions(path: Path | str | None = None) -> dict[str, str]:
 # deck that *can* apply it is credited an uptime-averaged multiplier rather than the full 1.5.
 _VULN_DAMAGE_MULT = 1.3
 
-# The Insatiable's Sandpit timer is *extendable*: it shuffles in 6 Frantic Escape cards, each of
-# which raises the counter (at escalating cost). The one-turn planner plays them opportunistically
-# (0-value cards go late in a sequence), so the real race window is ~6-8 turns, not the base ~4 —
-# pad the parsed deadline by this much. (Optimal Frantic-Escape timing is a later refinement.)
-_SANDPIT_SLACK = 3
+# The Insatiable's Sandpit clock -- full owner decode (this took THREE tellings across
+# context windows; the canonical record now lives in data/enemy_notes.json, grep there
+# before modeling or asking):
+#   - Sandpit ("In 4 turns, you will be eaten and die.") is applied AFTER turn 1, so
+#     the base expiry is ~turn 5, not 4 (owner 2026-08-10);
+#   - it seeds the deck with 6 unique Frantic Escape status cards: playing one buys
+#     +1 turn, and each play raises its own energy cost by 1 (starting at 1) -- so
+#     ~3 plays (1+2+3 energy total) is the realistic extension, not all 6;
+#   - the Demise power sometimes harvested alongside it is OUR Powdered Demise
+#     potion's status, not a fight feature (owner 2026-08-10) -- do not model decay.
+# Effective window = parsed 4 + 1 (late application) + ~3 (escapes) ~= 8. Both the
+# closed form AND the rollout pad by this; the rollout raced the RAW deadline until
+# 2026-08-10 and read every Insatiable forecast as 0% (run 20260809-230646 won live).
+_SANDPIT_TIMER_PAD = 4
 
 
 @dataclass(frozen=True)
@@ -165,7 +174,7 @@ def estimate_fight(
     drain_every = max((e.drain_every for e in leaders if e.drains_player), default=0)
     death_timer = min((e.death_timer for e in leaders if e.death_timer), default=0)  # race-or-die
     if death_timer:
-        death_timer += _SANDPIT_SLACK  # extendable via Frantic Escape -> the real window is longer
+        death_timer += _SANDPIT_TIMER_PAD  # late application + Frantic Escapes (see decode above)
     # phased fights (wave>0): only one wave is on the field at a time, so concurrent
     # threat is the heaviest wave's total, not the sum of all bodies ever spawned
     wave_dps: dict[int, int] = {}
