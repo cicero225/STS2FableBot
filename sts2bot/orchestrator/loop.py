@@ -119,6 +119,13 @@ class BotStalled(Exception):
 
 
 def _fingerprint(raw: dict[str, Any]) -> str:
+    # Exclude the fork mod's `engine` liveness dict: process_frames increments on
+    # every poll, so hashing it makes every state look "changed" and the stall
+    # rail NEVER fires (live own-goal 2026-08-10: a treasure wedge sat for 12+
+    # minutes at seq 10k+ waits, owner-caught, because the rail that should have
+    # aborted the run was blinded by the very fields added to detect wedges).
+    if "engine" in raw:
+        raw = {k: v for k, v in raw.items() if k != "engine"}
     return hashlib.sha1(json.dumps(raw, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
