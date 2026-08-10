@@ -1880,9 +1880,13 @@ def plan_combat_turn(
             # rider, so never play it while other cards remain in hand --
             # counting unplayables too (a Wither in hand keeps the condition
             # false in-game as well). As the true last card it fires and the
-            # DFS can sequence it as a refuel finisher. (A Runic Pyramid-style
-            # no-discard relic would flip this into a hand-clearing play; no
-            # such relic in the seen pool yet -- revisit if one shows up.)
+            # DFS can sequence it as a refuel finisher.
+            # KNOWN GAP (owner, deferred 2026-08-10): under Runic Pyramid
+            # ("no longer discard your Hand" -- IS in the pool: 32 logged
+            # runs, held twice, relic_notes RUNIC_PYRAMID) the right move
+            # flips to playing it as a hand-space clear. Needs hand-space
+            # valuation (likely the multiturn planner); until then Pyramid
+            # runs just hold it.
             if (card.fx.requires_empty_hand and card.potion_slot is None
                     and sim.hand_size - (len(sim.played) - sim.potions_spent) - 1 > 0):
                 continue
