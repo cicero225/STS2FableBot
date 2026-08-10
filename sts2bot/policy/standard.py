@@ -200,6 +200,13 @@ _BOSS_DRAFT_RULES: dict[str, dict] = {
     # hit on zero block every time (largest block instance in all four decks: 5).
     # Opposite attack profile from the Matriarch — which is why the table is boss-keyed.
     "VANTOM": {"min_block": 9, "block_bonus": 2.0, "min_hits": 2, "multihit_bonus": 2.0},
+    # Aeonglass (owner 2026-08-09, terminology untangled): Wither = STATUS CARDS
+    # she shoves into the deck (Beckon-family), removable by anything that
+    # exhausts cards -- True Grit-class targeted picks ideal, Second Wind/Stoke
+    # mass-exhaust fine. 'Ironclad is actually one of the strongest classes at
+    # dealing with her Withers.' The in-fight half is already emergent (Status
+    # ranks with Curses in the worst-picker); this drafts the tools.
+    "AEONGLASS": {"exhaust_tool_bonus": 2.0},
     # Knowledge Demon (f33 recheck 2026-07-18): the heal-race plays him RIGHT (33/turn
     # in one loss, +26 net through his heal) — the deaths were entries at 52-56 HP vs
     # 379 HP + the Disintegration clock (6→13→21/turn), which the generic Act-2 boss
@@ -2068,6 +2075,12 @@ class StandardRouter:
             if fx.aoe and not is_xcost_damage:  # multi-body boss (The Kin)
                 score += boss_rule.get("aoe_bonus", 0.0)
             score += (boss_rule.get("card_bonus") or {}).get((card.id or "").upper(), 0.0)
+            # exhaust TOOLING (Aeonglass Wither-removal): cards that exhaust
+            # OTHER cards -- 'Exhaust a/your/all...' -- not the self-exhaust rider
+            if boss_rule.get("exhaust_tool_bonus") and re.search(
+                    r"exhaust (a|an|any|all|your|up to)",
+                    card.description or "", re.IGNORECASE):
+                score += boss_rule["exhaust_tool_bonus"]
             # tag_bonus: premium for cards PROVIDING a tag this boss values
             # (Soul Fysh: exhaust_enabler deletes his Beckons from the deck)
             if self.draft_tags:

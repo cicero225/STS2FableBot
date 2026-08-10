@@ -4929,3 +4929,26 @@ def test_beetle_juice_waits_for_a_damaging_intent_and_respects_artifact() -> Non
     art = {"id": "ARTIFACT_POWER", "name": "Artifact", "amount": 2, "description": ""}
     d2 = r.decide(st({"type": "attack", "label": "24"}, status=[art]), LoopContext())
     assert d2.action.payload().get("action") != "use_potion"
+
+
+def test_aeonglass_boss_rule_drafts_exhaust_tools() -> None:
+    """Owner 2026-08-09: Aeonglass's Wither = STATUS CARDS in the deck, removed
+    by exhaust tooling (True Grit-class targeted picks ideal). With her as the
+    known boss, exhaust-tool cards get the draft bonus; self-exhaust riders
+    ('Exhaust.') do not qualify."""
+    r = router()
+    from sts2bot.client.models import Card
+    grit = Card(index=0, id="TRUE_GRIT", name="True Grit", type="Skill", cost="1",
+                rarity="Common",
+                description="Gain 7 Block. Exhaust a card in your hand.")
+    rider = Card(index=1, id="LUMINESCE", name="Luminesce", type="Skill", cost="1",
+                 rarity="Common", description="Gain 2 Energy. Exhaust.")
+    from sts2bot.policy.standard import _boss_draft_rule
+    rule = _boss_draft_rule("Aeonglass")
+    assert rule and rule.get("exhaust_tool_bonus")
+    base_grit = r._card_score(grit, 15, "The Ironclad", 3)
+    boosted_grit = r._card_score(grit, 15, "The Ironclad", 3, boss_rule=rule)
+    assert abs((boosted_grit - base_grit) - rule["exhaust_tool_bonus"]) < 1e-6
+    base_rider = r._card_score(rider, 15, "The Ironclad", 3)
+    boosted_rider = r._card_score(rider, 15, "The Ironclad", 3, boss_rule=rule)
+    assert boosted_rider == base_rider  # 'Exhaust.' rider is not a tool
