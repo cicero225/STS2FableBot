@@ -1,0 +1,62 @@
+{
+ "_README": {
+  "purpose": "CANONICAL record of owner-decoded enemy mechanics. Created 2026-08-10 after the Frantic Escape mechanic had to be re-told THREE times across context compactions. Grep HERE before modeling an enemy, filing an owner question, or claiming a mechanic is unknown. Mirror of relic_notes.json for enemies. Append-only in spirit: refine entries, never drop owner facts.",
+  "conventions": "mechanic = owner decode (near-verbatim, dated). modeled = where the code implements it. gaps = known approximations / open questions.",
+  "harvest_trap": "bestiary.json 'statuses' include PLAYER-INFLICTED effects (our potions/cards land as statuses on the enemy): Demise = our Powdered Demise potion, Shackling Potion, Mangle, Weak/Vulnerable etc. Never read a bestiary status as an innate fight feature without checking it isn't ours (owner 2026-08-10)."
+ },
+ "The Insatiable": {
+  "mechanic": "Sandpit ('In 4 turns, you will be eaten and die.') is applied AFTER turn 1, so base expiry ~turn 5. It also seeds the deck with 6 unique Frantic Escape status cards: playing one increases the timer by 1, and each play increases its own energy cost by 1, starting from 1 (owner 2026-08-10; third telling -- earlier tellings were encoded only in capability.py's closed-form pad). Demise on this boss in harvests = our Powdered Demise potion, NOT innate.",
+  "modeled": "capability._SANDPIT_TIMER_PAD (=4: +1 late application, +~3 affordable escapes) pads the deadline in BOTH estimate_fight and the rollout (rollout raced the raw 4 until 2026-08-10 -> 0% forecasts while run 20260809-230646 won live).",
+  "gaps": "Escapes are a flat pad, not simulated plays (their escalating energy isn't debited); optimal escape timing is a multiturn-planner problem."
+ },
+ "Waterfall Giant": {
+  "mechanic": "0 HP -> does NOT die or explode instantly: becomes an untargetable 'preparing' shell whose HP displays as infinity (actually 2^32-1), does nothing that turn. Next player turn its intent = Steam Eruption sized by the stacks accumulated all fight (+3 per most of its moves), delivered as a NORMAL BLOCKABLE attack on ITS turn, then it dies. If it reaches 0 on ITS OWN turn (e.g. poison), the preparing phase is its NEXT turn -- one beat later (owner 2026-08-09).",
+  "modeled": "rollout erupting-shell physics c494a72 (kill -> quiet tick -> blockable strike -> death + win check); one-turn planner prices the live eruption via the DeathBlow intent (type filter fix 2026-06-26); bestiary sentinel HP clamped in bestiary_enemy + harvest guard (a9e0449 -- the 2^32-1 display was recorded as max HP and made WG forecasts unkillable).",
+  "gaps": "Poison-timing variant (one-beat shift) not distinguished in the rollout; knockdown card-resolution FREEZE during this phase is the batch-killer hang subclass (PLAN, fork asks)."
+ },
+ "Queen": {
+  "mechanic": "Guarded summoner: while any Torch Head Amalgam minion lives she does not attack -- she Buffs (her awakened dps grows per turn) and re-blocks ~20 self-block. The last minion's death 'wakes' her at the buffed dps; she never resummons. Torch-first is usually right and fast (owner A/B 2026-08-02, both target orders taped). Torch swings ~24.8 realized dps. Demise/Weak/Vulnerable in her harvest = player-inflicted.",
+  "modeled": "capability.FightEnemy guarded_by_minions/awakened_dps/awakened_buff_per_turn; standard._BOSS_SUMMONS + _BOSS_GUARDED wire the 2-body forecast; rollout guarded/awakened physics.",
+  "gaps": "Forecast Torch dps uses the act prior (36) when enemy_dps lacks data -- taped realized was ~24.8; check enemy_dps coverage."
+ },
+ "Lagavulin Matriarch": {
+  "mechanic": "Sleeper: damage dealt while asleep COUNTS (she keeps it), but hitting her wakes her. Waking deliberately is correct when holding a real burst; poking her awake with chip is the sin. Waking is not always wrong (owner). The fight fundamentally punishes one-turn reasoning -- benchmark boss for the multiturn planner.",
+  "modeled": "combat sleeper v3: waking hit pays w_wake_sleeper (-16); sleeping rampers exempt from ramp_damage credit, ramp-stall penalty, and focus-race bias; pokes hold, bursts wake. Rider-pokes deliberately unpinned (owner: judgment call).",
+  "gaps": "Turn-2+ deliberate stall lines need the multiturn planner (spec filed)."
+ },
+ "Axebot": {
+  "mechanic": "Stock: when killed while Stock is active, a replacement Axebot is summoned. The replacement NEVER attacks -- it only buffs -- so assume no additional incoming damage post-'lethal'; lethal shouldn't be over-feared while Stock is active (owner 2026-08-08).",
+  "modeled": "combat spawns_on_death (from 'when killed...summoned' text) kills the false fight-over read; buff-only note in code comment.",
+  "gaps": "Replacement's buff effect on other enemies unmodeled."
+ },
+ "Thieving Hopper": {
+  "mechanic": "Flutter: 'Receives 50% less damage from Attacks.' Unparsed, it produced false lethals (audit find 2026-08-06).",
+  "modeled": "capability._ATK_REDUCTION_RE -> attack_dmg_taken_mult; combat EnemySim + rollout atk_mult.",
+  "gaps": ""
+ },
+ "Bygone Effigy": {
+  "mechanic": "Slow: the displayed amount is CUMULATIVE-so-far; per-play stacking must be seeded from the turn's play count, not the display (audit find, fixed via turn_plays counter).",
+  "modeled": "standard turn_plays counter -> plan_combat_turn plays_this_turn -> slow_stacks seed (display ignored).",
+  "gaps": "Pre-fix audit corpus still echoes the old over-prediction; expected to drain."
+ },
+ "Kaiser Crab": {
+  "mechanic": "Surround: bonus dps when flanking bodies survive (Crusher/Rocket +5 each, empirical). Owner A/B 2026-08-03: the winning line vs the two-claw phase is a feasibility calc on killing Rocket before its turn-4 Laser, not a block rule -- multiturn spec #1.",
+  "modeled": "capability._EMPIRICAL_MOVES surround_bonus_dps; rollout surround_bonus in strike.",
+  "gaps": "Kill-by-Laser-turn feasibility = multiturn planner test case."
+ },
+ "Soul Fysh": {
+  "mechanic": "Player DoT ~4/turn average + 1 str ramp (empirical rows; Underdocks mid-frequency elite).",
+  "modeled": "capability._EMPIRICAL_MOVES SOUL FYSH row (player_dot_avg 4, str_ramp 1).",
+  "gaps": ""
+ },
+ "Lagavulin (classic)": {
+  "mechanic": "Soul Siphon: -2 Str AND -2 Dex per cast, every 4th round post-wake, permanent. A move/intent, not a status (live-traced 2026-07-09).",
+  "modeled": "capability drains_player/drain_every; rollout drains tick; closed-form drained accumulator.",
+  "gaps": ""
+ },
+ "Knowledge Demon": {
+  "mechanic": "Forced in-fight picks arrive as TEXTLESS event options via the API (fork ask #4). Owner's table: Set1 Disintegration(6/turn) vs Mind Rot; Set2 Disi(7) vs Sloth (max 3 cards/turn); Set3 Disi(8) vs Waste Away (-1 energy/turn). Disintegration stacks and is ALWAYS the right pick -- and happens to be option 0, the current blind default.",
+  "modeled": "Blind default option 0 = correct by coincidence; owner table recorded in PLAN fork ask #4.",
+  "gaps": "Real fix needs the fork's option labels; regeneration row also in _EMPIRICAL_MOVES."
+ }
+}

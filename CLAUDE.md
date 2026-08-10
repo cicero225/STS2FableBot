@@ -9,6 +9,12 @@ yet: `sts2bot/llm/` is an empty stub and the bot makes no LLM calls — PLAN P1.
 [PLAN.md](PLAN.md) (architecture, current phase, open items), LOG.md (lab notebook of
 live sessions, once it exists).
 
+**Enemy mechanics:** owner-decoded mechanics live in `data/enemy_notes.json` — grep it
+BEFORE modeling an enemy, filing an owner question, or claiming a mechanic is unknown
+(created after the Frantic Escape decode had to be re-told 3× across context windows).
+New owner decodes get recorded there in the same turn they're given. Trap: bestiary
+`statuses` include effects WE inflicted (potions/cards) — see the file's `_README`.
+
 ## Hard rules
 
 - **C1:** never touch the owner's game profile (bot owns its own modded profile slot).
