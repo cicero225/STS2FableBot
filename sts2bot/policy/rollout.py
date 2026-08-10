@@ -165,6 +165,13 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             or (card_effects or {}).get(f"{cid}|0") or ""
         )
         fx = parse_card_description(text)
+        if fx.requires_empty_hand:
+            # Restlessness: draw/energy fire only on an empty hand. The coarse
+            # deck cycle can't sequence that gate, and crediting the rider on
+            # every play prices a free Adrenaline that isn't there -- model it
+            # as a blank Retain card instead (slightly under, never over).
+            fx.draw = 0
+            fx.energy_gain = 0
         ctype = (getattr(c, "type", "") or "")
         raw_cost = getattr(c, "cost", None)
         try:

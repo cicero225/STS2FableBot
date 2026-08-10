@@ -2545,3 +2545,53 @@ def test_axebot_stock_respawn_blocks_false_fight_over() -> None:
     assert not (d_stock.scores or {}).get("lethal")  # respawn coming: not over
     d_last = plan_combat_turn(st(0), cfg.combat)
     assert (d_last.scores or {}).get("lethal") == 1.0  # no stock: a real kill
+
+
+def test_restlessness_held_until_hand_empties() -> None:
+    """Owner live catch 2026-08-10: Restlessness ('Retain. If your Hand is
+    empty, draw 2 cards and gain [energy][energy].') was played with the
+    condition inactive -- the flat parse credited the rider as a free
+    Adrenaline, so the bot led with it. The rider only fires on the play that
+    EMPTIES the hand: never play it while other cards remain (Retain makes
+    holding free); as the true last card it fires as a refuel finisher."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+    from sts2bot.policy.textparse import parse_card_description
+
+    live_text = ("Retain. If your Hand is empty, draw 2 cards and gain "
+                 "[ironclad_energy_icon.png][ironclad_energy_icon.png].")
+    fx = parse_card_description(live_text)
+    assert fx.requires_empty_hand
+    assert fx.draw == 2 and fx.energy_gain == 2  # values kept; gating is the sim's job
+
+    def st(hand):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 1, "floor": 8, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                       "block": 0, "energy": 3, "status": [],
+                       "hand": hand, "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Toad", "hp": 40,
+                                    "max_hp": 40, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "8"}]}]},
+        })
+
+    restless = {"index": 0, "id": "RESTLESSNESS", "name": "Restlessness",
+                "type": "Skill", "cost": "0", "description": live_text,
+                "can_play": True, "target_type": "None"}
+    strike = {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike",
+              "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+              "can_play": True, "target_type": "AnyEnemy"}
+    wither = {"index": 2, "id": "WITHER", "name": "Wither", "type": "Status",
+              "cost": "-", "description": "Unplayable.", "can_play": False,
+              "target_type": "None"}
+
+    cfg = load_policy_config()
+    # the live bug: Restlessness led the turn with a full hand. Now the Strike leads.
+    d = plan_combat_turn(st([restless, strike]), cfg.combat)
+    assert d.action.payload().get("card_index") == 1
+    # an unplayable Status in hand keeps the condition false FOREVER this turn:
+    # Restlessness must not appear anywhere in the plan (held via Retain)
+    d2 = plan_combat_turn(st([restless, strike, wither]), cfg.combat)
+    assert "Restlessness" not in (d2.rationale or "")

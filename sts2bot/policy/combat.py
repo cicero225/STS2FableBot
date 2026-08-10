@@ -1237,13 +1237,23 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     energy_gain = card.fx.energy_gain
     if card.energy_requires_exhausted and not s.exhausted_this_turn:
         energy_gain = 0
+    # Restlessness (owner 2026-08-10): 'Retain. If your Hand is empty, draw 2
+    # cards and gain [energy][energy].' The rider fires only on the play that
+    # EMPTIES the hand; any earlier play is dead -- the flat parse credited it
+    # as a free Adrenaline and the bot played it with the condition inactive.
+    draw_gain = card.fx.draw
+    if card.fx.requires_empty_hand and card.potion_slot is None:
+        hand_left = state.hand_size - (len(state.played) - state.potions_spent) - 1
+        if hand_left > 0:
+            energy_gain = 0
+            draw_gain = 0
     tripled = (s.my_block + block_gain) * 2 if card.triples_block else 0
     nxt = replace(
         s,
         my_block=s.my_block + block_gain + tripled,
         my_strength=s.my_strength + card.fx.strength,
         strength_gained=s.strength_gained + card.fx.strength,
-        draws=s.draws + (0 if s.no_draw else card.fx.draw),
+        draws=s.draws + (0 if s.no_draw else draw_gain),
         no_draw=s.no_draw or card.blocks_draw,
         energy=s.energy + energy_gain,
         self_damage=s.self_damage + card.fx.self_hp_cost,
@@ -1865,6 +1875,17 @@ def plan_combat_turn(
                 continue
             if sim.smoggy and card.is_skill and sim.n_skills_played >= 1:
                 continue  # Smoggy: only one Skill per turn (Living Fog)
+            # Restlessness-class 'if your Hand is empty' + Retain (owner
+            # 2026-08-10): holding is free and a non-final play fizzles the
+            # rider, so never play it while other cards remain in hand --
+            # counting unplayables too (a Wither in hand keeps the condition
+            # false in-game as well). As the true last card it fires and the
+            # DFS can sequence it as a refuel finisher. (A Runic Pyramid-style
+            # no-discard relic would flip this into a hand-clearing play; no
+            # such relic in the seen pool yet -- revisit if one shows up.)
+            if (card.fx.requires_empty_hand and card.potion_slot is None
+                    and sim.hand_size - (len(sim.played) - sim.potions_spent) - 1 > 0):
+                continue
             rest = remaining[:ci] + remaining[ci + 1 :]
             # Hand-exhausters (Fiend Fire, Stoke): the REST OF THE HAND is gone
             # (owner catch 2026-08-04: the plan read [Fiend Fire > Sword

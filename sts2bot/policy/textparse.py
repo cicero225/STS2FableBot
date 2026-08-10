@@ -112,6 +112,7 @@ _SUMMON_N = re.compile(r"\bSummon (\d+)")
 # is played N ADDITIONAL times for the same cost, so every effect scales by N+1. Live
 # shape captured 2026-07-12 (enchants are appended as a trailing sentence).
 _REPLAY = re.compile(r"\bReplay (\d+)\b")
+_IF_HAND_EMPTY = re.compile(r"\bif your hand is empty\b", re.IGNORECASE)
 # conditional/synergy language the one-turn planner cannot evaluate yet
 _CONDITIONAL = re.compile(
     r"\b(if |when |whenever |after you|for each|next turn|at the start|at the end"
@@ -158,6 +159,11 @@ class CardEffects:
     # before; live 2026-07-25: 0-cost Prolong sat unplayed with block up)
     block_carryover: bool = False
     conditional: bool = False  # has synergy/conditional language the planner can't price
+    # Restlessness-class gate (owner 2026-08-10): "Retain. If your Hand is
+    # empty, draw 2 cards and gain [energy][energy]." Effects parse flat here;
+    # the combat sim fires them only on the play that EMPTIES the hand, and
+    # the rollout zeroes them (its coarse deck cycle can't sequence the gate).
+    requires_empty_hand: bool = False
     # The Gambit-class: a rider that KILLS YOU under conditions no one-turn plan can certify
     # against ("If you take unblocked attack damage this combat, die.") — never play/draft.
     self_death_rider: bool = False
@@ -304,6 +310,7 @@ def parse_card_description(text: str | None) -> CardEffects:
         if "replay" not in fx.recognized:
             fx.recognized.append("replay")
     fx.conditional = bool(_CONDITIONAL.search(full))  # flag reads the FULL text
+    fx.requires_empty_hand = bool(_IF_HAND_EMPTY.search(full))
     return fx
 
 
