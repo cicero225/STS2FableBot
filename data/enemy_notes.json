@@ -2,7 +2,8 @@
  "_README": {
   "purpose": "CANONICAL record of owner-decoded enemy mechanics. Created 2026-08-10 after the Frantic Escape mechanic had to be re-told THREE times across context compactions. Grep HERE before modeling an enemy, filing an owner question, or claiming a mechanic is unknown. Mirror of relic_notes.json for enemies. Append-only in spirit: refine entries, never drop owner facts.",
   "conventions": "mechanic = owner decode (near-verbatim, dated). modeled = where the code implements it. gaps = known approximations / open questions.",
-  "harvest_trap": "bestiary.json 'statuses' include PLAYER-INFLICTED effects (our potions/cards land as statuses on the enemy): Demise = our Powdered Demise potion, Shackling Potion, Mangle, Weak/Vulnerable etc. Never read a bestiary status as an innate fight feature without checking it isn't ours (owner 2026-08-10)."
+  "harvest_trap": "bestiary.json 'statuses' include PLAYER-INFLICTED effects (our potions/cards land as statuses on the enemy): Demise = our Powdered Demise potion, Shackling Potion, Mangle, Weak/Vulnerable etc. Never read a bestiary status as an innate fight feature without checking it isn't ours (owner 2026-08-10).",
+  "card_text_trap": "Live card descriptions carry RUN-SPECIFIC riders appended to base text: enchants (Swift 'Draw N cards the first time this is played', Replay N, Slither...) AND fight effects (owner 2026-08-10: an 'Ethereal.' rider, possibly from the Three Knights fight in Act 3). Never record a single sighting as canonical text -- build_card_effects.py majority-votes per run for this reason. Same family as harvest_trap above."
  },
  "The Insatiable": {
   "mechanic": "Sandpit ('In 4 turns, you will be eaten and die.') is applied AFTER turn 1, so base expiry ~turn 5. It also seeds the deck with 6 unique Frantic Escape status cards: playing one increases the timer by 1, and each play increases its own energy cost by 1, starting from 1 (owner 2026-08-10; third telling -- earlier tellings were encoded only in capability.py's closed-form pad). Demise on this boss in harvests = our Powdered Demise potion, NOT innate.",
@@ -58,5 +59,10 @@
   "mechanic": "Forced in-fight picks arrive as TEXTLESS event options via the API (fork ask #4). Owner's table: Set1 Disintegration(6/turn) vs Mind Rot; Set2 Disi(7) vs Sloth (max 3 cards/turn); Set3 Disi(8) vs Waste Away (-1 energy/turn). Disintegration stacks and is ALWAYS the right pick -- and happens to be option 0, the current blind default.",
   "modeled": "Blind default option 0 = correct by coincidence; owner table recorded in PLAN fork ask #4.",
   "gaps": "Real fix needs the fork's option labels; regeneration row also in _EMPIRICAL_MOVES."
+ },
+ "Knight Trio (Three Knights)": {
+  "mechanic": "Owner 2026-08-10 (hedged 'possibly'): a fight effect in the Act-3 Three Knights encounter adds an Ethereal. rider to cards in hand/deck for the fight -- seen contaminating harvested card texts (Stone Armor+, Bully+, Infernal Blade, Mad Science).",
+  "modeled": "Not modeled in-fight; harvest-side majority vote keeps it out of the canonical catalog.",
+  "gaps": "Confirm the source fight and exact scope (hand? drawn? all?); LETHALITY|0 still majority-votes Ethereal -- genuine card text or heavy rider exposure, owner to eyeball next sighting."
  }
 }
