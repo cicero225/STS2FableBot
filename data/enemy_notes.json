@@ -63,6 +63,6 @@
  "Knight Trio (Three Knights)": {
   "mechanic": "Owner 2026-08-10 (hedged 'possibly'): a fight effect in the Act-3 Three Knights encounter adds an Ethereal. rider to cards in hand/deck for the fight -- seen contaminating harvested card texts (Stone Armor+, Bully+, Infernal Blade, Mad Science).",
   "modeled": "Not modeled in-fight; harvest-side majority vote keeps it out of the canonical catalog.",
-  "gaps": "Confirm the source fight and exact scope (hand? drawn? all?); LETHALITY|0 still majority-votes Ethereal -- genuine card text or heavy rider exposure, owner to eyeball next sighting."
+  "gaps": "Confirm the source fight and exact scope (hand? drawn? all?). LETHALITY question RESOLVED (owner 2026-08-10): it is legitimately Ethereal -- the majority vote was right to keep it."
  }
 }
