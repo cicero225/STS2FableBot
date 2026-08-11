@@ -41,7 +41,7 @@
   "gaps": "Pre-fix audit corpus still echoes the old over-prediction; expected to drain."
  },
  "Kaiser Crab": {
-  "mechanic": "Surround: bonus dps when flanking bodies survive (Crusher/Rocket +5 each, empirical). Owner A/B 2026-08-03: the winning line vs the two-claw phase is a feasibility calc on killing Rocket before its turn-4 Laser, not a block rule -- multiturn spec #1.",
+  "mechanic": "Surround: bonus dps when flanking bodies survive (Crusher/Rocket +5 each, empirical). Owner A/B 2026-08-03: the winning line vs the two-claw phase is a feasibility calc on killing Rocket before its turn-4 Laser, not a block rule -- multiturn spec #1. CORPUS FACT (verified 2026-08-11 after a wrong collision claim): 'Rocket'/'Crusher' names are UNIQUE to this fight -- 241/241 instances at act 2 floor 33, always the two-claw opening cohort. Kaiser is ALWAYS the floor-33 act-2 boss encounter in our corpus.",
   "modeled": "capability._EMPIRICAL_MOVES surround_bonus_dps; rollout surround_bonus in strike.",
   "gaps": "Kill-by-Laser-turn feasibility = multiturn planner test case."
  },
