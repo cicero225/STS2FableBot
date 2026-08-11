@@ -119,7 +119,9 @@ def test_card_pass_tranche_b_parses() -> None:
     fx = p("Put 3 cards from your Discard Pile into your Hand. Exhaust.")
     assert fx.draw == 3  # retrieval reads as draw
     fx = p("Gain 4 Plating.")
-    assert fx.block == 4  # Plating ~ block
+    # RETIRED CONTRACT (fuzz find #1, 2026-08-10): Plating used to parse as
+    # immediate block; it's end-of-turn decaying block, now its own channel
+    assert fx.block == 0 and fx.plating == 4
     fx = p("Gain 6 Block. Add 1 Shiv into your Hand.")
     assert (fx.block, fx.damage, fx.hits) == (6, 4, 1)  # Shiv approximation
     fx = p("Deal 8 damage. Damage ALL other enemies equal to the damage dealt.")
@@ -199,3 +201,19 @@ def test_discovery_generator_credited() -> None:
         "Choose 1 of 3 random cards to add into your Hand. It's free to play this turn. "
         "Exhaust.")
     assert fx.damage == 8 and fx.has_any_effect
+
+
+def test_plating_is_not_immediate_block() -> None:
+    """Fuzz-harness find #1 (2026-08-10, Stone Armor+ n=4 avg -6.0 blk, 0%
+    within +-1): 'Gain N Plating' grants its block at END of turn, decaying --
+    parsing it as immediate block phantom-fed Body Slam-class and Fortifier
+    effects. Now a separate channel; the sims route it to end_turn_block."""
+    fx = parse_card_description("Ethereal. Gain 6 Plating.")
+    assert fx.block == 0
+    assert fx.plating == 6
+    fx2 = parse_card_description(
+        "Gain 4 Plating. Draw 2 cards the first time this is played. Bound")
+    assert fx2.block == 0 and fx2.plating == 4 and fx2.draw == 2
+    # real block untouched
+    fx3 = parse_card_description("Gain 5 Block.")
+    assert fx3.block == 5 and fx3.plating == 0

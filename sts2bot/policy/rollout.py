@@ -165,6 +165,10 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             or (card_effects or {}).get(f"{cid}|0") or ""
         )
         fx = parse_card_description(text)
+        if fx.plating:
+            # coarse deck sim: plating ~ block (the end-of-turn distinction only
+            # matters to the one-turn planner's block-referencing effects)
+            fx.block += fx.plating
         if fx.requires_empty_hand:
             # Restlessness: draw/energy fire only on an empty hand. The coarse
             # deck cycle can't sequence that gate, and crediting the rider on

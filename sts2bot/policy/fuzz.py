@@ -109,7 +109,7 @@ class FuzzRouter(StandardRouter):
             target = rng.choice(alive).entity_id
         pred = (f"dmg={fx.damage}x{max(1, fx.hits)} aoe={int(fx.aoe)} blk={fx.block} "
                 f"draw={fx.draw} egain={fx.energy_gain} selfhp={fx.self_hp_cost} "
-                f"vuln={fx.vulnerable} weak={fx.weak}")
+                f"vuln={fx.vulnerable} weak={fx.weak} plat={fx.plating}")
         return Decision(
             action=act.PlayCard(card_index=card.index, target=target),
             rationale=f"FUZZ: {card.name} -> {target or 'self'} | PRED {pred}",

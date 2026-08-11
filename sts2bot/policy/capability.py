@@ -526,6 +526,8 @@ def deck_output(
             biggest_hit = max(biggest_hit, float(hit))
         if fx.block:
             total_block += fx.block
+        if fx.plating:
+            total_block += fx.plating  # coarse: plating ~ block for deck output
         total_str_gain += fx.strength  # Inflame/Spot Weakness/Limit Break... ramp my damage
         if fx.vulnerable:
             vuln_sources += 1

@@ -39,7 +39,13 @@ _REQ_EXHAUST_PILE = re.compile(
 # standard (hail-mary veto), combat (pseudo-card filter), rollout (belt filter).
 HITS_EVERYONE = re.compile(r"\bEVERYONE\b|ALL (players|characters|creatures)",
                            re.IGNORECASE)
-_BLOCK = re.compile(r"\bGain (\d+) (?:Block|Plating)", re.IGNORECASE)  # Plating ~ recurring block
+# Plating split out of Block (fuzz-harness find #1, 2026-08-10: Stone Armor+
+# 'Ethereal. Gain 6 Plating.' logged blk=6 with 0% within +-1 -- Plating grants
+# its block at END of turn, decaying 1/turn; as immediate block it phantom-fed
+# Body Slam-class and triples_block effects). The one-turn sim routes plating
+# into end_turn_block (same soak vs incoming); coarse sims re-merge it as block.
+_BLOCK = re.compile(r"\bGain (\d+) Block", re.IGNORECASE)
+_PLATING_GAIN = re.compile(r"\bGain (\d+) Plating", re.IGNORECASE)
 _DRAW = re.compile(r"\bDraw (\d+) card", re.IGNORECASE)
 # retrieval reads as draw: Dredge "Put 3 cards from your Discard Pile into your Hand"
 _RETRIEVE = re.compile(r"\bPut (\d+) cards? from your Discard Pile into your Hand", re.IGNORECASE)
@@ -144,6 +150,9 @@ class CardEffects:
     # discoverable inside ONE plan, not just across replans
     cost_less_per_attack: int = 0
     block: int = 0
+    # Stone Armor-class "Gain N Plating": end-of-turn decaying block, NOT
+    # immediate block (fuzz find #1 2026-08-10; see _PLATING_GAIN comment)
+    plating: int = 0
     draw: int = 0
     energy_gain: int = 0
     vulnerable: int = 0
@@ -231,6 +240,9 @@ def parse_card_description(text: str | None) -> CardEffects:
     if m := _BLOCK.search(text):
         fx.block = int(m.group(1))
         fx.recognized.append("block")
+    if m := _PLATING_GAIN.search(text):
+        fx.plating = int(m.group(1))
+        fx.recognized.append("plating")
     if (m := _DRAW.search(text)) or (m := _RETRIEVE.search(text)):
         fx.draw = int(m.group(1))
         fx.recognized.append("draw")

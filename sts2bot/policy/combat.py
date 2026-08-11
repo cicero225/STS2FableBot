@@ -1258,6 +1258,9 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         energy=s.energy + energy_gain,
         self_damage=s.self_damage + card.fx.self_hp_cost,
         healing=s.healing + heal_applied,
+        # card-played Plating joins the end-of-turn pool (soaks incoming via the
+        # tally at scoring; never feeds my_block/Body Slam/triples_block)
+        end_turn_block=s.end_turn_block + card.fx.plating,
         exhausted_this_turn=s.exhausted_this_turn or card.exhausts_a_card,
         n_exhaust_events=s.n_exhaust_events + (1 if card.exhausts_a_card else 0),
         vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,

@@ -2595,3 +2595,34 @@ def test_restlessness_held_until_hand_empties() -> None:
     # Restlessness must not appear anywhere in the plan (held via Retain)
     d2 = plan_combat_turn(st([restless, strike, wither]), cfg.combat)
     assert "Restlessness" not in (d2.rationale or "")
+
+
+def test_card_played_plating_soaks_incoming_but_not_body_slam() -> None:
+    """Fuzz find #1 follow-through: a played 'Gain 6 Plating.' still soaks this
+    turn's incoming (end-of-turn block lands before the enemy turn) but must
+    not inflate 'damage equal to your Block' plays made after it."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(hand):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 1, "floor": 9, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                       "block": 0, "energy": 3, "status": [],
+                       "hand": hand, "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Toad", "hp": 60,
+                                    "max_hp": 60, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "10"}]}]},
+        })
+
+    stone = {"index": 0, "id": "STONE_ARMOR", "name": "Stone Armor",
+             "type": "Skill", "cost": "1",
+             "description": "Ethereal. Gain 6 Plating.",
+             "can_play": True, "target_type": "None"}
+    cfg = load_policy_config()
+    d = plan_combat_turn(st([stone]), cfg.combat)
+    # the soak survives: with plating played, projected HP loss is 10-6=4, so
+    # the plan prefers playing it over holding (scores carry the block pool)
+    assert d.action.payload().get("card_index") == 0
