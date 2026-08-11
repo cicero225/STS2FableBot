@@ -7,12 +7,13 @@ combinations where conditional riders and sequencing bugs hide. Analysis pairs
 each play's logged prediction against the next poll's actual state delta
 (scripts/fuzz_audit.py).
 
-Safety rail (the owner is the savescum operator -- attended sessions only):
-before every fuzzed action, if OUR hp is under the floor or the fight is nearly
-won, PAUSE with a MANUAL wait and never act. The owner savescums (force-close +
-Continue restarts the fight); the restart is detected by hp/round recovery, the
-fight is marked fuzz-done, and the run continues on the NORMAL policy until the
-next fight arms the fuzzer again.
+Safety rail (AUTOMATED 2026-08-10, owner design): before every fuzzed action, if
+OUR hp is under the floor or the fight is nearly won, send the fork mod's
+save_and_quit (run persists; Continue restores the fight to its start -- the
+owner's manual savescum, mechanized). The orchestrator's menu handler Continues,
+the restart is detected by hp/enemy recovery, the fight is marked fuzz-done, and
+the run proceeds on the NORMAL policy until the next fight arms the fuzzer again.
+Fuzz sessions are therefore self-sufficient; the owner may watch for fun.
 
 Determinism: the RNG seeds from (floor, round) so a savescummed replay of the
 same fight fuzzes the same order -- controlled comparisons, not anecdotes.
@@ -56,7 +57,12 @@ class FuzzRouter(StandardRouter):
         if battle.actions_disabled:
             return None
 
-        # ---- safety rail: pause for the owner BEFORE any risky action
+        # ---- safety rail: auto-savescum BEFORE any risky action (owner design
+        # 2026-08-10: save_and_quit -> menu -> Continue restores the fight to its
+        # start, exactly the manual force-close savescum, automated). Send it
+        # ONCE per pause point, then hold while the menu transition runs; after
+        # the restart the healthy state routes through the recovery branch below
+        # and the normal policy finishes the (fuzz-done) fight.
         nearly_won = all(
             (e.hp or 0) <= max(6, int((e.max_hp or 1) * ENEMY_NEARLY_DEAD_FRAC))
             for e in battle.enemies
@@ -65,19 +71,16 @@ class FuzzRouter(StandardRouter):
         if player.hp <= HP_FLOOR or nearly_won:
             pause = ctx.screen_mem.get("fuzz_paused_at")
             if pause == (floor, battle.round):
-                pass  # already announced this pause point; keep waiting
-            else:
-                ctx.screen_mem["fuzz_paused_at"] = (floor, battle.round)
-            # a savescum restarts the fight: round drops / hp recovers -> the NEXT
-            # poll sees a different (floor, round) with a healthy state, we mark the
-            # floor done and the normal policy takes over
-            if player.hp > HP_FLOOR and not nearly_won:
-                done.add(floor)
-                return None
-            return Wait(
-                reason=f"MANUAL: FUZZ-PAUSE at f{floor} r{battle.round} "
-                f"(hp {player.hp}, nearly_won={nearly_won}) — savescum to keep the "
-                "run; the fight resumes on normal policy after restart"
+                return Wait(
+                    reason=f"FUZZ-RAIL: save_and_quit sent at f{floor} "
+                    f"r{battle.round}; waiting for the menu transition"
+                )
+            ctx.screen_mem["fuzz_paused_at"] = (floor, battle.round)
+            return Decision(
+                action=act.SaveAndQuit(),
+                rationale=f"FUZZ-RAIL: auto-savescum at f{floor} r{battle.round} "
+                f"(hp {player.hp}, nearly_won={nearly_won}) — Continue restores "
+                "the fight; normal policy finishes it",
             )
         if ctx.screen_mem.get("fuzz_paused_at", (None, None))[0] == floor:
             # we paused earlier this fight and the state has recovered: the owner

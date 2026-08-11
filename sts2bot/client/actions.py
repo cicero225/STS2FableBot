@@ -185,6 +185,14 @@ class AbandonRun(_ActionBase):
     action: Literal["abandon_run"] = "abandon_run"
 
 
+class SaveAndQuit(_ActionBase):
+    """Quit to main menu WITHOUT abandoning: the run persists and Continue
+    restores the fight to its start (the owner's manual savescum, automated).
+    Fuzz-rail primitive (owner design 2026-08-10)."""
+
+    action: Literal["save_and_quit"] = "save_and_quit"
+
+
 class OpenChest(_ActionBase):
     action: Literal["open_chest"] = "open_chest"
 
@@ -212,6 +220,7 @@ Action = (
     | ShopPurchase
     | ClaimTreasureRelic
     | AbandonRun
+    | SaveAndQuit
     | OpenChest
     | OpenShopInventory
     | SelectCard

@@ -34,21 +34,31 @@ def test_fuzz_plays_randomly_with_logged_prediction() -> None:
     assert d.rationale.startswith("FUZZ:") and "PRED" in d.rationale
 
 
-def test_fuzz_rail_pauses_at_low_hp_and_hands_back_after_savescum() -> None:
+def test_fuzz_rail_auto_savescums_and_hands_back_after_restart() -> None:
+    """Owner design 2026-08-10: the rail sends save_and_quit ONCE (run persists,
+    Continue restores the fight), holds during the menu transition, and after
+    the restart the healthy state marks the fight fuzz-done for normal policy."""
     r = FuzzRouter()
     ctx = LoopContext()
-    # low HP: pause, MANUAL wait, never act
+    # low HP: exactly one save_and_quit, then holds
+    d = r.decide(_combat(hp=20), ctx)
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] == "save_and_quit"
+    assert "FUZZ-RAIL" in d.rationale
     w = r.decide(_combat(hp=20), ctx)
-    assert isinstance(w, Wait) and w.reason.startswith("MANUAL: FUZZ-PAUSE")
-    # savescum restored HP: this fight is fuzz-done -> normal policy acts
-    d = r.decide(_combat(hp=60), ctx)
-    assert isinstance(d, (Decision, Wait))
-    assert not (getattr(d, "rationale", "") or "").startswith("FUZZ:")
+    assert isinstance(w, Wait) and "FUZZ-RAIL" in w.reason
+    # post-Continue restart (HP restored): fight is fuzz-done -> normal policy
+    d2 = r.decide(_combat(hp=60), ctx)
+    assert isinstance(d2, (Decision, Wait))
+    assert not (getattr(d2, "rationale", "") or "").startswith("FUZZ:")
+    assert (getattr(d2, "action", None) is None
+            or d2.action.payload()["action"] != "save_and_quit")
 
 
-def test_fuzz_rail_pauses_when_fight_nearly_won() -> None:
-    w = FuzzRouter().decide(_combat(enemy_hp=8), LoopContext())
-    assert isinstance(w, Wait) and "FUZZ-PAUSE" in w.reason
+def test_fuzz_rail_savescums_when_fight_nearly_won() -> None:
+    d = FuzzRouter().decide(_combat(enemy_hp=8), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["action"] == "save_and_quit"
 
 
 def test_fuzz_is_deterministic_per_fight() -> None:
