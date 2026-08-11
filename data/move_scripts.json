@@ -274,7 +274,8 @@
      "n": 10
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Assassin Raider": {
   "n_fights": 135,
@@ -387,7 +388,8 @@
      "n": 4
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Axe Raider": {
   "n_fights": 130,
@@ -536,7 +538,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Axebot": {
   "n_fights": 102,
@@ -827,7 +830,8 @@
      "n": 3
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Bowlbug (Egg)": {
   "n_fights": 395,
@@ -1016,7 +1020,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Bowlbug (Nectar)": {
   "n_fights": 403,
@@ -1124,7 +1129,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Bowlbug (Rock)": {
   "n_fights": 970,
@@ -1353,7 +1359,8 @@
      "n": 3
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Bowlbug (Silk)": {
   "n_fights": 426,
@@ -1463,7 +1470,8 @@
      "n": 8
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Brute Raider": {
   "n_fights": 131,
@@ -1571,34 +1579,21 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Bygone Effigy": {
   "n_fights": 224,
   "notes": "",
   "turns": {
-   "1": [
-    {
-     "intent": "Sleep",
-     "label": "",
-     "n": 224
-    }
-   ],
-   "10": [
-    {
-     "intent": "Attack",
-     "label": "23",
-     "n": 1
-    }
-   ],
-   "2": [
+   "W1": [
     {
      "intent": "Buff",
      "label": "",
      "n": 224
     }
    ],
-   "3": [
+   "W2": [
     {
      "intent": "Attack",
      "label": "23",
@@ -1630,7 +1625,7 @@
      "n": 1
     }
    ],
-   "4": [
+   "W3": [
     {
      "intent": "Attack",
      "label": "23",
@@ -1657,7 +1652,7 @@
      "n": 2
     }
    ],
-   "5": [
+   "W4": [
     {
      "intent": "Attack",
      "label": "23",
@@ -1674,7 +1669,7 @@
      "n": 2
     }
    ],
-   "6": [
+   "W5": [
     {
      "intent": "Attack",
      "label": "23",
@@ -1691,7 +1686,7 @@
      "n": 1
     }
    ],
-   "7": [
+   "W6": [
     {
      "intent": "Attack",
      "label": "23",
@@ -1703,21 +1698,29 @@
      "n": 1
     }
    ],
-   "8": [
+   "W7": [
     {
      "intent": "Attack",
      "label": "23",
      "n": 8
     }
    ],
-   "9": [
+   "W8": [
+    {
+     "intent": "Attack",
+     "label": "23",
+     "n": 1
+    }
+   ],
+   "W9": [
     {
      "intent": "Attack",
      "label": "23",
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Byrdonis": {
   "n_fights": 219,
@@ -1886,17 +1889,18 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Calcified Cultist": {
-  "n_fights": 465,
+  "n_fights": 466,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 465
+     "n": 466
     }
    ],
    "10": [
@@ -1922,7 +1926,7 @@
     {
      "intent": "Attack",
      "label": "9",
-     "n": 430
+     "n": 431
     },
     {
      "intent": "Attack",
@@ -2029,7 +2033,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Ceremonial Beast": {
   "n_fights": 247,
@@ -2512,7 +2517,8 @@
      "n": 6
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Chomper": {
   "n_fights": 298,
@@ -2760,32 +2766,33 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Corpse Slug": {
-  "n_fights": 789,
+  "n_fights": 791,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Attack",
      "label": "8",
-     "n": 604
+     "n": 605
     },
     {
      "intent": "Debuff",
      "label": "",
-     "n": 601
+     "n": 603
     },
     {
      "intent": "Attack",
      "label": "3x2",
-     "n": 567
+     "n": 569
     },
     {
      "intent": "Stun",
      "label": "",
-     "n": 93
+     "n": 94
     },
     {
      "intent": "Attack",
@@ -2821,27 +2828,27 @@
     {
      "intent": "Debuff",
      "label": "",
-     "n": 576
+     "n": 577
     },
     {
      "intent": "Attack",
      "label": "3x2",
-     "n": 506
+     "n": 507
     },
     {
      "intent": "Attack",
      "label": "8",
-     "n": 483
+     "n": 484
     },
     {
      "intent": "Stun",
      "label": "",
-     "n": 478
+     "n": 480
     },
     {
      "intent": "Attack",
      "label": "7x2",
-     "n": 62
+     "n": 63
     },
     {
      "intent": "Attack",
@@ -2858,7 +2865,7 @@
     {
      "intent": "Attack",
      "label": "7x2",
-     "n": 277
+     "n": 278
     },
     {
      "intent": "Attack",
@@ -2890,7 +2897,7 @@
     {
      "intent": "Attack",
      "label": "12",
-     "n": 181
+     "n": 182
     },
     {
      "intent": "Attack",
@@ -3043,7 +3050,8 @@
      "n": 2
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Crossbow Raider": {
   "n_fights": 144,
@@ -3130,22 +3138,23 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Crusher": {
-  "n_fights": 240,
+  "n_fights": 241,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Attack",
      "label": "18",
-     "n": 217
+     "n": 218
     },
     {
      "intent": "Attack",
      "label": "12",
-     "n": 89
+     "n": 90
     },
     {
      "intent": "Attack",
@@ -3308,12 +3317,12 @@
     {
      "intent": "Attack",
      "label": "6",
-     "n": 203
+     "n": 204
     },
     {
      "intent": "Attack",
      "label": "4",
-     "n": 86
+     "n": 87
     },
     {
      "intent": "Attack",
@@ -3340,12 +3349,12 @@
     {
      "intent": "Debuff",
      "label": "",
-     "n": 240
+     "n": 241
     },
     {
      "intent": "Attack",
      "label": "9x2",
-     "n": 208
+     "n": 209
     },
     {
      "intent": "Attack",
@@ -3372,7 +3381,7 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 237
+     "n": 238
     }
    ],
    "5": [
@@ -3510,7 +3519,8 @@
      "n": 46
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Cubex Construct": {
   "n_fights": 318,
@@ -3735,24 +3745,25 @@
      "n": 3
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Damp Cultist": {
-  "n_fights": 235,
+  "n_fights": 236,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 235
+     "n": 236
     }
    ],
    "2": [
     {
      "intent": "Attack",
      "label": "1",
-     "n": 234
+     "n": 235
     },
     {
      "intent": "Attack",
@@ -3764,7 +3775,7 @@
     {
      "intent": "Attack",
      "label": "6",
-     "n": 232
+     "n": 233
     },
     {
      "intent": "Attack",
@@ -3786,7 +3797,7 @@
     {
      "intent": "Attack",
      "label": "11",
-     "n": 207
+     "n": 208
     },
     {
      "intent": "Attack",
@@ -3889,37 +3900,38 @@
      "n": 5
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Decimillipede": {
-  "n_fights": 109,
+  "n_fights": 110,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 109
+     "n": 110
     },
     {
      "intent": "Debuff",
      "label": "",
-     "n": 109
+     "n": 110
     },
     {
      "intent": "Attack",
      "label": "6",
-     "n": 103
+     "n": 104
     },
     {
      "intent": "Attack",
      "label": "8",
-     "n": 98
+     "n": 99
     },
     {
      "intent": "Attack",
      "label": "5x2",
-     "n": 97
+     "n": 98
     },
     {
      "intent": "Attack",
@@ -4206,22 +4218,22 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 106
+     "n": 107
     },
     {
      "intent": "Attack",
      "label": "6",
-     "n": 99
+     "n": 100
     },
     {
      "intent": "Debuff",
      "label": "",
-     "n": 98
+     "n": 99
     },
     {
      "intent": "Attack",
      "label": "8",
-     "n": 93
+     "n": 94
     },
     {
      "intent": "Attack",
@@ -4470,7 +4482,8 @@
      "n": 2
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Devoted Sculptor": {
   "n_fights": 227,
@@ -4635,17 +4648,18 @@
      "n": 5
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Entomancer": {
-  "n_fights": 121,
+  "n_fights": 122,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Attack",
      "label": "3x7",
-     "n": 110
+     "n": 111
     },
     {
      "intent": "Attack",
@@ -4693,7 +4707,7 @@
     {
      "intent": "Attack",
      "label": "18",
-     "n": 98
+     "n": 99
     },
     {
      "intent": "Attack",
@@ -4725,14 +4739,14 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 117
+     "n": 118
     }
    ],
    "4": [
     {
      "intent": "Attack",
      "label": "4x7",
-     "n": 83
+     "n": 84
     },
     {
      "intent": "Attack",
@@ -4764,7 +4778,7 @@
     {
      "intent": "Attack",
      "label": "19",
-     "n": 56
+     "n": 57
     },
     {
      "intent": "Attack",
@@ -4815,27 +4829,28 @@
      "n": 5
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Exoskeleton": {
-  "n_fights": 723,
+  "n_fights": 726,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 723
+     "n": 726
     },
     {
      "intent": "Attack",
      "label": "1x3",
-     "n": 675
+     "n": 678
     },
     {
      "intent": "Attack",
      "label": "8",
-     "n": 675
+     "n": 678
     },
     {
      "intent": "Attack",
@@ -4876,22 +4891,22 @@
     {
      "intent": "Attack",
      "label": "8",
-     "n": 684
+     "n": 687
     },
     {
      "intent": "Buff",
      "label": "",
-     "n": 662
+     "n": 664
     },
     {
      "intent": "Attack",
      "label": "10",
-     "n": 339
+     "n": 341
     },
     {
      "intent": "Attack",
      "label": "3x3",
-     "n": 323
+     "n": 324
     },
     {
      "intent": "Attack",
@@ -4908,7 +4923,7 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 630
+     "n": 633
     },
     {
      "intent": "Attack",
@@ -4918,7 +4933,7 @@
     {
      "intent": "Attack",
      "label": "3x3",
-     "n": 294
+     "n": 295
     },
     {
      "intent": "Attack",
@@ -4940,12 +4955,12 @@
     {
      "intent": "Attack",
      "label": "10",
-     "n": 324
+     "n": 325
     },
     {
      "intent": "Attack",
      "label": "3x3",
-     "n": 252
+     "n": 253
     },
     {
      "intent": "Buff",
@@ -4960,7 +4975,7 @@
     {
      "intent": "Attack",
      "label": "12",
-     "n": 36
+     "n": 37
     },
     {
      "intent": "Attack",
@@ -4972,12 +4987,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 157
+     "n": 158
     },
     {
      "intent": "Attack",
      "label": "10",
-     "n": 121
+     "n": 122
     },
     {
      "intent": "Attack",
@@ -5108,187 +5123,190 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Eye With Teeth": {
   "n_fights": 25,
   "notes": "",
   "turns": {
-   "10": [
+   "W1": [
     {
      "intent": "StatusCard",
      "label": "3",
-     "n": 9
+     "n": 25
     }
    ],
-   "11": [
-    {
-     "intent": "StatusCard",
-     "label": "3",
-     "n": 7
-    }
-   ],
-   "12": [
+   "W10": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 7
     }
    ],
-   "13": [
+   "W11": [
+    {
+     "intent": "StatusCard",
+     "label": "3",
+     "n": 7
+    }
+   ],
+   "W12": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 6
     }
    ],
-   "14": [
+   "W13": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 3
     }
    ],
-   "15": [
+   "W14": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 2
     }
    ],
-   "16": [
+   "W15": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 2
     }
    ],
-   "17": [
+   "W16": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 2
     }
    ],
-   "18": [
+   "W17": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 1
     }
    ],
-   "2": [
+   "W2": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 25
     }
    ],
-   "3": [
-    {
-     "intent": "StatusCard",
-     "label": "3",
-     "n": 25
-    }
-   ],
-   "4": [
+   "W3": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 23
     }
    ],
-   "5": [
+   "W4": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 22
     }
    ],
-   "6": [
+   "W5": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 12
     }
    ],
-   "7": [
+   "W6": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 10
     }
    ],
-   "8": [
+   "W7": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 9
     }
    ],
-   "9": [
+   "W8": [
+    {
+     "intent": "StatusCard",
+     "label": "3",
+     "n": 9
+    }
+   ],
+   "W9": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 9
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Eye with Teeth": {
   "n_fights": 224,
   "notes": "",
   "turns": {
-   "2": [
+   "W1": [
     {
      "intent": "StatusCard",
      "label": "3",
-     "n": 223
+     "n": 224
     }
    ],
-   "3": [
+   "W2": [
     {
      "intent": "StatusCard",
      "label": "3",
-     "n": 210
+     "n": 209
     }
    ],
-   "4": [
+   "W3": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 127
     }
    ],
-   "5": [
+   "W4": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 51
     }
    ],
-   "6": [
+   "W5": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 11
     }
    ],
-   "7": [
+   "W6": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 4
     }
    ],
-   "8": [
+   "W7": [
     {
      "intent": "StatusCard",
      "label": "3",
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Fabricator": {
   "n_fights": 112,
@@ -5554,99 +5572,22 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Fat Gremlin": {
   "n_fights": 239,
   "notes": "",
   "turns": {
-   "1": [
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 2
-    }
-   ],
-   "2": [
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 50
-    },
+   "W1": [
     {
      "intent": "Escape",
      "label": "",
-     "n": 3
-    }
-   ],
-   "3": [
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 59
-    },
-    {
-     "intent": "Escape",
-     "label": "",
-     "n": 51
-    }
-   ],
-   "4": [
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 63
-    },
-    {
-     "intent": "Escape",
-     "label": "",
-     "n": 63
-    }
-   ],
-   "5": [
-    {
-     "intent": "Escape",
-     "label": "",
-     "n": 63
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 39
-    }
-   ],
-   "6": [
-    {
-     "intent": "Escape",
-     "label": "",
-     "n": 38
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 11
-    }
-   ],
-   "7": [
-    {
-     "intent": "Escape",
-     "label": "",
-     "n": 11
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 6
-    }
-   ],
-   "8": [
-    {
-     "intent": "Escape",
-     "label": "",
-     "n": 6
+     "n": 235
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Flail Knight": {
   "n_fights": 14,
@@ -5757,7 +5698,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Flyconid": {
   "n_fights": 352,
@@ -6068,7 +6010,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Fogmog": {
   "n_fights": 252,
@@ -6450,17 +6393,18 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Fossil Stalker": {
-  "n_fights": 231,
+  "n_fights": 232,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Attack",
      "label": "12",
-     "n": 220
+     "n": 221
     },
     {
      "intent": "Attack",
@@ -6497,7 +6441,7 @@
     {
      "intent": "Attack",
      "label": "12",
-     "n": 72
+     "n": 73
     },
     {
      "intent": "Attack",
@@ -6524,7 +6468,7 @@
     {
      "intent": "Debuff",
      "label": "",
-     "n": 86
+     "n": 87
     },
     {
      "intent": "Attack",
@@ -6539,7 +6483,7 @@
     {
      "intent": "Attack",
      "label": "12",
-     "n": 26
+     "n": 27
     },
     {
      "intent": "Attack",
@@ -6650,7 +6594,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Frog Knight": {
   "n_fights": 121,
@@ -6871,7 +6816,8 @@
      "n": 2
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Fuzzy Wurm Crawler": {
   "n_fights": 829,
@@ -7033,55 +6979,57 @@
      "n": 10
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Gas Bomb": {
   "n_fights": 211,
   "notes": "",
   "turns": {
-   "11": [
-    {
-     "intent": "DeathBlow",
-     "label": "8",
-     "n": 2
-    }
-   ],
-   "13": [
-    {
-     "intent": "DeathBlow",
-     "label": "8",
-     "n": 1
-    }
-   ],
-   "3": [
+   "W1": [
     {
      "intent": "DeathBlow",
      "label": "8",
      "n": 211
     }
    ],
-   "5": [
+   "W11": [
+    {
+     "intent": "DeathBlow",
+     "label": "8",
+     "n": 1
+    }
+   ],
+   "W3": [
     {
      "intent": "DeathBlow",
      "label": "8",
      "n": 117
     }
    ],
-   "7": [
+   "W5": [
     {
      "intent": "DeathBlow",
      "label": "8",
      "n": 28
     }
    ],
-   "9": [
+   "W7": [
     {
      "intent": "DeathBlow",
      "label": "8",
      "n": 9
     }
+   ],
+   "W9": [
+    {
+     "intent": "DeathBlow",
+     "label": "8",
+     "n": 2
+    }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Globe Head": {
   "n_fights": 118,
@@ -7251,7 +7199,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Gremlin Merc": {
   "n_fights": 239,
@@ -7406,107 +7355,81 @@
      "n": 6
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Guardbot": {
   "n_fights": 63,
   "notes": "",
   "turns": {
-   "10": [
+   "W1": [
+    {
+     "intent": "Defend",
+     "label": "",
+     "n": 63
+    }
+   ],
+   "W2": [
+    {
+     "intent": "Defend",
+     "label": "",
+     "n": 46
+    }
+   ],
+   "W3": [
+    {
+     "intent": "Defend",
+     "label": "",
+     "n": 34
+    }
+   ],
+   "W4": [
+    {
+     "intent": "Defend",
+     "label": "",
+     "n": 16
+    }
+   ],
+   "W5": [
+    {
+     "intent": "Defend",
+     "label": "",
+     "n": 7
+    }
+   ],
+   "W6": [
+    {
+     "intent": "Defend",
+     "label": "",
+     "n": 5
+    }
+   ],
+   "W7": [
     {
      "intent": "Defend",
      "label": "",
      "n": 2
     }
    ],
-   "2": [
+   "W9": [
     {
      "intent": "Defend",
      "label": "",
-     "n": 29
-    }
-   ],
-   "3": [
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 47
-    }
-   ],
-   "4": [
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 44
-    }
-   ],
-   "5": [
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 24
-    }
-   ],
-   "6": [
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 13
-    }
-   ],
-   "7": [
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 9
-    }
-   ],
-   "8": [
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 4
-    }
-   ],
-   "9": [
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 2
+     "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Hatchling": {
   "n_fights": 288,
   "notes": "",
   "turns": {
-   "10": [
-    {
-     "intent": "Attack",
-     "label": "6",
-     "n": 1
-    }
-   ],
-   "11": [
-    {
-     "intent": "Attack",
-     "label": "6",
-     "n": 1
-    }
-   ],
-   "2": [
-    {
-     "intent": "Summon",
-     "label": "",
-     "n": 1
-    }
-   ],
-   "3": [
+   "W1": [
     {
      "intent": "Attack",
      "label": "4",
-     "n": 282
+     "n": 281
     },
     {
      "intent": "Attack",
@@ -7519,12 +7442,12 @@
      "n": 2
     },
     {
-     "intent": "Attack",
-     "label": "6",
+     "intent": "Summon",
+     "label": "",
      "n": 1
     }
    ],
-   "4": [
+   "W2": [
     {
      "intent": "Attack",
      "label": "6",
@@ -7533,7 +7456,7 @@
     {
      "intent": "Attack",
      "label": "4",
-     "n": 5
+     "n": 6
     },
     {
      "intent": "Attack",
@@ -7551,11 +7474,11 @@
      "n": 1
     }
    ],
-   "5": [
+   "W3": [
     {
      "intent": "Attack",
      "label": "6",
-     "n": 149
+     "n": 150
     },
     {
      "intent": "Attack",
@@ -7568,14 +7491,14 @@
      "n": 1
     }
    ],
-   "6": [
+   "W4": [
     {
      "intent": "Attack",
      "label": "4",
      "n": 47
     }
    ],
-   "7": [
+   "W5": [
     {
      "intent": "Attack",
      "label": "6",
@@ -7587,7 +7510,7 @@
      "n": 1
     }
    ],
-   "8": [
+   "W6": [
     {
      "intent": "Attack",
      "label": "6",
@@ -7599,7 +7522,7 @@
      "n": 1
     }
    ],
-   "9": [
+   "W7": [
     {
      "intent": "Attack",
      "label": "4",
@@ -7610,23 +7533,38 @@
      "label": "3",
      "n": 1
     }
+   ],
+   "W8": [
+    {
+     "intent": "Attack",
+     "label": "6",
+     "n": 1
+    }
+   ],
+   "W9": [
+    {
+     "intent": "Attack",
+     "label": "6",
+     "n": 1
+    }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Haunted Ship": {
-  "n_fights": 275,
+  "n_fights": 277,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "StatusCard",
      "label": "5",
-     "n": 275
+     "n": 277
     },
     {
      "intent": "Debuff",
      "label": "",
-     "n": 270
+     "n": 272
     }
    ],
    "10": [
@@ -7647,7 +7585,7 @@
     {
      "intent": "Attack",
      "label": "13",
-     "n": 260
+     "n": 262
     },
     {
      "intent": "Attack",
@@ -7679,7 +7617,7 @@
     {
      "intent": "Attack",
      "label": "4x3",
-     "n": 244
+     "n": 246
     },
     {
      "intent": "Attack",
@@ -7711,7 +7649,7 @@
     {
      "intent": "Attack",
      "label": "13",
-     "n": 201
+     "n": 203
     },
     {
      "intent": "Attack",
@@ -7743,7 +7681,7 @@
     {
      "intent": "Attack",
      "label": "4x3",
-     "n": 160
+     "n": 161
     },
     {
      "intent": "Attack",
@@ -7770,7 +7708,7 @@
     {
      "intent": "Attack",
      "label": "13",
-     "n": 77
+     "n": 78
     },
     {
      "intent": "Attack",
@@ -7802,7 +7740,7 @@
     {
      "intent": "Attack",
      "label": "4x3",
-     "n": 28
+     "n": 29
     },
     {
      "intent": "Attack",
@@ -7839,7 +7777,8 @@
      "n": 4
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Hunter Killer": {
   "n_fights": 297,
@@ -8092,7 +8031,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Infested Prism": {
   "n_fights": 133,
@@ -8349,7 +8289,8 @@
      "n": 2
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Inklet": {
   "n_fights": 212,
@@ -8575,7 +8516,8 @@
      "n": 2
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Kin Follower": {
   "n_fights": 269,
@@ -8832,7 +8774,8 @@
      "n": 6
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Kin Priest": {
   "n_fights": 269,
@@ -9262,7 +9205,8 @@
      "n": 4
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Knowledge Demon": {
   "n_fights": 222,
@@ -9552,140 +9496,55 @@
      "n": 32
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Lagavulin Matriarch": {
   "n_fights": 240,
   "notes": "",
   "turns": {
-   "1": [
-    {
-     "intent": "Sleep",
-     "label": "",
-     "n": 240
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 147
-    }
-   ],
-   "10": [
+   "W1": [
     {
      "intent": "Attack",
-     "label": "23",
-     "n": 64
-    },
-    {
-     "intent": "Debuff",
-     "label": "",
-     "n": 22
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 22
+     "label": "19",
+     "n": 212
     },
     {
      "intent": "Attack",
      "label": "14",
-     "n": 12
-    },
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 12
+     "n": 30
     },
     {
      "intent": "Attack",
-     "label": "17",
-     "n": 10
-    }
-   ],
-   "11": [
-    {
-     "intent": "Attack",
-     "label": "13x2",
-     "n": 33
+     "label": "20",
+     "n": 14
     },
     {
      "intent": "Attack",
-     "label": "23",
-     "n": 16
-    },
-    {
-     "intent": "Debuff",
-     "label": "",
-     "n": 10
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 10
+     "label": "9",
+     "n": 8
     },
     {
      "intent": "Attack",
-     "label": "9x2",
+     "label": "21",
      "n": 3
     },
     {
      "intent": "Attack",
-     "label": "17",
-     "n": 2
+     "label": "13",
+     "n": 1
     }
    ],
-   "12": [
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 18
-    },
-    {
-     "intent": "Attack",
-     "label": "16",
-     "n": 17
-    },
-    {
-     "intent": "Attack",
-     "label": "23",
-     "n": 10
-    },
+   "W10": [
     {
      "intent": "Attack",
      "label": "13x2",
-     "n": 6
+     "n": 48
     },
     {
      "intent": "Attack",
-     "label": "12",
-     "n": 2
-    },
-    {
-     "intent": "Attack",
-     "label": "11",
-     "n": 2
-    }
-   ],
-   "13": [
-    {
-     "intent": "Attack",
-     "label": "13x2",
-     "n": 9
-    },
-    {
-     "intent": "Debuff",
-     "label": "",
-     "n": 8
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 8
-    },
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 2
+     "label": "9x2",
+     "n": 4
     },
     {
      "intent": "Attack",
@@ -9694,25 +9553,54 @@
     },
     {
      "intent": "Attack",
-     "label": "12",
+     "label": "16x2",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "4x2",
      "n": 1
     }
    ],
-   "14": [
+   "W11": [
     {
-     "intent": "Attack",
-     "label": "25",
-     "n": 7
+     "intent": "Defend",
+     "label": "",
+     "n": 23
     },
     {
      "intent": "Attack",
      "label": "16",
+     "n": 21
+    },
+    {
+     "intent": "Attack",
+     "label": "12",
      "n": 3
     },
     {
-     "intent": "Defend",
+     "intent": "Attack",
+     "label": "8",
+     "n": 1
+    }
+   ],
+   "W12": [
+    {
+     "intent": "Debuff",
      "label": "",
-     "n": 3
+     "n": 11
+    },
+    {
+     "intent": "Buff",
+     "label": "",
+     "n": 11
+    }
+   ],
+   "W13": [
+    {
+     "intent": "Attack",
+     "label": "25",
+     "n": 10
     },
     {
      "intent": "Attack",
@@ -9720,49 +9608,29 @@
      "n": 2
     },
     {
-     "intent": "Debuff",
-     "label": "",
+     "intent": "Attack",
+     "label": "18",
      "n": 1
     },
     {
-     "intent": "Buff",
-     "label": "",
+     "intent": "Attack",
+     "label": "9",
      "n": 1
     }
    ],
-   "15": [
+   "W14": [
     {
      "intent": "Attack",
      "label": "15x2",
-     "n": 3
-    },
-    {
-     "intent": "Debuff",
-     "label": "",
-     "n": 2
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 2
+     "n": 5
     },
     {
      "intent": "Attack",
      "label": "7x2",
      "n": 1
-    },
-    {
-     "intent": "Attack",
-     "label": "25",
-     "n": 1
     }
    ],
-   "16": [
-    {
-     "intent": "Attack",
-     "label": "25",
-     "n": 2
-    },
+   "W15": [
     {
      "intent": "Attack",
      "label": "18",
@@ -9772,14 +9640,9 @@
      "intent": "Defend",
      "label": "",
      "n": 1
-    },
-    {
-     "intent": "Attack",
-     "label": "15x2",
-     "n": 1
     }
    ],
-   "17": [
+   "W16": [
     {
      "intent": "Debuff",
      "label": "",
@@ -9789,14 +9652,9 @@
      "intent": "Buff",
      "label": "",
      "n": 1
-    },
-    {
-     "intent": "Attack",
-     "label": "15x2",
-     "n": 1
     }
    ],
-   "18": [
+   "W17": [
     {
      "intent": "Attack",
      "label": "27",
@@ -9808,270 +9666,231 @@
      "n": 1
     }
    ],
-   "19": [
+   "W18": [
     {
      "intent": "Attack",
      "label": "17x2",
      "n": 1
     }
    ],
-   "2": [
-    {
-     "intent": "Attack",
-     "label": "19",
-     "n": 150
-    },
-    {
-     "intent": "Sleep",
-     "label": "",
-     "n": 67
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 42
-    },
-    {
-     "intent": "Attack",
-     "label": "14",
-     "n": 22
-    },
-    {
-     "intent": "Attack",
-     "label": "20",
-     "n": 10
-    },
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 6
-    }
-   ],
-   "3": [
+   "W2": [
     {
      "intent": "Attack",
      "label": "9x2",
-     "n": 145
-    },
-    {
-     "intent": "Attack",
-     "label": "19",
-     "n": 43
+     "n": 204
     },
     {
      "intent": "Attack",
      "label": "6x2",
-     "n": 26
-    },
-    {
-     "intent": "Sleep",
-     "label": "",
-     "n": 20
+     "n": 35
     },
     {
      "intent": "Attack",
      "label": "10x2",
-     "n": 12
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 11
-    }
-   ],
-   "4": [
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 171
-    },
-    {
-     "intent": "Attack",
-     "label": "12",
-     "n": 150
-    },
-    {
-     "intent": "Attack",
-     "label": "9x2",
-     "n": 40
-    },
-    {
-     "intent": "Attack",
-     "label": "19",
-     "n": 19
-    },
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 13
-    },
-    {
-     "intent": "Attack",
-     "label": "13",
-     "n": 12
-    }
-   ],
-   "5": [
-    {
-     "intent": "Debuff",
-     "label": "",
-     "n": 166
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 166
-    },
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 49
-    },
-    {
-     "intent": "Attack",
-     "label": "12",
-     "n": 41
-    },
-    {
-     "intent": "Attack",
-     "label": "9x2",
-     "n": 19
-    },
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 6
-    }
-   ],
-   "6": [
-    {
-     "intent": "Attack",
-     "label": "21",
-     "n": 141
-    },
-    {
-     "intent": "Debuff",
-     "label": "",
-     "n": 47
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 47
-    },
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 20
-    },
-    {
-     "intent": "Attack",
-     "label": "12",
-     "n": 19
-    },
-    {
-     "intent": "Attack",
-     "label": "15",
-     "n": 18
-    }
-   ],
-   "7": [
-    {
-     "intent": "Attack",
-     "label": "11x2",
-     "n": 124
-    },
-    {
-     "intent": "Attack",
-     "label": "21",
-     "n": 38
-    },
-    {
-     "intent": "Debuff",
-     "label": "",
-     "n": 20
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 20
-    },
-    {
-     "intent": "Attack",
-     "label": "8x2",
-     "n": 11
-    },
-    {
-     "intent": "Attack",
-     "label": "15",
-     "n": 6
-    }
-   ],
-   "8": [
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 97
-    },
-    {
-     "intent": "Attack",
-     "label": "14",
-     "n": 95
-    },
-    {
-     "intent": "Attack",
-     "label": "11x2",
-     "n": 32
-    },
-    {
-     "intent": "Attack",
-     "label": "21",
-     "n": 18
-    },
-    {
-     "intent": "Attack",
-     "label": "10",
-     "n": 6
-    },
-    {
-     "intent": "Attack",
-     "label": "8x2",
-     "n": 5
-    }
-   ],
-   "9": [
-    {
-     "intent": "Debuff",
-     "label": "",
-     "n": 70
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 70
-    },
-    {
-     "intent": "Defend",
-     "label": "",
-     "n": 27
-    },
-    {
-     "intent": "Attack",
-     "label": "14",
-     "n": 25
-    },
-    {
-     "intent": "Attack",
-     "label": "11x2",
      "n": 16
     },
     {
      "intent": "Attack",
+     "label": "4x2",
+     "n": 8
+    },
+    {
+     "intent": "Attack",
+     "label": "11x2",
+     "n": 3
+    },
+    {
+     "intent": "Attack",
+     "label": "0x2",
+     "n": 2
+    }
+   ],
+   "W3": [
+    {
+     "intent": "Defend",
+     "label": "",
+     "n": 240
+    },
+    {
+     "intent": "Attack",
+     "label": "12",
+     "n": 210
+    },
+    {
+     "intent": "Attack",
+     "label": "9",
+     "n": 19
+    },
+    {
+     "intent": "Attack",
+     "label": "13",
+     "n": 16
+    },
+    {
+     "intent": "Attack",
+     "label": "14",
+     "n": 10
+    },
+    {
+     "intent": "Attack",
+     "label": "6",
+     "n": 3
+    }
+   ],
+   "W4": [
+    {
+     "intent": "Debuff",
+     "label": "",
+     "n": 233
+    },
+    {
+     "intent": "Buff",
+     "label": "",
+     "n": 233
+    }
+   ],
+   "W5": [
+    {
+     "intent": "Attack",
+     "label": "21",
+     "n": 197
+    },
+    {
+     "intent": "Attack",
+     "label": "15",
+     "n": 24
+    },
+    {
+     "intent": "Attack",
+     "label": "23",
+     "n": 12
+    },
+    {
+     "intent": "Attack",
      "label": "10",
+     "n": 9
+    },
+    {
+     "intent": "Attack",
+     "label": "22",
+     "n": 3
+    },
+    {
+     "intent": "Attack",
+     "label": "17",
+     "n": 2
+    }
+   ],
+   "W6": [
+    {
+     "intent": "Attack",
+     "label": "11x2",
+     "n": 172
+    },
+    {
+     "intent": "Attack",
+     "label": "8x2",
+     "n": 16
+    },
+    {
+     "intent": "Attack",
+     "label": "5x2",
      "n": 5
+    },
+    {
+     "intent": "Attack",
+     "label": "13x2",
+     "n": 4
+    },
+    {
+     "intent": "Attack",
+     "label": "12x2",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "9x2",
+     "n": 1
+    }
+   ],
+   "W7": [
+    {
+     "intent": "Defend",
+     "label": "",
+     "n": 136
+    },
+    {
+     "intent": "Attack",
+     "label": "14",
+     "n": 132
+    },
+    {
+     "intent": "Attack",
+     "label": "10",
+     "n": 10
+    },
+    {
+     "intent": "Attack",
+     "label": "7",
+     "n": 5
+    },
+    {
+     "intent": "Attack",
+     "label": "16",
+     "n": 2
+    },
+    {
+     "intent": "Attack",
+     "label": "4",
+     "n": 1
+    }
+   ],
+   "W8": [
+    {
+     "intent": "Debuff",
+     "label": "",
+     "n": 102
+    },
+    {
+     "intent": "Buff",
+     "label": "",
+     "n": 102
+    }
+   ],
+   "W9": [
+    {
+     "intent": "Attack",
+     "label": "23",
+     "n": 90
+    },
+    {
+     "intent": "Attack",
+     "label": "17",
+     "n": 12
+    },
+    {
+     "intent": "Attack",
+     "label": "11",
+     "n": 8
+    },
+    {
+     "intent": "Attack",
+     "label": "13",
+     "n": 2
+    },
+    {
+     "intent": "Attack",
+     "label": "25",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "26",
+     "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Leaf Slime (M)": {
   "n_fights": 592,
@@ -10211,7 +10030,8 @@
      "n": 9
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Leaf Slime (S)": {
   "n_fights": 859,
@@ -10359,7 +10179,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Living Fog": {
   "n_fights": 220,
@@ -10596,7 +10417,8 @@
      "n": 9
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Living Shield": {
   "n_fights": 210,
@@ -10793,7 +10615,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Louse Progenitor": {
   "n_fights": 296,
@@ -10997,7 +10820,8 @@
      "n": 5
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Magi Knight": {
   "n_fights": 14,
@@ -11073,7 +10897,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Mawler": {
   "n_fights": 213,
@@ -11373,7 +11198,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Mecha Knight": {
   "n_fights": 17,
@@ -11518,7 +11344,8 @@
      "n": 3
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Mysterious Knight": {
   "n_fights": 55,
@@ -11705,27 +11532,28 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Myte": {
-  "n_fights": 295,
+  "n_fights": 297,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 295
+     "n": 297
     },
     {
      "intent": "Buff",
      "label": "",
-     "n": 295
+     "n": 297
     },
     {
      "intent": "Attack",
      "label": "4",
-     "n": 265
+     "n": 267
     },
     {
      "intent": "Attack",
@@ -11754,12 +11582,12 @@
     {
      "intent": "Attack",
      "label": "13",
-     "n": 278
+     "n": 280
     },
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 273
+     "n": 275
     },
     {
      "intent": "Attack",
@@ -11786,17 +11614,17 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 274
+     "n": 276
     },
     {
      "intent": "Attack",
      "label": "4",
-     "n": 257
+     "n": 259
     },
     {
      "intent": "Attack",
      "label": "15",
-     "n": 133
+     "n": 135
     },
     {
      "intent": "Attack",
@@ -11818,7 +11646,7 @@
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 216
+     "n": 218
     },
     {
      "intent": "Buff",
@@ -11850,7 +11678,7 @@
     {
      "intent": "Attack",
      "label": "15",
-     "n": 107
+     "n": 108
     },
     {
      "intent": "StatusCard",
@@ -11882,12 +11710,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 41
+     "n": 42
     },
     {
      "intent": "Attack",
      "label": "6",
-     "n": 37
+     "n": 38
     },
     {
      "intent": "Attack",
@@ -11914,7 +11742,7 @@
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 14
+     "n": 15
     },
     {
      "intent": "Attack",
@@ -11956,7 +11784,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Nibbit": {
   "n_fights": 841,
@@ -12317,69 +12146,57 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Noisebot": {
   "n_fights": 58,
   "notes": "",
   "turns": {
-   "2": [
+   "W1": [
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 23
+     "n": 58
     }
    ],
-   "3": [
+   "W2": [
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 38
+     "n": 37
     }
    ],
-   "4": [
+   "W3": [
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 39
+     "n": 28
     }
    ],
-   "5": [
+   "W4": [
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 18
+     "n": 14
     }
    ],
-   "6": [
+   "W5": [
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 13
+     "n": 3
     }
    ],
-   "7": [
+   "W6": [
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 4
-    }
-   ],
-   "8": [
-    {
-     "intent": "StatusCard",
-     "label": "2",
-     "n": 4
-    }
-   ],
-   "9": [
-    {
-     "intent": "StatusCard",
-     "label": "2",
-     "n": 2
+     "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Ovicopter": {
   "n_fights": 318,
@@ -12617,7 +12434,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Owl Magistrate": {
   "n_fights": 112,
@@ -12833,30 +12651,31 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Parafright": {
   "n_fights": 326,
   "notes": "",
   "turns": {
-   "10": [
+   "W1": [
     {
      "intent": "Attack",
-     "label": "22",
-     "n": 4
+     "label": "16",
+     "n": 317
     },
     {
      "intent": "Attack",
-     "label": "25",
-     "n": 1
+     "label": "17",
+     "n": 13
     },
     {
      "intent": "Attack",
-     "label": "11",
-     "n": 1
+     "label": "8",
+     "n": 2
     }
    ],
-   "11": [
+   "W10": [
     {
      "intent": "Attack",
      "label": "22",
@@ -12868,7 +12687,7 @@
      "n": 2
     }
    ],
-   "12": [
+   "W11": [
     {
      "intent": "Attack",
      "label": "22",
@@ -12890,7 +12709,7 @@
      "n": 1
     }
    ],
-   "13": [
+   "W12": [
     {
      "intent": "Attack",
      "label": "22",
@@ -12902,59 +12721,42 @@
      "n": 1
     }
    ],
-   "14": [
+   "W13": [
     {
      "intent": "Attack",
      "label": "25",
      "n": 1
     }
    ],
-   "15": [
+   "W14": [
     {
      "intent": "Attack",
      "label": "25",
      "n": 1
     }
    ],
-   "16": [
+   "W15": [
     {
      "intent": "Attack",
      "label": "25",
      "n": 1
     }
    ],
-   "17": [
+   "W16": [
     {
      "intent": "Attack",
      "label": "28",
      "n": 1
     }
    ],
-   "18": [
+   "W17": [
     {
      "intent": "Attack",
      "label": "28",
      "n": 1
     }
    ],
-   "2": [
-    {
-     "intent": "Attack",
-     "label": "16",
-     "n": 317
-    },
-    {
-     "intent": "Attack",
-     "label": "17",
-     "n": 13
-    },
-    {
-     "intent": "Attack",
-     "label": "8",
-     "n": 2
-    }
-   ],
-   "3": [
+   "W2": [
     {
      "intent": "Attack",
      "label": "16",
@@ -12986,7 +12788,7 @@
      "n": 1
     }
    ],
-   "4": [
+   "W3": [
     {
      "intent": "Attack",
      "label": "19",
@@ -13013,7 +12815,7 @@
      "n": 1
     }
    ],
-   "5": [
+   "W4": [
     {
      "intent": "Attack",
      "label": "19",
@@ -13045,7 +12847,7 @@
      "n": 1
     }
    ],
-   "6": [
+   "W5": [
     {
      "intent": "Attack",
      "label": "19",
@@ -13067,7 +12869,7 @@
      "n": 1
     }
    ],
-   "7": [
+   "W6": [
     {
      "intent": "Attack",
      "label": "19",
@@ -13094,7 +12896,7 @@
      "n": 1
     }
    ],
-   "8": [
+   "W7": [
     {
      "intent": "Attack",
      "label": "22",
@@ -13116,14 +12918,32 @@
      "n": 1
     }
    ],
-   "9": [
+   "W8": [
     {
      "intent": "Attack",
      "label": "22",
      "n": 6
     }
+   ],
+   "W9": [
+    {
+     "intent": "Attack",
+     "label": "22",
+     "n": 4
+    },
+    {
+     "intent": "Attack",
+     "label": "25",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "11",
+     "n": 1
+    }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Phantasmal Gardener": {
   "n_fights": 190,
@@ -13448,7 +13268,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Phrog Parasite": {
   "n_fights": 222,
@@ -13552,7 +13373,8 @@
      "n": 2
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Punch Construct": {
   "n_fights": 352,
@@ -13743,7 +13565,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Queen": {
   "n_fights": 84,
@@ -14079,22 +13902,23 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Rocket": {
-  "n_fights": 240,
+  "n_fights": 241,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Attack",
      "label": "3",
-     "n": 227
+     "n": 228
     },
     {
      "intent": "Attack",
      "label": "4",
-     "n": 111
+     "n": 112
     },
     {
      "intent": "Attack",
@@ -14152,12 +13976,12 @@
     {
      "intent": "Attack",
      "label": "18",
-     "n": 206
+     "n": 207
     },
     {
      "intent": "Attack",
      "label": "27",
-     "n": 64
+     "n": 65
     },
     {
      "intent": "Attack",
@@ -14184,14 +14008,14 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 237
+     "n": 238
     }
    ],
    "4": [
     {
      "intent": "Attack",
      "label": "33",
-     "n": 186
+     "n": 187
     },
     {
      "intent": "Attack",
@@ -14329,7 +14153,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Scroll of Biting": {
   "n_fights": 319,
@@ -14497,17 +14322,18 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Seapunk": {
-  "n_fights": 810,
+  "n_fights": 812,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Attack",
      "label": "11",
-     "n": 801
+     "n": 803
     },
     {
      "intent": "Attack",
@@ -14560,7 +14386,7 @@
     {
      "intent": "Attack",
      "label": "2x4",
-     "n": 797
+     "n": 799
     },
     {
      "intent": "Attack",
@@ -14577,12 +14403,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 740
+     "n": 742
     },
     {
      "intent": "Defend",
      "label": "",
-     "n": 740
+     "n": 742
     }
    ],
    "4": [
@@ -14682,17 +14508,18 @@
      "n": 9
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Sewer Clam": {
-  "n_fights": 238,
+  "n_fights": 239,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Attack",
      "label": "10",
-     "n": 230
+     "n": 231
     },
     {
      "intent": "Attack",
@@ -14724,14 +14551,14 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 238
+     "n": 239
     }
    ],
    "3": [
     {
      "intent": "Attack",
      "label": "14",
-     "n": 217
+     "n": 218
     },
     {
      "intent": "Attack",
@@ -14763,7 +14590,7 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 189
+     "n": 190
     }
    ],
    "5": [
@@ -14824,7 +14651,8 @@
      "n": 6
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Shrinker Beetle": {
   "n_fights": 850,
@@ -15025,17 +14853,18 @@
      "n": 2
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Skulking Colony": {
-  "n_fights": 187,
+  "n_fights": 188,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Attack",
      "label": "14",
-     "n": 183
+     "n": 184
     },
     {
      "intent": "Attack",
@@ -15067,7 +14896,7 @@
     {
      "intent": "Attack",
      "label": "14",
-     "n": 166
+     "n": 167
     },
     {
      "intent": "Attack",
@@ -15099,12 +14928,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 187
+     "n": 188
     },
     {
      "intent": "Attack",
      "label": "9",
-     "n": 163
+     "n": 164
     },
     {
      "intent": "Attack",
@@ -15131,7 +14960,7 @@
     {
      "intent": "Attack",
      "label": "9x2",
-     "n": 167
+     "n": 168
     },
     {
      "intent": "Attack",
@@ -15163,7 +14992,7 @@
     {
      "intent": "Attack",
      "label": "16",
-     "n": 130
+     "n": 131
     },
     {
      "intent": "Attack",
@@ -15234,7 +15063,8 @@
      "n": 2
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Slimed Berserker": {
   "n_fights": 101,
@@ -15453,7 +15283,8 @@
      "n": 7
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Slithering Strangler": {
   "n_fights": 235,
@@ -15618,22 +15449,23 @@
      "n": 3
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Sludge Spinner": {
-  "n_fights": 573,
+  "n_fights": 574,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Debuff",
      "label": "",
-     "n": 573
+     "n": 574
     },
     {
      "intent": "Attack",
      "label": "8",
-     "n": 570
+     "n": 571
     },
     {
      "intent": "Attack",
@@ -15655,7 +15487,7 @@
     {
      "intent": "Attack",
      "label": "11",
-     "n": 287
+     "n": 288
     },
     {
      "intent": "Buff",
@@ -15692,12 +15524,12 @@
     {
      "intent": "Attack",
      "label": "6",
-     "n": 145
+     "n": 146
     },
     {
      "intent": "Buff",
      "label": "",
-     "n": 144
+     "n": 145
     },
     {
      "intent": "Attack",
@@ -15791,198 +15623,133 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Slumbering Beetle": {
   "n_fights": 256,
   "notes": "",
   "turns": {
-   "1": [
+   "W1": [
     {
-     "intent": "Sleep",
+     "intent": "Buff",
      "label": "",
-     "n": 256
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 3
-    }
-   ],
-   "2": [
-    {
-     "intent": "Sleep",
-     "label": "",
-     "n": 249
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 8
+     "n": 254
     },
     {
      "intent": "Attack",
      "label": "16",
-     "n": 7
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 7
-    }
-   ],
-   "3": [
-    {
-     "intent": "Sleep",
-     "label": "",
-     "n": 213
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 54
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 39
-    },
-    {
-     "intent": "Attack",
-     "label": "16",
-     "n": 33
-    },
-    {
-     "intent": "Attack",
-     "label": "18",
-     "n": 5
-    },
-    {
-     "intent": "Attack",
-     "label": "19",
-     "n": 1
-    }
-   ],
-   "4": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 247
-    },
-    {
-     "intent": "Attack",
-     "label": "16",
-     "n": 204
-    },
-    {
-     "intent": "Attack",
-     "label": "18",
-     "n": 28
+     "n": 243
     },
     {
      "intent": "Attack",
      "label": "12",
-     "n": 12
+     "n": 13
     },
     {
      "intent": "Attack",
      "label": "20",
-     "n": 9
+     "n": 6
     },
     {
      "intent": "Attack",
      "label": "17",
-     "n": 5
+     "n": 6
+    },
+    {
+     "intent": "Attack",
+     "label": "8",
+     "n": 2
     }
    ],
-   "5": [
+   "W2": [
     {
      "intent": "Buff",
      "label": "",
+     "n": 225
+    },
+    {
+     "intent": "Attack",
+     "label": "18",
      "n": 213
     },
     {
      "intent": "Attack",
-     "label": "18",
-     "n": 181
-    },
-    {
-     "intent": "Attack",
-     "label": "20",
-     "n": 19
-    },
-    {
-     "intent": "Attack",
      "label": "13",
-     "n": 16
+     "n": 20
     },
     {
      "intent": "Attack",
      "label": "19",
-     "n": 8
-    },
-    {
-     "intent": "Attack",
-     "label": "15",
-     "n": 5
-    }
-   ],
-   "6": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 147
-    },
-    {
-     "intent": "Attack",
-     "label": "20",
-     "n": 124
-    },
-    {
-     "intent": "Attack",
-     "label": "15",
-     "n": 14
-    },
-    {
-     "intent": "Attack",
-     "label": "21",
      "n": 10
     },
     {
      "intent": "Attack",
-     "label": "22",
-     "n": 8
+     "label": "9",
+     "n": 3
+    },
+    {
+     "intent": "Attack",
+     "label": "3",
+     "n": 2
+    }
+   ],
+   "W3": [
+    {
+     "intent": "Buff",
+     "label": "",
+     "n": 163
+    },
+    {
+     "intent": "Attack",
+     "label": "20",
+     "n": 146
+    },
+    {
+     "intent": "Attack",
+     "label": "15",
+     "n": 19
+    },
+    {
+     "intent": "Attack",
+     "label": "21",
+     "n": 11
     },
     {
      "intent": "Attack",
      "label": "10",
-     "n": 6
-    }
-   ],
-   "7": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 69
-    },
-    {
-     "intent": "Attack",
-     "label": "22",
-     "n": 62
-    },
-    {
-     "intent": "Attack",
-     "label": "16",
      "n": 7
     },
     {
      "intent": "Attack",
-     "label": "23",
-     "n": 5
+     "label": "7",
+     "n": 1
+    }
+   ],
+   "W4": [
+    {
+     "intent": "Buff",
+     "label": "",
+     "n": 75
     },
     {
      "intent": "Attack",
-     "label": "24",
+     "label": "22",
+     "n": 70
+    },
+    {
+     "intent": "Attack",
+     "label": "16",
+     "n": 8
+    },
+    {
+     "intent": "Attack",
+     "label": "23",
+     "n": 7
+    },
+    {
+     "intent": "Attack",
+     "label": "11",
      "n": 2
     },
     {
@@ -15991,16 +15758,21 @@
      "n": 1
     }
    ],
-   "8": [
+   "W5": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 19
+     "n": 23
     },
     {
      "intent": "Attack",
      "label": "24",
-     "n": 16
+     "n": 19
+    },
+    {
+     "intent": "Attack",
+     "label": "25",
+     "n": 3
     },
     {
      "intent": "Attack",
@@ -16009,25 +15781,20 @@
     },
     {
      "intent": "Attack",
-     "label": "25",
-     "n": 2
-    },
-    {
-     "intent": "Attack",
      "label": "16",
      "n": 1
     }
    ],
-   "9": [
+   "W6": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 5
+     "n": 6
     },
     {
      "intent": "Attack",
      "label": "26",
-     "n": 4
+     "n": 5
     },
     {
      "intent": "Attack",
@@ -16035,7 +15802,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Snapping Jaxfruit": {
   "n_fights": 276,
@@ -16151,41 +15919,23 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Sneaky Gremlin": {
   "n_fights": 239,
   "notes": "",
   "turns": {
-   "1": [
+   "W1": [
     {
-     "intent": "Stun",
-     "label": "",
+     "intent": "Attack",
+     "label": "9",
+     "n": 229
+    },
+    {
+     "intent": "Attack",
+     "label": "6",
      "n": 2
-    }
-   ],
-   "2": [
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 50
-    },
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 3
-    }
-   ],
-   "3": [
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 59
-    },
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 51
     },
     {
      "intent": "Attack",
@@ -16198,99 +15948,42 @@
      "n": 1
     }
    ],
-   "4": [
+   "W2": [
     {
      "intent": "Attack",
      "label": "9",
-     "n": 76
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 63
-    },
-    {
-     "intent": "Attack",
-     "label": "11",
-     "n": 1
-    },
-    {
-     "intent": "Attack",
-     "label": "6",
-     "n": 1
-    }
-   ],
-   "5": [
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 81
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 39
-    },
-    {
-     "intent": "Attack",
-     "label": "6",
-     "n": 1
-    }
-   ],
-   "6": [
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 58
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 11
+     "n": 68
     },
     {
      "intent": "Attack",
      "label": "6",
      "n": 2
-    }
-   ],
-   "7": [
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 20
     },
     {
-     "intent": "Stun",
-     "label": "",
-     "n": 6
-    }
-   ],
-   "8": [
-    {
      "intent": "Attack",
-     "label": "9",
-     "n": 11
-    }
-   ],
-   "9": [
-    {
-     "intent": "Attack",
-     "label": "9",
+     "label": "11",
      "n": 1
     }
+   ],
+   "W3": [
+    {
+     "intent": "Attack",
+     "label": "9",
+     "n": 4
+    }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Soul Fysh": {
-  "n_fights": 235,
+  "n_fights": 236,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 235
+     "n": 236
     }
    ],
    "10": [
@@ -16467,7 +16160,7 @@
     {
      "intent": "Attack",
      "label": "16",
-     "n": 213
+     "n": 214
     },
     {
      "intent": "Attack",
@@ -16594,12 +16287,12 @@
     {
      "intent": "StatusCard",
      "label": "1",
-     "n": 234
+     "n": 235
     },
     {
      "intent": "Attack",
      "label": "7",
-     "n": 211
+     "n": 212
     },
     {
      "intent": "Attack",
@@ -16652,19 +16345,19 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 233
+     "n": 234
     }
    ],
    "5": [
     {
      "intent": "Debuff",
      "label": "",
-     "n": 228
+     "n": 229
     },
     {
      "intent": "Attack",
      "label": "13",
-     "n": 211
+     "n": 212
     },
     {
      "intent": "Attack",
@@ -16691,14 +16384,14 @@
     {
      "intent": "StatusCard",
      "label": "2",
-     "n": 226
+     "n": 227
     }
    ],
    "7": [
     {
      "intent": "Attack",
      "label": "24",
-     "n": 205
+     "n": 206
     },
     {
      "intent": "Attack",
@@ -16730,12 +16423,12 @@
     {
      "intent": "StatusCard",
      "label": "1",
-     "n": 187
+     "n": 188
     },
     {
      "intent": "Attack",
      "label": "10",
-     "n": 182
+     "n": 183
     },
     {
      "intent": "Attack",
@@ -16765,7 +16458,8 @@
      "n": 162
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Soul Nexus": {
   "n_fights": 11,
@@ -16908,7 +16602,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Spectral Knight": {
   "n_fights": 14,
@@ -16979,17 +16674,18 @@
      "n": 3
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Spiny Toad": {
-  "n_fights": 320,
+  "n_fights": 321,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 320
+     "n": 321
     }
    ],
    "10": [
@@ -17017,7 +16713,7 @@
     {
      "intent": "Attack",
      "label": "23",
-     "n": 283
+     "n": 284
     },
     {
      "intent": "Attack",
@@ -17049,7 +16745,7 @@
     {
      "intent": "Attack",
      "label": "17",
-     "n": 248
+     "n": 249
     },
     {
      "intent": "Attack",
@@ -17081,7 +16777,7 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 213
+     "n": 214
     }
    ],
    "5": [
@@ -17169,34 +16865,23 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Stabbot": {
   "n_fights": 98,
   "notes": "",
   "turns": {
-   "10": [
-    {
-     "intent": "Attack",
-     "label": "11",
-     "n": 2
-    },
+   "W1": [
     {
      "intent": "Debuff",
      "label": "",
-     "n": 2
-    }
-   ],
-   "2": [
-    {
-     "intent": "Debuff",
-     "label": "",
-     "n": 64
+     "n": 98
     },
     {
      "intent": "Attack",
      "label": "11",
-     "n": 61
+     "n": 95
     },
     {
      "intent": "Attack",
@@ -17210,20 +16895,25 @@
     },
     {
      "intent": "Attack",
+     "label": "8",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
      "label": "4",
      "n": 1
     }
    ],
-   "3": [
+   "W2": [
     {
      "intent": "Debuff",
      "label": "",
-     "n": 80
+     "n": 73
     },
     {
      "intent": "Attack",
      "label": "11",
-     "n": 78
+     "n": 71
     },
     {
      "intent": "Attack",
@@ -17237,8 +16927,20 @@
     },
     {
      "intent": "Attack",
-     "label": "8",
+     "label": "12",
      "n": 1
+    }
+   ],
+   "W3": [
+    {
+     "intent": "Debuff",
+     "label": "",
+     "n": 49
+    },
+    {
+     "intent": "Attack",
+     "label": "11",
+     "n": 48
     },
     {
      "intent": "Attack",
@@ -17246,33 +16948,16 @@
      "n": 1
     }
    ],
-   "4": [
-    {
-     "intent": "Debuff",
-     "label": "",
-     "n": 60
-    },
+   "W4": [
     {
      "intent": "Attack",
      "label": "11",
-     "n": 59
-    },
-    {
-     "intent": "Attack",
-     "label": "12",
-     "n": 1
-    }
-   ],
-   "5": [
-    {
-     "intent": "Attack",
-     "label": "11",
-     "n": 33
+     "n": 28
     },
     {
      "intent": "Debuff",
      "label": "",
-     "n": 33
+     "n": 28
     },
     {
      "intent": "Attack",
@@ -17280,55 +16965,56 @@
      "n": 1
     }
    ],
-   "6": [
+   "W5": [
     {
      "intent": "Attack",
      "label": "11",
-     "n": 15
+     "n": 12
     },
     {
      "intent": "Debuff",
      "label": "",
-     "n": 15
+     "n": 12
     }
    ],
-   "7": [
+   "W6": [
     {
      "intent": "Attack",
      "label": "11",
-     "n": 7
+     "n": 4
     },
     {
      "intent": "Debuff",
      "label": "",
-     "n": 7
+     "n": 4
     }
    ],
-   "8": [
+   "W7": [
     {
      "intent": "Attack",
      "label": "11",
-     "n": 5
+     "n": 3
     },
     {
      "intent": "Debuff",
      "label": "",
-     "n": 5
+     "n": 3
     }
    ],
-   "9": [
+   "W9": [
     {
      "intent": "Attack",
      "label": "11",
-     "n": 2
+     "n": 1
     },
     {
      "intent": "Debuff",
      "label": "",
-     "n": 2
+     "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Terror Eel": {
   "n_fights": 161,
@@ -17677,7 +17363,8 @@
      "n": 3
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C10": {
   "n_fights": 1,
@@ -17767,7 +17454,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C101": {
   "n_fights": 1,
@@ -17872,7 +17560,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C103": {
   "n_fights": 1,
@@ -18127,7 +17816,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C105": {
   "n_fights": 1,
@@ -18186,7 +17876,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C106": {
   "n_fights": 1,
@@ -18235,7 +17926,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C107": {
   "n_fights": 1,
@@ -18328,7 +18020,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C108": {
   "n_fights": 1,
@@ -18476,7 +18169,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C110": {
   "n_fights": 1,
@@ -18575,7 +18269,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C112": {
   "n_fights": 1,
@@ -18624,7 +18319,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C113": {
   "n_fights": 1,
@@ -18755,7 +18451,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C115": {
   "n_fights": 1,
@@ -18859,7 +18556,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C117": {
   "n_fights": 1,
@@ -18982,7 +18680,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C119": {
   "n_fights": 1,
@@ -19091,7 +18790,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C121": {
   "n_fights": 1,
@@ -19133,7 +18833,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C122": {
   "n_fights": 1,
@@ -19213,7 +18914,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C124": {
   "n_fights": 1,
@@ -19286,7 +18988,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C126": {
   "n_fights": 1,
@@ -19388,7 +19091,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C128": {
   "n_fights": 1,
@@ -19439,7 +19143,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C129": {
   "n_fights": 1,
@@ -19541,7 +19246,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C131": {
   "n_fights": 1,
@@ -19623,7 +19329,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C133": {
   "n_fights": 1,
@@ -19782,7 +19489,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C135": {
   "n_fights": 1,
@@ -19888,7 +19596,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C137": {
   "n_fights": 1,
@@ -19959,7 +19668,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C138": {
   "n_fights": 1,
@@ -20044,7 +19754,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C14": {
   "n_fights": 1,
@@ -20110,7 +19821,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C140": {
   "n_fights": 1,
@@ -20171,7 +19883,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C142": {
   "n_fights": 1,
@@ -20296,7 +20009,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C144": {
   "n_fights": 1,
@@ -20328,7 +20042,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C145": {
   "n_fights": 1,
@@ -20418,7 +20133,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C147": {
   "n_fights": 1,
@@ -20496,7 +20212,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C148": {
   "n_fights": 1,
@@ -20598,7 +20315,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C15": {
   "n_fights": 1,
@@ -20700,7 +20418,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C150": {
   "n_fights": 1,
@@ -20787,7 +20506,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C152": {
   "n_fights": 1,
@@ -20862,7 +20582,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C154": {
   "n_fights": 1,
@@ -20930,7 +20651,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C155": {
   "n_fights": 1,
@@ -21001,7 +20723,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C157": {
   "n_fights": 1,
@@ -21114,7 +20837,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C159": {
   "n_fights": 1,
@@ -21177,7 +20901,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C161": {
   "n_fights": 1,
@@ -21270,7 +20995,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C162": {
   "n_fights": 1,
@@ -21348,7 +21074,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C163": {
   "n_fights": 1,
@@ -21430,7 +21157,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C165": {
   "n_fights": 1,
@@ -21511,7 +21239,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C17": {
   "n_fights": 1,
@@ -21559,7 +21288,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C19": {
   "n_fights": 1,
@@ -21625,7 +21355,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C20": {
   "n_fights": 2,
@@ -21734,7 +21465,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C21": {
   "n_fights": 1,
@@ -21873,7 +21605,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C23": {
   "n_fights": 1,
@@ -21932,7 +21665,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C24": {
   "n_fights": 1,
@@ -22005,7 +21739,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C25": {
   "n_fights": 1,
@@ -22078,7 +21813,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C26": {
   "n_fights": 1,
@@ -22182,7 +21918,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C28": {
   "n_fights": 1,
@@ -22233,7 +21970,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C31": {
   "n_fights": 1,
@@ -22318,7 +22056,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C33": {
   "n_fights": 1,
@@ -22437,7 +22176,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C35": {
   "n_fights": 1,
@@ -22495,7 +22235,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C37": {
   "n_fights": 1,
@@ -22568,7 +22309,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C39": {
   "n_fights": 1,
@@ -22643,7 +22385,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C41": {
   "n_fights": 1,
@@ -22757,7 +22500,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C43": {
   "n_fights": 1,
@@ -22844,7 +22588,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C45": {
   "n_fights": 1,
@@ -22962,7 +22707,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C47": {
   "n_fights": 1,
@@ -23042,7 +22788,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C49": {
   "n_fights": 1,
@@ -23171,7 +22918,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C51": {
   "n_fights": 1,
@@ -23248,7 +22996,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C53": {
   "n_fights": 1,
@@ -23355,7 +23104,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C55": {
   "n_fights": 1,
@@ -23467,7 +23217,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C57": {
   "n_fights": 1,
@@ -23559,7 +23310,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C59": {
   "n_fights": 1,
@@ -23615,7 +23367,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C60": {
   "n_fights": 1,
@@ -23743,7 +23496,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C62": {
   "n_fights": 1,
@@ -23832,7 +23586,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C64": {
   "n_fights": 1,
@@ -23864,7 +23619,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C65": {
   "n_fights": 1,
@@ -24125,7 +23881,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C67": {
   "n_fights": 1,
@@ -24200,7 +23957,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C69": {
   "n_fights": 1,
@@ -24285,7 +24043,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C70": {
   "n_fights": 1,
@@ -24405,7 +24164,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C72": {
   "n_fights": 1,
@@ -24488,7 +24248,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C73": {
   "n_fights": 1,
@@ -24556,7 +24317,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C75": {
   "n_fights": 1,
@@ -24683,7 +24445,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C77": {
   "n_fights": 1,
@@ -24811,7 +24574,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C79": {
   "n_fights": 1,
@@ -24882,7 +24646,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C80": {
   "n_fights": 1,
@@ -24914,7 +24679,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C81": {
   "n_fights": 1,
@@ -25032,7 +24798,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C83": {
   "n_fights": 1,
@@ -25129,7 +24896,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C85": {
   "n_fights": 1,
@@ -25235,7 +25003,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C87": {
   "n_fights": 1,
@@ -25377,7 +25146,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C89": {
   "n_fights": 1,
@@ -25460,7 +25230,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C91": {
   "n_fights": 1,
@@ -25559,7 +25330,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C93": {
   "n_fights": 1,
@@ -25682,7 +25454,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C95": {
   "n_fights": 1,
@@ -25794,7 +25567,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C97": {
   "n_fights": 1,
@@ -25935,7 +25709,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Test Subject #C99": {
   "n_fights": 1,
@@ -26031,7 +25806,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "The Forgotten": {
   "n_fights": 110,
@@ -26227,7 +26003,8 @@
      "n": 3
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "The Insatiable": {
   "n_fights": 228,
@@ -26499,7 +26276,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "The Lost": {
   "n_fights": 110,
@@ -26636,7 +26414,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "The Obscura": {
   "n_fights": 326,
@@ -27023,22 +26802,23 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Thieving Hopper": {
-  "n_fights": 457,
+  "n_fights": 459,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "CardDebuff",
      "label": "",
-     "n": 457
+     "n": 459
     },
     {
      "intent": "Attack",
      "label": "17",
-     "n": 440
+     "n": 442
     },
     {
      "intent": "Attack",
@@ -27065,14 +26845,14 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 450
+     "n": 452
     }
    ],
    "3": [
     {
      "intent": "Attack",
      "label": "21",
-     "n": 345
+     "n": 346
     },
     {
      "intent": "Attack",
@@ -27151,22 +26931,23 @@
      "n": 35
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Toadpole": {
-  "n_fights": 575,
+  "n_fights": 577,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 575
+     "n": 577
     },
     {
      "intent": "Attack",
      "label": "7",
-     "n": 571
+     "n": 573
     },
     {
      "intent": "Attack",
@@ -27178,12 +26959,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 559
+     "n": 561
     },
     {
      "intent": "Attack",
      "label": "3x3",
-     "n": 477
+     "n": 479
     },
     {
      "intent": "Attack",
@@ -27205,7 +26986,7 @@
     {
      "intent": "Attack",
      "label": "3x3",
-     "n": 467
+     "n": 469
     },
     {
      "intent": "Attack",
@@ -27252,7 +27033,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Torch Head Amalgam": {
   "n_fights": 84,
@@ -27511,34 +27293,36 @@
      "n": 2
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Tough Egg": {
   "n_fights": 317,
   "notes": "",
   "turns": {
-   "2": [
+   "W1": [
     {
      "intent": "Summon",
      "label": "",
      "n": 317
     }
    ],
-   "5": [
+   "W4": [
     {
      "intent": "Summon",
      "label": "",
      "n": 27
     }
    ],
-   "8": [
+   "W7": [
     {
      "intent": "Summon",
      "label": "",
      "n": 7
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Tracker Raider": {
   "n_fights": 120,
@@ -27639,17 +27423,18 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Tunneler": {
-  "n_fights": 453,
+  "n_fights": 454,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Attack",
      "label": "13",
-     "n": 431
+     "n": 432
     },
     {
      "intent": "Attack",
@@ -27681,7 +27466,7 @@
     {
      "intent": "Attack",
      "label": "23",
-     "n": 6
+     "n": 7
     },
     {
      "intent": "Attack",
@@ -27693,24 +27478,34 @@
     {
      "intent": "Attack",
      "label": "23",
-     "n": 4
+     "n": 5
     },
     {
      "intent": "Stun",
      "label": "",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "11",
      "n": 1
     }
    ],
    "12": [
     {
      "intent": "Attack",
+     "label": "23",
+     "n": 3
+    },
+    {
+     "intent": "Attack",
      "label": "13",
      "n": 2
     },
     {
-     "intent": "Attack",
-     "label": "23",
-     "n": 2
+     "intent": "Stun",
+     "label": "",
+     "n": 1
     }
    ],
    "13": [
@@ -27732,6 +27527,11 @@
     {
      "intent": "Stun",
      "label": "",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "13",
      "n": 1
     }
    ],
@@ -27787,19 +27587,19 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 450
+     "n": 451
     },
     {
      "intent": "Defend",
      "label": "",
-     "n": 450
+     "n": 451
     }
    ],
    "3": [
     {
      "intent": "Attack",
      "label": "23",
-     "n": 366
+     "n": 367
     },
     {
      "intent": "Stun",
@@ -27819,7 +27619,7 @@
     {
      "intent": "Attack",
      "label": "11",
-     "n": 6
+     "n": 7
     },
     {
      "intent": "Attack",
@@ -27831,7 +27631,7 @@
     {
      "intent": "Attack",
      "label": "23",
-     "n": 233
+     "n": 234
     },
     {
      "intent": "Stun",
@@ -27868,7 +27668,7 @@
     {
      "intent": "Attack",
      "label": "23",
-     "n": 93
+     "n": 94
     },
     {
      "intent": "Stun",
@@ -27900,7 +27700,7 @@
     {
      "intent": "Attack",
      "label": "23",
-     "n": 39
+     "n": 40
     },
     {
      "intent": "Buff",
@@ -27915,7 +27715,7 @@
     {
      "intent": "Stun",
      "label": "",
-     "n": 26
+     "n": 27
     },
     {
      "intent": "Attack",
@@ -27927,7 +27727,7 @@
     {
      "intent": "Attack",
      "label": "13",
-     "n": 17
+     "n": 18
     },
     {
      "intent": "Attack",
@@ -27964,12 +27764,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 7
+     "n": 8
     },
     {
      "intent": "Defend",
      "label": "",
-     "n": 7
+     "n": 8
     },
     {
      "intent": "Stun",
@@ -27986,7 +27786,7 @@
     {
      "intent": "Attack",
      "label": "23",
-     "n": 9
+     "n": 10
     },
     {
      "intent": "Stun",
@@ -28014,7 +27814,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Turret Operator": {
   "n_fights": 211,
@@ -28122,7 +27923,8 @@
      "n": 3
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Twig Slime (M)": {
   "n_fights": 624,
@@ -28274,7 +28076,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Twig Slime (S)": {
   "n_fights": 859,
@@ -28377,7 +28180,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Two-Tailed Rat": {
   "n_fights": 230,
@@ -28664,7 +28468,8 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Vantom": {
   "n_fights": 233,
@@ -29038,7 +28843,8 @@
      "n": 2
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Vine Shambler": {
   "n_fights": 217,
@@ -29219,29 +29025,30 @@
      "n": 6
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Waterfall Giant": {
-  "n_fights": 256,
+  "n_fights": 257,
   "notes": "",
   "turns": {
    "1": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 256
+     "n": 257
     }
    ],
    "10": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 108
+     "n": 109
     },
     {
      "intent": "Attack",
      "label": "25",
-     "n": 107
+     "n": 108
     },
     {
      "intent": "DeathBlow",
@@ -29268,12 +29075,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 70
+     "n": 71
     },
     {
      "intent": "Attack",
      "label": "13",
-     "n": 67
+     "n": 68
     },
     {
      "intent": "DeathBlow",
@@ -29300,17 +29107,17 @@
     {
      "intent": "Attack",
      "label": "15",
-     "n": 49
+     "n": 50
     },
     {
      "intent": "Debuff",
      "label": "",
-     "n": 49
+     "n": 50
     },
     {
      "intent": "Buff",
      "label": "",
-     "n": 49
+     "n": 50
     },
     {
      "intent": "DeathBlow",
@@ -29332,12 +29139,12 @@
     {
      "intent": "Attack",
      "label": "10",
-     "n": 36
+     "n": 37
     },
     {
      "intent": "Buff",
      "label": "",
-     "n": 36
+     "n": 37
     },
     {
      "intent": "DeathBlow",
@@ -29364,17 +29171,17 @@
     {
      "intent": "Heal",
      "label": "",
-     "n": 28
+     "n": 29
     },
     {
      "intent": "Buff",
      "label": "",
-     "n": 28
+     "n": 29
     },
     {
      "intent": "Stun",
      "label": "",
-     "n": 10
+     "n": 11
     },
     {
      "intent": "DeathBlow",
@@ -29396,7 +29203,7 @@
     {
      "intent": "DeathBlow",
      "label": "51",
-     "n": 11
+     "n": 12
     },
     {
      "intent": "Stun",
@@ -29516,17 +29323,17 @@
     {
      "intent": "Debuff",
      "label": "",
-     "n": 255
+     "n": 256
     },
     {
      "intent": "Buff",
      "label": "",
-     "n": 255
+     "n": 256
     },
     {
      "intent": "Attack",
      "label": "15",
-     "n": 224
+     "n": 225
     },
     {
      "intent": "Attack",
@@ -29693,12 +29500,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 255
+     "n": 256
     },
     {
      "intent": "Attack",
      "label": "10",
-     "n": 213
+     "n": 214
     },
     {
      "intent": "Attack",
@@ -29737,12 +29544,12 @@
     {
      "intent": "Heal",
      "label": "",
-     "n": 254
+     "n": 255
     },
     {
      "intent": "Buff",
      "label": "",
-     "n": 254
+     "n": 255
     },
     {
      "intent": "Stun",
@@ -29754,12 +29561,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 254
+     "n": 255
     },
     {
      "intent": "Attack",
      "label": "20",
-     "n": 223
+     "n": 224
     },
     {
      "intent": "Attack",
@@ -29786,12 +29593,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 246
+     "n": 247
     },
     {
      "intent": "Attack",
      "label": "13",
-     "n": 221
+     "n": 222
     },
     {
      "intent": "Stun",
@@ -29818,17 +29625,17 @@
     {
      "intent": "Debuff",
      "label": "",
-     "n": 218
+     "n": 219
     },
     {
      "intent": "Buff",
      "label": "",
-     "n": 218
+     "n": 219
     },
     {
      "intent": "Attack",
      "label": "15",
-     "n": 205
+     "n": 206
     },
     {
      "intent": "Stun",
@@ -29850,12 +29657,12 @@
     {
      "intent": "Buff",
      "label": "",
-     "n": 171
+     "n": 172
     },
     {
      "intent": "Attack",
      "label": "10",
-     "n": 167
+     "n": 168
     },
     {
      "intent": "DeathBlow",
@@ -29882,12 +29689,12 @@
     {
      "intent": "Heal",
      "label": "",
-     "n": 140
+     "n": 141
     },
     {
      "intent": "Buff",
      "label": "",
-     "n": 140
+     "n": 141
     },
     {
      "intent": "Stun",
@@ -29910,27 +29717,28 @@
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": false
  },
  "Wriggler": {
   "n_fights": 295,
   "notes": "",
   "turns": {
-   "1": [
+   "W1": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 74
+     "n": 295
     },
     {
      "intent": "StatusCard",
      "label": "1",
-     "n": 74
+     "n": 295
     },
     {
      "intent": "Attack",
      "label": "6",
-     "n": 73
+     "n": 294
     },
     {
      "intent": "Attack",
@@ -29938,405 +29746,221 @@
      "n": 1
     }
    ],
-   "10": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 25
-    },
-    {
-     "intent": "StatusCard",
-     "label": "1",
-     "n": 25
-    },
-    {
-     "intent": "Attack",
-     "label": "12",
-     "n": 21
-    },
-    {
-     "intent": "Attack",
-     "label": "10",
-     "n": 13
-    },
-    {
-     "intent": "Attack",
-     "label": "8",
-     "n": 3
-    },
+   "W10": [
     {
      "intent": "Attack",
      "label": "16",
-     "n": 2
+     "n": 4
     }
    ],
-   "11": [
+   "W2": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 15
+     "n": 286
     },
     {
      "intent": "StatusCard",
      "label": "1",
-     "n": 15
-    },
-    {
-     "intent": "Attack",
-     "label": "12",
-     "n": 8
-    },
-    {
-     "intent": "Attack",
-     "label": "10",
-     "n": 2
-    },
-    {
-     "intent": "Attack",
-     "label": "14",
-     "n": 1
-    }
-   ],
-   "12": [
-    {
-     "intent": "Attack",
-     "label": "12",
-     "n": 5
-    },
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 3
-    },
-    {
-     "intent": "StatusCard",
-     "label": "1",
-     "n": 3
-    },
-    {
-     "intent": "Attack",
-     "label": "14",
-     "n": 2
-    },
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 1
-    }
-   ],
-   "13": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 2
-    },
-    {
-     "intent": "StatusCard",
-     "label": "1",
-     "n": 2
-    },
-    {
-     "intent": "Attack",
-     "label": "14",
-     "n": 1
-    },
-    {
-     "intent": "Attack",
-     "label": "16",
-     "n": 1
-    }
-   ],
-   "14": [
-    {
-     "intent": "Attack",
-     "label": "16",
-     "n": 1
-    },
-    {
-     "intent": "Attack",
-     "label": "14",
-     "n": 1
-    }
-   ],
-   "2": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 78
-    },
-    {
-     "intent": "StatusCard",
-     "label": "1",
-     "n": 78
+     "n": 286
     },
     {
      "intent": "Attack",
      "label": "8",
-     "n": 73
-    },
-    {
-     "intent": "Attack",
-     "label": "6",
-     "n": 5
-    }
-   ],
-   "3": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 117
-    },
-    {
-     "intent": "StatusCard",
-     "label": "1",
-     "n": 117
-    },
-    {
-     "intent": "Attack",
-     "label": "8",
-     "n": 77
-    },
-    {
-     "intent": "Attack",
-     "label": "6",
-     "n": 60
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 6
-    }
-   ],
-   "4": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 217
-    },
-    {
-     "intent": "StatusCard",
-     "label": "1",
-     "n": 217
-    },
-    {
-     "intent": "Attack",
-     "label": "6",
-     "n": 100
-    },
-    {
-     "intent": "Attack",
-     "label": "8",
-     "n": 57
-    },
-    {
-     "intent": "Attack",
-     "label": "10",
-     "n": 45
-    },
-    {
-     "intent": "Stun",
-     "label": "",
-     "n": 2
-    }
-   ],
-   "5": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 193
-    },
-    {
-     "intent": "StatusCard",
-     "label": "1",
-     "n": 193
-    },
-    {
-     "intent": "Attack",
-     "label": "8",
-     "n": 145
-    },
-    {
-     "intent": "Attack",
-     "label": "6",
-     "n": 42
-    },
-    {
-     "intent": "Attack",
-     "label": "10",
-     "n": 40
-    },
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 1
-    }
-   ],
-   "6": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 155
-    },
-    {
-     "intent": "StatusCard",
-     "label": "1",
-     "n": 155
-    },
-    {
-     "intent": "Attack",
-     "label": "8",
-     "n": 118
-    },
-    {
-     "intent": "Attack",
-     "label": "10",
-     "n": 24
-    },
-    {
-     "intent": "Attack",
-     "label": "6",
-     "n": 15
-    },
-    {
-     "intent": "Attack",
-     "label": "12",
-     "n": 14
-    }
-   ],
-   "7": [
-    {
-     "intent": "Buff",
-     "label": "",
-     "n": 121
-    },
-    {
-     "intent": "StatusCard",
-     "label": "1",
-     "n": 121
-    },
-    {
-     "intent": "Attack",
-     "label": "10",
-     "n": 53
-    },
-    {
-     "intent": "Attack",
-     "label": "8",
-     "n": 45
-    },
-    {
-     "intent": "Attack",
-     "label": "12",
-     "n": 9
+     "n": 277
     },
     {
      "intent": "Attack",
      "label": "6",
      "n": 7
+    },
+    {
+     "intent": "Attack",
+     "label": "9",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "3",
+     "n": 1
     }
    ],
-   "8": [
+   "W3": [
+    {
+     "intent": "Attack",
+     "label": "8",
+     "n": 268
+    },
     {
      "intent": "Buff",
      "label": "",
-     "n": 78
+     "n": 187
     },
     {
      "intent": "StatusCard",
      "label": "1",
-     "n": 78
-    },
-    {
-     "intent": "Attack",
-     "label": "10",
-     "n": 62
-    },
-    {
-     "intent": "Attack",
-     "label": "8",
-     "n": 18
-    },
-    {
-     "intent": "Attack",
-     "label": "14",
-     "n": 4
+     "n": 187
     },
     {
      "intent": "Attack",
      "label": "6",
-     "n": 4
+     "n": 6
+    },
+    {
+     "intent": "Attack",
+     "label": "4",
+     "n": 1
     }
    ],
-   "9": [
+   "W4": [
     {
      "intent": "Buff",
      "label": "",
-     "n": 58
+     "n": 204
     },
     {
      "intent": "StatusCard",
      "label": "1",
-     "n": 58
+     "n": 204
     },
     {
      "intent": "Attack",
      "label": "10",
-     "n": 27
+     "n": 145
+    },
+    {
+     "intent": "Attack",
+     "label": "11",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "0",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "7",
+     "n": 1
+    }
+   ],
+   "W5": [
+    {
+     "intent": "Attack",
+     "label": "10",
+     "n": 121
+    },
+    {
+     "intent": "Buff",
+     "label": "",
+     "n": 75
+    },
+    {
+     "intent": "StatusCard",
+     "label": "1",
+     "n": 75
+    },
+    {
+     "intent": "Attack",
+     "label": "7",
+     "n": 2
+    }
+   ],
+   "W6": [
+    {
+     "intent": "Buff",
+     "label": "",
+     "n": 60
+    },
+    {
+     "intent": "StatusCard",
+     "label": "1",
+     "n": 60
     },
     {
      "intent": "Attack",
      "label": "12",
-     "n": 14
+     "n": 48
+    }
+   ],
+   "W7": [
+    {
+     "intent": "Attack",
+     "label": "12",
+     "n": 26
+    },
+    {
+     "intent": "Buff",
+     "label": "",
+     "n": 19
+    },
+    {
+     "intent": "StatusCard",
+     "label": "1",
+     "n": 19
     },
     {
      "intent": "Attack",
-     "label": "8",
-     "n": 9
+     "label": "9",
+     "n": 1
+    }
+   ],
+   "W8": [
+    {
+     "intent": "Attack",
+     "label": "14",
+     "n": 7
+    },
+    {
+     "intent": "Buff",
+     "label": "",
+     "n": 6
+    },
+    {
+     "intent": "StatusCard",
+     "label": "1",
+     "n": 6
+    }
+   ],
+   "W9": [
+    {
+     "intent": "Buff",
+     "label": "",
+     "n": 4
+    },
+    {
+     "intent": "StatusCard",
+     "label": "1",
+     "n": 4
     },
     {
      "intent": "Attack",
      "label": "14",
-     "n": 2
+     "n": 4
     }
    ]
-  }
+  },
+  "wake_anchored": true
  },
  "Zapbot": {
   "n_fights": 91,
   "notes": "",
   "turns": {
-   "2": [
+   "W1": [
     {
      "intent": "Attack",
      "label": "16",
-     "n": 44
+     "n": 87
     },
     {
      "intent": "Attack",
      "label": "17",
-     "n": 4
-    },
-    {
-     "intent": "Attack",
-     "label": "12",
-     "n": 1
-    }
-   ],
-   "3": [
-    {
-     "intent": "Attack",
-     "label": "16",
-     "n": 51
-    },
-    {
-     "intent": "Attack",
-     "label": "18",
      "n": 8
     },
     {
      "intent": "Attack",
-     "label": "17",
-     "n": 4
+     "label": "12",
+     "n": 2
     },
     {
      "intent": "Attack",
@@ -30346,29 +29970,56 @@
     {
      "intent": "Attack",
      "label": "10",
+     "n": 1
+    }
+   ],
+   "W2": [
+    {
+     "intent": "Attack",
+     "label": "16",
+     "n": 16
+    },
+    {
+     "intent": "Attack",
+     "label": "18",
+     "n": 15
+    },
+    {
+     "intent": "Attack",
+     "label": "20",
      "n": 1
     },
     {
      "intent": "Attack",
      "label": "19",
      "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "17",
+     "n": 1
     }
    ],
-   "4": [
+   "W3": [
     {
      "intent": "Attack",
      "label": "16",
-     "n": 20
+     "n": 16
     },
     {
      "intent": "Attack",
      "label": "18",
-     "n": 9
+     "n": 3
     },
     {
      "intent": "Attack",
      "label": "20",
      "n": 2
+    },
+    {
+     "intent": "Attack",
+     "label": "17",
+     "n": 1
     },
     {
      "intent": "Attack",
@@ -30379,40 +30030,13 @@
      "intent": "Attack",
      "label": "12",
      "n": 1
-    },
-    {
-     "intent": "Attack",
-     "label": "9",
-     "n": 1
     }
    ],
-   "5": [
+   "W4": [
     {
      "intent": "Attack",
      "label": "16",
-     "n": 3
-    },
-    {
-     "intent": "Attack",
-     "label": "18",
-     "n": 2
-    },
-    {
-     "intent": "Attack",
-     "label": "20",
-     "n": 2
-    },
-    {
-     "intent": "Attack",
-     "label": "17",
-     "n": 1
-    }
-   ],
-   "6": [
-    {
-     "intent": "Attack",
-     "label": "16",
-     "n": 7
+     "n": 4
     },
     {
      "intent": "Attack",
@@ -30423,13 +30047,6 @@
      "intent": "Attack",
      "label": "20",
      "n": 1
-    }
-   ],
-   "7": [
-    {
-     "intent": "Attack",
-     "label": "16",
-     "n": 2
     },
     {
      "intent": "Attack",
@@ -30437,13 +30054,38 @@
      "n": 1
     }
    ],
-   "8": [
+   "W5": [
+    {
+     "intent": "Attack",
+     "label": "16",
+     "n": 3
+    },
+    {
+     "intent": "Attack",
+     "label": "18",
+     "n": 1
+    },
+    {
+     "intent": "Attack",
+     "label": "20",
+     "n": 1
+    }
+   ],
+   "W6": [
+    {
+     "intent": "Attack",
+     "label": "16",
+     "n": 1
+    }
+   ],
+   "W7": [
     {
      "intent": "Attack",
      "label": "18",
      "n": 1
     }
    ]
-  }
+  },
+  "wake_anchored": true
  }
 }

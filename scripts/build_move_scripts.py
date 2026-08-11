@@ -27,15 +27,20 @@ LOGS = ROOT / "logs" / "runs"
 DEST = ROOT / "data" / "move_scripts.json"
 
 
+# Intent types that mean "not acting yet" -- a sleeper's dormant phase. Scripts
+# for sleepers are anchored to the WAKE turn (owner P1.1: Matriarch's absolute
+# turn-10 rows blended across whenever she woke in 240 fights; her real script
+# is 'W1, W2, ...' counted from the first active intent).
+_DORMANT = {"sleep", "stun", ""}
+
+
 def main() -> int:
-    # enemy -> round -> Counter[(intent_type, label)]
-    scripts: dict[str, dict[int, Counter]] = defaultdict(lambda: defaultdict(Counter))
-    fights_seen: dict[str, set] = defaultdict(set)
+    # (enemy, run, floor) -> {round: [(itype, label), ...]}
+    per_fight: dict[tuple, dict[int, list]] = defaultdict(lambda: defaultdict(list))
 
     for f in sorted(LOGS.glob("*/decisions.jsonl")):
         run_id = f.parent.name
-        # one sample per (enemy, fight, round): consecutive polls repeat intents
-        seen_this_run: set[tuple] = set()
+        seen: set[tuple] = set()
         for line in f.read_text(encoding="utf-8").splitlines():
             if not line.strip():
                 continue
@@ -53,27 +58,52 @@ def main() -> int:
                     itype = (i.get("type") or "").strip()
                     label = (i.get("label") or "").strip()
                     key = (name, run_id, floor, rnd, itype, label)
-                    if key in seen_this_run:
+                    if key in seen:
                         continue
-                    seen_this_run.add(key)
-                    scripts[name][rnd][(itype, label)] += 1
-                fights_seen[name].add((run_id, floor))
+                    seen.add(key)
+                    per_fight[(name, run_id, floor)][rnd].append((itype, label))
+
+    # aggregate: absolute turn index for normal enemies; wake-anchored for sleepers
+    abs_scripts: dict[str, dict[int, Counter]] = defaultdict(lambda: defaultdict(Counter))
+    wake_scripts: dict[str, dict[int, Counter]] = defaultdict(lambda: defaultdict(Counter))
+    slept_fights: Counter = Counter()
+    n_fights: Counter = Counter()
+
+    for (name, _run, _floor), rounds in per_fight.items():
+        n_fights[name] += 1
+        wake_rnd = None
+        for rnd in sorted(rounds):
+            if any((t or "").lower() not in _DORMANT for t, _ in rounds[rnd]):
+                wake_rnd = rnd
+                break
+        if wake_rnd is not None and wake_rnd > 1:
+            slept_fights[name] += 1
+        for rnd in sorted(rounds):
+            for t, lbl in rounds[rnd]:
+                abs_scripts[name][rnd][(t, lbl)] += 1
+                if wake_rnd is not None and rnd >= wake_rnd:
+                    wake_scripts[name][rnd - wake_rnd + 1][(t, lbl)] += 1
 
     out: dict[str, dict] = {}
-    for name, rounds in sorted(scripts.items()):
+    for name in sorted(n_fights):
+        sleeper = slept_fights[name] >= max(3, 0.3 * n_fights[name])
+        src = wake_scripts[name] if sleeper else abs_scripts[name]
+        prefix = "W" if sleeper else ""
         turns = {}
-        for rnd in sorted(rounds):
-            turns[str(rnd)] = [
+        for rnd in sorted(src):
+            turns[f"{prefix}{rnd}"] = [
                 {"intent": t, "label": lbl, "n": n}
-                for (t, lbl), n in rounds[rnd].most_common(6)
+                for (t, lbl), n in src[rnd].most_common(6)
             ]
         out[name] = {
             "turns": turns,
-            "n_fights": len(fights_seen[name]),
+            "n_fights": n_fights[name],
+            "wake_anchored": sleeper,
             "notes": "",
         }
     DEST.write_text(json.dumps(out, indent=1, sort_keys=True), encoding="utf-8")
-    print(f"wrote move scripts for {len(out)} enemies to {DEST.name}")
+    print(f"wrote move scripts for {len(out)} enemies "
+          f"({sum(1 for n in out.values() if n['wake_anchored'])} wake-anchored) to {DEST.name}")
     return 0
 
 
