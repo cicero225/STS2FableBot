@@ -17,8 +17,8 @@
  },
  "Queen": {
   "mechanic": "Guarded summoner: while any Torch Head Amalgam minion lives she does not attack -- she Buffs (her awakened dps grows per turn) and re-blocks ~20 self-block. The last minion's death 'wakes' her at the buffed dps; she never resummons. Torch-first is usually right and fast (owner A/B 2026-08-02, both target orders taped). Torch swings ~24.8 realized dps. Demise/Weak/Vulnerable in her harvest = player-inflicted.",
-  "modeled": "capability.FightEnemy guarded_by_minions/awakened_dps/awakened_buff_per_turn; standard._BOSS_SUMMONS + _BOSS_GUARDED wire the 2-body forecast; rollout guarded/awakened physics.",
-  "gaps": "Forecast Torch dps uses the act prior (36) when enemy_dps lacks data -- taped realized was ~24.8; check enemy_dps coverage."
+  "modeled": "capability.FightEnemy guarded_by_minions/awakened_dps/awakened_buff_per_turn; standard._BOSS_SUMMONS + _BOSS_GUARDED wire the 2-body forecast; rollout guarded/awakened physics. LIVE-PLANNER FIX 2026-08-11 (4642772): Torch's MINION status made it 'ignorable' (Kin flee rule) so the planner Queen-focused and lost f48 run 20260810-235031; _GUARDED_LEADER_NAMES + SimState.guard_active now disable the minion discount while she's guarded -- A/B on the live state flipped the opener to Torch-first.",
+  "gaps": "Torch dps prior 36 vs taped ~24.8 (sim A/B arm was blinded by this); live arm B accrues in post-fix batches vs the Queen-focus loss corpus."
  },
  "Lagavulin Matriarch": {
   "mechanic": "Sleeper: damage dealt while asleep COUNTS (she keeps it), but hitting her wakes her. Waking deliberately is correct when holding a real burst; poking her awake with chip is the sin. Waking is not always wrong (owner). The fight fundamentally punishes one-turn reasoning -- benchmark boss for the multiturn planner.",
