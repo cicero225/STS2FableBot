@@ -357,6 +357,7 @@ class EnemySim:
     block: int
     vulnerable: int
     incoming: int  # this enemy's attack damage this turn (0 if not attacking)
+    name: str = ""  # display name (guarded-leader table lookups)
     is_minion: bool = False  # "Minion" status: flees when its leader dies, so ignorable
     gains_strength: bool = False  # ramping (Strength buff / Empower intent): race to kill it
     is_big: bool = False  # the fight's largest max-HP body — the "focus" plan's target
@@ -453,6 +454,9 @@ class SimState:
     my_frail: bool = False  # I'm Frail: Block I gain from cards is 25% less (Kin Orb of Frailty)
     surrounded: bool = False  # Kaiser Crab: a claw behind me deals +50% (gone once one claw dies)
     has_summoner: bool = False  # an enemy summons minions: chasing the minions is a treadmill
+    # a _GUARDED_LEADER_NAMES leader is alive with a live minion: the minion is
+    # the fight's clock, never ignorable (Queen/Torch, owner catch 2026-08-11)
+    guard_active: bool = False
     hand_size: int = 0  # full hand size at turn start (for hand-exhaust scaling)
     draws: int = 0
     weak_applied: int = 0
@@ -813,6 +817,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
         sims.append(
             EnemySim(
                 entity_id=e.entity_id,
+                name=e.name or "",
                 hp=e.hp,
                 max_hp=max(e.max_hp, 1),
                 block=e.block,
@@ -852,7 +857,17 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
     return tuple(sims)
 
 
-def _ignorable_minion(e: EnemySim, has_summoner: bool = False) -> bool:
+# Guarded leaders (see data/enemy_notes.json 'Queen'): while any minion lives
+# the leader does NOT attack -- she buffs and re-blocks -- so the MINION is the
+# fight's real clock and the flee-with-the-leader discount is exactly backwards.
+# Owner live catch 2026-08-11 (run 20260810-235031 f48): the planner poured six
+# rounds of damage into the guarded 391-HP Queen while the 190-HP Torch beat the
+# run to death; owner's 2026-08-02 A/B taped Torch-first as the winning order.
+_GUARDED_LEADER_NAMES = ("QUEEN",)
+
+
+def _ignorable_minion(e: EnemySim, has_summoner: bool = False,
+                      guard_active: bool = False) -> bool:
     """A Minion not worth grinding down: race the leader instead — killing the leader makes the
     minions flee. Diverting damage to a minion pays off only when it's a *fixed* escalating threat:
     it ramps (Strength, like the Kin's followers) and isn't re-summoned. Ignore it when anything on
@@ -862,6 +877,8 @@ def _ignorable_minion(e: EnemySim, has_summoner: bool = False) -> bool:
     capability-estimate layer. Minions never gate lethal regardless."""
     if not e.is_minion:
         return False
+    if guard_active:
+        return False  # the guard IS the fight: its minion is never ignorable
     if has_summoner or e.illusion:
         return True
     return not e.gains_strength
@@ -994,7 +1011,7 @@ def _apply_attack(
     # Ignorable minions (weak, non-ramping) aren't progress — they flee with the leader and
     # Illusion ones revive — so deny offensive reward; their death's incoming drop is still
     # seen via hp_loss. Dangerous minions (Kin followers etc.) fall through to normal reward.
-    if _ignorable_minion(e, state.has_summoner):
+    if _ignorable_minion(e, state.has_summoner, state.guard_active):
         return replace(state, enemies=tuple(enemies), self_damage=state.self_damage + thorns_taken)
     # Chipping a sleeper awake forfeits its remaining free setup turns (and Lagavulin sheds her
     # Plating FOR you on wake) — the attack is a complete no-op in sim unless it kills outright:
@@ -1384,7 +1401,7 @@ def _score(
     focus = sum(
         ((e.max_hp - e.hp) / e.max_hp) ** 2
         for e in state.enemies
-        if not _ignorable_minion(e, state.has_summoner)
+        if not _ignorable_minion(e, state.has_summoner, state.guard_active)
     )
     # Powers compound over the rest of the fight, so value them by per-turn buff × turns left
     # (power_horizon) — that front-loads them instead of deferring to "spare" energy that never
@@ -1761,6 +1778,11 @@ def plan_combat_turn(
         surrounded=my_surrounded,
         hand_size=len(hand),
         has_summoner=any(e.summons for e in enemy_sims),
+        guard_active=(
+            any(any(g in (e.name or "").upper() for g in _GUARDED_LEADER_NAMES)
+                and e.hp > 0 for e in enemy_sims)
+            and any(e.is_minion and e.hp > 0 for e in enemy_sims)
+        ),
         heal_room=max(0, player.max_hp - player.hp),
         pen_nib_counter=pen_nib_counter,
         pen_turn_started_at_nine=(pen_nib_counter is not None

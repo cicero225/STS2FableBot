@@ -2626,3 +2626,44 @@ def test_card_played_plating_soaks_incoming_but_not_body_slam() -> None:
     # the soak survives: with plating played, projected HP loss is 10-6=4, so
     # the plan prefers playing it over holding (scores carry the block pool)
     assert d.action.payload().get("card_index") == 0
+
+
+def test_guarded_leader_minion_is_never_ignorable() -> None:
+    """Owner live catch 2026-08-11 (run 20260810-235031 f48, lost): six rounds
+    of damage went into the guarded 391-HP Queen while the 190-HP Torch (the
+    only attacker) beat the run to death -- Torch's MINION status made it
+    'ignorable' under the flee-with-the-leader rule, which is exactly backwards
+    for a guarded leader (owner's 2026-08-02 A/B taped Torch-first as the
+    winning order). With a _GUARDED_LEADER_NAMES leader alive + a live minion,
+    the minion gets full offensive credit and the plan leads with it."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "boss", "run": {"act": 3, "floor": 48, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 80, "max_hp": 80, "block": 0,
+                   "energy": 3, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                        "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                        "can_play": True, "target_type": "AnyEnemy"},
+                       {"index": 1, "id": "BASH", "name": "Bash", "type": "Attack",
+                        "cost": "2", "description": "Deal 8 damage. Apply 2 Vulnerable.",
+                        "can_play": True, "target_type": "AnyEnemy"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                   "enemies": [
+                       {"entity_id": "TORCH_0", "name": "Torch Head Amalgam",
+                        "hp": 190, "max_hp": 199, "block": 0,
+                        "status": [{"id": "MINION_POWER", "name": "Minion",
+                                    "amount": 1, "description":
+                                    "Will abandon combat when the leader dies."}],
+                        "intents": [{"type": "Attack", "label": "18"}]},
+                       {"entity_id": "QUEEN_0", "name": "Queen", "hp": 391,
+                        "max_hp": 400, "block": 0, "status": [],
+                        "intents": [{"type": "CardDebuff", "label": ""}]}]},
+    })
+    cfg = load_policy_config()
+    d = plan_combat_turn(state, cfg.combat)
+    assert "TORCH" in (d.rationale or ""), d.rationale
