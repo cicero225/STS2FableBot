@@ -3143,7 +3143,7 @@
  },
  "Crusher": {
   "n_fights": 241,
-  "notes": "",
+  "notes": "WIKI-VERIFIED 2026-08-11: fixed 5-cycle: Thrash 12 / Enlarging Strike 4 / Bug Sting 6x2 +2Weak+2Frail / Adapt +2Str / Guarded Strike 12+18Block. Crab Rage as Rocket. No separate Kaiser phase (two claws only).",
   "turns": {
    "1": [
     {
@@ -9501,7 +9501,7 @@
  },
  "Lagavulin Matriarch": {
   "n_fights": 240,
-  "notes": "",
+  "notes": "WIKI-VERIFIED 2026-08-11 (slaythespire.wiki.gg) and corpus-exact: sleep 3 turns max (or unblocked damage), 12 Plating decaying 1/turn asleep, LOST on wake. 4-move cycle: Slash 19 / Disembowel 9x2 / Slash2 12+12Block / Soul Siphon (-2Str -2Dex player, +2Str her). No phase changes. A9: 21 / 10x2 / 14+14.",
   "turns": {
    "W1": [
     {
@@ -13907,7 +13907,7 @@
  },
  "Rocket": {
   "n_fights": 241,
-  "notes": "",
+  "notes": "WIKI-VERIFIED 2026-08-11, corpus-exact: FIXED 5-MOVE CYCLE (repeats!): Targeting Reticle 3 / Precision Beam 18 / Charge Up +2Str / LASER 31 / Recharge (nothing). Laser deadline recurs T4, T9, T14... Powers: Back Attack, Crab Rage (+6Str +99 Block when ally dies -- killing Crusher enrages Rocket).",
   "turns": {
    "1": [
     {

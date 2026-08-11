@@ -21,7 +21,7 @@
   "gaps": "Torch dps prior 36 vs taped ~24.8 (sim A/B arm was blinded by this); live arm B accrues in post-fix batches vs the Queen-focus loss corpus."
  },
  "Lagavulin Matriarch": {
-  "mechanic": "Sleeper: damage dealt while asleep COUNTS (she keeps it), but hitting her wakes her. Waking deliberately is correct when holding a real burst; poking her awake with chip is the sin. Waking is not always wrong (owner). The fight fundamentally punishes one-turn reasoning -- benchmark boss for the multiturn planner.",
+  "mechanic": "Sleeper: damage dealt while asleep COUNTS (she keeps it), but hitting her wakes her. Waking deliberately is correct when holding a real burst; poking her awake with chip is the sin. Waking is not always wrong (owner). The fight fundamentally punishes one-turn reasoning -- benchmark boss for the multiturn planner. WIKI+CORPUS VERIFIED 2026-08-11: sleep = 3 free turns MAX (or unblocked damage); 12 Plating decays 1/turn asleep and is LOST on wake; post-wake 4-cycle Slash 19 / Disembowel 9x2 / Slash2 12+12Block / Soul Siphon. No phases.",
   "modeled": "combat sleeper v3: waking hit pays w_wake_sleeper (-16); sleeping rampers exempt from ramp_damage credit, ramp-stall penalty, and focus-race bias; pokes hold, bursts wake. Rider-pokes deliberately unpinned (owner: judgment call).",
   "gaps": "Turn-2+ deliberate stall lines need the multiturn planner (spec filed)."
  },
@@ -41,7 +41,7 @@
   "gaps": "Pre-fix audit corpus still echoes the old over-prediction; expected to drain."
  },
  "Kaiser Crab": {
-  "mechanic": "Surround: bonus dps when flanking bodies survive (Crusher/Rocket +5 each, empirical). Owner A/B 2026-08-03: the winning line vs the two-claw phase is a feasibility calc on killing Rocket before its turn-4 Laser, not a block rule -- multiturn spec #1. CORPUS FACT (verified 2026-08-11 after a wrong collision claim): 'Rocket'/'Crusher' names are UNIQUE to this fight -- 241/241 instances at act 2 floor 33, always the two-claw opening cohort. Kaiser is ALWAYS the floor-33 act-2 boss encounter in our corpus.",
+  "mechanic": "Surround: bonus dps when flanking bodies survive (Crusher/Rocket +5 each, empirical). Owner A/B 2026-08-03: the winning line vs the two-claw phase is a feasibility calc on killing Rocket before its turn-4 Laser, not a block rule -- multiturn spec #1. CORPUS FACT (verified 2026-08-11 after a wrong collision claim): 'Rocket'/'Crusher' names are UNIQUE to this fight -- 241/241 instances at act 2 floor 33, always the two-claw opening cohort. Kaiser is ALWAYS the floor-33 act-2 boss encounter in our corpus. WIKI+CORPUS VERIFIED 2026-08-11: both claws run FIXED 5-cycles; Rocket's Laser 31 recurs T4/T9/T14 (Recharge does nothing on T5); Crab Rage: surviving claw gains +6 Str AND 99 Block when its ally dies -- the post-kill turn is quasi-invulnerable, factor into kill sequencing. No separate Kaiser phase.",
   "modeled": "capability._EMPIRICAL_MOVES surround_bonus_dps; rollout surround_bonus in strike.",
   "gaps": "Kill-by-Laser-turn feasibility = multiturn planner test case."
  },
