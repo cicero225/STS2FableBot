@@ -69,6 +69,15 @@ class FuzzRouter(StandardRouter):
             if (e.hp or 0) > 0
         )
         if player.hp <= HP_FLOOR or nearly_won:
+            # Nothing to rewind, nothing to risk (live 2026-08-10, run
+            # 20260810-201707: a bleeding run entered f37/f38 at 5-6 hp, the
+            # rail tripped at r1 with ZERO fuzzed plays made, and the pointless
+            # savescum's Continue hit a resume-load wedge that cost the run).
+            # If this fight hasn't been fuzzed yet, just hand it to the normal
+            # policy -- a savescum only pays when there are risky plays to undo.
+            if ctx.screen_mem.get("fuzz_played_fight") != floor:
+                done.add(floor)
+                return None
             pause = ctx.screen_mem.get("fuzz_paused_at")
             if pause == (floor, battle.round):
                 return Wait(
@@ -100,6 +109,7 @@ class FuzzRouter(StandardRouter):
             return Decision(action=act.EndTurn(),
                             rationale="FUZZ: nothing affordable; end turn")
         card = rng.choice(affordable)
+        ctx.screen_mem["fuzz_played_fight"] = floor  # this fight HAS fuzzed plays
         fx = parse_card_description(card.description)
         target = None
         if (card.target_type or "").lower() == "anyenemy":

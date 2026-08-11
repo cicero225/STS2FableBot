@@ -37,9 +37,13 @@ def test_fuzz_plays_randomly_with_logged_prediction() -> None:
 def test_fuzz_rail_auto_savescums_and_hands_back_after_restart() -> None:
     """Owner design 2026-08-10: the rail sends save_and_quit ONCE (run persists,
     Continue restores the fight), holds during the menu transition, and after
-    the restart the healthy state marks the fight fuzz-done for normal policy."""
+    the restart the healthy state marks the fight fuzz-done for normal policy.
+    The savescum only fires when this fight HAS fuzzed plays to rewind."""
     r = FuzzRouter()
     ctx = LoopContext()
+    # a fuzzed play happens at healthy HP first (something to rewind)
+    d0 = r.decide(_combat(hp=60), ctx)
+    assert d0.rationale.startswith("FUZZ:")
     # low HP: exactly one save_and_quit, then holds
     d = r.decide(_combat(hp=20), ctx)
     assert isinstance(d, Decision)
@@ -56,9 +60,27 @@ def test_fuzz_rail_auto_savescums_and_hands_back_after_restart() -> None:
 
 
 def test_fuzz_rail_savescums_when_fight_nearly_won() -> None:
-    d = FuzzRouter().decide(_combat(enemy_hp=8), LoopContext())
+    r = FuzzRouter()
+    ctx = LoopContext()
+    r.decide(_combat(enemy_hp=60), ctx)  # fuzzed play first
+    d = r.decide(_combat(enemy_hp=8), ctx)
     assert isinstance(d, Decision)
     assert d.action.payload()["action"] == "save_and_quit"
+
+
+def test_fuzz_rail_skips_pointless_savescum_at_fight_entry() -> None:
+    """Live 2026-08-10 (run 20260810-201707): a bleeding run entered f38 at 6
+    hp; the rail savescummed at r1 with ZERO fuzzed plays -- nothing to rewind
+    -- and the pointless Continue hit a resume-load wedge that cost the run.
+    Rail rule: no fuzzed plays this fight yet = mark fuzz-done, normal policy,
+    NO savescum."""
+    r = FuzzRouter()
+    ctx = LoopContext()
+    d = r.decide(_combat(hp=6), ctx)
+    assert (getattr(d, "action", None) is None
+            or d.action.payload()["action"] != "save_and_quit")
+    assert not (getattr(d, "rationale", "") or "").startswith("FUZZ-RAIL")
+    assert 12 in ctx.screen_mem.get("fuzz_done_floors", set())
 
 
 def test_fuzz_is_deterministic_per_fight() -> None:
