@@ -74,16 +74,17 @@ def test_choose_mode_kaiser_feasibility_flip() -> None:
     """The owner's Kaiser rule end to end: a burst deck races Rocket by T4; a
     starter deck reads infeasible and defends the Laser deadline instead."""
     scripts = json.loads(Path("data/move_scripts.json").read_text(encoding="utf-8"))
+    # REAL fight shape: two claws only, no body named Kaiser (wiki-verified)
     rocket = NS(name="Rocket", entity_id="ROCKET_0", hp=60, block=0)
     crusher = NS(name="Crusher", entity_id="CRUSHER_0", hp=209, block=0)
-    kaiser_names = NS(name="Kaiser Crab", entity_id="KC_0", hp=1, block=0)
     burst = _player(hand=[BLUDGEON] * 3, draw=[BLUDGEON] * 3, hp=75)
-    plan = choose_mode([kaiser_names, crusher, rocket], burst, scripts)
+    plan = choose_mode([crusher, rocket], burst, scripts)
     assert plan.mode == "race" and plan.target == "ROCKET_0"
     weak = _player(hand=[STRIKE] * 3, draw=[STRIKE, DEFEND, DEFEND], hp=75)
     rocket_fat = NS(name="Rocket", entity_id="ROCKET_0", hp=199, block=0)
-    plan2 = choose_mode([kaiser_names, crusher, rocket_fat], weak, scripts)
+    plan2 = choose_mode([crusher, rocket_fat], weak, scripts)
     assert plan2.mode == "defend_deadline" and plan2.deadline_turn == 4
+    assert plan2.detail.get("cycle") == 5  # Laser recurs T4/T9/T14
 
 
 def test_choose_mode_queen_guard_break() -> None:

@@ -23,10 +23,23 @@ Primitives (all pure; script data passed in):
 
 from __future__ import annotations
 
+import json
 import math
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from sts2bot.policy.textparse import parse_card_description
+
+_SCRIPTS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "move_scripts.json"
+
+
+def load_move_scripts(path: Path | str | None = None) -> dict[str, dict]:
+    """Enemy name -> harvested turn script (scripts/build_move_scripts.py).
+    Empty if absent."""
+    p = Path(path) if path else _SCRIPTS_PATH
+    if not p.is_file():
+        return {}
+    return json.loads(p.read_text(encoding="utf-8"))
 
 # pessimism: plan on drawing the weaker part of the pile (owner: density with a
 # margin; calibrate against fuzz/audit corpora later)
@@ -202,7 +215,8 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
                  "Deck-dependent: without impact cards neither plan saves it. Wake "
                  "early ONLY if burst-in-hand beats remaining setup value.",
     },
-    "KAISER": {  # matches 'Kaiser Crab' composition (Crusher + Rocket)
+    "ROCKET": {  # the Kaiser Crab fight: no body is named 'Kaiser' live (wiki:
+        # two claws only); ROCKET is corpus-unique to this fight (241/241 f33)
         "rule": "kill_by_deadline",
         "target": "Rocket", "deadline": 4, "hp_floor": 25,
         "notes": "Laser recurs T4/T9/T14; feasible p25-kill by T4 -> race "
@@ -263,6 +277,15 @@ def choose_mode(enemies: list, player, scripts: dict,
             # attacks only until the kill lands (a dead claw fires no Laser --
             # first draft charged Rocket's T4 into a T3 kill), while the OTHER
             # bodies keep hitting through the kill turn.
+            if not math.isfinite(eta_p25):
+                # no measurable damage throughput (e.g. empty piles mid-parse):
+                # the kill question is unanswerable -- defend the deadline
+                return FightPlan(
+                    mode="defend_deadline", target=getattr(tgt, "entity_id", None),
+                    deadline_turn=deadline,
+                    rationale="no damage throughput measurable; defend the deadline",
+                    detail={"cycle": 0},
+                )
             kill_turn = min(deadline, max(1, math.ceil(eta_p25)))
             tgt_inc = incoming_by_turn(
                 scripts.get(getattr(tgt, "name", "") or ""),
@@ -291,11 +314,18 @@ def choose_mode(enemies: list, player, scripts: dict,
                     rationale=f"kill-by-T{deadline} feasible "
                               f"(eta_p25={eta_p25:.1f}, hp_min={min(traj) if traj else '?'})",
                 )
+            script = scripts.get(getattr(tgt, "name", "") or "") or {}
+            # cycle length: wiki-verified field first (the harvest's raw turn
+            # keys run PAST one cycle -- fights observed at T6-T12 are cycle-2
+            # rows, so max-key is not the period)
+            spans = [int(t) for t in (script.get("turns") or {}) if str(t).isdigit()]
+            cycle = int(script.get("cycle") or 0) or (max(spans) if spans else 0)
             return FightPlan(
                 mode="defend_deadline", target=getattr(tgt, "entity_id", None),
                 deadline_turn=deadline,
                 rationale=f"kill-by-T{deadline} infeasible (eta_p25={eta_p25:.1f}); "
                           f"defend the deadline, kill after",
+                detail={"cycle": cycle},
             )
         if "asleep" in rule and boss is not None and getattr(boss, "asleep", False):
             return FightPlan(mode=rule["asleep"], target=getattr(boss, "entity_id", None),

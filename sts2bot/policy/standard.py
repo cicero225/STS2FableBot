@@ -57,6 +57,7 @@ from sts2bot.policy.drafttags import (
     load_event_choices,
     score_adjustment,
 )
+from sts2bot.policy.forward import choose_mode, load_move_scripts
 from sts2bot.policy.rollout import _EXHAUST_SELF, rollout_fight
 from sts2bot.policy.textparse import (
     HITS_EVERYONE,
@@ -271,6 +272,17 @@ def _act1_region(boss_name: str | None) -> str | None:
 _WANTS_EXHAUST_RE = re.compile(
     r"in your Exhaust Pile, play it|When this card is Exhausted", re.IGNORECASE)
 
+
+@dataclasses.dataclass(frozen=True)
+class _EnemyView:
+    """Lightweight live-enemy view for the multiturn oracle (choose_mode)."""
+
+    name: str
+    entity_id: str
+    hp: int
+    block: int
+    asleep: bool = False
+
 # Enchant riders as they render appended to card text (Spiral shows as
 # "Replay N" -- live shape 2026-07-12). Used only to tell an enchanted basic
 # from its plain twin on permanent-removal screens.
@@ -303,6 +315,8 @@ class StandardRouter:
         # realized per-enemy dps (calibration 2026-07-25: the per-act priors ran ~2x
         # hot as sustained averages — Soul Fysh realized 8.4 vs the modeled 25)
         self.enemy_dps = enemy_dps if enemy_dps is not None else load_enemy_dps()
+        # multiturn P4: harvested + wiki-verified turn scripts for the oracle
+        self.move_scripts = load_move_scripts()
         # card-pass step 2: deck-context provides/needs table (injectable for tests)
         self.draft_tags = draft_tags if draft_tags is not None else load_draft_tags()
         # Ancients pass (§8.5.5a): boon catalog for is_ancient events + owned-boon
@@ -536,6 +550,39 @@ class StandardRouter:
             pused = {"round": round_, "slots": []}
             ctx.screen_mem["potions_used"] = pused
         fp = self._fight_plan(state, ctx)
+        # Multiturn P4 (owner-reviewed table only): the oracle's mode takes
+        # precedence over the sweep/focus rollout comparison for table fights.
+        # Mode -> planner: race/guard_break = focus bias on the PLAN's target
+        # ("race" also devalues small blocks per the Matriarch review);
+        # defend_deadline = "defend" on recurring deadline turns (Kaiser Laser
+        # T4/T9/...), race toward the target otherwise; setup_window = hands
+        # off (the sleeper machinery already governs).
+        mode_target: str | None = None
+        mplan = None
+        if state.battle is not None and state.player is not None:
+            views = [
+                _EnemyView(
+                    name=e.name or "", entity_id=e.entity_id or "",
+                    hp=e.hp or 0, block=e.block or 0,
+                    asleep=any((s.id or "").upper().startswith("ASLEEP")
+                               for s in (e.status or [])),
+                )
+                for e in (state.battle.enemies or []) if (e.hp or 0) > 0
+            ]
+            mplan = choose_mode(views, state.player, self.move_scripts,
+                                card_effects=self.card_effects,
+                                current_round=state.battle.round or 1)
+            if mplan.mode == "race" or mplan.mode == "guard_break":
+                fp = "race"
+                mode_target = mplan.target
+            elif mplan.mode == "defend_deadline":
+                cycle = int(mplan.detail.get("cycle") or 0)
+                rnd = state.battle.round or 1
+                dl = mplan.deadline_turn or 0
+                on_deadline = (rnd == dl or
+                               (cycle > 0 and rnd > dl and (rnd - dl) % cycle == 0))
+                fp = "defend" if on_deadline else "race"
+                mode_target = mplan.target
         # turn-start exhaust-pile snapshot (owner 2026-08-03): lets the planner
         # know a card was ALREADY exhausted this turn across replans, so
         # Forgotten Ritual / Evil Eye-class conditionals stay live mid-turn
@@ -553,10 +600,13 @@ class StandardRouter:
                                 used_potion_slots=tuple(pused["slots"]),
                                 hold_aoe_potions=self._aoe_hold(state, ctx),
                                 fight_plan=fp,
+                                focus_target=mode_target,
                                 exhausted_this_turn=pile_now > exmem["pile"],
                                 plays_this_turn=plays_now)
         if fp and isinstance(plan, Decision) and plan.rationale:
             plan.rationale += f" |plan={fp}"
+            if mplan is not None and mplan.mode:
+                plan.rationale += f" |mode={mplan.mode}"
         if (isinstance(plan, Decision) and isinstance(plan.action, act.UsePotion)
                 and plan.action.slot not in pused["slots"]):
             pused["slots"].append(plan.action.slot)

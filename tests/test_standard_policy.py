@@ -5083,3 +5083,47 @@ def test_engine_liveness_parses_and_is_optional() -> None:
     st2 = parse_state(payload)
     assert st2.engine["action_queue_empty"] is False
     assert st2.engine["passive_state"] is True
+
+
+def test_mode_layer_routes_queen_and_kaiser_end_to_end() -> None:
+    """Multiturn P4: the oracle's mode reaches the DFS through the router.
+    Queen+Torch -> guard_break focuses the MINION (rationale tags the mode);
+    Kaiser claws on the Laser turn with a weak deck -> defend plan."""
+    def combat(enemies, hand, energy=3, round_=1, hp=75):
+        return parse_state({
+            "state_type": "boss", "run": {"act": 3, "floor": 48, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80,
+                       "block": 0, "energy": energy, "status": [], "hand": hand,
+                       "draw_pile": [], "discard_pile": [],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": round_, "turn": "player", "is_play_phase": True,
+                       "enemies": enemies},
+        })
+
+    strike = {"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike",
+              "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+              "can_play": True, "target_type": "AnyEnemy"}
+    torch = {"entity_id": "TORCH_0", "name": "Torch Head Amalgam", "hp": 190,
+             "max_hp": 199, "block": 0,
+             "status": [{"id": "MINION_POWER", "name": "Minion", "amount": 1,
+                         "description": "Will abandon combat when the leader dies."}],
+             "intents": [{"type": "Attack", "label": "18"}]}
+    queen = {"entity_id": "QUEEN_0", "name": "Queen", "hp": 391, "max_hp": 400,
+             "block": 0, "status": [], "intents": [{"type": "CardDebuff", "label": ""}]}
+    d = router().decide(combat([torch, queen], [strike]), LoopContext())
+    assert "|mode=guard_break" in (d.rationale or ""), d.rationale
+    assert "TORCH" in (d.rationale or "")
+
+    crusher = {"entity_id": "CRUSHER_0", "name": "Crusher", "hp": 209,
+               "max_hp": 209, "block": 0, "status": [],
+               "intents": [{"type": "Attack", "label": "12"}]}
+    rocket = {"entity_id": "ROCKET_0", "name": "Rocket", "hp": 199,
+              "max_hp": 199, "block": 0, "status": [],
+              "intents": [{"type": "Attack", "label": "33"}]}
+    defend = {"index": 1, "id": "DEFEND_IRONCLAD", "name": "Defend",
+              "type": "Skill", "cost": "1", "description": "Gain 5 Block.",
+              "can_play": True, "target_type": "None"}
+    d2 = router().decide(combat([crusher, rocket], [strike, defend], round_=4),
+                         LoopContext())
+    assert "|mode=defend_deadline" in (d2.rationale or ""), d2.rationale
+    assert "|plan=defend" in (d2.rationale or "")

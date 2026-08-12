@@ -1464,7 +1464,14 @@ def _score(
         + (w.w_frantic_escape * state.frantic_played if not lethal_end else 0)
         + w.w_hand_upgrade * state.hand_upgrades  # Armaments-class rider (owner 07-13)
         + w.w_overkill * state.overkill
+        # Multiturn P4 mode terms (owner review 2026-08-12): in "race" small
+        # blocks never defer value ('blocking for 3 or 4 isn't worth deferring
+        # bigger value' -- most-of-round mitigation keeps full credit); in
+        # "defend" (a recurring deadline turn, e.g. Kaiser's Laser) block is
+        # promoted -- the whole point of the mode is surviving THIS beat.
         + w.w_block_useful * blocked
+        * (0.5 if fight_plan == "race" and blocked < 6 else
+           w.defend_block_mult if fight_plan == "defend" else 1.0)
         + w.w_block_excess * excess
         + hp_weight * external_loss
         + self_term
@@ -1497,7 +1504,8 @@ def _score(
         + w.w_wake_sleeper * state.sleepers_woken
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
         # picked a target order; these terms make the DFS serve it every turn.
-        + (w.w_plan_focus_damage * state.focus_damage if fight_plan == "focus" else 0.0)
+        + (w.w_plan_focus_damage * state.focus_damage
+           if fight_plan in ("focus", "race", "defend") else 0.0)
         + (w.w_plan_sweep_kill * state.kills if fight_plan == "sweep" else 0.0)
     )
 
@@ -1513,6 +1521,7 @@ _HAND_TAKE_DMG_RE = re.compile(r"take (\d+) damage", re.I)  # Toxic-type: blocka
 def plan_combat_turn(
     state: CombatState, weights: CombatWeights, used_potion_slots: tuple[int, ...] = (),
     hold_aoe_potions: bool = False, fight_plan: str | None = None,
+    focus_target: str | None = None,
     exhausted_this_turn: bool = False, plays_this_turn: int = 0,
 ) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences. Damage potions
@@ -1741,6 +1750,14 @@ def plan_combat_turn(
         1 for r in player.relics
         if "TUNGSTEN" in (r.id or r.name or "").upper())
     enemy_sims = _enemy_sims(state.battle.enemies, plays_this_turn)
+    # Multiturn P4: the oracle's mode target overrides the biggest-body focus
+    # (guard_break wants the MINION, Kaiser's race wants Rocket -- not the
+    # largest max_hp). All focus machinery then serves the plan's target.
+    if focus_target and any(e.entity_id == focus_target and e.hp > 0
+                            for e in enemy_sims):
+        enemy_sims = tuple(
+            replace(e, is_big=(e.entity_id == focus_target)) for e in enemy_sims
+        )
     fiddle_no_draw = any(
         _RELIC_BLOCKS_DRAW.search(getattr(r_, "description", None) or "")
         for r_ in (player.relics or [])

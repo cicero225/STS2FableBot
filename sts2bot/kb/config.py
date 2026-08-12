@@ -28,6 +28,8 @@ class CombatWeights(_Section):
     # nothing, so unscored it NEVER got played and the clock never extended.
     # Sized to outrank a Strike, not a real turn.
     w_frantic_escape: float = 6.5
+    # defend_deadline mode (Kaiser Laser turns): block promotion on the beat
+    defend_block_mult: float = 1.5
     # Ramp-stall (owner 2026-07-16, Damp Cultist turtle-death): vs a strength-ramping
     # enemy, a zero-damage turn is a losing equilibrium the one-turn horizon can't see —
     # block caps, the ramp doesn't. Flat penalty on damageless plans while a living
