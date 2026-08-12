@@ -1,0 +1,12 @@
+{
+ "_README": {
+  "purpose": "CANONICAL owner-decoded potion mechanics/timing, mirror of enemy_notes.json (created 2026-08-12 when the Stable Serum decode arrived; grep here before modeling potions or filing potion questions). The potion pass (PLAN 'THE POTION PASS') grows this into the full per-potion class/timing catalog.",
+  "conventions": "mechanic = owner decode (near-verbatim, dated). timing = when to drink/throw. traps = interactions that nullify or invert the value."
+ },
+ "Stable Serum": {
+  "mechanic": "Retain your hand for 2 turns (owner 2026-08-12).",
+  "timing": "Hard to use. Owner suggestion: drink on elites or bosses at the END of a turn where the remaining unplayed cards are high quality -- the value is carrying a premium leftover hand into the next turns, so a round-1 'buff lane' drink is exactly wrong.",
+  "traps": "COMPLETELY USELESS holding Runic Pyramid ('you no longer discard your hand at the end of turn') -- the retain is already permanent. Same interaction family as Restlessness x Pyramid (PLAN row 2026-08-10).",
+  "bot_status": "Not yet specially handled: the text-heuristic lanes likely class it as a generic buff (round<=1 drink = worst timing). Proper end-of-good-turn lane + Pyramid veto belong to the potion pass; recorded here so the pass inherits the decode."
+ }
+}
