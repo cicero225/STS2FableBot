@@ -387,6 +387,16 @@ class ShopWeights(_Section):
     # Spirebird shop value-per-gold (WAR/100g) floor to buy a relic; negatives are bad
     # buys (e.g. Book Repair Knife -0.03), unknown relics are skipped.
     relic_war_per_100g_min: float = 0.01
+    # Shop CARD purchases (owner 2026-08-12): buy high-quality cards that fill
+    # a missing deck role (the draft-tag provides/needs machinery scores the
+    # role fit -- 'the deck needs an exhaust provider and True Grit+ is
+    # available'), 'particularly if on discount' (every shop marks one card
+    # on_sale; the mod exposes the flag). Paying gold demands more than a free
+    # reward: bars sit ABOVE the card-reward take threshold; cards never eat
+    # the removal reserve; one card per shop.
+    buy_card_min_score: float = 8.0
+    buy_card_sale_min_score: float = 6.0
+    max_card_buys_per_shop: int = 1
 
 
 class DeckWeights(_Section):

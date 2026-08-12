@@ -5127,3 +5127,52 @@ def test_mode_layer_routes_queen_and_kaiser_end_to_end() -> None:
                          LoopContext())
     assert "|mode=defend_deadline" in (d2.rationale or ""), d2.rationale
     assert "|plan=defend" in (d2.rationale or "")
+
+
+def test_shop_buys_role_filling_card_especially_on_sale() -> None:
+    """Owner 2026-08-12: buy high-quality cards that fill a missing deck role,
+    'particularly if on discount' (the mod exposes on_sale). The draft-tag
+    needs machinery prices the fit: with FNP+Howl in the deck, True Grit+ is
+    THE exhaust provider (the owner's own example) and gets bought; junk
+    (Clash) stays on the shelf; low gold never eats the removal reserve."""
+    def deck_card(i, cid, name, typ, cost, desc, up=False):
+        return {"index": i, "id": cid, "name": name, "type": typ, "cost": cost,
+                "description": desc, "is_upgraded": up}
+
+    payload = json.loads(json.dumps(FIXTURES["shop"]))
+    payload["player"]["gold"] = 400
+    payload["player"]["deck"] = (
+        [deck_card(i, "STRIKE_IRONCLAD", "Strike", "Attack", "1",
+                   "Deal 6 damage.") for i in range(4)]
+        + [deck_card(4 + i, "DEFEND_IRONCLAD", "Defend", "Skill", "1",
+                     "Gain 5 Block.") for i in range(4)]
+        + [deck_card(8, "FEEL_NO_PAIN", "Feel No Pain", "Power", "1",
+                     "Whenever a card is Exhausted, gain 4 Block.", True),
+           deck_card(9, "HOWL", "Howl", "Skill", "1",
+                     "While this card is in your Exhaust Pile, play it at the "
+                     "start of your turn.")])
+    payload["shop"]["items"] = [
+        {"index": 0, "category": "card", "price": 68, "is_stocked": True,
+         "can_afford": True, "on_sale": True,
+         "card_id": "TRUE_GRIT", "card_name": "True Grit+",
+         "card_type": "Skill", "card_cost": "1", "card_rarity": "Common",
+         "card_description": "Gain 9 Block. Exhaust a card in your hand."},
+        {"index": 1, "category": "card", "price": 45, "is_stocked": True,
+         "can_afford": True, "on_sale": False,
+         "card_id": "CLASH", "card_name": "Clash",
+         "card_type": "Attack", "card_cost": "0", "card_rarity": "Common",
+         "card_description": "Can only be played if every card in your hand "
+                             "is an Attack. Deal 14 damage."},
+    ]
+    d = router().decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    p = d.action.payload()
+    assert p.get("action") == "shop_purchase" and p.get("index") == 0, d.rationale
+    assert "ON SALE" in (d.rationale or "")
+    # low gold: the removal reserve is sacred -- no card buy
+    payload["player"]["gold"] = 100
+    d2 = router().decide(parse_state(payload), LoopContext())
+    if isinstance(d2, Decision):
+        p2 = d2.action.payload()
+        assert not (p2.get("action") == "shop_purchase"
+                    and p2.get("index") in (0, 1)), d2.rationale

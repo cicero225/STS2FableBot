@@ -283,6 +283,20 @@ class _EnemyView:
     block: int
     asleep: bool = False
 
+
+@dataclasses.dataclass(frozen=True)
+class _ShopCardView:
+    """ShopItem's card_* fields reshaped for the draft scorer (_card_score)."""
+
+    id: str | None
+    name: str | None
+    type: str | None
+    cost: str | None
+    star_cost: str | None
+    rarity: str | None
+    description: str | None
+    is_upgraded: bool = False
+
 # Enchant riders as they render appended to card text (Spiral shows as
 # "Replay N" -- live shape 2026-07-12). Used only to tell an enchanted basic
 # from its plain twin on permanent-removal screens.
@@ -3147,6 +3161,53 @@ class StandardRouter:
                 action=act.ShopPurchase(index=item.index),
                 rationale=f"buy relic {item.relic_name} ({price}g, WAR/100g {v:+.3f})",
             )
+
+        # 2.5 Cards that fill a missing deck role (owner 2026-08-12): scored by
+        #     the DRAFT scorer, so the draft-tag provides/needs machinery prices
+        #     the role fit exactly as at card rewards ('the deck needs an
+        #     exhaust provider and True Grit+ is available'). The shop's one
+        #     on_sale card gets a lowered bar ('particularly if on discount').
+        #     Gold discipline: never dips into the removal reserve, one card
+        #     per shop, and the bar sits above the free-reward take threshold.
+        floor_now_shop = state.run.floor if state.run else -1
+        cbuy = ctx.screen_mem.get("shop_card_buy")
+        n_cards_bought = (cbuy.get("n", 0) if isinstance(cbuy, dict)
+                          and cbuy.get("floor") == floor_now_shop else 0)
+        if deck and player is not None and n_cards_bought < w.max_card_buys_per_shop:
+            run_act = state.run.act if state.run else 1
+            character = player.character
+            region = (_act1_region(ctx.screen_mem.get("act_boss_name"))
+                      if run_act <= 1 else None)
+            card_buys = []
+            for item in avail:
+                price = item.gold_price or 0
+                if (item.category != "card" or not item.can_afford
+                        or gold - price < reserve):
+                    continue
+                view = _ShopCardView(
+                    id=item.card_id, name=item.card_name,
+                    type=item.card_type, cost=item.card_cost,
+                    star_cost=item.card_star_cost, rarity=item.card_rarity,
+                    description=item.card_description,
+                    is_upgraded=(item.card_name or "").endswith("+"),
+                )
+                s = self._card_score(view, len(deck), character, run_act,
+                                     deck=deck, relics=player.relics,
+                                     region=region)
+                bar = (w.buy_card_sale_min_score if item.on_sale
+                       else w.buy_card_min_score)
+                if s >= bar:
+                    card_buys.append((s, -price, item))
+            if card_buys:
+                s, negp, item = max(card_buys)
+                ctx.screen_mem["shop_card_buy"] = {"floor": floor_now_shop,
+                                                   "n": n_cards_bought + 1}
+                bought.append(item.index)
+                return Decision(
+                    action=act.ShopPurchase(index=item.index),
+                    rationale=f"buy card {item.card_name} ({-negp}g, draft score "
+                    f"{s:.1f}{', ON SALE' if item.on_sale else ''})",
+                )
 
         # 3. Potions (utility, when the belt has room).
         for item in avail:
