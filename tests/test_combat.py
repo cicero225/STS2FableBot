@@ -2801,3 +2801,60 @@ def test_rupture_prices_the_str_per_selfhp_trade() -> None:
     assert "Bloodletting" in ra, ra
     # strength before the multi-hit attacks: Bloodletting leads the plan
     assert d.action.payload().get("card_index") == 0, ra
+
+
+def test_second_wind_counts_only_nonattacks_and_death_wall_fires() -> None:
+    """Owner sighting 2026-08-12 ('unused hail mary potion'): run -141919 died
+    at KD r11 holding a tutor potion. Root cause: Second Wind ('Exhaust all
+    NON-ATTACK cards... Gain 5 Block for each') was credited for the two
+    leftover Strikes -- the plan projected ~49 block vs the real 27, so no
+    death wall and no hail-mary consult. Repro of the exact turn: hp 14,
+    Disintegration 21, KD attacking 12x3. The [D>EE>D>SW] line must now
+    project honestly (SW exhausts nothing at the tail) and the turn reads as
+    projected death -- unlocking the rescue ladder."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def c(i, cid, name, typ, cost, desc, can_play=True):
+        return {"index": i, "id": cid, "name": name, "type": typ, "cost": cost,
+                "description": desc, "can_play": can_play, "target_type":
+                "AnyEnemy" if typ == "Attack" else "None"}
+
+    state = parse_state({
+        "state_type": "boss", "run": {"act": 2, "floor": 33, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 14, "max_hp": 86,
+                   "block": 0, "energy": 4,
+                   "status": [{"id": "DISINTEGRATION_POWER", "name": "Disintegration",
+                               "amount": 21, "description":
+                               "At the end of your turn, take 21 damage."},
+                              {"id": "FEEL_NO_PAIN_POWER", "name": "Feel No Pain",
+                               "amount": 6, "description":
+                               "Whenever a card is Exhausted, gain 6 Block."}],
+                   "hand": [
+                       c(0, "STRIKE_IRONCLAD", "Strike+", "Attack", "1", "Deal 9 damage."),
+                       c(1, "DEFEND_IRONCLAD", "Defend", "Skill", "1", "Gain 5 Block."),
+                       c(2, "SECOND_WIND", "Second Wind", "Skill", "1",
+                         "Exhaust all non-Attack cards in your Hand. "
+                         "Gain 5 Block for each card Exhausted."),
+                       c(3, "EVIL_EYE", "Evil Eye", "Skill", "1",
+                         "Gain 8 Block. Gain another 8 Block if you have "
+                         "Exhausted a card this turn."),
+                       c(4, "DEFEND_IRONCLAD", "Defend", "Skill", "1", "Gain 5 Block."),
+                       c(5, "STRIKE_IRONCLAD", "Strike+", "Attack", "1", "Deal 9 damage.")],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 11, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "KD_0", "name": "Knowledge Demon",
+                                "hp": 49, "max_hp": 220, "block": 0, "status": [],
+                                "intents": [{"type": "Attack", "label": "12x3"}]}]},
+    })
+    cfg = load_policy_config()
+    d = plan_combat_turn(state, cfg.combat)
+    # honest projection: best block line is SW-FIRST (3 non-attacks exhausted =
+    # 15 SW + 18 FNP) or similar -- and the turn must read lethal-to-us unless
+    # a genuinely surviving line exists. Either way, hp_loss must be honest:
+    assert d.scores is not None
+    # the misprojection read ~8 loss; honest math cannot get below ~14 vs 57
+    # incoming with <=45 achievable block -- the projected-death signal the
+    # rescue ladder keys on must be visible
+    assert d.scores.get("hp_loss", 0) >= 14 or d.scores.get("lethal"), d.rationale

@@ -288,6 +288,14 @@ class PlannedCard:
     # Ashen Strike-class: +N damage per exhaust EVENT within this plan (the live
     # preview already carries the pre-plan pile)
     dmg_per_exhaust_event: int = 0
+    # Second Wind (owner death 2026-08-12, run -141919 r11): 'Exhaust all
+    # NON-ATTACK cards... Gain 5 Block for each' -- the remaining-hand count
+    # included the 2 leftover Strikes, projecting ~49 block where the game
+    # gave 27, so no death wall and no hail-mary fired while a tutor potion
+    # sat on the belt. Whole-hand exhausters now get their CONCRETE count in
+    # the DFS (where the remaining cards are known), non-attack-aware.
+    exhaust_nonattack_only: bool = False
+    block_per_exhaust: int = 0  # SW-class: Block for each card exhausted
     # Cruelty-class rider ON THE CARD: playing it amplifies vuln damage for the
     # REST of the plan (owner catch 2026-08-12: Cruelty ordered AFTER an attack
     # on a vulnerable enemy -- the bonus only seeded from the ACTIVE status, so
@@ -467,6 +475,7 @@ class SimState:
     # the fight's clock, never ignorable (Queen/Torch, owner catch 2026-08-11)
     guard_active: bool = False
     hand_size: int = 0  # full hand size at turn start (for hand-exhaust scaling)
+    hand_attacks0: int = 0  # Attack-type cards in the opening hand (SW counting)
     draws: int = 0
     weak_applied: int = 0
     vuln_applied: int = 0
@@ -585,6 +594,14 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
     hand_exhaust_scale = 0
     if "exhaust" in desc.lower() and (m := _HAND_EXHAUST_DMG.search(desc)):
         hand_exhaust_scale = int(m.group(1))
+    # Second Wind-class: 'Gain N Block for each card Exhausted' -- the flat
+    # parse read N as immediate block; real value = N x exhausted count,
+    # concretized in the DFS
+    block_per_exhaust = 0
+    if "exhaust" in desc.lower() and (m := re.search(
+            r"(\d+) Block for each card", desc, re.IGNORECASE)):
+        block_per_exhaust = int(m.group(1))
+        fx.block = max(0, fx.block - block_per_exhaust)  # un-flat the misparse
     is_power = card.type == "Power"
     low = desc.lower()
     # Armaments-class hand-upgrade rider: 1 target (base) or the whole hand (+)
@@ -681,6 +698,8 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         bonus_block_if_exhausted=block_if_exh,
         energy_requires_exhausted=energy_gated,
         exhausts_a_card="exhaust" in low,
+        exhaust_nonattack_only=bool(re.search(r"non-attack", desc, re.IGNORECASE)),
+        block_per_exhaust=block_per_exhaust,
         exhaust_count=(
             -1 if _EX_HAND.search(desc)
             else (1 if _EX_ONE.search(desc) else 0) + (1 if _EX_SELF.search(desc) else 0)
@@ -1258,11 +1277,21 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     # the pre-bake (it fires on events, not card text). Whole-hand exhausters (Stoke,
     # Fiend Fire) count the remaining hand; no Dex/Frail on power-granted block.
     fnp_block = 0
-    if s.per_exhaust_block and card.exhaust_count:
+    n_ex = 0
+    if card.exhaust_count:
         n_ex = (max(0, state.hand_size - len(state.played) - 1)
                 if card.exhaust_count == -1 else card.exhaust_count)
+        if card.exhaust_count == -1 and card.exhaust_nonattack_only:
+            # Second Wind exhausts NON-ATTACKS only (owner death 2026-08-12,
+            # run -141919 r11: counting the leftover Strikes projected ~49
+            # block vs the real 27 -- no death wall, no hail-mary, a tutor
+            # potion died unused on the belt). Count includes unplayables
+            # (Stoke+Wounds): hand arithmetic, minus attacks still unplayed.
+            n_ex = max(0, n_ex - max(0, state.hand_attacks0 - state.n_attacks_played))
+    if s.per_exhaust_block and n_ex:
         fnp_block = s.per_exhaust_block * n_ex
-    block_gain = base_block + rage_bonus + fnp_block
+    sw_block = card.block_per_exhaust * n_ex if card.block_per_exhaust else 0
+    block_gain = base_block + rage_bonus + fnp_block + sw_block
     # Frail is likewise PRE-BAKED into the text (a Defend under Frail reads "Gain 3
     # Block", 5 x 0.75 — trace-verified 2026-07-14): do NOT re-apply FRAIL_MULT.
     # Forgotten Ritual: the energy fires only if a card was Exhausted this turn
@@ -1830,6 +1859,7 @@ def plan_combat_turn(
         my_frail=my_frail,
         surrounded=my_surrounded,
         hand_size=len(hand),
+        hand_attacks0=sum(1 for c_ in hand if (c_.type or "") == "Attack"),
         has_summoner=any(e.summons for e in enemy_sims),
         guard_active=(
             any(any(g in (e.name or "").upper() for g in _GUARDED_LEADER_NAMES)
@@ -1976,7 +2006,12 @@ def plan_combat_turn(
             # free Powers as 7-damage fodder). Potions survive; cards don't --
             # which also teaches the DFS to play free cards BEFORE the exhaust.
             if card.exhaust_count == -1:  # covers Stoke too (same text)
-                rest = [c_ for c_ in rest if c_.potion_slot is not None]
+                if card.exhaust_nonattack_only:
+                    # Second Wind: attacks SURVIVE and stay playable
+                    rest = [c_ for c_ in rest
+                            if c_.potion_slot is not None or c_.is_attack]
+                else:
+                    rest = [c_ for c_ in rest if c_.potion_slot is not None]
             if card.targets_enemy and not card.fx.aoe:
                 target_idx = [i for i, e in enumerate(sim.enemies) if e.hp > 0]
                 # prefer distinct targets; cap target branching at 3 biggest threats
