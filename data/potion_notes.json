@@ -6,7 +6,7 @@
  "Stable Serum": {
   "mechanic": "Retain your hand for 2 turns (owner 2026-08-12).",
   "timing": "Hard to use. Owner suggestion: drink on elites or bosses at the END of a turn where the remaining unplayed cards are high quality -- the value is carrying a premium leftover hand into the next turns, so a round-1 'buff lane' drink is exactly wrong.",
-  "traps": "COMPLETELY USELESS holding Runic Pyramid ('you no longer discard your hand at the end of turn') -- the retain is already permanent. Same interaction family as Restlessness x Pyramid (PLAN row 2026-08-10).",
+  "traps": "Holding Runic Pyramid ('you no longer discard your hand at the end of turn') its combat value is ZERO -- but owner clarification 2026-08-12: 'useless' means DISCARD IT IN FAVOR OF ANY OTHER POTION when slots contend, NOT drink/toss on the spot. An occupied slot still beats an empty one (events can pay/consume potions). So under Pyramid: keep-rank = strictly last, displaced by anything; never proactively dumped. Same interaction family as Restlessness x Pyramid.",
   "bot_status": "Not yet specially handled: the text-heuristic lanes likely class it as a generic buff (round<=1 drink = worst timing). Proper end-of-good-turn lane + Pyramid veto belong to the potion pass; recorded here so the pass inherits the decode."
  }
 }
