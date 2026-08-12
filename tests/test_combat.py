@@ -2667,3 +2667,52 @@ def test_guarded_leader_minion_is_never_ignorable() -> None:
     cfg = load_policy_config()
     d = plan_combat_turn(state, cfg.combat)
     assert "TORCH" in (d.rationale or ""), d.rationale
+
+
+def test_frantic_escape_played_while_cheap_skipped_on_lethal() -> None:
+    """Owner rule (2026-08-12, Insatiable review): 'play at least one Frantic
+    Escape per turn if possible as long as it costs at most 1' -- each play
+    buys +1 Sandpit turn and raises its own cost. The card is a Status that
+    parses to nothing, so unscored it was NEVER played and the clock never
+    extended. Cost-2 copies get no bonus; lethal plans skip the escape."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(escape_cost, enemy_hp=175, energy=3):
+        return parse_state({
+            "state_type": "boss", "run": {"act": 2, "floor": 33, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                       "block": 0, "energy": energy, "status": [],
+                       "hand": [
+                           {"index": 0, "id": "FRANTIC_ESCAPE", "name": "Frantic Escape",
+                            "type": "Status", "cost": str(escape_cost),
+                            "description": "Get farther away. Increase Sandpit by 1. "
+                            "Increase the cost of this card by 1.",
+                            "can_play": True, "target_type": "None"},
+                           {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                            "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                            "can_play": True, "target_type": "AnyEnemy"},
+                           {"index": 2, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                            "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                            "can_play": True, "target_type": "AnyEnemy"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "The Insatiable",
+                                    "hp": enemy_hp, "max_hp": 321, "block": 0,
+                                    "status": [], "intents":
+                                    [{"type": "attack", "label": "20"}]}]},
+        })
+
+    cfg = load_policy_config()
+    # cost-1 escape: in the plan (the +1 turn outranks a Strike's 6 damage)
+    d = plan_combat_turn(st(1), cfg.combat)
+    assert "Frantic Escape" in (d.rationale or ""), d.rationale
+    # cost-2 escape: no bonus -- junk again
+    d2 = plan_combat_turn(st(2), cfg.combat)
+    assert "Frantic Escape" not in (d2.rationale or "")
+    # lethal on a tight budget: the escape must not displace the kill
+    # (energy 2: escape + 1 Strike = 6 dmg, not lethal; 2 Strikes = 12, lethal)
+    d3 = plan_combat_turn(st(1, enemy_hp=10, energy=2), cfg.combat)
+    assert "LETHAL" in (d3.rationale or "")
+    assert "Frantic Escape" not in (d3.rationale or ""), d3.rationale

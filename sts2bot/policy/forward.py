@@ -195,8 +195,12 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
     "LAGAVULIN MATRIARCH": {
         "asleep": "setup_window",  # 3 free turns max; Plating drops on wake
         "awake": "race",  # Soul Siphon every 4th beat: long fights strictly worsen
-        "notes": "wake early ONLY if burst-in-hand beats remaining setup value "
-                 "(the owner's deliberate-wake rule); Slash beats are W1/W5...",
+        "notes": "OWNER-REVIEWED 2026-08-12: 'not a pure race, but a lot of it is "
+                 "racing' -- the fight is VALUE-driven: play big damage, impactful "
+                 "powers, or big mitigation. Blocking 3-4 isn't worth deferring "
+                 "value; blocking MOST of a round (Blood Wall) beats a mere Strike. "
+                 "Deck-dependent: without impact cards neither plan saves it. Wake "
+                 "early ONLY if burst-in-hand beats remaining setup value.",
     },
     "KAISER": {  # matches 'Kaiser Crab' composition (Crusher + Rocket)
         "rule": "kill_by_deadline",
@@ -221,8 +225,10 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
     },
     "THE INSATIABLE": {
         "default": "race",
-        "notes": "Sandpit clock ~T5 + Frantic Escape extensions (cost 1,2,3): "
-                 "hard race; escapes are card-level plays, not a mode.",
+        "notes": "OWNER-REVIEWED 2026-08-12: race, but never so hard the escapes "
+                 "go unplayed -- rule of thumb: play at least one Frantic Escape "
+                 "per turn while it costs <=1, unless sure of lethal in time. "
+                 "Encoded card-level: w_frantic_escape (combat.py), lethal-gated.",
     },
     # TBD pending wiki verification passes (do not ship without owner review):
     "KNOWLEDGE DEMON": {"default": "race", "notes": "TBD: regen hardens the race"},

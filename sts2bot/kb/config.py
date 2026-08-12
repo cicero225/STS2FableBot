@@ -22,6 +22,12 @@ class CombatWeights(_Section):
     # Feed-class "If Fatal" rider: extra credit when THAT card lands the kill, enough to
     # win sequencing ties (vs another killer) but not to delay a safe lethal.
     w_on_fatal_bonus: float = 8.0
+    # Frantic Escape (The Insatiable's Sandpit clock; owner rule 2026-08-12:
+    # "play at least one per turn if possible as long as it costs at most 1,
+    # unless sure of lethal in time"). The card is a Status that parses to
+    # nothing, so unscored it NEVER got played and the clock never extended.
+    # Sized to outrank a Strike, not a real turn.
+    w_frantic_escape: float = 6.5
     # Ramp-stall (owner 2026-07-16, Damp Cultist turtle-death): vs a strength-ramping
     # enemy, a zero-damage turn is a losing equilibrium the one-turn horizon can't see —
     # block caps, the ramp doesn't. Flat penalty on damageless plans while a living

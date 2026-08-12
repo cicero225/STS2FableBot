@@ -337,6 +337,9 @@ class PlannedCard:
     # Feed-class "If Fatal, ..." rider: landing the KILL with this card pays a permanent
     # bonus, so _score nudges sequencing toward it (step-1 audit, owner-confirmed 07-12)
     on_fatal_bonus: bool = False
+    # Frantic Escape at current cost <=1 (owner rule: extend the Sandpit clock
+    # every turn while cheap; the cost escalates +1 per play as the brake)
+    frantic_escape: bool = False
     # The game's own target_type says a click-target is REQUIRED — independent of the
     # aoe damage model. Omnislice ("Damage ALL other enemies...") is aoe in the sim but
     # target_type=AnyEnemy in the game; submitting it targetless C5-halted a batch
@@ -495,6 +498,7 @@ class SimState:
     vuln_dmg_reduction: bool = False  # Colossus: 50% less damage from Vulnerable enemies
     potions_spent: int = 0  # pseudo-card potions drunk this plan (each pays w_potion_spend)
     fatal_bonuses: int = 0  # kills landed by "If Fatal, ..." cards (Feed) this plan
+    frantic_played: int = 0  # cheap Frantic Escapes played (Sandpit clock +1 each)
     # Cruelty (power): "Vulnerable enemies take an additional 25% damage" — additive on
     # top of Vulnerable's 50% (owner-confirmed the game previews it; 1.5 -> 1.75)
     vuln_mult_bonus: float = 0.0
@@ -683,6 +687,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         grows_on_exhaust=bool(_GROWS_ON_EXHAUST.search(desc)),
         grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
         on_fatal_bonus=bool(re.search(r"\bIf Fatal\b", desc, re.IGNORECASE)),
+        frantic_escape=((card.id or "").upper() == "FRANTIC_ESCAPE" and cost <= 1),
         requires_target=(card.target_type == "AnyEnemy"),
         upgrades_in_hand=upgrades_in_hand,
     )
@@ -1278,6 +1283,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # card-played Plating joins the end-of-turn pool (soaks incoming via the
         # tally at scoring; never feeds my_block/Body Slam/triples_block)
         end_turn_block=s.end_turn_block + card.fx.plating,
+        frantic_played=s.frantic_played + (1 if card.frantic_escape else 0),
         exhausted_this_turn=s.exhausted_this_turn or card.exhausts_a_card,
         n_exhaust_events=s.n_exhaust_events + (1 if card.exhausts_a_card else 0),
         vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,
@@ -1452,6 +1458,10 @@ def _score(
         + w.w_damage * state.damage_dealt
         + w.w_kill * state.kills
         + w.w_on_fatal_bonus * state.fatal_bonuses  # Feed lands the kill -> permanent payoff
+        # Sandpit clock (owner rule 2026-08-12): a cheap Frantic Escape per turn
+        # buys +1 deadline turn -- worth more than a Strike, moot if this plan
+        # already ends the fight ("unless sure of lethal in time")
+        + (w.w_frantic_escape * state.frantic_played if not lethal_end else 0)
         + w.w_hand_upgrade * state.hand_upgrades  # Armaments-class rider (owner 07-13)
         + w.w_overkill * state.overkill
         + w.w_block_useful * blocked
