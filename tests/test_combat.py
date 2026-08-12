@@ -2716,3 +2716,41 @@ def test_frantic_escape_played_while_cheap_skipped_on_lethal() -> None:
     d3 = plan_combat_turn(st(1, enemy_hp=10, energy=2), cfg.combat)
     assert "LETHAL" in (d3.rationale or "")
     assert "Frantic Escape" not in (d3.rationale or ""), d3.rationale
+
+
+def test_cruelty_ordered_before_attacks_on_vulnerable() -> None:
+    """Owner catch 2026-08-12 (KD fight): Cruelty ('Vulnerable enemies take an
+    additional 25% damage') was ordered AFTER an attack on a vulnerable enemy.
+    The bonus only seeded from the ACTIVE status, so a mid-plan Cruelty gave
+    later attacks nothing and the DFS saw no ordering pressure. Now the play
+    raises the plan's multiplier: Cruelty leads, the big hit follows."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 2, "floor": 20, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80,
+                   "block": 0, "energy": 3, "status": [],
+                   "hand": [
+                       {"index": 0, "id": "BLUDGEON", "name": "Bludgeon",
+                        "type": "Attack", "cost": "2", "description": "Deal 32 damage.",
+                        "can_play": True, "target_type": "AnyEnemy"},
+                       {"index": 1, "id": "CRUELTY", "name": "Cruelty",
+                        "type": "Power", "cost": "1",
+                        "description": "Vulnerable enemies take an additional "
+                                       "25% damage.",
+                        "can_play": True, "target_type": "None"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "e0", "name": "Vantom", "hp": 90,
+                                "max_hp": 90, "block": 0,
+                                "status": [{"id": "VULNERABLE_POWER",
+                                            "name": "Vulnerable", "amount": 2,
+                                            "description": "Receive 50% more damage "
+                                            "from Attacks for 2 turns."}],
+                                "intents": [{"type": "attack", "label": "12"}]}]},
+    })
+    cfg = load_policy_config()
+    d = plan_combat_turn(state, cfg.combat)
+    assert d.action.payload().get("card_index") == 1, d.rationale  # Cruelty FIRST

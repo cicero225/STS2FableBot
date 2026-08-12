@@ -288,6 +288,11 @@ class PlannedCard:
     # Ashen Strike-class: +N damage per exhaust EVENT within this plan (the live
     # preview already carries the pre-plan pile)
     dmg_per_exhaust_event: int = 0
+    # Cruelty-class rider ON THE CARD: playing it amplifies vuln damage for the
+    # REST of the plan (owner catch 2026-08-12: Cruelty ordered AFTER an attack
+    # on a vulnerable enemy -- the bonus only seeded from the ACTIVE status, so
+    # the DFS saw no ordering benefit)
+    vuln_amp: float = 0.0
     rage_block: int = 0  # Rage: block gained per Attack played after it this turn
     exhaust_count: int = 0  # cards this play exhausts (-1 = remaining hand); FNP credit
     # Queen's Chains of Binding (owner 2026-07-18): first 3 draws each turn are Bound —
@@ -688,6 +693,10 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
         on_fatal_bonus=bool(re.search(r"\bIf Fatal\b", desc, re.IGNORECASE)),
         frantic_escape=((card.id or "").upper() == "FRANTIC_ESCAPE" and cost <= 1),
+        vuln_amp=(int(m.group(1)) / 100.0
+                  if (m := re.search(r"Vulnerable enemies take an additional "
+                                     r"(\d+)% damage", desc, re.IGNORECASE))
+                  else 0.0),
         requires_target=(card.target_type == "AnyEnemy"),
         upgrades_in_hand=upgrades_in_hand,
     )
@@ -1284,6 +1293,9 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # tally at scoring; never feeds my_block/Body Slam/triples_block)
         end_turn_block=s.end_turn_block + card.fx.plating,
         frantic_played=s.frantic_played + (1 if card.frantic_escape else 0),
+        # Cruelty played mid-plan: later attacks this turn ride the higher
+        # multiplier -- the DFS discovers power-before-attack ordering from it
+        vuln_mult_bonus=s.vuln_mult_bonus + card.vuln_amp,
         exhausted_this_turn=s.exhausted_this_turn or card.exhausts_a_card,
         n_exhaust_events=s.n_exhaust_events + (1 if card.exhausts_a_card else 0),
         vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,
