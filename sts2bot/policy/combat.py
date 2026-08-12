@@ -457,6 +457,7 @@ class SimState:
     # Disintegration: "At the end of your turn, take N damage") — joins the incoming pool
     # so the planner reserves block for it; skipped on lethal (fight ends first).
     self_end_damage: int = 0
+    rupture_per_loss: int = 0  # Rupture: Str per self-HP-loss event on our turn
     barricade: bool = False  # block persists -> stacking it is never waste
     my_weak: bool = False  # I'm Weak: my Attacks deal 25% less (Kin Orb of Weakness, etc.)
     my_frail: bool = False  # I'm Frail: Block I gain from cards is 25% less (Kin Orb of Frailty)
@@ -1282,8 +1283,6 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     nxt = replace(
         s,
         my_block=s.my_block + block_gain + tripled,
-        my_strength=s.my_strength + card.fx.strength,
-        strength_gained=s.strength_gained + card.fx.strength,
         draws=s.draws + (0 if s.no_draw else draw_gain),
         no_draw=s.no_draw or card.blocks_draw,
         energy=s.energy + energy_gain,
@@ -1296,6 +1295,11 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # Cruelty played mid-plan: later attacks this turn ride the higher
         # multiplier -- the DFS discovers power-before-attack ordering from it
         vuln_mult_bonus=s.vuln_mult_bonus + card.vuln_amp,
+        # Rupture: a self-HP-cost play is an on-your-turn HP loss -> Str
+        my_strength=s.my_strength + card.fx.strength
+        + (s.rupture_per_loss if card.fx.self_hp_cost > 0 else 0),
+        strength_gained=s.strength_gained + card.fx.strength
+        + (s.rupture_per_loss if card.fx.self_hp_cost > 0 else 0),
         exhausted_this_turn=s.exhausted_this_turn or card.exhausts_a_card,
         n_exhaust_events=s.n_exhaust_events + (1 if card.exhausts_a_card else 0),
         vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,
@@ -1557,6 +1561,7 @@ def plan_combat_turn(
     card_cap = None  # "You can only play N cards this turn" (Ringing): spend it on the best play
     my_dex = 0
     self_end_damage = 0
+    rupture_per_loss = 0
     vuln_mult_bonus = 0.0
     per_exhaust_block = 0  # Feel No Pain
     smoggy = False  # Living Fog: one Skill per turn
@@ -1585,6 +1590,14 @@ def plan_combat_turn(
         if m := re.search(r"Vulnerable enemies take an additional (\d+)% damage",
                           p.description or "", re.I):
             vuln_mult_bonus += int(m.group(1)) / 100.0
+        # Rupture (owner question 2026-08-12: 'did the planner even weigh the
+        # 1 Str / 2 hp logic?' -- it didn't; the trigger sentence is stripped
+        # and no seed existed): "Whenever you lose HP on your turn, gain N
+        # Strength." Self-HP-cost plays (Bloodletting) now earn the strength,
+        # so the trade is priced. Enemy-turn losses don't trigger (on YOUR turn).
+        if m := re.search(r"whenever you lose hp on your turn, gain (\d+) strength",
+                          p.description or "", re.I):
+            rupture_per_loss += int(m.group(1))
         # Plating (Gorget / Stone Armor): "At the end of your turn, gain N Block" — that
         # block lands BEFORE the enemy turn, so it soaks incoming exactly like played
         # block. The harness's dominant clean signature (2026-07-16, n=31): hp_loss
@@ -1807,6 +1820,7 @@ def plan_combat_turn(
         my_strength_start=my_strength,
         my_dex_start=my_dex,
         self_end_damage=self_end_damage,
+        rupture_per_loss=rupture_per_loss,
         vuln_mult_bonus=vuln_mult_bonus,
         per_exhaust_block=per_exhaust_block,
         smoggy=smoggy,

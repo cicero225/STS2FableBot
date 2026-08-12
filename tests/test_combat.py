@@ -2754,3 +2754,50 @@ def test_cruelty_ordered_before_attacks_on_vulnerable() -> None:
     cfg = load_policy_config()
     d = plan_combat_turn(state, cfg.combat)
     assert d.action.payload().get("card_index") == 1, d.rationale  # Cruelty FIRST
+
+
+def test_rupture_prices_the_str_per_selfhp_trade() -> None:
+    """Owner question 2026-08-12: 'did the planner even weigh the 1 Str / 2 hp
+    logic?' It didn't -- Rupture's trigger sentence is stripped and no seed
+    existed; the observed pass on Bloodletting was energy-waste economics
+    being coincidentally right. Now: with Rupture up and attacks to feed, the
+    self-HP play earns its Strength and gets sequenced BEFORE the attacks."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(with_rupture):
+        status = ([{"id": "RUPTURE_POWER", "name": "Rupture", "amount": 1,
+                    "description": "Whenever you lose HP on your turn, "
+                                   "gain 1 Strength."}] if with_rupture else [])
+        return parse_state({
+            "state_type": "monster", "run": {"act": 2, "floor": 22, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                       "block": 0, "energy": 2, "status": status,
+                       "hand": [
+                           {"index": 0, "id": "BLOODLETTING", "name": "Bloodletting",
+                            "type": "Skill", "cost": "0",
+                            "description": "Lose 2 HP. Gain 2 "
+                            "[ironclad_energy_icon.png].",
+                            "can_play": True, "target_type": "None"},
+                           {"index": 1, "id": "TWIN_STRIKE", "name": "Twin Strike",
+                            "type": "Attack", "cost": "1",
+                            "description": "Deal 5 damage twice.",
+                            "can_play": True, "target_type": "AnyEnemy"},
+                           {"index": 2, "id": "SWORD_BOOMERANG", "name": "Sword Boomerang",
+                            "type": "Attack", "cost": "1",
+                            "description": "Deal 3 damage to a random enemy 3 times.",
+                            "can_play": True, "target_type": "AnyEnemy"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Chomper", "hp": 60,
+                                    "max_hp": 60, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "11"}]}]},
+        })
+
+    cfg = load_policy_config()
+    d = plan_combat_turn(st(True), cfg.combat)
+    ra = d.rationale or ""
+    assert "Bloodletting" in ra, ra
+    # strength before the multi-hit attacks: Bloodletting leads the plan
+    assert d.action.payload().get("card_index") == 0, ra
