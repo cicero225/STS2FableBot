@@ -2858,3 +2858,44 @@ def test_second_wind_counts_only_nonattacks_and_death_wall_fires() -> None:
     # incoming with <=45 achievable block -- the projected-death signal the
     # rescue ladder keys on must be visible
     assert d.scores.get("hp_loss", 0) >= 14 or d.scores.get("lethal"), d.rationale
+
+
+def test_wg_preparing_turn_prices_zero_when_telegraphed() -> None:
+    """Audit #1 bucket (n=24 avg 17.2 over-predicted): the July assumed-50
+    incoming fired on every sentinel-HP turn, but the blind phase no longer
+    exists -- live tape shows preparing = Stun intent + STEAM_ERUPTION stacks,
+    eruption = DeathBlow N. Blocking the preparing turn is a turn early. The
+    assumption now fires only when the phase is genuinely blind (null intents,
+    no eruption status -- the 2026-07-25 shape, kept as a fallback)."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(intents, status):
+        return parse_state({
+            "state_type": "boss", "run": {"act": 1, "floor": 17, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 50, "max_hp": 80,
+                       "block": 0, "energy": 3, "status": [],
+                       "hand": [{"index": 0, "id": "DEFEND_IRONCLAD", "name": "Defend",
+                                 "type": "Skill", "cost": "1",
+                                 "description": "Gain 5 Block.",
+                                 "can_play": True, "target_type": "None"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 12, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "WG_0", "name": "Waterfall Giant",
+                                    "hp": 999999999, "max_hp": 240, "block": 0,
+                                    "status": status, "intents": intents}]},
+        })
+
+    cfg = load_policy_config()
+    # telegraphed preparing turn: Stun + stacks -> zero incoming, so blocking
+    # is pure waste and the correct play is to END THE TURN (save the Defend)
+    d = plan_combat_turn(st([{"type": "Stun", "label": ""}],
+                            [{"id": "STEAM_ERUPTION_POWER", "name": "Steam Eruption",
+                              "amount": 45, "description": "When killed, deals 45 "
+                              "damage at the end of your next turn."}]), cfg.combat)
+    assert d.action.payload()["action"] == "end_turn", d.rationale
+    # genuinely blind sentinel (the 2026-07-25 shape): the fallback still
+    # guards -- assumed incoming makes the Defend worth playing
+    d2 = plan_combat_turn(st([], []), cfg.combat)
+    assert d2.action.payload().get("card_index") == 0, d2.rationale

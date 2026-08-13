@@ -838,7 +838,18 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
         # stacks everything it can — the WG death above played 12 block at 30 HP into the blast
         # because 0 parsed incoming made all block score as excess. Steam-stack size is
         # unknowable from state; overblocking costs w_block_excess, dying costs the run.
-        if invincible and incoming == 0:
+        # STALENESS FIX (audit #1 bucket, 2026-08-13: knockdown turns pred~40-50
+        # vs actual 0, n=24 avg 17.2 over): the 2026-07-25 blind phase no longer
+        # exists — today's tape shows the PREPARING turn as an explicit Stun
+        # intent with STEAM_ERUPTION_POWER stacks visible, and the eruption turn
+        # as DeathBlow N (already priced by the intent lane). Blocking on the
+        # preparing turn is a turn EARLY (block expires before the blast).
+        # The assumption now fires only when the phase is genuinely blind.
+        _telegraphed = (
+            any((i.type or "").lower() in ("stun", "deathblow") for i in e.intents)
+            or any("STEAM_ERUPTION" in (p.id or "").upper() for p in e.status)
+        )
+        if invincible and incoming == 0 and not _telegraphed:
             incoming = _ERUPTION_ASSUMED_INCOMING
         # attack INSTANCE count ("6x3" = 3 hits) for Flame Barrier-class retaliation
         incoming_hits = sum(
