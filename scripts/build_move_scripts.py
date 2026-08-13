@@ -35,6 +35,13 @@ _DORMANT = {"sleep", "stun", ""}
 
 
 def main() -> int:
+    # Curated fields survive rebuilds (bestiary lesson: rebuilds are
+    # destructive): wiki-verified notes and cycle lengths are hand-added
+    # after harvest and must carry over.
+    prev: dict = {}
+    if DEST.is_file():
+        prev = json.loads(DEST.read_text(encoding="utf-8"))
+
     # (enemy, run, floor) -> {round: [(itype, label), ...]}
     per_fight: dict[tuple, dict[int, list]] = defaultdict(lambda: defaultdict(list))
 
@@ -99,8 +106,10 @@ def main() -> int:
             "turns": turns,
             "n_fights": n_fights[name],
             "wake_anchored": sleeper,
-            "notes": "",
+            "notes": (prev.get(name) or {}).get("notes", ""),
         }
+        if (prev.get(name) or {}).get("cycle"):
+            out[name]["cycle"] = prev[name]["cycle"]
     DEST.write_text(json.dumps(out, indent=1, sort_keys=True), encoding="utf-8")
     print(f"wrote move scripts for {len(out)} enemies "
           f"({sum(1 for n in out.values() if n['wake_anchored'])} wake-anchored) to {DEST.name}")

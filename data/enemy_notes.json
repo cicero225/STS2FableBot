@@ -56,9 +56,9 @@
   "gaps": ""
  },
  "Knowledge Demon": {
-  "mechanic": "Forced in-fight picks arrive as TEXTLESS event options via the API (fork ask #4). Owner's table: Set1 Disintegration(6/turn) vs Mind Rot; Set2 Disi(7) vs Sloth (max 3 cards/turn); Set3 Disi(8) vs Waste Away (-1 energy/turn). Disintegration stacks and is ALWAYS the right pick -- and happens to be option 0, the current blind default.",
-  "modeled": "Blind default option 0 = correct by coincidence; owner table recorded in PLAN fork ask #4.",
-  "gaps": "Real fix needs the fork's option labels; regeneration row also in _EMPIRICAL_MOVES."
+  "mechanic": "WIKI+CORPUS VERIFIED 2026-08-13 (284 fights): 379 HP, 4-cycle -- Curse of Knowledge (forced card pick) / Slap 17 / Knowledge Overwhelming 8x3 / Ponder (11 dmg + HEALS HIMSELF 30 + gains 2 Str). After the 3rd Curse the cycle drops to 3 moves. The heal+ramp makes it a HARD RACE: each cycle adds 30 effective HP, +2 Str incoming, and another Disintegration tier (6/7/8, 21 total by cycle 3). Owner pick table: Disintegration always right (vs Mind Rot / Sloth / Waste Away) -- and the picks arrive as fully-labeled card_selects (the old 'textless options' finding is stale; _DEBUFF_PREFERENCE drives the choice). Hardest boss for humans per the tracker, tied w/ Aeonglass.",
+  "modeled": "Move script wiki-verified w/ cycle=4; _DEBUFF_PREFERENCE picks Disintegration; Disintegration self_end_damage seeded from live status; closed-form 'Ponder' heal + _EMPIRICAL_MOVES regeneration row. Mode row: race (now grounded).",
+  "gaps": "Post-T9 3-move cycle approximated as 4; oracle kill-ETA vs the 30/cycle heal clock is the natural defend/race refinement."
  },
  "Knight Trio (Three Knights)": {
   "mechanic": "Owner 2026-08-10 (hedged 'possibly'): a fight effect in the Act-3 Three Knights encounter adds an Ethereal. rider to cards in hand/deck for the fight -- seen contaminating harvested card texts (Stone Armor+, Bully+, Infernal Blade, Mad Science).",

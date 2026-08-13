@@ -97,5 +97,6 @@ def test_choose_mode_queen_guard_break() -> None:
 
 def test_mode_table_tbd_rows_flagged() -> None:
     # anything not wiki-verified must say TBD so the owner review catches it
-    for k in ("KNOWLEDGE DEMON", "TEST SUBJECT", "CEREMONIAL BEAST", "AEONGLASS"):
+    # KD graduated to a grounded row 2026-08-13 (wiki pass)
+    for k in ("TEST SUBJECT", "CEREMONIAL BEAST", "AEONGLASS"):
         assert "TBD" in FIGHT_MODE_TABLE[k]["notes"]

@@ -245,7 +245,13 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
                  "Encoded card-level: w_frantic_escape (combat.py), lethal-gated.",
     },
     # TBD pending wiki verification passes (do not ship without owner review):
-    "KNOWLEDGE DEMON": {"default": "race", "notes": "TBD: regen hardens the race"},
+    "KNOWLEDGE DEMON": {
+        "default": "race",
+        "notes": "WIKI-VERIFIED 2026-08-13: Ponder heals him 30/cycle + 2 Str "
+                 "-- every uncompleted cycle costs 30 effective HP and ramps "
+                 "both his damage and the Disintegration clock. Hard race; "
+                 "kill by cycle 3 caps Disintegration at 21.",
+    },
     "TEST SUBJECT": {"default": "race", "notes": "TBD: staged full-heal bodies"},
     "CEREMONIAL BEAST": {"default": "race", "notes": "TBD: single HP threshold"},
     "AEONGLASS": {"default": "race", "notes": "TBD: artifact + Wither seeding"},
