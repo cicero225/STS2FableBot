@@ -294,6 +294,10 @@ _RELIC_FX = {
     # and -1 on card self-HP costs. The Brand-class ==1-cost countersynergy is
     # handled at relic-TAKE time (standard.py), not here.
     "TUNGSTEN_ROD": ("hp_loss_reduction", 1),
+    # Brimstone (owner check 2026-08-13): +2 Str to US and +1 Str to ALL
+    # enemies at every turn start -- BOTH edges must land or forecasts bias
+    # (ours: races undervalued; theirs: ramp understated).
+    "BRIMSTONE": ("brimstone", 2),
 }
 
 
@@ -340,6 +344,10 @@ class _RolloutSim:
         self.hp = int(player_hp)
         self.max_hp = int(max_hp)
         self.my_str = self.rfx.get("start_str", 0)
+        if self.rfx.get("brimstone"):
+            # enemy half: +1 Str/turn rides each foe's existing ramp lane
+            for f in self.foes:
+                f.ramp += 1
         self.vm = 1.75 if self.rfx.get("vuln_mult") else 1.5
         self.fnp = 0
         self.de_draw = 0
@@ -406,6 +414,7 @@ class _RolloutSim:
     # ---------------------------------------------------------------- turn frame
     def start_turn(self):
         self.turn += 1
+        self.my_str += self.rfx.get("brimstone", 0)  # our +2/turn half
         rfx = self.rfx
         if not self.barricade:
             self.block = 0

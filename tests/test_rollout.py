@@ -392,3 +392,26 @@ def test_rollout_sandpit_timer_padded_for_late_application_and_escapes() -> None
     # no timer: the same unkillable stall runs to the sim cap instead
     r2 = rollout_fight(deck, [FightEnemy(hp=170, dps=1)], 80, 80, card_effects=FX)
     assert r2.mean_turns > r.mean_turns
+
+
+def test_brimstone_models_both_edges() -> None:
+    """Owner check 2026-08-13: Brimstone (+2 Str us / +1 Str all enemies per
+    turn) was absent from the rollout relic table -- forecasts missed both
+    edges. An attack deck should forecast BETTER with Brimstone vs the same
+    fight (our ramp outpaces theirs 2:1 for a lone enemy)."""
+    from types import SimpleNamespace as NS
+
+    deck = ([card("STRIKE_IRONCLAD", cost="1")] * 6
+            + [card("DEFEND_IRONCLAD", typ="Skill")] * 4)
+    foe = FightEnemy(hp=120, dps=10)
+    brim = NS(id="BRIMSTONE", name="Brimstone", counter=None)
+    base = rollout_fight(deck, [foe], 70, 70, card_effects=FX, n=20)
+    with_b = rollout_fight(deck, [foe], 70, 70, card_effects=FX, n=20,
+                           relics=[brim])
+    assert with_b.mean_turns < base.mean_turns or with_b.win_rate >= base.win_rate
+    # and the enemy edge is real: a no-attack deck suffers MORE incoming
+    turtle = [card("DEFEND_IRONCLAD", typ="Skill")] * 10
+    base_t = rollout_fight(turtle, [foe], 70, 70, card_effects=FX, n=20)
+    with_t = rollout_fight(turtle, [foe], 70, 70, card_effects=FX, n=20,
+                           relics=[brim])
+    assert with_t.exp_end_hp <= base_t.exp_end_hp
