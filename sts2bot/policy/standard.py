@@ -598,8 +598,19 @@ class StandardRouter:
             mplan = choose_mode(views, state.player, self.move_scripts,
                                 card_effects=self.card_effects,
                                 current_round=state.battle.round or 1)
-            if mplan.mode == "race" or mplan.mode == "guard_break":
+            if mplan.mode == "race":
                 fp = "race"
+                mode_target = mplan.target
+            elif mplan.mode == "guard_break":
+                # NOT a race (Queen forensics 2026-08-13, 15 fights: 4 died
+                # in-guard, the rest 1-3 rounds post-break -- and the owner's
+                # tracker note says humans beat the Queen MOST OFTEN, so the
+                # losses are bot-specific). The guard phase is PAID SETUP
+                # time: only the minion attacks (~25/turn rent), so small
+                # blocks stay fully valued (race's devaluation was stripping
+                # defense against the rent) and the long 400-hp fight ahead
+                # keeps powers front-loaded via the normal focus economics.
+                fp = "focus"
                 mode_target = mplan.target
             elif mplan.mode == "defend_deadline":
                 cycle = int(mplan.detail.get("cycle") or 0)
