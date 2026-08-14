@@ -298,6 +298,9 @@ _RELIC_FX = {
     # enemies at every turn start -- BOTH edges must land or forecasts bias
     # (ours: races undervalued; theirs: ramp understated).
     "BRIMSTONE": ("brimstone", 2),
+    # Rainbow Ring (owner 2026-08-13, live text: EACH turn): completing
+    # Attack+Skill+Power in a turn pays 1 Str + 1 Dex (dex ~ 1 block/turn)
+    "RAINBOW_RING": ("rainbow", 1),
 }
 
 
@@ -344,6 +347,8 @@ class _RolloutSim:
         self.hp = int(player_hp)
         self.max_hp = int(max_hp)
         self.my_str = self.rfx.get("start_str", 0)
+        self.rb_dex = 0  # Rainbow Ring: accumulated dex ~ block/turn
+        self.turn_kinds: set = set()  # play kinds this turn (trio detection)
         if self.rfx.get("brimstone"):
             # enemy half: +1 Str/turn rides each foe's existing ramp lane
             for f in self.foes:
@@ -418,7 +423,7 @@ class _RolloutSim:
         rfx = self.rfx
         if not self.barricade:
             self.block = 0
-        self.block += rfx.get("start_block_per_turn", 0)
+        self.block += rfx.get("start_block_per_turn", 0) + self.rb_dex
         if self.turn == 1:
             self.block += rfx.get("t1_block", 0)
             self.my_str += self.spend("strength")  # fight-start buffs (live lane 4)
@@ -456,6 +461,8 @@ class _RolloutSim:
         self.hp = max(0, self.hp - self_cost)
         self.hp = min(self.max_hp, self.hp + pick.fx.heal)
         self.block += pick.fx.block
+        self.turn_kinds.add(
+            "A" if pick.is_attack else ("P" if pick.is_power else "S"))
         self.my_str += pick.fx.strength
         if not self.rfx.get("fiddle"):  # Fiddle: in-turn draws are dead
             for _ in range(pick.fx.draw):
@@ -526,6 +533,11 @@ class _RolloutSim:
             self._win()
 
     def end_of_turn(self):
+        # Rainbow Ring: trio completed this turn -> permanent 1 Str + 1 dex-block
+        if self.rfx.get("rainbow") and {"A", "S", "P"} <= self.turn_kinds:
+            self.my_str += 1
+            self.rb_dex += 1
+        self.turn_kinds = set()
         # hand curses bite, ethereal exhausts, rest discards
         for c in self.hand:
             if c.eot_hand_loss:

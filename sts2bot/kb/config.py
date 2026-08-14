@@ -28,6 +28,10 @@ class CombatWeights(_Section):
     # nothing, so unscored it NEVER got played and the clock never extended.
     # Sized to outrank a Strike, not a real turn.
     w_frantic_escape: float = 6.5
+    # Rainbow Ring trio (owner 2026-08-13): Attack+Skill+Power in one turn =
+    # 1 Str + 1 Dex, per turn (live text). Enough to steer sequencing/inclusion
+    # when the pieces are in hand; below any real play value.
+    w_rainbow_trio: float = 8.0
     # defend_deadline mode (Kaiser Laser turns): block promotion on the beat
     defend_block_mult: float = 1.5
     # Ramp-stall (owner 2026-07-16, Damp Cultist turtle-death): vs a strength-ramping
@@ -268,6 +272,9 @@ class CardRewardWeights(_Section):
     # self-removing once the card becomes parseable/pilotable (owner-approved 2026-07-09).
     penalty_planner_blind: float = -4.0
     prior_act_weight: float = 3.0  # per-act tilt (8.1b); bounded secondary nudge
+    # Rainbow Ring (owner 2026-08-13): the trio trigger needs a POWER --
+    # the deck's FIRST power unlocks a per-turn 1 Str + 1 Dex engine
+    rainbow_first_power_bonus: float = 2.0
     w_rarity_common: float = 2.0
     w_rarity_uncommon: float = 5.0
     w_rarity_rare: float = 8.0

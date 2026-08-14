@@ -2945,3 +2945,45 @@ def test_feed_fatal_bonus_requires_nonminion_kill() -> None:
     # (Exhaust costs the card; the plain Strike finishes identically)
     d2 = plan_combat_turn(st(minion=True), cfg.combat)
     assert d2.action.payload().get("card_index") == 1, d2.rationale
+
+
+def test_rainbow_ring_trio_steered_and_completed() -> None:
+    """Owner 2026-08-13 (live text: 'each turn', not once-per-combat): with the
+    ring held and A+S+P all in hand, the plan completes the trio; without the
+    ring the Power alone may sit (friction) -- the trio credit is the delta."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(with_ring):
+        relics = ([{"id": "RAINBOW_RING", "name": "Rainbow Ring",
+                    "description": "The first time you play an Attack, Skill, and "
+                    "Power each turn, gain 1 Strength and 1 Dexterity."}]
+                  if with_ring else [])
+        return parse_state({
+            "state_type": "monster", "run": {"act": 2, "floor": 20, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80,
+                       "block": 0, "energy": 3, "status": [], "relics": relics,
+                       "hand": [
+                           {"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                            "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                            "can_play": True, "target_type": "AnyEnemy"},
+                           {"index": 1, "id": "DEFEND_IRONCLAD", "name": "Defend",
+                            "type": "Skill", "cost": "1", "description": "Gain 5 Block.",
+                            "can_play": True, "target_type": "None"},
+                           {"index": 2, "id": "AGGRESSION", "name": "Aggression",
+                            "type": "Power", "cost": "1",
+                            "description": "At the start of each turn, gain 1 Vigor.",
+                            "can_play": True, "target_type": "None"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Chomper", "hp": 60,
+                                    "max_hp": 60, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "8"}]}]},
+        })
+
+    cfg = load_policy_config()
+    d = plan_combat_turn(st(True), cfg.combat)
+    ra = d.rationale or ""
+    # all three types in the plan (trio completed)
+    assert "Strike" in ra and "Defend" in ra and "Aggression" in ra, ra

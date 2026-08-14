@@ -2081,6 +2081,21 @@ class StandardRouter:
             "Ancient": w.w_rarity_uncommon,
             "Event": w.w_rarity_uncommon,
         }.get(card.rarity or "", w.w_rarity_common)
+        # Rainbow Ring (owner 2026-08-13; PER-TURN trigger, so every played
+        # power is a potential trio turn): declining draft schedule -- full
+        # bonus for the first Power, half while under ~1 power per 8 deck
+        # cards, nothing beyond (owner: 'definitely possible to add too
+        # many powers'; the cap encodes that without pretending precision).
+        if relics and (card.type or "") == "Power" and any(
+                "RAINBOW" in ((getattr(r, "id", "")
+                               or getattr(r, "name", "") or "").upper())
+                for r in relics):
+            n_powers = sum(1 for c_ in (deck or [])
+                           if (getattr(c_, "type", "") or "") == "Power")
+            if n_powers == 0:
+                score += w.rainbow_first_power_bonus
+            elif n_powers < max(2, deck_size // 8):
+                score += w.rainbow_first_power_bonus / 2
         if self.priors is not None:
             prior = self.priors.score(card.id, character)
             if prior is not None:

@@ -216,9 +216,11 @@ def _fire_relic_triggers(pre: SimState, post: SimState, card: PlannedCard) -> Si
     is_skill = not (is_attack or is_power or is_potion)
     n_att = post.n_attacks_played + (1 if is_attack else 0)
     n_sk = post.n_skills_played + (1 if is_skill else 0)
+    n_pow = post.n_powers_played + (1 if is_power else 0)
     kills_delta = post.kills - pre.kills
     self_loss = card.fx.self_hp_cost
-    s = replace(post, n_attacks_played=n_att, n_skills_played=n_sk)
+    s = replace(post, n_attacks_played=n_att, n_skills_played=n_sk,
+                n_powers_played=n_pow)
     if not s.relic_triggers:
         return s
     for trig in s.relic_triggers:
@@ -526,6 +528,8 @@ class SimState:
     relic_triggers: tuple = ()
     n_attacks_played: int = 0
     n_skills_played: int = 0
+    n_powers_played: int = 0
+    rainbow_ring: bool = False  # trio (A+S+P in one turn) pays 1 Str + 1 Dex
     cent_puzzle_armed: bool = False  # Centennial Puzzle unfired (approx: entered at full HP)
     axe_armed: bool = False  # Throwing Axe: the first CARD this combat plays twice
     demon_tongue_armed: bool = False  # Demon Tongue: first self-HP-loss this turn heals it
@@ -1529,6 +1533,13 @@ def _score(
         + w.w_damage * state.damage_dealt
         + w.w_kill * state.kills
         + w.w_on_fatal_bonus * state.fatal_bonuses  # Feed lands the kill -> permanent payoff
+        # Rainbow Ring (owner 2026-08-13; live text says EACH TURN, not once):
+        # completing Attack+Skill+Power in one turn pays 1 Str + 1 Dex --
+        # the DFS finds trio turns when the pieces are in hand
+        + (w.w_rainbow_trio
+           if state.rainbow_ring and state.n_attacks_played >= 1
+           and state.n_skills_played >= 1 and state.n_powers_played >= 1
+           else 0.0)
         # burning an If-Fatal Exhaust card on a MINION kill forfeits its future
         # payoff -- enough to lose the tie vs a plain finisher, never to block
         # a needed kill (the +8 bonus and w_kill dwarf it)
@@ -1898,6 +1909,8 @@ def plan_combat_turn(
         ),
         heal_room=max(0, player.max_hp - player.hp),
         pen_nib_counter=pen_nib_counter,
+        rainbow_ring=any("RAINBOW" in (r.id or r.name or "").upper()
+                         for r in player.relics),
         pen_turn_started_at_nine=(pen_nib_counter is not None
                                   and pen_nib_counter % _PEN_NIB_PERIOD
                                   == _PEN_NIB_PERIOD - 1),
