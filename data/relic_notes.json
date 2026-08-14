@@ -1780,5 +1780,8 @@
    "notes": "\"Upon pickup, Upgrade 4 cards.\" One-shot pickup effect, visible via the deck.",
    "status": "n/a (class A)"
   }
+ },
+ "_RELIC_TRADER_DESIGN": {
+  "notes": "Owner design 2026-08-13 (Relic Trader event: 3 fixed give->get pairs; currently valued by the generic Spirebird option scorer, which prices the GIVEN relic at acquisition value): the give-side should be priced at RESIDUAL value instead. (1) 'Upon pickup, ...' relics (Whetstone, Throwing Axe, Old Coin...) are already SPENT -- residual ~0, trade near-free, take any positive get. (2) Per-run / out-of-combat relics (map/economy effects) decay by act -- low residual in Act 3 vs any combat relic. (3) Combat relics keep full residual. Needs relic-by-relic assessment for tier 2; tier 1 ('Upon pickup' = text-detectable residual-zero) is mechanical. Filed for the relic-trade lane."
  }
 }

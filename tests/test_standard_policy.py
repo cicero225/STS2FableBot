@@ -5176,3 +5176,41 @@ def test_shop_buys_role_filling_card_especially_on_sale() -> None:
         p2 = d2.action.payload()
         assert not (p2.get("action") == "shop_purchase"
                     and p2.get("index") in (0, 1)), d2.rationale
+
+
+def test_throwing_axe_sharp_reaches_the_picker_and_dismantle_counts() -> None:
+    """Owner catches 2026-08-13 (Throwing Axe purchase): (1) pickup-enchant
+    relics open a NAMELESS 'Choose 3 cards to Enchant.' screen and the Sharp
+    intent never carried from a SHOP purchase (event-only carrier) -- Strikes
+    got the enchant; (2) Dismantle's conditional double-hit wasn't counted as
+    multi-hit by the Sharp rule; (3) worst: Dismantle+ was excluded outright by
+    the upgrade-screen unupgraded filter. All three fixed."""
+    r = router()
+    ctx = LoopContext()
+
+    class Item:
+        relic_description = "Upon pickup, Enchant up to 3 Attacks with Sharp 3."
+    r._note_relic_enchant(Item(), ctx)
+    assert ctx.screen_mem.get("pending_enchant") == "sharp"
+
+    class CS:
+        prompt = "Choose 3 cards to Enchant."
+
+        def __init__(self, cards):
+            self.cards = cards
+
+    class C:
+        def __init__(self, i, cid, name, desc, up=False):
+            self.index, self.id, self.name = i, cid, name
+            self.cost, self.type, self.rarity = "1", "Attack", "Common"
+            self.is_upgraded = up
+            self.description = desc
+
+    cards = [C(0, "STRIKE_IRONCLAD", "Strike", "Deal 6 damage."),
+             C(1, "DISMANTLE", "Dismantle+",
+               "Deal 12 damage. If the enemy is Vulnerable, hits twice.", up=True),
+             C(2, "MOLTEN_FIST", "Molten Fist", "Deal 9 damage.")]
+    pick = r._pick_target(CS(cards), prefer_worst=False, character="The Ironclad",
+                          enchant_kind=ctx.screen_mem.get("pending_enchant"))
+    # the upgraded conditional-double-hitter is now both ELIGIBLE and PREFERRED
+    assert pick.index == 1, (pick.name, pick.index)

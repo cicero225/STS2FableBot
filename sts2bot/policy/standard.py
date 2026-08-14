@@ -383,6 +383,18 @@ class StandardRouter:
     # intent from a declined event self-heals.
     _ENCHANT_KINDS = ("slither", "sharp", "nimble", "swift", "sown", "spiral")
 
+    def _note_relic_enchant(self, item, ctx: LoopContext) -> None:
+        """A purchased/picked relic whose pickup enchants ('Enchant up to 3
+        Attacks with Sharp 3') opens a NAMELESS target screen next -- carry the
+        kind exactly like event-choice enchants (owner catch 2026-08-13:
+        Throwing Axe's Sharp never reached the picker; Strikes got the enchant
+        while Dismantle+ sat filtered out)."""
+        desc = getattr(item, "relic_description", None) or ""
+        if m := re.search(r"enchant[^.]*?with (\w+)", desc, re.IGNORECASE):
+            kind = m.group(1).lower()
+            if kind in self._ENCHANT_KINDS:
+                ctx.screen_mem["pending_enchant"] = kind
+
     def _note_enchant_intent(self, state, decision, ctx: LoopContext) -> None:
         if not isinstance(decision, Decision) or not isinstance(
             decision.action, act.ChooseEventOption
@@ -2592,7 +2604,10 @@ class StandardRouter:
                 return len(self._DEBUFF_PREFERENCE)
             return min(candidates, key=poison_rank)
         is_upgrade = "upgrade" in prompt or "enchant" in prompt
-        if is_upgrade:
+        if "upgrade" in prompt:
+            # true UPGRADE screens only: enchants target upgraded keepers too
+            # (owner catch 2026-08-13: Dismantle+ was filtered out of a Sharp
+            # pickup entirely -- the premium targets are exactly the + cards)
             unupgraded = [c for c in candidates if not c.is_upgraded]
             if unupgraded:
                 candidates = unupgraded
@@ -2648,7 +2663,9 @@ class StandardRouter:
                 # a 3x+ target beats even Swift-on-Power)
                 if "sharp" in prompt:
                     fxc = parse_card_description(c.description)
-                    if fxc.hits >= 2:
+                    # Dismantle-class conditional double-hit counts as multi-hit
+                    # (owner check 2026-08-13: 'could hit twice' is Sharp-fed)
+                    if fxc.hits >= 2 or fxc.double_hits_if_vuln:
                         uv += 1.5 + (1.0 if fxc.hits >= 3 else 0.0)
                 if boss_rule and self.card_effects:
                     cid = (c.id or "").upper()
@@ -3115,6 +3132,7 @@ class StandardRouter:
                 worth_on_own = v is not None and v >= w.relic_war_per_100g_min
                 if worth_on_own or len(avail) > 1:
                     bought.append(item.index)
+                    self._note_relic_enchant(item, ctx)
                     return Decision(
                         action=act.ShopPurchase(index=item.index),
                         rationale=f"buy {item.relic_name} FIRST ({price}g; discounts the shop)",
@@ -3157,6 +3175,7 @@ class StandardRouter:
         if relic_buys:
             v, price, item = max(relic_buys, key=lambda x: x[0])
             bought.append(item.index)
+            self._note_relic_enchant(item, ctx)
             return Decision(
                 action=act.ShopPurchase(index=item.index),
                 rationale=f"buy relic {item.relic_name} ({price}g, WAR/100g {v:+.3f})",
