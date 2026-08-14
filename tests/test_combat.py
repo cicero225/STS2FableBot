@@ -2899,3 +2899,49 @@ def test_wg_preparing_turn_prices_zero_when_telegraphed() -> None:
     # guards -- assumed incoming makes the Defend worth playing
     d2 = plan_combat_turn(st([], []), cfg.combat)
     assert d2.action.payload().get("card_index") == 0, d2.rationale
+
+
+def test_feed_fatal_bonus_requires_nonminion_kill() -> None:
+    """Owner check 2026-08-13: Feed's Max-HP payoff triggers only on NON-minion
+    kills (the game's Fatal keyword text). The sim credited any kill, and
+    guard_break steers kills onto minions -- exactly where the phantom +8
+    would misprice Feed as the finisher over a plain attack."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(minion):
+        status = ([{"id": "MINION_POWER", "name": "Minion", "amount": 1,
+                    "description": "Will abandon combat when the leader dies."}]
+                  if minion else [])
+        return parse_state({
+            "state_type": "monster", "run": {"act": 2, "floor": 20, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80,
+                       "block": 0, "energy": 1, "status": [],
+                       "hand": [
+                           {"index": 0, "id": "FEED", "name": "Feed", "type": "Attack",
+                            "cost": "1", "description": "Deal 10 damage. If Fatal, "
+                            "raise your Max HP by 3. Exhaust.",
+                            "can_play": True, "target_type": "AnyEnemy"},
+                           {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                            "type": "Attack", "cost": "1", "description": "Deal 10 damage.",
+                            "can_play": True, "target_type": "AnyEnemy"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                       "enemies": [
+                           {"entity_id": "E0", "name": "Kin Follower" if minion else "Chomper",
+                            "hp": 8, "max_hp": 60, "block": 0, "status": status,
+                            "intents": [{"type": "attack", "label": "9"}]},
+                           {"entity_id": "LEAD", "name": "Kin Priest", "hp": 120,
+                            "max_hp": 169, "block": 0, "status": [],
+                            "intents": [{"type": "buff", "label": ""}]}]},
+        })
+
+    cfg = load_policy_config()
+    # non-minion kill available: Feed is the preferred finisher (+8 fatal)
+    d = plan_combat_turn(st(minion=False), cfg.combat)
+    assert d.action.payload().get("card_index") == 0, d.rationale
+    # minion kill: no fatal payoff -- Feed must NOT be burned on the Follower
+    # (Exhaust costs the card; the plain Strike finishes identically)
+    d2 = plan_combat_turn(st(minion=True), cfg.combat)
+    assert d2.action.payload().get("card_index") == 1, d2.rationale

@@ -513,6 +513,7 @@ class SimState:
     vuln_dmg_reduction: bool = False  # Colossus: 50% less damage from Vulnerable enemies
     potions_spent: int = 0  # pseudo-card potions drunk this plan (each pays w_potion_spend)
     fatal_bonuses: int = 0  # kills landed by "If Fatal, ..." cards (Feed) this plan
+    fatal_wasted: int = 0  # Feed-class spent on a MINION kill: payoff forfeited
     frantic_played: int = 0  # cheap Frantic Escapes played (Sandpit clock +1 each)
     # Cruelty (power): "Vulnerable enemies take an additional 25% damage" — additive on
     # top of Vulnerable's 50% (owner-confirmed the game previews it; 1.5 -> 1.75)
@@ -1057,7 +1058,15 @@ def _apply_attack(
     # Illusion ones revive — so deny offensive reward; their death's incoming drop is still
     # seen via hp_loss. Dangerous minions (Kin followers etc.) fall through to normal reward.
     if _ignorable_minion(e, state.has_summoner, state.guard_active):
-        return replace(state, enemies=tuple(enemies), self_damage=state.self_damage + thorns_taken)
+        return replace(
+            state, enemies=tuple(enemies),
+            self_damage=state.self_damage + thorns_taken,
+            # burning an If-Fatal Exhaust card (Feed) on an ignorable minion
+            # forfeits its permanent payoff -- the minion kill pays nothing
+            # (game keyword: non-minion) and the card is gone
+            fatal_wasted=state.fatal_wasted + (
+                1 if card.on_fatal_bonus and e.hp > 0 and hp <= 0 else 0),
+        )
     # Chipping a sleeper awake forfeits its remaining free setup turns (and Lagavulin sheds her
     # Plating FOR you on wake) — the attack is a complete no-op in sim unless it kills outright:
     # the HP change is NOT applied (a partial deny leaked reward through _score's focus term —
@@ -1097,7 +1106,13 @@ def _apply_attack(
             else 0
         ),
         self_damage=state.self_damage + thorns_taken,
-        fatal_bonuses=state.fatal_bonuses + (1 if killed and card.on_fatal_bonus else 0),
+        fatal_bonuses=state.fatal_bonuses + (
+            # the game keyword: kills a NON-MINION enemy (owner check 2026-08-13:
+            # Feeding a Torch/Follower pays nothing -- and guard_break steers
+            # kills onto minions, so the phantom credit collided exactly there)
+            1 if killed and card.on_fatal_bonus and not e.is_minion else 0),
+        fatal_wasted=state.fatal_wasted + (
+            1 if killed and card.on_fatal_bonus and e.is_minion else 0),
     )
 
 
@@ -1514,6 +1529,10 @@ def _score(
         + w.w_damage * state.damage_dealt
         + w.w_kill * state.kills
         + w.w_on_fatal_bonus * state.fatal_bonuses  # Feed lands the kill -> permanent payoff
+        # burning an If-Fatal Exhaust card on a MINION kill forfeits its future
+        # payoff -- enough to lose the tie vs a plain finisher, never to block
+        # a needed kill (the +8 bonus and w_kill dwarf it)
+        - 0.25 * w.w_on_fatal_bonus * state.fatal_wasted
         # Sandpit clock (owner rule 2026-08-12): a cheap Frantic Escape per turn
         # buys +1 deadline turn -- worth more than a Strike, moot if this plan
         # already ends the fight ("unless sure of lethal in time")
