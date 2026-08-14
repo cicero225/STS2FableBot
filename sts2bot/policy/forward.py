@@ -254,7 +254,14 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
     },
     "TEST SUBJECT": {"default": "race", "notes": "TBD: staged full-heal bodies"},
     "CEREMONIAL BEAST": {"default": "race", "notes": "TBD: single HP threshold"},
-    "AEONGLASS": {"default": "race", "notes": "TBD: artifact + Wither seeding"},
+    "AEONGLASS": {
+        "default": "race",
+        "notes": "WIKI-VERIFIED 2026-08-13: 3-cycle Ebb 22+33Block / Eye Lasers "
+                 "11x2 / Increasing Intensity (Wither+X, +2+X Str, upgrades all "
+                 "Withers). Superlinear escalation -- hard race; exhaust tools "
+                 "clear Withers (draft rule exists); Ebb turns are her block "
+                 "turns (debuff there, burst elsewhere -- future nuance).",
+    },
 }
 
 

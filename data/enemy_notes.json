@@ -64,5 +64,10 @@
   "mechanic": "Owner 2026-08-10 (hedged 'possibly'): a fight effect in the Act-3 Three Knights encounter adds an Ethereal. rider to cards in hand/deck for the fight -- seen contaminating harvested card texts (Stone Armor+, Bully+, Infernal Blade, Mad Science).",
   "modeled": "Not modeled in-fight; harvest-side majority vote keeps it out of the canonical catalog.",
   "gaps": "Confirm the source fight and exact scope (hand? drawn? all?). LETHALITY question RESOLVED (owner 2026-08-10): it is legitimately Ethereal -- the majority vote was right to keep it."
+ },
+ "Aeonglass": {
+  "mechanic": "WIKI+CORPUS VERIFIED 2026-08-13 (111 fights): 512 HP, Artifact 3 + Withering Presence. 3-cycle: Ebb 22+33 Block / Eye Lasers 11x2 / Increasing Intensity (Wither+X seeded, +2+X Str, upgrades all Withers -- X counts uses, so the fight escalates SUPERLINEARLY). Withers: 'Unplayable. At end of turn, if in Hand, take 6 damage.' Owner 2026-08-10: exhaust tools (True Grit+, Stoke, Second Wind) remove them -- Ironclad is among the strongest vs her. Hardest boss for humans per tracker (tied w/ KD); our #3 killer.",
+  "modeled": "Move script cycle=3 wiki-verified; Withers priced via the stranded-status hand class; Artifact strip credit (w_artifact_strip); _BOSS_DRAFT_RULES AEONGLASS exhaust_tool_bonus 2.0; mode row race (grounded 2026-08-13).",
+  "gaps": "Ebb-turn targeting nuance unexploited (attacking into 33 block vs debuffing that turn); audit residue +3.7 under-predicted n=7 -- likely Wither tier variants; watch."
  }
 }

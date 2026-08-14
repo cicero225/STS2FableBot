@@ -1,7 +1,8 @@
 {
  "Aeonglass": {
+  "cycle": 3,
   "n_fights": 111,
-  "notes": "",
+  "notes": "WIKI-VERIFIED 2026-08-13 (slaythespire.wiki.gg), corpus-exact over 111 fights: 512 HP, starts Withering Presence + Artifact 3. 3-CYCLE: Ebb 22 dmg + 33 BLOCK / Eye Lasers 11x2 / Increasing Intensity (shuffles Wither+X into discard, gains 2+X Str, upgrades ALL Withers; X = uses so far, Wither dmg 3->6). Superlinear escalation. Ebb turns (T1/T4/T7...) are her block turns.",
   "turns": {
    "1": [
     {
