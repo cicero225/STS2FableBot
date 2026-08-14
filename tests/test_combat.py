@@ -2987,3 +2987,44 @@ def test_rainbow_ring_trio_steered_and_completed() -> None:
     ra = d.rationale or ""
     # all three types in the plan (trio completed)
     assert "Strike" in ra and "Defend" in ra and "Aggression" in ra, ra
+
+
+def test_zero_cost_draw_opens_the_turn() -> None:
+    """Owner rule (KD A/B 2026-08-14): 0-energy draw cards are safe openers --
+    drawn cards feed the replan loop. Battle Trance sequences FIRST when no
+    other draw source competes; with Pommel Strike in hand the existing
+    no_draw pricing keeps Pommel BEFORE Trance (its suppression wrinkle)."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(hand):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 2, "floor": 20, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80,
+                       "block": 0, "energy": 3, "status": [], "hand": hand,
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Chomper", "hp": 60,
+                                    "max_hp": 60, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "8"}]}]},
+        })
+
+    bt = {"index": 0, "id": "BATTLE_TRANCE", "name": "Battle Trance",
+          "type": "Skill", "cost": "0",
+          "description": "Draw 3 cards. You cannot draw additional cards this turn.",
+          "can_play": True, "target_type": "None"}
+    strike = {"index": 1, "id": "STRIKE_IRONCLAD", "name": "Strike",
+              "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+              "can_play": True, "target_type": "AnyEnemy"}
+    pommel = {"index": 2, "id": "POMMEL_STRIKE", "name": "Pommel Strike",
+              "type": "Attack", "cost": "1",
+              "description": "Deal 9 damage. Draw 1 card.",
+              "can_play": True, "target_type": "AnyEnemy"}
+
+    cfg = load_policy_config()
+    d = plan_combat_turn(st([bt, strike]), cfg.combat)
+    assert d.action.payload().get("card_index") == 0, d.rationale  # BT opens
+    d2 = plan_combat_turn(st([bt, pommel, strike]), cfg.combat)
+    assert d2.action.payload().get("card_index") == 2 or \
+           "Pommel" in (d2.rationale or "").split(">")[0], d2.rationale

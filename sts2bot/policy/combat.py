@@ -1782,6 +1782,13 @@ def plan_combat_turn(
     for i, pc in enumerate(playable):
         if pc.fx.reveals_random:
             playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
+        elif pc.cost == 0 and pc.fx.draw > 0 and pc.potion_slot is None:
+            # Owner rule (KD A/B 2026-08-14): '0 energy draw like Battle
+            # Trance is generally safe to open with' -- drawn cards feed
+            # the replan loop, so surface them FIRST. The Battle Trance
+            # wrinkle (suppresses further draw) is already priced: no_draw
+            # zeroes later draws in-plan, keeping Pommel-before-Trance.
+            playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
     grow_attacks = [pc for pc in playable if pc.is_attack and pc.potion_slot is None]
     for i, pc in enumerate(playable):
         if pc.grows_on_exhaust:
