@@ -1783,5 +1783,11 @@
  },
  "_RELIC_TRADER_DESIGN": {
   "notes": "Owner design 2026-08-13 (Relic Trader event: 3 fixed give->get pairs; currently valued by the generic Spirebird option scorer, which prices the GIVEN relic at acquisition value): the give-side should be priced at RESIDUAL value instead. (1) 'Upon pickup, ...' relics (Whetstone, Throwing Axe, Old Coin...) are already SPENT -- residual ~0, trade near-free, take any positive get. (2) Per-run / out-of-combat relics (map/economy effects) decay by act -- low residual in Act 3 vs any combat relic. (3) Combat relics keep full residual. Needs relic-by-relic assessment for tier 2; tier 1 ('Upon pickup' = text-detectable residual-zero) is mechanical. Filed for the relic-trade lane."
+ },
+ "MUSIC_BOX": {
+  "notes": "Owner live decode 2026-08-15 (Vakuu pick): 'OK/average option that accentuates damage sometimes' -- generates copies of played cards (ethereal, self-exhausting; exact trigger cadence TBD from tape). Key interactions: Howl From Beyond's auto-copy exhausts itself for free; 'almost auto-fulfills Pact's End' (steady exhaust-pile feed). Also drove RELIC-CONDITIONAL PATHING (took the two-shop route for optionality) -- a term path_value doesn't have."
+ },
+ "WHISPERING_EARRING": {
+  "notes": " OWNER CONTEXT RULE 2026-08-15: '+1 energy turn-1 impact is hard to justify in a deck with +3 energy from Pyre' -- energy relics' value declines with the deck's existing energy curve (recurring principle: see KD debuff rule 2, draw-vs-play judgment)."
  }
 }
