@@ -530,6 +530,10 @@ class SimState:
     n_skills_played: int = 0
     n_powers_played: int = 0
     rainbow_ring: bool = False  # trio (A+S+P in one turn) pays 1 Str + 1 Dex
+    # Energy-surplus draw judgment (owner rule, KD A/B 2026-08-14): energy
+    # left after the hand's non-basic value plays -- drawn cards are USABLE
+    # when positive, so draw credit scales up and draws sequence early.
+    energy_surplus: int = 0
     cent_puzzle_armed: bool = False  # Centennial Puzzle unfired (approx: entered at full HP)
     axe_armed: bool = False  # Throwing Axe: the first CARD this combat plays twice
     demon_tongue_armed: bool = False  # Demon Tongue: first self-HP-loss this turn heals it
@@ -1165,8 +1169,10 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # played sooner leave more of the turn able to use what they generate --
         # position-scaled tie-break, sized below any real effect
         flat_bonus=state.flat_bonus + card.growth_bonus
-        + (card.reveal_nudge * max(0, state.hand_size - len(state.played) - 1)
-           if card.fx.reveals_random else 0.0),
+        # nudge accrues for ANY card it was deliberately set on (gambles,
+        # 0-cost draws, surplus-energy draw sources) -- the old
+        # reveals_random gate silently ignored the draw-opener nudges
+        + card.reveal_nudge * max(0, state.hand_size - len(state.played) - 1),
         # Prolong-class: next-turn block equal to block AT PLAY TIME (snapshot —
         # review #13). Future value the one-turn tally can't see; the DFS discovers
         # on its own that it plays best AFTER the block cards (live 2026-07-25:
@@ -1570,6 +1576,7 @@ def _score(
         + w.w_weak * state.weak_applied
         + w.w_strength * state.strength_gained
         + w.w_draw * state.draws
+        * (w.surplus_draw_mult if state.energy_surplus > 0 else 1.0)
         + energy_waste_term
         + w.w_play_friction * len(state.played)
         + power_term
@@ -1779,8 +1786,18 @@ def plan_combat_turn(
     # Thrash-class growth bonus: the exhausted attack's damage banks into the NEXT
     # play + thinning — future value the one-turn tally can't see. Granted only when
     # every OTHER attack in hand is fodder (owner: never risk eating a keeper).
+    energy_surplus = energy - sum(
+        pc.cost for pc in playable
+        if pc.potion_slot is None
+        and not (pc.name or "").rstrip("+").startswith(("Strike", "Defend"))
+        and pc.fx.draw == 0
+    )
     for i, pc in enumerate(playable):
         if pc.fx.reveals_random:
+            playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
+        elif (energy_surplus > 0 and pc.fx.draw > 0
+              and pc.cost <= energy_surplus and pc.potion_slot is None):
+            # surplus energy: what draws fetch is USABLE -- surface early
             playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
         elif pc.cost == 0 and pc.fx.draw > 0 and pc.potion_slot is None:
             # Owner rule (KD A/B 2026-08-14): '0 energy draw like Battle
@@ -1908,6 +1925,13 @@ def plan_combat_turn(
         surrounded=my_surrounded,
         hand_size=len(hand),
         hand_attacks0=sum(1 for c_ in hand if (c_.type or "") == "Attack"),
+        # Owner rule (KD A/B 2026-08-14): 'is my hand good value for my
+        # energy, or is it worth spending X to draw into my deck?' Surplus =
+        # energy minus the cost of playable NON-BASIC, non-draw value cards
+        # ('possible to spend all energy on non-strike/defends?'). Positive
+        # surplus -> drawn cards are usable -> draw credit scales and draw
+        # sources sequence early. At 3 energy with a good hand: no change.
+        energy_surplus=energy_surplus,
         has_summoner=any(e.summons for e in enemy_sims),
         guard_active=(
             any(any(g in (e.name or "").upper() for g in _GUARDED_LEADER_NAMES)

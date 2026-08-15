@@ -71,6 +71,11 @@ class CombatWeights(_Section):
     w_weak: float = 5.0
     w_strength: float = 7.0
     w_draw: float = 3.0
+    # Energy-surplus draw judgment (owner rule, KD A/B 2026-08-14): when energy
+    # exceeds the hand's non-basic value plays, drawn cards are USABLE this
+    # turn -- scale draw credit up. At/below par, drawing keeps normal value
+    # (the 3-energy caution: never waste energy digging past a good hand).
+    surplus_draw_mult: float = 1.8
     w_energy_waste: float = -0.5
     # Ice Cream only: leftover energy is banked for next turn -- mildly positive so
     # generators get played for the future, well below w_damage so spending now

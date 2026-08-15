@@ -177,7 +177,13 @@ def test_planner_clears_beckons_instead_of_poking_intangible() -> None:
     d = plan_combat_turn(
         parse_state(_beckon_state(3, hand, enemy_hp=172, hp=35,
                                   enemy_status=_INTANGIBLE, incoming="13")), w)
-    assert d.action.payload()["card_index"] in (0, 2)  # a Beckon leads the plan
+    # the real invariant: BOTH Beckons are cleared this turn (12 unblockable
+    # HP saved) -- the 2026-08-14 surplus-draw nudge may open with Pommel
+    # (its draw lands with energy left), which is fine as long as no Beckon
+    # gets crowded out of the plan
+    ra = d.rationale or ""
+    assert ra.count("Beckon") >= 2, ra
+    assert d.action.payload()["card_index"] in (0, 1, 2), ra
     plan = d.rationale.split("[")[1].split("]")[0]
     assert plan.count("Beckon") == 2  # and BOTH get cleared in the chosen sequence
 
@@ -3028,3 +3034,45 @@ def test_zero_cost_draw_opens_the_turn() -> None:
     d2 = plan_combat_turn(st([bt, pommel, strike]), cfg.combat)
     assert d2.action.payload().get("card_index") == 2 or \
            "Pommel" in (d2.rationale or "").split(">")[0], d2.rationale
+
+
+def test_energy_surplus_draw_judgment() -> None:
+    """Owner rule (KD A/B 2026-08-14): 'is my hand good value for my energy,
+    or is it worth spending X to draw?' With SURPLUS energy (6 en, only a
+    3-cost value card besides basics), the 1-cost draw sequences early and
+    its draws earn scaled credit. At par (3 energy, 3-cost value card), the
+    value card leads -- never waste energy digging past a good hand."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(energy):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 2, "floor": 20, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80,
+                       "block": 0, "energy": energy, "status": [],
+                       "hand": [
+                           {"index": 0, "id": "BLUDGEON", "name": "Bludgeon",
+                            "type": "Attack", "cost": "3", "description": "Deal 32 damage.",
+                            "can_play": True, "target_type": "AnyEnemy"},
+                           {"index": 1, "id": "POMMEL_STRIKE", "name": "Pommel Strike",
+                            "type": "Attack", "cost": "1",
+                            "description": "Deal 9 damage. Draw 1 card.",
+                            "can_play": True, "target_type": "AnyEnemy"},
+                           {"index": 2, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                            "type": "Attack", "cost": "1", "description": "Deal 6 damage.",
+                            "can_play": True, "target_type": "AnyEnemy"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Chomper", "hp": 80,
+                                    "max_hp": 80, "block": 0, "status": [],
+                                    "intents": [{"type": "attack", "label": "8"}]}]},
+        })
+
+    cfg = load_policy_config()
+    # surplus (6 energy vs 3-cost Bludgeon): the draw source opens the turn
+    d = plan_combat_turn(st(6), cfg.combat)
+    assert d.action.payload().get("card_index") == 1, d.rationale
+    # par (3 energy): Bludgeon is the turn -- no dig-first detour
+    d2 = plan_combat_turn(st(3), cfg.combat)
+    assert d2.action.payload().get("card_index") == 0, d2.rationale
