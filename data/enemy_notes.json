@@ -69,5 +69,10 @@
   "mechanic": "WIKI+CORPUS VERIFIED 2026-08-13 (111 fights): 512 HP, Artifact 3 + Withering Presence. 3-cycle: Ebb 22+33 Block / Eye Lasers 11x2 / Increasing Intensity (Wither+X seeded, +2+X Str, upgrades all Withers -- X counts uses, so the fight escalates SUPERLINEARLY). Withers: 'Unplayable. At end of turn, if in Hand, take 6 damage.' Owner 2026-08-10: exhaust tools (True Grit+, Stoke, Second Wind) remove them -- Ironclad is among the strongest vs her. Hardest boss for humans per tracker (tied w/ KD); our #3 killer.",
   "modeled": "Move script cycle=3 wiki-verified; Withers priced via the stranded-status hand class; Artifact strip credit (w_artifact_strip); _BOSS_DRAFT_RULES AEONGLASS exhaust_tool_bonus 2.0; mode row race (grounded 2026-08-13).",
   "gaps": "Ebb-turn targeting nuance unexploited (attacking into 33 block vs debuffing that turn); audit residue +3.7 under-predicted n=7 -- likely Wither tier variants; watch."
+ },
+ "Test Subject": {
+  "mechanic": "OWNER DECODE 2026-08-15 (recorded same-turn): staged full-heal bodies (100/200/300); PHASE 3 ALTERNATES turns of Intangible (takes max 1 damage) + big damage output with vulnerable-normal turns. One-turn kills are near-impossible at 300 hp, so the fight rewards decks that can reliably block EVERY OTHER turn. Winning shapes: arrive at phase 3 with most HP intact (burst phases 1-2 cheaply) OR hold a reliable defensive engine. Common loss: low HP + big damage engine staring at the intangible wall (owner has seen the bot AND themselves die this way).",
+  "modeled": "Stage bodies via _BOSS_STAGES (Phrog dormant-wave machinery). Phase-3 alternation NOT yet modeled -- natural fit: the mode layer's recurring-beat machinery (defend on intangible beats, unload between; same shape as Kaiser Laser turns). Wiki pass queued to verify the exact cycle.",
+  "gaps": "Alternation cycle unverified (wiki pass next); upstream lever is arriving healthy -- the phases 1-2 burst-vs-chip tradeoff is setup-then-burst territory."
  }
 }

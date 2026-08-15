@@ -415,3 +415,20 @@ def test_brimstone_models_both_edges() -> None:
     with_t = rollout_fight(turtle, [foe], 70, 70, card_effects=FX, n=20,
                            relics=[brim])
     assert with_t.exp_end_hp <= base_t.exp_end_hp
+
+
+def test_rampage_growth_compounds_in_rollouts() -> None:
+    """Owner audit 2026-08-15: the rollout now grows Rampage per play WITHIN a
+    rollout (per-sim tracking -- _Card objects are shared across rollouts, so
+    fx mutation would leak). A Rampage deck must beat the same deck with a
+    flat 9-damage card vs a big-HP target."""
+    ramp = card("RAMPAGE", cost="1")
+    flat = card("STRIKE_IRONCLAD", cost="1")
+    filler = [card("DEFEND_IRONCLAD", typ="Skill")] * 6
+    FX2 = dict(FX)
+    FX2["RAMPAGE|0"] = "Deal 9 damage. Increase this card's damage by 5 this combat."
+    FX2["STRIKE_IRONCLAD|0"] = "Deal 9 damage."
+    foe = FightEnemy(hp=300, dps=8)
+    r_ramp = rollout_fight([ramp] * 3 + filler, [foe], 80, 80, card_effects=FX2, n=20)
+    r_flat = rollout_fight([flat] * 3 + filler, [foe], 80, 80, card_effects=FX2, n=20)
+    assert r_ramp.mean_turns < r_flat.mean_turns, (r_ramp, r_flat)

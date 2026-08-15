@@ -32,6 +32,10 @@ class CombatWeights(_Section):
     # 1 Str + 1 Dex, per turn (live text). Enough to steer sequencing/inclusion
     # when the pieces are in hand; below any real play value.
     w_rainbow_trio: float = 8.0
+    # Rampage-class 'Increase this card's damage by N this combat' (owner
+    # audit 2026-08-15): live text bakes current damage, so this prices only
+    # the FUTURE +N per play -- roughly one discounted future replay
+    w_growth_future: float = 1.0
     # defend_deadline mode (Kaiser Laser turns): block promotion on the beat
     defend_block_mult: float = 1.5
     # Ramp-stall (owner 2026-07-16, Damp Cultist turtle-death): vs a strength-ramping

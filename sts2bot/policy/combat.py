@@ -517,6 +517,7 @@ class SimState:
     fatal_bonuses: int = 0  # kills landed by "If Fatal, ..." cards (Feed) this plan
     fatal_wasted: int = 0  # Feed-class spent on a MINION kill: payoff forfeited
     frantic_played: int = 0  # cheap Frantic Escapes played (Sandpit clock +1 each)
+    growth_banked: int = 0  # Rampage-class: +N future damage per play, this combat
     # Cruelty (power): "Vulnerable enemies take an additional 25% damage" — additive on
     # top of Vulnerable's 50% (owner-confirmed the game previews it; 1.5 -> 1.75)
     vuln_mult_bonus: float = 0.0
@@ -1357,6 +1358,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # tally at scoring; never feeds my_block/Body Slam/triples_block)
         end_turn_block=s.end_turn_block + card.fx.plating,
         frantic_played=s.frantic_played + (1 if card.frantic_escape else 0),
+        growth_banked=s.growth_banked + card.fx.grows_per_play,
         # Cruelty played mid-plan: later attacks this turn ride the higher
         # multiplier -- the DFS discovers power-before-attack ordering from it
         vuln_mult_bonus=s.vuln_mult_bonus + card.vuln_amp,
@@ -1554,6 +1556,9 @@ def _score(
         # buys +1 deadline turn -- worth more than a Strike, moot if this plan
         # already ends the fight ("unless sure of lethal in time")
         + (w.w_frantic_escape * state.frantic_played if not lethal_end else 0)
+        # Rampage-class future growth: each play banks +N damage for the rest
+        # of the combat -- worthless on the killing turn (no future)
+        + (w.w_growth_future * state.growth_banked if not lethal_end else 0)
         + w.w_hand_upgrade * state.hand_upgrades  # Armaments-class rider (owner 07-13)
         + w.w_overkill * state.overkill
         # Multiturn P4 mode terms (owner review 2026-08-12): in "race" small

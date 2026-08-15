@@ -168,6 +168,11 @@ class CardEffects:
     # before; live 2026-07-25: 0-cost Prolong sat unplayed with block up)
     block_carryover: bool = False
     conditional: bool = False  # has synergy/conditional language the planner can't price
+    # Rampage-class (owner audit 2026-08-15): 'Increase this card's damage by
+    # N this combat.' The LIVE text bakes accumulated growth into 'Deal X'
+    # (corpus: 9->14->19), so in-the-moment damage is always right; this field
+    # carries the FUTURE +N/play value the one-turn tally can't see.
+    grows_per_play: int = 0
     # Restlessness-class gate (owner 2026-08-10): "Retain. If your Hand is
     # empty, draw 2 cards and gain [energy][energy]." Effects parse flat here;
     # the combat sim fires them only on the play that EMPTIES the hand, and
@@ -323,6 +328,8 @@ def parse_card_description(text: str | None) -> CardEffects:
             fx.recognized.append("replay")
     fx.conditional = bool(_CONDITIONAL.search(full))  # flag reads the FULL text
     fx.requires_empty_hand = bool(_IF_HAND_EMPTY.search(full))
+    if m := re.search(r"increase this card's damage by (\d+)", full, re.IGNORECASE):
+        fx.grows_per_play = int(m.group(1))
     return fx
 
 

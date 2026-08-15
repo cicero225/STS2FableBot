@@ -348,6 +348,9 @@ class _RolloutSim:
         self.max_hp = int(max_hp)
         self.my_str = self.rfx.get("start_str", 0)
         self.rb_dex = 0  # Rainbow Ring: accumulated dex ~ block/turn
+        self.growth: dict = {}  # Rampage-class per-card growth THIS rollout
+        # (keyed by card object id -- _Card objects are shared across
+        # rollouts, so mutating fx.damage would leak between iterations)
         self.turn_kinds: set = set()  # play kinds this turn (trio detection)
         if self.rfx.get("brimstone"):
             # enemy half: +1 Str/turn rides each foe's existing ramp lane
@@ -463,6 +466,9 @@ class _RolloutSim:
         self.block += pick.fx.block
         self.turn_kinds.add(
             "A" if pick.is_attack else ("P" if pick.is_power else "S"))
+        if pick.fx.grows_per_play:
+            self.growth[id(pick)] = (self.growth.get(id(pick), 0)
+                                     + pick.fx.grows_per_play)
         self.my_str += pick.fx.strength
         if not self.rfx.get("fiddle"):  # Fiddle: in-turn draws are dead
             for _ in range(pick.fx.draw):
@@ -473,7 +479,11 @@ class _RolloutSim:
             # Body Slam-class: damage = CURRENT block (the Barricade finisher —
             # owner 2026-08-01; catalog preview numbers are stale, sim block isn't)
             per_hit = (self.block if pick.fx.dmg_equals_block
-                       else pick.fx.damage + self.my_str)
+                       else pick.fx.damage + self.my_str
+                       # Rampage-class growth accumulated THIS rollout
+                       + self.growth.get(id(pick), 0)
+                       - pick.fx.grows_per_play)  # growth counter includes
+                       # this play's own increment; damage grows AFTER
             if pick.upgraded and pick.ctype == "Attack":
                 per_hit += self.rfx.get("upgraded_attack_bonus", 0)  # Miniature Cannon
             if (pick.fx.requires_exhaust_pile

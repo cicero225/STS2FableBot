@@ -3136,3 +3136,39 @@ def test_pacts_end_deficit_feeds_exhaust_enabler_drafts() -> None:
     fed = score_adjustment("TRUE_GRIT", deck_with_pe, tags, w, act=2)
     unfed = score_adjustment("TRUE_GRIT", deck_plain, tags, w, act=2)
     assert fed > unfed, (fed, unfed)
+
+
+def test_rampage_growth_future_credit_and_lethal_gate() -> None:
+    """Owner audit 2026-08-15: live text bakes Rampage's grown damage (corpus
+    9->14->19), so in-the-moment pricing was already right; the gap was the
+    FUTURE +5/play. Non-lethal turn: Rampage beats an equal-damage Strike
+    (growth banks value). Lethal turn: no future -- no credit."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    def st(enemy_hp):
+        return parse_state({
+            "state_type": "monster", "run": {"act": 1, "floor": 8, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80,
+                       "block": 20, "energy": 1, "status": [],
+                       "hand": [
+                           {"index": 0, "id": "STRIKE_IRONCLAD", "name": "Strike",
+                            "type": "Attack", "cost": "1", "description": "Deal 9 damage.",
+                            "can_play": True, "target_type": "AnyEnemy"},
+                           {"index": 1, "id": "RAMPAGE", "name": "Rampage",
+                            "type": "Attack", "cost": "1",
+                            "description": "Deal 9 damage. Increase this card's "
+                            "damage by 5 this combat.",
+                            "can_play": True, "target_type": "AnyEnemy"}],
+                       "potions": [], "max_potion_slots": 3},
+            "battle": {"round": 2, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "e0", "name": "Chomper",
+                                    "hp": enemy_hp, "max_hp": 60, "block": 0,
+                                    "status": [], "intents":
+                                    [{"type": "attack", "label": "8"}]}]},
+        })
+
+    cfg = load_policy_config()
+    d = plan_combat_turn(st(60), cfg.combat)   # long fight: growth pays
+    assert d.action.payload().get("card_index") == 1, d.rationale
