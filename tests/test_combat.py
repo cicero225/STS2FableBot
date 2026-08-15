@@ -3076,3 +3076,63 @@ def test_energy_surplus_draw_judgment() -> None:
     # par (3 energy): Bludgeon is the turn -- no dig-first detour
     d2 = plan_combat_turn(st(3), cfg.combat)
     assert d2.action.payload().get("card_index") == 0, d2.rationale
+
+
+def test_pacts_end_activation_sequencing_for_lethal() -> None:
+    """Owner audit 2026-08-14 Q1: with the pile at 2, the DFS must discover
+    'exhaust card #3 (True Grit), THEN Pact's End' -- the gate is live pile +
+    in-plan exhaust events at PLAY TIME, so deliberate activation is a
+    plannable lethal line, not just an in-the-moment read."""
+    from sts2bot.client.models import parse_state
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.combat import plan_combat_turn
+
+    state = parse_state({
+        "state_type": "monster", "run": {"act": 2, "floor": 20, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 60, "max_hp": 80,
+                   "block": 0, "energy": 2, "status": [], "exhaust_pile_count": 2,
+                   "hand": [
+                       {"index": 0, "id": "PACTS_END", "name": "Pact's End",
+                        "type": "Attack", "cost": "0",
+                        "description": "If you have 3 or more cards in your "
+                        "Exhaust Pile, deal 17 damage to ALL enemies.",
+                        "can_play": True, "target_type": "None"},
+                       {"index": 1, "id": "TRUE_GRIT", "name": "True Grit",
+                        "type": "Skill", "cost": "1",
+                        "description": "Gain 7 Block. Exhaust a card in your hand.",
+                        "can_play": True, "target_type": "None"},
+                       {"index": 2, "id": "DEFEND_IRONCLAD", "name": "Defend",
+                        "type": "Skill", "cost": "1", "description": "Gain 5 Block.",
+                        "can_play": True, "target_type": "None"}],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 4, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "e0", "name": "Chomper", "hp": 15,
+                                "max_hp": 60, "block": 0, "status": [],
+                                "intents": [{"type": "attack", "label": "30"}]}]},
+    })
+    cfg = load_policy_config()
+    d = plan_combat_turn(state, cfg.combat)
+    ra = d.rationale or ""
+    assert "LETHAL" in ra, ra
+    assert d.action.payload().get("card_index") == 1, ra  # True Grit arms it first
+    assert ra.index("True Grit") < ra.index("Pact's End"), ra
+
+
+def test_pacts_end_deficit_feeds_exhaust_enabler_drafts() -> None:
+    """Owner audit 2026-08-14 Q2: a deck holding Pact's End with too few
+    exhaust enablers makes enabler candidates (True Grit) draft HIGHER --
+    the deficit-feeding lane (owner shadow review #2, 2026-07-24) supplies
+    the 'activate Pact's End' nudge, scaled by starvation."""
+    from types import SimpleNamespace as NS
+
+    from sts2bot.kb.config import load_policy_config
+    from sts2bot.policy.drafttags import load_draft_tags, score_adjustment
+
+    tags = load_draft_tags()
+    w = load_policy_config().card_rewards
+    deck_with_pe = [NS(id="PACTS_END", type="Attack"), NS(id="BURNING_PACT", type="Skill"),
+                    NS(id="STRIKE_IRONCLAD", type="Attack")]
+    deck_plain = [NS(id="STRIKE_IRONCLAD", type="Attack")] * 3
+    fed = score_adjustment("TRUE_GRIT", deck_with_pe, tags, w, act=2)
+    unfed = score_adjustment("TRUE_GRIT", deck_plain, tags, w, act=2)
+    assert fed > unfed, (fed, unfed)
