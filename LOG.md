@@ -2175,3 +2175,18 @@ Discoveries:
 Open: double game-over dismiss (two `ok` menu_selects — harmless, tidy later);
 victory=None on run 2 (fixed after the fact — enrichment from `.run` records now in,
 verified by run 3).
+
+## 2026-08-15 — Act-3 A/B rep 1 (seed BKF0WL1V3E): owner arm + alignment
+- Owner played act 3 from the act-3-entry checkpoint (~30 min, recorder tape
+  logs/manual/act3_ab_rep1/runs/20260815-164417_manual), 7 decisions banked in
+  owner_commentary.md. Run PARKED via Save & Quit mid-act-3; owner continues
+  next session. TRAINS HELD until then (parked run would be consumed by
+  Continue; owner also needs the machine).
+- Alignment vs bot arm (20260814-084223, died Queen f48), full note in
+  owner_commentary.md. Headline: same-screen Vakuu event, bot took Whispering
+  Earring on static catalog value; owner took Music Box, rejecting Earring
+  because Pyre's energy curve nullifies it — third independent appearance of
+  the energy-curve principle. Convergent: bot hatched the Byrdonis Egg at f40
+  (rest handler knows Hatch). Confirmed-missing terms: relic-conditional
+  pathing, deck-solidity ?-node preference, innate-opener combo drafting.
+  Working: pre-boss rest DFS forecast (est loss 87 vs Queen — accurate).
