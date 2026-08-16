@@ -165,6 +165,14 @@ class EventWeights(_Section):
     unknown_costless_floor: float = 2.5
     spirebird_take_floor: float = -2.0  # take Spirebird's top option unless heuristically harmful
     min_hp_pct_after_cost: float = 0.20  # never pay an event HP cost that drops below this
+    # Energy-curve saturation (owner, act-3 A/B rep 1 2026-08-15 — 3rd appearance of the
+    # principle): an energy boon's value DECLINES when the deck already generates surplus
+    # energy ("Earring's turn-1 impact is hard to justify in a deck with +3 energy from
+    # Pyre" — the bot took Earring on static catalog value at the same screen).
+    # discount = per_source * boon_energy_weight * max(0, weighted_providers - free), capped.
+    energy_sat_free_sources: float = 0.5  # first energy source in the deck is never taxed
+    energy_sat_per_source: float = 1.5
+    energy_sat_cap: float = 3.5
 
 
 class MapWeights(_Section):

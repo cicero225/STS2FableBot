@@ -41,7 +41,7 @@ def _starter(strikes=5, defends=4):
     return deck
 
 
-def ancient_event(options, is_ancient=True, hp=68, max_hp=80):
+def ancient_event(options, is_ancient=True, hp=68, max_hp=80, deck=None):
     return parse_state({
         "state_type": "event",
         "event": {
@@ -61,6 +61,11 @@ def ancient_event(options, is_ancient=True, hp=68, max_hp=80):
             "character": "The Ironclad", "hp": hp, "max_hp": max_hp, "block": 0,
             "gold": 200, "status": [], "relics": [], "potions": [],
             "max_potion_slots": 3,
+            "deck": [
+                {"index": i, "id": c.id, "name": c.name, "type": c.type,
+                 "cost": c.cost, "is_upgraded": c.is_upgraded}
+                for i, c in enumerate(deck or [])
+            ],
         },
     })
 
@@ -140,6 +145,33 @@ def test_non_ancient_event_never_uses_catalog() -> None:
     d = r.decide(st, LoopContext())
     assert isinstance(d, Decision)
     assert "ancient boon" not in d.rationale
+
+
+VAKUU_EARRING = ("Whispering Earring",
+                 "Gain Energy at the start of each turn. Vakuu plays your first turn for you.")
+VAKUU_MUSIC_BOX = ("Music Box",
+                   "The first time you play an Attack, add an ethereal copy to your hand.")
+
+
+def test_energy_saturated_deck_declines_the_earring() -> None:
+    """Act-3 A/B rep 1 (2026-08-15, seed BKF0WL1V3E): same-screen disagreement — the
+    bot took Whispering Earring on static catalog value (5.5, tied with Music Box);
+    the owner took Music Box because Pyre's energy makes Earring's +1/turn marginal.
+    An energy-rich deck must discount the energy boon below the tied alternative."""
+    r = router()
+    pyre_deck = [*_starter(), C("PYRE", "Pyre", typ="Skill", cost="1")]
+    d = r.decide(ancient_event([VAKUU_EARRING, VAKUU_MUSIC_BOX], deck=pyre_deck),
+                 LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.index == 1  # Music Box
+    assert "esat" in d.rationale  # discount visible in the rationale for live debugging
+
+    # No energy source in the deck: Earring keeps full catalog value (5.5 tie ->
+    # ranking order unchanged from the pre-fix behavior; no discount applied).
+    d2 = r.decide(ancient_event([VAKUU_EARRING, VAKUU_MUSIC_BOX], deck=_starter()),
+                  LoopContext())
+    assert isinstance(d2, Decision)
+    assert "esat" not in d2.rationale
 
 
 def test_boon_deck_fit_scales_legion() -> None:

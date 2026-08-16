@@ -1759,20 +1759,27 @@ class StandardRouter:
             known_any = any(self.ancient_boons.get(o.title or "") for o, _h, _v in scored)
             if known_any:
                 vals = {}
+                esat = {}
                 for o, heur, _vs in scored:
                     entry = self.ancient_boons.get(o.title or "")
                     if entry:
+                        esat[o.index] = self._boon_energy_sat(entry, deck, player)
                         vals[o.index] = (float(entry.get("value", 0.0))
-                                         + self._boon_deck_fit(entry, deck))
+                                         + self._boon_deck_fit(entry, deck)
+                                         - esat[o.index])
                     else:
                         vals[o.index] = min(heur, _UNKNOWN_BOON_CAP)
                 best_o = max(scored, key=lambda s: vals[s[0].index])[0]
                 known = bool(self.ancient_boons.get(best_o.title or ""))
+                sat_note = "".join(
+                    f" |esat[{o.title}] -{esat[o.index]:.1f}"
+                    for o, _h, _v in scored if esat.get(o.index, 0.0) > 0
+                )
                 return Decision(
                     action=act.ChooseEventOption(index=best_o.index),
                     rationale=(f"ancient boon: '{best_o.title}' "
                                f"({'catalog' if known else 'unknown, heur-capped'} "
-                               f"{vals[best_o.index]:.1f})"),
+                               f"{vals[best_o.index]:.1f})" + sat_note),
                     scores={(o.title or "?"): round(vals[o.index], 2)
                             for o, _h, _v in scored},
                 )
@@ -1986,6 +1993,26 @@ class StandardRouter:
             have = _providers(db.get("tag", ""), counts, deck, self.draft_tags)
             fit += min(float(db.get("cap", 0.0)), have * float(db.get("per", 0.0)))
         return fit
+
+    def _boon_energy_sat(self, entry: dict, deck, player) -> float:
+        """Energy-curve saturation discount (owner, act-3 A/B rep 1 2026-08-15): an
+        energy boon is worth LESS to a deck already rich in energy sources — Earring's
+        +1/turn is marginal next to Pyre. Weighted energy_source providers (deck cards
+        plus owned boons) over the free allowance pay per-source, capped."""
+        w = self.config.events
+        esrc = float((entry.get("provides") or {}).get("energy_source", 0.0))
+        if esrc <= 0 or not deck or not self.draft_tags:
+            return 0.0
+        from sts2bot.policy.drafttags import _providers, deck_tag_weights
+        relics = getattr(player, "relics", None) if player else None
+        relic_provides, _ = (
+            boon_relic_context(relics, self.ancient_boons)
+            if relics and self.ancient_boons else ({}, {})
+        )
+        have = _providers("energy_source", deck_tag_weights(deck), deck,
+                          self.draft_tags, relic_provides)
+        over = max(0.0, have - w.energy_sat_free_sources)
+        return min(w.energy_sat_cap, w.energy_sat_per_source * esrc * over)
 
     def _event_option_value(self, option, hp: int, max_hp: int) -> float:
         """Net value of an event option (gains - costs), recognizing the gains the card-text
