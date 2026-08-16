@@ -7,6 +7,7 @@ from types import SimpleNamespace as NS
 
 from sts2bot.policy.forward import (
     FIGHT_MODE_TABLE,
+    canonical_enemy_name,
     choose_mode,
     hp_at,
     incoming_by_turn,
@@ -93,6 +94,20 @@ def test_choose_mode_queen_guard_break() -> None:
     torch = NS(name="Torch Head Amalgam", entity_id="TORCH_0", hp=190, block=0)
     plan = choose_mode([queen, torch], _player(hand=[STRIKE] * 5), scripts)
     assert plan.mode == "guard_break" and plan.target == "TORCH_0"
+
+
+def test_canonical_enemy_name_strips_specimen_suffix() -> None:
+    """Test Subject rolls a flavor specimen number per encounter ('#C137'), which
+    fragmented the harvest into 113 one-fight keys and broke live script lookup."""
+    assert canonical_enemy_name("Test Subject #C137") == "Test Subject"
+    assert canonical_enemy_name("Test Subject") == "Test Subject"
+    assert canonical_enemy_name("Rocket") == "Rocket"  # no false trims
+    assert canonical_enemy_name(None) == ""
+    # the rebuilt corpus must be consolidated: one entry, no fragments
+    scripts = json.loads(Path("data/move_scripts.json").read_text(encoding="utf-8"))
+    assert "Test Subject" in scripts
+    assert scripts["Test Subject"]["n_fights"] > 100
+    assert not any("#C" in k for k in scripts)
 
 
 def test_mode_table_tbd_rows_flagged() -> None:

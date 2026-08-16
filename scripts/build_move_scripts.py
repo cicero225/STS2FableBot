@@ -23,6 +23,10 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
+from sts2bot.policy.forward import canonical_enemy_name  # noqa: E402
+
 LOGS = ROOT / "logs" / "runs"
 DEST = ROOT / "data" / "move_scripts.json"
 
@@ -58,7 +62,9 @@ def main() -> int:
             if not rnd or not b.get("enemies"):
                 continue
             for e in b["enemies"]:
-                name = e.get("name")
+                # canonicalize: Test Subject's per-encounter specimen suffix
+                # ("#C137") fragmented the harvest into 113 one-fight keys
+                name = canonical_enemy_name(e.get("name"))
                 if not name or (e.get("hp") or 0) <= 0:
                     continue
                 for i in e.get("intents") or []:

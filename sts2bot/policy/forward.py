@@ -25,12 +25,22 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from sts2bot.policy.textparse import parse_card_description
 
 _SCRIPTS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "move_scripts.json"
+
+# Test Subject rolls a flavor specimen number per encounter ("Test Subject #C137"),
+# which fragmented the harvest into 113 one-fight keys and broke every live script
+# lookup (exact-name get). Canonicalize on BOTH ends (harvester + lookup).
+_SPECIMEN_SUFFIX = re.compile(r"\s+#C\d+$")
+
+
+def canonical_enemy_name(name: str | None) -> str:
+    return _SPECIMEN_SUFFIX.sub("", name or "")
 
 
 def load_move_scripts(path: Path | str | None = None) -> dict[str, dict]:
@@ -301,14 +311,14 @@ def choose_mode(enemies: list, player, scripts: dict,
                 )
             kill_turn = min(deadline, max(1, math.ceil(eta_p25)))
             tgt_inc = incoming_by_turn(
-                scripts.get(getattr(tgt, "name", "") or ""),
+                scripts.get(canonical_enemy_name(getattr(tgt, "name", ""))),
                 current_round, max(0, kill_turn - 1))
             other_inc = [0.0] * kill_turn
             for e in alive:
                 if e is tgt:
                     continue
                 for i, v in enumerate(incoming_by_turn(
-                        scripts.get(getattr(e, "name", "") or ""),
+                        scripts.get(canonical_enemy_name(getattr(e, "name", ""))),
                         current_round, kill_turn, fallback_dps=0.0)):
                     other_inc[i] += v
             merged = [
@@ -327,7 +337,7 @@ def choose_mode(enemies: list, player, scripts: dict,
                     rationale=f"kill-by-T{deadline} feasible "
                               f"(eta_p25={eta_p25:.1f}, hp_min={min(traj) if traj else '?'})",
                 )
-            script = scripts.get(getattr(tgt, "name", "") or "") or {}
+            script = scripts.get(canonical_enemy_name(getattr(tgt, "name", ""))) or {}
             # cycle length: wiki-verified field first (the harvest's raw turn
             # keys run PAST one cycle -- fights observed at T6-T12 are cycle-2
             # rows, so max-key is not the period)
