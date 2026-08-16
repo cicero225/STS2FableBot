@@ -2190,3 +2190,14 @@ verified by run 3).
   (rest handler knows Hatch). Confirmed-missing terms: relic-conditional
   pathing, deck-solidity ?-node preference, innate-opener combo drafting.
   Working: pre-boss rest DFS forecast (est loss 87 vs Queen — accurate).
+
+## 2026-08-15 (evening) — Act-3 A/B rep 1 CONCLUDED: owner arm WINS the run
+- Owner resumed the parked run (session 2 tape runs/20260815-193136) and WON.
+  Queen: entered 87/87, guard down r3, ~304 damage in one turn (r4->r5,
+  Queen 327->23), finish r6 at 36 hp. Bot arm died to Queen f48 on the same
+  seed — the direct boss comparison lands squarely on damage concentration
+  (setup-then-burst: KD 143, Queen ~304) plus arrival HP (87/87 vs ~96 into
+  a longer bleed). Decisions 1-8 + outcome in act3_ab_rep1/owner_commentary.md.
+- Win unlocked a NEW EPOCH: seed BKF0WL1V3E stale, full-bot-replay arm
+  cancelled. New event in pool: Trash Heap (uncatalogued; generic floors
+  apply until sighted in logs).
