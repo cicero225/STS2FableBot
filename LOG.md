@@ -2201,3 +2201,17 @@ verified by run 3).
 - Win unlocked a NEW EPOCH: seed BKF0WL1V3E stale, full-bot-replay arm
   cancelled. New event in pool: Trash Heap (uncatalogued; generic floors
   apply until sighted in logs).
+
+## 2026-08-18 — Test Subject savescum A/B (owner-suggested harness): burst_window near-NEUTRAL on this snapshot
+- Watcher (scripts/watch_boss_checkpoint.py) checkpointed batch run 13's TS
+  fight at f48 (r6, P3 body 71/300); snapshot replayed under new code, watcher
+  re-fired at r6 preserving it. Row-by-row: both arms played the SAME r5
+  intangible turn (Bash+ vuln poke into the wall -- correct dead-turn use --
+  FNP+/Bloodletting+/Conflagration/Defend) because the one-turn DFS already
+  knew Intangible caps hits (Soul Fysh modeling); r6 unloads identical (the
+  apparent old-arm shortfall was the watcher interrupt, not the mode).
+- Verdict: burst_window changed SCORES (Defend 4.5 -> 16.5 on the intangible
+  turn) but not the argmax for this strong hand; its value case is weaker
+  hands where defend promotion flips a play. Guard + snapshot harness both
+  validated mechanically. This deck crushes TS regardless (P3 to 21 by r6).
+- Trains resumed (28 runs; first Continue completes the TS fight for the win).
