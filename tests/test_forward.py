@@ -134,3 +134,35 @@ def test_choose_mode_test_subject_burst_window() -> None:
                  intangible=True)
     plan2 = choose_mode([ts_wall], _player(hand=hand), scripts)
     assert plan2.mode == "burst_window" and plan2.detail["attack_now"] is False
+
+
+def test_setup_then_burst_banks_early_and_flips_late() -> None:
+    """Owner answers 2026-08-18: KD (setup_burst row) banks a cheap early turn
+    (big HP, kill far) as mode=setup_turn, flips to race once the hand can dent
+    half the remaining HP within 2 ETA turns, and never banks below 15 hp."""
+    scripts = json.loads(Path("data/move_scripts.json").read_text(encoding="utf-8"))
+    kd_full = NS(name="Knowledge Demon", entity_id="KD_0", hp=379, block=0)
+    # early: full boss, modest hand -> bank the turn
+    early = _player(hand=[STRIKE] * 3 + [DEFEND] * 2,
+                    draw=[STRIKE, DEFEND] * 3, hp=70)
+    plan = choose_mode([kd_full], early, scripts)
+    assert plan.mode == "setup_turn", plan.rationale
+
+    # late: boss nearly dead, hand dents half of what remains -> burst-flip
+    kd_low = NS(name="Knowledge Demon", entity_id="KD_0", hp=30, block=0)
+    burst = _player(hand=[BLUDGEON, STRIKE, STRIKE],
+                    draw=[STRIKE, DEFEND] * 3, hp=70, energy=5)
+    plan2 = choose_mode([kd_low], burst, scripts)
+    assert plan2.mode == "race" and "burst-flip" in plan2.rationale
+
+    # low player HP: never bank a turn below the absolute floor
+    desperate = _player(hand=[STRIKE] * 3 + [DEFEND] * 2,
+                        draw=[STRIKE, DEFEND] * 3, hp=12)
+    plan3 = choose_mode([kd_full], desperate, scripts)
+    assert plan3.mode == "race" and "unsafe" in plan3.rationale
+
+    # scope (owner Q2): Matriarch awake has NO setup_burst flag -> plain race
+    mat = NS(name="Lagavulin Matriarch", entity_id="M_0", hp=300, block=0,
+             asleep=False)
+    plan4 = choose_mode([mat], early, scripts)
+    assert plan4.mode == "race" and "table default" in plan4.rationale

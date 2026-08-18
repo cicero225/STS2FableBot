@@ -630,6 +630,12 @@ class StandardRouter:
                 # P1/P2 never show Intangible -> always "race" (status quo).
                 fp = "race" if mplan.detail.get("attack_now") else "defend"
                 mode_target = mplan.target
+            elif mplan.mode == "setup_turn":
+                # Setup-then-burst (owner answers 2026-08-18): a cheap boss turn
+                # banks powers/draws/scaling; the burst-flip in choose_mode
+                # returns "race" instead once the kill is within reach.
+                fp = "setup"
+                mode_target = mplan.target
         # turn-start exhaust-pile snapshot (owner 2026-08-03): lets the planner
         # know a card was ALREADY exhausted this turn across replans, so
         # Forgotten Ritual / Evil Eye-class conditionals stay live mid-turn

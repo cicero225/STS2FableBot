@@ -1502,6 +1502,8 @@ def _score(
     power_term = w.w_power_played * (
         safe_powers * power_horizon + state.self_damage_powers_played * sd_horizon
     )
+    if fight_plan == "setup":  # setup-then-burst: banked turns are FOR powers
+        power_term *= w.setup_power_mult
     # Crab Rage split: ending a turn with one claw dead and another alive left the survivor a fresh
     # 99 Block for a turn — a small future cost the one-turn tally misses. Only a gentle penalty:
     # killing a claw is usually a BOON (it ends Surrounded; the back-attack term carries that), so
@@ -1539,7 +1541,11 @@ def _score(
         + stampede_term
         + crab_split
         + w.w_focus * focus
+        # "setup" (setup-then-burst, owner 2026-08-18): a banked turn dampens
+        # immediate-damage credit -- powers/draws/scaling outbid chip damage --
+        # but a lethal end always keeps full value (never decline the kill)
         + w.w_damage * state.damage_dealt
+        * (w.setup_damage_mult if fight_plan == "setup" and not lethal_end else 1.0)
         + w.w_kill * state.kills
         + w.w_on_fatal_bonus * state.fatal_bonuses  # Feed lands the kill -> permanent payoff
         # Rainbow Ring (owner 2026-08-13; live text says EACH TURN, not once):

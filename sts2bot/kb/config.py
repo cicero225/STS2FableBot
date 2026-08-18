@@ -80,6 +80,13 @@ class CombatWeights(_Section):
     # turn -- scale draw credit up. At/below par, drawing keeps normal value
     # (the 3-energy caution: never waste energy digging past a good hand).
     surplus_draw_mult: float = 1.8
+    # Setup-then-burst (owner answers 2026-08-18; evidence KD 143 / Queen ~304
+    # owner bursts vs 45-85 planner static): on a "setup" fight-plan turn,
+    # immediate damage credit is dampened (chip loses to banking) and powers
+    # are boosted; the burst-flip back to race lives in forward.py
+    # (SETUP_FLIP_ETA/SETUP_HAND_DENT/SETUP_HP_FLOOR).
+    setup_damage_mult: float = 0.6
+    setup_power_mult: float = 1.5
     w_energy_waste: float = -0.5
     # Ice Cream only: leftover energy is banked for next turn -- mildly positive so
     # generators get played for the future, well below w_damage so spending now

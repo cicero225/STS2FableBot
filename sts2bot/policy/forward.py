@@ -238,8 +238,10 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
     "QUEEN": {
         "guarded": "guard_break",  # Torch is the clock; she buffs+re-blocks
         "awake": "race",  # she wakes buffed and growing: finish it
+        "setup_burst": True,  # owner A/B 2026-08-15: ~304 one-turn burst won here
         "notes": "guard_break target = the minion (4642772 fixed ignorable); "
-                 "her awakened dps grows per buff turn -- ETA matters.",
+                 "her awakened dps grows per buff turn -- ETA matters. Awake "
+                 "phase runs the setup-then-burst refinement (owner Q2 scope).",
     },
     "WATERFALL GIANT": {
         "default": "race",
@@ -257,10 +259,14 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
     # TBD pending wiki verification passes (do not ship without owner review):
     "KNOWLEDGE DEMON": {
         "default": "race",
+        "setup_burst": True,  # owner KD A/B 2026-08-14: banked r1-4, burst 111/137
         "notes": "WIKI-VERIFIED 2026-08-13: Ponder heals him 30/cycle + 2 Str "
                  "-- every uncompleted cycle costs 30 effective HP and ramps "
-                 "both his damage and the Disintegration clock. Hard race; "
-                 "kill by cycle 3 caps Disintegration at 21.",
+                 "both his damage and the Disintegration clock. Kill by cycle 3 "
+                 "caps Disintegration at 21. The owner WON this fight by banking "
+                 "r1-4 then bursting (setup-then-burst refinement) -- 'hard "
+                 "race' pressure lives in the burst-flip ETA math, not in "
+                 "unloading every turn.",
     },
     "TEST SUBJECT": {
         "rule": "burst_window",
@@ -391,8 +397,69 @@ def choose_mode(enemies: list, player, scripts: dict,
                 return FightPlan(mode=rule["guarded"],
                                  target=getattr(minion, "entity_id", None),
                                  rationale=f"{key}: break the guard (minion is the clock)")
-        return FightPlan(mode=rule.get("awake") or rule.get("default", "race"),
+        mode = rule.get("awake") or rule.get("default", "race")
+        if mode == "race" and rule.get("setup_burst") and boss is not None:
+            plan = _setup_or_burst(boss, alive, player, scripts, tp,
+                                   card_effects, current_round, key)
+            if plan is not None:
+                return plan
+        return FightPlan(mode=mode,
                          target=getattr(boss, "entity_id", None),
                          rationale=f"{key}: table default")
     # unknown fight: no plan (one-turn planner's existing behavior stands)
     return FightPlan(mode="", rationale="no table entry")
+
+
+# Setup-then-burst (owner design + answers 2026-08-18; evidence 2-for-2: KD 143
+# and Queen ~304 single-turn owner bursts vs the planner's 45-85 static plans
+# from identical snapshots). Bank cheap turns, then concentrate the kill.
+SETUP_FLIP_ETA = 2.0    # owner Q3 (looser flip): unload within 2 turns of the kill...
+SETUP_HAND_DENT = 0.5   # ...if the hand can already dent half the remaining HP
+SETUP_HP_FLOOR = 15     # owner Q1: ABSOLUTE hp floor -- below this, never bank a turn
+#                         ("if the question is being asked often the fight is losing
+#                          regardless"); the risky-setup death sentinel in
+#                         batch_summary watches whether 15 needs re-evaluation.
+# Owner Q2: bosses only, and only setup_burst-flagged rows (elites burst fine
+# without setup; overtuning risk) -- KD + Queen carry the flag, the A/B'd two.
+
+
+def _setup_or_burst(boss, alive, player, scripts, tp, card_effects,
+                    current_round, key):
+    """Refine a race row into setup_turn/race per the owner's template. None =
+    no throughput read (table default stands)."""
+    eff_hp = (getattr(boss, "hp", 0) or 0) + (getattr(boss, "block", 0) or 0)
+    _mean, eta_p25 = kill_eta(eff_hp, tp)
+    if not math.isfinite(eta_p25):
+        return None
+    # hand potential: greedy damage within the energy bar (density order)
+    energy = float(getattr(player, "max_energy", None)
+                   or getattr(player, "energy", None) or 3)
+    stats = sorted((_card_stats(c, card_effects) for c in (player.hand or [])),
+                   key=lambda s: s[1] / max(1, s[0]), reverse=True)
+    hand_dmg, budget = 0.0, energy
+    for cost, dmg, _blk in stats:
+        if dmg <= 0 or budget < cost:
+            continue
+        hand_dmg += dmg
+        budget -= cost
+    flip = eta_p25 <= 1.0 or (eta_p25 <= SETUP_FLIP_ETA
+                              and hand_dmg >= SETUP_HAND_DENT * eff_hp)
+    if flip:
+        return FightPlan(
+            mode="race", target=getattr(boss, "entity_id", None),
+            rationale=f"{key}: burst-flip (eta_p25={eta_p25:.1f}, "
+                      f"hand {hand_dmg:.0f}/{eff_hp})")
+    inc_now = sum(
+        incoming_by_turn(scripts.get(canonical_enemy_name(getattr(e, 'name', ''))),
+                         current_round, 1)[0]
+        for e in alive)
+    php = getattr(player, "hp", 0) or 0
+    if php - max(0.0, inc_now - tp.blk_mean) >= SETUP_HP_FLOOR:
+        return FightPlan(
+            mode="setup_turn", target=getattr(boss, "entity_id", None),
+            rationale=f"{key}: setup turn (eta_p25={eta_p25:.1f}, "
+                      f"inc~{inc_now:.0f} coverable)",
+            detail={"eta_p25": round(eta_p25, 1)})
+    return FightPlan(
+        mode="race", target=getattr(boss, "entity_id", None),
+        rationale=f"{key}: race (setup unsafe at {php} hp)")

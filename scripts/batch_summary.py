@@ -70,6 +70,27 @@ def _elites_offered(recs: list[dict]) -> int:
     return len(screens)
 
 
+def _risky_setup_death(recs: list[dict], out: dict | None) -> str:
+    """Owner sentinel (setup-then-burst Q1, 2026-08-18): flag a DEATH arriving
+    within ~2 rounds of a 'setup' fight-plan turn -- evidence the 15-hp
+    absolute floor (SETUP_HP_FLOOR) needs re-evaluation."""
+    if not out or out.get("victory"):
+        return ""
+    last_round = last_floor = setup_round = setup_floor = None
+    for r in recs:
+        st = r.get("state") or {}
+        b = st.get("battle") or {}
+        if b.get("round"):
+            last_round = b["round"]
+            last_floor = (st.get("run") or {}).get("floor")
+            if "|plan=setup" in (r.get("rationale") or ""):
+                setup_round, setup_floor = b["round"], last_floor
+    if setup_round is not None and last_round is not None \
+            and setup_floor == last_floor and last_round - setup_round <= 2:
+        return f"  RISKY-SETUP death (setup r{setup_round}, died r{last_round})"
+    return ""
+
+
 def summarise(run_dirs: list[Path], label: str) -> None:
     print(f"\n=== {label} ({len(run_dirs)} runs) ===")
     acts: list[int] = []
@@ -98,6 +119,7 @@ def summarise(run_dirs: list[Path], label: str) -> None:
             f"{'WIN ' if out.get('victory') else 'loss'} "
             f"relics={len(relics):<2} elites_fought={ef}{bhp_s}  "
             f"killed_by={kb}  [{','.join(relics)}]"
+            f"{_risky_setup_death(recs, out)}"
         )
     n = max(1, len(acts))
     relic_avg = sum(relic_counts) / max(1, len(relic_counts))
