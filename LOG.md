@@ -2215,3 +2215,23 @@ verified by run 3).
   hands where defend promotion flips a play. Guard + snapshot harness both
   validated mechanically. This deck crushes TS regardless (P3 to 21 by r6).
 - Trains resumed (28 runs; first Continue completes the TS fight for the win).
+
+## 2026-08-18 — Setup-then-burst shipped + KD snapshot A/B (same-day)
+- Owner answered the three spec questions (15hp ABSOLUTE floor + risky-setup
+  death sentinel; bosses only, KD+Queen rows; looser flip eta<=2 + half-dent
+  hand check) -> phases A+B shipped 38ca162. RISKY-SETUP sentinel lives in
+  batch_summary.
+- KD watcher checkpointed batch run's KD fight (f33) same hour; replay under
+  new code: IDENTICAL per-round trajectories r1-r4 (player 90/88/81/60, KD
+  379/313/253/163 both arms; interrupt-instant body 40 vs 58 = play-order
+  noise). setup_turn tags fired r1-r4 (eta>2 throughout; flip was ~r5), but
+  the argmax barely moved: this deck's damage WAS its value -- nothing to
+  bank, so setup==race for it. Same result class as the TS burst_window A/B:
+  mechanism verified row-by-row, effect size small on strong decks. The mode's
+  target population is power/tutor-heavy decks that CAN'T static-race 379 hp
+  (the 85/45-plan class from the original KD A/B); the sentinel + future
+  snapshots on weaker decks are the watch.
+- Also this session: Sai forecast row + real-Dex rollout (owner corrections),
+  TS burst_window validated near-neutral, boss-checkpoint watcher script
+  landed. Trains relaunched on all-new code; Queen watcher disarmed (re-arm
+  deliberately after the next tuning change, not as a standing batch tax).
