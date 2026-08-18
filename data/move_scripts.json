@@ -2149,7 +2149,7 @@
  },
  "Ceremonial Beast": {
   "n_fights": 376,
-  "notes": "",
+  "notes": "WIKI-VERIFIED 2026-08-18: PHASED (flat turn index spans the Plow-stun transition -- no single cycle). P1 Plow 18 +2Str/use until the <=150 threshold stun (+Str reset); P2 cycle-3 Beast Cry (Ringing)/Stomp 15/Crush 17 +3Str permanent. Full decode: data/enemy_notes.json.",
   "turns": {
    "1": [
     {

@@ -280,7 +280,16 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
                  "P1/P2 have no Nemesis -> window always open (race-equivalent). "
                  "Debuff-waste guard rides detail.staged/wipe_hp.",
     },
-    "CEREMONIAL BEAST": {"default": "race", "notes": "TBD: single HP threshold"},
+    "CEREMONIAL BEAST": {
+        "default": "race",
+        "notes": "WIKI-VERIFIED 2026-08-18: 252hp (A8 262). P1 Plow attack 18 "
+                 "+2 Str EVERY use; Plow power stuns it ONCE at <=150hp (A9 "
+                 "160) and resets ALL its Str -- the threshold cash-in is a "
+                 "free turn (DFS attack-to-threshold + capability Str-reset "
+                 "already model it). P2 cycle 3: Beast Cry (Ringing, 1-card "
+                 "turn; card_cap handles) / Stomp 15 / Crush 17 +3 Str "
+                 "permanent. Both phases ramp -> race is correct.",
+    },
     "AEONGLASS": {
         "default": "race",
         "notes": "WIKI-VERIFIED 2026-08-13: 3-cycle Ebb 22+33Block / Eye Lasers "

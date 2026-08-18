@@ -111,10 +111,13 @@ def test_canonical_enemy_name_strips_specimen_suffix() -> None:
 
 
 def test_mode_table_tbd_rows_flagged() -> None:
-    # anything not wiki-verified must say TBD so the owner review catches it
-    # KD + Aeonglass graduated 2026-08-13; Test Subject 2026-08-18 (burst_window)
-    for k in ("CEREMONIAL BEAST",):
-        assert "TBD" in FIGHT_MODE_TABLE[k]["notes"]
+    # The table is fully wiki-verified as of 2026-08-18 (Ceremonial Beast was
+    # the last TBD). Any FUTURE unverified row must carry "TBD" in its notes
+    # AND be whitelisted here so owner review catches it.
+    known_tbd: set[str] = set()
+    for k, rule in FIGHT_MODE_TABLE.items():
+        if "TBD" in (rule.get("notes") or ""):
+            assert k in known_tbd, f"unreviewed TBD row {k} not whitelisted"
 
 
 def test_choose_mode_test_subject_burst_window() -> None:
