@@ -432,3 +432,20 @@ def test_rampage_growth_compounds_in_rollouts() -> None:
     r_ramp = rollout_fight([ramp] * 3 + filler, [foe], 80, 80, card_effects=FX2, n=20)
     r_flat = rollout_fight([flat] * 3 + filler, [foe], 80, 80, card_effects=FX2, n=20)
     assert r_ramp.mean_turns < r_flat.mean_turns, (r_ramp, r_flat)
+
+
+def test_sai_flat_block_reaches_the_forecast() -> None:
+    """Owner check 2026-08-18: Sai (7 block at the start of every turn) -- live
+    fights see it in player.block for free, but the multi-turn estimate needs
+    the relic table row or Sai runs forecast ~7/turn too fragile."""
+    from types import SimpleNamespace as NS
+
+    deck = ([card("STRIKE_IRONCLAD", cost="1")] * 5
+            + [card("DEFEND_IRONCLAD", typ="Skill")] * 5)
+    foe = FightEnemy(hp=200, dps=14)
+    sai = NS(id="SAI", name="Sai", counter=None)
+    base = rollout_fight(deck, [foe], 60, 60, card_effects=FX, n=20)
+    with_sai = rollout_fight(deck, [foe], 60, 60, card_effects=FX, n=20,
+                             relics=[sai])
+    assert (with_sai.exp_end_hp > base.exp_end_hp
+            or with_sai.win_rate > base.win_rate)

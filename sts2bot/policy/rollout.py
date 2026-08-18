@@ -266,7 +266,9 @@ def _classify_potions(potions) -> list[tuple[str, int]]:
 # and relics). Small table by design; unknowns are ignored.
 _RELIC_FX = {
     "VAJRA": ("start_str", 1),
-    "ODDLY_SMOOTH_STONE": ("start_block_per_turn", 1),  # +1 dex ~ +1 block/turn
+    # Oddly Smooth Stone (owner correction 2026-08-18): +1 Dex at the START OF
+    # COMBAT -- real dex (per block card played), not flat block/turn.
+    "ODDLY_SMOOTH_STONE": ("start_dex", 1),
     "ANCHOR": ("t1_block", 10),
     "HORN_CLEAT": ("t2_block", 14),
     "BAG_OF_MARBLES": ("t1_vuln", 1),
@@ -301,6 +303,10 @@ _RELIC_FX = {
     # Rainbow Ring (owner 2026-08-13, live text: EACH turn): completing
     # Attack+Skill+Power in a turn pays 1 Str + 1 Dex (dex ~ 1 block/turn)
     "RAINBOW_RING": ("rainbow", 1),
+    # Sai (owner check 2026-08-18, act-3 ancient): flat 7 block every turn --
+    # live fights see it in player.block for free; the multi-turn boss
+    # estimate must add it or Sai runs read ~7/turn too fragile.
+    "SAI": ("start_block_per_turn", 7),
 }
 
 
@@ -347,7 +353,11 @@ class _RolloutSim:
         self.hp = int(player_hp)
         self.max_hp = int(max_hp)
         self.my_str = self.rfx.get("start_str", 0)
-        self.rb_dex = 0  # Rainbow Ring: accumulated dex ~ block/turn
+        # Real dex: +N block per block CARD played (owner correction 2026-08-18:
+        # Oddly Smooth Stone is +1 Dex at the start of combat, NOT flat
+        # block/turn -- dex pays per block play, nothing on cardless turns).
+        # Rainbow Ring's per-trio dex accumulates into the same stat.
+        self.my_dex = self.rfx.get("start_dex", 0)
         self.growth: dict = {}  # Rampage-class per-card growth THIS rollout
         # (keyed by card object id -- _Card objects are shared across
         # rollouts, so mutating fx.damage would leak between iterations)
@@ -426,7 +436,7 @@ class _RolloutSim:
         rfx = self.rfx
         if not self.barricade:
             self.block = 0
-        self.block += rfx.get("start_block_per_turn", 0) + self.rb_dex
+        self.block += rfx.get("start_block_per_turn", 0)
         if self.turn == 1:
             self.block += rfx.get("t1_block", 0)
             self.my_str += self.spend("strength")  # fight-start buffs (live lane 4)
@@ -463,7 +473,7 @@ class _RolloutSim:
             self_cost = max(0, self_cost - self.rfx["hp_loss_reduction"])  # Tungsten Rod
         self.hp = max(0, self.hp - self_cost)
         self.hp = min(self.max_hp, self.hp + pick.fx.heal)
-        self.block += pick.fx.block
+        self.block += pick.fx.block + (self.my_dex if pick.fx.block > 0 else 0)
         self.turn_kinds.add(
             "A" if pick.is_attack else ("P" if pick.is_power else "S"))
         if pick.fx.grows_per_play:
@@ -546,7 +556,7 @@ class _RolloutSim:
         # Rainbow Ring: trio completed this turn -> permanent 1 Str + 1 dex-block
         if self.rfx.get("rainbow") and {"A", "S", "P"} <= self.turn_kinds:
             self.my_str += 1
-            self.rb_dex += 1
+            self.my_dex += 1
         self.turn_kinds = set()
         # hand curses bite, ethereal exhausts, rest discards
         for c in self.hand:
