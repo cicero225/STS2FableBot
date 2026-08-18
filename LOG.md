@@ -2235,3 +2235,18 @@ verified by run 3).
   TS burst_window validated near-neutral, boss-checkpoint watcher script
   landed. Trains relaunched on all-new code; Queen watcher disarmed (re-arm
   deliberately after the next tuning change, not as a standing batch tax).
+
+## 2026-08-18 (later) — RECORD BATCH: 9/40 wins (22.5%) on all-new code
+- First batch ever past the ~20% A0 graduation bar (era ~11-12%; prior best
+  trains 6-7/40). Act-reach avg 2.15. All of today's changes live:
+  setup-then-burst (KD/Queen), TS burst_window, Sai forecast row, real Dex.
+  Caveat honestly: single batch, ~2 sigma over era expectation -- the next
+  batches say whether 20%+ is the new level or variance.
+- RISKY-SETUP sentinel fired ONCE (its first data point): KD f33 death,
+  setup r8 -> died r10. Dissection: 25 dmg/turn deck vs KD 379 + Ponder
+  heals (161 -> 178 between rounds) = unwinnable regardless; player bled
+  78 -> 21 through eight setup-tagged rounds because eta_p25 never came
+  within flip range. The floor (15) isn't implicated -- but the pattern
+  suggests a possible refinement for owner review: stop banking when
+  eta_p25 exceeds a hopeless horizon (banking toward a burst that never
+  comes), though vs Ponder this deck loses under ANY mode.
