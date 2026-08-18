@@ -3172,3 +3172,19 @@ def test_rampage_growth_future_credit_and_lethal_gate() -> None:
     cfg = load_policy_config()
     d = plan_combat_turn(st(60), cfg.combat)   # long fight: growth pays
     assert d.action.payload().get("card_index") == 1, d.rationale
+
+
+def test_staged_body_debuff_wipe_zeroes_residual_vuln_credit() -> None:
+    """Test Subject wiki pass 2026-08-15: an Adaptable body wipes ALL statuses on
+    revive, so vuln/weak invested into a body within one average turn of the phase
+    kill earns no residual credit (in-plan amplification still pays via damage)."""
+    w = load_policy_config().combat
+    def body(hp):
+        return SimState(energy=0, my_block=0, my_strength=0, vuln_applied=2,
+                        weak_applied=1,
+                        enemies=(EnemySim(entity_id="TS_0", hp=hp, max_hp=300,
+                                          block=0, vulnerable=2, incoming=0),))
+    # body inside the wipe window: residual debuff credit gone
+    assert _score(body(20), w, debuff_wipe_hp=25) < _score(body(20), w) - 1e-9
+    # body comfortably alive: guard inert, scores identical
+    assert _score(body(200), w, debuff_wipe_hp=25) == _score(body(200), w)

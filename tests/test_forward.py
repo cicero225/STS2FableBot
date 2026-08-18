@@ -112,6 +112,25 @@ def test_canonical_enemy_name_strips_specimen_suffix() -> None:
 
 def test_mode_table_tbd_rows_flagged() -> None:
     # anything not wiki-verified must say TBD so the owner review catches it
-    # KD + Aeonglass graduated to grounded rows 2026-08-13 (wiki passes)
-    for k in ("TEST SUBJECT", "CEREMONIAL BEAST"):
+    # KD + Aeonglass graduated 2026-08-13; Test Subject 2026-08-18 (burst_window)
+    for k in ("CEREMONIAL BEAST",):
         assert "TBD" in FIGHT_MODE_TABLE[k]["notes"]
+
+
+def test_choose_mode_test_subject_burst_window() -> None:
+    """Owner green-lit 2026-08-18: P3 intangible turns are block/setup turns, open
+    turns unload. The live Intangible status is the ONLY parity source (the
+    period-2 intangible drifts under the 3-move cycle). Specimen suffix on the
+    live name must not break table matching."""
+    scripts = json.loads(Path("data/move_scripts.json").read_text(encoding="utf-8"))
+    hand = [STRIKE] * 5
+    ts = NS(name="Test Subject #C42", entity_id="TS_0", hp=280, block=0,
+            intangible=False)
+    plan = choose_mode([ts], _player(hand=hand), scripts)
+    assert plan.mode == "burst_window" and plan.detail["attack_now"] is True
+    assert plan.detail["staged"] and plan.detail["wipe_hp"] > 0
+
+    ts_wall = NS(name="Test Subject #C42", entity_id="TS_0", hp=280, block=0,
+                 intangible=True)
+    plan2 = choose_mode([ts_wall], _player(hand=hand), scripts)
+    assert plan2.mode == "burst_window" and plan2.detail["attack_now"] is False

@@ -68,7 +68,7 @@ class Throughput:
 
 @dataclass(frozen=True)
 class FightPlan:
-    mode: str  # race | defend_deadline | setup_window | guard_break
+    mode: str  # race | defend_deadline | setup_window | guard_break | burst_window
     # mode params (deadline turn, priority target entity_id, window turns left)
     deadline_turn: int | None = None
     target: str | None = None
@@ -262,7 +262,18 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
                  "both his damage and the Disintegration clock. Hard race; "
                  "kill by cycle 3 caps Disintegration at 21.",
     },
-    "TEST SUBJECT": {"default": "race", "notes": "TBD: staged full-heal bodies"},
+    "TEST SUBJECT": {
+        "rule": "burst_window",
+        "notes": "WIKI-VERIFIED 2026-08-15, owner green-lit 2026-08-18: staged "
+                 "full-heal bodies (100/200/300; ALL statuses clear on each "
+                 "revive). P3 Nemesis gains Intangible 1 at the end of every "
+                 "OTHER turn -- attacks into an intangible turn cap at 1 dmg/hit, "
+                 "so gate offense onto open turns and dump block/setup into "
+                 "intangible ones. Read the LIVE Intangible status, never infer "
+                 "parity (move cycle 3 drifts under the period-2 intangible). "
+                 "P1/P2 have no Nemesis -> window always open (race-equivalent). "
+                 "Debuff-waste guard rides detail.staged/wipe_hp.",
+    },
     "CEREMONIAL BEAST": {"default": "race", "notes": "TBD: single HP threshold"},
     "AEONGLASS": {
         "default": "race",
@@ -291,6 +302,26 @@ def choose_mode(enemies: list, player, scripts: dict,
         if not any(key in n for n in names):
             continue
         boss = find(key)
+        if rule.get("rule") == "burst_window":
+            # Test Subject P3 (wiki pass 2026-08-15): offense is gated by the
+            # boss's LIVE Intangible status -- parity inference is forbidden
+            # (the period-2 intangible drifts under the 3-move cycle). detail
+            # carries the staged-body facts for the debuff-waste guard:
+            # statuses wipe on revive, so residual debuff credit dies once the
+            # body is within one average turn of the kill.
+            wipe_hp = int(tp.dmg_mean) if math.isfinite(tp.dmg_mean) else 0
+            if getattr(boss, "intangible", False):
+                return FightPlan(
+                    mode="burst_window", target=getattr(boss, "entity_id", None),
+                    rationale="intangible up: block/setup turn, unload next",
+                    detail={"attack_now": False, "staged": True,
+                            "wipe_hp": wipe_hp},
+                )
+            return FightPlan(
+                mode="burst_window", target=getattr(boss, "entity_id", None),
+                rationale="window open: unload before the next intangible beat",
+                detail={"attack_now": True, "staged": True, "wipe_hp": wipe_hp},
+            )
         if rule.get("rule") == "kill_by_deadline":
             tgt = find((rule["target"] or "").upper()) or boss
             deadline = rule["deadline"]

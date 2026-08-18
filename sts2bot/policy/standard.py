@@ -282,6 +282,7 @@ class _EnemyView:
     hp: int
     block: int
     asleep: bool = False
+    intangible: bool = False  # live status read (Test Subject P3 Nemesis)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -592,6 +593,8 @@ class StandardRouter:
                     hp=e.hp or 0, block=e.block or 0,
                     asleep=any((s.id or "").upper().startswith("ASLEEP")
                                for s in (e.status or [])),
+                    intangible=any((s.id or "").upper().startswith("INTANGIBLE")
+                                   for s in (e.status or [])),
                 )
                 for e in (state.battle.enemies or []) if (e.hp or 0) > 0
             ]
@@ -620,6 +623,13 @@ class StandardRouter:
                                (cycle > 0 and rnd > dl and (rnd - dl) % cycle == 0))
                 fp = "defend" if on_deadline else "race"
                 mode_target = mplan.target
+            elif mplan.mode == "burst_window":
+                # Test Subject P3 (owner green-lit 2026-08-18): the boss's LIVE
+                # Intangible caps attacks at 1 dmg/hit, so intangible turns are
+                # block/setup turns ("defend") and open turns unload ("race").
+                # P1/P2 never show Intangible -> always "race" (status quo).
+                fp = "race" if mplan.detail.get("attack_now") else "defend"
+                mode_target = mplan.target
         # turn-start exhaust-pile snapshot (owner 2026-08-03): lets the planner
         # know a card was ALREADY exhausted this turn across replans, so
         # Forgotten Ritual / Evil Eye-class conditionals stay live mid-turn
@@ -639,7 +649,11 @@ class StandardRouter:
                                 fight_plan=fp,
                                 focus_target=mode_target,
                                 exhausted_this_turn=pile_now > exmem["pile"],
-                                plays_this_turn=plays_now)
+                                plays_this_turn=plays_now,
+                                debuff_wipe_hp=(
+                                    int(mplan.detail.get("wipe_hp") or 0)
+                                    if mplan is not None
+                                    and mplan.detail.get("staged") else 0))
         if fp and isinstance(plan, Decision) and plan.rationale:
             plan.rationale += f" |plan={fp}"
             if mplan is not None and mplan.mode:

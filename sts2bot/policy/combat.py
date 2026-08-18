@@ -1393,6 +1393,7 @@ def _score(
     stranded_blockable: dict[int, int] | None = None,
     my_hp: int = 999,
     fight_plan: str | None = None,
+    debuff_wipe_hp: int = 0,
 ) -> float:
     # Lethal end-state (all leaders dead): stranded penalties and the death wall don't apply —
     # the fight ends before end of turn. A dead SPAWNER (Infested) means the fight continues.
@@ -1573,12 +1574,18 @@ def _score(
         + hp_weight * external_loss
         + self_term
         + death_wall
-        + w.w_vulnerable * state.vuln_applied
+        # Staged-body debuff waste (Test Subject wiki pass 2026-08-15): an
+        # Adaptable body wipes ALL statuses when it revives, so residual
+        # vuln/weak credit dies once the body sits within one average turn of
+        # the phase kill (debuff_wipe_hp = mean dmg/turn, from choose_mode).
+        # In-plan amplification already paid through the damage terms.
+        + (w.w_vulnerable * state.vuln_applied + w.w_weak * state.weak_applied)
+        * (0.0 if debuff_wipe_hp > 0 and not any(
+            e.hp > debuff_wipe_hp for e in state.enemies) else 1.0)
         # Artifact strips open the debuff window (owner's Aeonglass line: two cheap
         # debuffs eaten r2-r3, THEN Vulnerable landed and r4 dealt 250) — an eaten
         # debuff is a down payment, not pure waste
         + w.w_artifact_strip * state.artifact_stripped
-        + w.w_weak * state.weak_applied
         + w.w_strength * state.strength_gained
         + w.w_draw * state.draws
         * (w.surplus_draw_mult if state.energy_surplus > 0 else 1.0)
@@ -1621,6 +1628,7 @@ def plan_combat_turn(
     hold_aoe_potions: bool = False, fight_plan: str | None = None,
     focus_target: str | None = None,
     exhausted_this_turn: bool = False, plays_this_turn: int = 0,
+    debuff_wipe_hp: int = 0,
 ) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences. Damage potions
     (minus already-used slots) join the search as pseudo-cards so card+potion lethals are
@@ -2005,7 +2013,7 @@ def plan_combat_turn(
     def scored(sim: SimState) -> float:
         return _score(sim, weights, hp_pct, power_horizon,
                       stranded_unblockable, stranded_blockable, my_hp=player.hp,
-                      fight_plan=fight_plan)
+                      fight_plan=fight_plan, debuff_wipe_hp=debuff_wipe_hp)
 
     best_state = start
     best_score = scored(start)
