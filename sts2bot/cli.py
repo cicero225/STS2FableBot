@@ -154,6 +154,31 @@ def play(
         if speed is not None:
             result = client.act(SetTimeScale(scale=speed))
             typer.echo(f"time scale {speed}x: {result.detail} (re-asserted during runs)")
+        # Catalog-drift guard (2026-08-19; root cause of the stale-catalog week:
+        # cards discovered after the last build_card_catalog run priced as
+        # unknowns in every draft — Inferno sat unpriced in ~half of all reward
+        # screens). Warn loudly; rebuilding stays a deliberate step because it
+        # makes ~500 wiki calls against the live game.
+        try:
+            import json
+
+            comp = client.get_compendium()
+            discovered = set(
+                (comp.get("sections", {}).get("card_library", {}) or {})
+                .get("discovered_ids") or []
+            )
+            cat_path = Path("data/card_catalog.json")
+            if discovered and cat_path.is_file():
+                have = set(json.loads(cat_path.read_text(encoding="utf-8")))
+                stale = sorted(discovered - have)
+                if stale:
+                    typer.echo(
+                        f"CATALOG STALE: {len(stale)} discovered cards missing "
+                        f"(e.g. {', '.join(stale[:5])}) — run "
+                        f"scripts/build_card_catalog.py + build_draft_tags.py"
+                    )
+        except Exception:
+            pass  # advisory only; never block a batch on it
         for i in range(runs):
             typer.echo(f"--- run {i + 1}/{runs} (policy={policy} character={character}) ---")
             loop = AgentLoop(client, router, log_root=log_root, config=config)
