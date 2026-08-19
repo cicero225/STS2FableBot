@@ -351,6 +351,16 @@
    "value": 3.0,
    "note": "The Decider is NOT declinable (Reject loops then ends the run). Sub-choices per owner: 2-relics > Shame-upgrade; Regret+300g > heal-10 (unless desperate / no shops left); Doubt+2-rewards vs Double+Transform-2 by basics count.",
    "uncertain": false
+  },
+  "Dive In": {
+   "value": 7.0,
+   "note": "Trash Heap opt 1 (OWNER DECODE 2026-08-18): Lose 8 HP -> random relic. 'Despite the fun of a random past card, lose 8hp + relic is the safer and better choice' -- default pick; the generic hp-cost floor already guards the can't-afford-8hp case (owner: only then take Junk).",
+   "uncertain": false
+  },
+  "Grab Random Junk": {
+   "value": 3.5,
+   "note": "Trash Heap opt 2 (OWNER DECODE 2026-08-18): +100g, FORCED random StS1 card from a fixed 10-card pool (Caltrops, Distraction, Outmaneuver, Clash, Dual Wield, Entrench, Hello World, Rebound, Stack, Rip and Tear -- no decline). Only right when 8 HP is unaffordable.",
+   "uncertain": false
   }
  }
 }

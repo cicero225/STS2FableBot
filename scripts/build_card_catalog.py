@@ -43,6 +43,20 @@ def main() -> int:
 
         catalog: dict[str, dict] = {}
         misses: list[str] = []
+        # OWNER-AUTHORITATIVE character overrides (2026-08-18): the multi-table
+        # heuristic mislabels cross-character cards as COLORLESS (Prismatic Gem
+        # runs put off-class cards in many characters' Spirebird tables). The
+        # API exposes no color field (wiki + compendium probed), so the owner's
+        # mapping is ground truth. Extend as more mislabels surface.
+        overrides = {
+            "INFERNO": "IRONCLAD", "TEAR_ASUNDER": "IRONCLAD",
+            "THE_SMITH": "REGENT", "CRUSH_UNDER": "REGENT", "ALIGNMENT": "REGENT",
+            "REAVE": "NECROBINDER", "PAGESTORM": "NECROBINDER",
+            "UPROAR": "DEFECT", "HOTFIX": "DEFECT", "BALL_LIGHTNING": "DEFECT",
+            "COLD_SNAP": "DEFECT", "CHAOS": "DEFECT", "CAPACITOR": "DEFECT",
+            "DODGE_AND_ROLL": "SILENT",
+            "PREP_TIME": "COLORLESS",  # legitimately colorless (owner)
+        }
         for cid in ids:
             r = client.get(f"{BASE}/wiki", params={"q": cid, "item_type": "card"}).json()
             entry = next(
@@ -55,7 +69,8 @@ def main() -> int:
                 continue
             base = entry.get("base") or {}
             upg = entry.get("upgraded") or {}
-            character = "COLORLESS" if cid in multi else char_of.get(cid, "NONE")
+            character = overrides.get(
+                cid, "COLORLESS" if cid in multi else char_of.get(cid, "NONE"))
             st = stats.get(cid, {})
             catalog[cid] = {
                 "name": entry.get("name"),
