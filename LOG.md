@@ -2250,3 +2250,19 @@ verified by run 3).
   suggests a possible refinement for owner review: stop banking when
   eta_p25 exceeds a hopeless horizon (banking toward a burst that never
   comes), though vs Ponder this deck loses under ANY mode.
+
+## 2026-08-18 (night) — reality check: 1/40 follow-up; day total 12/100 (~era level)
+- The record 9/40 was followed by 1/40 on IDENTICAL code. Day total 2/20 +
+  9/40 + 1/40 = 12/100 = 12% ~= era baseline. The graduation bar is NOT
+  cleared -- the record batch was the right tail of ~12% variance, exactly
+  the effect-size trap the owner named this morning (batch statistics
+  resolve small planner deltas too slowly; snapshot A/Bs are the instrument).
+- Batch-B delta forensics: act-1 deaths 11 -> 19, dominated by Matriarch
+  (faced 6 -> 11 = incidence luck; death rate 50% -> 82% vs 32% pre-today
+  baseline). Row-by-row check of today's 17 Matriarch fights: modes CORRECT
+  (setup_window asleep, race awake); sample deaths are long grind losses on
+  low-throughput decks. No behavioral regression found; 12/17 vs 13/40 is
+  p~0.01 unadjusted but one of many per-boss comparisons -- WATCH ITEM, not
+  a fire. If the elevated Matriarch rate persists next batch, snapshot-A/B
+  a Matriarch fight (config-arm: pre-rebuild move_scripts) before touching
+  anything.
