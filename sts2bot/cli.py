@@ -169,7 +169,10 @@ def play(
             )
             cat_path = Path("data/card_catalog.json")
             if discovered and cat_path.is_file():
-                have = set(json.loads(cat_path.read_text(encoding="utf-8")))
+                cat = json.loads(cat_path.read_text(encoding="utf-8"))
+                # catalog is {"source":..., "cards": {...}} — compare card ids,
+                # not top-level keys (first live firing was 100% spurious)
+                have = set(cat.get("cards") or cat)
                 stale = sorted(discovered - have)
                 if stale:
                     typer.echo(
