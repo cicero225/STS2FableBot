@@ -484,6 +484,7 @@ class SimState:
     # charges consumed — opening the debuff window has real value (Aeonglass A/B)
     artifact_stripped: int = 0
     strength_gained: int = 0
+    potion_strength: int = 0  # Str from potion pseudo-cards: flat credit, no horizon
     damage_dealt: int = 0
     kills: int = 0
     overkill: int = 0
@@ -1365,8 +1366,14 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # Rupture: a self-HP-cost play is an on-your-turn HP loss -> Str
         my_strength=s.my_strength + card.fx.strength
         + (s.rupture_per_loss if card.fx.self_hp_cost > 0 else 0),
-        strength_gained=s.strength_gained + card.fx.strength
+        # Potion-sourced Str is EXCLUDED from the horizon-scaled credit: the
+        # owner's hoarding rule (Ovicopter A/B) gates potion spend on belt
+        # pressure, and the 2x long-fight boost must not out-bid it.
+        strength_gained=s.strength_gained + (
+            0 if card.potion_slot is not None else card.fx.strength)
         + (s.rupture_per_loss if card.fx.self_hp_cost > 0 else 0),
+        potion_strength=s.potion_strength + (
+            card.fx.strength if card.potion_slot is not None else 0),
         exhausted_this_turn=s.exhausted_this_turn or card.exhausts_a_card,
         n_exhaust_events=s.n_exhaust_events + (1 if card.exhausts_a_card else 0),
         vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,
@@ -1592,7 +1599,19 @@ def _score(
         # debuffs eaten r2-r3, THEN Vulnerable landed and r4 dealt 250) — an eaten
         # debuff is a down payment, not pure waste
         + w.w_artifact_strip * state.artifact_stripped
+        # Strength-horizon (backlog item, shipped 2026-08-19): Str's residual
+        # value is future-turns x future-hits — in-plan contribution is already
+        # realized through the damage terms, so a lethal end pays nothing
+        # (Inflame on the killing turn loses to a plain finisher), and the
+        # credit scales with the same remaining-turns estimate powers use.
         + w.w_strength * state.strength_gained
+        * (0.0 if lethal_end else
+           min(w.strength_horizon_max,
+               max(w.strength_horizon_min,
+                   power_horizon / w.strength_horizon_norm)))
+        # potion Str keeps the OLD flat rate (still 0 on lethal): the horizon
+        # boost must not out-bid the potion-hoarding discipline
+        + w.w_strength * state.potion_strength * (0.0 if lethal_end else 1.0)
         + w.w_draw * state.draws
         * (w.surplus_draw_mult if state.energy_surplus > 0 else 1.0)
         + energy_waste_term

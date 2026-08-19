@@ -87,6 +87,14 @@ class CombatWeights(_Section):
     # (SETUP_FLIP_ETA/SETUP_HAND_DENT/SETUP_HP_FLOOR).
     setup_damage_mult: float = 0.6
     setup_power_mult: float = 1.5
+    # Strength-horizon (2026-08-19): Str credit scales with the remaining-turns
+    # estimate (power_horizon / norm, clamped) and zeroes on a lethal end-state.
+    # norm=3 -> a fight with ~3 turns left values Str at the old flat rate;
+    # long fights up to 2x, near-kill floors at 0.4x (never quite worthless
+    # short of lethal -- ETA estimates are noisy).
+    strength_horizon_norm: float = 3.0
+    strength_horizon_min: float = 0.4
+    strength_horizon_max: float = 2.0
     w_energy_waste: float = -0.5
     # Ice Cream only: leftover energy is banked for next turn -- mildly positive so
     # generators get played for the future, well below w_damage so spending now

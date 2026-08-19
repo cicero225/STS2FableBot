@@ -3188,3 +3188,31 @@ def test_staged_body_debuff_wipe_zeroes_residual_vuln_credit() -> None:
     assert _score(body(20), w, debuff_wipe_hp=25) < _score(body(20), w) - 1e-9
     # body comfortably alive: guard inert, scores identical
     assert _score(body(200), w, debuff_wipe_hp=25) == _score(body(200), w)
+
+
+def test_strength_horizon_scales_with_remaining_fight() -> None:
+    """Strength-horizon (2026-08-19): Str residual credit is future-turns value —
+    zero on a lethal end-state (in-plan damage already paid via damage terms),
+    boosted on long fights, floored (not zeroed) near the kill. Potion-sourced
+    Str keeps the flat rate so the hoarding discipline is never out-bid."""
+    w = load_policy_config().combat
+    def foe(hp):
+        return EnemySim(entity_id="e", hp=hp, max_hp=150, block=0, vulnerable=0,
+                        incoming=0)
+    gained = SimState(energy=0, my_block=0, my_strength=2, strength_gained=2,
+                      enemies=(foe(150),))
+    dead = SimState(energy=0, my_block=0, my_strength=2, strength_gained=2,
+                    enemies=(foe(0),))
+    base_dead = SimState(energy=0, my_block=0, my_strength=0,
+                         enemies=(foe(0),))
+    # lethal end: Str credit vanishes entirely (scores equal without it)
+    assert _score(dead, w) == _score(base_dead, w)
+    # long fight values the same Str gain more than a short one
+    long_f = _score(gained, w, power_horizon=w.w_power_horizon_cap)
+    short_f = _score(gained, w, power_horizon=1.0)
+    assert long_f > short_f
+    # potion Str: flat, horizon-independent
+    pot = SimState(energy=0, my_block=0, my_strength=2, potion_strength=2,
+                   enemies=(foe(150),))
+    assert _score(pot, w, power_horizon=w.w_power_horizon_cap) == \
+           _score(pot, w, power_horizon=1.0)
