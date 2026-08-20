@@ -449,3 +449,20 @@ def test_sai_flat_block_reaches_the_forecast() -> None:
                              relics=[sai])
     assert (with_sai.exp_end_hp > base.exp_end_hp
             or with_sai.win_rate > base.win_rate)
+
+
+def test_pending_effect_queue_bomb_and_next_turn_energy() -> None:
+    """Lane 4b (owner GO 2026-08-20): The Bomb's 40 AoE lands 3 turns after
+    play; Hegemony-class next-turn energy fires AFTER the energy reset (the
+    original sim credited it at play time -- verified over-credit)."""
+    deck = ([card("THE_BOMB", typ="Skill",
+                  desc="At the end of 3 turns, deal 40 damage to ALL enemies.",
+                  cost="2")]
+            + [card("STRIKE_IRONCLAD", cost="1")] * 4
+            + [card("DEFEND_IRONCLAD", typ="Skill")] * 5)
+    foe = FightEnemy(hp=70, dps=6)
+    base = rollout_fight([c for c in deck if c.id != "THE_BOMB"], [foe], 70, 70,
+                         card_effects=FX, n=20)
+    with_bomb = rollout_fight(deck, [foe], 70, 70, card_effects=FX, n=20)
+    assert (with_bomb.win_rate > base.win_rate
+            or with_bomb.mean_turns < base.mean_turns)

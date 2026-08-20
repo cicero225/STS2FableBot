@@ -75,6 +75,9 @@ class _Card:
     shreds_hand: bool = False  # Stoke-class: exhaust hand, add a card per exhausted
     text: str = ""  # original rules text (the DFS bridge synthesizes states from it)
     ctype: str = "Attack"
+    # Lane 4b (owner GO 2026-08-20): delayed effect (turns, kind, value) --
+    # The Bomb (3, 'aoe', 40), Hegemony-class (1, 'energy', n)
+    pending: tuple | None = None
     cid: str = ""
     upgraded: bool = False  # Miniature Cannon: upgraded Attacks hit +3 per swing
 
@@ -185,6 +188,17 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
         unplayable = (ctype in ("Curse", "Status") and "playable" not in text.lower()
                       ) or bool(_UNPLAYABLE.search(text))
         m = _EOT_HAND_LOSS.search(text) if "end of" in text.lower() else None
+        # Lane 4b: delayed effects. The Bomb-class delayed damage parses to
+        # zero fx, so fx.damage/aoe are SET here purely for chooser valuation;
+        # apply_card diverts the actual damage to the pending queue.
+        pending = None
+        if pm := re.search(r"end of (\d+) turns?, deal (\d+) damage", text,
+                           re.IGNORECASE):
+            pending = (int(pm.group(1)), "aoe", int(pm.group(2)))
+            fx.damage = int(pm.group(2))
+            fx.aoe = "all" in text.lower()
+        elif re.search(r"next turn, gain \[\w+_energy_icon", text, re.IGNORECASE):
+            pending = (1, "energy", text.count("_energy_icon"))
         out.append(_Card(
             name=getattr(c, "name", "") or cid,
             cost=cost,
@@ -201,6 +215,7 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             text=text,
             ctype=ctype or "Attack",
             cid=cid,
+            pending=pending,
         ))
     return out
 
@@ -361,6 +376,12 @@ class _RolloutSim:
         # Prolong-class (audit #2 lane 4a: fx.block_carryover was parsed but
         # never consumed here): block snapshotted at play, delivered next turn.
         self.pending_block = 0
+        # Pending-effect queue (audit #2 lane 4b, owner GO 2026-08-20:
+        # 'a real category, some of which are impactful' -- The Bomb is 40 AoE
+        # after 3 turns). Entries: [turns_left, kind, value]; start_turn
+        # decrements and fires at zero. Cards enqueue via _PENDING_RE in
+        # apply_card; more enqueuers land as their audit rows are approved.
+        self.pending_fx: list[list] = []
         self.growth: dict = {}  # Rampage-class per-card growth THIS rollout
         # (keyed by card object id -- _Card objects are shared across
         # rollouts, so mutating fx.damage would leak between iterations)
@@ -465,6 +486,18 @@ class _RolloutSim:
                        + (rfx.get("energy_every_3", 0) if self.turn % 3 == 0 else 0))
         if self.turn == 1:
             self.energy += self.spend("energy")
+        # Pending-effect queue fires AFTER energy is set (Hegemony-class
+        # next-turn energy must not be clobbered by the assignment above)
+        for p in self.pending_fx:
+            p[0] -= 1
+        for p in [p for p in self.pending_fx if p[0] <= 0]:
+            if p[1] == "aoe":  # The Bomb-class: hits every living foe
+                for f in self.foes:
+                    if f.hp > 0:
+                        f.hp -= int(p[2])
+            elif p[1] == "energy":  # Hegemony-class next-turn energy
+                self.energy += int(p[2])
+        self.pending_fx = [p for p in self.pending_fx if p[0] > 0]
 
     def playable(self):
         return [c for c in self.hand if not c.unplayable and c.cost <= self.energy]
@@ -473,6 +506,13 @@ class _RolloutSim:
         self.hand.remove(pick)
         self.energy -= pick.cost
         self.energy += pick.fx.energy_gain
+        # Lane 4b enqueuer: delayed effects detected at _Card build time
+        # (pick.pending) go to the queue; the aoe case ALSO suppresses the
+        # instant damage below (its fx.damage exists only so the chooser
+        # values the card -- The Bomb parses to zero otherwise, and a
+        # zero-fx skill would never be picked).
+        if pick.pending:
+            self.pending_fx.append(list(pick.pending))
         self_cost = pick.fx.self_hp_cost
         if self_cost > 0 and self.rfx.get("hp_loss_reduction"):
             self_cost = max(0, self_cost - self.rfx["hp_loss_reduction"])  # Tungsten Rod
@@ -490,7 +530,8 @@ class _RolloutSim:
         if not self.rfx.get("fiddle"):  # Fiddle: in-turn draws are dead
             for _ in range(pick.fx.draw):
                 self.draw_one()
-        if pick.fx.total_damage > 0 or pick.fx.dmg_equals_block:
+        if (pick.fx.total_damage > 0 or pick.fx.dmg_equals_block) \
+                and not (pick.pending and pick.pending[1] == "aoe"):
             tgts = (self.targets() if pick.fx.aoe
                     else ([target] if target is not None else []))
             # Body Slam-class: damage = CURRENT block (the Barricade finisher —
