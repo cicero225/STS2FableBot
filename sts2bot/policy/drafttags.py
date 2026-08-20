@@ -25,6 +25,8 @@ import json
 from pathlib import Path
 
 _STRENGTH_MULT = {"mild": 0.5, "moderate": 1.0, "strong": 1.6}
+# Innate synergy pieces are near-guaranteed active turn one (owner 2026-08-20)
+INNATE_PROVIDER_MULT = 1.5
 
 _TAGS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "card_draft_tags.json"
 _BOONS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "ancient_boons.json"
@@ -142,7 +144,14 @@ def _providers(
     for c in deck:
         entry = tags.get((getattr(c, "id", "") or "").upper())
         if entry:
-            total += float((entry.get("provides") or {}).get(tag, 0.0))
+            w = float((entry.get("provides") or {}).get(tag, 0.0))
+            # Innate providers count extra (owner rule 2026-08-20): an Innate
+            # synergy piece is more likely active turn one, so it pulls its
+            # partners harder at draft. Modest, per the owner's caveat that
+            # the planner may not actually play it T1.
+            if w and entry.get("innate"):
+                w *= INNATE_PROVIDER_MULT
+            total += w
     return total
 
 

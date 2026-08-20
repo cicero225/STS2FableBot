@@ -43,7 +43,8 @@
      "penalty": false
     }
    ],
-   "upgrade_unlocks": true
+   "upgrade_unlocks": true,
+   "innate": true
   },
   "ARMAMENTS": {
    "provides": {
@@ -446,7 +447,8 @@
    "provides": {
     "aoe": 1.0,
     "front_load": 1.0
-   }
+   },
+   "innate": true
   },
   "DRUM_OF_BATTLE": {
    "provides": {

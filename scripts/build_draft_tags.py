@@ -351,6 +351,16 @@ def main() -> None:
     for cid in UPGRADE_UNLOCKS:
         entry(cid)["upgrade_unlocks"] = True
 
+    # Innate providers (owner rule 2026-08-20): a card that is Innate AND
+    # provides a synergy tag is more likely ACTIVE turn one, so it should
+    # encourage drafting its synergy pieces harder. Flag from catalog text;
+    # the provider boost lives in drafttags._providers (modest -- the owner's
+    # caveat: the planner may not actually play it T1).
+    for cid in tags:
+        text = (catalog.get(cid, {}) or {}).get("text") or ""
+        if re.search(r"\bInnate\b", text):
+            entry(cid)["innate"] = True
+
     unknown = [cid for cid in tags if cid not in catalog]
     if unknown:
         raise SystemExit(f"ids not in catalog: {unknown}")
