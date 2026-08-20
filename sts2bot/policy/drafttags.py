@@ -112,6 +112,16 @@ def deck_tag_weights(deck) -> dict[str, float]:
     counts["__strike_named"] = float(n_strike_named)
     counts["__defends"] = float(n_defends)
     counts["__basics"] = float(n_basics)
+    # Audit #2 pseudo-tags (owner approved 2026-08-20): built-in-field counts,
+    # same family as above. (__ethereal is NOT here -- Ethereal is rules text
+    # and deck listings omit descriptions; it computes in score_adjustment via
+    # the card-effects KB lookup instead.)
+    counts["__skills"] = float(
+        sum(1 for c in deck if (getattr(c, "type", "") or "") == "Skill"))
+    counts["__powers"] = float(
+        sum(1 for c in deck if (getattr(c, "type", "") or "") == "Power"))
+    counts["__zero_cost"] = float(
+        sum(1 for c in deck if str(getattr(c, "cost", "") or "") == "0"))
     # Curse-exhaust edge cases (owner, re-raised 2026-07-25): a RETAIN curse parks in
     # hand once drawn (pseudo-outside the deck) and an ETHEREAL curse exhausts ITSELF
     # at end of turn — neither needs an exhaust enabler. (Owner nuance: a retain curse

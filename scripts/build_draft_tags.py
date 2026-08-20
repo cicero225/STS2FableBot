@@ -26,6 +26,14 @@ OUT = ROOT / "data" / "card_draft_tags.json"
 # chicken-and-egg principle; the Act-1 speculative window discounts it at runtime.
 # Pseudo-tags (__unupgraded, __strike_named, __defends, __basics, __attacks,
 # __cheap_attacks) are computed from live deck state by the machinery.
+# Audit #2 new-tag vocabulary (owner approved 2026-08-20, category 1):
+# shiv_source, doom_source, soul_source, orb_source, status_source. Owner
+# notes: mostly off-color, minor for Ironclad, BANKED for future classes;
+# status_source approved with no providers yet -- Defect/Regent pools carry
+# status-card generators that feed Rocket Punch-class payoffs, fill in as
+# cards appear. Pseudo-tags __skills/__powers/__zero_cost are built-in-field
+# counts (drafttags.deck_tag_weights); __ethereal is TEXT-based and lands
+# with its first consumer via the card-effects KB.
 NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # ---- vulnerable package (weighted stacks; Bash provides 2 from the starter deck)
     "BULLY": [("vulnerable_source", 3, "strong", True)],
