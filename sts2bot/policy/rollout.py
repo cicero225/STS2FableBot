@@ -358,6 +358,9 @@ class _RolloutSim:
         # block/turn -- dex pays per block play, nothing on cardless turns).
         # Rainbow Ring's per-trio dex accumulates into the same stat.
         self.my_dex = self.rfx.get("start_dex", 0)
+        # Prolong-class (audit #2 lane 4a: fx.block_carryover was parsed but
+        # never consumed here): block snapshotted at play, delivered next turn.
+        self.pending_block = 0
         self.growth: dict = {}  # Rampage-class per-card growth THIS rollout
         # (keyed by card object id -- _Card objects are shared across
         # rollouts, so mutating fx.damage would leak between iterations)
@@ -437,6 +440,8 @@ class _RolloutSim:
         if not self.barricade:
             self.block = 0
         self.block += rfx.get("start_block_per_turn", 0)
+        self.block += self.pending_block  # Prolong-class delivery
+        self.pending_block = 0
         if self.turn == 1:
             self.block += rfx.get("t1_block", 0)
             self.my_str += self.spend("strength")  # fight-start buffs (live lane 4)
@@ -474,6 +479,8 @@ class _RolloutSim:
         self.hp = max(0, self.hp - self_cost)
         self.hp = min(self.max_hp, self.hp + pick.fx.heal)
         self.block += pick.fx.block + (self.my_dex if pick.fx.block > 0 else 0)
+        if pick.fx.block_carryover:  # Prolong: snapshot current block for next turn
+            self.pending_block += self.block
         self.turn_kinds.add(
             "A" if pick.is_attack else ("P" if pick.is_power else "S"))
         if pick.fx.grows_per_play:
