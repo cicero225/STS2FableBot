@@ -26,6 +26,12 @@ OUT = ROOT / "data" / "card_draft_tags.json"
 # chicken-and-egg principle; the Act-1 speculative window discounts it at runtime.
 # Pseudo-tags (__unupgraded, __strike_named, __defends, __basics, __attacks,
 # __cheap_attacks) are computed from live deck state by the machinery.
+# Star pair (owner design 2026-08-20): star_source (star-GIVING cards
+# provide; star-COST cards need it strong+penalty -- draft veto in
+# standard.py stays as backstop) and star_sink (star-cost cards provide;
+# PURE star-givers need it with penalty -- pointless without sinks). Cards
+# giving stars as a RIDER (Solar Strike dmg+1 star; Knockout Blow dmg+5 on
+# kill, weight mild for the kill condition) provide star_source, need nothing.
 # Audit #2 new-tag vocabulary (owner approved 2026-08-20, category 1):
 # shiv_source, doom_source, soul_source, orb_source, status_source. Owner
 # notes: mostly off-color, minor for Ironclad, BANKED for future classes;
