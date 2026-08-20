@@ -169,3 +169,19 @@ def test_setup_then_burst_banks_early_and_flips_late() -> None:
              asleep=False)
     plan4 = choose_mode([mat], early, scripts)
     assert plan4.mode == "race" and "table default" in plan4.rationale
+
+
+def test_setup_gate_trusts_live_intent_over_script() -> None:
+    """Queen f48 (2026-08-19, sentinel catch): the harvested script blends
+    unbuffed turns, so her awakened 75-damage beat read as coverable at 58 hp
+    and a 'setup' turn went 58->3. The live intent is ground truth for THIS
+    turn and must override the forecast."""
+    scripts = json.loads(Path("data/move_scripts.json").read_text(encoding="utf-8"))
+    hand = [STRIKE] * 3 + [DEFEND] * 2
+    p = _player(hand=hand, draw=[STRIKE, DEFEND] * 3, hp=58)
+    quiet = NS(name="Queen", entity_id="QUEEN_0", hp=383, block=0, incoming=6)
+    plan = choose_mode([quiet], p, scripts)
+    assert plan.mode == "setup_turn", plan.rationale
+    buffed = NS(name="Queen", entity_id="QUEEN_0", hp=383, block=0, incoming=75)
+    plan2 = choose_mode([buffed], p, scripts)
+    assert plan2.mode == "race" and "unsafe" in plan2.rationale, plan2.rationale

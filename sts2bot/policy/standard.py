@@ -283,6 +283,11 @@ class _EnemyView:
     block: int
     asleep: bool = False
     intangible: bool = False  # live status read (Test Subject P3 Nemesis)
+    # live intent damage THIS turn (player-visible ground truth) — the setup
+    # gate must not trust script forecasts for the current turn (Queen f48
+    # 2026-08-19: script blended unbuffed turns, read a 75-damage awakened
+    # beat as safe at 58 hp -> 58->3 on a "setup" turn)
+    incoming: int = 0
 
 
 @dataclasses.dataclass(frozen=True)
@@ -595,6 +600,9 @@ class StandardRouter:
                                for s in (e.status or [])),
                     intangible=any((s.id or "").upper().startswith("INTANGIBLE")
                                    for s in (e.status or [])),
+                    incoming=sum(parse_intent_damage(i.label)
+                                 for i in (e.intents or [])
+                                 if (i.type or "").lower() == "attack"),
                 )
                 for e in (state.battle.enemies or []) if (e.hp or 0) > 0
             ]

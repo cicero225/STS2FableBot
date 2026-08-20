@@ -458,10 +458,17 @@ def _setup_or_burst(boss, alive, player, scripts, tp, card_effects,
             mode="race", target=getattr(boss, "entity_id", None),
             rationale=f"{key}: burst-flip (eta_p25={eta_p25:.1f}, "
                       f"hand {hand_dmg:.0f}/{eff_hp})")
-    inc_now = sum(
-        incoming_by_turn(scripts.get(canonical_enemy_name(getattr(e, 'name', ''))),
-                         current_round, 1)[0]
-        for e in alive)
+    # THIS turn's incoming: live intents are player-visible ground truth and
+    # override the script forecast (Queen f48 2026-08-19: the harvest blends
+    # unbuffed turns, so her awakened 75-damage beat read as safe at 58 hp --
+    # a "setup" turn went 58->3). Scripts still forecast BEYOND this turn.
+    inc_now = max(
+        sum(incoming_by_turn(
+                scripts.get(canonical_enemy_name(getattr(e, 'name', ''))),
+                current_round, 1)[0]
+            for e in alive),
+        float(sum(getattr(e, "incoming", 0) or 0 for e in alive)),
+    )
     php = getattr(player, "hp", 0) or 0
     if php - max(0.0, inc_now - tp.blk_mean) >= SETUP_HP_FLOOR:
         return FightPlan(
