@@ -145,9 +145,10 @@ def test_setup_then_burst_banks_early_and_flips_late() -> None:
     half the remaining HP within 2 ETA turns, and never banks below 15 hp."""
     scripts = json.loads(Path("data/move_scripts.json").read_text(encoding="utf-8"))
     kd_full = NS(name="Knowledge Demon", entity_id="KD_0", hp=379, block=0)
-    # early: full boss, modest hand -> bank the turn
-    early = _player(hand=[STRIKE] * 3 + [DEFEND] * 2,
-                    draw=[STRIKE, DEFEND] * 3, hp=70)
+    # early: full boss, REAL throughput (clears KD's net-of-Ponder clock),
+    # kill still far -> bank the turn
+    early = _player(hand=[BLUDGEON] * 2 + [STRIKE, DEFEND, DEFEND],
+                    draw=[BLUDGEON] * 3 + [STRIKE] * 2, hp=70, energy=5)
     plan = choose_mode([kd_full], early, scripts)
     assert plan.mode == "setup_turn", plan.rationale
 
@@ -159,8 +160,8 @@ def test_setup_then_burst_banks_early_and_flips_late() -> None:
     assert plan2.mode == "race" and "burst-flip" in plan2.rationale
 
     # low player HP: never bank a turn below the absolute floor
-    desperate = _player(hand=[STRIKE] * 3 + [DEFEND] * 2,
-                        draw=[STRIKE, DEFEND] * 3, hp=12)
+    desperate = _player(hand=[BLUDGEON] * 2 + [STRIKE, DEFEND, DEFEND],
+                        draw=[BLUDGEON] * 3 + [STRIKE] * 2, hp=12, energy=5)
     plan3 = choose_mode([kd_full], desperate, scripts)
     assert plan3.mode == "race" and "unsafe" in plan3.rationale
 
@@ -185,3 +186,21 @@ def test_setup_gate_trusts_live_intent_over_script() -> None:
     buffed = NS(name="Queen", entity_id="QUEEN_0", hp=383, block=0, incoming=75)
     plan2 = choose_mode([buffed], p, scripts)
     assert plan2.mode == "race" and "unsafe" in plan2.rationale, plan2.rationale
+
+
+def test_hopeless_bank_races_when_heals_outrun_throughput() -> None:
+    """Owner GO 2026-08-20 (sentinel 11/12 KD): the setup ETA runs NET of the
+    boss's heal rate. A deck Ponder out-heals must race the kill tail, never
+    bank; a deck that clears the net clock still banks early turns."""
+    scripts = json.loads(Path("data/move_scripts.json").read_text(encoding="utf-8"))
+    kd = NS(name="Knowledge Demon", entity_id="KD_0", hp=379, block=0)
+    # weak deck: p25 throughput barely above (or under) the 7.5/turn heal
+    weak = _player(hand=[STRIKE] * 2 + [DEFEND] * 3,
+                   draw=[DEFEND] * 5 + [STRIKE], hp=70)
+    plan = choose_mode([kd], weak, scripts)
+    assert plan.mode == "race" and "hopeless bank" in plan.rationale, plan.rationale
+    # strong deck: net clock fine -> still a setup turn early
+    strong = _player(hand=[BLUDGEON] * 2 + [STRIKE, DEFEND, DEFEND],
+                     draw=[BLUDGEON] * 3 + [STRIKE] * 2, hp=70, energy=5)
+    plan2 = choose_mode([kd], strong, scripts)
+    assert plan2.mode == "setup_turn", plan2.rationale

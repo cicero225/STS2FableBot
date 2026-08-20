@@ -260,6 +260,7 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
     "KNOWLEDGE DEMON": {
         "default": "race",
         "setup_burst": True,  # owner KD A/B 2026-08-14: banked r1-4, burst 111/137
+        "heal_per_turn": 7.5,  # Ponder 30/4-cycle: the setup ETA must be net of it
         "notes": "WIKI-VERIFIED 2026-08-13: Ponder heals him 30/cycle + 2 Str "
                  "-- every uncompleted cycle costs 30 effective HP and ramps "
                  "both his damage and the Disintegration clock. Kill by cycle 3 "
@@ -409,7 +410,9 @@ def choose_mode(enemies: list, player, scripts: dict,
         mode = rule.get("awake") or rule.get("default", "race")
         if mode == "race" and rule.get("setup_burst") and boss is not None:
             plan = _setup_or_burst(boss, alive, player, scripts, tp,
-                                   card_effects, current_round, key)
+                                   card_effects, current_round, key,
+                                   heal_per_turn=float(
+                                       rule.get("heal_per_turn", 0.0)))
             if plan is not None:
                 return plan
         return FightPlan(mode=mode,
@@ -425,6 +428,16 @@ def choose_mode(enemies: list, player, scripts: dict,
 SETUP_FLIP_ETA = 2.0    # owner Q3 (looser flip): unload within 2 turns of the kill...
 SETUP_HAND_DENT = 0.5   # ...if the hand can already dent half the remaining HP
 SETUP_HP_FLOOR = 15     # owner Q1: ABSOLUTE hp floor -- below this, never bank a turn
+# Hopeless horizon (owner GO 2026-08-20 after the sentinel went 11-for-12 on
+# KD): against a HEALING boss, banking is only worth it if the net clock is
+# beatable. Calibrated on the sentinel tapes vs the owner's winning line:
+# sentinel decks ran net-mean ETA ~19-27 (gross ~27/turn less Ponder 7.5 vs
+# 379 hp); the owner's bank-then-burst deck ~10-13. Mean (not p25) because
+# static pile throughput already understates a banking deck -- p25 double-
+# counts the pessimism and fires on decks that SHOULD bank. Scoped to
+# heal_per_turn rows only; non-healers keep unbounded banking (their clock
+# doesn't run backwards).
+SETUP_HOPELESS_ETA = 16.0
 #                         ("if the question is being asked often the fight is losing
 #                          regardless"); the risky-setup death sentinel in
 #                         batch_summary watches whether 15 needs re-evaluation.
@@ -433,13 +446,24 @@ SETUP_HP_FLOOR = 15     # owner Q1: ABSOLUTE hp floor -- below this, never bank 
 
 
 def _setup_or_burst(boss, alive, player, scripts, tp, card_effects,
-                    current_round, key):
+                    current_round, key, heal_per_turn: float = 0.0):
     """Refine a race row into setup_turn/race per the owner's template. None =
     no throughput read (table default stands)."""
     eff_hp = (getattr(boss, "hp", 0) or 0) + (getattr(boss, "block", 0) or 0)
     _mean, eta_p25 = kill_eta(eff_hp, tp)
     if not math.isfinite(eta_p25):
         return None
+    # Hopeless check on the NET clock, healing bosses only (11 sentinel
+    # deaths: setup banking vs Ponder that out-healed the deck)
+    if heal_per_turn > 0:
+        net_dpt = tp.dmg_mean - heal_per_turn
+        net_eta = eff_hp / net_dpt if net_dpt > 0 else float("inf")
+        if net_eta > SETUP_HOPELESS_ETA:
+            return FightPlan(
+                mode="race", target=getattr(boss, "entity_id", None),
+                rationale=f"{key}: hopeless bank (net eta "
+                          f"{'inf' if not math.isfinite(net_eta) else f'{net_eta:.1f}'}"
+                          f" > {SETUP_HOPELESS_ETA:.0f}); race the kill tail")
     # hand potential: greedy damage within the energy bar (density order)
     energy = float(getattr(player, "max_energy", None)
                    or getattr(player, "energy", None) or 3)
