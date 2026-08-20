@@ -1394,6 +1394,24 @@ class StandardRouter:
         pillow_heal = 15.0 if any("REGAL" in n and "PILLOW" in n
                                   for n in held_relics) else 0.0
 
+        # Relic-conditional node bonuses (owner GO 2026-08-20; act-3 A/B
+        # Decision 3: they diverted LEFT for a double-shop line BECAUSE Music
+        # Box rewards optionality -- path_value had no relic term). Curated
+        # phase-1 table; texts verified against relic_catalog/relic_notes.
+        _relic_node = {
+            "MUSIC_BOX": ("shop", 5.0),       # optionality: more shopping = more combo pieces
+            "SHOVEL": ("rest_site", 5.0),     # dig: a free relic per rest site
+            "DREAM_CATCHER": ("rest_site", 3.0),  # rest offers a card draft
+            # (Meal Ticket deliberately absent: its 15-heal already rides the
+            # HP projection via shop_heal above -- a flat bonus would double-count)
+            "COURIER": ("shop", 4.0),         # -20% + endless stock: each visit worth more
+            "MEMBERSHIP_CARD": ("shop", 4.0),  # -50%: ditto
+        }
+        relic_node_bonus: dict[str, float] = {}
+        for rid, (ntype, amt) in _relic_node.items():
+            if any(rid in n for n in held_relics):
+                relic_node_bonus[ntype] = relic_node_bonus.get(ntype, 0.0) + amt
+
         next_row = min(o.row for o in opts)
 
         def type_score(node_type: str | None, row: int | None = None) -> float:
@@ -1412,7 +1430,9 @@ class StandardRouter:
             }.get(t, w.score_unknown)
             if t in ("restsite", "rest_site"):
                 base += w.rest_bonus_per_missing_hp_pct * hp_missing_pct
+                base += relic_node_bonus.get("rest_site", 0.0)
             if t == "shop":
+                base += relic_node_bonus.get("shop", 0.0)
                 # Value a shop by the gold we'll HOLD on arrival, not today's wallet —
                 # fights along the way keep paying. This is the owner's practice of
                 # looping a LATE shop into the act (A/B #3: 740g -> two Act-3 sprees
