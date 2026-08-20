@@ -2266,3 +2266,21 @@ verified by run 3).
   a fire. If the elevated Matriarch rate persists next batch, snapshot-A/B
   a Matriarch fight (config-arm: pre-rebuild move_scripts) before touching
   anything.
+
+## 2026-08-19 — post-catalog batches: 6/40, 2/40, 2/40 (10/120); sentinel cluster grows
+- Catalog-fix batch hit 6/40 with record composites (act-reach 2.25, elites
+  2.1, relics 10.1; Matriarch back to 1/4). The two strength-horizon batches
+  came in 2/40 each (4/80) -- weak-evidence low; per the methodology steer,
+  no batch-stat conclusions; a snapshot A/B (config-neutralized
+  strength_horizon_*) is the instrument if suspicion grows.
+- RISKY-SETUP sentinel: 8 KD instances became 11 KD + 1 QUEEN across the
+  day. The KD hopeless-horizon proposal (net-of-Ponder ETA; blow past ~8
+  turns -> race) sits ready, awaiting the owner's word. First Queen
+  instance not yet dissected.
+- Drift guard: first firing spurious (top-level-keys bug, fixed 98facef),
+  but flushed out 4 REAL discoveries incl. DUAL_WIELD from the Trash Heap
+  StS1 pool -- catalog 469, zero misses.
+- Process slip x2 (same day): batch launches via shell-& with discarded
+  output -- the old silent-launch mistake. Both caught within a minute,
+  killed, relaunched tracked. The rule stands: EVERY batch launch goes
+  through a tracked background task, no compound-command shortcuts.
