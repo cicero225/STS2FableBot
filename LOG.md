@@ -2284,3 +2284,20 @@ verified by run 3).
   output -- the old silent-launch mistake. Both caught within a minute,
   killed, relaunched tracked. The rule stands: EVERY batch launch goes
   through a tracked background task, no compound-command shortcuts.
+
+## 2026-08-20 — owner-answer sweep + full card audit #2
+- Shipped on owner answers: KD hopeless-horizon (cb20386, net-of-Ponder ETA,
+  healing bosses only), Inferno/Tear Asunder tags (owner semantics),
+  relic-conditional pathing phase 1 (cec4100: Music Box/Courier/Membership
+  -> shop, Shovel/Dream Catcher -> rest; Meal Ticket excluded, already in HP
+  projection). Off-class policy question ANSWERED from existing code/notes:
+  star-cost veto + blessed blind-draft default -- no new policy needed.
+- Card audit #2 (12-agent workflow, mistake-class-aware prompt from the
+  compiled live-catch corpus + rollout-candidacy re-check per owner):
+  209 reward-pool cards audited -> 102 ok / 48 untagged proposals / 59
+  change proposals; 9 new-tag asks; 6 rollout mechanism lanes; verifier
+  disputes preserved inline. Owner-review doc (items 1-113, reply-by-number
+  flow): logs/reports/CARD_AUDIT_2026-08_PROPOSAL.md. Nothing baked until
+  review. Decision digest also delivered for the owner's bulk-review
+  exercise (1106 decisions / latest 40 runs).
+- Batches remain DOWN at owner request.
