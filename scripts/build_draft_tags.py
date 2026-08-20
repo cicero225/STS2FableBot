@@ -78,6 +78,12 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # ---- self-HP-loss package
     "SPITE": [("self_hp_loss_source", 1, "moderate", True)],
     "RUPTURE": [("self_hp_loss_source", 1, "strong", True)],  # Act-1 window applies
+    # Owner 2026-08-20 (new-discovery pass): Inferno self-feeds its trigger
+    # (loses 1 hp at turn start) so no penalty, but real sources make it an
+    # engine; Tear Asunder pays off on ANY hp loss ('doesn't specify why you
+    # lost HP' -- enemy chip counts), decent solo -> moderate bonus, no penalty.
+    "INFERNO": [("self_hp_loss_source", 1, "strong", False)],
+    "TEAR_ASUNDER": [("self_hp_loss_source", 1, "moderate", False)],
     # ---- strength / multi-hit package (all bonus-only)
     "CONFLAGRATION": [("strength_source", 1, "moderate", False)],
     "WHIRLWIND": [("strength_source", 1, "moderate", False),
@@ -281,6 +287,10 @@ PROVIDES: dict[str, list[str]] = {
     "EXPECT_A_FIGHT": ["energy_source"],
     "SPITE": [],
     "RUPTURE": ["power_setup"],
+    # Owner 2026-08-20: Inferno = important hp-loss card AND aoe (6 to ALL per
+    # on-turn hp loss); its own 1/turn start-of-turn loss makes it a source too
+    "INFERNO": ["self_hp_loss_source", "aoe", "power_setup"],
+    "TEAR_ASUNDER": ["big_single_hit"],
 }
 
 # per-proc autoblock (review #12/#26): recurring block counts as MORE than one card

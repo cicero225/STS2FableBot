@@ -747,6 +747,21 @@
     "attack_generator": 1.0
    }
   },
+  "INFERNO": {
+   "provides": {
+    "self_hp_loss_source": 1.0,
+    "aoe": 1.0,
+    "power_setup": 1.0
+   },
+   "needs": [
+    {
+     "tag": "self_hp_loss_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": false
+    }
+   ]
+  },
   "INFLAME": {
    "provides": {
     "strength_source": 1.0
@@ -1315,8 +1330,17 @@
   },
   "TEAR_ASUNDER": {
    "provides": {
+    "big_single_hit": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "self_hp_loss_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
   },
   "THRASH": {
    "provides": {
