@@ -98,6 +98,12 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # lost HP' -- enemy chip counts), decent solo -> moderate bonus, no penalty.
     "INFERNO": [("self_hp_loss_source", 1, "strong", False)],
     "TEAR_ASUNDER": [("self_hp_loss_source", 1, "moderate", False)],
+    # Bombardment (owner 2026-08-20, 'other' bucket not-skippable): prefers
+    # being EXHAUSTED over paying 3 energy, but bootstraps by direct play
+    # (it self-exhausts and then self-plays every turn) -> bonus, no penalty.
+    # Busted with Music Box (copies exhaust themselves) -- relic-conditional
+    # value noted in relic_notes, not encodable as a card tag.
+    "BOMBARDMENT": [("exhaust_enabler", 1, "moderate", False)],
     # ---- strength / multi-hit package (all bonus-only)
     "CONFLAGRATION": [("strength_source", 1, "moderate", False)],
     "WHIRLWIND": [("strength_source", 1, "moderate", False),

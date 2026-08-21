@@ -93,6 +93,13 @@ class _Card:
     block_per_turn: int = 0
     hp_loss_per_turn: int = 0
     vigor_per_turn: int = 0
+    # 'Other' bucket, owner not-skippables (2026-08-20): Tear Asunder hits
+    # once more per HP-LOSS EVENT this combat (ANY loss, not just
+    # self-damage); Bombardment plays ITSELF from the exhaust pile at every
+    # turn start once it lands there (it re-exhausts each time -- a per-turn
+    # damage loop that also procs exhaust engines like FNP).
+    extra_hits_per_hp_loss: bool = False
+    selfplay_exhaust: bool = False
     cid: str = ""
     upgraded: bool = False  # Miniature Cannon: upgraded Attacks hit +3 per swing
 
@@ -235,6 +242,11 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             m2 := re.search(r"lose (\d+) hp", clause, re.IGNORECASE)) else 0
         vig_pt = int(m2.group(1)) if (
             m2 := re.search(r"gain (\d+) vigor", clause, re.IGNORECASE)) else 0
+        extra_hits = bool(re.search(
+            r"additional time for each time you lost hp", text, re.IGNORECASE))
+        selfplay = bool(re.search(
+            r"if this (?:card )?is in your exhaust pile, play it", text,
+            re.IGNORECASE))
         out.append(_Card(
             name=getattr(c, "name", "") or cid,
             cost=cost,
@@ -258,6 +270,8 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             block_per_turn=blk_pt,
             hp_loss_per_turn=hpl_pt,
             vigor_per_turn=vig_pt,
+            extra_hits_per_hp_loss=extra_hits,
+            selfplay_exhaust=selfplay,
         ))
     return out
 
@@ -431,6 +445,8 @@ class _RolloutSim:
         self.p_hploss_pt = 0  # Crimson Mantle's per-turn HP tax
         self.p_vigor_pt = 0   # Prep Time-class: next attack +N per hit
         self.vigor = 0
+        self.hp_loss_events = 0  # Tear Asunder: ANY hp loss counts (owner)
+        self.autoplay_exh: list = []  # Bombardment-class self-play loop
         self.growth: dict = {}  # Rampage-class per-card growth THIS rollout
         # (keyed by card object id -- _Card objects are shared across
         # rollouts, so mutating fx.damage would leak between iterations)
@@ -525,9 +541,19 @@ class _RolloutSim:
         self.vigor = self.p_vigor_pt
         if self.p_hploss_pt:
             self.hp -= self.p_hploss_pt
+            self.hp_loss_events += 1
             if self.hp <= 0:
                 self.outcome = (False, 0)
                 return
+        # Bombardment-class: self-plays from the exhaust pile every turn and
+        # re-exhausts (per-turn damage loop that ALSO procs exhaust engines)
+        for c in self.autoplay_exh:
+            tgt = next((f for f in self.foes
+                        if f.hp > 0 and not f.dormant and not f.erupting), None)
+            if tgt is not None:
+                for _ in range(max(1, c.fx.hits)):
+                    _hit(tgt, c.fx.damage + self.my_str, self.vm)
+            self.exhaust_event()
         if self.turn == 1:
             self.block += rfx.get("t1_block", 0)
             self.my_str += self.spend("strength")  # fight-start buffs (live lane 4)
@@ -588,6 +614,8 @@ class _RolloutSim:
         if self_cost > 0 and self.rfx.get("hp_loss_reduction"):
             self_cost = max(0, self_cost - self.rfx["hp_loss_reduction"])  # Tungsten Rod
         self.hp = max(0, self.hp - self_cost)
+        if self_cost > 0:
+            self.hp_loss_events += 1  # Tear Asunder counts every loss
         self.hp = min(self.max_hp, self.hp + pick.fx.heal)
         self.block += pick.fx.block + (self.my_dex if pick.fx.block > 0 else 0)
         if pick.fx.block_carryover:  # Prolong: snapshot current block for next turn
@@ -628,10 +656,13 @@ class _RolloutSim:
                 if f is None or f.hp <= 0 or f.dormant:
                     continue
                 f.sleep = 0  # any damage wakes a Lagavulin-class sleeper early
-                for _h in range(max(1, pick.fx.hits)):
+                n_hits = max(1, pick.fx.hits) + (
+                    self.hp_loss_events if pick.extra_hits_per_hp_loss else 0)
+                for _h in range(n_hits):
                     _hit(f, per_hit, self.vm)
                     if f.thorns:
                         self.hp -= f.thorns
+                        self.hp_loss_events += 1
                 if pick.fx.vulnerable:
                     if f.artifact > 0:
                         f.artifact -= 1  # charge eats the debuff (Aeonglass tape)
@@ -670,6 +701,8 @@ class _RolloutSim:
                 self.barricade = True
         elif pick.exhausts:
             self.exhaust_event()
+            if pick.selfplay_exhaust:  # Bombardment: the loop starts here
+                self.autoplay_exh.append(pick)
         else:
             self.discard.append(pick)
         if self.hp <= 0:
@@ -687,6 +720,7 @@ class _RolloutSim:
         for c in self.hand:
             if c.eot_hand_loss:
                 self.hp -= c.eot_hand_loss
+                self.hp_loss_events += 1
             if c.ethereal:
                 self.exhaust_event()
             else:
@@ -736,7 +770,11 @@ class _RolloutSim:
             self.block += self.spend("block")
         if self.hp - max(0, strike - self.block) <= 0:
             self.hp = min(self.max_hp, self.hp + self.spend("heal"))
-        self.hp -= max(0, strike - self.block)
+        got_through = max(0, strike - self.block)
+        self.hp -= got_through
+        if got_through > 0:
+            self.hp_loss_events += 1  # lumped enemy turn = 1 event (undercounts
+            # multi-hit intents -- conservative for Tear Asunder)
         if self.hp <= 0:
             self.outcome = (False, 0)
             return
@@ -818,9 +856,14 @@ def _greedy_turn(sim: _RolloutSim) -> None:
                 return (sim.block if c.fx.dmg_equals_block
                         else c.fx.damage + sim.my_str
                         + sim.growth.get(id(c), 0) - c.fx.grows_per_play
-                        + c.dmg_per_draw * sim.draws_this_fight)
+                        + c.dmg_per_draw * sim.draws_this_fight
+                        + (sim.vigor if c.is_attack else 0))
 
-            kill = [c for c in atks if per_hit(c) * c.fx.hits >= target.hp]
+            def eff_hits(c):
+                return max(1, c.fx.hits) + (
+                    sim.hp_loss_events if c.extra_hits_per_hp_loss else 0)
+
+            kill = [c for c in atks if per_hit(c) * eff_hits(c) >= target.hp]
             vulners = [c for c in atks if c.fx.vulnerable > 0]
             if kill:
                 pick = min(kill, key=lambda c: c.cost)
@@ -837,7 +880,7 @@ def _greedy_turn(sim: _RolloutSim) -> None:
                 pick = max(blocks, key=lambda c: c.fx.block / max(1, c.cost))
             elif atks:
                 pick = max(atks, key=lambda c: per_hit(c)
-                           * c.fx.hits / max(1, c.cost))
+                           * eff_hits(c) / max(1, c.cost))
         if pick is None and (blocks := [c for c in playable if c.fx.block > 0]):
             pick = max(blocks, key=lambda c: c.fx.block)
         if pick is None:

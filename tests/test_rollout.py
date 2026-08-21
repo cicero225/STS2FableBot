@@ -516,3 +516,29 @@ def test_player_power_lane_split_demon_form_and_crimson_mantle() -> None:
         [foe], 70, 70, n=25)
     plain = rollout_fight(base, [foe], 70, 70, n=25)
     assert mantle.exp_end_hp > plain.exp_end_hp  # block engine nets over the tax
+
+
+def test_other_bucket_tear_asunder_and_bombardment() -> None:
+    """Owner not-skippables (2026-08-20): Tear Asunder hits once more per
+    HP-LOSS EVENT (any loss -- enemy chip counts); Bombardment self-plays
+    from the exhaust pile every turn after its first play (re-exhausting,
+    so exhaust engines proc per turn)."""
+    base = ([card("STRIKE_IRONCLAD", desc="Deal 6 damage.")] * 4
+            + [card("DEFEND_IRONCLAD", typ="Skill", desc="Gain 5 Block.")] * 5)
+    foe = FightEnemy(hp=180, dps=12)  # chippy fight: losses accumulate
+    plain = rollout_fight(
+        [*base, card("POKE", desc="Deal 5 damage.")], [foe], 70, 70, n=25)
+    tear = rollout_fight(
+        [*base, card("TEAR_ASUNDER",
+                     desc="Deal 5 damage. Hits an additional time for each "
+                          "time you lost HP this combat.")],
+        [foe], 70, 70, n=25)
+    assert (tear.win_rate > plain.win_rate
+            or tear.mean_turns < plain.mean_turns)
+    bomb = rollout_fight(
+        [*base, card("BOMBARDMENT", cost="3",
+                     desc="Deal 18 damage. At the start of your turn, if this "
+                          "is in your Exhaust Pile, play it. Exhaust.")],
+        [foe], 70, 70, n=25)
+    assert (bomb.win_rate > plain.win_rate
+            or bomb.mean_turns < plain.mean_turns)
