@@ -150,6 +150,9 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Item 22 (approved): Focus-this-turn is dead without orbs (owner);
     # channelers provide orb_source so the need is satisfiable in-pool
     "HOTFIX": [("orb_source", 1, "strong", True)],
+    # Item 27: moderate, no penalty (fires naturally on dumped-out turns;
+    # Retain waits for the moment)
+    "RESTLESSNESS": [("hand_dump", 1, "moderate", False)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -408,6 +411,19 @@ PROVIDES: dict[str, list[str]] = {
     # now MODELED (fx.enemy_str_down: damageless AoE softens all attackers;
     # Crush Under's damaging variant rides _apply_attack).
     "PIERCING_WAIL": ["front_load", "exhaust_enabler"],
+    # Item 26 (semi-approved): vigor rollout lane already shipped in the
+    # player-power split; the tag is the only new piece.
+    "PREP_TIME": ["power_setup"],
+    # Item 27 (owner): emptying the hand is a REAL, non-trivial condition.
+    # hand_dump providers are SECOND_WIND and STOKE -- but Second Wind is a
+    # TRAP for Restlessness (it would exhaust Restlessness too; owner:
+    # 'hard to catch with just tags'), so the need counts it optimistically.
+    # Retain softens the conditional deadness (RETAIN_PENALTY_SOFTEN in
+    # drafttags does this generically for retain cards now).
+    "RESTLESSNESS": ["draw_engine", "energy_source", "retain"],
+    # Item 28 (owner + dispute agree): star GAIN, not star_cost_source --
+    # rider-giver per the star-pair design, needs nothing.
+    "SOLAR_STRIKE": ["star_source"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],

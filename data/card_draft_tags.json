@@ -1202,6 +1202,11 @@
     "expensive_attack": 1.0
    }
   },
+  "PREP_TIME": {
+   "provides": {
+    "power_setup": 1.0
+   }
+  },
   "PRIMAL_FORCE": {
    "needs": [
     {
@@ -1325,6 +1330,21 @@
    "provides": {
     "expensive_attack": 1.0
    }
+  },
+  "RESTLESSNESS": {
+   "provides": {
+    "draw_engine": 1.0,
+    "energy_source": 1.0,
+    "retain": 1.0
+   },
+   "needs": [
+    {
+     "tag": "hand_dump",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
   },
   "RICOCHET": {
    "provides": {
@@ -1455,6 +1475,11 @@
      "penalty": true
     }
    ]
+  },
+  "SOLAR_STRIKE": {
+   "provides": {
+    "star_source": 1.0
+   }
   },
   "SOVEREIGN_BLADE": {
    "provides": {

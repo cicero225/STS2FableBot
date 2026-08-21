@@ -27,6 +27,9 @@ from pathlib import Path
 _STRENGTH_MULT = {"mild": 0.5, "moderate": 1.0, "strong": 1.6}
 # Innate synergy pieces are near-guaranteed active turn one (owner 2026-08-20)
 INNATE_PROVIDER_MULT = 1.5
+# Retain cards wait in hand for their condition instead of wasting the draw
+# (owner, audit item 27) -- unmet-need penalties run at this fraction for them
+RETAIN_PENALTY_SOFTEN = 0.6
 
 _TAGS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "card_draft_tags.json"
 _BOONS_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "ancient_boons.json"
@@ -202,7 +205,15 @@ def score_adjustment(
         adj += w.w_tag_bonus * mult * met_frac
         if need.get("penalty") and have <= 0:
             act_factor = w.tag_act1_penalty_mult if act <= 1 else 1.0
-            adj += w.w_tag_penalty * mult * act_factor
+            # Retain softens conditional deadness (owner, audit item 27): a
+            # retained card WAITS in hand until its condition fires instead of
+            # wasting draws, so unmet-need penalties run reduced on Retain
+            # cards ('a mostly-dead condition that fires sometimes is
+            # significantly better with Retain').
+            retain_factor = (RETAIN_PENALTY_SOFTEN
+                             if float(own_provides.get("retain", 0.0)) > 0
+                             else 1.0)
+            adj += w.w_tag_penalty * mult * act_factor * retain_factor
 
     # anti-synergy: dock when a tag is ALREADY well-represented (Battle Trance's
     # draw-lock collides with stacked draw; Panic Button locks out block plans)
