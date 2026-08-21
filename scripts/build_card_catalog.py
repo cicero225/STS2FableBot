@@ -54,7 +54,7 @@ def main() -> int:
         # card. Ground truth = live payloads (deck/reward cards carry
         # star_cost); verified values are pinned here. TODO: probe the wiki
         # base dict for a star field next time the game is up.
-        star_costs = {"CLOAK_OF_STARS": "1"}
+        star_costs = {"CLOAK_OF_STARS": "1", "DEVASTATE": "4"}
         overrides = {
             "INFERNO": "IRONCLAD", "TEAR_ASUNDER": "IRONCLAD",
             "THE_SMITH": "REGENT", "CRUSH_UNDER": "REGENT", "ALIGNMENT": "REGENT",

@@ -131,6 +131,16 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # the same precedent (its 2 Dex > Prowess's 1 -> moderate).
     "PROWESS": [("block_engine", 1, "mild", False)],
     "FOOTWORK": [("block_engine", 1, "moderate", False)],
+    # Item 14 (owner; Necrobinder): Shroud needs A LOT of doom to be value
+    # (per-turn power source or many doom cards -- Ironclad unlikely) ->
+    # threshold 2. NO block_engine provides: the block is conditional on
+    # doom landing, and provides can't be gated on needs -- a doomless deck
+    # must not count Shroud as block generation (Body Slam-class consumers).
+    "SHROUD": [("doom_source", 2, "strong", True)],
+    # Item 15 (owner + audit's too-good-to-be-true flag both right):
+    # Devastate costs 4 STARS on top of 1 energy (3 live observations;
+    # catalog star-blindness again) -> star-pair need.
+    "DEVASTATE": [("star_source", 1, "strong", True)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -355,6 +365,8 @@ PROVIDES: dict[str, list[str]] = {
     # active exhaust feed; NOT the deliberate-exhaust class (owner, same
     # Defile precedent -- that flag means True Grit+ target material).
     "NOT_YET": ["exhaust_enabler"],
+    # Item 15: a premium hit WHEN payable (star cost carried in needs/veto)
+    "DEVASTATE": ["big_single_hit"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],

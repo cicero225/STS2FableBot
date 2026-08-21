@@ -456,6 +456,19 @@
     "power_setup": 1.0
    }
   },
+  "DEVASTATE": {
+   "provides": {
+    "big_single_hit": 1.0
+   },
+   "needs": [
+    {
+     "tag": "star_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
+  },
   "DISCOVERY": {
    "provides": {
     "attack_generator": 1.0
@@ -1343,6 +1356,16 @@
     "weak_source": 3.0,
     "aoe": 1.0
    }
+  },
+  "SHROUD": {
+   "needs": [
+    {
+     "tag": "doom_source",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "SHRUG_IT_OFF": {
    "provides": {

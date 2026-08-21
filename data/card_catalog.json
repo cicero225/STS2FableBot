@@ -4333,7 +4333,8 @@
     "times_picked": 1,
     "times_won": 0,
     "times_lost": 1
-   }
+   },
+   "star_cost": "4"
   },
   "RESONANCE": {
    "name": "Resonance",
