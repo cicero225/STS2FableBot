@@ -15,7 +15,7 @@ from sts2bot.policy.combat import (
     _score,
     plan_combat_turn,
 )
-from sts2bot.policy.textparse import CardEffects
+from sts2bot.policy.textparse import CardEffects, parse_card_description
 
 
 def _enemy(**kw) -> EnemySim:
@@ -3216,3 +3216,24 @@ def test_strength_horizon_scales_with_remaining_fight() -> None:
                    enemies=(foe(150),))
     assert _score(pot, w, power_horizon=w.w_power_horizon_cap) == \
            _score(pot, w, power_horizon=1.0)
+
+
+def test_all_enemy_str_down_softens_hits_and_artifact_eats_it() -> None:
+    """Audit item 25 (Piercing Wail class) + owner Artifact nuance: a damageless
+    ALL-enemies Str-down softens every attacker's remaining hits this turn, but
+    an Artifact charge eats the debuff (Str-UP bypasses Artifact; Str-DOWN does
+    not)."""
+    wail = PlannedCard(
+        index=0, name="Piercing Wail", cost=1,
+        fx=parse_card_description("ALL enemies lose 6 Strength this turn. Exhaust."),
+        targets_enemy=False)
+    plain = EnemySim(entity_id="a", hp=50, max_hp=50, block=0, vulnerable=0,
+                     incoming=14)
+    shielded = EnemySim(entity_id="b", hp=50, max_hp=50, block=0, vulnerable=0,
+                        incoming=14, artifact=1)
+    s = SimState(energy=3, my_block=0, my_strength=0, enemies=(plain, shielded))
+    out = _apply_card(s, wail, None)
+    assert out.enemies[0].incoming == 8       # 14 - 6
+    assert out.enemies[1].incoming == 14      # charge ate the debuff
+    assert out.enemies[1].artifact == 0
+    assert out.artifact_stripped == 1         # down-payment credit

@@ -223,7 +223,7 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             pending = (int(pm.group(1)), "aoe", int(pm.group(2)))
             fx.damage = int(pm.group(2))
             fx.aoe = "all" in text.lower()
-        elif re.search(r"next turn, gain \[\w+_energy_icon", text, re.IGNORECASE):
+        elif re.search(r"next turn,.*?gain \[\w+_energy_icon", text, re.IGNORECASE):
             pending = (1, "energy", text.count("_energy_icon"))
         # Lane 4c draw-fed scalers
         gd = re.search(r"whenever you draw this card, increase its damage by (\d+)",

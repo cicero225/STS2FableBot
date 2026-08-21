@@ -1153,6 +1153,12 @@
     }
    ]
   },
+  "PIERCING_WAIL": {
+   "provides": {
+    "front_load": 1.0,
+    "exhaust_enabler": 1.0
+   }
+  },
   "PILLAGE": {
    "needs": [
     {
@@ -1573,6 +1579,11 @@
      "penalty": false
     }
    ]
+  },
+  "THE_BOMB": {
+   "provides": {
+    "aoe": 1.0
+   }
   },
   "THRASH": {
    "provides": {

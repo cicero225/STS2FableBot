@@ -1062,10 +1062,22 @@ def _apply_attack(
     inc = e.incoming
     if card.fx.enemy_strength and hp > 0:
         inc += card.fx.enemy_strength * max(1, e.incoming_hits)
+    # Mirror rider (Piercing Wail/Crush Under, audit #2 item 25): ALL enemies
+    # LOSE Str this turn -> softer remaining hits. Owner nuance 2026-08-20:
+    # Str-DOWN is a debuff -- Artifact eats it (one charge); Str-UP (Fight
+    # Me!) bypasses Artifact, hence no charge check above.
+    art = e.artifact
+    strdown_stripped = 0
+    if card.fx.enemy_str_down and hp > 0:
+        if art > 0:
+            art -= 1  # a charge eats the Str-down (debuff); Str-UP bypasses
+            strdown_stripped = 1
+        else:
+            inc -= card.fx.enemy_str_down * max(1, e.incoming_hits)
     enemies[target_i] = replace(
         e, hp=hp, block=block, vulnerable=e.vulnerable + card.fx.vulnerable,
         hp_lost_this_turn=lost, stunned_this_turn=stunned, slippery_stacks=slip,
-        incoming=inc,
+        incoming=inc, artifact=art,
     )
     # Ignorable minions (weak, non-ramping) aren't progress — they flee with the leader and
     # Illusion ones revive — so deny offensive reward; their death's incoming drop is still
@@ -1103,6 +1115,7 @@ def _apply_attack(
         kills=state.kills + (1 if killed else 0),
         overkill=state.overkill + overkill_amt,
         vuln_applied=state.vuln_applied + (card.fx.vulnerable if hp > 0 else 0),
+        artifact_stripped=state.artifact_stripped + strdown_stripped,
         # a sleeping 'ramper' isn't ramping: the waking hit earns plain damage
         # credit only (with focus_damage below, the third sleeper-bribe term)
         ramp_damage=state.ramp_damage + (
@@ -1257,6 +1270,28 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         if i is not None:
             enemies[i] = replace(enemies[i], incoming=int(enemies[i].incoming * WEAK_MULT))
             s = replace(s, enemies=tuple(enemies), weak_applied=s.weak_applied + landed_weak)
+    # Piercing Wail-class (audit #2 item 25, owner: -6 Str 'cannot be
+    # ignored'): a damageless AoE Str-down softens EVERY attacker's remaining
+    # hits this turn. (Damage cards with the rider -- Crush Under -- apply it
+    # per target inside _apply_attack instead.)
+    if atk.fx.enemy_str_down and atk.fx.total_damage == 0:
+        enemies = list(s.enemies)
+        hit_any = False
+        stripped = 0
+        for i, e in enumerate(enemies):
+            if e.hp <= 0:
+                continue
+            if e.artifact > 0:  # owner 2026-08-20: Artifact eats Str-DOWN
+                enemies[i] = replace(e, artifact=e.artifact - 1)
+                stripped += 1
+                hit_any = True
+            elif e.incoming > 0:
+                cut = atk.fx.enemy_str_down * max(1, e.incoming_hits)
+                enemies[i] = replace(e, incoming=max(0, e.incoming - cut))
+                hit_any = True
+        if hit_any:
+            s = replace(s, enemies=tuple(enemies),
+                        artifact_stripped=s.artifact_stripped + stripped)
     # Crab Rage (Kaiser Crab): when a claw dies, every still-living Crab-Rage ally gains +6 Str and
     # +99 Block (one-turn wall). Resolve at *card* granularity (this card's before/after) so an AoE
     # killing BOTH claws at once enrages no one, while a single-target kill buffs the survivor — so
@@ -1302,8 +1337,14 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
                         vuln_applied=s.vuln_applied + e.vulnerable)
             e = enemies[target_i]
         if card.target_str_down and e.incoming > 0:  # Dark Shackles/Mangle: -N Str this turn
-            enemies[target_i] = replace(e, incoming=max(0, e.incoming - card.target_str_down))
-            s = replace(s, enemies=tuple(enemies))
+            if e.artifact > 0:  # owner 2026-08-20: Artifact eats Str-DOWN too
+                enemies[target_i] = replace(e, artifact=e.artifact - 1)
+                s = replace(s, enemies=tuple(enemies),
+                            artifact_stripped=s.artifact_stripped + 1)
+            else:
+                enemies[target_i] = replace(
+                    e, incoming=max(0, e.incoming - card.target_str_down))
+                s = replace(s, enemies=tuple(enemies))
     # In-combat healing (Not Yet), capped at the turn's damage taken — no overheal credit.
     heal_applied = max(0, min(card.fx.heal, s.heal_room - s.healing)) if card.fx.heal else 0
     # Dexterity adds/subtracts per block-granting card — Soul Siphon drives it NEGATIVE, so a

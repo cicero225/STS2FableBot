@@ -398,6 +398,16 @@ PROVIDES: dict[str, list[str]] = {
     # Item 22 amendment (owner: technically an enabler but WEAK -- keep the
     # weight low so it never outweighs real enablers)
     "HOTFIX": ["exhaust_enabler"],
+    # Item 23 (semi-approved): aoe provides; the Bomb's ROLLOUT ask was
+    # already shipped in lane 4b (pending queue) -- no double work.
+    "THE_BOMB": ["aoe"],
+    # Item 25 (approved; Silent card): front_load kept for provider-side
+    # consistency (Dark Shackles pattern) though the tag is currently DEAD
+    # (7 providers, zero consumers -- reserved for a big-opener need);
+    # wants-exhausted flag struck (4th confirmation). The -6 Str rider is
+    # now MODELED (fx.enemy_str_down: damageless AoE softens all attackers;
+    # Crush Under's damaging variant rides _apply_attack).
+    "PIERCING_WAIL": ["front_load", "exhaust_enabler"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],

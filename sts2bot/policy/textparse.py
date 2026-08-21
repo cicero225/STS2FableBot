@@ -91,6 +91,12 @@ _DEXTERITY = re.compile(r"\bGain (\d+) Dexterity", re.IGNORECASE)
 # math must see (the buffed intent hits THIS turn's incoming). No collision with
 # _STRENGTH: "gains 1" never matches "\bGain (\d+)".
 _ENEMY_STRENGTH = re.compile(r"\benem(?:y|ies) gains? (\d+) Strength", re.IGNORECASE)
+# Piercing Wail / Crush Under class (audit #2 item 25, owner: two cards now,
+# Wail's -6 'cannot be ignored'): ALL enemies LOSE Strength this turn.
+# Scoped to the ALL variant -- singular 'Enemy loses N Strength' is the
+# pre-existing target_str_down machinery (Dark Shackles/Mangle, combat.py).
+_ENEMY_STR_DOWN = re.compile(r"\ball enem(?:y|ies) lose[s]? (\d+) Strength",
+                             re.IGNORECASE)
 _BLOCK_CARRYOVER = re.compile(
     r"next turn,? gain block equal to your current block", re.IGNORECASE)
 _LOSE_HP = re.compile(r"\bLose (\d+) HP", re.IGNORECASE)
@@ -164,6 +170,7 @@ class CardEffects:
     # COMPLETELY unaffected by the owner's attack modifiers (Str, Weak, Vigor)
     companion: bool = False
     enemy_strength: int = 0  # Fight Me!-class rider: "The enemy gains N Strength"
+    enemy_str_down: int = 0  # Piercing Wail class: enemies LOSE N Str this turn
     self_hp_cost: int = 0
     max_hp_cost: int = 0
     heal: int = 0
@@ -288,6 +295,9 @@ def parse_card_description(text: str | None) -> CardEffects:
         fx.recognized.append("companion")
     if m := _ENEMY_STRENGTH.search(text):
         fx.enemy_strength = int(m.group(1))
+    if m := _ENEMY_STR_DOWN.search(text):
+        fx.enemy_str_down = int(m.group(1))
+        fx.recognized.append("enemy_str_down")
         fx.recognized.append("enemy_strength")
     # NB search `full`: the "Next turn, ..." clause is exactly what the conditional-
     # sentence strip removes (same lesson as _RETALIATE below)
