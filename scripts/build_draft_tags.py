@@ -153,6 +153,9 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Item 27: moderate, no penalty (fires naturally on dumped-out turns;
     # Retain waits for the moment)
     "RESTLESSNESS": [("hand_dump", 1, "moderate", False)],
+    # Item 31: retrieval wants a premium fetch target (Cosmic Indifference
+    # convention)
+    "GRAVEBLAST": [("big_single_hit", 1, "mild", False)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -232,7 +235,10 @@ CONTROLLED_EXHAUST: dict[str, bool | str | float] = {
 # changes the card -- 'upgraded Hologram without exhaust is way better' even
 # on Ironclad; repeatable discard recursion vs a one-shot).
 UPGRADE_UNLOCKS = {"TRUE_GRIT", "STAMPEDE", "ARMAMENTS", "APOTHEOSIS", "PYRE",
-                   "HOLOGRAM"}
+                   "HOLOGRAM",
+                   # items 29/31 (2026-08-21): upgrades REMOVE Exhaust --
+                   # one-shot -> permanent cycler / repeatable recursion
+                   "THINKING_AHEAD", "GRAVEBLAST"}
 
 # ---------------------------------------------------------------- provides (audit + weights)
 # Frozen from the 12-agent audit output; magnitude weights below override the default 1.
@@ -424,6 +430,19 @@ PROVIDES: dict[str, list[str]] = {
     # Item 28 (owner + dispute agree): star GAIN, not star_cost_source --
     # rider-giver per the star-pair design, needs nothing.
     "SOLAR_STRIKE": ["star_source"],
+    # Item 29 (broadly approved): 0-cost draw-2 + topdeck-1. Synergy notes
+    # banked (owner): the draws feed Kingly Punch-class draw-scalers, and
+    # the TOPDECK is a (minor) Regent synergy space -- see I_AM_INVINCIBLE.
+    "THINKING_AHEAD": ["draw_engine", "exhaust_enabler"],
+    # Owner decode (item 29 thread): Regent, '10 Block, plays itself at end
+    # of turn if on top of the draw pile'. Topdeck synergy deliberately NOT
+    # a tag (owner: minor space); plain block provides.
+    "I_AM_INVINCIBLE": ["block_engine"],
+    # Item 30 (filed to future classes in the 'other' triage; provider baked
+    # as cheap insurance -- satisfies Mirage's poison need if ever drafted)
+    "DEADLY_POISON": ["poison_source"],
+    # Item 31 (broadly approved, Hologram-parallel; NOT wants-exhausted)
+    "GRAVEBLAST": ["exhaust_enabler"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],

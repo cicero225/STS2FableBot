@@ -442,6 +442,11 @@
     "expensive_attack": 1.0
    }
   },
+  "DEADLY_POISON": {
+   "provides": {
+    "poison_source": 1.0
+   }
+  },
   "DEBILITATE": {
    "provides": {
     "vulnerable_source": 1.0
@@ -743,6 +748,20 @@
     "big_single_hit": 1.0
    }
   },
+  "GRAVEBLAST": {
+   "provides": {
+    "exhaust_enabler": 1.0
+   },
+   "needs": [
+    {
+     "tag": "big_single_hit",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
+   ],
+   "upgrade_unlocks": true
+  },
   "HAILSTORM": {
    "needs": [
     {
@@ -928,6 +947,11 @@
    }
   },
   "IRON_WAVE": {
+   "provides": {
+    "block_engine": 1.0
+   }
+  },
+  "I_AM_INVINCIBLE": {
    "provides": {
     "block_engine": 1.0
    }
@@ -1609,6 +1633,13 @@
    "provides": {
     "aoe": 1.0
    }
+  },
+  "THINKING_AHEAD": {
+   "provides": {
+    "draw_engine": 1.0,
+    "exhaust_enabler": 1.0
+   },
+   "upgrade_unlocks": true
   },
   "THRASH": {
    "provides": {
