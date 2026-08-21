@@ -78,6 +78,13 @@ class _Card:
     # Lane 4b (owner GO 2026-08-20): delayed effect (turns, kind, value) --
     # The Bomb (3, 'aoe', 40), Hegemony-class (1, 'energy', n)
     pending: tuple | None = None
+    # Lane 4c (owner decode 2026-08-20): draw-fed scaling attacks (the
+    # Rampage family, fed by draws). Kingly Punch: +N damage each time THIS
+    # card is drawn; Murder: +N damage per ANY card drawn this combat --
+    # including the natural 5/turn (owner: 'scales even if you have no card
+    # draw cards').
+    grows_on_draw: int = 0
+    dmg_per_draw: int = 0
     cid: str = ""
     upgraded: bool = False  # Miniature Cannon: upgraded Attacks hit +3 per swing
 
@@ -199,6 +206,11 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             fx.aoe = "all" in text.lower()
         elif re.search(r"next turn, gain \[\w+_energy_icon", text, re.IGNORECASE):
             pending = (1, "energy", text.count("_energy_icon"))
+        # Lane 4c draw-fed scalers
+        gd = re.search(r"whenever you draw this card, increase its damage by (\d+)",
+                       text, re.IGNORECASE)
+        pd = re.search(r"deal (\d+) more damage for each card drawn", text,
+                       re.IGNORECASE)
         out.append(_Card(
             name=getattr(c, "name", "") or cid,
             cost=cost,
@@ -216,6 +228,8 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             ctype=ctype or "Attack",
             cid=cid,
             pending=pending,
+            grows_on_draw=int(gd.group(1)) if gd else 0,
+            dmg_per_draw=int(pd.group(1)) if pd else 0,
         ))
     return out
 
@@ -382,6 +396,7 @@ class _RolloutSim:
         # decrements and fires at zero. Cards enqueue via _PENDING_RE in
         # apply_card; more enqueuers land as their audit rows are approved.
         self.pending_fx: list[list] = []
+        self.draws_this_fight = 0  # lane 4c: Murder-class scaling + draw hooks
         self.growth: dict = {}  # Rampage-class per-card growth THIS rollout
         # (keyed by card object id -- _Card objects are shared across
         # rollouts, so mutating fx.damage would leak between iterations)
@@ -441,7 +456,14 @@ class _RolloutSim:
             self.draw, self.discard = self.discard, []
             self.rng.shuffle(self.draw)
         if self.draw:
-            self.hand.append(self.draw.pop())
+            drawn = self.draw.pop()
+            self.hand.append(drawn)
+            # Lane 4c draw hook (owner decode 2026-08-20): counter includes
+            # the natural 5/turn, so Murder scales draw-less decks too
+            self.draws_this_fight += 1
+            if drawn.grows_on_draw:  # Kingly Punch: rides the growth dict
+                self.growth[id(drawn)] = (self.growth.get(id(drawn), 0)
+                                          + drawn.grows_on_draw)
 
     def exhaust_event(self):
         self.n_exhausted += 1
@@ -540,8 +562,10 @@ class _RolloutSim:
                        else pick.fx.damage + self.my_str
                        # Rampage-class growth accumulated THIS rollout
                        + self.growth.get(id(pick), 0)
-                       - pick.fx.grows_per_play)  # growth counter includes
+                       - pick.fx.grows_per_play  # growth counter includes
                        # this play's own increment; damage grows AFTER
+                       # Murder-class: +N per card drawn this combat
+                       + pick.dmg_per_draw * self.draws_this_fight)
             if pick.upgraded and pick.ctype == "Attack":
                 per_hit += self.rfx.get("upgraded_attack_bonus", 0)  # Miniature Cannon
             if (pick.fx.requires_exhaust_pile
@@ -736,7 +760,12 @@ def _greedy_turn(sim: _RolloutSim) -> None:
                     if c.fx.total_damage > 0 or c.fx.dmg_equals_block]
 
             def per_hit(c):
-                return sim.block if c.fx.dmg_equals_block else c.fx.damage + sim.my_str
+                # mirror apply_card's dynamic terms or the chooser benches
+                # scalers (Murder sat at fx.damage=1 while worth 20+)
+                return (sim.block if c.fx.dmg_equals_block
+                        else c.fx.damage + sim.my_str
+                        + sim.growth.get(id(c), 0) - c.fx.grows_per_play
+                        + c.dmg_per_draw * sim.draws_this_fight)
 
             kill = [c for c in atks if per_hit(c) * c.fx.hits >= target.hp]
             vulners = [c for c in atks if c.fx.vulnerable > 0]

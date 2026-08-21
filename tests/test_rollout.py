@@ -466,3 +466,27 @@ def test_pending_effect_queue_bomb_and_next_turn_energy() -> None:
     with_bomb = rollout_fight(deck, [foe], 70, 70, card_effects=FX, n=20)
     assert (with_bomb.win_rate > base.win_rate
             or with_bomb.mean_turns < base.mean_turns)
+
+
+def test_draw_fed_scalers_murder_and_kingly_punch() -> None:
+    """Lane 4c (owner decode 2026-08-20): Murder gains +1 damage per card
+    drawn this combat INCLUDING the natural 5/turn (scales draw-less decks);
+    Kingly Punch grows +4 each time it is drawn. Both must out-forecast a
+    plain 8-damage attack over a long fight."""
+    def deck(scaler_desc):
+        return ([card("SCALER", desc=scaler_desc)]
+                + [card("STRIKE_IRONCLAD", desc="Deal 6 damage.")] * 4
+                + [card("DEFEND_IRONCLAD", typ="Skill", desc="Gain 5 Block.")] * 5)
+    foe = FightEnemy(hp=160, dps=8)
+    plain = rollout_fight(deck("Deal 8 damage."), [foe], 70, 70, n=25)
+    murder = rollout_fight(
+        deck("Deal 1 damage. Deal 1 more damage for each card drawn this combat."),
+        [foe], 70, 70, n=25)
+    kingly = rollout_fight(
+        deck("Deal 8 damage. Whenever you draw this card, increase its damage "
+             "by 4 this combat."),
+        [foe], 70, 70, n=25)
+    assert murder.win_rate >= plain.win_rate
+    assert kingly.win_rate >= plain.win_rate
+    assert (murder.mean_turns <= plain.mean_turns + 1e-9
+            or murder.win_rate > plain.win_rate)
