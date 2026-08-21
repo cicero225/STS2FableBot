@@ -327,6 +327,12 @@
     }
    ]
   },
+  "COLD_SNAP": {
+   "provides": {
+    "orb_source": 1.0,
+    "frost_source": 1.0
+   }
+  },
   "COLLISION_COURSE": {
    "needs": [
     {
@@ -396,6 +402,11 @@
      "penalty": true
     }
    ]
+  },
+  "CRUSH_UNDER": {
+   "provides": {
+    "aoe": 1.0
+   }
   },
   "DARK_EMBRACE": {
    "provides": {
@@ -977,6 +988,11 @@
   "MURDER": {
    "provides": {
     "expensive_attack": 1.0
+   }
+  },
+  "NOT_YET": {
+   "provides": {
+    "exhaust_enabler": 1.0
    }
   },
   "OFFERING": {

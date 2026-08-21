@@ -309,7 +309,6 @@ PROVIDES: dict[str, list[str]] = {
     "RAMPAGE": [],
     "FEED": [],
     "DARK_SHACKLES": ["front_load"],
-    "NOT_YET": [],
     "INFERNAL_BLADE": ["attack_generator"],
     "DISCOVERY": ["attack_generator"],
     "SECRET_WEAPON": ["attack_generator"],
@@ -341,6 +340,21 @@ PROVIDES: dict[str, list[str]] = {
     # NO upgrade_unlocks: '+Retain' is ordinary upgrade value, the flag is
     # for step-change unlocks (True Grit/Armaments class -- owner ruling).
     "WISP": ["energy_source"],
+    # Item 11 (owner 2026-08-20): orb decode -- unlike stars/Osty, orb cards
+    # are NOT dead solo (the game grants a first orb slot on your first
+    # channel); merely underrated outside Defect. Orb model banked: channel ->
+    # slot, per-turn passive + evoke on leaving, overflow evokes oldest,
+    # Focus scales both. frost_source joins the vocabulary alongside
+    # orb_source (both owner-approved).
+    "COLD_SNAP": ["orb_source", "frost_source"],
+    # Item 12 (approved; Regent card): plain aoe; the '-1 Str to ALL this
+    # turn' rider has no synergy vocabulary (owner concurs) -- a possible
+    # rollout nuance, filed.
+    "CRUSH_UNDER": ["aoe"],
+    # Item 13 (approved provides, flag STRUCK): exhausts itself ON PLAY =
+    # active exhaust feed; NOT the deliberate-exhaust class (owner, same
+    # Defile precedent -- that flag means True Grit+ target material).
+    "NOT_YET": ["exhaust_enabler"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],
