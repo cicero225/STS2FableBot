@@ -141,6 +141,10 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Devastate costs 4 STARS on top of 1 energy (3 live observations;
     # catalog star-blindness again) -> star-pair need.
     "DEVASTATE": [("star_source", 1, "strong", True)],
+    # Item 17 (approved; owner: Souls are a NECROBINDER mechanic -- this card
+    # depends on soul generation to function). Providers exist in-table
+    # (Reave, Severance) per the verifier amendment.
+    "HAUNT": [("soul_source", 1, "strong", True)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -215,7 +219,11 @@ CONTROLLED_EXHAUST: dict[str, bool | str | float] = {
     "STOKE": 2.0,
 }
 # review #5/#6/#15/#30: the upgrade crosses a class boundary
-UPGRADE_UNLOCKS = {"TRUE_GRIT", "STAMPEDE", "ARMAMENTS", "APOTHEOSIS", "PYRE"}
+# HOLOGRAM added 2026-08-20 (owner: dropping Exhaust on upgrade fundamentally
+# changes the card -- 'upgraded Hologram without exhaust is way better' even
+# on Ironclad; repeatable discard recursion vs a one-shot).
+UPGRADE_UNLOCKS = {"TRUE_GRIT", "STAMPEDE", "ARMAMENTS", "APOTHEOSIS", "PYRE",
+                   "HOLOGRAM"}
 
 # ---------------------------------------------------------------- provides (audit + weights)
 # Frozen from the 12-agent audit output; magnitude weights below override the default 1.
@@ -374,6 +382,9 @@ PROVIDES: dict[str, list[str]] = {
     "NOT_YET": ["exhaust_enabler"],
     # Item 15: a premium hit WHEN payable (star cost carried in needs/veto)
     "DEVASTATE": ["big_single_hit"],
+    # Item 18 (approved, flag struck): a card that exhausts, NOT one you
+    # deliberately exhaust (3rd confirmation of the tightened class-1 rule).
+    "HOLOGRAM": ["exhaust_enabler"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],

@@ -742,6 +742,16 @@
     "expensive_attack": 1.0
    }
   },
+  "HAUNT": {
+   "needs": [
+    {
+     "tag": "soul_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
+  },
   "HAVOC": {
    "needs": [
     {
@@ -814,6 +824,12 @@
      "penalty": true
     }
    ]
+  },
+  "HOLOGRAM": {
+   "provides": {
+    "exhaust_enabler": 1.0
+   },
+   "upgrade_unlocks": true
   },
   "HOWL_FROM_BEYOND": {
    "provides": {
