@@ -270,6 +270,16 @@
     }
    ]
   },
+  "CATASTROPHE": {
+   "needs": [
+    {
+     "tag": "__attacks",
+     "threshold": 10,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
+  },
   "CELESTIAL_MIGHT": {
    "provides": {
     "multi_hit": 1.0,
@@ -662,6 +672,12 @@
     }
    ]
   },
+  "FINESSE": {
+   "provides": {
+    "block_engine": 1.0,
+    "draw_engine": 1.0
+   }
+  },
   "FISTICUFFS": {
    "provides": {
     "block_engine": 1.0
@@ -830,6 +846,19 @@
     "exhaust_enabler": 1.0
    },
    "upgrade_unlocks": true
+  },
+  "HOTFIX": {
+   "provides": {
+    "exhaust_enabler": 0.5
+   },
+   "needs": [
+    {
+     "tag": "orb_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "HOWL_FROM_BEYOND": {
    "provides": {
@@ -1213,6 +1242,14 @@
     "summon_source": 1.0,
     "block_engine": 1.0
    }
+  },
+  "PURITY": {
+   "provides": {
+    "exhaust_enabler": 3.0,
+    "deck_thinning": 1.0,
+    "retain": 1.0
+   },
+   "controlled_exhaust": 2.0
   },
   "PYRE": {
    "provides": {

@@ -145,6 +145,11 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # depends on soul generation to function). Providers exist in-table
     # (Reave, Severance) per the verifier amendment.
     "HAUNT": [("soul_source", 1, "strong", True)],
+    # Item 20 (approved): Havoc/Cascade family -- value = avg deck quality
+    "CATASTROPHE": [("__attacks", 10, "moderate", False)],
+    # Item 22 (approved): Focus-this-turn is dead without orbs (owner);
+    # channelers provide orb_source so the need is satisfiable in-pool
+    "HOTFIX": [("orb_source", 1, "strong", True)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -217,6 +222,7 @@ COPY_CAP = {"BARRICADE"}
 CONTROLLED_EXHAUST: dict[str, bool | str | float] = {
     "BRAND": True, "BURNING_PACT": True, "TRUE_GRIT": "upgraded",
     "STOKE": 2.0,
+    "PURITY": 2.0,  # item 19 approved: up to 3 chosen exhausts per play
 }
 # review #5/#6/#15/#30: the upgrade crosses a class boundary
 # HOLOGRAM added 2026-08-20 (owner: dropping Exhaust on upgrade fundamentally
@@ -385,6 +391,13 @@ PROVIDES: dict[str, list[str]] = {
     # Item 18 (approved, flag struck): a card that exhausts, NOT one you
     # deliberately exhaust (3rd confirmation of the tightened class-1 rule).
     "HOLOGRAM": ["exhaust_enabler"],
+    # Item 19 (approved): premium controlled mass-exhaust
+    "PURITY": ["exhaust_enabler", "deck_thinning", "retain"],
+    # Item 21 (approved): Shrug It Off shape
+    "FINESSE": ["block_engine", "draw_engine"],
+    # Item 22 amendment (owner: technically an enabler but WEAK -- keep the
+    # weight low so it never outweighs real enablers)
+    "HOTFIX": ["exhaust_enabler"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],
@@ -425,6 +438,8 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "FEEL_NO_PAIN": {"block_engine": 2.0},  # procs per exhaust
     "RAGE": {"block_engine": 2.0},          # procs per attack
     "UP_MY_SLEEVE": {"shiv_source": 3.0},   # 3 Shivs per play
+    "PURITY": {"exhaust_enabler": 3.0},     # item 19: up to 3 procs per play
+    "HOTFIX": {"exhaust_enabler": 0.5},     # item 22 owner: weak enabler value
 }
 
 
