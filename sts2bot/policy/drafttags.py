@@ -125,6 +125,21 @@ def deck_tag_weights(deck) -> dict[str, float]:
         sum(1 for c in deck if (getattr(c, "type", "") or "") == "Power"))
     counts["__zero_cost"] = float(
         sum(1 for c in deck if str(getattr(c, "cost", "") or "") == "0"))
+    # BUG FIX 2026-08-21 (found via audit item 36, owner's cheap-attacks
+    # question): __attacks and __cheap_attacks were consumed by SEVEN needs
+    # rows since the July table (Rage/Juggling/Stomp/Expect a Fight/Stampede/
+    # Havoc/Cascade + Catastrophe/Pillage) but NEVER computed here -- bonuses
+    # never paid and the penalty rows docked every deck, attack-dense or not.
+    # cheap = cost <= 1, matching the Daughter-of-the-Wind helper.
+    n_atk = n_cheap = 0
+    for c in deck:
+        if (getattr(c, "type", "") or "") == "Attack":
+            n_atk += 1
+            cost = str(getattr(c, "cost", "") or "")
+            if cost.isdigit() and int(cost) <= 1:
+                n_cheap += 1
+    counts["__attacks"] = float(n_atk)
+    counts["__cheap_attacks"] = float(n_cheap)
     # Curse-exhaust edge cases (owner, re-raised 2026-07-25): a RETAIN curse parks in
     # hand once drawn (pseudo-outside the deck) and an ETHEREAL curse exhausts ITSELF
     # at end of turn — neither needs an exhaust enabler. (Owner nuance: a retain curse

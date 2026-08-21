@@ -156,6 +156,11 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Item 31: retrieval wants a premium fetch target (Cosmic Indifference
     # convention)
     "GRAVEBLAST": [("big_single_hit", 1, "mild", False)],
+    # Item 33: trigger frequency rides cycling speed
+    "STRATAGEM": [("draw_engine", 1, "mild", False)],
+    # Item 35: threshold 2 like Shroud (owner: needs consistent doom), but
+    # NO penalty -- the 6-block baseline keeps it playable
+    "DEATHS_DOOR": [("doom_source", 2, "strong", False)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -238,7 +243,8 @@ UPGRADE_UNLOCKS = {"TRUE_GRIT", "STAMPEDE", "ARMAMENTS", "APOTHEOSIS", "PYRE",
                    "HOLOGRAM",
                    # items 29/31 (2026-08-21): upgrades REMOVE Exhaust --
                    # one-shot -> permanent cycler / repeatable recursion
-                   "THINKING_AHEAD", "GRAVEBLAST"}
+                   "THINKING_AHEAD", "GRAVEBLAST",
+                   "KNOW_THY_PLACE"}  # item 32: upgrade drops Exhaust
 
 # ---------------------------------------------------------------- provides (audit + weights)
 # Frozen from the 12-agent audit output; magnitude weights below override the default 1.
@@ -443,11 +449,24 @@ PROVIDES: dict[str, list[str]] = {
     "DEADLY_POISON": ["poison_source"],
     # Item 31 (broadly approved, Hologram-parallel; NOT wants-exhausted)
     "GRAVEBLAST": ["exhaust_enabler"],
+    # Item 32 (approved; Regent card): 0-cost double debuff
+    "KNOW_THY_PLACE": ["vulnerable_source", "weak_source"],
+    # Item 33 (approved; rollout tutor stays deferred per lane 4c)
+    "STRATAGEM": ["draw_engine"],
+    # Item 34 (approved; owner surprised it was uncovered): repeatable AoE +
+    # hp-loss feeder for the Rupture/Inferno/Tear Asunder package
+    "BREAKTHROUGH": ["aoe", "self_hp_loss_source"],
+    # Item 35 (owner: NOT dead without doom, 'only slightly better than a
+    # basic defend' -- real block baseline, unlike Shroud's zero)
+    "DEATHS_DOOR": ["block_engine"],
+    # Item 36 (mostly approved): 0-cost cantrip; ALSO counts toward
+    # __cheap_attacks automatically -- the owner's question exposed that the
+    # pseudo-tag was never computed (fixed in drafttags 2026-08-21)
+    "FLASH_OF_STEEL": ["draw_engine"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],
     "SLICE": [],
-    "FLASH_OF_STEEL": [],
     "DRAMATIC_ENTRANCE": ["aoe", "front_load"],
     "SNAP": ["companion_attack", "retain"],
     "UNLEASH": ["companion_attack"],

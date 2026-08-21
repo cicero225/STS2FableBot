@@ -5,7 +5,7 @@ mirroring how policy tests use the real policy config.
 """
 
 from sts2bot.kb.config import load_policy_config
-from sts2bot.policy.drafttags import load_draft_tags, score_adjustment
+from sts2bot.policy.drafttags import deck_tag_weights, load_draft_tags, score_adjustment
 
 W = load_policy_config().card_rewards
 TAGS = load_draft_tags()
@@ -592,3 +592,17 @@ def test_insatiable_rule_names_barricade() -> None:
     rule = _boss_draft_rule("The Insatiable")
     assert rule and rule["min_block"] == 9 and rule["rest_loss_bonus"] > 0
     assert rule["card_bonus"]["BARRICADE"] > 0
+
+
+def test_attack_density_pseudo_tags_are_computed() -> None:
+    """Bug found via audit item 36 (owner's cheap-attacks question): __attacks
+    and __cheap_attacks were consumed by seven needs rows but never computed --
+    Rage's penalty docked even attack-dense decks."""
+    from types import SimpleNamespace as NS
+    def c(cid, typ="Attack", cost="1"):
+        return NS(id=cid, name=cid.title(), type=typ, cost=cost, is_upgraded=False)
+    deck = ([c("STRIKE_IRONCLAD")] * 5 + [c("ANGER", cost="0")] * 2
+            + [c("BLUDGEON", cost="3")] + [c("DEFEND_IRONCLAD", typ="Skill")] * 4)
+    counts = deck_tag_weights(deck)
+    assert counts["__attacks"] == 8.0        # 5 strikes + 2 angers + bludgeon
+    assert counts["__cheap_attacks"] == 7.0  # bludgeon (cost 3) excluded

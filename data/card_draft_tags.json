@@ -226,6 +226,12 @@
    ],
    "controlled_exhaust": true
   },
+  "BREAKTHROUGH": {
+   "provides": {
+    "aoe": 1.0,
+    "self_hp_loss_source": 1.0
+   }
+  },
   "BULLY": {
    "provides": {
     "vulnerable_payoff": 1.0
@@ -446,6 +452,19 @@
    "provides": {
     "poison_source": 1.0
    }
+  },
+  "DEATHS_DOOR": {
+   "provides": {
+    "block_engine": 1.0
+   },
+   "needs": [
+    {
+     "tag": "doom_source",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": false
+    }
+   ]
   },
   "DEBILITATE": {
    "provides": {
@@ -699,6 +718,11 @@
   "FLAME_BARRIER": {
    "provides": {
     "block_engine": 1.0
+   }
+  },
+  "FLASH_OF_STEEL": {
+   "provides": {
+    "draw_engine": 1.0
    }
   },
   "FLATTEN": {
@@ -1002,6 +1026,13 @@
    "provides": {
     "expensive_attack": 1.0
    }
+  },
+  "KNOW_THY_PLACE": {
+   "provides": {
+    "vulnerable_source": 1.0,
+    "weak_source": 1.0
+   },
+   "upgrade_unlocks": true
   },
   "LETHALITY": {
    "provides": {
@@ -1586,6 +1617,19 @@
     "block_engine": 3.0,
     "power_setup": 1.0
    }
+  },
+  "STRATAGEM": {
+   "provides": {
+    "draw_engine": 1.0
+   },
+   "needs": [
+    {
+     "tag": "draw_engine",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
+   ]
   },
   "SUNDER": {
    "provides": {
