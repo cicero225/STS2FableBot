@@ -98,12 +98,14 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # lost HP' -- enemy chip counts), decent solo -> moderate bonus, no penalty.
     "INFERNO": [("self_hp_loss_source", 1, "strong", False)],
     "TEAR_ASUNDER": [("self_hp_loss_source", 1, "moderate", False)],
-    # Bombardment (owner 2026-08-20, 'other' bucket not-skippable): prefers
-    # being EXHAUSTED over paying 3 energy, but bootstraps by direct play
-    # (it self-exhausts and then self-plays every turn) -> bonus, no penalty.
-    # Busted with Music Box (copies exhaust themselves) -- relic-conditional
-    # value noted in relic_notes, not encodable as a card tag.
-    "BOMBARDMENT": [("exhaust_enabler", 1, "moderate", False)],
+    # (Bombardment's exhaust_enabler need was ALREADY in the July table above;
+    # owner decode 2026-08-20 confirms it: prefers exhausted over 3 energy but
+    # bootstraps by direct play. Music Box interplay in relic_notes.)
+    # Audit #2 §2 approvals (owner 2026-08-20): item 1 as proposed; item 3
+    # corrected -- Cloak of Stars costs 1 STAR (catalog is blind to star_cost;
+    # verified from live payloads, 4 observations) -> star pair semantics.
+    "ACCURACY": [("shiv_source", 2, "strong", True)],
+    "CLOAK_OF_STARS": [("star_source", 1, "strong", True)],
     # ---- strength / multi-hit package (all bonus-only)
     "CONFLAGRATION": [("strength_source", 1, "moderate", False)],
     "WHIRLWIND": [("strength_source", 1, "moderate", False),
@@ -204,8 +206,10 @@ PROVIDES: dict[str, list[str]] = {
     "CINDER": ["exhaust_enabler", "big_single_hit"],
     "STOKE": ["exhaust_enabler", "hand_dump"],
     "SHIV": ["exhaust_enabler"],
-    "CLOAK_AND_DAGGER": ["exhaust_enabler", "block_engine"],
-    "UP_MY_SLEEVE": ["exhaust_enabler", "multi_hit"],
+    # shiv_source added 2026-08-20 (Accuracy dependency; Shivs exhaust, hence
+    # the July exhaust_enabler reads stay)
+    "CLOAK_AND_DAGGER": ["exhaust_enabler", "block_engine", "shiv_source"],
+    "UP_MY_SLEEVE": ["exhaust_enabler", "multi_hit", "shiv_source"],
     "LUMINESCE": ["exhaust_enabler", "energy_source"],
     "OFFERING": ["self_hp_loss_source", "energy_source", "draw_engine", "front_load"],
     "HEMOKINESIS": ["self_hp_loss_source", "front_load"],
@@ -311,6 +315,11 @@ PROVIDES: dict[str, list[str]] = {
     # on-turn hp loss); its own 1/turn start-of-turn loss makes it a source too
     "INFERNO": ["self_hp_loss_source", "aoe", "power_setup"],
     "TEAR_ASUNDER": ["big_single_hit"],
+    # §2 approvals 2026-08-20: Blur dispute upheld (block_engine only --
+    # 'retain' is the hand keyword, Blur retains BLOCK); shiv providers baked
+    # with Accuracy's need (audit dependency note); Cloak of Stars block.
+    "BLUR": ["block_engine"],
+    "CLOAK_OF_STARS": ["block_engine"],
 }
 
 # per-proc autoblock (review #12/#26): recurring block counts as MORE than one card
@@ -318,6 +327,7 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "STONE_ARMOR": {"block_engine": 3.0},   # Plating procs every turn
     "FEEL_NO_PAIN": {"block_engine": 2.0},  # procs per exhaust
     "RAGE": {"block_engine": 2.0},          # procs per attack
+    "UP_MY_SLEEVE": {"shiv_source": 3.0},   # 3 Shivs per play
 }
 
 

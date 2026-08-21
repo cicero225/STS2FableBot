@@ -100,6 +100,10 @@ class _Card:
     # damage loop that also procs exhaust engines like FNP).
     extra_hits_per_hp_loss: bool = False
     selfplay_exhaust: bool = False
+    # Blur-class (owner ruling on audit item 2): BLOCK persistence, not the
+    # Retain hand keyword -- this turn's block survives one turn boundary.
+    # (Barricade = permanent flag; Sturdy Clamp relic = capped persistence.)
+    keeps_block: bool = False
     cid: str = ""
     upgraded: bool = False  # Miniature Cannon: upgraded Attacks hit +3 per swing
 
@@ -247,6 +251,9 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
         selfplay = bool(re.search(
             r"if this (?:card )?is in your exhaust pile, play it", text,
             re.IGNORECASE))
+        keeps_blk = bool(re.search(
+            r"block is not (?:lost|removed) at the (?:start of your next turn|"
+            r"end of (?:your )?turn)", text, re.IGNORECASE))
         out.append(_Card(
             name=getattr(c, "name", "") or cid,
             cost=cost,
@@ -272,6 +279,7 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             vigor_per_turn=vig_pt,
             extra_hits_per_hp_loss=extra_hits,
             selfplay_exhaust=selfplay,
+            keeps_block=keeps_blk,
         ))
     return out
 
@@ -378,6 +386,9 @@ _RELIC_FX = {
     # live fights see it in player.block for free; the multi-turn boss
     # estimate must add it or Sai runs read ~7/turn too fragile.
     "SAI": ("start_block_per_turn", 7),
+    # Sturdy Clamp (owner ruling on audit item 2's block-persistence family):
+    # 'Up to 10 Block persists across turns' -- capped carryover, text verified
+    "STURDY_CLAMP": ("block_persist_cap", 10),
 }
 
 
@@ -447,6 +458,7 @@ class _RolloutSim:
         self.vigor = 0
         self.hp_loss_events = 0  # Tear Asunder: ANY hp loss counts (owner)
         self.autoplay_exh: list = []  # Bombardment-class self-play loop
+        self.keep_block_once = False  # Blur-class one-boundary block keep
         self.growth: dict = {}  # Rampage-class per-card growth THIS rollout
         # (keyed by card object id -- _Card objects are shared across
         # rollouts, so mutating fx.damage would leak between iterations)
@@ -531,7 +543,12 @@ class _RolloutSim:
         self.my_str += self.rfx.get("brimstone", 0)  # our +2/turn half
         rfx = self.rfx
         if not self.barricade:
-            self.block = 0
+            if self.keep_block_once:  # Blur (owner ruling: block, not Retain)
+                self.keep_block_once = False
+            else:
+                # Sturdy Clamp: up to 10 block persists across turns
+                self.block = min(self.block,
+                                 self.rfx.get("block_persist_cap", 0))
         self.block += rfx.get("start_block_per_turn", 0)
         self.block += self.pending_block  # Prolong-class delivery
         self.pending_block = 0
@@ -604,6 +621,8 @@ class _RolloutSim:
         # zero-fx skill would never be picked).
         if pick.pending:
             self.pending_fx.append(list(pick.pending))
+        if pick.keeps_block:
+            self.keep_block_once = True
         # Player-power per-turn registrations + one-shot Dex (owner lane split)
         self.p_str_pt += pick.str_per_turn
         self.p_block_pt += pick.block_per_turn

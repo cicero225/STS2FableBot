@@ -1,6 +1,16 @@
 {
  "note": "card-pass step 2 tag table (owner-reviewed 2026-07-12; CARD_PASS_STEP2_PROPOSAL.md review log is the authority). Rebuild: scripts/build_draft_tags.py",
  "tags": {
+  "ACCURACY": {
+   "needs": [
+    {
+     "tag": "shiv_source",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
+  },
   "ACROBATICS": {
    "provides": {
     "draw_engine": 1.0
@@ -151,6 +161,11 @@
     "expensive_attack": 1.0
    }
   },
+  "BLUR": {
+   "provides": {
+    "block_engine": 1.0
+   }
+  },
   "BODYGUARD": {
    "provides": {
     "summon_source": 1.0
@@ -287,7 +302,8 @@
   "CLOAK_AND_DAGGER": {
    "provides": {
     "exhaust_enabler": 1.0,
-    "block_engine": 1.0
+    "block_engine": 1.0,
+    "shiv_source": 1.0
    },
    "needs": [
     {
@@ -295,6 +311,19 @@
      "threshold": 1,
      "strength": "mild",
      "penalty": false
+    }
+   ]
+  },
+  "CLOAK_OF_STARS": {
+   "provides": {
+    "block_engine": 1.0
+   },
+   "needs": [
+    {
+     "tag": "star_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
     }
    ]
   },
@@ -1467,7 +1496,8 @@
   "UP_MY_SLEEVE": {
    "provides": {
     "exhaust_enabler": 1.0,
-    "multi_hit": 1.0
+    "multi_hit": 1.0,
+    "shiv_source": 3.0
    },
    "needs": [
     {

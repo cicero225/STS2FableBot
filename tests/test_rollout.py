@@ -542,3 +542,26 @@ def test_other_bucket_tear_asunder_and_bombardment() -> None:
         [foe], 70, 70, n=25)
     assert (bomb.win_rate > plain.win_rate
             or bomb.mean_turns < plain.mean_turns)
+
+
+def test_blur_keeps_block_one_turn_and_sturdy_clamp_caps() -> None:
+    """Owner ruling on audit item 2: Blur retains BLOCK (not the Retain hand
+    keyword) for one boundary; Sturdy Clamp persists up to 10 permanently."""
+    base = ([card("STRIKE_IRONCLAD", desc="Deal 6 damage.")] * 4
+            + [card("DEFEND_IRONCLAD", typ="Skill", desc="Gain 5 Block.")] * 5)
+    foe = FightEnemy(hp=140, dps=13)
+    plain = rollout_fight(
+        [*base, card("POKE", typ="Skill", desc="Gain 5 Block.")],
+        [foe], 60, 60, n=25)
+    blur = rollout_fight(
+        [*base, card("BLUR", typ="Skill",
+                     desc="Gain 5 Block. Block is not removed at the start of "
+                          "your next turn.")],
+        [foe], 60, 60, n=25)
+    assert blur.exp_end_hp >= plain.exp_end_hp
+    from types import SimpleNamespace as NS
+    clamp = NS(id="STURDY_CLAMP", name="Sturdy Clamp", counter=None)
+    with_clamp = rollout_fight([*base, card("POKE", typ="Skill",
+                                            desc="Gain 5 Block.")],
+                               [foe], 60, 60, n=25, relics=[clamp])
+    assert with_clamp.exp_end_hp > plain.exp_end_hp

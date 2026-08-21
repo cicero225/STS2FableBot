@@ -48,6 +48,13 @@ def main() -> int:
         # runs put off-class cards in many characters' Spirebird tables). The
         # API exposes no color field (wiki + compendium probed), so the owner's
         # mapping is ground truth. Extend as more mislabels surface.
+        # Star costs (owner catch 2026-08-20, Cloak of Stars): the wiki
+        # endpoint exposes NO star_cost field, so the catalog was blind to
+        # star economy -- the audit mis-read Cloak of Stars as a free block
+        # card. Ground truth = live payloads (deck/reward cards carry
+        # star_cost); verified values are pinned here. TODO: probe the wiki
+        # base dict for a star field next time the game is up.
+        star_costs = {"CLOAK_OF_STARS": "1"}
         overrides = {
             "INFERNO": "IRONCLAD", "TEAR_ASUNDER": "IRONCLAD",
             "THE_SMITH": "REGENT", "CRUSH_UNDER": "REGENT", "ALIGNMENT": "REGENT",
@@ -77,6 +84,7 @@ def main() -> int:
                 "type": entry.get("type"),
                 "rarity": entry.get("rarity"),
                 "character": character,
+                "star_cost": star_costs.get(cid),
                 "cost": base.get("cost"),
                 "text": base.get("description"),
                 "cost_upgraded": upg.get("cost"),
