@@ -291,6 +291,18 @@ PROVIDES: dict[str, list[str]] = {
     "BOLAS": ["multi_hit"],
     "ONE_TWO_PUNCH": ["attack_density_payoff"],
     "LETHALITY": ["exhaust_enabler"],  # review #22: ethereal self-exhaust = fodder
+    # Defile (audit #2 item 4, owner 2026-08-20): same Lethality precedent --
+    # ethereal auto-exhaust IF UNPLAYED is a passive side benefit to exhaust
+    # benefactors. Owner ruling: NOT the 'wants-to-be-exhausted' class (that
+    # means DELIBERATE exhaustion, Howl/Bombardment); you normally play it.
+    # Necrobinder note banked: that class carries most Ethereal cards now,
+    # and Ethereal is an indirect exhaust with heavy interaction.
+    "DEFILE": ["exhaust_enabler"],
+    # Flick-Flack (item 5, approved): plain aoe. Sly decode (owner): 'this
+    # card is played when DISCARDED' -- benefits from discard outlets;
+    # primarily Silent. Sly/discard_source pair banked for future classes
+    # (no Ironclad discard outlets in the current pool).
+    "FLICK_FLACK": ["aoe"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],

@@ -434,6 +434,11 @@
     }
    ]
   },
+  "DEFILE": {
+   "provides": {
+    "exhaust_enabler": 1.0
+   }
+  },
   "DEMON_FORM": {
    "provides": {
     "strength_source": 1.0,
@@ -654,6 +659,11 @@
   "FLATTEN": {
    "provides": {
     "expensive_attack": 1.0
+   }
+  },
+  "FLICK_FLACK": {
+   "provides": {
+    "aoe": 1.0
    }
   },
   "FORGOTTEN_RITUAL": {
