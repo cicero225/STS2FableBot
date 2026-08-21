@@ -490,3 +490,29 @@ def test_draw_fed_scalers_murder_and_kingly_punch() -> None:
     assert kingly.win_rate >= plain.win_rate
     assert (murder.mean_turns <= plain.mean_turns + 1e-9
             or murder.win_rate > plain.win_rate)
+
+
+def test_player_power_lane_split_demon_form_and_crimson_mantle() -> None:
+    """Owner lane split 2026-08-20: Demon Form is +3 Str PER TURN (the generic
+    'Gain N Strength' regex mis-read it as one-shot); Crimson Mantle is a
+    per-turn block engine with a per-turn HP tax; Footwork's one-shot Dex
+    pays per block card played."""
+    base = ([card("STRIKE_IRONCLAD", desc="Deal 6 damage.")] * 5
+            + [card("DEFEND_IRONCLAD", typ="Skill", desc="Gain 5 Block.")] * 4)
+    foe = FightEnemy(hp=200, dps=10)
+    inflame = rollout_fight(
+        [*base, card("INFLAME", typ="Power", desc="Gain 2 Strength.")],
+        [foe], 70, 70, n=25)
+    demon = rollout_fight(
+        [*base, card("DEMON_FORM", typ="Power", cost="3",
+                     desc="At the start of your turn, gain 3 Strength.")],
+        [foe], 70, 70, n=25)
+    # a per-turn ramp must out-forecast a one-shot +2 over a 200hp fight
+    assert (demon.win_rate > inflame.win_rate
+            or demon.mean_turns < inflame.mean_turns)
+    mantle = rollout_fight(
+        [*base, card("CRIMSON_MANTLE", typ="Power",
+                     desc="At the start of your turn lose 1 HP and gain 7 Block.")],
+        [foe], 70, 70, n=25)
+    plain = rollout_fight(base, [foe], 70, 70, n=25)
+    assert mantle.exp_end_hp > plain.exp_end_hp  # block engine nets over the tax

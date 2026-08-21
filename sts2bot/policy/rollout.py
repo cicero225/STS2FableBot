@@ -85,6 +85,14 @@ class _Card:
     # draw cards').
     grows_on_draw: int = 0
     dmg_per_draw: int = 0
+    # Player-power lane split (owner 2026-08-20): per-turn RE-APPLYING effects
+    # (Crimson Mantle block+hp loss, Prep Time Vigor) vs per-turn STAT RAMP
+    # (Demon Form +3 Str/turn -- the generic 'Gain N Strength' regex mis-read
+    # it as one-shot until this split) vs one-shot stats (fx.strength/dexterity).
+    str_per_turn: int = 0
+    block_per_turn: int = 0
+    hp_loss_per_turn: int = 0
+    vigor_per_turn: int = 0
     cid: str = ""
     upgraded: bool = False  # Miniature Cannon: upgraded Attacks hit +3 per swing
 
@@ -211,6 +219,22 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
                        text, re.IGNORECASE)
         pd = re.search(r"deal (\d+) more damage for each card drawn", text,
                        re.IGNORECASE)
+        # Player-power per-turn lane: effects inside a start-of-turn clause
+        spt = re.search(r"at the start of (?:your|each) turn[^.]*", text,
+                        re.IGNORECASE)
+        clause = spt.group(0) if spt else ""
+        str_pt = int(m2.group(1)) if (
+            m2 := re.search(r"gain (\d+) strength", clause, re.IGNORECASE)) else 0
+        if str_pt:  # Demon Form-class: undo the generic one-shot mis-read
+            fx.strength = max(0, fx.strength - str_pt)
+        blk_pt = int(m2.group(1)) if (
+            m2 := re.search(r"gain (\d+) block", clause, re.IGNORECASE)) else 0
+        if blk_pt:  # Crimson Mantle-class: per-turn block is not play-time block
+            fx.block = max(0, fx.block - blk_pt)
+        hpl_pt = int(m2.group(1)) if (
+            m2 := re.search(r"lose (\d+) hp", clause, re.IGNORECASE)) else 0
+        vig_pt = int(m2.group(1)) if (
+            m2 := re.search(r"gain (\d+) vigor", clause, re.IGNORECASE)) else 0
         out.append(_Card(
             name=getattr(c, "name", "") or cid,
             cost=cost,
@@ -230,6 +254,10 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             pending=pending,
             grows_on_draw=int(gd.group(1)) if gd else 0,
             dmg_per_draw=int(pd.group(1)) if pd else 0,
+            str_per_turn=str_pt,
+            block_per_turn=blk_pt,
+            hp_loss_per_turn=hpl_pt,
+            vigor_per_turn=vig_pt,
         ))
     return out
 
@@ -397,6 +425,12 @@ class _RolloutSim:
         # apply_card; more enqueuers land as their audit rows are approved.
         self.pending_fx: list[list] = []
         self.draws_this_fight = 0  # lane 4c: Murder-class scaling + draw hooks
+        # Player-power per-turn accumulators (owner lane split 2026-08-20)
+        self.p_str_pt = 0     # Demon Form-class ramp
+        self.p_block_pt = 0   # Crimson Mantle-class per-turn block
+        self.p_hploss_pt = 0  # Crimson Mantle's per-turn HP tax
+        self.p_vigor_pt = 0   # Prep Time-class: next attack +N per hit
+        self.vigor = 0
         self.growth: dict = {}  # Rampage-class per-card growth THIS rollout
         # (keyed by card object id -- _Card objects are shared across
         # rollouts, so mutating fx.damage would leak between iterations)
@@ -485,6 +519,15 @@ class _RolloutSim:
         self.block += rfx.get("start_block_per_turn", 0)
         self.block += self.pending_block  # Prolong-class delivery
         self.pending_block = 0
+        # Player-power per-turn deliveries (owner lane split 2026-08-20)
+        self.my_str += self.p_str_pt
+        self.block += self.p_block_pt
+        self.vigor = self.p_vigor_pt
+        if self.p_hploss_pt:
+            self.hp -= self.p_hploss_pt
+            if self.hp <= 0:
+                self.outcome = (False, 0)
+                return
         if self.turn == 1:
             self.block += rfx.get("t1_block", 0)
             self.my_str += self.spend("strength")  # fight-start buffs (live lane 4)
@@ -535,6 +578,12 @@ class _RolloutSim:
         # zero-fx skill would never be picked).
         if pick.pending:
             self.pending_fx.append(list(pick.pending))
+        # Player-power per-turn registrations + one-shot Dex (owner lane split)
+        self.p_str_pt += pick.str_per_turn
+        self.p_block_pt += pick.block_per_turn
+        self.p_hploss_pt += pick.hp_loss_per_turn
+        self.p_vigor_pt += pick.vigor_per_turn
+        self.my_dex += pick.fx.dexterity
         self_cost = pick.fx.self_hp_cost
         if self_cost > 0 and self.rfx.get("hp_loss_reduction"):
             self_cost = max(0, self_cost - self.rfx["hp_loss_reduction"])  # Tungsten Rod
@@ -565,12 +614,16 @@ class _RolloutSim:
                        - pick.fx.grows_per_play  # growth counter includes
                        # this play's own increment; damage grows AFTER
                        # Murder-class: +N per card drawn this combat
-                       + pick.dmg_per_draw * self.draws_this_fight)
+                       + pick.dmg_per_draw * self.draws_this_fight
+                       # Prep Time-class Vigor: next attack +N PER HIT
+                       + (self.vigor if pick.is_attack else 0))
             if pick.upgraded and pick.ctype == "Attack":
                 per_hit += self.rfx.get("upgraded_attack_bonus", 0)  # Miniature Cannon
             if (pick.fx.requires_exhaust_pile
                     and self.n_exhausted < pick.fx.requires_exhaust_pile):
                 per_hit = 0  # Pact's End-class: condition unmet, damage is a mirage
+            if pick.is_attack:
+                self.vigor = 0  # Vigor spends on the NEXT attack only
             for f in tgts:
                 if f is None or f.hp <= 0 or f.dormant:
                     continue

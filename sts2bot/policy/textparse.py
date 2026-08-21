@@ -86,6 +86,7 @@ _ENERGY_ICON = re.compile(r"\[[a-z_]*energy[a-z_]*\.png\]", re.IGNORECASE)
 _VULN = re.compile(r"\bApply (\d+) Vulnerable", re.IGNORECASE)
 _WEAK = re.compile(r"\bApply (\d+) Weak", re.IGNORECASE)
 _STRENGTH = re.compile(r"\bGain (\d+) Strength", re.IGNORECASE)
+_DEXTERITY = re.compile(r"\bGain (\d+) Dexterity", re.IGNORECASE)
 # Fight Me!-class: "The enemy gains 1 Strength." — an enemy-buff rider the survival
 # math must see (the buffed intent hits THIS turn's incoming). No collision with
 # _STRENGTH: "gains 1" never matches "\bGain (\d+)".
@@ -158,6 +159,7 @@ class CardEffects:
     vulnerable: int = 0
     weak: int = 0
     strength: int = 0
+    dexterity: int = 0  # Footwork/Prowess-class one-shot stat (audit #2 lane split)
     enemy_strength: int = 0  # Fight Me!-class rider: "The enemy gains N Strength"
     self_hp_cost: int = 0
     max_hp_cost: int = 0
@@ -275,6 +277,9 @@ def parse_card_description(text: str | None) -> CardEffects:
     if m := _STRENGTH.search(text):
         fx.strength = int(m.group(1))
         fx.recognized.append("strength")
+    if m := _DEXTERITY.search(text):
+        fx.dexterity = int(m.group(1))
+        fx.recognized.append("dexterity")
     if m := _ENEMY_STRENGTH.search(text):
         fx.enemy_strength = int(m.group(1))
         fx.recognized.append("enemy_strength")
