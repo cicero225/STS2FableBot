@@ -352,10 +352,17 @@ PROVIDES: dict[str, list[str]] = {
     "WISP": ["energy_source"],
     # Item 11 (owner 2026-08-20): orb decode -- unlike stars/Osty, orb cards
     # are NOT dead solo (the game grants a first orb slot on your first
-    # channel); merely underrated outside Defect. Orb model banked: channel ->
-    # slot, per-turn passive + evoke on leaving, overflow evokes oldest,
-    # Focus scales both. frost_source joins the vocabulary alongside
-    # orb_source (both owner-approved).
+    # channel); merely underrated outside Defect. Orb model CONFIRMED by
+    # owner (channel -> slot, per-turn passive + evoke on leaving, overflow
+    # evokes oldest, Focus scales both) with StS2 BASE NUMBERS:
+    #   Frost: 2 block/turn passive, evoke 5.
+    #   Lightning: 3 dmg to RANDOM target/turn, evoke 8.
+    #   Dark: evoke-ONLY damage, starts 6 at creation, +6/turn banked;
+    #         evoke targets the LOWEST-HP enemy.
+    #   Plasma: 1 energy/turn passive, evoke 2 -- UNAFFECTED by Focus.
+    #   Glass (NEW in StS2): 4 AoE dmg to ALL enemies/turn passive, evoke =
+    #         double the CURRENT passive; the passive DECAYS 1/turn (4,3,2..).
+    # frost_source joins the vocabulary alongside orb_source (owner-approved).
     "COLD_SNAP": ["orb_source", "frost_source"],
     # Item 12 (approved; Regent card): plain aoe; the '-1 Str to ALL this
     # turn' rider has no synergy vocabulary (owner concurs) -- a possible
