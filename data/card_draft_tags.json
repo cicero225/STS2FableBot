@@ -674,6 +674,16 @@
     "aoe": 1.0
    }
   },
+  "FOOTWORK": {
+   "needs": [
+    {
+     "tag": "block_engine",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
+  },
   "FORGOTTEN_RITUAL": {
    "provides": {
     "exhaust_payoff": 1.0,
@@ -1140,6 +1150,19 @@
     }
    ]
   },
+  "PROWESS": {
+   "provides": {
+    "strength_source": 1.0
+   },
+   "needs": [
+    {
+     "tag": "block_engine",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
+   ]
+  },
   "PULL_AGGRO": {
    "provides": {
     "summon_source": 1.0,
@@ -1190,6 +1213,13 @@
   "REAP": {
    "provides": {
     "expensive_attack": 1.0
+   }
+  },
+  "REAVE": {
+   "provides": {
+    "exhaust_enabler": 1.0,
+    "draw_engine": 1.0,
+    "soul_source": 1.0
    }
   },
   "REFRACT": {
@@ -1647,6 +1677,11 @@
      "penalty": false
     }
    ]
+  },
+  "WISP": {
+   "provides": {
+    "energy_source": 1.0
+   }
   }
  }
 }

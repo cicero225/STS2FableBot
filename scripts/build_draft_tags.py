@@ -124,6 +124,13 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Osty attacks also ignore the owner's Str/Weak/Vigor entirely
     # (fx.companion gates them in combat.py + rollout).
     "POKE": [("summon_source", 1, "strong", True)],
+    # Item 8 (owner deferred to me): block_engine asserts the deck GENERATES
+    # block (Body Slam-class consumers); Dex only AMPLIFIES block plays, so
+    # dex cards get the need in the amplifier direction instead -- bonus, no
+    # penalty (worth more where block cards exist). Footwork pre-ruled by
+    # the same precedent (its 2 Dex > Prowess's 1 -> moderate).
+    "PROWESS": [("block_engine", 1, "mild", False)],
+    "FOOTWORK": [("block_engine", 1, "moderate", False)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -324,6 +331,16 @@ PROVIDES: dict[str, list[str]] = {
     # primarily Silent. Sly/discard_source pair banked for future classes
     # (no Ironclad discard outlets in the current pool).
     "FLICK_FLACK": ["aoe"],
+    # Item 8 ruling: strength_source only (block_engine half struck -- Dex is
+    # an amplifier, not a generator; the needs table carries that direction)
+    "PROWESS": ["strength_source"],
+    # Item 9 (approved + amendment): Soul token = 0-cost 'Draw 2. Exhaust.'
+    # soul_source is Necrobinder-domain (owner) -- future-class pair like Sly
+    "REAVE": ["exhaust_enabler", "draw_engine", "soul_source"],
+    # Item 10 (approved): all value in energy icons (Luminesce class).
+    # NO upgrade_unlocks: '+Retain' is ordinary upgrade value, the flag is
+    # for step-change unlocks (True Grit/Armaments class -- owner ruling).
+    "WISP": ["energy_source"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],
