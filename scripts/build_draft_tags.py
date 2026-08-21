@@ -88,7 +88,10 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "PRIMAL_FORCE": [("__basics", 5, "moderate", False)],
     "SETUP_STRIKE": [("multi_hit", 2, "mild", False)],
     "UP_MY_SLEEVE": [("strength_source", 1, "moderate", False)],
-    "RATTLE": [("companion_attack", 2, "strong", True)],
+    "RATTLE": [("companion_attack", 2, "strong", True),
+               ("summon_source", 1, "strong", True)],  # owner: no Osty, no card
+    "SNAP": [("summon_source", 1, "strong", True)],
+    "UNLEASH": [("summon_source", 1, "strong", True)],
     # ---- self-HP-loss package
     "SPITE": [("self_hp_loss_source", 1, "moderate", True)],
     "RUPTURE": [("self_hp_loss_source", 1, "strong", True)],  # Act-1 window applies
@@ -106,6 +109,24 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # verified from live payloads, 4 observations) -> star pair semantics.
     "ACCURACY": [("shiv_source", 2, "strong", True)],
     "CLOAK_OF_STARS": [("star_source", 1, "strong", True)],
+    # Item 6 (owner 2026-08-20): Hidden Cache is a PURE star giver -- not
+    # literally unplayable, but 'effectively nothing' without star-cost
+    # cards; owner discourages on Ironclad. star-pair needs star_sink.
+    # GENESIS decode banked (not yet discovered/in catalog): '2 Energy, at
+    # the start of your turn gain 2 stars' -- so strong an enabler it might
+    # kernel a star synergy, 'still a little dicey'; add on discovery with a
+    # milder star_sink need.
+    "HIDDEN_CACHE": [("star_sink", 1, "strong", True)],
+    # Item 7 (owner IMPORTANT clarification 2026-08-20): ALL Osty-referencing
+    # cards REQUIRE Osty -- outside Necrobinder he does not exist without a
+    # 'Summon' card, and he dies after tanking (analogous to stars for
+    # Regent; Necrobinder's base relic summons 1/turn so SHE always has one).
+    # Osty attacks also ignore the owner's Str/Weak/Vigor entirely
+    # (fx.companion gates them in combat.py + rollout).
+    "POKE": [("summon_source", 1, "strong", True)],
+    "SIC_EM": [("summon_source", 1, "strong", True)],
+    "HIGH_FIVE": [("summon_source", 1, "strong", True)],
+    "FLATTEN": [("summon_source", 1, "strong", True)],
     # ---- strength / multi-hit package (all bonus-only)
     "CONFLAGRATION": [("strength_source", 1, "moderate", False)],
     "WHIRLWIND": [("strength_source", 1, "moderate", False),
@@ -312,8 +333,11 @@ PROVIDES: dict[str, list[str]] = {
     "SNAP": ["companion_attack", "retain"],
     "UNLEASH": ["companion_attack"],
     "RATTLE": ["companion_attack", "multi_hit"],
+    "POKE": ["companion_attack"],  # item 7 approved
+    # summon_source providers (owner Osty requirement): Summon-text cards
     "BODYGUARD": ["summon_source"],
     "PULL_AGGRO": ["summon_source", "block_engine"],
+    "INVOKE": ["summon_source", "energy_source"],
     "FASTEN": ["block_payoff", "power_setup"],
     "ARMAMENTS": ["block_engine"],
     "APOTHEOSIS": [],

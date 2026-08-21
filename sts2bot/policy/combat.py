@@ -984,7 +984,9 @@ def _apply_attack(
     base_damage, hits = card.fx.damage, card.fx.hits
     if state.primal_active and card.is_attack:
         base_damage, hits = _PRIMAL_ROCK_DAMAGE, 1  # transformed into a Giant Rock
-    per_hit = base_damage + state.str_unbaked  # text already carries turn-start Strength
+    # text already carries turn-start Strength; Osty attacks (fx.companion)
+    # ignore the owner's Str entirely (owner clarification 2026-08-20)
+    per_hit = base_damage + (0 if card.fx.companion else state.str_unbaked)
     if card.fx.double_hits_if_vuln and e.vulnerable > 0:
         hits *= 2  # Dismantle-class: vs a Vulnerable target every hit doubles
     if e.attack_dmg_mult != 1.0 and card.is_attack:
@@ -996,7 +998,8 @@ def _apply_attack(
     if pen_halve:
         # Pen Nib preview: at counter 9 the text shows doubled damage on EVERY attack, but
         # only the first actually doubles — later attacks revert to base (text // 2).
-        per_hit = (base_damage + 1) // 2 + state.str_unbaked
+        per_hit = ((base_damage + 1) // 2
+                   + (0 if card.fx.companion else state.str_unbaked))
     if pen_double:
         per_hit *= 2  # (kept for tests/simulation without preview text; unused live)
     # NB: the player's own Weak is PRE-BAKED into the card text (a Strike under Weak

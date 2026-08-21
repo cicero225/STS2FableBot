@@ -160,6 +160,9 @@ class CardEffects:
     weak: int = 0
     strength: int = 0
     dexterity: int = 0  # Footwork/Prowess-class one-shot stat (audit #2 lane split)
+    # Osty attacks (owner clarification 2026-08-20): the companion's damage is
+    # COMPLETELY unaffected by the owner's attack modifiers (Str, Weak, Vigor)
+    companion: bool = False
     enemy_strength: int = 0  # Fight Me!-class rider: "The enemy gains N Strength"
     self_hp_cost: int = 0
     max_hp_cost: int = 0
@@ -280,6 +283,9 @@ def parse_card_description(text: str | None) -> CardEffects:
     if m := _DEXTERITY.search(text):
         fx.dexterity = int(m.group(1))
         fx.recognized.append("dexterity")
+    if re.search(r"\bOsty deals\b", text, re.IGNORECASE):
+        fx.companion = True
+        fx.recognized.append("companion")
     if m := _ENEMY_STRENGTH.search(text):
         fx.enemy_strength = int(m.group(1))
         fx.recognized.append("enemy_strength")

@@ -565,3 +565,16 @@ def test_blur_keeps_block_one_turn_and_sturdy_clamp_caps() -> None:
                                             desc="Gain 5 Block.")],
                                [foe], 60, 60, n=25, relics=[clamp])
     assert with_clamp.exp_end_hp > plain.exp_end_hp
+
+
+def test_osty_attacks_ignore_owner_strength() -> None:
+    """Owner clarification (audit item 7): Osty's damage is completely
+    unaffected by the owner's attack modifiers -- Str must not be added."""
+    inflamed = ([card("INFLAME", typ="Power", desc="Gain 2 Strength.")]
+                + [card("POKE", desc="Osty deals 6 damage.")] * 5
+                + [card("DEFEND_IRONCLAD", typ="Skill", desc="Gain 5 Block.")] * 4)
+    foe = FightEnemy(hp=90, dps=5)
+    r = rollout_fight(inflamed, [foe], 70, 70, n=20)
+    # 6 dmg x ~4 pokes/turn: kill takes ~4+ turns; with Str wrongly added it
+    # would read ~8/hit and finish visibly faster. Assert the slow (correct) clock.
+    assert r.mean_turns >= 4.0, r.mean_turns

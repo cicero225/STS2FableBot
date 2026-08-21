@@ -655,7 +655,9 @@ class _RolloutSim:
             # Body Slam-class: damage = CURRENT block (the Barricade finisher —
             # owner 2026-08-01; catalog preview numbers are stale, sim block isn't)
             per_hit = (self.block if pick.fx.dmg_equals_block
-                       else pick.fx.damage + self.my_str
+                       # Osty attacks ignore owner Str/Vigor (owner 2026-08-20)
+                       else pick.fx.damage
+                       + (0 if pick.fx.companion else self.my_str)
                        # Rampage-class growth accumulated THIS rollout
                        + self.growth.get(id(pick), 0)
                        - pick.fx.grows_per_play  # growth counter includes
@@ -663,7 +665,8 @@ class _RolloutSim:
                        # Murder-class: +N per card drawn this combat
                        + pick.dmg_per_draw * self.draws_this_fight
                        # Prep Time-class Vigor: next attack +N PER HIT
-                       + (self.vigor if pick.is_attack else 0))
+                       + (self.vigor if pick.is_attack
+                          and not pick.fx.companion else 0))
             if pick.upgraded and pick.ctype == "Attack":
                 per_hit += self.rfx.get("upgraded_attack_bonus", 0)  # Miniature Cannon
             if (pick.fx.requires_exhaust_pile
@@ -873,10 +876,12 @@ def _greedy_turn(sim: _RolloutSim) -> None:
                 # mirror apply_card's dynamic terms or the chooser benches
                 # scalers (Murder sat at fx.damage=1 while worth 20+)
                 return (sim.block if c.fx.dmg_equals_block
-                        else c.fx.damage + sim.my_str
+                        else c.fx.damage
+                        + (0 if c.fx.companion else sim.my_str)
                         + sim.growth.get(id(c), 0) - c.fx.grows_per_play
                         + c.dmg_per_draw * sim.draws_this_fight
-                        + (sim.vigor if c.is_attack else 0))
+                        + (sim.vigor if c.is_attack
+                           and not c.fx.companion else 0))
 
             def eff_hits(c):
                 return max(1, c.fx.hits) + (

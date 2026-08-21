@@ -659,7 +659,15 @@
   "FLATTEN": {
    "provides": {
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "summon_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "FLICK_FLACK": {
    "provides": {
@@ -750,10 +758,28 @@
     "front_load": 1.0
    }
   },
+  "HIDDEN_CACHE": {
+   "needs": [
+    {
+     "tag": "star_sink",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
+  },
   "HIGH_FIVE": {
    "provides": {
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "summon_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "HOWL_FROM_BEYOND": {
    "provides": {
@@ -815,6 +841,12 @@
      "penalty": false
     }
    ]
+  },
+  "INVOKE": {
+   "provides": {
+    "summon_source": 1.0,
+    "energy_source": 1.0
+   }
   },
   "IRON_WAVE": {
    "provides": {
@@ -1052,6 +1084,19 @@
     "expensive_attack": 1.0
    }
   },
+  "POKE": {
+   "provides": {
+    "companion_attack": 1.0
+   },
+   "needs": [
+    {
+     "tag": "summon_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
+  },
   "POMMEL_STRIKE": {
    "provides": {
     "draw_engine": 1.0
@@ -1131,6 +1176,12 @@
     {
      "tag": "companion_attack",
      "threshold": 2,
+     "strength": "strong",
+     "penalty": true
+    },
+    {
+     "tag": "summon_source",
+     "threshold": 1,
      "strength": "strong",
      "penalty": true
     }
@@ -1253,11 +1304,29 @@
     "draw_engine": 1.0
    }
   },
+  "SIC_EM": {
+   "needs": [
+    {
+     "tag": "summon_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
+  },
   "SNAP": {
    "provides": {
     "companion_attack": 1.0,
     "retain": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "summon_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "SOVEREIGN_BLADE": {
    "provides": {
@@ -1463,7 +1532,15 @@
   "UNLEASH": {
    "provides": {
     "companion_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "summon_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "UNMOVABLE": {
    "provides": {
