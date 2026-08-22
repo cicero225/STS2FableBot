@@ -869,10 +869,19 @@
    ]
   },
   "HAVOC": {
+   "provides": {
+    "exhaust_enabler": 1.0
+   },
    "needs": [
     {
-     "tag": "__attacks",
-     "threshold": 12,
+     "tag": "expensive_attack",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    },
+    {
+     "tag": "__powers",
+     "threshold": 2,
      "strength": "moderate",
      "penalty": false
     }
@@ -1116,7 +1125,15 @@
   "KINGLY_PUNCH": {
    "provides": {
     "big_single_hit": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "draw_engine",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
   },
   "KNOCKOUT_BLOW": {
    "provides": {
@@ -1407,6 +1424,7 @@
   },
   "PREDATOR": {
    "provides": {
+    "draw_engine": 1.0,
     "expensive_attack": 1.0
    }
   },
@@ -1539,8 +1557,23 @@
   },
   "REND": {
    "provides": {
+    "vulnerable_payoff": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "vulnerable_source",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    },
+    {
+     "tag": "weak_source",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
+   ]
   },
   "RESTLESSNESS": {
    "provides": {

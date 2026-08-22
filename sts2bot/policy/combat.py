@@ -342,6 +342,7 @@ class PlannedCard:
     # exhausted-this-turn conditional pair (Evil Eye block / Forgotten Ritual energy), whether
     # playing this card exhausts one (sets the flag), and Colossus' vuln-damage-reduction.
     dmg_per_target_vuln: int = 0
+    dmg_per_unique_debuff: int = 0  # Rend (item 80): +N per unique debuff on target
     str_per_target_vuln: int = 0
     doubles_target_vuln: bool = False
     target_str_down: int = 0
@@ -413,6 +414,11 @@ class EnemySim:
     hp_lost_this_turn: int = 0
     skittish: int = 0  # +Block on its FIRST hit each turn (Skittish); follow-ups get soaked
     artifact: int = 0  # negates the next N debuffs (one per unique status type, magnitude-blind)
+    # Rend (audit item 80, owner): count of UNIQUE debuffs on the enemy at
+    # plan start (stacking more of one adds nothing). Known family per owner:
+    # vulnerable, weak, poison, doom, shrunken, str-down. In-plan additions
+    # are NOT counted (conservative).
+    debuff_count: int = 0
     stun_threshold: int = 0  # crossing to/below this HP Stuns it ONCE, skipping its turn (Plow)
     stunned_this_turn: bool = False  # our damage crossed the stun threshold this turn -> it skips
     invincible: bool = False  # sentinel-HP invincible state (Waterfall Giant): damage is wasted
@@ -657,6 +663,9 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
     debuff_order = tuple(t for _, t in sorted(debuff_spots))
     # C tranche detections (against the audited real texts):
     per_vuln_dmg = int(m.group(1)) if (m := _PER_VULN_DMG.search(desc)) else 0
+    per_debuff_dmg = int(m.group(1)) if (m := re.search(
+        r"deals? (\d+) additional damage for each unique debuff", desc,
+        re.IGNORECASE)) else 0
     per_vuln_str = int(m.group(1)) if (m := _PER_VULN_STR.search(desc)) else 0
     target_str_down = int(m.group(1)) if (m := _TARGET_STR_DOWN.search(desc)) else 0
     block_if_exh = int(m.group(1)) if (m := _BLOCK_IF_EXHAUSTED.search(desc)) else 0
@@ -696,6 +705,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
                 and fx.damage * max(1, fx.hits) <= _PRIMAL_ROCK_DAMAGE
                 and not (fx.vulnerable or fx.weak or fx.block or fx.draw
                          or fx.strength or fx.energy_gain or per_vuln_dmg
+                         or per_debuff_dmg
                          or per_vuln_str or target_str_down))
         ),
         rage_block=rage_block,
@@ -703,6 +713,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         hand_exhaust_scale=hand_exhaust_scale,
         debuff_order=debuff_order,
         dmg_per_target_vuln=per_vuln_dmg,
+        dmg_per_unique_debuff=per_debuff_dmg,
         str_per_target_vuln=per_vuln_str,
         doubles_target_vuln=bool(_DOUBLE_VULN.search(desc)),
         target_str_down=target_str_down,
@@ -740,6 +751,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
             continue
         vuln = 0
         artifact = 0
+        n_debuffs = 0  # Rend: unique debuffs at plan start
         slippery_stacks = 0
         attack_dmg_mult = 1.0
         crab_rage = False
@@ -763,6 +775,10 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 vuln = p.amount
             if "ARTIFACT" in p.id.upper() and p.amount:
                 artifact = p.amount
+            if (any(p.id.upper().startswith(d) for d in (
+                    "VULNERABLE", "WEAK", "POISON", "DOOM", "SHRUNK"))
+                    or ("STRENGTH" in p.id.upper() and (p.amount or 0) < 0)):
+                n_debuffs += 1
             if "CRAB_RAGE" in p.id.upper() or "ally dies" in (p.description or "").lower():
                 crab_rage = True
             if "BACK_ATTACK" in p.id.upper() or "from behind" in (p.description or "").lower():
@@ -894,6 +910,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 thorns=mech.get("thorns", 0),
                 skittish=mech.get("skittish", 0),
                 artifact=artifact,
+                debuff_count=n_debuffs,
                 stun_threshold=mech.get("stun_threshold", 0),
                 invincible=invincible,
                 crab_rage=crab_rage,
@@ -995,6 +1012,11 @@ def _apply_attack(
         per_hit += card.dmg_per_exhaust_event * state.n_exhaust_events
     if card.dmg_per_target_vuln:  # Bully: +N per Vulnerable already on the target
         per_hit += card.dmg_per_target_vuln * e.vulnerable
+    if card.dmg_per_unique_debuff:  # Rend: +N per UNIQUE debuff (plan-start
+        # count; in-plan vuln counted if it made the target newly vulnerable)
+        n_d = e.debuff_count + (1 if e.vulnerable > 0 and e.debuff_count == 0
+                                else 0)
+        per_hit += card.dmg_per_unique_debuff * n_d
     if pen_halve:
         # Pen Nib preview: at counter 9 the text shows doubled damage on EVERY attack, but
         # only the first actually doubles — later attacks revert to base (text // 2).

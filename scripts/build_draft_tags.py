@@ -88,7 +88,14 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "CASCADE": [("__attacks", 10, "moderate", False),
                 ("energy_source", 1, "moderate", False)],
     "CLOAK_AND_DAGGER": [("attack_density_payoff", 1, "mild", False)],
-    "HAVOC": [("__attacks", 12, "moderate", False)],  # review #11: powers are fine
+    # Item 76 (owner reshape, supersedes review #11): Havoc's value is
+    # CHEATING OUT expensive cards and powers (a power played off Havoc
+    # exhausts for free -- powers leave play anyway), not attack density.
+    # Downside: burning a valuable. Topdeck synergy (Headbutt, Ironclad's
+    # only one) + Cascade comparison ('no exhaust is actually an advantage')
+    # noted. 'Not a very good card this patch' -- owner.
+    "HAVOC": [("expensive_attack", 1, "moderate", False),
+              ("__powers", 2, "moderate", False)],
     "PRIMAL_FORCE": [("__basics", 5, "moderate", False)],
     "SETUP_STRIKE": [("multi_hit", 2, "mild", False)],
     "UP_MY_SLEEVE": [("strength_source", 1, "moderate", False)],
@@ -168,6 +175,9 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "TIMES_UP": [("doom_source", 1, "strong", True)],  # item 64: zero without Doom
     "KINGLY_KICK": [("draw_engine", 1, "mild", False),
                     ("energy_source", 1, "moderate", False)],  # item 68
+    "KINGLY_PUNCH": [("draw_engine", 1, "moderate", False)],  # item 77/4c group
+    "REND": [("vulnerable_source", 2, "moderate", False),
+             ("weak_source", 1, "mild", False)],  # item 80
     "GUIDING_STAR": [("star_source", 1, "strong", True)],
     "PAGESTORM": [("__ethereal", 4, "strong", True)],
     "PILLAR_OF_CREATION": [("attack_generator", 2, "strong", True)],
@@ -418,6 +428,18 @@ PROVIDES: dict[str, list[str]] = {
     "REFRACT": ["multi_hit", "orb_source", "aoe"],
     # Item 64 (approved, flag struck 10th): doom-scaling nuke
     "TIMES_UP": ["exhaust_enabler"],
+    # Item 76: every play exhausts the played card -- a real enabler event
+    # (flag struck, 12th)
+    "HAVOC": ["exhaust_enabler"],
+    # Item 79 (approved; Silent): next-turn draw fires at TURN START, so
+    # unlike in-turn riders it is NOT dead under Fiddle
+    "PREDATOR": ["draw_engine"],
+    # Item 80 (approved + owner refinement): payoff for ANY unique debuff
+    # (stacking vuln adds nothing) -> vulnerable_payoff is 'moderate at
+    # best'; weak counts too. Planner term SHIPPED: fx.dmg_per_unique_debuff
+    # (+N per unique debuff at plan start; owner's family: vuln/weak/poison/
+    # doom/shrunken/str-down).
+    "REND": ["vulnerable_payoff"],
     # Item 65 (lane 4d token-creation): a GENUINE creator -- the 0-cost copy
     # is created, so Pillar-class triggers fire (unlike Secret Weapon's fetch)
     "ADAPTIVE_STRIKE": ["attack_generator"],
@@ -432,7 +454,6 @@ PROVIDES: dict[str, list[str]] = {
     "DISCOVERY": ["attack_generator"],  # item 75: half weight below; upgrade class
     "METAMORPHOSIS": ["attack_generator"],
     "MAYHEM": [],
-    "HAVOC": [],
     "BOLAS": ["multi_hit"],
     "ONE_TWO_PUNCH": ["attack_density_payoff"],
     "LETHALITY": ["exhaust_enabler"],  # review #22: ethereal self-exhaust = fodder
