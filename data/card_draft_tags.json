@@ -803,7 +803,8 @@
      "penalty": false
     }
    ],
-   "upgrade_unlocks": true
+   "upgrade_unlocks": true,
+   "exhaust_drops_on_upgrade": true
   },
   "GUIDING_STAR": {
    "provides": {
@@ -937,7 +938,8 @@
    "provides": {
     "exhaust_enabler": 1.0
    },
-   "upgrade_unlocks": true
+   "upgrade_unlocks": true,
+   "exhaust_drops_on_upgrade": true
   },
   "HOTFIX": {
    "provides": {
@@ -1498,6 +1500,9 @@
   },
   "REFRACT": {
    "provides": {
+    "multi_hit": 1.0,
+    "orb_source": 1.0,
+    "aoe": 0.5,
     "expensive_attack": 1.0
    }
   },
@@ -1579,8 +1584,10 @@
   },
   "SECRET_WEAPON": {
    "provides": {
-    "attack_generator": 1.0
-   }
+    "draw_engine": 1.0,
+    "exhaust_enabler": 1.0
+   },
+   "exhaust_drops_on_upgrade": true
   },
   "SEEKER_STRIKE": {
    "provides": {
@@ -1849,7 +1856,8 @@
     "draw_engine": 1.0,
     "exhaust_enabler": 1.0
    },
-   "upgrade_unlocks": true
+   "upgrade_unlocks": true,
+   "exhaust_drops_on_upgrade": true
   },
   "THRASH": {
    "provides": {

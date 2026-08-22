@@ -606,3 +606,16 @@ def test_attack_density_pseudo_tags_are_computed() -> None:
     counts = deck_tag_weights(deck)
     assert counts["__attacks"] == 8.0        # 5 strikes + 2 angers + bludgeon
     assert counts["__cheap_attacks"] == 7.0  # bludgeon (cost 3) excluded
+
+
+def test_upgraded_copies_stop_providing_exhaust_enabler() -> None:
+    """Item 62 precedent ruling: Hologram-class cards lose Exhaust on upgrade,
+    so an UPGRADED copy in the deck must not count as an exhaust provider."""
+    from types import SimpleNamespace as NS
+    def c(cid, up=False):
+        return NS(id=cid, name=cid.title(), type="Skill", cost="1", is_upgraded=up)
+    from sts2bot.policy.drafttags import _providers
+    base = [c("HOLOGRAM")]
+    upg = [c("HOLOGRAM", up=True)]
+    assert _providers("exhaust_enabler", {}, base, TAGS) == 1.0
+    assert _providers("exhaust_enabler", {}, upg, TAGS) == 0.0

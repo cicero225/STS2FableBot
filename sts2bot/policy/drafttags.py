@@ -180,6 +180,13 @@ def _providers(
         entry = tags.get((getattr(c, "id", "") or "").upper())
         if entry:
             w = float((entry.get("provides") or {}).get(tag, 0.0))
+            # Upgrade drops Exhaust (owner precedent question, item 62): an
+            # UPGRADED Hologram/Graveblast/Thinking Ahead/Secret Weapon no
+            # longer exhausts, so its exhaust_enabler must not count.
+            if (w and tag == "exhaust_enabler"
+                    and entry.get("exhaust_drops_on_upgrade")
+                    and getattr(c, "is_upgraded", False)):
+                w = 0.0
             # Innate providers count extra (owner rule 2026-08-20): an Innate
             # synergy piece is more likely active turn one, so it pulls its
             # partners harder at draft. Modest, per the owner's caveat that

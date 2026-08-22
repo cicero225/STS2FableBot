@@ -386,8 +386,17 @@ PROVIDES: dict[str, list[str]] = {
     "FEED": [],
     "DARK_SHACKLES": ["front_load"],
     "INFERNAL_BLADE": ["attack_generator", "exhaust_enabler"],  # item 58; flag struck (7th)
+    # Item 62 (owner): a TUTOR, not a creator -- attack_generator REMOVED
+    # (Pillar-class creation triggers never fire off a fetch); selective
+    # draw is the honest provide. Enabler base-only (upgrade drops Exhaust).
+    "SECRET_WEAPON": ["draw_engine", "exhaust_enabler"],
+    # Item 61 re-examined with the owner's Glass decode: on Ironclad the
+    # first Channel grants a free slot and the SECOND Glass pushes out
+    # (evokes) the first -- 9x2 single-target + ~8 AoE evoke now + a
+    # decaying 4/3/2/1 AoE stream. Front-loaded AoE is real: aoe at half
+    # weight + orb_source; multi_hit as proposed.
+    "REFRACT": ["multi_hit", "orb_source", "aoe"],
     "DISCOVERY": ["attack_generator"],
-    "SECRET_WEAPON": ["attack_generator"],
     "METAMORPHOSIS": ["attack_generator"],
     "MAYHEM": [],
     "HAVOC": [],
@@ -591,6 +600,7 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "HOTFIX": {"exhaust_enabler": 0.5},     # item 22 owner: weak enabler value
     "CRIMSON_MANTLE": {"block_engine": 3.0},  # item 43: procs every turn (Stone Armor precedent)
     "JACK_OF_ALL_TRADES": {"attack_generator": 0.5},  # item 46: random type, no attack guarantee
+    "REFRACT": {"aoe": 0.5},  # item 61: decaying Glass stream, not full AoE
 }
 
 
@@ -646,6 +656,11 @@ def main() -> None:
         entry(cid)["controlled_exhaust"] = v
     for cid in UPGRADE_UNLOCKS:
         entry(cid)["upgrade_unlocks"] = True
+    # Upgrade removes Exhaust (item 62 precedent ruling): these cards' self-
+    # exhaust enabler provides are BASE-ONLY -- an upgraded copy in the deck
+    # does not exhaust and must not count as a provider (_providers gates it)
+    for cid in ("HOLOGRAM", "GRAVEBLAST", "THINKING_AHEAD", "SECRET_WEAPON"):
+        entry(cid)["exhaust_drops_on_upgrade"] = True
 
     # Innate providers (owner rule 2026-08-20): a card that is Innate AND
     # provides a synergy tag is more likely ACTIVE turn one, so it should
