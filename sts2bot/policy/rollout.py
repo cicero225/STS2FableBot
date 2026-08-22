@@ -230,6 +230,13 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             fx.aoe = "all" in text.lower()
         elif re.search(r"next turn,.*?gain \[\w+_energy_icon", text, re.IGNORECASE):
             pending = (1, "energy", text.count("_energy_icon"))
+        elif nd := re.search(r"next turn,?[^.]*?draw (\d+)", text, re.IGNORECASE):
+            # Predator-class next-turn draw: fires at TURN START, so it
+            # IGNORES Fiddle (owner decode 2026-08-22, verified online --
+            # ALL start-of-turn draws do: Pael's Blood, Glow). Route via the
+            # queue; zero the in-turn fx.draw so it isn't drawn twice.
+            pending = (1, "draw", int(nd.group(1)))
+            fx.draw = max(0, fx.draw - int(nd.group(1)))
         # Lane 4c draw-fed scalers
         gd = re.search(r"whenever you draw this card, increase its damage by (\d+)",
                        text, re.IGNORECASE)
@@ -618,6 +625,9 @@ class _RolloutSim:
                         f.hp -= int(p[2])
             elif p[1] == "energy":  # Hegemony-class next-turn energy
                 self.energy += int(p[2])
+            elif p[1] == "draw":  # Predator-class: start-of-turn, Fiddle-immune
+                for _ in range(int(p[2])):
+                    self.draw_one()
         self.pending_fx = [p for p in self.pending_fx if p[0] > 0]
 
     def playable(self):

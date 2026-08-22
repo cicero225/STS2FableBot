@@ -2215,10 +2215,18 @@ class StandardRouter:
         )
         # Fiddle-class (owner 2026-07-31): in-turn draws are DEAD while held, so a
         # draw rider is dead weight at draft time (the +2/turn is already banked).
-        if fx.draw and any(
-                re.search(r"not draw (?:any )?cards? during your turn",
-                          getattr(r_, "description", None) or "", re.IGNORECASE)
-                for r_ in relics or []):
+        # EXEMPT (owner decode 2026-08-22, verified online): ALL start-of-turn
+        # draw effects ignore Fiddle -- Predator's 'Next turn, draw 2',
+        # Pael's Blood, Glow. Only in-turn draws are dead.
+        if (fx.draw
+                and not re.search(
+                    r"next turn[^.]*draw|at the start of (?:your|each) turn"
+                    r"[^.]*draw", card.description or "", re.IGNORECASE)
+                and any(
+                    re.search(r"not draw (?:any )?cards? during your turn",
+                              getattr(r_, "description", None) or "",
+                              re.IGNORECASE)
+                    for r_ in relics or [])):
             score -= 2.0
         # Plain-relic -> card-TYPE draft synergies (owner 2026-07-31: Mummified Hand
         # — 'whenever you play a Power, a random card in hand costs 0' — makes
