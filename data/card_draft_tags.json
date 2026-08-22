@@ -1152,10 +1152,28 @@
     }
    ]
   },
+  "MULTI_CAST": {
+   "needs": [
+    {
+     "tag": "orb_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
+  },
   "MURDER": {
    "provides": {
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "draw_engine",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
   },
   "NOT_YET": {
    "provides": {
@@ -1789,6 +1807,16 @@
      "threshold": 1,
      "strength": "moderate",
      "penalty": false
+    }
+   ]
+  },
+  "THUNDER": {
+   "needs": [
+    {
+     "tag": "orb_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
     }
    ]
   },

@@ -165,6 +165,14 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "PAGESTORM": [("__ethereal", 4, "strong", True)],
     "PILLAR_OF_CREATION": [("attack_generator", 2, "strong", True)],
     "GUNK_UP": [("strength_source", 1, "mild", False)],  # item 44 multi-hit scaler
+    # Items 47-48 (approved 2026-08-21): evoke-dependent, dead orb-less.
+    # Owner note: Multi-Cast is UNUSUALLY GOOD with Plasma (X energy) or
+    # Dark (X x banked damage) -- orb-type nuance for the future Defect pass.
+    "MULTI_CAST": [("orb_source", 1, "strong", True)],
+    "THUNDER": [("orb_source", 1, "strong", True)],
+    # Item 49 (rollout half shipped in lane 4c; tag half per the 4c decode:
+    # the group needs draw_engine as bonus, no penalty -- natural draws feed it)
+    "MURDER": [("draw_engine", 1, "moderate", False)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
