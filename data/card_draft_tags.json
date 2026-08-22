@@ -13,8 +13,17 @@
   },
   "ACROBATICS": {
    "provides": {
-    "draw_engine": 1.0
-   }
+    "draw_engine": 1.0,
+    "discard_source": 1.0
+   },
+   "needs": [
+    {
+     "tag": "energy_source",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
+   ]
   },
   "ADAPTIVE_STRIKE": {
    "provides": {
@@ -263,8 +272,17 @@
   },
   "BURY": {
    "provides": {
+    "big_single_hit": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "energy_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "CASCADE": {
    "needs": [
@@ -1542,6 +1560,11 @@
      "tag": "hand_dump",
      "threshold": 1,
      "strength": "strong"
+    },
+    {
+     "tag": "__attacks",
+     "threshold": 12,
+     "strength": "moderate"
     }
    ]
   },
@@ -1591,7 +1614,7 @@
   },
   "SHOCKWAVE": {
    "provides": {
-    "vulnerable_source": 1.0,
+    "vulnerable_source": 3.0,
     "weak_source": 3.0,
     "aoe": 1.0
    }
@@ -1664,8 +1687,23 @@
   },
   "SQUEEZE": {
    "provides": {
+    "big_single_hit": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "companion_attack",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    },
+    {
+     "tag": "summon_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "STAMPEDE": {
    "provides": {
@@ -1763,7 +1801,15 @@
   "SYNTHESIS": {
    "provides": {
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "__powers",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
   },
   "TAUNT": {
    "provides": {

@@ -173,6 +173,18 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Item 49 (rollout half shipped in lane 4c; tag half per the 4c decode:
     # the group needs draw_engine as bonus, no penalty -- natural draws feed it)
     "MURDER": [("draw_engine", 1, "moderate", False)],
+    # Item 50 (owner YES): attack-heavy decks dock Second Wind -- see ANTI.
+    # Item 52 (approved + item-7 family rule): Osty attack -> summon needed
+    "SQUEEZE": [("companion_attack", 2, "moderate", False),
+                ("summon_source", 1, "strong", True)],
+    # Item 53 (approved WITH verifier correction: power_setup does NOT mark
+    # every Power -- use the __powers deck count instead)
+    "SYNTHESIS": [("__powers", 2, "moderate", False)],
+    # Item 54 (approved)
+    "ACROBATICS": [("energy_source", 1, "mild", False)],
+    # Item 55 (owner: DEAD in a default 3-energy deck -- needs +1 energy or
+    # a cost cheat; 'not playable in a default deck')
+    "BURY": [("energy_source", 1, "strong", True)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -228,7 +240,8 @@ ANTI: dict[str, list[tuple[str, int, str]]] = {
     "BATTLE_TRANCE": [("draw_engine", 2, "mild")],
     # shadow review 2026-07-24: "Second Wind and Stoke get in each other's way" --
     # two whole-hand value-dumpers can't both fire; dock either into the other
-    "SECOND_WIND": [("hand_dump", 1, "strong")],
+    "SECOND_WIND": [("hand_dump", 1, "strong"),
+                    ("__attacks", 12, "moderate")],  # item 50 owner YES
     "STOKE": [("hand_dump", 1, "strong")],
     "PANIC_BUTTON": [("block_engine", 2, "moderate")],
     "EXPECT_A_FIGHT": [("energy_source", 1, "mild")],
@@ -352,7 +365,6 @@ PROVIDES: dict[str, list[str]] = {
     # draw / energy
     "BATTLE_TRANCE": ["draw_engine"],
     "POMMEL_STRIKE": ["draw_engine"],
-    "ACROBATICS": ["draw_engine"],
     "MASTER_OF_STRATEGY": ["draw_engine", "front_load"],
     "PYRE": ["energy_source", "power_setup"],
     "RELAX": ["energy_source", "block_engine"],
@@ -514,6 +526,14 @@ PROVIDES: dict[str, list[str]] = {
     # Item 46 (approved as before -- flag struck, 6th; owner: no GUARANTEE
     # the random colorless is an attack -> generator at half weight)
     "JACK_OF_ALL_TRADES": ["attack_generator", "exhaust_enabler"],
+    # Item 52: 25 base = big single hit (expensive_attack auto-derives)
+    "SQUEEZE": ["big_single_hit"],
+    # Item 54 (owner: discard synergy is a worthwhile SILENT category --
+    # classified NOW per the status_source precedent): Acrobatics discards,
+    # so it is discard_source's first provider (Sly payoffs will need it)
+    "ACROBATICS": ["draw_engine", "discard_source"],
+    # Item 55: Bludgeon-class hit (energy gate in needs)
+    "BURY": ["big_single_hit"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],
@@ -574,10 +594,12 @@ def main() -> None:
         text = catalog[cid].get("text") or ""
         for tag in plist:
             weight = 1.0
-            # stack-magnitude weighting (review #1): Apply N Vulnerable/Weak
+            # stack-magnitude weighting (review #1): Apply N Vulnerable/Weak.
+            # Item 51 fix: combined phrasing 'Apply 3 Weak and Vulnerable'
+            # left vulnerable_source at 1.0 while weak_source got 3.0.
             if tag in ("vulnerable_source", "weak_source"):
                 kw = "Vulnerable" if tag == "vulnerable_source" else "Weak"
-                if m := re.search(rf"Apply (\d+) {kw}", text):
+                if m := re.search(rf"Apply (\d+) (?:\w+ and )?{kw}", text):
                     weight = float(m.group(1))
             weight = WEIGHT_OVERRIDES.get(cid, {}).get(tag, weight)
             prov[tag] = weight
