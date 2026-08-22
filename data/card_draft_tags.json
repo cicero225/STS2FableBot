@@ -15,15 +15,7 @@
    "provides": {
     "draw_engine": 1.0,
     "discard_source": 1.0
-   },
-   "needs": [
-    {
-     "tag": "energy_source",
-     "threshold": 1,
-     "strength": "mild",
-     "penalty": false
-    }
-   ]
+   }
   },
   "ADAPTIVE_STRIKE": {
    "provides": {
@@ -696,6 +688,7 @@
    "provides": {
     "exhaust_enabler": 1.0,
     "big_single_hit": 1.0,
+    "hand_dump": 1.0,
     "expensive_attack": 1.0
    },
    "needs": [
@@ -926,6 +919,9 @@
   },
   "HIGH_FIVE": {
    "provides": {
+    "vulnerable_source": 2.0,
+    "aoe": 1.0,
+    "companion_attack": 1.0,
     "expensive_attack": 1.0
    },
    "needs": [
@@ -998,8 +994,10 @@
   },
   "INFERNAL_BLADE": {
    "provides": {
-    "attack_generator": 1.0
-   }
+    "attack_generator": 1.0,
+    "exhaust_enabler": 1.0
+   },
+   "upgrade_unlocks": true
   },
   "INFERNO": {
    "provides": {
@@ -1134,7 +1132,8 @@
   "MASTER_OF_STRATEGY": {
    "provides": {
     "draw_engine": 1.0,
-    "front_load": 1.0
+    "front_load": 1.0,
+    "exhaust_enabler": 1.0
    }
   },
   "METAMORPHOSIS": {

@@ -83,8 +83,10 @@ _ENERGY = re.compile(r"\bGain (\d+) Energy", re.IGNORECASE)
 # "Gain" so iconized energy-gain isn't read as 0 (-> card left unplayed). Owner-caught 2026-06-26.
 _ENERGY_ICON_RUN = re.compile(r"\bGain ((?:\s*\[[a-z_]*energy[a-z_]*\.png\])+)", re.IGNORECASE)
 _ENERGY_ICON = re.compile(r"\[[a-z_]*energy[a-z_]*\.png\]", re.IGNORECASE)
-_VULN = re.compile(r"\bApply (\d+) Vulnerable", re.IGNORECASE)
-_WEAK = re.compile(r"\bApply (\d+) Weak", re.IGNORECASE)
+# 'applies N' variant added 2026-08-21 (audit item 57: High Five's
+# 'applies 2 Vulnerable' parsed to ZERO -- the fight planner missed it)
+_VULN = re.compile(r"\bAppl(?:y|ies) (\d+) Vulnerable", re.IGNORECASE)
+_WEAK = re.compile(r"\bAppl(?:y|ies) (\d+) Weak", re.IGNORECASE)
 _STRENGTH = re.compile(r"\bGain (\d+) Strength", re.IGNORECASE)
 _DEXTERITY = re.compile(r"\bGain (\d+) Dexterity", re.IGNORECASE)
 # Fight Me!-class: "The enemy gains 1 Strength." — an enemy-buff rider the survival

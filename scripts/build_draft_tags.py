@@ -63,7 +63,7 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "BURNING_PACT": [("exhaust_payoff", 1, "mild", False)],
     "DARK_EMBRACE": [("exhaust_enabler", 3, "strong", True)],  # power, blank unmet
     "FEEL_NO_PAIN": [("exhaust_enabler", 2, "strong", True)],  # power, blank unmet
-    "FIEND_FIRE": [("draw_engine", 1, "mild", False)],
+    "FIEND_FIRE": [("draw_engine", 1, "mild", False)],  # +hand_dump family, item 56
     "PACTS_END": [("exhaust_enabler", 4, "strong", True)],
     "STOKE": [("exhaust_payoff", 1, "moderate", False)],
     "TRUE_GRIT": [("exhaust_payoff", 1, "moderate", False)],
@@ -181,7 +181,7 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # every Power -- use the __powers deck count instead)
     "SYNTHESIS": [("__powers", 2, "moderate", False)],
     # Item 54 (approved)
-    "ACROBATICS": [("energy_source", 1, "mild", False)],
+
     # Item 55 (owner: DEAD in a default 3-energy deck -- needs +1 energy or
     # a cost cheat; 'not playable in a default deck')
     "BURY": [("energy_source", 1, "strong", True)],
@@ -190,6 +190,9 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # partly self-repays NEXT turns -- 3 energy/turn passive -- but the cast
     # itself still needs the gate.)
     "METEOR_STRIKE": [("energy_source", 2, "strong", True)],
+    # Item 60/54 energy needs REVERTED: redundant with the dedicated
+    # penalty_draw_no_energy machinery (July design deliberately chose
+    # penalty-only for draw-vs-energy; the pinned Pommel test enforces it)
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -277,7 +280,8 @@ UPGRADE_UNLOCKS = {"TRUE_GRIT", "STAMPEDE", "ARMAMENTS", "APOTHEOSIS", "PYRE",
                    # items 29/31 (2026-08-21): upgrades REMOVE Exhaust --
                    # one-shot -> permanent cycler / repeatable recursion
                    "THINKING_AHEAD", "GRAVEBLAST",
-                   "KNOW_THY_PLACE"}  # item 32: upgrade drops Exhaust
+                   "KNOW_THY_PLACE",  # item 32: upgrade drops Exhaust
+                   "INFERNAL_BLADE"}  # item 58 owner: upgrades to 0 cost -- meaningful
 
 # ---------------------------------------------------------------- provides (audit + weights)
 # Frozen from the 12-agent audit output; magnitude weights below override the default 1.
@@ -299,7 +303,7 @@ PROVIDES: dict[str, list[str]] = {
     # exhaust
     "TRUE_GRIT": ["exhaust_enabler", "block_engine"],
     "SECOND_WIND": ["exhaust_enabler", "block_engine", "hand_dump"],
-    "FIEND_FIRE": ["exhaust_enabler", "big_single_hit"],
+    "FIEND_FIRE": ["exhaust_enabler", "big_single_hit", "hand_dump"],  # item 56
     "BURNING_PACT": ["exhaust_enabler", "draw_engine", "deck_thinning"],
     "BRAND": ["exhaust_enabler", "strength_source", "deck_thinning"],
     "THRASH": ["exhaust_enabler", "multi_hit"],
@@ -370,7 +374,8 @@ PROVIDES: dict[str, list[str]] = {
     # draw / energy
     "BATTLE_TRANCE": ["draw_engine"],
     "POMMEL_STRIKE": ["draw_engine"],
-    "MASTER_OF_STRATEGY": ["draw_engine", "front_load"],
+    # item 59; flag struck (8th)
+    "MASTER_OF_STRATEGY": ["draw_engine", "front_load", "exhaust_enabler"],
     "PYRE": ["energy_source", "power_setup"],
     "RELAX": ["energy_source", "block_engine"],
     "PRODUCTION": ["energy_source"],
@@ -380,7 +385,7 @@ PROVIDES: dict[str, list[str]] = {
     "RAMPAGE": [],
     "FEED": [],
     "DARK_SHACKLES": ["front_load"],
-    "INFERNAL_BLADE": ["attack_generator"],
+    "INFERNAL_BLADE": ["attack_generator", "exhaust_enabler"],  # item 58; flag struck (7th)
     "DISCOVERY": ["attack_generator"],
     "SECRET_WEAPON": ["attack_generator"],
     "METAMORPHOSIS": ["attack_generator"],
@@ -539,6 +544,8 @@ PROVIDES: dict[str, list[str]] = {
     "ACROBATICS": ["draw_engine", "discard_source"],
     # Item 55: Bludgeon-class hit (energy gate in needs)
     "BURY": ["big_single_hit"],
+    # Item 57: vuln weight from the fixed 'applies' regex; aoe + companion
+    "HIGH_FIVE": ["vulnerable_source", "aoe", "companion_attack"],
     # Meteor Strike: big hit + channels 3 Plasma (orb verifier amendment)
     "METEOR_STRIKE": ["big_single_hit", "orb_source"],
     "PERFECTED_STRIKE": [],
@@ -606,7 +613,8 @@ def main() -> None:
             # left vulnerable_source at 1.0 while weak_source got 3.0.
             if tag in ("vulnerable_source", "weak_source"):
                 kw = "Vulnerable" if tag == "vulnerable_source" else "Weak"
-                if m := re.search(rf"Apply (\d+) (?:\w+ and )?{kw}", text):
+                if m := re.search(rf"Appl(?:y|ies) (\d+) (?:\w+ and )?{kw}",
+                                  text, re.IGNORECASE):
                     weight = float(m.group(1))
             weight = WEIGHT_OVERRIDES.get(cid, {}).get(tag, weight)
             prov[tag] = weight
