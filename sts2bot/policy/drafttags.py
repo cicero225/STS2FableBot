@@ -166,6 +166,13 @@ def _providers(
     """Weighted provider count for a tag: pseudo-tags come from deck_tag_weights;
     real tags are summed from the tag table over the actual deck, plus `extra`
     (relic/boon-provided tags — Ancients pass)."""
+    if tag == "__ethereal":
+        # Ethereal is rules TEXT and deck listings omit descriptions, so this
+        # pseudo-tag counts via the tag table's baked ethereal flags (item 38,
+        # first consumer: Pagestorm) instead of deck_tag_weights
+        return float(sum(
+            1 for c in deck
+            if (tags.get((getattr(c, "id", "") or "").upper()) or {}).get("ethereal")))
     if tag.startswith("__"):
         return deck_counts.get(tag, 0.0)
     total = float((extra or {}).get(tag, 0.0))

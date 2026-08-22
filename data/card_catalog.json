@@ -738,7 +738,8 @@
     "times_picked": 2,
     "times_won": 0,
     "times_lost": 2
-   }
+   },
+   "star_cost": "2"
   },
   "DEBRIS": {
    "name": "Debris",

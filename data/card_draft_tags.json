@@ -482,7 +482,8 @@
   "DEFILE": {
    "provides": {
     "exhaust_enabler": 1.0
-   }
+   },
+   "ethereal": true
   },
   "DEMON_FORM": {
    "provides": {
@@ -786,6 +787,19 @@
    ],
    "upgrade_unlocks": true
   },
+  "GUIDING_STAR": {
+   "provides": {
+    "draw_engine": 1.0
+   },
+   "needs": [
+    {
+     "tag": "star_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
+  },
   "HAILSTORM": {
    "needs": [
     {
@@ -1045,7 +1059,8 @@
      "strength": "mild",
      "penalty": false
     }
-   ]
+   ],
+   "ethereal": true
   },
   "LUMINESCE": {
    "provides": {
@@ -1156,6 +1171,20 @@
     }
    ]
   },
+  "PAGESTORM": {
+   "provides": {
+    "draw_engine": 1.0
+   },
+   "needs": [
+    {
+     "tag": "__ethereal",
+     "threshold": 4,
+     "strength": "strong",
+     "penalty": true
+    }
+   ],
+   "ethereal": true
+  },
   "PANACHE": {
    "provides": {
     "attack_density_payoff": 1.0,
@@ -1221,6 +1250,19 @@
      "threshold": 10,
      "strength": "mild",
      "penalty": false
+    }
+   ]
+  },
+  "PILLAR_OF_CREATION": {
+   "provides": {
+    "block_engine": 1.0
+   },
+   "needs": [
+    {
+     "tag": "attack_generator",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": true
     }
    ]
   },
@@ -1477,6 +1519,12 @@
   "SEVERANCE": {
    "provides": {
     "expensive_attack": 1.0
+   }
+  },
+  "SHADOW_SHIELD": {
+   "provides": {
+    "block_engine": 1.0,
+    "orb_source": 1.0
    }
   },
   "SHIV": {

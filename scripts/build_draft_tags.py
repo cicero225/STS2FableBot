@@ -161,6 +161,9 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Item 35: threshold 2 like Shroud (owner: needs consistent doom), but
     # NO penalty -- the 6-block baseline keeps it playable
     "DEATHS_DOOR": [("doom_source", 2, "strong", False)],
+    "GUIDING_STAR": [("star_source", 1, "strong", True)],
+    "PAGESTORM": [("__ethereal", 4, "strong", True)],
+    "PILLAR_OF_CREATION": [("attack_generator", 2, "strong", True)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -463,6 +466,19 @@ PROVIDES: dict[str, list[str]] = {
     # __cheap_attacks automatically -- the owner's question exposed that the
     # pseudo-tag was never computed (fixed in drafttags 2026-08-21)
     "FLASH_OF_STEEL": ["draw_engine"],
+    # Item 37 (owner star catch #3; live data says star_cost 2 -- owner
+    # recalled 1, payload wins, flagged): premium draw attack WHEN payable
+    "GUIDING_STAR": ["draw_engine"],
+    # Item 38 (approved; first __ethereal consumer -- flag-based count)
+    "PAGESTORM": ["draw_engine"],
+    # Item 39 (approved + owner note: attack_generator is CREAKY -- future
+    # classes bring skill-generators (Silent) and per-turn colorless
+    # creators (Regent power); split into a card_generator family WHEN the
+    # second consumer type appears, not now)
+    "PILLAR_OF_CREATION": ["block_engine"],
+    # Item 40 (approved; owner: 11-for-2 under rate, orb NOT dead in hand
+    # -- free first slot; evoking needs another orb)
+    "SHADOW_SHIELD": ["block_engine", "orb_source"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],
@@ -566,6 +582,8 @@ def main() -> None:
         text = (catalog.get(cid, {}) or {}).get("text") or ""
         if re.search(r"\bInnate\b", text):
             entry(cid)["innate"] = True
+        if re.search(r"\bEthereal\b", text):
+            entry(cid)["ethereal"] = True  # __ethereal counts these (item 38)
 
     unknown = [cid for cid in tags if cid not in catalog]
     if unknown:
