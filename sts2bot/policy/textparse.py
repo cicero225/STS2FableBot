@@ -171,6 +171,10 @@ class CardEffects:
     # Osty attacks (owner clarification 2026-08-20): the companion's damage is
     # COMPLETELY unaffected by the owner's attack modifiers (Str, Weak, Vigor)
     companion: bool = False
+    # Tutors (audit item 71, owner): put/choose/add-into-your-hand effects --
+    # deliberately NOT fx.draw (immune to no-draw riders) but they earn the
+    # same choice-advantage early-play nudge as draw
+    tutors: bool = False
     enemy_strength: int = 0  # Fight Me!-class rider: "The enemy gains N Strength"
     enemy_str_down: int = 0  # Piercing Wail class: enemies LOSE N Str this turn
     self_hp_cost: int = 0
@@ -295,6 +299,10 @@ def parse_card_description(text: str | None) -> CardEffects:
     if re.search(r"\bOsty deals\b", text, re.IGNORECASE):
         fx.companion = True
         fx.recognized.append("companion")
+    if re.search(r"(?:put|choose|add)[^.]{0,60}?into your hand", text,
+                 re.IGNORECASE):
+        fx.tutors = True
+        fx.recognized.append("tutors")
     if m := _ENEMY_STRENGTH.search(text):
         fx.enemy_strength = int(m.group(1))
     if m := _ENEMY_STR_DOWN.search(text):

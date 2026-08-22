@@ -80,7 +80,7 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "JUGGLING": [("__cheap_attacks", 8, "moderate", True)],
     "PILLAGE": [("__attacks", 10, "mild", False)],
     "STOMP": [("__cheap_attacks", 6, "moderate", False)],
-    "AGGRESSION": [("big_single_hit", 1, "moderate", False)],  # review #8: quality > count
+    # item 74 owner reshape: big_single_hit need DROPPED (review #8 superseded)
     "BOLAS": [("strength_source", 1, "moderate", False)],
     # Item 66 (owner): don't PENALIZE the X-cost for needing energy, but it
     # improves with it -- bonus-only, the exact Whirlwind shape. (Owner:
@@ -263,6 +263,9 @@ ANTI: dict[str, list[tuple[str, int, str]]] = {
     # Item 45 (approved 2026-08-21): fires only with ZERO attacks in hand --
     # near-dead in attack-heavy decks (__attacks now computed, bug fixed)
     "IMPATIENCE": [("__attacks", 8, "moderate")],
+    # Item 74: Aggression fetches RANDOM attacks from discard -- a
+    # strike-heavy deck makes bad pulls (owner: pairs with strike-REMOVAL)
+    "AGGRESSION": [("__basics", 6, "moderate")],
 }
 
 COPY_CAP = {"BARRICADE"}
@@ -288,7 +291,8 @@ UPGRADE_UNLOCKS = {"TRUE_GRIT", "STAMPEDE", "ARMAMENTS", "APOTHEOSIS", "PYRE",
                    # one-shot -> permanent cycler / repeatable recursion
                    "THINKING_AHEAD", "GRAVEBLAST",
                    "KNOW_THY_PLACE",  # item 32: upgrade drops Exhaust
-                   "INFERNAL_BLADE"}  # item 58 owner: upgrades to 0 cost -- meaningful
+                   "INFERNAL_BLADE",  # item 58 owner: upgrades to 0 cost -- meaningful
+                   "DISCOVERY"}  # item 75: upgrade removes Exhaust
 
 # ---------------------------------------------------------------- provides (audit + weights)
 # Frozen from the 12-agent audit output; magnitude weights below override the default 1.
@@ -298,7 +302,7 @@ PROVIDES: dict[str, list[str]] = {
     "THUNDERCLAP": ["vulnerable_source", "aoe"],
     "UPPERCUT": ["vulnerable_source", "weak_source"],
     "SHOCKWAVE": ["vulnerable_source", "weak_source", "aoe"],
-    "TREMBLE": ["vulnerable_source"],
+    "TREMBLE": ["vulnerable_source", "exhaust_enabler"],  # item 73; flag struck (11th)
     "TAUNT": ["vulnerable_source", "block_engine"],  # item 63: Defend-grade block
     "DOMINATE": ["vulnerable_source", "strength_source"],
     "DEBILITATE": ["vulnerable_source"],
@@ -352,7 +356,13 @@ PROVIDES: dict[str, list[str]] = {
     "STAMPEDE": ["attack_density_payoff"],
     "ENVENOM": ["attack_density_payoff", "poison_source"],
     "JUGGLING": ["attack_density_payoff"],
-    "AGGRESSION": ["attack_density_payoff"],
+    # Item 74 (owner reshape): power_setup IS right (the planner needs the
+    # setup tag to ever play it) + a soft per-turn card-advantage engine
+    # (draw_engine). Pairing corrected: NOT big single hits -- best with
+    # strike-removal and cheap repeat-play scalers (Thrash/Rampage; NOT
+    # on-draw effects like Kingly Punch/Kick); a fetched Bludgeon can land
+    # on an awkward turn. Encoded as the __basics anti below.
+    "AGGRESSION": ["attack_density_payoff", "power_setup", "draw_engine"],
     "PANACHE": ["attack_density_payoff", "aoe"],
     "AUTOMATION": ["energy_source"],
     # big hits / expensive attacks (expensive_attack also auto-derived below)
@@ -363,7 +373,10 @@ PROVIDES: dict[str, list[str]] = {
     "GIANT_ROCK": ["big_single_hit"],
     "KINGLY_PUNCH": ["big_single_hit"],
     "ULTIMATE_STRIKE": ["big_single_hit"],
-    "SEEKER_STRIKE": ["big_single_hit"],
+    # Item 71: big_single_hit DROPPED (9 dmg is not Bludgeon-class -- the
+    # reverse saturation trap); choose-1-of-3 tutoring = selective draw.
+    # fx.tutors now earns the 0-cost/surplus early-play nudge in combat.
+    "SEEKER_STRIKE": ["draw_engine"],
     "BODY_SLAM": ["block_payoff"],
     # block
     "SHRUG_IT_OFF": ["block_engine", "draw_engine"],
@@ -416,7 +429,7 @@ PROVIDES: dict[str, list[str]] = {
     # trip Expect a Fight's anti). No honest existing tag; left untagged.
     # DECODE: the rider applies to the next skill played THIS COMBAT, not
     # necessarily the next card.
-    "DISCOVERY": ["attack_generator"],
+    "DISCOVERY": ["attack_generator"],  # item 75: half weight below; upgrade class
     "METAMORPHOSIS": ["attack_generator"],
     "MAYHEM": [],
     "HAVOC": [],
@@ -622,6 +635,7 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "DARK_EMBRACE": {"draw_engine": 2.0},   # item 67: per-exhaust proc (FNP/Rage precedent)
     "JACK_OF_ALL_TRADES": {"attack_generator": 0.5},  # item 46: random type, no attack guarantee
     "REFRACT": {"aoe": 0.5},  # item 61: decaying Glass stream, not full AoE
+    "DISCOVERY": {"attack_generator": 0.5},  # item 75 owner: 3 RANDOM cards, no attack guarantee
 }
 
 
@@ -680,7 +694,8 @@ def main() -> None:
     # Upgrade removes Exhaust (item 62 precedent ruling): these cards' self-
     # exhaust enabler provides are BASE-ONLY -- an upgraded copy in the deck
     # does not exhaust and must not count as a provider (_providers gates it)
-    for cid in ("HOLOGRAM", "GRAVEBLAST", "THINKING_AHEAD", "SECRET_WEAPON"):
+    for cid in ("HOLOGRAM", "GRAVEBLAST", "THINKING_AHEAD", "SECRET_WEAPON",
+                "DISCOVERY"):  # item 75: same upgrade-removes-Exhaust class
         entry(cid)["exhaust_drops_on_upgrade"] = True
 
     # Innate providers (owner rule 2026-08-20): a card that is Innate AND

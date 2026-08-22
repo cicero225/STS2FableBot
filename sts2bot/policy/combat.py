@@ -1877,11 +1877,14 @@ def plan_combat_turn(
     for i, pc in enumerate(playable):
         if pc.fx.reveals_random:
             playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
-        elif (energy_surplus > 0 and pc.fx.draw > 0
+        elif (energy_surplus > 0 and (pc.fx.draw > 0 or pc.fx.tutors)
               and pc.cost <= energy_surplus and pc.potion_slot is None):
-            # surplus energy: what draws fetch is USABLE -- surface early
+            # surplus energy: what draws/tutors fetch is USABLE -- surface
+            # early (tutors added per audit item 71, owner: same
+            # choice-advantage logic as 0-cost draw)
             playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
-        elif pc.cost == 0 and pc.fx.draw > 0 and pc.potion_slot is None:
+        elif (pc.cost == 0 and (pc.fx.draw > 0 or pc.fx.tutors)
+              and pc.potion_slot is None):
             # Owner rule (KD A/B 2026-08-14): '0 energy draw like Battle
             # Trance is generally safe to open with' -- drawn cards feed
             # the replan loop, so surface them FIRST. The Battle Trance

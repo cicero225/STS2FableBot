@@ -25,14 +25,15 @@
   },
   "AGGRESSION": {
    "provides": {
-    "attack_density_payoff": 1.0
+    "attack_density_payoff": 1.0,
+    "power_setup": 1.0,
+    "draw_engine": 1.0
    },
-   "needs": [
+   "anti": [
     {
-     "tag": "big_single_hit",
-     "threshold": 1,
-     "strength": "moderate",
-     "penalty": false
+     "tag": "__basics",
+     "threshold": 6,
+     "strength": "moderate"
     }
    ]
   },
@@ -530,8 +531,10 @@
   },
   "DISCOVERY": {
    "provides": {
-    "attack_generator": 1.0
-   }
+    "attack_generator": 0.5
+   },
+   "upgrade_unlocks": true,
+   "exhaust_drops_on_upgrade": true
   },
   "DISMANTLE": {
    "provides": {
@@ -1613,7 +1616,7 @@
   },
   "SEEKER_STRIKE": {
    "provides": {
-    "big_single_hit": 1.0
+    "draw_engine": 1.0
    }
   },
   "SETUP_STRIKE": {
@@ -1928,7 +1931,8 @@
   },
   "TREMBLE": {
    "provides": {
-    "vulnerable_source": 3.0
+    "vulnerable_source": 3.0,
+    "exhaust_enabler": 1.0
    },
    "needs": [
     {
