@@ -185,6 +185,11 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Item 55 (owner: DEAD in a default 3-energy deck -- needs +1 energy or
     # a cost cheat; 'not playable in a default deck')
     "BURY": [("energy_source", 1, "strong", True)],
+    # Owner follow-up: Meteor Strike (5 energy, Defect) is the other >3-cost
+    # card -- needs +2 energy above base, threshold 2. (Its Channel 3 Plasma
+    # partly self-repays NEXT turns -- 3 energy/turn passive -- but the cast
+    # itself still needs the gate.)
+    "METEOR_STRIKE": [("energy_source", 2, "strong", True)],
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -534,6 +539,8 @@ PROVIDES: dict[str, list[str]] = {
     "ACROBATICS": ["draw_engine", "discard_source"],
     # Item 55: Bludgeon-class hit (energy gate in needs)
     "BURY": ["big_single_hit"],
+    # Meteor Strike: big hit + channels 3 Plasma (orb verifier amendment)
+    "METEOR_STRIKE": ["big_single_hit", "orb_source"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],

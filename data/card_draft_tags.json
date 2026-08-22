@@ -1144,8 +1144,18 @@
   },
   "METEOR_STRIKE": {
    "provides": {
+    "big_single_hit": 1.0,
+    "orb_source": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "energy_source",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "MIRAGE": {
    "needs": [
