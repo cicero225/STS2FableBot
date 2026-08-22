@@ -19,6 +19,7 @@
   },
   "ADAPTIVE_STRIKE": {
    "provides": {
+    "attack_generator": 1.0,
     "expensive_attack": 1.0
    }
   },
@@ -283,6 +284,12 @@
      "threshold": 10,
      "strength": "moderate",
      "penalty": false
+    },
+    {
+     "tag": "energy_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
     }
    ]
   },
@@ -444,7 +451,7 @@
   "DARK_EMBRACE": {
    "provides": {
     "exhaust_payoff": 1.0,
-    "draw_engine": 1.0
+    "draw_engine": 2.0
    },
    "needs": [
     {
@@ -1085,8 +1092,23 @@
   },
   "KINGLY_KICK": {
    "provides": {
+    "big_single_hit": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "draw_engine",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    },
+    {
+     "tag": "energy_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
   },
   "KINGLY_PUNCH": {
    "provides": {
@@ -1829,7 +1851,8 @@
   },
   "TAUNT": {
    "provides": {
-    "vulnerable_source": 1.0
+    "vulnerable_source": 1.0,
+    "block_engine": 1.0
    }
   },
   "TEAR_ASUNDER": {
@@ -1891,8 +1914,17 @@
   },
   "TIMES_UP": {
    "provides": {
+    "exhaust_enabler": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "doom_source",
+     "threshold": 1,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "TREMBLE": {
    "provides": {

@@ -82,7 +82,11 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "STOMP": [("__cheap_attacks", 6, "moderate", False)],
     "AGGRESSION": [("big_single_hit", 1, "moderate", False)],  # review #8: quality > count
     "BOLAS": [("strength_source", 1, "moderate", False)],
-    "CASCADE": [("__attacks", 10, "moderate", False)],
+    # Item 66 (owner): don't PENALIZE the X-cost for needing energy, but it
+    # improves with it -- bonus-only, the exact Whirlwind shape. (Owner:
+    # Cascade can pull 3-cost cards out for 1; Whirlwind is the below-rate one.)
+    "CASCADE": [("__attacks", 10, "moderate", False),
+                ("energy_source", 1, "moderate", False)],
     "CLOAK_AND_DAGGER": [("attack_density_payoff", 1, "mild", False)],
     "HAVOC": [("__attacks", 12, "moderate", False)],  # review #11: powers are fine
     "PRIMAL_FORCE": [("__basics", 5, "moderate", False)],
@@ -161,6 +165,9 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Item 35: threshold 2 like Shroud (owner: needs consistent doom), but
     # NO penalty -- the 6-block baseline keeps it playable
     "DEATHS_DOOR": [("doom_source", 2, "strong", False)],
+    "TIMES_UP": [("doom_source", 1, "strong", True)],  # item 64: zero without Doom
+    "KINGLY_KICK": [("draw_engine", 1, "mild", False),
+                    ("energy_source", 1, "moderate", False)],  # item 68
     "GUIDING_STAR": [("star_source", 1, "strong", True)],
     "PAGESTORM": [("__ethereal", 4, "strong", True)],
     "PILLAR_OF_CREATION": [("attack_generator", 2, "strong", True)],
@@ -292,7 +299,7 @@ PROVIDES: dict[str, list[str]] = {
     "UPPERCUT": ["vulnerable_source", "weak_source"],
     "SHOCKWAVE": ["vulnerable_source", "weak_source", "aoe"],
     "TREMBLE": ["vulnerable_source"],
-    "TAUNT": ["vulnerable_source"],
+    "TAUNT": ["vulnerable_source", "block_engine"],  # item 63: Defend-grade block
     "DOMINATE": ["vulnerable_source", "strength_source"],
     "DEBILITATE": ["vulnerable_source"],
     "MOLTEN_FIST": ["vulnerable_source"],
@@ -396,6 +403,19 @@ PROVIDES: dict[str, list[str]] = {
     # decaying 4/3/2/1 AoE stream. Front-loaded AoE is real: aoe at half
     # weight + orb_source; multi_hit as proposed.
     "REFRACT": ["multi_hit", "orb_source", "aoe"],
+    # Item 64 (approved, flag struck 10th): doom-scaling nuke
+    "TIMES_UP": ["exhaust_enabler"],
+    # Item 65 (lane 4d token-creation): a GENUINE creator -- the 0-cost copy
+    # is created, so Pillar-class triggers fire (unlike Secret Weapon's fetch)
+    "ADAPTIVE_STRIKE": ["attack_generator"],
+    # Item 68 (approved + owner: '4 cost' -- but the per-draw cost decay
+    # SOFTENS the gate vs Bury's hard 4, hence moderate/no-penalty)
+    "KINGLY_KICK": ["big_single_hit"],
+    # Item 69 (dispute upheld, owner concurs): next-Skill-costs-0 is NOT
+    # energy_source (would falsely pay Whirlwind-class surplus needs and
+    # trip Expect a Fight's anti). No honest existing tag; left untagged.
+    # DECODE: the rider applies to the next skill played THIS COMBAT, not
+    # necessarily the next card.
     "DISCOVERY": ["attack_generator"],
     "METAMORPHOSIS": ["attack_generator"],
     "MAYHEM": [],
@@ -599,6 +619,7 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "PURITY": {"exhaust_enabler": 3.0},     # item 19: up to 3 procs per play
     "HOTFIX": {"exhaust_enabler": 0.5},     # item 22 owner: weak enabler value
     "CRIMSON_MANTLE": {"block_engine": 3.0},  # item 43: procs every turn (Stone Armor precedent)
+    "DARK_EMBRACE": {"draw_engine": 2.0},   # item 67: per-exhaust proc (FNP/Rage precedent)
     "JACK_OF_ALL_TRADES": {"attack_generator": 0.5},  # item 46: random type, no attack guarantee
     "REFRACT": {"aoe": 0.5},  # item 61: decaying Glass stream, not full AoE
 }
