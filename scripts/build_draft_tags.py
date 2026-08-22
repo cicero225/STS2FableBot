@@ -164,6 +164,7 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "GUIDING_STAR": [("star_source", 1, "strong", True)],
     "PAGESTORM": [("__ethereal", 4, "strong", True)],
     "PILLAR_OF_CREATION": [("attack_generator", 2, "strong", True)],
+    "GUNK_UP": [("strength_source", 1, "mild", False)],  # item 44 multi-hit scaler
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
     "FLATTEN": [("summon_source", 1, "strong", True)],
@@ -223,6 +224,9 @@ ANTI: dict[str, list[tuple[str, int, str]]] = {
     "STOKE": [("hand_dump", 1, "strong")],
     "PANIC_BUTTON": [("block_engine", 2, "moderate")],
     "EXPECT_A_FIGHT": [("energy_source", 1, "mild")],
+    # Item 45 (approved 2026-08-21): fires only with ZERO attacks in hand --
+    # near-dead in attack-heavy decks (__attacks now computed, bug fixed)
+    "IMPATIENCE": [("__attacks", 8, "moderate")],
 }
 
 COPY_CAP = {"BARRICADE"}
@@ -491,6 +495,17 @@ PROVIDES: dict[str, list[str]] = {
     # both since the player-power lane split (the audit's verifier note
     # predates that ship).
     "CRIMSON_MANTLE": ["block_engine", "self_hp_loss_source", "power_setup"],
+    # Item 44 (owner): SLIMED decode banked -- 1-cost status, exhausts when
+    # played, draws 1; NOT enough to count Gunk Up as exhaust synergy. But
+    # status GENERATION is 'a whole Defect synergy package now, an important
+    # one' -> Gunk Up becomes status_source's FIRST provider (self-pollution
+    # doubles as generation; tagged for the future per owner).
+    "GUNK_UP": ["multi_hit", "status_source"],
+    # Item 45 (approved): draw engine gated by the ANTI below
+    "IMPATIENCE": ["draw_engine"],
+    # Item 46 (approved as before -- flag struck, 6th; owner: no GUARANTEE
+    # the random colorless is an attack -> generator at half weight)
+    "JACK_OF_ALL_TRADES": ["attack_generator", "exhaust_enabler"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],
@@ -533,6 +548,7 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "PURITY": {"exhaust_enabler": 3.0},     # item 19: up to 3 procs per play
     "HOTFIX": {"exhaust_enabler": 0.5},     # item 22 owner: weak enabler value
     "CRIMSON_MANTLE": {"block_engine": 3.0},  # item 43: procs every turn (Stone Armor precedent)
+    "JACK_OF_ALL_TRADES": {"attack_generator": 0.5},  # item 46: random type, no attack guarantee
 }
 
 

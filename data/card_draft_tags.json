@@ -807,6 +807,20 @@
     }
    ]
   },
+  "GUNK_UP": {
+   "provides": {
+    "multi_hit": 1.0,
+    "status_source": 1.0
+   },
+   "needs": [
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
+   ]
+  },
   "HAILSTORM": {
    "needs": [
     {
@@ -947,6 +961,18 @@
     "expensive_attack": 1.0
    }
   },
+  "IMPATIENCE": {
+   "provides": {
+    "draw_engine": 1.0
+   },
+   "anti": [
+    {
+     "tag": "__attacks",
+     "threshold": 8,
+     "strength": "moderate"
+    }
+   ]
+  },
   "IMPERVIOUS": {
    "provides": {
     "block_engine": 1.0
@@ -1004,6 +1030,12 @@
   "JACKPOT": {
    "provides": {
     "expensive_attack": 1.0
+   }
+  },
+  "JACK_OF_ALL_TRADES": {
+   "provides": {
+    "attack_generator": 0.5,
+    "exhaust_enabler": 1.0
    }
   },
   "JUGGERNAUT": {
