@@ -479,6 +479,18 @@ PROVIDES: dict[str, list[str]] = {
     # Item 40 (approved; owner: 11-for-2 under rate, orb NOT dead in hand
     # -- free first slot; evoking needs another orb)
     "SHADOW_SHIELD": ["block_engine", "orb_source"],
+    # Item 41 (approved; owner: 'retain is just a keyword' -- Sow HAS it)
+    "SOW": ["aoe", "retain"],
+    # Item 42 (owner ruling): Thrumming Hatchet gets NO tag -- return-on-play
+    # recurrence is NOT the Retain keyword, and the recurring-attack family
+    # (Bolus, Make It So!) is primarily Regent space; the ROLLOUT prices the
+    # recurrence instead (returns_to_hand, 4a-iii). MAKE IT SO! decode
+    # banked: '0 energy, deal 6, every 3 skills you play in a turn, put this
+    # into your hand' -- conditional recurrence, unmodeled.
+    # Item 43 (approved): per-turn block + hp-loss power; sim already handles
+    # both since the player-power lane split (the audit's verifier note
+    # predates that ship).
+    "CRIMSON_MANTLE": ["block_engine", "self_hp_loss_source", "power_setup"],
     "PERFECTED_STRIKE": [],
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],
@@ -520,6 +532,7 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "UP_MY_SLEEVE": {"shiv_source": 3.0},   # 3 Shivs per play
     "PURITY": {"exhaust_enabler": 3.0},     # item 19: up to 3 procs per play
     "HOTFIX": {"exhaust_enabler": 0.5},     # item 22 owner: weak enabler value
+    "CRIMSON_MANTLE": {"block_engine": 3.0},  # item 43: procs every turn (Stone Armor precedent)
 }
 
 

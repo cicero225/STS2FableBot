@@ -104,6 +104,11 @@ class _Card:
     # Retain hand keyword -- this turn's block survives one turn boundary.
     # (Barricade = permanent flag; Sturdy Clamp relic = capped persistence.)
     keeps_block: bool = False
+    # 4a-iii recurrence (owner ruling item 42: NOT Retain -- returns to hand
+    # only IF PLAYED, else discards normally; Thrumming Hatchet 1-cost
+    # subscription, Bolus free; primarily a Regent space, deliberately
+    # untagged in drafting -- the sim prices it instead)
+    returns_to_hand: bool = False
     cid: str = ""
     upgraded: bool = False  # Miniature Cannon: upgraded Attacks hit +3 per swing
 
@@ -254,6 +259,8 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
         keeps_blk = bool(re.search(
             r"block is not (?:lost|removed) at the (?:start of your next turn|"
             r"end of (?:your )?turn)", text, re.IGNORECASE))
+        returns = bool(re.search(
+            r"next turn, return this (?:card )?to your hand", text, re.IGNORECASE))
         out.append(_Card(
             name=getattr(c, "name", "") or cid,
             cost=cost,
@@ -280,6 +287,7 @@ def _build_cards(deck, card_effects: dict | None) -> list[_Card]:
             extra_hits_per_hp_loss=extra_hits,
             selfplay_exhaust=selfplay,
             keeps_block=keeps_blk,
+            returns_to_hand=returns,
         ))
     return out
 
@@ -459,6 +467,7 @@ class _RolloutSim:
         self.hp_loss_events = 0  # Tear Asunder: ANY hp loss counts (owner)
         self.autoplay_exh: list = []  # Bombardment-class self-play loop
         self.keep_block_once = False  # Blur-class one-boundary block keep
+        self.return_next: list = []   # 4a-iii played-recurrence holding pen
         self.growth: dict = {}  # Rampage-class per-card growth THIS rollout
         # (keyed by card object id -- _Card objects are shared across
         # rollouts, so mutating fx.damage would leak between iterations)
@@ -586,6 +595,10 @@ class _RolloutSim:
             f.lost_this_turn = 0
             f.slipped_this_turn = False
         self.hand = []
+        # 4a-iii: played recurrers return AFTER the reset (first placement ran
+        # before it and deleted the card from the game -- test caught it)
+        self.hand.extend(self.return_next)
+        self.return_next = []
         for _ in range(5 + rfx.get("fiddle", 0)
                        + (rfx.get("t1_draw", 0) if self.turn == 1 else 0)):
             self.draw_one()
@@ -725,6 +738,8 @@ class _RolloutSim:
             self.exhaust_event()
             if pick.selfplay_exhaust:  # Bombardment: the loop starts here
                 self.autoplay_exh.append(pick)
+        elif pick.returns_to_hand:  # 4a-iii: recurs ONLY when played
+            self.return_next.append(pick)
         else:
             self.discard.append(pick)
         if self.hp <= 0:

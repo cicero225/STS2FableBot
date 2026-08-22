@@ -406,6 +406,13 @@
     }
    ]
   },
+  "CRIMSON_MANTLE": {
+   "provides": {
+    "block_engine": 3.0,
+    "self_hp_loss_source": 1.0,
+    "power_setup": 1.0
+   }
+  },
   "CRUELTY": {
    "provides": {
     "vulnerable_payoff": 1.0
@@ -1587,6 +1594,12 @@
   "SOVEREIGN_BLADE": {
    "provides": {
     "expensive_attack": 1.0
+   }
+  },
+  "SOW": {
+   "provides": {
+    "aoe": 1.0,
+    "retain": 1.0
    }
   },
   "SPITE": {

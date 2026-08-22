@@ -578,3 +578,22 @@ def test_osty_attacks_ignore_owner_strength() -> None:
     # 6 dmg x ~4 pokes/turn: kill takes ~4+ turns; with Str wrongly added it
     # would read ~8/hit and finish visibly faster. Assert the slow (correct) clock.
     assert r.mean_turns >= 4.0, r.mean_turns
+
+
+def test_returns_to_hand_recurs_only_when_played() -> None:
+    """Owner ruling (item 42): Thrumming Hatchet is NOT Retain -- it returns
+    to hand only IF PLAYED (an energy-per-turn subscription); ignored, it
+    discards normally. A recurring 11-damage attack must out-forecast a
+    one-shot 11 over a long fight."""
+    base = ([card("STRIKE_IRONCLAD", desc="Deal 6 damage.")] * 3
+            + [card("DEFEND_IRONCLAD", typ="Skill", desc="Gain 5 Block.")] * 5)
+    foe = FightEnemy(hp=170, dps=9)
+    oneshot = rollout_fight(
+        [*base, card("CLEAVER", desc="Deal 11 damage.")], [foe], 70, 70, n=25)
+    hatchet = rollout_fight(
+        [*base, card("THRUMMING_HATCHET",
+                     desc="Deal 11 damage. At the start of your next turn, "
+                          "return this to your Hand.")],
+        [foe], 70, 70, n=25)
+    assert (hatchet.win_rate > oneshot.win_rate
+            or hatchet.mean_turns < oneshot.mean_turns)
