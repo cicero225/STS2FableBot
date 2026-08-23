@@ -917,9 +917,6 @@
    }
   },
   "HELLRAISER": {
-   "provides": {
-    "self_hp_loss_source": 1.0
-   },
    "needs": [
     {
      "tag": "__strike_named",
@@ -969,7 +966,8 @@
   },
   "HOLOGRAM": {
    "provides": {
-    "exhaust_enabler": 1.0
+    "exhaust_enabler": 1.0,
+    "draw_engine": 0.5
    },
    "upgrade_unlocks": true,
    "exhaust_drops_on_upgrade": true
@@ -1016,6 +1014,9 @@
   },
   "ICE_LANCE": {
    "provides": {
+    "frost_source": 1.0,
+    "orb_source": 1.0,
+    "big_single_hit": 1.0,
     "expensive_attack": 1.0
    }
   },
@@ -1089,6 +1090,7 @@
   },
   "JACKPOT": {
    "provides": {
+    "attack_generator": 1.5,
     "expensive_attack": 1.0
    }
   },

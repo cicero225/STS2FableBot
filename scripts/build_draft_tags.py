@@ -358,7 +358,12 @@ PROVIDES: dict[str, list[str]] = {
     "OFFERING": ["self_hp_loss_source", "energy_source", "draw_engine", "front_load"],
     "HEMOKINESIS": ["self_hp_loss_source", "front_load"],
     "BLOODLETTING": ["self_hp_loss_source", "energy_source"],
-    "HELLRAISER": ["self_hp_loss_source"],
+    # Item 96: self_hp_loss_source DROPPED -- fabricated by the frozen July
+    # audit (no HP loss in either text; pool-claims class, verifier catch).
+    # Owner: TUTORS serve the same purpose as draw here -- tutor cards carry
+    # draw_engine provides (Seeker Strike/Secret Weapon/Stratagem/Hologram),
+    # so the draw_engine need counts them.
+    "HELLRAISER": [],
     "BLOOD_WALL": ["block_engine", "self_hp_loss_source"],
     "BRAND_STR": [],
     "ASHEN_STRIKE": ["exhaust_payoff"],
@@ -493,6 +498,13 @@ PROVIDES: dict[str, list[str]] = {
     # but DOES feed exhaust-PILE checkers (Pact's End) and relics (Charon)
     # -> keep at half weight)
     "DRAMATIC_ENTRANCE": ["aoe", "front_load", "exhaust_enabler"],
+    # Item 97 (orb context applied): Frost + orb provider; on Ironclad's one
+    # slot, Channel 3 = 2 push-evokes (10 block now) + 1 sitting (2/turn);
+    # on Defect with slots, 6 block/turn passive. Rollout approximation
+    # candidate, not built (Refract treatment).
+    "ICE_LANCE": ["frost_source", "orb_source", "big_single_hit"],
+    # Item 98 (approved; owner: not necessarily attacks -> 0.5 per card x3)
+    "JACKPOT": ["attack_generator"],
     # Item 65 (lane 4d token-creation): a GENUINE creator -- the 0-cost copy
     # is created, so Pillar-class triggers fire (unlike Secret Weapon's fetch)
     "ADAPTIVE_STRIKE": ["attack_generator"],
@@ -558,7 +570,9 @@ PROVIDES: dict[str, list[str]] = {
     "DEVASTATE": ["big_single_hit"],
     # Item 18 (approved, flag struck): a card that exhausts, NOT one you
     # deliberately exhaust (3rd confirmation of the tightened class-1 rule).
-    "HOLOGRAM": ["exhaust_enabler"],
+    # +draw_engine 0.5 (item 96 owner: tutors = draw for need purposes;
+    # one conditional fetch -> half weight, Secret Weapon consistency)
+    "HOLOGRAM": ["exhaust_enabler", "draw_engine"],
     # Item 19 (approved): premium controlled mass-exhaust
     "PURITY": ["exhaust_enabler", "deck_thinning", "retain"],
     # Item 21 (approved): Shrug It Off shape
@@ -712,6 +726,8 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "DISCOVERY": {"attack_generator": 0.5},  # item 75 owner: 3 RANDOM cards, no attack guarantee
     "KNOCKOUT_BLOW": {"star_source": 0.5},  # item 85/S1: kill-conditional star gain
     "DRAMATIC_ENTRANCE": {"exhaust_enabler": 0.5},  # item 95: once/fight, pre-power timing
+    "HOLOGRAM": {"draw_engine": 0.5},       # item 96: one conditional fetch
+    "JACKPOT": {"attack_generator": 1.5},   # item 98: 3 random cards x 0.5
 }
 
 
