@@ -8822,7 +8822,7 @@
    "name": "Eradicate",
    "type": "Attack",
    "rarity": "Rare",
-   "character": "COLORLESS",
+   "character": "NECROBINDER",
    "star_cost": null,
    "cost": "X",
    "text": "Retain. Deal 11 damage X times.",

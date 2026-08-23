@@ -65,6 +65,7 @@ def main() -> int:
             "UPROAR": "DEFECT", "HOTFIX": "DEFECT", "BALL_LIGHTNING": "DEFECT",
             "COLD_SNAP": "DEFECT", "CHAOS": "DEFECT", "CAPACITOR": "DEFECT",
             "DODGE_AND_ROLL": "SILENT",
+            "ERADICATE": "NECROBINDER",  # owner 2026-08-23 (Neow pickup)
             "PREP_TIME": "COLORLESS",  # legitimately colorless (owner)
         }
         for cid in ids:
