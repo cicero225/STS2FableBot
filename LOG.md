@@ -2334,3 +2334,13 @@ verified by run 3).
 - Process slip #3 (silent batch launch in a compound command) -- caught,
   no stray process, relaunched tracked. The rule is now absolute: batch
   launches get their OWN tool call, nothing appended.
+
+## 2026-08-23 (wrap) — batches stopped at owner request (run 38/40 boundary)
+- Final partial batch summary appended below from batch_summary; machine
+  handed back clean (no bot processes). Aeonglass loss dossier ready for
+  the owner's hands-on session: logs/reports/aeonglass_losses_2026-08-23.md
+  (15 losses; pattern: healthy full-HP entries, 18-31 HP front-loaded bleed
+  in r1-2 racing into Artifact+Ebb, single-digit HP by r5-8 with the boss
+  at 200-400/512; plan=race throughout). Next session plan banked in
+  enemy_notes: Aeonglass checkpoint via watcher -> owner plays + bot A/B
+  race-vs-setup arms.
