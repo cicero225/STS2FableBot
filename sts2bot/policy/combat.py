@@ -1431,6 +1431,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         vuln_mult_bonus=s.vuln_mult_bonus + card.vuln_amp,
         # Rupture: a self-HP-cost play is an on-your-turn HP loss -> Str
         my_strength=s.my_strength + card.fx.strength
+        + card.fx.strength_temp  # Setup Strike-class: live for the plan...
         + (s.rupture_per_loss if card.fx.self_hp_cost > 0 else 0),
         # Potion-sourced Str is EXCLUDED from the horizon-scaled credit: the
         # owner's hoarding rule (Ovicopter A/B) gates potion spend on belt
@@ -1833,6 +1834,13 @@ def plan_combat_turn(
         # Cascade/Havoc under an active card cap: vetoed (see plays_top_cards)
         and not (card_cap is not None and c.plays_top_cards)
     ]
+    # Mind Blast (item 112): damage = draw-pile size, resolved at plan time
+    # (static within a turn to good approximation; each pc's fx is its own
+    # instance, so the mutation is plan-local)
+    _n_draw = len(player.draw_pile or [])
+    for _pc in playable:
+        if _pc.fx.dmg_equals_drawpile:
+            _pc.fx.damage = _n_draw
     # Damage potions as pseudo-cards: 0-cost, exempt from the card cap (potions aren't card
     # plays), negative index -(slot+1) mapped back to UsePotion below. is_attack stays False
     # (no Rage/Pen Nib interaction). Gated on SOMETHING threatening or setting up: at zero

@@ -175,6 +175,12 @@ class CardEffects:
     # deliberately NOT fx.draw (immune to no-draw riders) but they earn the
     # same choice-advantage early-play nudge as draw
     tutors: bool = False
+    # Item 112 parse fields (2026-08-23). (Fisticuffs' block-equals-damage
+    # was ALREADY approximated by the July delta audit -- fx.block=damage*hits
+    # at :353 -- so no new field for it; the audit claim was stale.)
+    dmg_equals_drawpile: bool = False  # Mind Blast: damage = cards in draw pile
+    strength_temp: int = 0  # Setup Strike: 'Gain N Strength THIS TURN' -- no
+    #                         future credit, no cross-turn persistence
     enemy_strength: int = 0  # Fight Me!-class rider: "The enemy gains N Strength"
     enemy_str_down: int = 0  # Piercing Wail class: enemies LOSE N Str this turn
     self_hp_cost: int = 0
@@ -296,7 +302,10 @@ def parse_card_description(text: str | None) -> CardEffects:
     # exactly the multi-enemy fights mass-debuffs are for.
     if (fx.vulnerable or fx.weak) and not fx.aoe and _ALL_ENEMIES.search(text):
         fx.aoe = True
-    if m := _STRENGTH.search(text):
+    if m := re.search(r"Gain (\d+) Strength this turn", text, re.IGNORECASE):
+        fx.strength_temp = int(m.group(1))
+        fx.recognized.append("strength_temp")
+    elif m := _STRENGTH.search(text):
         fx.strength = int(m.group(1))
         fx.recognized.append("strength")
     if m := _DEXTERITY.search(text):
@@ -305,6 +314,10 @@ def parse_card_description(text: str | None) -> CardEffects:
     if re.search(r"\bOsty deals\b", text, re.IGNORECASE):
         fx.companion = True
         fx.recognized.append("companion")
+    if re.search(r"damage equal to the number of cards in your draw pile",
+                 text, re.IGNORECASE):
+        fx.dmg_equals_drawpile = True
+        fx.recognized.append("dmg_equals_drawpile")
     if re.search(r"(?:put|choose|add)[^.]{0,60}?into your hand", text,
                  re.IGNORECASE):
         fx.tutors = True

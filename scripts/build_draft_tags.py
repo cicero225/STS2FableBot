@@ -440,7 +440,9 @@ PROVIDES: dict[str, list[str]] = {
     "JUGGERNAUT": ["block_payoff", "power_setup"],
     "ULTIMATE_DEFEND": ["block_engine"],
     "UNMOVABLE": ["block_payoff"],
-    "PROLONG": ["block_payoff"],
+    # +exhaust_enabler (2026-08-23 consistency fix, Not Yet precedent --
+    # playing it procs engines even though the Exhaust is a drawback to you)
+    "PROLONG": ["block_payoff", "exhaust_enabler"],
     "EQUILIBRIUM": ["block_engine", "retain"],
     "PANIC_BUTTON": ["front_load"],
     # draw / energy
@@ -642,7 +644,11 @@ PROVIDES: dict[str, list[str]] = {
     # Item 31 (broadly approved, Hologram-parallel; NOT wants-exhausted)
     "GRAVEBLAST": ["exhaust_enabler"],
     # Item 32 (approved; Regent card): 0-cost double debuff
-    "KNOW_THY_PLACE": ["vulnerable_source", "weak_source"],
+    # +exhaust_enabler (owner question 2026-08-23 exposed the inconsistency:
+    # Tremble/Not Yet earned it for the same self-exhaust shape -- the proc
+    # fires whether or not the Exhaust is a drawback to YOU); gated off on
+    # upgrade since the upgrade removes Exhaust.
+    "KNOW_THY_PLACE": ["vulnerable_source", "weak_source", "exhaust_enabler"],
     # Item 33 (approved; rollout tutor stays deferred per lane 4c)
     "STRATAGEM": ["draw_engine"],
     # Item 34 (approved; owner surprised it was uncovered): repeatable AoE +
@@ -746,6 +752,7 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "HOTFIX": {"exhaust_enabler": 0.5},     # item 22 owner: weak enabler value
     "CRIMSON_MANTLE": {"block_engine": 3.0},  # item 43: procs every turn (Stone Armor precedent)
     "DARK_EMBRACE": {"draw_engine": 2.0},   # item 67: per-exhaust proc (FNP/Rage precedent)
+    "DEMON_FORM": {"strength_source": 3.0},  # item 109: per-turn ramp (owner ok)
     "JACK_OF_ALL_TRADES": {"attack_generator": 0.5},  # item 46: random type, no attack guarantee
     "REFRACT": {"aoe": 0.5},  # item 61: decaying Glass stream, not full AoE
     "DISCOVERY": {"attack_generator": 0.5},  # item 75 owner: 3 RANDOM cards, no attack guarantee
@@ -812,7 +819,11 @@ def main() -> None:
     # exhaust enabler provides are BASE-ONLY -- an upgraded copy in the deck
     # does not exhaust and must not count as a provider (_providers gates it)
     for cid in ("HOLOGRAM", "GRAVEBLAST", "THINKING_AHEAD", "SECRET_WEAPON",
-                "DISCOVERY"):  # item 75: same upgrade-removes-Exhaust class
+                "DISCOVERY",  # item 75: same upgrade-removes-Exhaust class
+                "KNOW_THY_PLACE", "PROLONG",  # 2026-08-23 consistency fix
+                "HOTFIX"):  # item 110 owner: loses Exhaust on upgrade too --
+        #                     huge on Defect, blank on Ironclad; the
+        #                     character-specific-tagging thought is banked
         entry(cid)["exhaust_drops_on_upgrade"] = True
 
     # Innate providers (owner rule 2026-08-20): a card that is Innate AND

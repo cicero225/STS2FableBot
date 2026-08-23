@@ -689,6 +689,8 @@ class _RolloutSim:
                     else ([target] if target is not None else []))
             # Body Slam-class: damage = CURRENT block (the Barricade finisher —
             # owner 2026-08-01; catalog preview numbers are stale, sim block isn't)
+            if pick.fx.dmg_equals_drawpile:  # Mind Blast (item 112)
+                pick.fx.damage = len(self.draw)
             per_hit = (self.block if pick.fx.dmg_equals_block
                        # Osty attacks ignore owner Str/Vigor (owner 2026-08-20)
                        else pick.fx.damage
