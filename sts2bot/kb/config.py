@@ -96,6 +96,11 @@ class CombatWeights(_Section):
     # completely unpriced in combat -- a permanent pool shrink per play.
     # Events price max HP at 1.5/point; combat matches.
     w_max_hp_cost: float = -1.5
+    # Stampede vs Kaiser back-attack claws (owner trap, 2026-08-23): playing
+    # the power surrenders facing control to its random end-of-turn attack --
+    # ~+50% incoming tax per flipped turn for the rest of the fight. Sized
+    # like wake_sleeper: real value or lethal still overrides.
+    w_stampede_backattack: float = -14.0
     strength_horizon_norm: float = 3.0
     strength_horizon_min: float = 0.4
     strength_horizon_max: float = 2.0

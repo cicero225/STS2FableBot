@@ -329,6 +329,11 @@ class PlannedCard:
     # is otherwise unmodeled today; this veto future-proofs the cap interaction
     # for whenever it gets priced.
     plays_top_cards: bool = False
+    # Stampede power (owner trap, noted long ago, implemented 2026-08-23):
+    # its end-of-turn random attack hits a RANDOM enemy, flipping facing --
+    # vs Kaiser back-attack claws that's a +50% incoming tax you no longer
+    # control. Playing it there gets docked; often better held or exhausted.
+    stampede_power: bool = False
     # Fortifier Potion (owner 2026-08-03): 'Triple your current Block' -- a DFS
     # pseudo-card whose value depends on in-plan block, so the planner SEQUENCES
     # it (Defend > Defend > Fortifier) instead of guessing a drink lane.
@@ -493,6 +498,7 @@ class SimState:
     potion_strength: int = 0  # Str from potion pseudo-cards: flat credit, no horizon
     max_hp_spent: int = 0  # Brightest Flame-class 'Lose N Max HP' -- permanent,
     #                        was completely unpriced (owner check 2026-08-23)
+    stampede_played: bool = False  # the Stampede POWER entered play this plan
     damage_dealt: int = 0
     kills: int = 0
     overkill: int = 0
@@ -733,6 +739,8 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
             or bool(re.search(r"\bBound\b", desc))
         ),
         plays_top_cards=bool(re.search(r"play(s)? the top", desc, re.IGNORECASE)),
+        stampede_power=bool(re.search(
+            r"random attack in your hand is played", desc, re.IGNORECASE)),
         grows_on_exhaust=bool(_GROWS_ON_EXHAUST.search(desc)),
         grants_vuln_reduction=bool(_VULN_DMG_REDUCTION.search(desc)),
         on_fatal_bonus=bool(re.search(r"\bIf Fatal\b", desc, re.IGNORECASE)),
@@ -1199,6 +1207,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         rage_block_active=max(state.rage_block_active, card.rage_block),
         rage_block_granted=state.rage_block_granted + rage_bonus,
         powers_played=state.powers_played + (1 if card.is_power else 0),
+        stampede_played=state.stampede_played or card.stampede_power,
         self_damage_powers_played=(
             state.self_damage_powers_played + (1 if card.self_damage_power else 0)
         ),
@@ -1527,11 +1536,21 @@ def _score(
             1 for i in state.ethereal_hand if i not in _played_idx)
     # Stampede: one RETAINED attack fires free at end of turn (random target)
     stampede_term = 0.0
+    _back_attack_fight = any(e.back_attack and e.hp > 0 for e in state.enemies)
     if state.stampede_hand and not lethal_end:
         _sp_idx = {i for i, _ in state.played}
         _retained = [dmg for i, dmg in state.stampede_hand if i not in _sp_idx]
         if _retained:
             stampede_term = w.w_damage * (sum(_retained) / len(_retained)) * 0.9
+            if _back_attack_fight:
+                # Kaiser trap (owner): the free attack hits a RANDOM enemy,
+                # flipping facing -- the +50% back-attack tax roughly eats
+                # the free damage. Keep a sliver, not the full credit.
+                stampede_term *= 0.2
+    if state.stampede_played and _back_attack_fight and not lethal_end:
+        # dock PLAYING the power into a back-attack fight (owner: often
+        # better held or even exhausted vs Kaiser)
+        stampede_term += w.w_stampede_backattack
     if eot and not lethal_end:
         if "CLOAK_CLASP" in eot:  # "gain 1 Block for each card in your Hand" at end of turn
             my_block_eff += retained

@@ -3249,3 +3249,24 @@ def test_max_hp_cost_is_priced_and_fiddle_gates_the_draw_nudge() -> None:
     spent = SimState(energy=0, my_block=0, my_strength=0, max_hp_spent=2,
                      enemies=(_enemy(),))
     assert _score(spent, w) < _score(base, w)
+
+
+def test_stampede_docked_in_back_attack_fights() -> None:
+    """Owner trap (noted long ago, implemented 2026-08-23): Stampede's
+    end-of-turn random attack flips facing -- vs Kaiser back-attack claws
+    that surrenders the +50% tax control. Playing the power there is docked;
+    in a normal fight it keeps full value."""
+    w = load_policy_config().combat
+    def foe(back):
+        return EnemySim(entity_id="c", hp=150, max_hp=200, block=0,
+                        vulnerable=0, incoming=10, back_attack=back)
+    played = SimState(energy=0, my_block=0, my_strength=0, stampede_played=True,
+                      enemies=(foe(True), foe(True)))
+    base = SimState(energy=0, my_block=0, my_strength=0,
+                    enemies=(foe(True), foe(True)))
+    assert _score(played, w) < _score(base, w) - 10  # the dock bites
+    normal_played = SimState(energy=0, my_block=0, my_strength=0,
+                             stampede_played=True, enemies=(foe(False),))
+    normal_base = SimState(energy=0, my_block=0, my_strength=0,
+                           enemies=(foe(False),))
+    assert abs(_score(normal_played, w) - _score(normal_base, w)) < 1e-9
