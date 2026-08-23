@@ -689,7 +689,8 @@ class StandardRouter:
         rider_save = self._death_rider_save(state, plan)
         if rider_save is not None:
             return rider_save
-        potion_play = self._combat_potion(state, ctx, plan)
+        potion_play = self._combat_potion(state, ctx, plan,
+                                          mode_target=mode_target)
         if potion_play is not None:
             return potion_play
         desperation = self._desperation_draw(state, plan)
@@ -891,7 +892,8 @@ class StandardRouter:
                 or any(not any(sw in name for name in seen) for sw in swarms))
 
     def _combat_potion(
-        self, state: CombatState, ctx: LoopContext, plan: Decision | Wait | None = None
+        self, state: CombatState, ctx: LoopContext, plan: Decision | Wait | None = None,
+        mode_target: str | None = None,
     ) -> Decision | None:
         """Drink a useful potion when the fight is dangerous (elite/boss) or HP is dire."""
         w = self.config.potions
@@ -1127,11 +1129,27 @@ class StandardRouter:
         #     Reapplication extends duration (not stacking) and it's independent
         #     of Weak -- both fine to layer, no special casing needed.
         if dangerous and (db := first("debuff")) is not None:
-            atkers = [e for e in state.battle.enemies
-                      if (e.hp or 0) > 0
-                      and any((i.type or "").lower() == "attack" for i in e.intents)
-                      and not any("ARTIFACT" in f"{s.id or ''} {s.name or ''}".upper()
-                                  and (s.amount or 0) > 0 for s in e.status)]
+            unshielded = [e for e in state.battle.enemies
+                          if (e.hp or 0) > 0
+                          and not any("ARTIFACT" in f"{s.id or ''} {s.name or ''}".upper()
+                                      and (s.amount or 0) > 0 for s in e.status)]
+            # Vulnerable is an OFFENSIVE debuff -- it amplifies damage WE deal
+            # INTO the target, so it goes on the fight plan's KILL target, not
+            # the biggest attacker (owner catch 2026-08-23: Vuln Potion thrown
+            # at Crusher while every attack went to the mode target Rocket;
+            # 'first damaging intent' is Beetle Juice/Weak defensive logic).
+            if "vulnerab" in (db.description or "").lower():
+                dt = next((e for e in unshielded
+                           if (e.entity_id or "") == (mode_target or "")), None)
+                why = "the fight-plan target"
+                if dt is None and unshielded:
+                    dt = max(unshielded, key=lambda e: e.hp or 0)
+                    why = "biggest HP"
+                if dt is not None:
+                    return drink(db, dt.entity_id,
+                                 f"throw {db.name} at {dt.name} ({why})")
+            atkers = [e for e in unshielded
+                      if any((i.type or "").lower() == "attack" for i in e.intents)]
             if atkers:
                 dt = max(atkers, key=lambda e: e.hp or 0)
                 return drink(db, dt.entity_id,
