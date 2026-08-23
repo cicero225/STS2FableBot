@@ -2301,3 +2301,21 @@ verified by run 3).
   review. Decision digest also delivered for the owner's bulk-review
   exercise (1106 decisions / latest 40 runs).
 - Batches remain DOWN at owner request.
+
+## 2026-08-23 — first post-audit batch: 5/40; Matriarch normalized; live-catch day
+- First batch on the full audit #2 haul (113/113 items, ~50 commits):
+  5/40 wins, act-reach 2.05 — era-typical, NO regression from the massive
+  tag/parser overhaul (the honest primary question). Matriarch watch item
+  RESOLVED: faced 9, died 1 (11%) vs the 73% spike week — the earlier
+  cluster reads as deck-power variance, closed.
+- Owner live-catch day alongside the review tail: Brightest Flame check
+  (draw credit was correctly dead under Fiddle; exposed UNPRICED 'Lose N
+  Max HP' + Fiddle-blind opener nudges, both fixed), Vulnerable Potion
+  mis-targeting (defensive Beetle Juice rule inherited by an offensive
+  potion — now targets the fight-plan kill target), Stampede/Kaiser facing
+  trap (long-noted, finally implemented: -14 dock + 0.2x credit in
+  back-attack fights), Dominate/Uppercut sequencing check (CLEAN — no
+  pre-existing vuln in the tape, and the synthetic conditional case orders
+  Uppercut-first correctly).
+- Next batch (bjyle284k) carries the live-catch fixes. 3 RISKY-SETUP flags
+  this batch, not yet dissected.
