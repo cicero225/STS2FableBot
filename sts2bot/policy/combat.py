@@ -491,6 +491,8 @@ class SimState:
     artifact_stripped: int = 0
     strength_gained: int = 0
     potion_strength: int = 0  # Str from potion pseudo-cards: flat credit, no horizon
+    max_hp_spent: int = 0  # Brightest Flame-class 'Lose N Max HP' -- permanent,
+    #                        was completely unpriced (owner check 2026-08-23)
     damage_dealt: int = 0
     kills: int = 0
     overkill: int = 0
@@ -1190,6 +1192,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         energy=state.energy - eff_cost,
         damage_dealt=state.damage_dealt + retaliation,
         potions_spent=state.potions_spent + (1 if card.potion_slot is not None else 0),
+        max_hp_spent=state.max_hp_spent + card.fx.max_hp_cost,
         # FNP played mid-plan: later exhausts in THIS plan earn its block
         # (owner 2026-08-03: FNP -> Infernal Blade+ ordering must be discoverable)
         per_exhaust_block=state.per_exhaust_block + card.fx.per_exhaust_block_grant,
@@ -1698,6 +1701,7 @@ def _score(
                        for e in state.enemies))
            else 0.0)
         + w.w_potion_spend * state.potions_spent
+        + w.w_max_hp_cost * state.max_hp_spent  # permanent pool shrink
         + w.w_wake_sleeper * state.sleepers_woken
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
         # picked a target order; these terms make the DFS serve it every turn.
@@ -1904,16 +1908,22 @@ def plan_combat_turn(
         and not (pc.name or "").rstrip("+").startswith(("Strike", "Defend"))
         and pc.fx.draw == 0
     )
+    fiddle_no_draw = any(
+        _RELIC_BLOCKS_DRAW.search(getattr(r_, "description", None) or "")
+        for r_ in (player.relics or [])
+    )
     for i, pc in enumerate(playable):
         if pc.fx.reveals_random:
             playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
-        elif (energy_surplus > 0 and (pc.fx.draw > 0 or pc.fx.tutors)
+        elif (energy_surplus > 0
+              and ((pc.fx.draw > 0 and not fiddle_no_draw) or pc.fx.tutors)
               and pc.cost <= energy_surplus and pc.potion_slot is None):
             # surplus energy: what draws/tutors fetch is USABLE -- surface
-            # early (tutors added per audit item 71, owner: same
-            # choice-advantage logic as 0-cost draw)
+            # early (tutors added per audit item 71; under Fiddle the DRAW
+            # half is dead so only tutors qualify -- owner check 2026-08-23)
             playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
-        elif (pc.cost == 0 and (pc.fx.draw > 0 or pc.fx.tutors)
+        elif (pc.cost == 0
+              and ((pc.fx.draw > 0 and not fiddle_no_draw) or pc.fx.tutors)
               and pc.potion_slot is None):
             # Owner rule (KD A/B 2026-08-14): '0 energy draw like Battle
             # Trance is generally safe to open with' -- drawn cards feed
@@ -1992,10 +2002,6 @@ def plan_combat_turn(
         enemy_sims = tuple(
             replace(e, is_big=(e.entity_id == focus_target)) for e in enemy_sims
         )
-    fiddle_no_draw = any(
-        _RELIC_BLOCKS_DRAW.search(getattr(r_, "description", None) or "")
-        for r_ in (player.relics or [])
-    )
     start = SimState(
         energy=energy,
         exhaust_pile0=exhaust_pile,

@@ -3237,3 +3237,15 @@ def test_all_enemy_str_down_softens_hits_and_artifact_eats_it() -> None:
     assert out.enemies[1].incoming == 14      # charge ate the debuff
     assert out.enemies[1].artifact == 0
     assert out.artifact_stripped == 1         # down-payment credit
+
+
+def test_max_hp_cost_is_priced_and_fiddle_gates_the_draw_nudge() -> None:
+    """Owner check 2026-08-23 (Brightest Flame under Fiddle): the draw credit
+    was already correctly dead (no_draw seeding), but 'Lose 1 Max HP' was
+    completely unpriced -- a permanent pool shrink now pays w_max_hp_cost."""
+    w = load_policy_config().combat
+    base = SimState(energy=0, my_block=0, my_strength=0,
+                    enemies=(_enemy(incoming=0),))
+    spent = SimState(energy=0, my_block=0, my_strength=0, max_hp_spent=2,
+                     enemies=(_enemy(incoming=0),))
+    assert _score(spent, w) < _score(base, w)

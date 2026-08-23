@@ -92,6 +92,10 @@ class CombatWeights(_Section):
     # norm=3 -> a fight with ~3 turns left values Str at the old flat rate;
     # long fights up to 2x, near-kill floors at 0.4x (never quite worthless
     # short of lethal -- ETA estimates are noisy).
+    # Brightest Flame-class 'Lose N Max HP' (owner check 2026-08-23): was
+    # completely unpriced in combat -- a permanent pool shrink per play.
+    # Events price max HP at 1.5/point; combat matches.
+    w_max_hp_cost: float = -1.5
     strength_horizon_norm: float = 3.0
     strength_horizon_min: float = 0.4
     strength_horizon_max: float = 2.0
