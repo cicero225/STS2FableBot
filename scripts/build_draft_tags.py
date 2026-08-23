@@ -322,7 +322,10 @@ UPGRADE_UNLOCKS = {"TRUE_GRIT", "STAMPEDE", "ARMAMENTS", "APOTHEOSIS", "PYRE",
                    "THINKING_AHEAD", "GRAVEBLAST",
                    "KNOW_THY_PLACE",  # item 32: upgrade drops Exhaust
                    "INFERNAL_BLADE",  # item 58 owner: upgrades to 0 cost -- meaningful
-                   "DISCOVERY"}  # item 75: upgrade removes Exhaust
+                   "DISCOVERY",  # item 75: upgrade removes Exhaust
+                   "PROLONG"}  # item 106: one-shot snapshot -> repeatable
+#                                per-turn carryover loop on upgrade (base
+#                                Exhaust is a DRAWBACK here, not fodder)
 
 # ---------------------------------------------------------------- provides (audit + weights)
 # Frozen from the 12-agent audit output; magnitude weights below override the default 1.
@@ -525,6 +528,8 @@ PROVIDES: dict[str, list[str]] = {
     # Item 102 (approved): 24/32 clears the bar; the kill-refund phantom
     # energy over-credit fixed in textparse (kill-conditional -> 0)
     "SUNDER": ["big_single_hit"],
+    # Item 107 (approved, usual retain caveat -- the keyword only)
+    "REAP": ["big_single_hit", "retain"],
     # Item 65 (lane 4d token-creation): a GENUINE creator -- the 0-cost copy
     # is created, so Pillar-class triggers fire (unlike Secret Weapon's fetch)
     "ADAPTIVE_STRIKE": ["attack_generator"],

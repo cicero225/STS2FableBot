@@ -1505,7 +1505,8 @@
      "strength": "moderate",
      "penalty": false
     }
-   ]
+   ],
+   "upgrade_unlocks": true
   },
   "PROWESS": {
    "provides": {
@@ -1577,6 +1578,8 @@
   },
   "REAP": {
    "provides": {
+    "big_single_hit": 1.0,
+    "retain": 1.0,
     "expensive_attack": 1.0
    }
   },
