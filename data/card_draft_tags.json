@@ -40,7 +40,15 @@
   "ALL_FOR_ONE": {
    "provides": {
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "__zero_cost",
+     "threshold": 3,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
   },
   "ANGER": {
    "provides": {
@@ -202,6 +210,7 @@
   },
   "BOMBARDMENT": {
    "provides": {
+    "exhaust_enabler": 1.0,
     "expensive_attack": 1.0
    },
    "needs": [
@@ -470,6 +479,7 @@
   },
   "DASH": {
    "provides": {
+    "block_engine": 1.0,
     "expensive_attack": 1.0
    }
   },
@@ -1137,6 +1147,7 @@
   },
   "KNOCKOUT_BLOW": {
    "provides": {
+    "star_source": 0.5,
     "expensive_attack": 1.0
    }
   },
@@ -2063,8 +2074,17 @@
   },
   "UPROAR": {
    "provides": {
+    "multi_hit": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "__attacks",
+     "threshold": 10,
+     "strength": "mild",
+     "penalty": false
+    }
+   ]
   },
   "UP_MY_SLEEVE": {
    "provides": {

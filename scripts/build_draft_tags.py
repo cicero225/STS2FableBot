@@ -178,6 +178,12 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "KINGLY_PUNCH": [("draw_engine", 1, "moderate", False)],  # item 77/4c group
     "REND": [("vulnerable_source", 2, "moderate", False),
              ("weak_source", 1, "mild", False)],  # item 80
+    "UPROAR": [("__attacks", 10, "mild", False)],  # item 81, Cascade convention
+    # Item 82 (approved): mass 0-cost retrieval -- the __zero_cost
+    # pseudo-tag coined in category 1 (and computed) is exactly its counter;
+    # Defect discard-retrieval rollout stays filed per the 'other' triage.
+    # fx.tutors gives it the opener nudge already.
+    "ALL_FOR_ONE": [("__zero_cost", 3, "moderate", False)],
     "GUIDING_STAR": [("star_source", 1, "strong", True)],
     "PAGESTORM": [("__ethereal", 4, "strong", True)],
     "PILLAR_OF_CREATION": [("attack_generator", 2, "strong", True)],
@@ -440,6 +446,18 @@ PROVIDES: dict[str, list[str]] = {
     # (+N per unique debuff at plan start; owner's family: vuln/weak/poison/
     # doom/shrunken/str-down).
     "REND": ["vulnerable_payoff"],
+    # Item 81 (approved; Defect): two-hit body + random-attack rider
+    "UPROAR": ["multi_hit"],
+    # Item 83 (approved; owner: 'this one actually DOES want to be
+    # exhausted' -- the ONE genuine class-1 card): once looping it
+    # re-exhausts EVERY turn, a recurring proc no other card provides.
+    # Self-satisfied threshold-1 need accepted per the Inferno precedent.
+    "BOMBARDMENT": ["exhaust_enabler"],
+    # Item 84 (approved): 10 block uncredited while Iron Wave's 5 earns it
+    "DASH": ["block_engine"],
+    # Item 85 (S1 star design, double-checked -- KB provides was NOT yet
+    # baked): rider-giver, kill-conditional -> half weight
+    "KNOCKOUT_BLOW": ["star_source"],
     # Item 65 (lane 4d token-creation): a GENUINE creator -- the 0-cost copy
     # is created, so Pillar-class triggers fire (unlike Secret Weapon's fetch)
     "ADAPTIVE_STRIKE": ["attack_generator"],
@@ -657,6 +675,7 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "JACK_OF_ALL_TRADES": {"attack_generator": 0.5},  # item 46: random type, no attack guarantee
     "REFRACT": {"aoe": 0.5},  # item 61: decaying Glass stream, not full AoE
     "DISCOVERY": {"attack_generator": 0.5},  # item 75 owner: 3 RANDOM cards, no attack guarantee
+    "KNOCKOUT_BLOW": {"star_source": 0.5},  # item 85/S1: kill-conditional star gain
 }
 
 
