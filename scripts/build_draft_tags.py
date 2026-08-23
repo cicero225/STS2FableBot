@@ -186,6 +186,7 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     "ALL_FOR_ONE": [("__zero_cost", 3, "moderate", False)],
     # Item 86: 7 stars = deep star economy, multiple sources needed
     "SEVEN_STARS": [("star_source", 2, "strong", True)],
+    "RICOCHET": [("strength_source", 1, "moderate", False)],  # item 93, SB mirror
     "GUIDING_STAR": [("star_source", 1, "strong", True)],
     "PAGESTORM": [("__ethereal", 4, "strong", True)],
     "PILLAR_OF_CREATION": [("attack_generator", 2, "strong", True)],
@@ -284,6 +285,9 @@ ANTI: dict[str, list[tuple[str, int, str]]] = {
     # Item 74: Aggression fetches RANDOM attacks from discard -- a
     # strike-heavy deck makes bad pulls (owner: pairs with strike-REMOVAL)
     "AGGRESSION": [("__basics", 6, "moderate")],
+    # Item 91 owner: Lose 3 Focus anti-synergizes orb generation (except
+    # Plasma, which is Focus-immune)
+    "HYPERBEAM": [("orb_source", 1, "mild")],
 }
 
 COPY_CAP = {"BARRICADE"}
@@ -473,6 +477,22 @@ PROVIDES: dict[str, list[str]] = {
     # Item 90 (approved): near-free over two turns; sim already delays the
     # energy via the pending queue
     "HEGEMONY": ["energy_source"],
+    # Item 91 (approved): biggest colorless AoE nuke; the Lose-3-Focus rider
+    # is FREE on Ironclad but anti-synergizes orb kits (owner: Focus powers
+    # non-Plasma orbs -- Plasma is Focus-immune, so Meteor Strike escapes)
+    "HYPERBEAM": ["aoe", "big_single_hit"],
+    # Item 92 (approved)
+    "PILLAGE": ["draw_engine"],
+    # Item 93 (approved; Sly = owner decode 'played when discarded', Silent)
+    "RICOCHET": ["multi_hit"],
+    # Item 94 (S1 completion -- the coverage amendment listed Severance but
+    # only Reave got baked): 3 Souls = up to 6 draw + 3 exhaust events
+    "SEVERANCE": ["draw_engine", "exhaust_enabler", "soul_source"],
+    # Item 95 (flag struck, 13th; owner edge case: Innate T1 exhaust usually
+    # fires BEFORE per-proc engine powers are played -- rarely feeds FNP,
+    # but DOES feed exhaust-PILE checkers (Pact's End) and relics (Charon)
+    # -> keep at half weight)
+    "DRAMATIC_ENTRANCE": ["aoe", "front_load", "exhaust_enabler"],
     # Item 65 (lane 4d token-creation): a GENUINE creator -- the 0-cost copy
     # is created, so Pillar-class triggers fire (unlike Secret Weapon's fetch)
     "ADAPTIVE_STRIKE": ["attack_generator"],
@@ -648,7 +668,6 @@ PROVIDES: dict[str, list[str]] = {
     "OMNISLICE": ["aoe"],
     "FISTICUFFS": ["block_engine"],
     "SLICE": [],
-    "DRAMATIC_ENTRANCE": ["aoe", "front_load"],
     "SNAP": ["companion_attack", "retain"],
     "UNLEASH": ["companion_attack"],
     "RATTLE": ["companion_attack", "multi_hit"],
@@ -692,6 +711,7 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "REFRACT": {"aoe": 0.5},  # item 61: decaying Glass stream, not full AoE
     "DISCOVERY": {"attack_generator": 0.5},  # item 75 owner: 3 RANDOM cards, no attack guarantee
     "KNOCKOUT_BLOW": {"star_source": 0.5},  # item 85/S1: kill-conditional star gain
+    "DRAMATIC_ENTRANCE": {"exhaust_enabler": 0.5},  # item 95: once/fight, pre-power timing
 }
 
 

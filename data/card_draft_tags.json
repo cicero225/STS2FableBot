@@ -578,7 +578,8 @@
   "DRAMATIC_ENTRANCE": {
    "provides": {
     "aoe": 1.0,
-    "front_load": 1.0
+    "front_load": 1.0,
+    "exhaust_enabler": 0.5
    },
    "innate": true
   },
@@ -1001,8 +1002,17 @@
   },
   "HYPERBEAM": {
    "provides": {
+    "aoe": 1.0,
+    "big_single_hit": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "anti": [
+    {
+     "tag": "orb_source",
+     "threshold": 1,
+     "strength": "mild"
+    }
+   ]
   },
   "ICE_LANCE": {
    "provides": {
@@ -1386,6 +1396,9 @@
    }
   },
   "PILLAGE": {
+   "provides": {
+    "draw_engine": 1.0
+   },
    "needs": [
     {
      "tag": "__attacks",
@@ -1606,8 +1619,17 @@
   },
   "RICOCHET": {
    "provides": {
+    "multi_hit": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "strength_source",
+     "threshold": 1,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
   },
   "ROCKET_PUNCH": {
    "provides": {
@@ -1696,6 +1718,9 @@
   },
   "SEVERANCE": {
    "provides": {
+    "draw_engine": 1.0,
+    "exhaust_enabler": 1.0,
+    "soul_source": 1.0,
     "expensive_attack": 1.0
    }
   },
