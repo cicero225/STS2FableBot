@@ -184,6 +184,8 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Defect discard-retrieval rollout stays filed per the 'other' triage.
     # fx.tutors gives it the opener nudge already.
     "ALL_FOR_ONE": [("__zero_cost", 3, "moderate", False)],
+    # Item 86: 7 stars = deep star economy, multiple sources needed
+    "SEVEN_STARS": [("star_source", 2, "strong", True)],
     "GUIDING_STAR": [("star_source", 1, "strong", True)],
     "PAGESTORM": [("__ethereal", 4, "strong", True)],
     "PILLAR_OF_CREATION": [("attack_generator", 2, "strong", True)],
@@ -320,7 +322,9 @@ PROVIDES: dict[str, list[str]] = {
     "SHOCKWAVE": ["vulnerable_source", "weak_source", "aoe"],
     "TREMBLE": ["vulnerable_source", "exhaust_enabler"],  # item 73; flag struck (11th)
     "TAUNT": ["vulnerable_source", "block_engine"],  # item 63: Defend-grade block
-    "DOMINATE": ["vulnerable_source", "strength_source"],
+    # item 89 owner: self-powered (always >=1 Str), bonus with more vuln --
+    # the bonus-only need already encodes that; +vulnerable_payoff
+    "DOMINATE": ["vulnerable_source", "strength_source", "vulnerable_payoff"],
     "DEBILITATE": ["vulnerable_source"],
     "MOLTEN_FIST": ["vulnerable_source"],
     "BULLY": ["vulnerable_payoff"],
@@ -332,7 +336,8 @@ PROVIDES: dict[str, list[str]] = {
     "SECOND_WIND": ["exhaust_enabler", "block_engine", "hand_dump"],
     "FIEND_FIRE": ["exhaust_enabler", "big_single_hit", "hand_dump"],  # item 56
     "BURNING_PACT": ["exhaust_enabler", "draw_engine", "deck_thinning"],
-    "BRAND": ["exhaust_enabler", "strength_source", "deck_thinning"],
+    "BRAND": ["exhaust_enabler", "strength_source", "deck_thinning",
+              "self_hp_loss_source"],  # item 88: on text (verifier: cite no precedent)
     "THRASH": ["exhaust_enabler", "multi_hit"],
     "CINDER": ["exhaust_enabler", "big_single_hit"],
     "STOKE": ["exhaust_enabler", "hand_dump"],
@@ -340,7 +345,11 @@ PROVIDES: dict[str, list[str]] = {
     # shiv_source added 2026-08-20 (Accuracy dependency; Shivs exhaust, hence
     # the July exhaust_enabler reads stay)
     "CLOAK_AND_DAGGER": ["exhaust_enabler", "block_engine", "shiv_source"],
-    "UP_MY_SLEEVE": ["exhaust_enabler", "multi_hit", "shiv_source"],
+    # item 87: +attack_generator (3 CREATED shiv attacks per play -- Pillar
+    # fires; weight 3 below). Cost-decay note: live cost bakes 2->1->0
+    # (Rampage trap on the cost axis; 4d-i sim lane still pending).
+    "UP_MY_SLEEVE": ["exhaust_enabler", "multi_hit", "shiv_source",
+                     "attack_generator"],
     "LUMINESCE": ["exhaust_enabler", "energy_source"],
     "OFFERING": ["self_hp_loss_source", "energy_source", "draw_engine", "front_load"],
     "HEMOKINESIS": ["self_hp_loss_source", "front_load"],
@@ -458,6 +467,12 @@ PROVIDES: dict[str, list[str]] = {
     # Item 85 (S1 star design, double-checked -- KB provides was NOT yet
     # baked): rider-giver, kill-conditional -> half weight
     "KNOCKOUT_BLOW": ["star_source"],
+    # Item 86 (owner: costs 7 STARS -- star catch #4, pinned on owner
+    # authority, zero payload sightings): 7x7 AoE when payable
+    "SEVEN_STARS": ["aoe", "multi_hit"],
+    # Item 90 (approved): near-free over two turns; sim already delays the
+    # energy via the pending queue
+    "HEGEMONY": ["energy_source"],
     # Item 65 (lane 4d token-creation): a GENUINE creator -- the 0-cost copy
     # is created, so Pillar-class triggers fire (unlike Secret Weapon's fetch)
     "ADAPTIVE_STRIKE": ["attack_generator"],
@@ -667,7 +682,8 @@ WEIGHT_OVERRIDES: dict[str, dict[str, float]] = {
     "STONE_ARMOR": {"block_engine": 3.0},   # Plating procs every turn
     "FEEL_NO_PAIN": {"block_engine": 2.0},  # procs per exhaust
     "RAGE": {"block_engine": 2.0},          # procs per attack
-    "UP_MY_SLEEVE": {"shiv_source": 3.0},   # 3 Shivs per play
+    "UP_MY_SLEEVE": {"shiv_source": 3.0,    # 3 Shivs per play
+                     "attack_generator": 3.0},  # item 87: 3 creation events
     "PURITY": {"exhaust_enabler": 3.0},     # item 19: up to 3 procs per play
     "HOTFIX": {"exhaust_enabler": 0.5},     # item 22 owner: weak enabler value
     "CRIMSON_MANTLE": {"block_engine": 3.0},  # item 43: procs every turn (Stone Armor precedent)

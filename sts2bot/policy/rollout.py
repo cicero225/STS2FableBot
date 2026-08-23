@@ -578,15 +578,27 @@ class _RolloutSim:
             if self.hp <= 0:
                 self.outcome = (False, 0)
                 return
-        # Bombardment-class: self-plays from the exhaust pile every turn and
-        # re-exhausts (per-turn damage loop that ALSO procs exhaust engines)
-        for c in self.autoplay_exh:
-            tgt = next((f for f in self.foes
-                        if f.hp > 0 and not f.dormant and not f.erupting), None)
-            if tgt is not None:
-                for _ in range(max(1, c.fx.hits)):
-                    _hit(tgt, c.fx.damage + self.my_str, self.vm)
-            self.exhaust_event()
+        # Self-play-from-exhaust loop. Two behaviors (owner double-check
+        # 2026-08-22): Bombardment EXHAUSTS on its self-play -> loops every
+        # turn; Howl From Beyond does NOT -> after one self-play it returns
+        # to the DISCARD (rejoins the cycle, must be re-exhausted), which is
+        # why Bombardment is usually better. Howl is also AoE.
+        for c in list(self.autoplay_exh):
+            tgts = ([f for f in self.foes
+                     if f.hp > 0 and not f.dormant and not f.erupting]
+                    if c.fx.aoe else
+                    [next((f for f in self.foes
+                           if f.hp > 0 and not f.dormant and not f.erupting),
+                          None)])
+            for tgt in tgts:
+                if tgt is not None:
+                    for _ in range(max(1, c.fx.hits)):
+                        _hit(tgt, c.fx.damage + self.my_str, self.vm)
+            if c.exhausts:  # Bombardment: re-exhausts, stays in the loop
+                self.exhaust_event()
+            else:  # Howl: back to discard, out of the loop
+                self.autoplay_exh.remove(c)
+                self.discard.append(c)
         if self.turn == 1:
             self.block += rfx.get("t1_block", 0)
             self.my_str += self.spend("strength")  # fight-start buffs (live lane 4)
@@ -730,6 +742,8 @@ class _RolloutSim:
             for _c in list(self.hand):
                 self.hand.remove(_c)
                 self.exhaust_event()
+                if _c.selfplay_exhaust:  # Stoke shredding a Howl arms it
+                    self.autoplay_exh.append(_c)
             for _ in range(n_shredded):
                 self.hand.append(_Card("random", 1,
                                        parse_card_description("Deal 8 damage."),
@@ -770,6 +784,8 @@ class _RolloutSim:
                 self.hp_loss_events += 1
             if c.ethereal:
                 self.exhaust_event()
+                if c.selfplay_exhaust:  # Howl-class enters the loop here
+                    self.autoplay_exh.append(c)
             else:
                 self.discard.append(c)
         self.hand = []

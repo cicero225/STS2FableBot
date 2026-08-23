@@ -55,7 +55,9 @@ def main() -> int:
         # star_cost); verified values are pinned here. TODO: probe the wiki
         # base dict for a star field next time the game is up.
         star_costs = {"CLOAK_OF_STARS": "1", "DEVASTATE": "4",
-                      "GUIDING_STAR": "2"}
+                      "GUIDING_STAR": "2",
+                      # owner authority (no payload sightings in 400 runs)
+                      "SEVEN_STARS": "7"}
         overrides = {
             "INFERNO": "IRONCLAD", "TEAR_ASUNDER": "IRONCLAD",
             "THE_SMITH": "REGENT", "CRUSH_UNDER": "REGENT", "ALIGNMENT": "REGENT",

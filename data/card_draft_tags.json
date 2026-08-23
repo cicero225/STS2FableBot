@@ -226,7 +226,8 @@
    "provides": {
     "exhaust_enabler": 1.0,
     "strength_source": 1.0,
-    "deck_thinning": 1.0
+    "deck_thinning": 1.0,
+    "self_hp_loss_source": 1.0
    },
    "needs": [
     {
@@ -562,7 +563,8 @@
   "DOMINATE": {
    "provides": {
     "vulnerable_source": 1.0,
-    "strength_source": 1.0
+    "strength_source": 1.0,
+    "vulnerable_payoff": 1.0
    },
    "needs": [
     {
@@ -909,6 +911,7 @@
   },
   "HEGEMONY": {
    "provides": {
+    "energy_source": 1.0,
     "expensive_attack": 1.0
    }
   },
@@ -1678,8 +1681,18 @@
   },
   "SEVEN_STARS": {
    "provides": {
+    "aoe": 1.0,
+    "multi_hit": 1.0,
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "star_source",
+     "threshold": 2,
+     "strength": "strong",
+     "penalty": true
+    }
+   ]
   },
   "SEVERANCE": {
    "provides": {
@@ -2090,7 +2103,8 @@
    "provides": {
     "exhaust_enabler": 1.0,
     "multi_hit": 1.0,
-    "shiv_source": 3.0
+    "shiv_source": 3.0,
+    "attack_generator": 3.0
    },
    "needs": [
     {
