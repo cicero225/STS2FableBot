@@ -2319,3 +2319,18 @@ verified by run 3).
   Uppercut-first correctly).
 - Next batch (bjyle284k) carries the live-catch fixes. 3 RISKY-SETUP flags
   this batch, not yet dissected.
+
+## 2026-08-23 (later) — live-catch-fix batch: 1/40 wins BUT record composites
+- Strange split: 1/40 wins yet act-reach 2.35 and relics 11.1 (both
+  all-time highs), elites 1.9. Runs go DEEP and don't close: the killer
+  histogram is an act-3 boss wall -- AEONGLASS x10 (a quarter of the
+  batch!), Queen x5, TS x2, vs only 2 act-1 boss deaths. The
+  draft/pathing side looks stronger than ever; the closing problem is
+  concentrated at Aeonglass specifically. CANDIDATE next lever: Aeonglass
+  setup_burst row (currently pure race) or a snapshot A/B on an Aeonglass
+  checkpoint -- her superlinear Wither escalation may be exactly the
+  hopeless-vs-bank boundary case. One KD RISKY-SETUP flag persists despite
+  the net-of-Ponder fix (not yet dissected).
+- Process slip #3 (silent batch launch in a compound command) -- caught,
+  no stray process, relaunched tracked. The rule is now absolute: batch
+  launches get their OWN tool call, nothing appended.
