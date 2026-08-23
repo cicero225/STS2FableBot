@@ -275,6 +275,12 @@ def parse_card_description(text: str | None) -> CardEffects:
     elif m := _ENERGY_ICON_RUN.search(text):  # iconized form: "Gain [energy][energy]"
         fx.energy_gain = len(_ENERGY_ICON.findall(m.group(1)))
         fx.recognized.append("energy")
+    if fx.energy_gain and re.search(
+            r"if this kills[^.]*gain", text, re.IGNORECASE):
+        # Sunder-class kill-conditional refund (audit item 102): crediting it
+        # unconditionally over-credited 3 phantom energy on every play. The
+        # DFS cannot pre-verify the kill reliably; zero it (conservative).
+        fx.energy_gain = 0
     if m := _COMPOUND_DEBUFF.search(text):  # Shockwave: "Apply 3 Weak and Vulnerable"
         fx.weak = fx.vulnerable = int(m.group(1))
         fx.recognized += ["weak", "vulnerable"]

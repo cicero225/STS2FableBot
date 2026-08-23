@@ -504,7 +504,7 @@
   },
   "DEBILITATE": {
    "provides": {
-    "vulnerable_source": 1.0
+    "vulnerable_payoff": 1.0
    },
    "needs": [
     {
@@ -769,9 +769,16 @@
   },
   "FLATTEN": {
    "provides": {
+    "companion_attack": 1.0,
     "expensive_attack": 1.0
    },
    "needs": [
+    {
+     "tag": "companion_attack",
+     "threshold": 2,
+     "strength": "moderate",
+     "penalty": false
+    },
     {
      "tag": "summon_source",
      "threshold": 1,
@@ -1238,7 +1245,8 @@
   },
   "MOLTEN_FIST": {
    "provides": {
-    "vulnerable_source": 1.0
+    "vulnerable_payoff": 1.0,
+    "exhaust_enabler": 1.0
    },
    "needs": [
     {
@@ -1426,7 +1434,15 @@
   "PINPOINT": {
    "provides": {
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "__skills",
+     "threshold": 8,
+     "strength": "moderate",
+     "penalty": false
+    }
+   ]
   },
   "POKE": {
    "provides": {
@@ -1474,7 +1490,8 @@
   },
   "PRODUCTION": {
    "provides": {
-    "energy_source": 1.0
+    "energy_source": 1.0,
+    "exhaust_enabler": 1.0
    }
   },
   "PROLONG": {
@@ -1636,7 +1653,15 @@
   "ROCKET_PUNCH": {
    "provides": {
     "expensive_attack": 1.0
-   }
+   },
+   "needs": [
+    {
+     "tag": "status_source",
+     "threshold": 1,
+     "strength": "mild",
+     "penalty": false
+    }
+   ]
   },
   "RUPTURE": {
    "provides": {
@@ -1907,6 +1932,7 @@
   },
   "SUNDER": {
    "provides": {
+    "big_single_hit": 1.0,
     "expensive_attack": 1.0
    }
   },

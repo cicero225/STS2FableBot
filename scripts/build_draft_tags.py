@@ -187,6 +187,15 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # Item 86: 7 stars = deep star economy, multiple sources needed
     "SEVEN_STARS": [("star_source", 2, "strong", True)],
     "RICOCHET": [("strength_source", 1, "moderate", False)],  # item 93, SB mirror
+    # Item 101 (S1: status_source coined, Gunk Up provides): mild, playable base
+    "ROCKET_PUNCH": [("status_source", 1, "mild", False)],
+    # Item 104: 0-cost rider needs other Osty attacks (Rattle softened)
+    "FLATTEN": [("companion_attack", 2, "moderate", False),
+                ("summon_source", 1, "strong", True)],
+    # Item 105 (owner resolves the dispute): KEEP auto expensive_attack --
+    # cheat-out cards still cheat it out; 15-for-3 below-rate awkwardness
+    # noted. __skills pseudo-tag computed since category 1.
+    "PINPOINT": [("__skills", 8, "moderate", False)],
     "GUIDING_STAR": [("star_source", 1, "strong", True)],
     "PAGESTORM": [("__ethereal", 4, "strong", True)],
     "PILLAR_OF_CREATION": [("attack_generator", 2, "strong", True)],
@@ -221,7 +230,6 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
     # penalty-only for draw-vs-energy; the pinned Pommel test enforces it)
     "SIC_EM": [("summon_source", 1, "strong", True)],
     "HIGH_FIVE": [("summon_source", 1, "strong", True)],
-    "FLATTEN": [("summon_source", 1, "strong", True)],
     # ---- strength / multi-hit package (all bonus-only)
     "CONFLAGRATION": [("strength_source", 1, "moderate", False)],
     "WHIRLWIND": [("strength_source", 1, "moderate", False),
@@ -329,8 +337,15 @@ PROVIDES: dict[str, list[str]] = {
     # item 89 owner: self-powered (always >=1 Str), bonus with more vuln --
     # the bonus-only need already encodes that; +vulnerable_payoff
     "DOMINATE": ["vulnerable_source", "strength_source", "vulnerable_payoff"],
-    "DEBILITATE": ["vulnerable_source"],
-    "MOLTEN_FIST": ["vulnerable_source"],
+    # Items 99/103 (owner + verifier agree): both AMPLIFY vulnerable, apply
+    # none -- the source provides were fabricated support inflating
+    # Bully/Colossus counts. Flipped to payoff; the owner-set source NEEDS
+    # stay (owner on Molten Fist: 'surprisingly prone to bricking unless
+    # the deck has a good deal of vulnerable already' -- needs, not
+    # supplies). Debilitate: the double-effect decode is the S1 'other'
+    # bucket's unique-source note.
+    "DEBILITATE": ["vulnerable_payoff"],
+    "MOLTEN_FIST": ["vulnerable_payoff", "exhaust_enabler"],
     "BULLY": ["vulnerable_payoff"],
     "CRUELTY": ["vulnerable_payoff"],
     "VICIOUS": ["vulnerable_payoff", "draw_engine"],
@@ -432,7 +447,7 @@ PROVIDES: dict[str, list[str]] = {
     "MASTER_OF_STRATEGY": ["draw_engine", "front_load", "exhaust_enabler"],
     "PYRE": ["energy_source", "power_setup"],
     "RELAX": ["energy_source", "block_engine"],
-    "PRODUCTION": ["energy_source"],
+    "PRODUCTION": ["energy_source", "exhaust_enabler"],  # item 100; flag struck (14th)
     "SPOILS_MAP": [],
     # misc engines
     "ANGER": ["attack_density_payoff"],
@@ -505,6 +520,11 @@ PROVIDES: dict[str, list[str]] = {
     "ICE_LANCE": ["frost_source", "orb_source", "big_single_hit"],
     # Item 98 (approved; owner: not necessarily attacks -> 0.5 per card x3)
     "JACKPOT": ["attack_generator"],
+    # Item 104 (approved + Osty rejoinder: summon need already baked item 7)
+    "FLATTEN": ["companion_attack"],
+    # Item 102 (approved): 24/32 clears the bar; the kill-refund phantom
+    # energy over-credit fixed in textparse (kill-conditional -> 0)
+    "SUNDER": ["big_single_hit"],
     # Item 65 (lane 4d token-creation): a GENUINE creator -- the 0-cost copy
     # is created, so Pillar-class triggers fire (unlike Secret Weapon's fetch)
     "ADAPTIVE_STRIKE": ["attack_generator"],
