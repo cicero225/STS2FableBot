@@ -2,6 +2,21 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27h (Fable 5) — control batch closes 1/40; treatment era begins, code_head live
+
+Control batch bf8njhwwg (OLD tag table): 40/40 completed, 1 win. Final-
+stretch act-1 boss deaths spread across four different bosses = deck
+variance, not regression (ledger lesson applies). Treatment batch bdnucgwn6
+launched on the new table (Stampede/SwordBoomerang/Tremble/TG docks + Havoc
+unlocks); first run's meta.json stamps **code_head 2c8e19f** — segmentation
+live. NOTE DISCOVERED IN PASSING: config_hash does NOT cover the tag table
+(data file, not config weights) — today's dock changes would have been
+invisible to era segmentation without code_head. Pre-registered predictions
+for the treatment era: Stampede/SB pick rates collapse, Tremble picks
+concentrate in payoff decks, base-TG picks drop with TG+ offers holding,
+their per-pick ITT rows shrink toward zero. Rerun the counterfactual suite +
+Bloodletting waste audit once the era accumulates.
+
 ## 2026-08-27g (Fable 5) — True Grit base-dock lands; upgrade-disparity scan across all cards
 
 **TG dock approved + landed**: new flat_adj_base lane (unupgraded offer
