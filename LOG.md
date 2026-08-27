@@ -2,6 +2,48 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27c (Fable 5) — owner reviewed the ITT table; conditional pass ran same-session
+
+**Owner rulings/vibes banked (no weight changes ordered)**: Evil Eye +
+Colossus underperforming matches their long-held intuition ("expect them to
+be good, they underperform"). Bloodletting negative = "legitimately
+surprising and suspicious" — maybe drafted too early / without support.
+Demon Form ~1% pick = fine (Spirebird prior awful; old +3-str-this-turn
+parse bug since fixed; "+0.7 adequately rated, keep an eye on it"). WATCH
+Pact's End (planner historically couldn't plan exhaust→Pact's End
+deliberately). Brand low = maybe play difficulty. Inferno low plausible
+(punishes slow boss closes). Ashen Strike underrated at -1.3 ("reveals
+something about how it's being played"?). Rupture low = play difficulty.
+True Grit "a bit low imo". Howl From Beyond "potentially validates my
+overpick theory".
+
+**Conditional counterfactuals** (`conditional_counterfactuals.py`, report in
+logs/reports/): owner's #3 (act signal) = YES — engine/defensive picks decay
+hard by act 3 (Evil Eye -23pp, Feel No Pain -23, Second Wind -38, Hemokinesis
+-20/pick act-3) while cheap attacks flip positive late (Pommel +22, Thunderclap
++29 act-3): too late to assemble engines, direct damage closes. Owner's #2
+(conditional value) standouts: **Howl From Beyond flips sign on support**
+(+33/pick with Inflame or Burning Pact, +22 with Pommel; -22 with Dominate,
+-27 with Bully; -9 baseline) — overpick theory refined to overpicked-into-
+wrong-decks, and its DECLARED need (exhaust_enabler) does NOT discriminate
+(-5 both arms) while companions do → need likely mis-specified.
+Sword Boomerang worst in GOOD decks (-52/pick with Uppercut, -34 with True
+Grit): random targeting clashes with aimed-vuln lines. True Grit -20 with
+Burning Pact (engine redundancy/over-thin). Tremble worst with FNP (-38) /
+Battle Trance (-25). Tear Asunder/Mangle robustly positive everywhere
+(Mangle+Battle Trance +83/pick, n=102). Whirlwind and Rupture negative EVEN
+with needs met → misplay suspicion, not draft context. **Bloodletting: flat
+-2..-3pp across acts AND both needs met/unmet** — kills drafted-too-early;
+suspicion moves to play-time HP-spend pricing (fights-level analysis of
+Bloodletting plays = follow-up; acting combat records carry full state).
+Tag-needs validation mixed: Brand's need discriminates (+5 met / -1 unmet),
+Evil Eye/Howl/True Grit needs don't.
+
+**ΔV rescue path banked**: score margins are logged → regression
+discontinuity on near-tie drafts is feasible (2,773 era drafts < 0.5 margin,
+5,295 < 1.0) = quasi-random policy coin-flips for local causal pick effects.
+Plus R-learner on offer randomization, and short-horizon V targets. PLAN §9.
+
 ## 2026-08-27b (Fable 5) — stage 1: value heads shipped; ΔV pick signal honestly killed; Stampede indicted by data
 
 Owner greenlit stage 1 (still no game/GPU — all offline). Three deliverables:

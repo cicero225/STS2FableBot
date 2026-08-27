@@ -1531,6 +1531,16 @@ Stages (each gated on the previous paying off):
   snapshot A/Bs, not automatic weight changes. Run-level table uses a first-3-
   drafts exposure window — offered-EVER is length-biased (deeper runs see more
   offers; v1 of the table fell for it).*
+  *(d) 2026-08-27 owner review + conditional pass
+  (`scripts/conditional_counterfactuals.py`): act IS a signal (engines decay by
+  act 3, cheap attacks flip positive); Howl From Beyond flips sign on support
+  (its declared exhaust_enabler need does not discriminate — mis-specified?);
+  Bloodletting flat across acts and needs → suspicion moved to play-time
+  HP-spend pricing (fights-level follow-up). ΔV rescue candidates, in order:
+  score-margin regression discontinuity (margins logged; 2.8k era drafts < 0.5
+  margin), R-learner on offer randomization, short-horizon V targets. Owner
+  watches: Pact's End (old exhaust→PE planner bug), Demon Form rating, Howl
+  overpick.*
 - [ ] **Stage 2 — fit the combat evaluator's weights**: black-box optimization
   (Optuna/CMA-ES) of the existing `_score` weights against rollout-sim outcomes +
   live validation. "RL for card play" in its safest form: search keeps deciding.
