@@ -1492,11 +1492,21 @@ value head; keep both heads (overall + boss-conditional) as outputs.
 
 Stages (each gated on the previous paying off):
 
-- [ ] **Stage 0 — dataset builder** (`scripts/build_run_dataset.py`): walk `logs/runs/`
+- [x] **Stage 0 — dataset builder** (`scripts/build_run_dataset.py`): walk `logs/runs/`
   → JSONL tables under `logs/datasets/` (gitignored, regenerable): runs, drafts,
   events, rests, fights. Raw ids + light derived labels only — feature extraction
   stays a separate training-time module so the feature schema can evolve without
   rebuilding. Doubles as the drafting-review analysis substrate.
+  *DONE 2026-08-27: 2803 runs -> 40k drafts / 19.5k events / 34.4k fights, 0 parse
+  errors. Plus `sts2bot/learn/` (featurizer + no-dep logreg) and a label-sanity
+  baseline (`scripts/baseline_boss_head.py`, report in logs/reports/): P(survive
+  act boss) at boss entry — ctx (hp+boss) AUC 0.755; linear deck features add
+  ~nothing on aggregate BUT within-boss they beat hp-only for 9/12 bosses
+  (Vantom .67→.78, Ceremonial .68→.78, Aeonglass .58→.63) and LOSE on
+  Crusher+Rocket (.76→.64): per-boss interactions are real and a global linear
+  weight can't express them — exactly the stage-1 GBT case. Entry-HP note:
+  Aeonglass hp-only AUC is the lowest (.58) — entering healthy doesn't save you,
+  the dossier's front-loaded-bleed shape in statistical form.*
 - [ ] **Stage 1 — draft/event value model**: gradient-boosted trees (CPU, µs inference)
   over tag-table/textparse features, deployed as a config-flagged BLEND with
   `_card_score`; validated snapshot-A/B then batches. Attacks the hand-tuning treadmill.

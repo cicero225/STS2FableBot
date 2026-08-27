@@ -27,6 +27,23 @@ about -68 for Aeonglass/Queen — matches the Aeonglass dossier shape
 Impervious 90%, Bloodletting 82% ... Havoc 0%) — reviewable substrate for the
 owner's digest exercise. No batches (machine is the owner's; usual reason).
 
+**Label-sanity baseline shipped too** (`sts2bot/learn/` featurizer + no-dep
+logreg; `scripts/baseline_boss_head.py`; suite 588): P(survive act boss) from
+boss-entry state, dominant era, 4007 examples, split by run. ctx (hp+boss)
+AUC .755; boss-only .694, hp-only .645. Aggregate deck features add ~nothing
+in a LINEAR model, but **within-boss** full beats hp-only 9/12 (Vantom
+.67→.78, Ceremonial .68→.78, Kin .68→.74, Aeonglass .58→.63) and loses on
+Crusher+Rocket (.76→.64) — per-boss deck interactions are real and a global
+linear weight can't express them: the stage-1 GBT case, made from our own
+data. Two findings for the owner: (1) Aeonglass has the LOWEST hp-only AUC
+(.58) — entering healthy doesn't save you; "setup is essential" in
+statistical form. (2) Weight signs are sane (hp_frac +, act -, relics +,
+big_single_hit/aoe/engines +, deck bloat/strike-named -). Featurizer trap
+caught en route: deck_tag_weights only computes pseudo-tags AND needs
+type/cost on card objects — the learn shim now catalog-enriches and mirrors
+_providers' real-tag rules (test pinned; echoes the July
+consumed-but-never-computed bug class).
+
 ## 2026-08-03..07 (Fable 5, sessions 21-23) — wins 12->36; the audit engine; owner-spotting golden age
 
 **WIN EXPLOSION**: 3 lifetime wins pre-week -> ~36 by 08-07. Best day 08-03/04
