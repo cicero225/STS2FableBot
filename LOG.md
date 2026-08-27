@@ -2,6 +2,30 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27f (Fable 5) — owner docks land (Stampede/Sword Boomerang/Tremble); True Grit broken out
+
+**Owner approved docks** ("happy to dock Stampede and Sword Boomerang.
+Community consensus (and my own opinion) on those cards is fairly
+negative"): new flat_adj lane (FLAT_ADJ in builder → additive in
+score_adjustment) — Stampede -3.0, Sword Boomerang -2.5. **Tremble rule**
+(owner: "pretty bad, unless a deck needs vulnerable badly and the only vuln
+card is Bash"): flat -2.0 + kept vulnerable_payoff bonus (nets ~0 in exactly
+the Bash-only starved scenario) + ANTI vulnerable_source>=4 (weight-
+calibrated: Bash 2.0/Bash+ 3.0 stays under; a second real applier trips).
+Review-#3 bonus-only pin superseded + updated. 594 tests. Applies from the
+NEXT batch (current one loaded old tags).
+
+**True Grit upgrade breakout** (owner Q #2 — late-era slice): the badness
+concentrates in the BASE card exactly as suspected — **TRUE_GRIT offers
+-7.0pp/pick (n=1,315) vs TRUE_GRIT+ offers -1.8pp (n=317)**. Random exhaust
+is the problem; targeted (upgraded) is near-neutral. And the "pick it, smith
+it later" plan does NOT rescue the pick: 81% of held copies DO get upgraded
+eventually, yet the base-card pick still measures -7pp — smith slots carry
+opportunity cost. Weakly corroborating: TG-upgraded runs win 9.5% vs 8.8%
+plain (confounded). No TG weight change made — owner to rule (candidates:
+shrink base-TG's exhaust_enabler provide or add a small flat dock, keeping
+the upgrade_unlocks credit).
+
 ## 2026-08-27e (Fable 5) — global legacy-drift check built (owner Q); verdicts survive; git HEAD now logged
 
 Owner asked (remote chat): is there a global check for legacy drift like the
