@@ -2,6 +2,37 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27b (Fable 5) — stage 1: value heads shipped; ΔV pick signal honestly killed; Stampede indicted by data
+
+Owner greenlit stage 1 (still no game/GPU — all offline). Three deliverables:
+
+**Value heads** (`train_draft_value.py` → `data/models/draft_value_v1.json.gz`,
+1.0 MB; dependency-free inference `sts2bot/learn/gbt.py`, lightgbm
+parity-tested to 1e-9; lightgbm 4.7 = new `[learn]` extra, bot never imports
+it): win head test AUC .684, boss head .757, both calibrated. First fit
+memorized run identity (train .989/test .634) — effective n is ~2.2k RUNS not
+60k rows; fixed with per-run row weights + by-run early stopping + hard
+regularization. These are the learned capability estimates (§5-C successors).
+
+**ΔV pick signal REJECTED**: V(deck+card)−V(deck) prefers Cinder/Thunderclap
+over Impervious/Offering — observational confounding (race-y attack decks
+correlate with winning in our own history), not causal pick value. 27% test
+agreement with the bot ≈ random. Not wired; recorded so nobody re-treads it.
+
+**Offer-set counterfactuals** (`offer_counterfactuals.py`) — the model-free
+pick signal, offers quasi-random given act: **STAMPEDE is the worst pick of
+the era, −16pp per-pick (n=1076)** — the data independently convicts the
+owner's live-spotted Kaiser trap (era predates the dock fix). SWORD_BOOMERANG
+second (−10pp, n=2847): same random-target class. EVIL_EYE −6pp at 57% bot
+pick rate; BLOODLETTING/COLOSSUS mildly negative at BOTH row level and the
+fixed-exposure run level → owner-review candidates. Top positives:
+Tear Asunder +22pp/pick (σ≈6), Mangle, Aggression, Feed, Impervious. Trap
+caught in-session: "offered-ever" run-level ITT was length-biased (deeper
+runs see more offers — every staple looked run-winning); rebuilt on a
+first-3-drafts exposure window. Rankings feed snapshot A/Bs, not automatic
+weight edits. Side question for owner: bot picks DEMON_FORM at ~1% of offers
+(tags fine — base-scorer power dock?).
+
 ## 2026-08-27 (Fable 5) — learning direction ratified; stage 0 dataset shipped
 
 Owner opened the RL question (usage-constrained day, big-picture only): scope

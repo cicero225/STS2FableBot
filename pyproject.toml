@@ -21,6 +21,11 @@ dev = [
 llm = [
     "anthropic>=0.40",
 ]
+# training-side only (PLAN §9): the bot's inference path (sts2bot/learn/gbt.py)
+# reads exported JSON and never imports lightgbm
+learn = [
+    "lightgbm>=4.7",
+]
 
 [project.scripts]
 sts2bot = "sts2bot.cli:app"

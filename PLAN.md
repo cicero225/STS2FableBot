@@ -1507,9 +1507,30 @@ Stages (each gated on the previous paying off):
   weight can't express them — exactly the stage-1 GBT case. Entry-HP note:
   Aeonglass hp-only AUC is the lowest (.58) — entering healthy doesn't save you,
   the dossier's front-loaded-bleed shape in statistical form.*
-- [ ] **Stage 1 — draft/event value model**: gradient-boosted trees (CPU, µs inference)
+- [~] **Stage 1 — draft/event value model**: gradient-boosted trees (CPU, µs inference)
   over tag-table/textparse features, deployed as a config-flagged BLEND with
   `_card_score`; validated snapshot-A/B then batches. Attacks the hand-tuning treadmill.
+  *PARTIAL 2026-08-27 — heads trained, pick-blend deliberately NOT wired:*
+  *(a) Value heads shipped (`scripts/train_draft_value.py` →
+  `data/models/draft_value_v1.json.gz`, dependency-free inference in
+  `sts2bot/learn/gbt.py`, lightgbm parity-tested): win head test AUC .684, boss
+  head .757, calibrated; per-run row weights + by-run early stopping after the
+  first fit memorized run identity (train .989/test .634 — effective n is ~2.2k
+  runs, not 60k rows). These are the learned capability estimates for rest/path
+  consumers and P(win)-trace diagnostics.*
+  *(b) ΔV = V(deck+card)−V(deck) as a PICK signal FAILED face validity (prefers
+  Cinder/Thunderclap over Impervious/Offering): observational confounding — deck
+  archetype correlates with winning; the delta is not causal. Do not blend it.*
+  *(c) The pick signal instead: `scripts/offer_counterfactuals.py` (offers are
+  quasi-random given act → ITT per card, ÷ pick-rate ≈ per-pick effect; report in
+  logs/reports/). Headline: STAMPEDE worst in the era (−16pp per-pick, n=1076) —
+  independently corroborates the owner's live-spotted Kaiser trap, era predates
+  the fix; SWORD_BOOMERANG second-worst (−10pp) = same random-target class;
+  EVIL_EYE −6pp at 57% bot pick rate and BLOODLETTING/COLOSSUS mildly negative at
+  both row and fixed-exposure run level = owner-review candidates. Rankings feed
+  snapshot A/Bs, not automatic weight changes. Run-level table uses a first-3-
+  drafts exposure window — offered-EVER is length-biased (deeper runs see more
+  offers; v1 of the table fell for it).*
 - [ ] **Stage 2 — fit the combat evaluator's weights**: black-box optimization
   (Optuna/CMA-ES) of the existing `_score` weights against rollout-sim outcomes +
   live validation. "RL for card play" in its safest form: search keeps deciding.
