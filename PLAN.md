@@ -1465,3 +1465,50 @@ pass** (7).*
 Sequencing note: this complements §8.0 (the immediate routing/deck-power items). Items 2–4 are the
 combat-side maturation that the §5-C capability estimate was built to anchor — they slot in as its
 consumers, not as a pile of one-off rules.
+
+## 9. Learning direction — value functions over the existing decision points (2026-08-27)
+
+Owner opened the RL question 2026-08-25 (spec: *"best possible bot in reasonable
+human-viewing time on my machine"* — seconds per decision OK, minutes not; consumer
+GPU at most). Agreed framing: **not end-to-end RL** — the bot stays search + evaluators;
+we replace hand-set evaluator numbers with fitted ones at the same decision points.
+The tag table / textparse infrastructure from the Aug audit IS the featurizer
+(cards as feature vectors, not IDs → patch- and class-transferable, addresses the
+beta-drift and other-classes concerns). Nested-feedback concern (drafting model
+trained under a weak tactician) handled by: config-hash era stratification (already
+logged per run), outcome labels less entangled with tactical skill (per-fight HP
+deltas, boss-entry HP, act survival — not just win/loss), and offer-set
+counterfactuals (same state, 3 candidates, one chosen).
+
+**Value target ruling (owner Q 2026-08-27, answered):** the win-chance head is not an
+add-on — P(win | run state) IS the value function the pick model is a delta over, so
+we get it for free and should keep it exposed. The **boss-conditional head
+P(beat current act boss | deck, relics, HP)** is the learned successor to the §5-C
+capability estimate — the owner's own "root lever" — and is what rest/path/elite/shop
+decisions want to consume. Also: a calibrated P(win) traced across a run localizes
+blame (biggest drops = drafting vs fights vs pathing), which is the cleanest
+diagnostic for the nested-feedback loop. So: train pick models as ΔP over a shared
+value head; keep both heads (overall + boss-conditional) as outputs.
+
+Stages (each gated on the previous paying off):
+
+- [ ] **Stage 0 — dataset builder** (`scripts/build_run_dataset.py`): walk `logs/runs/`
+  → JSONL tables under `logs/datasets/` (gitignored, regenerable): runs, drafts,
+  events, rests, fights. Raw ids + light derived labels only — feature extraction
+  stays a separate training-time module so the feature schema can evolve without
+  rebuilding. Doubles as the drafting-review analysis substrate.
+- [ ] **Stage 1 — draft/event value model**: gradient-boosted trees (CPU, µs inference)
+  over tag-table/textparse features, deployed as a config-flagged BLEND with
+  `_card_score`; validated snapshot-A/B then batches. Attacks the hand-tuning treadmill.
+- [ ] **Stage 2 — fit the combat evaluator's weights**: black-box optimization
+  (Optuna/CMA-ES) of the existing `_score` weights against rollout-sim outcomes +
+  live validation. "RL for card play" in its safest form: search keeps deciding.
+- [ ] **Stage 3 (only if 1–2 pay)**: small learned net replacing the linear `_score`
+  inside the DFS; sim self-play + live corpus. GPU-optional, CPU inference.
+- **Out of scope**: end-to-end policy nets, joint draft+play models, anything whose
+  data needs exceed passive batches on the owner's machine(s). Caveat pinned: the sim
+  is approximate (audit found real gaps weekly) — a learned evaluator will exploit sim
+  errors as eagerly as enemies; live corpus + snapshot A/Bs stay ground truth.
+
+Complementary zero-data lever: the 2s/decision budget is underspent — search
+depth/rollout count can be raised independently of any learning.
