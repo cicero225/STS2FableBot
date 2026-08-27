@@ -348,6 +348,10 @@ CONTROLLED_EXHAUST: dict[str, bool | str | float] = {
 # on Ironclad; repeatable discard recursion vs a one-shot).
 UPGRADE_UNLOCKS = {"TRUE_GRIT", "STAMPEDE", "ARMAMENTS", "APOTHEOSIS", "PYRE",
                    "HOLOGRAM",
+                   # owner 2026-08-27 (upgrade-disparity scan): cost 1->0 is
+                   # the free-play boundary -- +2.9/+5.3pp gap vs the -1.6
+                   # confounded background, the one data+mechanics survivor
+                   "HAVOC",
                    # items 29/31 (2026-08-21): upgrades REMOVE Exhaust --
                    # one-shot -> permanent cycler / repeatable recursion
                    "THINKING_AHEAD", "GRAVEBLAST",

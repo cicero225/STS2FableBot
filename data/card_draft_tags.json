@@ -905,7 +905,8 @@
      "strength": "moderate",
      "penalty": false
     }
-   ]
+   ],
+   "upgrade_unlocks": true
   },
   "HEADBUTT": {
    "needs": [
