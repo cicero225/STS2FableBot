@@ -2,6 +2,35 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27d (Fable 5) — bot launches the game itself; batches resumed; Bloodletting play-audit closes
+
+**FIRST BOT-INITIATED GAME LAUNCH** (owner remote, explicit permission).
+Attempt 1 died at a Steamworks "No appID" popup (direct exe launch); fix =
+one-time `steam_appid.txt` (2868840) in the game dir. Relaunch: RUNNING
+MODDED, MCP server up, menu in 27s, UNDER A LOCKED SESSION, profile 1
+active (doctor-verified; owner profiles untouched; full save backup taken
+first). P0.8 open item resolved; the 08-07 "bot CANNOT relaunch" note
+invalidated — crash-relaunch watchdog now buildable. Batch bf8njhwwg
+launched: 40 runs, 3x, per-run snapshots. This is also the first
+post-audit-era code batch — new config-era data for all counterfactual
+tables.
+
+**Bloodletting play-time audit** (audit_bloodletting.py; 1,403 holding runs,
+12,918 plays): mean **28.8 HP per run** spent on the card; 14.9% of its
+turns end with the bought energy fully unspent (3 HP for nothing) — and the
+payoff-deck split (Rupture/Tear Asunder/Inferno) does NOT explain it (14.3%
+clean-waste in payoff-free decks). 829/1,293 holding-run deaths died IN a
+fight with spend; 423 fatal fights carried 6+ HP of it. 7% of plays below
+25% HP. BUT: a synthetic pin test against CURRENT code passes both ways —
+the planner refuses the pure-waste play (cheap-mult self term -2.4 wins)
+and leads with BL when it funds a Bludgeon. Verdict: the era's waste is
+legacy-code states + draw-variance (config hash held while code churned all
+summer — era != code version, worth remembering when reading these tables),
+not a live bug. Test pinned (test_bloodletting_not_played_into_wasted_
+energy); rerun the audit on the fresh era once batches accumulate — if
+waste% stays ~15% under current code, the next suspect is replan
+evaporation (BL played early in a plan whose later spends fizzle).
+
 ## 2026-08-27c (Fable 5) — owner reviewed the ITT table; conditional pass ran same-session
 
 **Owner rulings/vibes banked (no weight changes ordered)**: Evil Eye +

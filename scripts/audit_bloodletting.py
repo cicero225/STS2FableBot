@@ -116,16 +116,35 @@ def main() -> int:
              f"{len(plays)} plays across {len(spend_by_fight)} fights "
              f"({len(turns)} turns).", ""]
 
-    # 1. wasted-energy turns
-    known = [t for t in turns.values() if t["end_energy"] is not None]
-    waste2 = sum(1 for t in known if t["end_energy"] >= 2)
-    waste1 = sum(1 for t in known if t["end_energy"] >= 1)
+    # 1. wasted-energy turns. Confound guard: in decks with hp-loss PAYOFFS
+    # (Rupture / Tear Asunder / Inferno), a play with unspent energy can be a
+    # deliberate trigger — split the metric by payoff-holding runs.
+    payoff_cards = {"RUPTURE", "TEAR_ASUNDER", "INFERNO"}
+    payoff_runs: set[str] = set()
+    for table in ("drafts", "events", "rests"):
+        for d in jsonl_rows(DS / f"{table}.jsonl"):
+            if (d.get("config_hash") == era and d["run_id"] in holders
+                    and any(k.rstrip("+") in payoff_cards
+                            for k in d.get("deck") or [])):
+                payoff_runs.add(d["run_id"])
+
+    def _waste_line(label, items):
+        known = [t for k, t in items if t["end_energy"] is not None]
+        w2 = sum(1 for t in known if t["end_energy"] >= 2)
+        w1 = sum(1 for t in known if t["end_energy"] >= 1)
+        return (f"- {label}: {len(known)} turns; >=2 unspent "
+                f"**{100 * w2 / max(1, len(known)):.1f}%**; >=1 unspent "
+                f"{100 * w1 / max(1, len(known)):.1f}%")
+
+    all_items = list(turns.items())
     lines += ["## Was the bought energy even spent?", "",
-              f"- {len(known)} {card} turns with a same-turn end_turn record",
-              f"- end-of-turn energy >= 2 (the purchase bought nothing): "
-              f"**{waste2} ({100 * waste2 / max(1, len(known)):.1f}%)**",
-              f"- end-of-turn energy >= 1 (partially unspent): "
-              f"{waste1} ({100 * waste1 / max(1, len(known)):.1f}%)", ""]
+              _waste_line("all holding runs", all_items),
+              _waste_line("runs WITHOUT hp-loss payoffs (clean waste)",
+                          [(k, t) for k, t in all_items
+                           if k[0] not in payoff_runs]),
+              _waste_line("runs WITH Rupture/Tear Asunder/Inferno",
+                          [(k, t) for k, t in all_items
+                           if k[0] in payoff_runs]), ""]
 
     # 2. how low does it get played?
     fr = [p["hp"] / p["max_hp"] for p in plays

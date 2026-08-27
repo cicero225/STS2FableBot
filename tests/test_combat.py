@@ -3270,3 +3270,22 @@ def test_stampede_docked_in_back_attack_fights() -> None:
     normal_base = SimState(energy=0, my_block=0, my_strength=0,
                            enemies=(foe(False),))
     assert abs(_score(normal_played, w) - _score(normal_base, w)) < 1e-9
+
+
+def test_bloodletting_not_played_into_wasted_energy() -> None:
+    """Play-time audit 2026-08-27 (logs/reports/bloodletting_usage.md): 14.9%
+    of era Bloodletting turns ended with the bought energy unspent -- 3 HP for
+    nothing -- payoff decks excluded. Pin the CURRENT planner's behavior both
+    ways: with nothing to buy it must not play the card (the -2.4 cheap-mult
+    self term must win); when it unlocks a real spend it must lead the plan."""
+    w = load_policy_config().combat
+    bl = _bcard(0, "BLOODLETTING", "Bloodletting", 0,
+                "Lose 3 HP. Gain 2 Energy.", "Skill", "None")
+    # alone in hand at full energy: the energy can buy nothing
+    d = plan_combat_turn(parse_state(_beckon_state(3, [bl])), w)
+    assert d.action.payload().get("card_index") != 0
+    # positive control: 1 energy + Bludgeon(3) -- Bloodletting funds the swing
+    hand = [bl, _bcard(1, "BLUDGEON", "Bludgeon", 3, "Deal 32 damage.",
+                       "Attack", "AnyEnemy")]
+    d2 = plan_combat_turn(parse_state(_beckon_state(1, hand)), w)
+    assert d2.action.payload().get("card_index") == 0
