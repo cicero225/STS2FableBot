@@ -2,6 +2,31 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27 (Fable 5) — learning direction ratified; stage 0 dataset shipped
+
+Owner opened the RL question (usage-constrained day, big-picture only): scope
+grew past expectation; hand-tuning drafting weights = maintaining a value
+function by hand. Agreed direction now in **PLAN §9**: fitted value functions
+at the existing decision points, never end-to-end RL; cards as tag/textparse
+FEATURES not IDs (the audit built the featurizer); nested-feedback handled by
+config-era stratification + HP-delta/boss-entry labels + offer-set
+counterfactuals. Win-head ruling (owner Q): P(win) is the shared value head
+pick models are deltas over — keep it, plus the boss-conditional head as the
+learned §5-C capability estimate. Consumer-GPU ceiling, CPU inference.
+
+**Stage 0 shipped same session** (`scripts/build_run_dataset.py`, 3 tests,
+suite 582): all 2803 logged runs -> logs/datasets/ tables with ZERO parse
+errors — 40,066 drafts, 19,512 events, 28,811 rests, 34,383 fights, 2706
+outcome-valid runs (151 wins, 5.6% lifetime; 6.6% in the long f0e54b35 era).
+First-look report (`scripts/dataset_summary.py` ->
+logs/reports/dataset_summary_stage0.md): recent-era boss lethality quantifies
+the wall — **act-3 slate: Aeonglass 84% death, Queen 74%, Test Subject 65%,
+Crusher+Rocket 60%** vs act-1/2 bosses at 18-38%; mean boss-fight HP delta
+about -68 for Aeonglass/Queen — matches the Aeonglass dossier shape
+(front-loaded bleed). Draft pick-rates pass the sniff test (Offering 98%,
+Impervious 90%, Bloodletting 82% ... Havoc 0%) — reviewable substrate for the
+owner's digest exercise. No batches (machine is the owner's; usual reason).
+
 ## 2026-08-03..07 (Fable 5, sessions 21-23) — wins 12->36; the audit engine; owner-spotting golden age
 
 **WIN EXPLOSION**: 3 lifetime wins pre-week -> ~36 by 08-07. Best day 08-03/04
