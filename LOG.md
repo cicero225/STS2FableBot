@@ -2,6 +2,30 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27g (Fable 5) — True Grit base-dock lands; upgrade-disparity scan across all cards
+
+**TG dock approved + landed**: new flat_adj_base lane (unupgraded offer
+only) — TRUE_GRIT -1.5; upgrade_unlocks credit + upgrade-gated
+controlled_exhaust untouched. 595 tests.
+
+**Upgrade-disparity scan** (owner's proposed experiment;
+`scripts/upgrade_disparity.py`, late-era + full-era slices): 55 cards with
+both-variant volume. KEY METHOD FINDING first: the upgraded-offer stratum is
+systematically confounded — mechanically-impossible negatives (Expect a
+Fight+ strictly better than base yet measuring -7.5pp worse) expose it;
+median gap -1.6pp (mean -3.0). Judge against the MEDIAN, not zero, and
+demand a mechanical step-change before believing a gap. Survivors of that
+screen: **HAVOC** +2.9pp full-era / +5.3 late (sig ~2.4) vs the -1.6
+background, and it IS a cost 1→0 step-change (the classic 'Havoc+ is
+playable, Havoc is not') — the one genuine candidate for ADDING
+upgrade_unlocks, unflagged today. DISMANTLE +4.1 (thin, no step-change —
+just +2 dmg — treat as noise). Counter-finding: **INFERNAL_BLADE carries the
+unlocks flag but measures at/below background in both slices** (-4.6/-8.7) —
+flag-review candidate. TRUE_GRIT's +5.2 gap remains the strongest
+(handled). No flag changes made — owner called that the riskier half;
+candidates presented only. All sigs ≤2.5 over 55 comparisons: ranking
+evidence, not verdicts; snapshot A/Bs or next-era data to settle.
+
 ## 2026-08-27f (Fable 5) — owner docks land (Stampede/Sword Boomerang/Tremble); True Grit broken out
 
 **Owner approved docks** ("happy to dock Stampede and Sword Boomerang.
