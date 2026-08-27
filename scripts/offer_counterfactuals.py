@@ -36,15 +36,22 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--datasets", type=Path, default=DS)
     ap.add_argument("--min-offers", type=int, default=80)
+    ap.add_argument("--since", type=str, default=None,
+                    help="only runs started on/after this date (YYYY-MM-DD) — "
+                    "drift_check.md showed early-era picks diverge up to 38%% "
+                    "from current code, so late-slice reruns test robustness")
+    ap.add_argument("--out-name", type=str, default="offer_counterfactuals.md")
     args = ap.parse_args()
     ds = args.datasets
 
     runs = {r["run_id"]: r for r in jsonl_rows(ds / "runs.jsonl")}
     era = Counter(r["config_hash"] for r in runs.values()
                   if r["outcome_valid"]).most_common(1)[0][0]
+    ok_runs = {rid for rid, r in runs.items()
+               if not args.since or (r.get("started_at") or "") >= args.since}
     drafts = [d for d in jsonl_rows(ds / "drafts.jsonl")
               if d.get("outcome_valid") and d.get("config_hash") == era
-              and d.get("victory") is not None]
+              and d.get("victory") is not None and d["run_id"] in ok_runs]
 
     # per-act baselines over ALL era draft rows
     act_rows: dict[int, list[dict]] = defaultdict(list)
@@ -138,7 +145,7 @@ def main() -> int:
                 early_offers[o["key"].rstrip("+")].add(run_id)
     era_runs = [r for r in runs.values()
                 if r["outcome_valid"] and r["config_hash"] == era
-                and r["run_id"] in eligible]
+                and r["run_id"] in eligible and r["run_id"] in ok_runs]
     staples = sorted(rows_out, key=lambda r: -r["pick"])[:15]
     for r in staples:
         got = early_offers[r["card"]]
@@ -151,7 +158,7 @@ def main() -> int:
         lines.append(f"| {r['card']} | {len(a)} | {100 * wa:.1f}% "
                      f"| {len(b)} | {100 * wb:.1f}% | {100 * (wa - wb):+.1f}pp |")
 
-    out = ROOT / "logs" / "reports" / "offer_counterfactuals.md"
+    out = ROOT / "logs" / "reports" / args.out_name
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {out} ({len(rows_out)} cards)")
     for r in rows_out[:8]:

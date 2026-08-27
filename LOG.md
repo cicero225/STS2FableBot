@@ -2,6 +2,35 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27e (Fable 5) — global legacy-drift check built (owner Q); verdicts survive; git HEAD now logged
+
+Owner asked (remote chat): is there a global check for legacy drift like the
+Bloodletting case? Answer: YES, and it needs no statistics — policies are
+pure functions and states are fully logged, so `scripts/drift_check.py`
+REPLAYS the era's draft states through TODAY'S StandardRouter and counts
+disagreements. Results: era f0e54b35 spans **162 code vintages** (453
+policy-relevant commits repo-wide); draft divergence declines monotonically
+**38.3% (July w3) → 1.3% (this week)**, 17.8% overall (8,648 replayed,
+0 errors). The flip table names the dominant driver: top flips are all
+SKIP→pick on the __attacks/__cheap_attacks family (Setup Strike, Stampede,
+Expect a Fight, Rage, Stomp, Cascade...) = the July consumed-but-never-
+computed pseudo-tag bug (fixed 08-21) suppressing those picks for a month.
+
+**Robustness rerun** (offer_counterfactuals --since 2026-08-08, the
+low-divergence window): every negative verdict SURVIVES AND STRENGTHENS —
+Stampede -16.2 → **-20.7pp**/pick (n=659), Sword Boomerang -13.2, Tremble
+-12.9, Whirlwind -11.1, Rampage newly -10.9, Evil Eye -6.4, True Grit -6.0;
+positives stable (Mangle +25.9, Cascade +23.0, Tear Asunder +18.9, Vicious
+up to +12.5). Drift DILUTED the findings, not created them. Note for owner:
+per the flip table today's bot picks Stampede MORE than the logged era did —
+the -20.7 verdict is about current policy; Stampede + Sword Boomerang
+(random-target class) are now the top draft-dock candidates on
+current-code evidence.
+
+**Infra fix**: `meta.json` now records `code_head` (git short HEAD at batch
+launch) — future eras segment by code vintage exactly instead of via
+timestamp archaeology. Landed mid-batch; applies from the NEXT batch.
+
 ## 2026-08-27d (Fable 5) — bot launches the game itself; batches resumed; Bloodletting play-audit closes
 
 **FIRST BOT-INITIATED GAME LAUNCH** (owner remote, explicit permission).

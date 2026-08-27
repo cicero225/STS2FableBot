@@ -85,6 +85,9 @@ class LoopConfig(BaseModel):
     # attribution (FR-3.4): which policy + config produced this run
     policy_name: str = "trivial"
     config_hash: str | None = None
+    # code attribution (drift_check 2026-08-27: era f0e54b35 spanned 162 code
+    # vintages invisibly — the config hash pins weights, not code)
+    code_head: str | None = None
     # engine speed: re-asserted periodically because game cinematics reset
     # Engine.TimeScale to 1.0 (observed live at the Act 1 boss)
     time_scale: float | None = None
@@ -154,7 +157,8 @@ class AgentLoop:
         logger = RunLogger(
             self.log_root,
             character_hint=cfg.character,
-            header={"policy": cfg.policy_name, "config_hash": cfg.config_hash},
+            header={"policy": cfg.policy_name, "config_hash": cfg.config_hash,
+                    "code_head": cfg.code_head},
         )
         index = RunIndex(self.log_root / "index.sqlite")
         run_id = index.start_run(

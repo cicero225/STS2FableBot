@@ -126,6 +126,17 @@ def play(
 
     router, config_hash = _build_router(policy)
     history_dirs = discover_history_dirs()
+    # code vintage into meta.json (drift_check 2026-08-27: config hash pins
+    # weights, not code — era f0e54b35 silently spanned 162 code vintages)
+    try:
+        import subprocess
+
+        code_head = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"], capture_output=True,
+            text=True, timeout=10, cwd=Path(__file__).resolve().parent.parent,
+        ).stdout.strip() or None
+    except Exception:
+        code_head = None
     config = LoopConfig(
         poll_interval=poll_interval,
         character=character,
@@ -134,6 +145,7 @@ def play(
         history_dirs=history_dirs,
         policy_name=policy,
         config_hash=config_hash,
+        code_head=code_head,
         time_scale=speed,
         profile_backup_root=Path("backups/profile_snapshots") if backup else None,
         pause_after_fight=pause_after_fight,
