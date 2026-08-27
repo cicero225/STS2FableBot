@@ -1881,6 +1881,7 @@
      "penalty": false
     }
    ],
+   "flat_adj": -3.0,
    "upgrade_unlocks": true
   },
   "STOKE": {
@@ -1955,7 +1956,8 @@
      "strength": "moderate",
      "penalty": false
     }
-   ]
+   ],
+   "flat_adj": -2.5
   },
   "SYNTHESIS": {
    "provides": {
@@ -2059,7 +2061,15 @@
      "strength": "moderate",
      "penalty": false
     }
-   ]
+   ],
+   "anti": [
+    {
+     "tag": "vulnerable_source",
+     "threshold": 4,
+     "strength": "moderate"
+    }
+   ],
+   "flat_adj": -2.0
   },
   "TRUE_GRIT": {
    "provides": {

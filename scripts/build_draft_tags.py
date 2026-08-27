@@ -278,6 +278,23 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
 
 # anti-synergy: penalty when a tag IS well-represented (review: Battle Trance draw-lock,
 # Panic Button block-lock, Expect a Fight energy-lock)
+# Flat additive score adjustments — owner-approved docks/bonuses backed by
+# counterfactual outcome data (offer_counterfactuals late-era slice,
+# 2026-08-27; drift-checked against current code). Sized vs w_tag_penalty
+# -4/strong-6; A/B-able. Owner 2026-08-27: "happy to dock Stampede and Sword
+# Boomerang. Community consensus (and my own opinion) is fairly negative."
+FLAT_ADJ: dict[str, float] = {
+    "STAMPEDE": -3.0,        # worst pick of the era: -20.7pp/pick (n=659,
+    #                          late slice); random-target facing loss (Kaiser)
+    "SWORD_BOOMERANG": -2.5,  # -13.2pp/pick (n=1749); same random-target
+    #                          class, worst in aimed-vuln decks (-52 w/ Uppercut)
+    "TREMBLE": -2.0,  # owner rule 2026-08-27: "pretty bad, unless a deck
+    #                   needs vulnerable badly and the only vuln card is Bash"
+    #                   -- flat dock + kept vulnerable_payoff bonus nets ~0 in
+    #                   exactly that scenario; the ANTI below docks it further
+    #                   once real vuln sources already exist (-12.9pp/pick data)
+}
+
 ANTI: dict[str, list[tuple[str, int, str]]] = {
     "BATTLE_TRANCE": [("draw_engine", 2, "mild")],
     # shadow review 2026-07-24: "Second Wind and Stoke get in each other's way" --
@@ -296,6 +313,11 @@ ANTI: dict[str, list[tuple[str, int, str]]] = {
     # Item 91 owner: Lose 3 Focus anti-synergizes orb generation (except
     # Plasma, which is Focus-immune)
     "HYPERBEAM": [("orb_source", 1, "mild")],
+    # Owner 2026-08-27 Tremble rule: pick only when vuln is BADLY needed and
+    # the only source is Bash. Weight-calibrated: Bash 2.0 / Bash+ 3.0 stays
+    # under the bar; Bash + any second applier (Uppercut/Dominate 1.0) or two
+    # mid appliers trips it
+    "TREMBLE": [("vulnerable_source", 4, "moderate")],
 }
 
 COPY_CAP = {"BARRICADE"}
@@ -809,6 +831,8 @@ def main() -> None:
         entry(cid)["anti"] = [
             {"tag": t, "threshold": thr, "strength": s} for t, thr, s in antis
         ]
+    for cid, v in FLAT_ADJ.items():
+        entry(cid)["flat_adj"] = v
     for cid in COPY_CAP:
         entry(cid)["copy_cap"] = True
     for cid, v in CONTROLLED_EXHAUST.items():

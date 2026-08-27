@@ -55,8 +55,10 @@ def test_pure_payoff_docked_at_zero_with_act1_window() -> None:
 def test_self_provision_keeps_enabler_pickable() -> None:
     # Dominate provides the vulnerable it needs: never docked even in an empty deck.
     assert score_adjustment("DOMINATE", [], TAGS, W, act=2) > 0
-    # Tremble (bonus-only enabler per review #3): no dock without payoffs either
-    assert score_adjustment("TREMBLE", [], TAGS, W, act=2) >= 0
+    # Tremble: review #3's bonus-only ruling SUPERSEDED by owner 2026-08-27
+    # ("pretty bad, unless a deck needs vulnerable badly...") + late-era
+    # counterfactual (-12.9pp/pick): flat -2 baseline, no tag-penalty on top
+    assert score_adjustment("TREMBLE", [], TAGS, W, act=2) == -2.0
 
 
 def test_copy_cap_barricade() -> None:
@@ -619,3 +621,43 @@ def test_upgraded_copies_stop_providing_exhaust_enabler() -> None:
     upg = [c("HOLOGRAM", up=True)]
     assert _providers("exhaust_enabler", {}, base, TAGS) == 1.0
     assert _providers("exhaust_enabler", {}, upg, TAGS) == 0.0
+
+
+def test_flat_adj_docks_stampede_and_sword_boomerang() -> None:
+    """Owner-approved docks (2026-08-27, counterfactual evidence: Stampede
+    -20.7pp/pick and Sword Boomerang -13.2pp/pick on the drift-checked late
+    era; community consensus concurs). flat_adj applies unconditionally."""
+    from types import SimpleNamespace as NS
+    tags = load_draft_tags()
+    w = load_policy_config().card_rewards
+    deck = [NS(id="STRIKE_IRONCLAD", name="Strike", type="Attack",
+               cost="1", is_upgraded=False)] * 5
+    for cid, dock in (("STAMPEDE", -3.0), ("SWORD_BOOMERANG", -2.5)):
+        with_flat = score_adjustment(cid, deck, tags, w)
+        stripped = {**tags, cid: {k: v for k, v in tags[cid].items()
+                                  if k != "flat_adj"}}
+        without = score_adjustment(cid, deck, stripped, w)
+        assert with_flat - without == dock
+
+
+def test_tremble_dock_spares_the_bash_only_vuln_starved_deck() -> None:
+    """Owner rule 2026-08-27: Tremble is 'pretty bad, unless a deck needs
+    vulnerable badly and the only vuln card is Bash'. Bash-only + payoff deck
+    must outscore both the payoff-free deck and the vuln-saturated deck."""
+    from types import SimpleNamespace as NS
+    def c(cid, typ="Attack"):
+        return NS(id=cid, name=cid.title(), type=typ, cost="1",
+                  is_upgraded=False)
+    tags = load_draft_tags()
+    w = load_policy_config().card_rewards
+    strikes = [c("STRIKE_IRONCLAD")] * 5
+    bash_payoff = [*strikes, c("BASH"), c("COLOSSUS", typ="Skill")]
+    no_payoff = [*strikes, c("BASH")]
+    saturated = [*strikes, c("BASH"), c("UPPERCUT"), c("DOMINATE", typ="Skill"),
+                 c("COLOSSUS", typ="Skill")]
+    ideal = score_adjustment("TREMBLE", bash_payoff, tags, w, act=2)
+    bare = score_adjustment("TREMBLE", no_payoff, tags, w, act=2)
+    flooded = score_adjustment("TREMBLE", saturated, tags, w, act=2)
+    assert ideal > bare        # the payoff bonus offsets the flat dock
+    assert ideal > flooded     # extra vuln sources trip the anti dock
+    assert flooded < 0         # net negative once vuln supply is real

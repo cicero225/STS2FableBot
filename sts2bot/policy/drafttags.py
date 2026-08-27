@@ -217,7 +217,10 @@ def score_adjustment(
         return 0.0
     deck_counts = deck_tag_weights(deck)
     own_provides = entry.get("provides") or {}
-    adj = 0.0
+    # flat additive dock/bonus: owner-approved, counterfactual-evidence-backed
+    # (2026-08-27: Stampede/Sword Boomerang/Tremble; see build_draft_tags
+    # FLAT_ADJ for the evidence trail)
+    adj = float(entry.get("flat_adj", 0.0))
 
     for tag, b in (relic_draft_bonus or {}).items():
         if float(own_provides.get(tag, 0.0)) > 0:
