@@ -661,3 +661,23 @@ def test_tremble_dock_spares_the_bash_only_vuln_starved_deck() -> None:
     assert ideal > bare        # the payoff bonus offsets the flat dock
     assert ideal > flooded     # extra vuln sources trip the anti dock
     assert flooded < 0         # net negative once vuln supply is real
+
+
+def test_true_grit_base_dock_spares_the_upgraded_offer() -> None:
+    """Owner 2026-08-27: base TG offers measure -7.0pp/pick vs TG+ -1.8pp --
+    the random exhaust is the problem. flat_adj_base docks only the
+    unupgraded offer; the upgrade_unlocks credit stays on top of that."""
+    tags = load_draft_tags()
+    w = load_policy_config().card_rewards
+    deck = _starter()
+    # isolate the new lane from the pre-existing upgrade-sensitive lanes
+    # (upgrade_unlocks credit, upgrade-gated controlled_exhaust): compare each
+    # variant against the same table with flat_adj_base stripped
+    stripped = {**tags, "TRUE_GRIT": {
+        k: v for k, v in tags["TRUE_GRIT"].items() if k != "flat_adj_base"}}
+    for upg, want in ((False, -1.5), (True, 0.0)):
+        with_dock = score_adjustment("TRUE_GRIT", deck, tags, w,
+                                     is_upgraded=upg)
+        without = score_adjustment("TRUE_GRIT", deck, stripped, w,
+                                   is_upgraded=upg)
+        assert with_dock - without == want

@@ -219,8 +219,12 @@ def score_adjustment(
     own_provides = entry.get("provides") or {}
     # flat additive dock/bonus: owner-approved, counterfactual-evidence-backed
     # (2026-08-27: Stampede/Sword Boomerang/Tremble; see build_draft_tags
-    # FLAT_ADJ for the evidence trail)
+    # FLAT_ADJ for the evidence trail). flat_adj_base applies only to the
+    # UNUPGRADED offer (True Grit: random exhaust -7pp/pick vs targeted
+    # TG+ near-neutral -1.8 — the upgrade changes the card's class)
     adj = float(entry.get("flat_adj", 0.0))
+    if not is_upgraded:
+        adj += float(entry.get("flat_adj_base", 0.0))
 
     for tag, b in (relic_draft_bonus or {}).items():
         if float(own_provides.get(tag, 0.0)) > 0:

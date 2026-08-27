@@ -2084,6 +2084,7 @@
      "penalty": false
     }
    ],
+   "flat_adj_base": -1.5,
    "controlled_exhaust": "upgraded",
    "upgrade_unlocks": true
   },

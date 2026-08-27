@@ -295,6 +295,15 @@ FLAT_ADJ: dict[str, float] = {
     #                   once real vuln sources already exist (-12.9pp/pick data)
 }
 
+# Base-copy-only docks (upgrade changes the card's class; owner-approved
+# 2026-08-27). True Grit: base offers -7.0pp/pick (n=1,315) vs TG+ -1.8pp
+# (n=317) -- random exhaust is the problem, targeted is fine, and the
+# smith-it-later plan doesn't rescue the pick (81% get upgraded, the -7
+# stands: smith-slot opportunity cost). upgrade_unlocks credit retained.
+FLAT_ADJ_BASE: dict[str, float] = {
+    "TRUE_GRIT": -1.5,
+}
+
 ANTI: dict[str, list[tuple[str, int, str]]] = {
     "BATTLE_TRANCE": [("draw_engine", 2, "mild")],
     # shadow review 2026-07-24: "Second Wind and Stoke get in each other's way" --
@@ -833,6 +842,8 @@ def main() -> None:
         ]
     for cid, v in FLAT_ADJ.items():
         entry(cid)["flat_adj"] = v
+    for cid, v in FLAT_ADJ_BASE.items():
+        entry(cid)["flat_adj_base"] = v
     for cid in COPY_CAP:
         entry(cid)["copy_cap"] = True
     for cid, v in CONTROLLED_EXHAUST.items():
