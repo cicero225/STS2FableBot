@@ -304,7 +304,8 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
 
 def choose_mode(enemies: list, player, scripts: dict,
                 card_effects: dict | None = None,
-                current_round: int = 1, hp_floor: int = 25) -> FightPlan:
+                current_round: int = 1, hp_floor: int = 25,
+                experimental_setup: tuple[str, ...] = ()) -> FightPlan:
     """Pick the fight plan from the mode table + feasibility math.
     `enemies` = live views with .name/.hp/.block/.asleep-ish signals."""
     tp = throughput(player, card_effects)
@@ -408,7 +409,11 @@ def choose_mode(enemies: list, player, scripts: dict,
                                  target=getattr(minion, "entity_id", None),
                                  rationale=f"{key}: break the guard (minion is the clock)")
         mode = rule.get("awake") or rule.get("default", "race")
-        if mode == "race" and rule.get("setup_burst") and boss is not None:
+        # experimental_setup: A/B arm gate (config setup_burst_experimental) —
+        # routes a race row through the setup/burst refinement WITHOUT touching
+        # the live table (Aeonglass arm, owner session 2026-08-28)
+        if (mode == "race" and boss is not None
+                and (rule.get("setup_burst") or key in experimental_setup)):
             plan = _setup_or_burst(boss, alive, player, scripts, tp,
                                    card_effects, current_round, key,
                                    heal_per_turn=float(

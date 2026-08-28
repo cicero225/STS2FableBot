@@ -204,3 +204,26 @@ def test_hopeless_bank_races_when_heals_outrun_throughput() -> None:
                      draw=[BLUDGEON] * 3 + [STRIKE] * 2, hp=70, energy=5)
     plan2 = choose_mode([kd], strong, scripts)
     assert plan2.mode == "setup_turn", plan2.rationale
+
+
+def test_experimental_setup_gate_routes_aeonglass_without_row_change() -> None:
+    """A/B arm gate (owner session 2026-08-28): config setup_burst_experimental
+    routes Aeonglass through the setup/burst refinement; the live table row
+    stays race until the owner rules on the arm evidence."""
+    scripts = json.loads(Path("data/move_scripts.json").read_text(encoding="utf-8"))
+    boss = NS(name="Aeonglass", entity_id="AE_0", hp=512, block=0)
+    healthy = _player(hand=[BLUDGEON] * 2 + [STRIKE, DEFEND, DEFEND],
+                      draw=[BLUDGEON] * 3 + [STRIKE] * 2, hp=70, energy=5)
+    # live behavior: table default, pure race
+    live = choose_mode([boss], healthy, scripts)
+    assert live.mode == "race" and "table default" in live.rationale
+    # arm behavior: setup turn banked while safe, same refinement KD/Queen use
+    arm = choose_mode([boss], healthy, scripts,
+                      experimental_setup=("AEONGLASS",))
+    assert arm.mode == "setup_turn", arm.rationale
+    # arm still burst-flips when the kill is in reach
+    low = NS(name="Aeonglass", entity_id="AE_0", hp=30, block=0)
+    burst = choose_mode([low], _player(hand=[BLUDGEON, STRIKE, STRIKE],
+                                       draw=[STRIKE] * 4, hp=70, energy=5),
+                        scripts, experimental_setup=("AEONGLASS",))
+    assert burst.mode == "race" and "burst-flip" in burst.rationale

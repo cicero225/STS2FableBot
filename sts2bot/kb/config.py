@@ -69,6 +69,10 @@ class CombatWeights(_Section):
     # ~-7 — roughly two turns of held drain at mid scarcity — deterring
     # marginal card-spam without banning card play.
     w_wither_incurred: float = -1.2
+    # A/B arm gate: boss keys routed through the setup/burst refinement
+    # WITHOUT a FIGHT_MODE_TABLE row change (Aeonglass session 2026-08-28).
+    # Live table changes stay owner-gated; arms toggle via config file.
+    setup_burst_experimental: tuple[str, ...] = ()
     hp_scarcity_base: float = 0.3
     hp_scarcity_slope: float = 2.0
     w_vulnerable: float = 6.0

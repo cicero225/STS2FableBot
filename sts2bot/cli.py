@@ -41,7 +41,7 @@ def doctor(base_url: str = DEFAULT_BASE_URL) -> None:
             typer.echo("  profiles:    (endpoint unavailable)")
 
 
-def _build_router(policy: str):
+def _build_router(policy: str, config_path: str | None = None):
     if policy == "trivial":
         from sts2bot.policy.trivial import TrivialRouter
 
@@ -50,7 +50,9 @@ def _build_router(policy: str):
         from sts2bot.kb.config import load_policy_config
         from sts2bot.policy.standard import StandardRouter
 
-        config = load_policy_config()
+        # config_path: A/B arm configs (config/experiment_*.toml) -- the
+        # arm's own hash lands in the run log for attribution
+        config = load_policy_config(config_path)
         return StandardRouter(config), config.config_hash
     if policy == "fuzz":
         # owner experiment (PLAN: prediction fuzzing, 2026-08-06): random legal
@@ -87,6 +89,9 @@ def replay(
 def play(
     runs: int = typer.Option(1, help="How many runs to play before stopping."),
     policy: str = typer.Option("standard", help="Policy: trivial|standard."),
+    config_file: str = typer.Option(
+        None, "--config", help="Policy config TOML (A/B arms); default config/policy.toml."
+    ),
     character: str = typer.Option("IRONCLAD", help="Character ID to select."),
     ascension: int = typer.Option(0, help="Ascension level (must be unlocked)."),
     speed: float = typer.Option(
@@ -124,7 +129,7 @@ def play(
         # faster game -> poll faster, else the loop becomes the bottleneck
         poll_interval = 0.5 if speed is None else max(0.15, 0.5 / speed)
 
-    router, config_hash = _build_router(policy)
+    router, config_hash = _build_router(policy, config_file)
     history_dirs = discover_history_dirs()
     # code vintage into meta.json (drift_check 2026-08-27: config hash pins
     # weights, not code — era f0e54b35 silently spanned 162 code vintages)

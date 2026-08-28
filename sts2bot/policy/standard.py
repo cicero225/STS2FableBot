@@ -616,7 +616,9 @@ class StandardRouter:
             ]
             mplan = choose_mode(views, state.player, self.move_scripts,
                                 card_effects=self.card_effects,
-                                current_round=state.battle.round or 1)
+                                current_round=state.battle.round or 1,
+                                experimental_setup=tuple(
+                                    self.config.combat.setup_burst_experimental))
             if mplan.mode == "race":
                 fp = "race"
                 mode_target = mplan.target
