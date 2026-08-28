@@ -3289,3 +3289,22 @@ def test_bloodletting_not_played_into_wasted_energy() -> None:
                        "Attack", "AnyEnemy")]
     d2 = plan_combat_turn(parse_state(_beckon_state(1, hand)), w)
     assert d2.action.payload().get("card_index") == 0
+
+
+def test_thrash_random_attack_exhaust_kills_phantom_followups() -> None:
+    """Owner catch 2026-08-27 (Queen f48 tape, r4): plan [Thrash > Strike]
+    with Strike the ONLY other attack -- Thrash's 'Exhaust a random Attack in
+    your Hand' guaranteed the follow-up never existed; the 22-HP Torch Head
+    lived and swung. With the hand loss modeled, the kill line must order the
+    attack FIRST (Strike 6 + Thrash 4x2 = 14 vs 14 HP only works that way)."""
+    w = load_policy_config().combat
+    thrash = _bcard(0, "THRASH", "Thrash", 1,
+                    "Deal 4 damage twice. Exhaust a random Attack in your "
+                    "Hand and add its damage to this card.", "Attack",
+                    "AnyEnemy")
+    strike = _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                    "Attack", "AnyEnemy")
+    d = plan_combat_turn(
+        parse_state(_beckon_state(2, [thrash, strike], enemy_hp=14,
+                                  incoming="22")), w)
+    assert d.action.payload()["card_index"] == 1  # Strike leads; Thrash eats air

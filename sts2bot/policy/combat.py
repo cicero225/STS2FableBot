@@ -297,6 +297,11 @@ class PlannedCard:
     # sat on the belt. Whole-hand exhausters now get their CONCRETE count in
     # the DFS (where the remaining cards are known), non-attack-aware.
     exhaust_nonattack_only: bool = False
+    # Thrash-class (owner catch 2026-08-27, Queen f48 tape): 'Exhaust a random
+    # Attack in your Hand' — the DFS must drop an attack from the remaining
+    # hand or it plans phantom follow-ups ([Thrash > Strike] with Strike the
+    # only other attack = the Fiend Fire bug family)
+    exhausts_random_attack: bool = False
     block_per_exhaust: int = 0  # SW-class: Block for each card exhausted
     # Cruelty-class rider ON THE CARD: playing it amplifies vuln damage for the
     # REST of the plan (owner catch 2026-08-12: Cruelty ordered AFTER an attack
@@ -729,6 +734,8 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         energy_requires_exhausted=energy_gated,
         exhausts_a_card="exhaust" in low,
         exhaust_nonattack_only=bool(re.search(r"non-attack", desc, re.IGNORECASE)),
+        exhausts_random_attack=bool(re.search(
+            r"Exhaust a random Attack in your Hand", desc, re.IGNORECASE)),
         block_per_exhaust=block_per_exhaust,
         exhaust_count=(
             -1 if _EX_HAND.search(desc)
@@ -2226,6 +2233,19 @@ def plan_combat_turn(
                             if c_.potion_slot is not None or c_.is_attack]
                 else:
                     rest = [c_ for c_ in rest if c_.potion_slot is not None]
+            elif card.exhausts_random_attack:
+                # Thrash (owner catch 2026-08-27, Queen f48 r4: plan
+                # [Thrash > Strike] with Strike the only other attack — the
+                # follow-up was guaranteed torched; minion lived at 22 HP and
+                # hit for its full intent). Pessimism per house rule: assume
+                # it eats the attack the plan most WANTS (best damage), so
+                # attack-first orderings surface naturally; potions survive;
+                # the growth rider stays uncredited (conservative).
+                atk_i = [i for i, c_ in enumerate(rest)
+                         if c_.potion_slot is None and c_.is_attack]
+                if atk_i:
+                    eaten = max(atk_i, key=lambda i: rest[i].fx.total_damage)
+                    rest = rest[:eaten] + rest[eaten + 1:]
             if card.targets_enemy and not card.fx.aoe:
                 target_idx = [i for i, e in enumerate(sim.enemies) if e.hp > 0]
                 # prefer distinct targets; cap target branching at 3 biggest threats
