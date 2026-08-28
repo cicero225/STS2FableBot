@@ -2,6 +2,38 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-28 (Fable 5) — Aeonglass session: decode, planner fixes, CHECKPOINT CAPTURED (paused)
+
+Owner-attended session (remote yesterday, present today). Owner delivered the
+FULL Aeonglass decode (banked in enemy_notes same-turn): Withering Presence =
+Wither to hand per 6 cards played (live countdown in the power's amount);
+Wither dmg 3+3X by tier; Increasing Intensity every 3rd turn = quadratic
+scaling; Artifact 3 vs vuln-setup; efficiency premium. Their hypothesis
+("planner doesn't understand Withers/6-card trigger") VERIFIED 3 ways:
+current-tier drain was priced, but (a) 6-card trigger unmodeled -> NOW
+modeled (live countdown ticks per planned play, w_wither_incurred x tier
+charge, lethal exempt); (b) exhaust never cleared stranded penalties -> NOW
+Stoke/SW purge all, TG+/Purity choosers eat worst-K (hp_loss diagnostic
+mirrors). Also: Aeonglass draft rule v2 (exhaust_tool_bonus 3.0, Stoke/SW
+named tech, block premium, power bump; NO vuln dock -- 194-fight evidence:
+mass-exhaust 45% survival vs 18% none, vuln package FLAT 31/28/29). A/B arm
+built: config setup_burst_experimental routes her through the KD/Queen
+setup/burst refinement; arms toggle via `play --config
+config/experiment_aeonglass_setup.toml` (arm hash ed040c20 vs live
+f0e54b35). Suite 601.
+
+**CHECKPOINT CAPTURED** (watcher fired r5, floor 48, run 20260828-135348):
+and a twist -- the PRE-FIX bot was WINNING the fight (Aeonglass 120/512,
+player 63/80; boss-hp trigger, not player-hp). Deck: vuln-ish midweight
+(Uppercut+/Vicious+/Colossus/Aggression), TG+ only exhaust tool, Crimson
+Mantle, 2x Bloodletting, Stampede+, 12 relics. Save PARKED (Continue
+reloads fight start), backed up in backups/20260828-140336 -- indestructible.
+Owner ran out of time before playing; session PAUSED. Resume protocol:
+game up -> Continue -> owner hands-on (savescum via mid-fight save+quit =
+free retry; concluded fight = restore from backup) -> race arm -> setup arm
+(--config), restore between. All arms run post-fix code; the live trace is
+the pre-fix control.
+
 ## 2026-08-27k (Fable 5) — owner live-spot: Thrash phantom follow-ups (confirmed on tape, fixed)
 
 Owner (remote, watching the last Queen fight): did the planner know Thrash
