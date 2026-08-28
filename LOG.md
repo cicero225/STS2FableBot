@@ -2,6 +2,16 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27j (Fable 5) — batches stopped at run boundary (owner request); machine handed back
+
+Owner (remote): "end at the end of next run." Stop-watcher killed batch 2
+(bksmtaou8, -5 Stampede table) after run 2/40 completed — an act-3 run dying
+to Queen at f48 — then closed the game too (bot-launched, bot-cleaned). No
+sts2bot or SlayTheSpire2 process; machine clean. Treatment era stands at 42
+runs (batch 1: 4/40 + batch 2: 0/2). Batches down until owner's word;
+relaunch = steam_appid procedure + `sts2bot play --runs 40 --profile 1
+--speed 3.0`.
+
 ## 2026-08-27i (Fable 5) — treatment batch 1: 4/40; docks verified, Stampede dock deepened
 
 Treatment batch 1 (bdnucgwn6, code_head 2c8e19f): 40/40, **4 wins** (control
