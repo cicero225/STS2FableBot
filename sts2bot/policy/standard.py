@@ -201,13 +201,21 @@ _BOSS_DRAFT_RULES: dict[str, dict] = {
     # hit on zero block every time (largest block instance in all four decks: 5).
     # Opposite attack profile from the Matriarch — which is why the table is boss-keyed.
     "VANTOM": {"min_block": 9, "block_bonus": 2.0, "min_hits": 2, "multihit_bonus": 2.0},
-    # Aeonglass (owner 2026-08-09, terminology untangled): Wither = STATUS CARDS
-    # she shoves into the deck (Beckon-family), removable by anything that
-    # exhausts cards -- True Grit-class targeted picks ideal, Second Wind/Stoke
-    # mass-exhaust fine. 'Ironclad is actually one of the strongest classes at
-    # dealing with her Withers.' The in-fight half is already emergent (Status
-    # ranks with Curses in the worst-picker); this drafts the tools.
-    "AEONGLASS": {"exhaust_tool_bonus": 2.0},
+    # Aeonglass (owner full decode 2026-08-28; sketch in logs/reports/
+    # aeonglass_draft_sketch.md, evidence n=194 era fights): mass-exhaust
+    # decks survived her at 45% vs 18% with no tools — UNDER the old planner
+    # that gave the clears zero credit — so the tool bonus rises and Stoke/
+    # Second Wind are named tech. Big blocks premiumed (her damage scales
+    # quadratically via Increasing Intensity; matches Vantom/Kaiser rows).
+    # Powers get a mild bump: one PLAY for permanent value is the most
+    # Withering-Presence-efficient card class, and her fights always run
+    # long. Deliberately absent: vuln dock (survival was FLAT across vuln
+    # package sizes, 31/28/29% — Artifact 3 delays, doesn't disable);
+    # cheap_spam_dock (new knob, held for owner review with the setup arm).
+    "AEONGLASS": {"exhaust_tool_bonus": 3.0,
+                  "card_bonus": {"STOKE": 1.5, "SECOND_WIND": 1.5},
+                  "min_block": 9, "block_bonus": 2.0,
+                  "power_bonus": 1.25},
     # Knowledge Demon (f33 recheck 2026-07-18): the heal-race plays him RIGHT (33/turn
     # in one loss, +26 net through his heal) — the deaths were entries at 52-56 HP vs
     # 379 HP + the Disintegration clock (6→13→21/turn), which the generic Act-2 boss

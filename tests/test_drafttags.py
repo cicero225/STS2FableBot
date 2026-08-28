@@ -681,3 +681,18 @@ def test_true_grit_base_dock_spares_the_upgraded_offer() -> None:
         without = score_adjustment("TRUE_GRIT", deck, stripped, w,
                                    is_upgraded=upg)
         assert with_dock - without == want
+
+
+def test_aeonglass_rule_v2_tools_blocks_powers() -> None:
+    """Aeonglass rule v2 (owner-approved 2026-08-28, sketch evidence n=194:
+    mass-exhaust 45% survival vs 18% none): tool bonus raised, Stoke/Second
+    Wind named tech, big blocks premiumed, mild power bump. NO vuln dock —
+    survival was flat across vuln package sizes."""
+    from sts2bot.policy.standard import _boss_draft_rule
+
+    rule = _boss_draft_rule("Aeonglass")
+    assert rule and rule["exhaust_tool_bonus"] == 3.0
+    assert rule["card_bonus"]["STOKE"] > 0 and rule["card_bonus"]["SECOND_WIND"] > 0
+    assert rule["min_block"] == 9 and rule["block_bonus"] == 2.0
+    assert rule["power_bonus"] == 1.25
+    assert "tag_bonus" not in rule or "vulnerable_source" not in rule["tag_bonus"]
