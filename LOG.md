@@ -2,6 +2,24 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27k (Fable 5) — owner live-spot: Thrash phantom follow-ups (confirmed on tape, fixed)
+
+Owner (remote, watching the last Queen fight): did the planner know Thrash
+exhausts an attack? TAPE CONFIRMED THE BUG, exactly as they described: r4,
+hand [Flame Barrier, Impervious, Thrash, Strike], Torch Head at 22 HP with a
+22 intent — plan read **[Thrash > Strike]** with Strike the ONLY other
+attack, so the follow-up was guaranteed torched ('Exhaust a random Attack in
+your Hand'); the minion lived and swung. Second instance same fight (r6,
+[Thrash > Dismantle+ > Spite] with three attacks at risk). Fiend Fire
+phantom family — Thrash's single-random-attack variant was unmodeled. Fix:
+exhausts_random_attack flag + DFS drops the best-damage remaining attack
+(house pessimism → attack-first orderings surface naturally; potions
+survive; the growth rider stays uncredited, conservative). Regression test
+mirrors the live turn (kill needs Strike-first at 14 HP). 596 tests.
+Rollout-sim handling deferred (deck-level effect minor). Owner spotted this
+from REMOTE, at 3x speed, without seeing the details — the live-spotting
+streak continues.
+
 ## 2026-08-27j (Fable 5) — batches stopped at run boundary (owner request); machine handed back
 
 Owner (remote): "end at the end of next run." Stop-watcher killed batch 2
