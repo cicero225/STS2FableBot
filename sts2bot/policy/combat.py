@@ -302,6 +302,11 @@ class PlannedCard:
     # hand or it plans phantom follow-ups ([Thrash > Strike] with Strike the
     # only other attack = the Fiend Fire bug family)
     exhausts_random_attack: bool = False
+    # Chooser exhausts (True Grit+ 'Exhaust 1 card.', Purity 'up to 3'): the
+    # live hand_select prefers statuses/curses, so the DFS credits clearing
+    # the worst stranded penalties (Aeonglass Withers — owner 2026-08-28:
+    # 'exhausting statuses starts to become very important')
+    targeted_exhaust_n: int = 0
     block_per_exhaust: int = 0  # SW-class: Block for each card exhausted
     # Cruelty-class rider ON THE CARD: playing it amplifies vuln damage for the
     # REST of the plan (owner catch 2026-08-12: Cruelty ordered AFTER an attack
@@ -461,6 +466,18 @@ class SimState:
     my_block: int
     my_strength: int
     my_dex: int = 0  # Dexterity: +/- block per block card (Soul Siphon drives it NEGATIVE)
+    # Aeonglass Withering Presence (owner decode 2026-08-28): live countdown
+    # (the power's amount field) to the next manufactured Wither; 0 = absent.
+    # tier_dmg = what a NEW Wither drains per end of turn (escalates with
+    # Increasing Intensity casts). withers_incurred = Withers this plan makes.
+    wither_countdown: int = 0
+    wither_period: int = 0
+    wither_tier_dmg: int = 0
+    withers_incurred: int = 0
+    # exhaust-clears-stranded (owner 2026-08-28: the DFS priced Withers via
+    # the stranded class but never connected Stoke/TG+ to REMOVING them)
+    hand_purged: bool = False
+    targeted_exhausts: int = 0
     # PRE-BAKED MODIFIERS (2026-07-14, trace-verified — the Pen Nib lesson generalized):
     # the mod's card text is a fully-RESOLVED preview. At Str 1 a Strike reads "Deal 7
     # damage"; at Dex 2 a Defend reads "Gain 7 Block" (an Unmovable-doubled Defend+ read
@@ -736,6 +753,11 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         exhaust_nonattack_only=bool(re.search(r"non-attack", desc, re.IGNORECASE)),
         exhausts_random_attack=bool(re.search(
             r"Exhaust a random Attack in your Hand", desc, re.IGNORECASE)),
+        targeted_exhaust_n=(
+            0 if "random" in low else
+            (int(m_te.group(1)) if (m_te := re.search(
+                r"exhaust up to (\d+) cards?", low)) else
+             1 if re.search(r"exhaust (?:1|a) card\b", low) else 0)),
         block_per_exhaust=block_per_exhaust,
         exhaust_count=(
             -1 if _EX_HAND.search(desc)
@@ -1464,6 +1486,20 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         n_exhaust_events=s.n_exhaust_events + (1 if card.exhausts_a_card else 0),
         vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,
         hand_upgrades=s.hand_upgrades + card.upgrades_in_hand,
+        # Aeonglass Withering Presence (owner decode 2026-08-28): every card
+        # PLAY ticks the live countdown; crossing it manufactures an
+        # escalating Wither. Potions aren't cards.
+        wither_countdown=(
+            (s.wither_period if s.wither_countdown == 1 else s.wither_countdown - 1)
+            if s.wither_countdown and card.potion_slot is None
+            else s.wither_countdown),
+        withers_incurred=s.withers_incurred + (
+            1 if (s.wither_countdown == 1 and card.potion_slot is None) else 0),
+        # exhaust plays clear stranded statuses (Withers/Beckons): whole-hand
+        # exhausters purge everything (Second Wind too — statuses aren't
+        # attacks); chooser exhausts (TG+/Purity) eat the worst K in _score
+        hand_purged=s.hand_purged or card.exhaust_count == -1,
+        targeted_exhausts=s.targeted_exhausts + card.targeted_exhaust_n,
     )
     # relic pass R1: fire mid-turn relic triggers this play crossed (counters, on-kill,
     # on-exhaust, on-potion, first-HP-loss). `state` is the pre-play snapshot.
@@ -1505,14 +1541,20 @@ def _score(
     # Beckons sat in hand for 12 unblockable). Keyed by hand index; a played card's penalty
     # vanishes. Skipped on a lethal end-state (the fight ends before end of turn).
     stranded_unb = stranded_blk = 0
-    if (stranded_unblockable or stranded_blockable) and not lethal_end:
+    if ((stranded_unblockable or stranded_blockable) and not lethal_end
+            and not state.hand_purged):  # whole-hand exhaust purged them all
         played_idx = {i for i, _ in state.played}
-        stranded_unb = sum(
-            v for i, v in (stranded_unblockable or {}).items() if i not in played_idx
-        )
-        stranded_blk = sum(
-            v for i, v in (stranded_blockable or {}).items() if i not in played_idx
-        )
+        vals = ([(v, True) for i, v in (stranded_unblockable or {}).items()
+                 if i not in played_idx]
+                + [(v, False) for i, v in (stranded_blockable or {}).items()
+                   if i not in played_idx])
+        if state.targeted_exhausts:
+            # chooser exhausts (TG+/Purity) eat the worst stranded first —
+            # the live hand_select prefers statuses/curses
+            vals.sort(reverse=True)
+            vals = vals[state.targeted_exhausts:]
+        stranded_unb = sum(v for v, unb in vals if unb)
+        stranded_blk = sum(v for v, unb in vals if not unb)
     incoming += stranded_blk  # Toxic-type is blockable: it joins the incoming pool
     if state.self_end_damage and not lethal_end:  # Disintegration: end-of-turn, blockable
         incoming += state.self_end_damage
@@ -1728,6 +1770,12 @@ def _score(
            else 0.0)
         + w.w_potion_spend * state.potions_spent
         + w.w_max_hp_cost * state.max_hp_spent  # permanent pool shrink
+        # Withering Presence: each manufactured Wither drains tier_dmg per
+        # end-of-turn until exhausted, and the tiers only climb — charge the
+        # plan for the Withers it makes (owner decode 2026-08-28: 'punishes
+        # playing too many cards' — card-play efficiency vs Aeonglass)
+        + (w.w_wither_incurred * state.wither_tier_dmg * state.withers_incurred
+           if not lethal_end else 0.0)
         + w.w_wake_sleeper * state.sleepers_woken
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
         # picked a target order; these terms make the DFS serve it every turn.
@@ -2028,9 +2076,32 @@ def plan_combat_turn(
         enemy_sims = tuple(
             replace(e, is_big=(e.entity_id == focus_target)) for e in enemy_sims
         )
+    # Aeonglass Withering Presence (owner decode 2026-08-28): "Every 6 cards
+    # you play, add a Wither to your Hand" — the power's amount is the LIVE
+    # countdown (tape-verified 6→5→...→1, resets), so the DFS knows exactly
+    # which planned play manufactures a Wither. Tier damage from a hand
+    # Wither's live text when one exists; else 3+3X with X ≈ Increasing
+    # Intensity casts (every 3rd turn from T3).
+    wither_period = wither_countdown = wither_tier = 0
+    for en in state.battle.enemies or []:
+        for s_ in en.status or []:
+            if m := re.search(r"every (\d+) cards you play.*add a wither",
+                              s_.description or "", re.IGNORECASE):
+                wither_period = int(m.group(1))
+                wither_countdown = s_.amount or wither_period
+    if wither_period:
+        tiers = [int(m.group(1)) for c in hand
+                 if "wither" in (c.name or "").lower()
+                 and (m := _HAND_TAKE_DMG_RE.search((c.description or "").lower()))]
+        rnd = state.battle.round or 1
+        wither_tier = max(tiers) if tiers else 3 + 3 * (rnd // 3)
+
     start = SimState(
         energy=energy,
         exhaust_pile0=exhaust_pile,
+        wither_countdown=wither_countdown,
+        wither_period=wither_period,
+        wither_tier_dmg=wither_tier,
         # Forgotten Ritual dead-in-hand (owner 2026-08-03): the API has no
         # 'exhausted this turn' field, so post-exhaust REPLANS priced the
         # conditional energy at zero and Ritual slid out of every plan. The
@@ -2304,14 +2375,17 @@ def plan_combat_turn(
     # hp_loss (and the hail-mary reading it) is honest. Skip on a lethal turn (fight ends first).
     extra_unblockable = 0
     extra_blockable = 0
-    if not lethal:
+    if not lethal and not best_state.hand_purged:  # whole-hand exhaust cleared them
         played_idx = {idx for idx, _ in best_state.played}
-        extra_unblockable = sum(
-            v for i, v in stranded_unblockable.items() if i not in played_idx
-        )
-        extra_blockable = sum(
-            v for i, v in stranded_blockable.items() if i not in played_idx
-        )
+        dvals = ([(v, True) for i, v in stranded_unblockable.items()
+                  if i not in played_idx]
+                 + [(v, False) for i, v in stranded_blockable.items()
+                    if i not in played_idx])
+        if best_state.targeted_exhausts:  # TG+/Purity ate the worst ones
+            dvals.sort(reverse=True)
+            dvals = dvals[best_state.targeted_exhausts:]
+        extra_unblockable = sum(v for v, unb in dvals if unb)
+        extra_blockable = sum(v for v, unb in dvals if not unb)
     end_dmg = 0 if lethal else best_state.self_end_damage  # Disintegration, blockable
     # Plating's end-of-turn block joins the pool (mirrors _score; harness n=31)
     block_pool = best_state.my_block + (0 if lethal else best_state.end_turn_block)

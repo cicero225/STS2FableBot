@@ -64,6 +64,11 @@ class CombatWeights(_Section):
     w_block_useful: float = 0.8
     w_block_excess: float = -0.15
     w_hp_loss: float = -2.0
+    # Aeonglass Withering Presence (owner decode 2026-08-28): score charge per
+    # (manufactured Wither x its tier damage). Sized so a tier-6 Wither costs
+    # ~-7 — roughly two turns of held drain at mid scarcity — deterring
+    # marginal card-spam without banning card play.
+    w_wither_incurred: float = -1.2
     hp_scarcity_base: float = 0.3
     hp_scarcity_slope: float = 2.0
     w_vulnerable: float = 6.0

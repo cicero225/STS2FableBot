@@ -3308,3 +3308,75 @@ def test_thrash_random_attack_exhaust_kills_phantom_followups() -> None:
         parse_state(_beckon_state(2, [thrash, strike], enemy_hp=14,
                                   incoming="22")), w)
     assert d.action.payload()["card_index"] == 1  # Strike leads; Thrash eats air
+
+
+_WITHER_DESC = ("Unplayable. At the end of your turn, if this is in your "
+                "Hand, take 6 damage.")
+
+
+def _wither(i):
+    c = _bcard(i, "WITHER", "Wither", 0, _WITHER_DESC, "Status", "None",
+               can_play=False)
+    return c
+
+
+def _aeonglass_state(energy, hand, countdown=6, boss_hp=400):
+    st = _beckon_state(energy, hand, enemy_hp=boss_hp, incoming="26")
+    e = st["battle"]["enemies"][0]
+    e["name"] = "Aeonglass"
+    e["max_hp"] = 512
+    e["status"] = [
+        {"id": "WITHERING_PRESENCE_POWER", "name": "Withering Presence",
+         "amount": countdown,
+         "description": "Every 6 cards you play, add a Wither to your Hand."},
+        {"id": "ARTIFACT_POWER", "name": "Artifact", "amount": 3,
+         "description": "Negates 3 debuffs."},
+    ]
+    return st
+
+
+def test_whole_hand_exhaust_clears_wither_drain() -> None:
+    """Owner decode 2026-08-28: Stoke/Second Wind purge hand Withers, but the
+    DFS charged their stranded drain regardless — the planner saw NO benefit
+    in the exact play that answers the boss. With two 6-damage Withers in
+    hand, playing Stoke must beat holding (12 drain cleared)."""
+    w = load_policy_config().combat
+    stoke = _bcard(0, "STOKE", "Stoke", 1,
+                   "Exhaust your Hand. Add 1 random card into your Hand for "
+                   "each card Exhausted.", "Skill", "None")
+    hand = [stoke, _wither(1), _wither(2)]
+    d = plan_combat_turn(parse_state(_aeonglass_state(1, hand)), w)
+    assert d.action.payload().get("card_index") == 0  # Stoke, not end-turn
+    assert d.scores["hp_loss"] <= 26  # the 12 wither drain no longer counted
+
+
+def test_targeted_exhaust_eats_the_worst_stranded() -> None:
+    """True Grit+ ('Exhaust 1 card.') clears one Wither's drain; base True
+    Grit ('at random') gets no such credit."""
+    w = load_policy_config().combat
+    tgp = _bcard(0, "TRUE_GRIT", "True Grit+", 1,
+                 "Gain 9 Block. Exhaust 1 card.", "Skill", "None")
+    hand = [tgp, _wither(1)]
+    d = plan_combat_turn(parse_state(_aeonglass_state(1, hand)), w)
+    assert d.action.payload().get("card_index") == 0
+    assert d.scores["hp_loss"] <= 26 - 6 + 9  # drain cleared (block soaks too)
+    tg = _bcard(0, "TRUE_GRIT", "True Grit", 1,
+                "Gain 7 Block. Exhaust 1 card at random.", "Skill", "None")
+    from sts2bot.policy.combat import _to_planned
+    assert _to_planned(parse_state(_aeonglass_state(
+        1, [tg, _wither(1)])).player.hand[0], 1).targeted_exhaust_n == 0
+
+
+def test_withering_presence_counter_deters_marginal_plays() -> None:
+    """The live countdown says the NEXT play manufactures a Wither: a
+    marginal 3-damage poke into a 400-HP boss must not be worth an escalating
+    6-damage-per-turn status; a lethal poke still goes."""
+    w = load_policy_config().combat
+    poke = _bcard(0, "CINDER", "Cinder", 0, "Deal 3 damage.", "Attack",
+                  "AnyEnemy")
+    d = plan_combat_turn(
+        parse_state(_aeonglass_state(3, [poke], countdown=1)), w)
+    assert d.action.payload().get("card_index") != 0  # holds the poke
+    d2 = plan_combat_turn(
+        parse_state(_aeonglass_state(3, [poke], countdown=1, boss_hp=3)), w)
+    assert d2.action.payload().get("card_index") == 0  # lethal pays nothing
