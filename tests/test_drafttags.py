@@ -632,7 +632,7 @@ def test_flat_adj_docks_stampede_and_sword_boomerang() -> None:
     w = load_policy_config().card_rewards
     deck = [NS(id="STRIKE_IRONCLAD", name="Strike", type="Attack",
                cost="1", is_upgraded=False)] * 5
-    for cid, dock in (("STAMPEDE", -3.0), ("SWORD_BOOMERANG", -2.5)):
+    for cid, dock in (("STAMPEDE", -5.0), ("SWORD_BOOMERANG", -2.5)):
         with_flat = score_adjustment(cid, deck, tags, w)
         stripped = {**tags, cid: {k: v for k, v in tags[cid].items()
                                   if k != "flat_adj"}}

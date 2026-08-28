@@ -284,8 +284,13 @@ NEEDS: dict[str, list[tuple[str, int, str, bool]]] = {
 # -4/strong-6; A/B-able. Owner 2026-08-27: "happy to dock Stampede and Sword
 # Boomerang. Community consensus (and my own opinion) is fairly negative."
 FLAT_ADJ: dict[str, float] = {
-    "STAMPEDE": -3.0,        # worst pick of the era: -20.7pp/pick (n=659,
-    #                          late slice); random-target facing loss (Kaiser)
+    "STAMPEDE": -5.0,        # worst pick of the era: -20.7pp/pick (n=659,
+    #                          late slice); random-target facing loss (Kaiser).
+    #                          Deepened -3 -> -5 same day: treatment batch 1
+    #                          showed 5/13 picks at scores 4.0-9.4 -- the
+    #                          Aug-21 __attacks bug-fix raised its bonus stack
+    #                          more than -3 subtracts, so the dock undershot
+    #                          the approved intent in attack-dense decks
     "SWORD_BOOMERANG": -2.5,  # -13.2pp/pick (n=1749); same random-target
     #                          class, worst in aimed-vuln decks (-52 w/ Uppercut)
     "TREMBLE": -2.0,  # owner rule 2026-08-27: "pretty bad, unless a deck
