@@ -2,6 +2,21 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-27i (Fable 5) — treatment batch 1: 4/40; docks verified, Stampede dock deepened
+
+Treatment batch 1 (bdnucgwn6, code_head 2c8e19f): 40/40, **4 wins** (control
+1/40 — small n, right direction). Dock predictions checked on fresh data:
+Sword Boomerang 12%→6% picked, Tremble 19%→8%, True Grit base 35%→17% with
+TG+ HOLDING at 36% (4/11 — the asymmetry exactly as designed). EXCEPTION:
+**Stampede picked 5/13 (38%, UP)** — rationale scores show the dock firing
+(-3 present) but the Aug-21 __attacks bug-fix raised its needs-bonus stack
+more than -3 subtracts (picks at scores 4.0-9.4); the dock undershot the
+approved intent in attack-dense decks. Deepened -3 → **-5** same day
+(c9a0b95; cuts the marginal picks, keeps extreme-synergy ones). Batch 2
+launched on the -5 table (bksmtaou8). Lesson: docks calibrated against
+historical pick rates inherit the drift of that history — verify on the
+first fresh batch.
+
 ## 2026-08-27h (Fable 5) — control batch closes 1/40; treatment era begins, code_head live
 
 Control batch bf8njhwwg (OLD tag table): 40/40 completed, 1 win. Final-
