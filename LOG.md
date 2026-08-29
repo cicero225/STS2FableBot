@@ -2,6 +2,27 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-28e (Fable 5) — owner tape catches x3 fixed; batches stopped at boundary (owner request)
+
+Owner narrowed their TS-fight watch to three optimality comments -- all
+three confirmed on tape and fixed (8df0762, suite 604): (1) Touch of
+Insanity TEXT DRIFT -- game reworded to "free to play this combat", the
+costs-0 regex unmatched, the potion fell to the hail-mary-only bucket while
+its deploy lane (already encoding the owner's wait-for-a-2-cost rule from
+07-29) sat unreachable; regex widened. Same class as the Guiding Star cost
+drift: patch wording silently unhooks text-matched machinery. (2) Debuff
+potions now HELD vs staged Test Subject until the final-phase body (revive
+wipes statuses; the card-side guard knew, the potion lane didn't -- Weak
+Potion had gone out r1 at P1). (3) w_heal_waste -2.0/pt forgone: Not Yet
+burned at 77/83 for 6 real HP; sized to out-vote the energy-surplus dock
+which had treated the wasteful heal as virtuous energy use. Owner live-spot
+hit rate today: 5/5 (Thrash, Wither pair, these three).
+
+Boundary stop on owner request after run 7 of the resumed experiment batch
+-- run 7 was the FIRST batch-mode setup-arm Aeonglass arrival (f48 loss,
+752 decisions; arm tally 0/1, pre-fix code). Machine handed back clean.
+Resume: finish the experiment batch remainder, then alternate.
+
 ## 2026-08-28d (Fable 5) — Test Subject rewind: bot ACQUITTED (owner: "I don't think this fight is winnable")
 
 Owner-requested rewind of the batch's TS death (seed UGS6U3DPZF, f48, died
