@@ -3487,8 +3487,8 @@ def test_cascade_played_for_free_pile_value() -> None:
                   "None")
     d = plan_combat_turn(parse_state(_beckon_state(0, [casc], enemy_hp=200)), w)
     assert d.action.payload().get("card_index") == 0  # free EV: play it
-    from sts2bot.policy.combat import _apply_card, _to_planned
     from sts2bot.client.models import parse_state as ps
+    from sts2bot.policy.combat import _apply_card, _to_planned
     st = ps(_aeonglass_state(0, [casc], countdown=6))
     pc = _to_planned(st.player.hand[0], 0)
     sim = SimState(energy=0, my_block=0, my_strength=0, enemies=(),
