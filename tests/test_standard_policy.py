@@ -5290,3 +5290,35 @@ def test_not_yet_shelved_at_high_hp() -> None:
     d2 = router().decide(low, LoopContext())
     assert isinstance(d2, Decision)
     assert d2.action.payload().get("action") == "play_card"
+
+
+def test_hail_mary_rerolls_before_drawing_on_junk_hands() -> None:
+    """Owner catch (seed-A r7): Swift first drew 3 usable cards, then
+    Bottled Potential flushed them all — belt order wasted the Swift. On a
+    junk hand the reroll must go first; on a near-viable hand, draw first."""
+    swift = {"id": "SWIFT_POTION", "name": "Swift Potion",
+             "description": "Draw 3 cards.", "slot": 0,
+             "can_use_in_combat": True, "target_type": "Self", "keywords": []}
+    bp = {"id": "BOTTLED_POTENTIAL", "name": "Bottled Potential",
+          "description": "Shuffle ALL your cards into your Draw Pile. "
+          "Draw 5 cards.", "slot": 1, "can_use_in_combat": True,
+          "target_type": "Self", "keywords": []}
+    wither = card(0, "Wither", 0, "Unplayable. At the end of your turn, if "
+                  "this is in your Hand, take 6 damage.", target="None",
+                  ctype="Status", can_play=False)
+    junk = make_combat(hand=[wither, card(1, "Strike", 1, "Deal 6 damage.")],
+                       enemies=[enemy("BOSS_0", 300, intent_label="40")],
+                       hp=10, max_hp=80, state_type="boss",
+                       potions=[swift, bp])
+    d = router().decide(junk, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload() == {"action": "use_potion", "slot": 1}  # reroll first
+    viable = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage."),
+              card(1, "Bash", 2, "Deal 8 damage. Apply 2 Vulnerable."),
+              card(2, "Defend", 1, "Gain 5 Block.")],
+        enemies=[enemy("BOSS_0", 300, intent_label="40")],
+        hp=10, max_hp=80, state_type="boss", potions=[swift, bp])
+    d2 = router().decide(viable, LoopContext())
+    assert isinstance(d2, Decision)
+    assert d2.action.payload() == {"action": "use_potion", "slot": 0}  # draw first

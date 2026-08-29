@@ -1043,8 +1043,23 @@ class StandardRouter:
                             >= player.hp)
                 return False
 
+            # Fallback ordering (owner catch 2026-08-29, seed-A r7: Swift
+            # drunk first drew 3 usable cards, then Bottled Potential FLUSHED
+            # all of them — belt-slot order wasted the Swift 100%). Junk hand
+            # -> reroll-class first (draws stack ON a reroll, never the
+            # reverse); near-viable hand -> draw first (maybe save the reroll).
+            live = sum(1 for c in (player.hand or [])
+                       if c.can_play and (c.type or "") not in ("Status", "Curse"))
+            def _fallback_rank(p: Potion) -> int:
+                desc = (p.description or "").lower()
+                reroll = "shuffle" in desc and "draw pile" in desc
+                draws = parse_card_description(p.description).draw > 0
+                if live <= 2:  # junk hand
+                    return 0 if reroll else (1 if draws else 2)
+                return 0 if draws else (1 if reroll else 2)
             potion = first("block", "heal", "aoe_damage", "damage") or next(
-                (p for p in available if not _self_lethal(p)), None)
+                iter(sorted((p for p in available if not _self_lethal(p)),
+                            key=_fallback_rank)), None)
             if potion is not None:
                 tgt = (biggest_threat()
                        if cat[potion.slot] in ("damage", "aoe_damage") else None)
