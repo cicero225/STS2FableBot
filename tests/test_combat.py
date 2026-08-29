@@ -3424,7 +3424,6 @@ def test_draws_fizzle_at_the_hand_limit() -> None:
     from sts2bot.policy.combat import _apply_card
     from sts2bot.policy.textparse import parse_card_description
 
-    w = load_policy_config().combat
     fx = parse_card_description("Draw 5 cards.")
     pc = PlannedCard(index=0, name="BigDraw", cost=0, fx=fx,
                      targets_enemy=False, is_attack=False)
