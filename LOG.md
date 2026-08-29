@@ -2,6 +2,23 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-28d (Fable 5) — Test Subject rewind: bot ACQUITTED (owner: "I don't think this fight is winnable")
+
+Owner-requested rewind of the batch's TS death (seed UGS6U3DPZF, f48, died
+r11 at 2 HP vs boss 72/300 — a 72-HP miss). Seeded replay via manual seed
+entry + `play --stop-at-floor 48` handoff (the designed act-boss A/B flow):
+**perfect draft replication for 10+ checked drafts**, one divergence
+somewhere late (+1 Setup Strike) -> different fight shuffle. Owner played
+the handoff (recorded, bot+human halves one log) and lost EARLIER than the
+bot, then two savescum retries (recorder segments in logs/manual/), then:
+"Mea culpa: I don't think this fight is winnable... something about the
+draw order may be different now with the different deck." Verdict: the
+original suspicion resolved AGAINST itself; the bot's r11/2-HP loss reads
+near-line-optimal; deck (an experiment-arm draft) was just under the line.
+Rewind protocol now proven end-to-end: seed from meta -> manual seed entry
+-> deterministic replay -> handoff -> savescum retries. Alternating-arm
+batches resume.
+
 ## 2026-08-28c (Fable 5) — owner: extend the experiment; alternating-arm batches begin
 
 Owner on the A/B: n=1 matters less than the snapshot being "truly a winning
