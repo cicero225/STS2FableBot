@@ -3413,3 +3413,26 @@ def test_barricade_credits_same_turn_block_at_plan_time() -> None:
     d = plan_combat_turn(parse_state(st), w)
     assert d.action.payload().get("card_index") == 0  # Barricade leads
     assert "Defend" in (d.rationale or "")  # and the plan KEEPS the Defend
+
+
+def test_draws_fizzle_at_the_hand_limit() -> None:
+    """Owner catch 2026-08-29 (seed-A T1): draws past 10 cards do nothing —
+    unmodeled, the bot burned ~2 draws into a full hand and reached Pact's
+    End+ a turn late. A draw-5 played from a 9-card hand must credit only
+    2 (9 - 1 played = 8 held, room for 2); the same play from a 5-card hand
+    credits all 5. Emergent effect: the DFS now prefers making room first."""
+    from sts2bot.policy.combat import _apply_card
+    from sts2bot.policy.textparse import parse_card_description
+
+    w = load_policy_config().combat
+    fx = parse_card_description("Draw 5 cards.")
+    pc = PlannedCard(index=0, name="BigDraw", cost=0, fx=fx,
+                     targets_enemy=False, is_attack=False)
+    full = SimState(energy=3, my_block=0, my_strength=0, enemies=(),
+                    hand_size=9)
+    out = _apply_card(full, pc, None)
+    assert out.draws == 2
+    roomy = SimState(energy=3, my_block=0, my_strength=0, enemies=(),
+                     hand_size=5)
+    out2 = _apply_card(roomy, pc, None)
+    assert out2.draws == 5

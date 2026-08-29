@@ -1467,6 +1467,16 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             energy_gain = 0
             draw_gain = 0
     tripled = (s.my_block + block_gain) * 2 if card.triples_block else 0
+    # HAND-LIMIT FIZZLE (owner catch 2026-08-29, seed-A T1: the bot burned ~2
+    # draws into a full hand — Centennial's 3 landed as 1 — and reached
+    # Pact's End+ a turn late; the whole seed-A draw divergence). Draws past
+    # 10 cards do nothing in-game; cap the credit by live hand space so the
+    # DFS discovers make-room-before-draw and late-Battle-Trance orderings.
+    if draw_gain and not s.no_draw:
+        # s.played already includes the current card here (unlike the
+        # pre-play `state` snapshot used by the Fiend Fire count above)
+        hand_now = s.hand_size - (len(s.played) - s.potions_spent) + s.draws
+        draw_gain = max(0, min(draw_gain, 10 - hand_now))
     nxt = replace(
         s,
         my_block=s.my_block + block_gain + tripled,
