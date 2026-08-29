@@ -1138,7 +1138,16 @@ class StandardRouter:
         #     charged targets are skipped and a later poll rethrows post-strip.
         #     Reapplication extends duration (not stacking) and it's independent
         #     of Weak -- both fine to layer, no special casing needed.
-        if dangerous and (db := first("debuff")) is not None:
+        # Staged-boss hold (owner 2026-08-28, TS f48: Weak Potion thrown r1 at
+        # phase 1): Test Subject's revive WIPES statuses, and early phases hit
+        # softest — hold debuff potions until the final-phase body (max_hp
+        # >= 250; P3 is 300). The card-side debuff-waste guard knew this; the
+        # potion lane didn't.
+        ts_early_phase = any(
+            "TEST SUBJECT" in (e.name or "").upper()
+            and (e.hp or 0) > 0 and (e.max_hp or 0) < 250
+            for e in state.battle.enemies)
+        if dangerous and not ts_early_phase and (db := first("debuff")) is not None:
             unshielded = [e for e in state.battle.enemies
                           if (e.hp or 0) > 0
                           and not any("ARTIFACT" in f"{s.id or ''} {s.name or ''}".upper()
@@ -1270,7 +1279,11 @@ class StandardRouter:
         # Touch of Insanity; matched by TEXT so the exact name doesn't matter):
         # a targeted cost-zero is a per-fight engine — deploy early in big fights,
         # but only when a WORTHY target is in hand (see the boss-deploy lane).
-        if re.search(r"costs? 0.*rest of (this|the) (fight|combat)",
+        # Text drift (owner catch 2026-08-28, TS f48 tape): the live wording is
+        # now "It is free to play this combat" — the old costs-0 phrasing
+        # stopped matching, TOI fell to "other", and the hail-mary drank it
+        # pointlessly at r10 while its deploy lane sat unreachable.
+        if re.search(r"(costs? 0|free to play).*(rest of )?(this|the) (fight|combat)",
                      potion.description or "", re.IGNORECASE | re.DOTALL):
             return "cost_zero"
         fx = parse_card_description(potion.description)

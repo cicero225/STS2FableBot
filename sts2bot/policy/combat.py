@@ -542,6 +542,7 @@ class SimState:
     smoggy: bool = False  # Living Fog's Smoggy: only ONE Skill playable per turn
     heal_room: int = 0  # max_hp - hp at turn start; caps in-combat healing (no overheal credit)
     healing: int = 0  # capped HP healed this turn (Not Yet); credited via the HP-scarcity curve
+    heal_wasted: int = 0  # heal points past heal_room: a shelvable resource burned (w_heal_waste)
     pen_nib_counter: int | None = None  # live Pen Nib attack counter (None = relic absent)
     # True when the TURN began on counter 9: the game pre-doubles every attack's text, so
     # attacks after the first must halve back to base (set once at plan start, never mutated)
@@ -1410,6 +1411,12 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
                 s = replace(s, enemies=tuple(enemies))
     # In-combat healing (Not Yet), capped at the turn's damage taken — no overheal credit.
     heal_applied = max(0, min(card.fx.heal, s.heal_room - s.healing)) if card.fx.heal else 0
+    # Forgone heal (owner catch 2026-08-28, TS f48: Not Yet burned at 77/83
+    # for a 6-point heal): the overflow isn't just uncredited, it's a WASTED
+    # future scarce-HP resource — the same 10 at 30 HP is worth triple on the
+    # scarcity curve. Charged via w_heal_waste so the planner shelves heals
+    # while healthy (mirror of the Offering play-freely-when-healthy rule).
+    heal_forgone = (card.fx.heal - heal_applied) if card.fx.heal else 0
     # Dexterity adds/subtracts per block-granting card — Soul Siphon drives it NEGATIVE, so a
     # drained Defend really grants less (the planner over-blocked-on-paper vs Lagavulin without
     # this). Then Frail cuts the result by 25% — the floor matches the game.
@@ -1462,6 +1469,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         energy=s.energy + energy_gain,
         self_damage=s.self_damage + card.fx.self_hp_cost,
         healing=s.healing + heal_applied,
+        heal_wasted=s.heal_wasted + heal_forgone,
         # card-played Plating joins the end-of-turn pool (soaks incoming via the
         # tally at scoring; never feeds my_block/Body Slam/triples_block)
         end_turn_block=s.end_turn_block + card.fx.plating,
@@ -1769,6 +1777,7 @@ def _score(
                        for e in state.enemies))
            else 0.0)
         + w.w_potion_spend * state.potions_spent
+        + w.w_heal_waste * state.heal_wasted  # Not Yet burned at high HP
         + w.w_max_hp_cost * state.max_hp_spent  # permanent pool shrink
         # Withering Presence: each manufactured Wither drains tier_dmg per
         # end-of-turn until exhausted, and the tiers only climb — charge the

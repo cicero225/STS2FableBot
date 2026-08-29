@@ -5214,3 +5214,79 @@ def test_throwing_axe_sharp_reaches_the_picker_and_dismantle_counts() -> None:
                           enchant_kind=ctx.screen_mem.get("pending_enchant"))
     # the upgraded conditional-double-hitter is now both ELIGIBLE and PREFERRED
     assert pick.index == 1, (pick.name, pick.index)
+
+
+def _ts_body(eid, hp, max_hp, intent="12"):
+    e = enemy(eid, hp, intent_label=intent)
+    e["name"] = "Test Subject #C376"
+    e["max_hp"] = max_hp
+    return e
+
+
+def test_touch_of_insanity_reworded_text_still_categorizes() -> None:
+    """Owner catch 2026-08-28 (TS f48 tape): the game reworded the potion to
+    'It is free to play this combat.' — the costs-0 regex stopped matching,
+    TOI fell to 'other', and only the hail-mary ever drank it (r10,
+    pointlessly). The deploy lane with the owner's wait-for-a-worthy-target
+    rule was unreachable. Widened regex must route it to cost_zero and the
+    lane must fire the turn a 2-cost is in hand."""
+    toi = {"id": "TOUCH_OF_INSANITY", "name": "Touch of Insanity",
+           "description": "Choose a card in your Hand. It is free to play this combat.",
+           "slot": 0, "can_use_in_combat": True, "target_type": "Self",
+           "keywords": []}
+    cheap = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BOSS_0", 300, intent_label="15")],
+        state_type="boss", potions=[toi])
+    d = router().decide(cheap, LoopContext())
+    assert not (isinstance(d, Decision)
+                and d.action.payload().get("action") == "use_potion")
+    worthy = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage."),
+              card(1, "Uppercut", 2, "Deal 13 damage. Apply 1 Weak. Apply 1 Vulnerable.")],
+        enemies=[enemy("BOSS_0", 300, intent_label="15")],
+        state_type="boss", potions=[toi])
+    d2 = router().decide(worthy, LoopContext())
+    assert isinstance(d2, Decision)
+    assert d2.action.payload().get("action") == "use_potion"
+    assert "cost-zero" in (d2.rationale or "")
+
+
+def test_weak_potion_held_for_test_subject_final_phase() -> None:
+    """Owner 2026-08-28: TS revives WIPE statuses and early phases hit
+    softest — a debuff potion thrown at P1 is wasted. Hold until the
+    final-phase body (max_hp >= 250)."""
+    weak = {"id": "WEAK_POTION", "name": "Weak Potion",
+            "description": "Apply 2 Weak to target enemy.",
+            "slot": 0, "can_use_in_combat": True, "target_type": "AnyEnemy",
+            "keywords": []}
+    p1 = make_combat(hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+                     enemies=[_ts_body("TS_0", 140, 150)],
+                     state_type="boss", potions=[weak])
+    d = router().decide(p1, LoopContext())
+    assert not (isinstance(d, Decision)
+                and d.action.payload().get("action") == "use_potion")
+    p3 = make_combat(hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+                     enemies=[_ts_body("TS_0", 290, 300)],
+                     state_type="boss", potions=[weak])
+    d2 = router().decide(p3, LoopContext())
+    assert isinstance(d2, Decision)
+    assert d2.action.payload().get("action") == "use_potion"
+
+
+def test_not_yet_shelved_at_high_hp() -> None:
+    """Owner 2026-08-28 (TS f48 r3: Not Yet burned at 77/83 for 6 real HP):
+    the forgone 4 points are a wasted shelvable resource. Hold near-full;
+    play at low HP where the full 10 lands."""
+    ny = card(0, "Not Yet", 2, "Heal 10 HP. Exhaust.", target="None",
+              ctype="Skill")
+    high = make_combat(hand=[ny], enemies=[enemy("BOSS_0", 200, "6")],
+                       hp=78, max_hp=83, state_type="boss")
+    d = router().decide(high, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("action") != "play_card"  # shelved
+    low = make_combat(hand=[ny], enemies=[enemy("BOSS_0", 200, "12")],
+                      hp=30, max_hp=83, state_type="boss")
+    d2 = router().decide(low, LoopContext())
+    assert isinstance(d2, Decision)
+    assert d2.action.payload().get("action") == "play_card"
