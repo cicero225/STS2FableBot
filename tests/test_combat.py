@@ -3435,3 +3435,26 @@ def test_draws_fizzle_at_the_hand_limit() -> None:
                      hand_size=5)
     out2 = _apply_card(roomy, pc, None)
     assert out2.draws == 5
+
+
+def test_vuln_payoff_cards_hold_when_dry() -> None:
+    """Owner rule (seed-A T2 + seed-B r4): Dominate/Molten Fist-class payoff
+    riders must not fire on zero vuln — Dominate led plans as an artifact
+    STRIPPER, Molten Fist+ exhausted itself under Artifact with vuln 0.
+    With vuln up, both play at full value."""
+    w = load_policy_config().combat
+    dom = _bcard(0, "DOMINATE", "Dominate", 1,
+                 "Apply 1 Vulnerable. Gain 1 Strength for each Vulnerable "
+                 "on the enemy. Exhaust.", "Skill", "AnyEnemy")
+    st = _beckon_state(1, [dom], enemy_hp=300)
+    st["battle"]["enemies"][0]["status"] = [
+        {"id": "ARTIFACT_POWER", "name": "Artifact", "amount": 3,
+         "description": "Negates 3 debuffs."}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload().get("card_index") != 0  # strip credit < dry dock
+    st2 = _beckon_state(1, [dom], enemy_hp=300,
+                        enemy_status=[{"id": "VULNERABLE_POWER",
+                                       "name": "Vulnerable", "amount": 2,
+                                       "description": "Takes 50% more damage."}])
+    d2 = plan_combat_turn(parse_state(st2), w)
+    assert d2.action.payload().get("card_index") == 0  # payoff live: play

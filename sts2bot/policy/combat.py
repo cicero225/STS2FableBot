@@ -481,6 +481,9 @@ class SimState:
     # exhaust-clears-stranded (owner 2026-08-28: the DFS priced Withers via
     # the stranded class but never connected Stoke/TG+ to REMOVING them)
     hand_purged: bool = False
+    # vuln-payoff riders fired on zero stacks (Dominate/Molten Fist class —
+    # nearly all self-exhaust, so a dry firing loses the payoff forever)
+    vuln_payoff_dry: int = 0
     targeted_exhausts: int = 0
     # PRE-BAKED MODIFIERS (2026-07-14, trace-verified — the Pen Nib lesson generalized):
     # the mod's card text is a fully-RESOLVED preview. At Str 1 a Strike reads "Deal 7
@@ -702,6 +705,13 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         r"deals? (\d+) additional damage for each unique debuff", desc,
         re.IGNORECASE)) else 0
     per_vuln_str = int(m.group(1)) if (m := _PER_VULN_STR.search(desc)) else 0
+    if per_vuln_str:
+        # 'Gain N Strength for each Vulnerable' ALSO matches the flat Gain-N-
+        # Strength parse — the conditional Str was credited twice, once
+        # unconditionally (surfaced by the payoff-dry test 2026-08-29:
+        # Dominate scored +33 into Artifact 3 at zero vuln). The rider is the
+        # whole sentence; zero the flat copy. (No known card has both.)
+        fx.strength = 0
     target_str_down = int(m.group(1)) if (m := _TARGET_STR_DOWN.search(desc)) else 0
     block_if_exh = int(m.group(1)) if (m := _BLOCK_IF_EXHAUSTED.search(desc)) else 0
     energy_gated = bool(_IF_EXHAUSTED_GATE.search(desc)) and fx.energy_gain > 0
@@ -1401,6 +1411,14 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             gained = card.str_per_target_vuln * e.vulnerable
             s = replace(s, my_strength=s.my_strength + gained,
                         strength_gained=s.strength_gained + gained)
+        # Payoff-dry dock (owner rule 2026-08-29, seed-A T2 + seed-B r4 tapes:
+        # Dominate led plans as an artifact STRIPPER, Molten Fist+ exhausted
+        # itself with vuln 0 under Artifact — 'you REALLY want to save these
+        # until there is actual vuln'): a vuln-payoff rider firing on ZERO
+        # stacks wastes the payoff; exhaust cards lose it forever.
+        if ((card.str_per_target_vuln or card.doubles_target_vuln)
+                and e.vulnerable <= 0):
+            s = replace(s, vuln_payoff_dry=s.vuln_payoff_dry + 1)
         if card.doubles_target_vuln and e.vulnerable > 0 and e.hp > 0:  # Molten Fist
             enemies[target_i] = replace(e, vulnerable=e.vulnerable * 2)
             s = replace(s, enemies=tuple(enemies),
@@ -1808,6 +1826,8 @@ def _score(
         # before it scales' shape falls out of tier escalation.
         + (w.w_wither_incurred * state.wither_tier_dmg * state.withers_incurred
            / max(1, state.wither_period)
+           if not lethal_end else 0.0)
+        + (w.w_vuln_payoff_dry * state.vuln_payoff_dry
            if not lethal_end else 0.0)
         + w.w_wake_sleeper * state.sleepers_woken
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison

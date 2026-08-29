@@ -74,6 +74,11 @@ class CombatWeights(_Section):
     # energy-surplus dock, which otherwise treats a wasteful heal as a
     # virtuous way to spend leftover energy; a full-value heal docks 0.
     w_heal_waste: float = -2.0
+    # Vuln-payoff riders fired on zero stacks (owner 2026-08-29: Dominate as
+    # artifact stripper, Molten Fist+ exhausted at vuln 0): per dry firing,
+    # Sized to beat the strip credit (3.0) so payoffs never volunteer as
+    # strippers, while a genuinely forced tempo play can still pay it.
+    w_vuln_payoff_dry: float = -4.0
     # A/B arm gate: boss keys routed through the setup/burst refinement
     # WITHOUT a FIGHT_MODE_TABLE row change (Aeonglass session 2026-08-28).
     # Live table changes stay owner-gated; arms toggle via config file.
