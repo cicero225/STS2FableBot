@@ -2,6 +2,27 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-28b (Fable 5) — Aeonglass A/B COMPLETE: setup arm dominates on the paired fight
+
+Full four-way on the parked f48 snapshot (same seed M61B9L0NPM both bot
+arms -> identical draws, a clean PAIRED comparison; wither fixes active in
+both): **owner (human): WIN** ("ignored the Wither effect and just played
+everything -- deck good enough to block while delivering damage, favorable
+before it scales; coordinated Bloodletting + draw to extend turns").
+**Race arm: WIN, finished ~37 HP** (killed ~r6-7). **Setup arm: WIN,
+finished ~58 HP** -- modes setup_turn r1-r5 then burst-flip to race
+mid-r5; boss HP fell nearly as fast during "setup" (503->434->338->182->95
+by r5) because the refinement banks VALUE, not passivity. Same kill speed,
+**+21 HP conserved** vs the race arm on identical draws. The pre-fix live
+trace (120/512 at r5, 63 HP) was also winning. Verdict shape: on a strong
+deck everything wins, but the setup refinement's turn-shaping preserved a
+fifth of the health bar for the rest of... (well, the run was over -- but
+at KD or Insatiable that margin is lethal-relevant). The burst-flip fired
+correctly. NOTE: savescum arms are DETERMINISTIC (saved RNG -> same
+draws), so extra passes add nothing; one snapshot = one paired datapoint.
+Mode-row decision (setup_burst: True on AEONGLASS) is the owner's; the
+n=1 evidence + the KD/Queen precedent both point yes.
+
 ## 2026-08-28 (Fable 5) — Aeonglass session: decode, planner fixes, CHECKPOINT CAPTURED (paused)
 
 Owner-attended session (remote yesterday, present today). Owner delivered the
