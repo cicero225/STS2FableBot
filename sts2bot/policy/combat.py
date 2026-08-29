@@ -484,6 +484,10 @@ class SimState:
     # vuln-payoff riders fired on zero stacks (Dominate/Molten Fist class —
     # nearly all self-exhaust, so a dry firing loses the payoff forever)
     vuln_payoff_dry: int = 0
+    # Deck vuln-dependency multiplier on the artifact-strip credit (owner
+    # 2026-08-29 seed-A T3: 'clear underrating of artifact strip... in a
+    # deck with this much dependency on Vuln'). 1.0 = the flat baseline.
+    artifact_strip_mult: float = 1.0
     targeted_exhausts: int = 0
     # PRE-BAKED MODIFIERS (2026-07-14, trace-verified — the Pen Nib lesson generalized):
     # the mod's card text is a fully-RESOLVED preview. At Str 1 a Strike reads "Deal 7
@@ -1783,7 +1787,7 @@ def _score(
         # Artifact strips open the debuff window (owner's Aeonglass line: two cheap
         # debuffs eaten r2-r3, THEN Vulnerable landed and r4 dealt 250) — an eaten
         # debuff is a down payment, not pure waste
-        + w.w_artifact_strip * state.artifact_stripped
+        + w.w_artifact_strip * state.artifact_strip_mult * state.artifact_stripped
         # Strength-horizon (backlog item, shipped 2026-08-19): Str's residual
         # value is future-turns x future-hits — in-plan contribution is already
         # realized through the damage terms, so a lethal end pays nothing
@@ -1852,6 +1856,7 @@ def plan_combat_turn(
     focus_target: str | None = None,
     exhausted_this_turn: bool = False, plays_this_turn: int = 0,
     debuff_wipe_hp: int = 0,
+    artifact_strip_mult: float = 1.0,
 ) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences. Damage potions
     (minus already-used slots) join the search as pseudo-cards so card+potion lethals are
@@ -2155,6 +2160,7 @@ def plan_combat_turn(
         wither_countdown=wither_countdown,
         wither_period=wither_period,
         wither_tier_dmg=wither_tier,
+        artifact_strip_mult=artifact_strip_mult,
         # Forgotten Ritual dead-in-hand (owner 2026-08-03): the API has no
         # 'exhausted this turn' field, so post-exhaust REPLANS priced the
         # conditional energy at zero and Ritual slid out of every plan. The

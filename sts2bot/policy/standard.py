@@ -667,7 +667,19 @@ class StandardRouter:
         tp = ctx.screen_mem.get("turn_plays")
         plays_now = (tp["n"] if isinstance(tp, dict)
                      and tp.get("key") == (floor_now, round_) else 0)
+        # Vuln-dependency scaling for the strip credit (owner 2026-08-29):
+        # payoff providers in the DECK (tag lens) raise the value of eating
+        # Artifact charges — a Dominate/Bully package starves behind charges.
+        vuln_dep = 0.0
+        for c in (state.player.deck if state.player else None) or []:
+            entry = self.draft_tags.get((c.id or "").upper()) or {}
+            vuln_dep += float((entry.get("provides") or {}).get(
+                "vulnerable_payoff", 0.0))
+        w_ = self.config.combat
+        strip_mult = 1.0 + w_.artifact_strip_payoff_mult * min(
+            vuln_dep, w_.artifact_strip_payoff_cap)
         plan = plan_combat_turn(state, self.config.combat,
+                                artifact_strip_mult=strip_mult,
                                 used_potion_slots=tuple(pused["slots"]),
                                 hold_aoe_potions=self._aoe_hold(state, ctx),
                                 fight_plan=fp,

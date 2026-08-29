@@ -3458,3 +3458,19 @@ def test_vuln_payoff_cards_hold_when_dry() -> None:
                                        "description": "Takes 50% more damage."}])
     d2 = plan_combat_turn(parse_state(st2), w)
     assert d2.action.payload().get("card_index") == 0  # payoff live: play
+
+
+def test_artifact_strip_scales_with_deck_vuln_dependency() -> None:
+    """Owner (seed-A T3): flat strip credit underrates charges in
+    vuln-dependent decks. The multiplier rides SimState so a stripped
+    charge scores payoff_mult-scaled."""
+    w = load_policy_config().combat
+    def foe():
+        return EnemySim(entity_id="a", hp=200, max_hp=200, block=0,
+                        vulnerable=0, incoming=5)
+    flat = SimState(energy=0, my_block=0, my_strength=0, enemies=(foe(),),
+                    artifact_stripped=2)
+    scaled = SimState(energy=0, my_block=0, my_strength=0, enemies=(foe(),),
+                      artifact_stripped=2, artifact_strip_mult=2.5)
+    assert (_score(scaled, w) - _score(flat, w)
+            == w.w_artifact_strip * 2 * 1.5)

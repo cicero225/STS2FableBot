@@ -79,6 +79,11 @@ class CombatWeights(_Section):
     # Sized to beat the strip credit (3.0) so payoffs never volunteer as
     # strippers, while a genuinely forced tempo play can still pay it.
     w_vuln_payoff_dry: float = -4.0
+    # Strip-credit scaling by deck vulnerable_payoff provider weight (tag
+    # lens): mult = 1 + payoff_mult x min(weight, cap). At 0.5/cap 3 a heavy
+    # Dominate/Bully package values a charge up to 2.5x the flat 3.0.
+    artifact_strip_payoff_mult: float = 0.5
+    artifact_strip_payoff_cap: float = 3.0
     # A/B arm gate: boss keys routed through the setup/burst refinement
     # WITHOUT a FIGHT_MODE_TABLE row change (Aeonglass session 2026-08-28).
     # Live table changes stay owner-gated; arms toggle via config file.
