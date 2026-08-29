@@ -18,6 +18,8 @@ ROOT = Path(__file__).resolve().parent.parent
 def tape(run_dir: str, boss: str) -> list[str]:
     lines: list[str] = []
     prev_hand: list[str] | None = None
+    prev_pots = None
+    prev_energy = None
     cur_round = None
     for raw in (ROOT / "logs" / "runs" / run_dir / "decisions.jsonl").open(
             encoding="utf-8"):
@@ -64,14 +66,35 @@ def tape(run_dir: str, boss: str) -> list[str]:
         elif act.get("action") == "end_turn":
             lines.append(f"  END TURN [{(r.get('rationale') or '')[:60]}]")
         elif not act:
-            # recorder/human half: infer plays from hand shrinkage
-            if prev_hand and hand and len(hand) < len(prev_hand):
-                gone = list(prev_hand)
-                for h in hand:
-                    if h in gone:
-                        gone.remove(h)
-                if gone:
-                    lines.append(f"  (human) left hand: {gone}")
+            # recorder/human half: full per-poll deltas. Hand-shrinkage alone
+            # missed draw-replacing plays (owner catch 2026-08-29: Offering+
+            # exhausts itself and draws 5 — the hand GREW, the play vanished
+            # from the tape) and potions entirely (belt never diffed).
+            gone = list(prev_hand or [])
+            for h in hand:
+                if h in gone:
+                    gone.remove(h)
+            arrived = list(hand)
+            for h in prev_hand or []:
+                if h in arrived:
+                    arrived.remove(h)
+            pots = [q.get("id") for q in p.get("potions") or []]
+            drunk = [q for q in (prev_pots if prev_pots is not None else pots)
+                     if q not in pots]
+            de = (p.get("energy") or 0) - (prev_energy or 0)
+            bits = []
+            if gone:
+                bits.append(f"left: {gone}")
+            if arrived:
+                bits.append(f"drew/got: {arrived}")
+            if drunk:
+                bits.append(f"POTION drunk: {drunk}")
+            if de and (gone or arrived or drunk):
+                bits.append(f"energy {'+' if de > 0 else ''}{de}")
+            if bits:
+                lines.append("  (human) " + " | ".join(bits))
+            prev_pots = pots
+            prev_energy = p.get("energy")
             prev_hand = hand
     return lines
 
