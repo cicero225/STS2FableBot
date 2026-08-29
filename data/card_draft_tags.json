@@ -2241,6 +2241,11 @@
     }
    ]
   },
+  "WHISTLE": {
+   "provides": {
+    "expensive_attack": 1.0
+   }
+  },
   "WISP": {
    "provides": {
     "energy_source": 1.0
