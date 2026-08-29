@@ -2,6 +2,32 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-29c (Fable 5) — fixture session: the Aeonglass regression suite exists
+
+Owner returned for experiments (no batches after). Built the permanent
+fixture suite: seeded replays of A and B parked at their f48 fight starts
+via handoff -> save+quit -> full backup. **Fixture A = backups/
+20260829-154956** (91/91 double-Offering deck; prior: bot died r8, owner
+won r6@46); **Fixture B = backups/20260829-161432** (137/137 Feed deck,
+drift-checked exact; prior: bot r8/151, owner r10/135). Registry:
+logs/reports/aeonglass_fixtures.md. Restore+Continue = byte-identical
+fight for ANY future planner version — the discrepancy protocol for the
+whole queue. Epoch management en route: owner's fixture-A self-replay
+LOSS ticked the epoch (owner caught it on the bar); reverted to 063132
+again before seed B; fixture backups are themselves epoch-safe.
+
+**Owner self-A/B on fixture A** (natural experiment, identical draws):
+replayed 'running my same judgments', deviated on potion timing (all 3
+drunk by r3 vs held to r5 in the win) -> LOST r7. Healthier midgame (87
+vs 72 at r4), empty belt at the detonation window, dead. Single-variable
+validation of hold-for-the-window; queue item 9 upgraded.
+
+**Seed-B commentary continues** -> items 13 (Barricade mid-plan flag,
+mechanism grep-confirmed) and 14 (fractional Withering cost; tape:
+Whirlwind played at 0 ENERGY, zero hits, no DotW, pure counter tick).
+Queue at 14. Phase 2 (implementation) begins; phase 3 = rerun fixtures
+on the new planner.
+
 ## 2026-08-29b (Fable 5) — batch-then-revert executed; arms still statistically silent
 
 Owner headed out on option 1. Batches ran while away: live arm completed
