@@ -2,6 +2,22 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-29b (Fable 5) — batch-then-revert executed; arms still statistically silent
+
+Owner headed out on option 1. Batches ran while away: live arm completed
+its 40 (2 wins), experiment arm 25/40 more before the requested boundary
+stop. Bot + game down clean; **profile REVERTED to backups/20260829-063132**
+per the arrangement — epoch un-ticked, seeds valid for the owner's planned
+follow-up experiments (interim batch progression discarded from the
+profile only; all run data kept repo-side; pre-restore state banked).
+
+Dataset rebuilt (3,013 runs, 0 parse errors). Arm-era Aeonglass split so
+far: setup 7/10 deaths (70%%, mean hp -64.7) vs race 2/3 (67%%, -69.7) —
+statistically nothing at these n; the paired-checkpoint evidence (setup
++21 HP on identical draws) remains the only real signal. Verdict stays
+open; volume or more paired snapshots will decide. 12-item seed-A queue
+awaits the owner's green light; cheap four ready to land as their own era.
+
 ## 2026-08-29 (Fable 5) — the seed-A commentary session: 12-item work queue from one fight
 
 The richest analysis session on record. Morning: overnight batches (exp
