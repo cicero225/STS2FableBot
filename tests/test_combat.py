@@ -3474,3 +3474,25 @@ def test_artifact_strip_scales_with_deck_vuln_dependency() -> None:
                       artifact_stripped=2, artifact_strip_mult=2.5)
     assert (_score(scaled, w) - _score(flat, w)
             == w.w_artifact_strip * 2 * 1.5)
+
+
+def test_cascade_played_for_free_pile_value() -> None:
+    """Owner catch (seed-B T5): Cascade+ at X=0 plays the next pile card
+    free — but the class parsed to zero and had no credit, so it was never
+    played. Now: played at 0 leftover cost; the cascaded card also ticks
+    Withering Presence (2 ticks total vs her)."""
+    w = load_policy_config().combat
+    casc = _bcard(0, "CASCADE", "Cascade+", 0,
+                  "Play the next X+1 cards in your draw pile.", "Skill",
+                  "None")
+    d = plan_combat_turn(parse_state(_beckon_state(0, [casc], enemy_hp=200)), w)
+    assert d.action.payload().get("card_index") == 0  # free EV: play it
+    from sts2bot.policy.combat import _apply_card, _to_planned
+    from sts2bot.client.models import parse_state as ps
+    st = ps(_aeonglass_state(0, [casc], countdown=6))
+    pc = _to_planned(st.player.hand[0], 0)
+    sim = SimState(energy=0, my_block=0, my_strength=0, enemies=(),
+                   wither_countdown=6, wither_period=6, wither_tier_dmg=3)
+    out = _apply_card(sim, pc, None)
+    assert out.withers_incurred == 2  # Cascade + its cascaded card both tick
+    assert out.pile_plays == 1

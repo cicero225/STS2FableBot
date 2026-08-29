@@ -343,6 +343,12 @@ class PlannedCard:
     # is otherwise unmodeled today; this veto future-proofs the cap interaction
     # for whenever it gets priced.
     plays_top_cards: bool = False
+    # Play-from-pile count (Havoc 1; Cascade X+1 resolved at plan time).
+    # Owner catch 2026-08-29 (seed-B T5): Cascade+ at 0 energy is a FREE
+    # random card — an unplayable Wither cascaded simply discards ('free
+    # real estate') — but the class parsed to zero effects and carried no
+    # credit anywhere, so the bot never played it (and drafts it at 0%).
+    plays_pile_n: int = 0
     # Stampede power (owner trap, noted long ago, implemented 2026-08-23):
     # its end-of-turn random attack hits a RANDOM enemy, flipping facing --
     # vs Kaiser back-attack claws that's a +50% incoming tax you no longer
@@ -484,6 +490,9 @@ class SimState:
     # vuln-payoff riders fired on zero stacks (Dominate/Molten Fist class —
     # nearly all self-exhaust, so a dry firing loses the payoff forever)
     vuln_payoff_dry: int = 0
+    # cards cascaded from the pile this plan (Havoc/Cascade): credited at
+    # w_play_from_pile each; they also tick Withering Presence
+    pile_plays: int = 0
     # Deck vuln-dependency multiplier on the artifact-strip credit (owner
     # 2026-08-29 seed-A T3: 'clear underrating of artifact strip... in a
     # deck with this much dependency on Vuln'). 1.0 = the flat baseline.
@@ -788,7 +797,10 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
             any((k.name or "") == "Bound" for k in getattr(card, "keywords", None) or [])
             or bool(re.search(r"\bBound\b", desc))
         ),
-        plays_top_cards=bool(re.search(r"play(s)? the top", desc, re.IGNORECASE)),
+        plays_top_cards=bool(re.search(r"play(s)? the (top|next)", desc, re.IGNORECASE)),
+        plays_pile_n=(
+            (cost + 1 if re.search(r"next x\+1 cards", low) else 1)
+            if re.search(r"play(s)? the (top|next)", desc, re.IGNORECASE) else 0),
         stampede_power=bool(re.search(
             r"random attack in your hand is played", desc, re.IGNORECASE)),
         grows_on_exhaust=bool(_GROWS_ON_EXHAUST.search(desc)),
@@ -1544,7 +1556,9 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # advancement free): every card play pays tier/period in _score, so
         # withers_incurred now counts TICKING PLAYS, not crossings.
         withers_incurred=s.withers_incurred + (
-            1 if (s.wither_countdown and card.potion_slot is None) else 0),
+            (1 + card.plays_pile_n)
+            if (s.wither_countdown and card.potion_slot is None) else 0),
+        pile_plays=s.pile_plays + card.plays_pile_n,
         # exhaust plays clear stranded statuses (Withers/Beckons): whole-hand
         # exhausters purge everything (Second Wind too — statuses aren't
         # attacks); chooser exhausts (TG+/Purity) eat the worst K in _score
@@ -1833,6 +1847,7 @@ def _score(
            if not lethal_end else 0.0)
         + (w.w_vuln_payoff_dry * state.vuln_payoff_dry
            if not lethal_end else 0.0)
+        + w.w_play_from_pile * state.pile_plays
         + w.w_wake_sleeper * state.sleepers_woken
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
         # picked a target order; these terms make the DFS serve it every turn.

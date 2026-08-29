@@ -84,6 +84,10 @@ class CombatWeights(_Section):
     # Dominate/Bully package values a charge up to 2.5x the flat 3.0.
     artifact_strip_payoff_mult: float = 0.5
     artifact_strip_payoff_cap: float = 3.0
+    # Havoc/Cascade play-from-pile EV per cascaded card (owner 2026-08-29:
+    # Cascade+ at 0 energy 'is probably worth it unless your deck has
+    # downside cards'). A shade under a Strike: random-card EV, discounted.
+    w_play_from_pile: float = 4.0
     # A/B arm gate: boss keys routed through the setup/burst refinement
     # WITHOUT a FIGHT_MODE_TABLE row change (Aeonglass session 2026-08-28).
     # Live table changes stay owner-gated; arms toggle via config file.
