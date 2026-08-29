@@ -92,6 +92,10 @@ def tape(run_dir: str, boss: str) -> list[str]:
             if de and (gone or arrived or drunk):
                 bits.append(f"energy {'+' if de > 0 else ''}{de}")
             if bits:
+                # v3 (owner misread 2026-08-29: four r5 plays scanned as
+                # noise): carry running block/hp so plays are visible as
+                # state changes, not bare departures
+                bits.append(f"[hp {p.get('hp')} blk {p.get('block')}]")
                 lines.append("  (human) " + " | ".join(bits))
             prev_pots = pots
             prev_energy = p.get("energy")
