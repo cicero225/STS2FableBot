@@ -302,6 +302,10 @@ class PlannedCard:
     # hand or it plans phantom follow-ups ([Thrash > Strike] with Strike the
     # only other attack = the Fiend Fire bug family)
     exhausts_random_attack: bool = False
+    # Barricade-class (owner catch 2026-08-29, seed-B T1: the plan only
+    # learned block-persistence from the live status on REPLAN — same-turn
+    # block after the power got no credit at plan time)
+    grants_barricade: bool = False
     # Chooser exhausts (True Grit+ 'Exhaust 1 card.', Purity 'up to 3'): the
     # live hand_select prefers statuses/curses, so the DFS credits clearing
     # the worst stranded penalties (Aeonglass Withers — owner 2026-08-28:
@@ -754,6 +758,8 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         exhaust_nonattack_only=bool(re.search(r"non-attack", desc, re.IGNORECASE)),
         exhausts_random_attack=bool(re.search(
             r"Exhaust a random Attack in your Hand", desc, re.IGNORECASE)),
+        grants_barricade=bool(re.search(
+            r"block is (?:not|no longer) removed", desc, re.IGNORECASE)),
         targeted_exhaust_n=(
             0 if "random" in low else
             (int(m_te.group(1)) if (m_te := re.search(
@@ -1507,6 +1513,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # exhausters purge everything (Second Wind too — statuses aren't
         # attacks); chooser exhausts (TG+/Purity) eat the worst K in _score
         hand_purged=s.hand_purged or card.exhaust_count == -1,
+        barricade=s.barricade or card.grants_barricade,
         targeted_exhausts=s.targeted_exhausts + card.targeted_exhaust_n,
     )
     # relic pass R1: fire mid-turn relic triggers this play crossed (counters, on-kill,

@@ -3380,3 +3380,22 @@ def test_withering_presence_counter_deters_marginal_plays() -> None:
     d2 = plan_combat_turn(
         parse_state(_aeonglass_state(3, [poke], countdown=1, boss_hp=3)), w)
     assert d2.action.payload().get("card_index") == 0  # lethal pays nothing
+
+
+def test_barricade_credits_same_turn_block_at_plan_time() -> None:
+    """Owner catch 2026-08-29 (seed-B T1 tape): the plan flipped toward block
+    only AFTER Barricade resolved — sim.barricade seeded from live status
+    only, never set by playing the power in-plan. With no incoming (her
+    block turn), post-Barricade Defends are pure excess without the flag and
+    banked value with it."""
+    w = load_policy_config().combat
+    barr = _bcard(0, "BARRICADE", "Barricade", 3,
+                  "Block is no longer removed at the start of your turn.",
+                  "Power", "None")
+    defend = _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.",
+                    "Skill", "None")
+    st = _beckon_state(4, [barr, defend], enemy_hp=300, incoming="0")
+    st["battle"]["enemies"][0]["intents"] = [{"type": "Buff", "label": ""}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload().get("card_index") == 0  # Barricade leads
+    assert "Defend" in (d.rationale or "")  # and the plan KEEPS the Defend
