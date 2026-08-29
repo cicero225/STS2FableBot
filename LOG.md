@@ -2,6 +2,40 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-29 (Fable 5) — the seed-A commentary session: 12-item work queue from one fight
+
+The richest analysis session on record. Morning: overnight batches (exp
+arm 4/33, live arm 3+/14 incl. a f48 win), then owner-driven seeded
+rewinds. Seed A (KP6FWVU2EL, 91/91 double-Offering deck): owner WON r6 at
+46 HP where the setup-arm bot died r8 — first human-beats-bot Aeonglass
+pair. Seed B (P6AF3J78BW, 137-HP Feed deck): owner died r10 boss 135/512
+vs bot r8 boss 151 — near-identical, bot acquitted, deck under the line.
+Epoch ticked by the seed-B death; REVERTED via the per-run profile
+snapshot (04:54:15, one second post-seed-A) — epoch preserved, seeds
+alive. Determinism diagnosed: bot pure (all decisions matched on
+identical states); the TS +1-Setup-Strike case = game-side reward roll
+(Whetstone vs 100g, mechanism open: custom-run flag or profile-history
+pools); seed-A divergence = MY tooling twice (wrong dir, then hand-diff
+transcription losing draw-replacing plays — owner caught it from energy
+math; fight_tape v2 does full per-poll deltas).
+
+Then per-turn owner commentary on the seed-A pair -> PLAN work queue,
+12 items. Highlights: hand-limit draw fizzle CONFIRMED UNMODELED (bot
+burned ~2 draws T1, reached Pact's End+ a turn late — the whole draw
+divergence); payoff-as-stripper pattern caught in code (Dominate led r5
+via strip credit + exhaust enablement — verified NOT a Str-vs-Artifact
+bug); r7 hail-mary drank Swift then Bottled Potential in BELT-SLOT ORDER,
+flushing 100%% of Swift's draws (reroll-before-draw rule); detonation
+REFRAME — owner's r5 was adaptive ('awful turn -> fix the hand'), not
+scheduled, so the encoding is a hand-quality-vs-incoming trigger, not a
+beat script. Also: vuln-density-scaled artifact strip, cheap-draw-opens,
+BT-vs-draw-potion brick, Molten-Fist hold-for-recycle. Fight-level
+finding: beat-aligned detonation + triple-potion banking (owner) vs
+even-spread damage into her block turns (bot).
+
+Owner live-catch streak this arc: 7 (Thrash, Wither pair, TOI text
+drift, Weak-vs-staged, Not-Yet waste, tape transcription).
+
 ## 2026-08-28e (Fable 5) — owner tape catches x3 fixed; batches stopped at boundary (owner request)
 
 Owner narrowed their TS-fight watch to three optimality comments -- all
