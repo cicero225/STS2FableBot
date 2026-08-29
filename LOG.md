@@ -2,6 +2,28 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-29d (Fable 5) — phase 2 complete: 13 fixes from the fixture commentary
+
+The seed-A/B commentary queue implemented, each own commit + tape-mirroring
+test, suite 613: hand-limit draw fizzle (#1), payoff-dry gate (#3),
+dynamic X-cost (#4 — [Rampage>Whirlwind] was literally undiscoverable),
+vuln-scaled artifact strip (#7), fix-the-hand reroll lane + hand_reroll
+category (#9), cheap-draw opener widening (#10), hail-mary reroll-before-
+draw (#12), Barricade mid-plan flag (#13), amortized Withering tax (#14),
+play-from-pile EV for Havoc/Cascade (#16). Closed by investigation: #15
+(MF>Taunt was a tie under Artifact — the real error was playing MF at all,
+now gated by #3), #2 (emergent from #1), #8 (emergent from #7 + search).
+BONUS BUGS the work flushed: Dominate's flat-Str double-count (phantom
+unconditional Str explained its plan-leading everywhere), phantom minimum
+X-hit (0-energy Whirlwind 'dealt 6'), energy-waste dock BRIBING null
+spends (dead Forgotten Ritual played for +0.15 — veto landed, calibration
+open as 17-CAL), Evil Eye+ evaporation (desperation-draw mid-plan energy
+spend, #18 spec note). Spec tier (5, 6, 11, 18, beat-trigger) filed for
+5-C. Owner tape-catch count this arc: 12+.
+
+Phase 3 pending: rerun fixtures A+B on this planner (needs ~10 min of
+game time) — old tape vs new bot, the direct discrepancy check.
+
 ## 2026-08-29c (Fable 5) — fixture session: the Aeonglass regression suite exists
 
 Owner returned for experiments (no batches after). Built the permanent
