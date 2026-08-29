@@ -2,6 +2,22 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-29e (Fable 5) — phase 3: fixtures rerun on the new planner
+
+**Fixture A** (owner-winnable fight): still a LOSS but 71 HP closer —
+died r7 with the boss at 39/512 where the old planner had her at 110 at
+the same round. The turn-level fixes bought most of the gap; the
+remainder is the spec-tier beat-detonation (bank the belt, unload on a
+defensible beat, kill on her passive turn) — exactly what won the owner
+the fight and what a one-turn planner cannot express. Owner verdict:
+'heartbreaking... I consider this an improvement' (their own self-A/B
+loss on identical draws calibrates: losing lines exist with reasonable
+play). **Fixture B**: loss r8, player 47, boss 177 (old: r8/151 at 27 HP;
+owner r10/135) — traded damage for durability, outcome unchanged; the
+under-the-line verdict on that deck STANDS across all four playings.
+Fixture suite proven end-to-end as a regression instrument: restore ->
+Continue -> paired diff, ~4 min per fight. Machine handed back.
+
 ## 2026-08-29d (Fable 5) — phase 2 complete: 13 fixes from the fixture commentary
 
 The seed-A/B commentary queue implemented, each own commit + tape-mirroring
