@@ -558,14 +558,18 @@ def test_player_frail_is_prebaked_not_reapplied() -> None:
 
 
 def test_whirlwind_x_cost_hits_resolve_to_energy() -> None:
-    # "Deal 6 damage to ALL enemies X times": X-cost resolves to current energy, and the hit
-    # count is that same X. At 3 energy Whirlwind is 3x6=18 -- it must beat a 9-damage Strike+.
+    """v2 (queue #4, owner 2026-08-29): X-cost is now DYNAMIC — it costs and
+    hits whatever energy remains at its play position, so fixed-cost cards
+    sequence BEFORE the X-dump (the old pin froze the limitation: X baked at
+    turn start made Whirlwind-first the only discoverable line). Here
+    Strike+ (9) then Whirlwind at X=2 (12) = 21 beats Whirlwind-first 18."""
     w = load_policy_config().combat
     hand = [_bcard(0, "WHIRLWIND", "Whirlwind", "X",
                    "Deal 6 damage to ALL enemies X times.", "Attack", "AllEnemy"),
             _bcard(1, "STRIKE_P", "Strike+", 1, "Deal 9 damage.", "Attack", "AnyEnemy")]
     d = plan_combat_turn(parse_state(_beckon_state(3, hand)), w)
-    assert d.action.payload()["card_index"] == 0  # Whirlwind first at full X
+    assert d.action.payload()["card_index"] == 1  # fixed cost leads
+    assert "Whirlwind" in (d.rationale or "")     # the X-dump follows in-plan
 
 
 def test_bloodletting_tempo_pricing_follows_the_hp_floor() -> None:

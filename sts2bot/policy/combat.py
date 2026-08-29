@@ -349,6 +349,10 @@ class PlannedCard:
     # real estate') — but the class parsed to zero effects and carried no
     # credit anywhere, so the bot never played it (and drafts it at 0%).
     plays_pile_n: int = 0
+    # X-cost dynamic (owner 2026-08-29, seed-B: Rampage-then-Whirlwind was
+    # undiscoverable — X baked to turn-start energy made pre-X plans read
+    # unaffordable and X-first stranded the rest)
+    is_x_cost: bool = False
     # Stampede power (owner trap, noted long ago, implemented 2026-08-23):
     # its end-of-turn random attack hits a RANDOM enemy, flipping facing --
     # vs Kaiser back-attack claws that's a +50% incoming tax you no longer
@@ -648,7 +652,8 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
     # Whirlwind & kin: "Deal N damage to ALL enemies X times" — X-cost resolves to current
     # energy (above), and the hit count is that same X; the parser can't know it, so set it
     # here. Without this Whirlwind read as one hit (4x+ under-valued at high energy).
-    if cost_str.upper() == "X" and fx.damage and re.search(r"\bX times", card.description or ""):
+    is_x = cost_str.upper() == "X"
+    if is_x and fx.damage and re.search(r"\bX times", card.description or ""):
         fx.hits = max(1, cost)
     # Rage special-case (owner): "Whenever you play an Attack this turn, gain N Block"
     # — so it must be sequenced BEFORE attacks. Encode it so the planner sees that.
@@ -813,6 +818,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
                   else 0.0),
         requires_target=(card.target_type == "AnyEnemy"),
         upgrades_in_hand=upgrades_in_hand,
+        is_x_cost=is_x,
     )
 
 
@@ -1254,6 +1260,13 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
     # (owner), so just track the most recent single-target target through the sequence.
     facing = target_id if target_i is not None else state.facing
     eff_cost = card.cost
+    if card.is_x_cost:
+        # X-cost consumes whatever remains AT PLAY POSITION; the baked
+        # turn-start hits are wrong mid-plan in both directions (owner
+        # catch 2026-08-29: Rampage-then-Whirlwind undiscoverable)
+        eff_cost = max(0, state.energy)
+        if card.fx.damage and card.fx.hits:
+            card = replace(card, fx=replace(card.fx, hits=max(1, eff_cost)))
     if card.fx.cost_less_per_attack:  # Stomp-class: cheaper per Attack already played
         eff_cost = max(0, card.cost
                        - card.fx.cost_less_per_attack * state.n_attacks_played)
@@ -2339,7 +2352,7 @@ def plan_combat_turn(
             # observed, but the class is real). Potions aren't cards: still legal.
             if plays_left <= 0 and card.potion_slot is None:
                 continue
-            eff_cost = card.cost
+            eff_cost = sim.energy if card.is_x_cost else card.cost
             if card.fx.cost_less_per_attack:
                 eff_cost = max(0, card.cost
                                - card.fx.cost_less_per_attack * sim.n_attacks_played)
