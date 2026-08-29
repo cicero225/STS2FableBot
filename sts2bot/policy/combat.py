@@ -1266,7 +1266,9 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # catch 2026-08-29: Rampage-then-Whirlwind undiscoverable)
         eff_cost = max(0, state.energy)
         if card.fx.damage and card.fx.hits:
-            card = replace(card, fx=replace(card.fx, hits=max(1, eff_cost)))
+            # X=0 -> ZERO hits (the old max(1, X) bake gave 0-energy
+            # Whirlwind a phantom 6 damage -- owner T6 catch 2026-08-29)
+            card = replace(card, fx=replace(card.fx, hits=eff_cost))
     if card.fx.cost_less_per_attack:  # Stomp-class: cheaper per Attack already played
         eff_cost = max(0, card.cost
                        - card.fx.cost_less_per_attack * state.n_attacks_played)
@@ -2361,6 +2363,15 @@ def plan_combat_turn(
             if eff_cost > sim.energy:
                 continue
             if card.bound and sim.bound_played:  # Chains of Binding: one Bound play/turn
+                continue
+            # Forgotten Ritual-class (owner mystery T7, 2026-08-29): the
+            # conditional energy is gated correctly, but the ENERGY-WASTE
+            # term paid +0.15 net to burn a dead FR (spending on nothing
+            # scored better than leftover energy). Unfulfilled, it is a
+            # strictly-dead self-exhausting play -- veto, unless FNP is up
+            # (the self-exhaust then buys real block).
+            if (card.energy_requires_exhausted and not sim.exhausted_this_turn
+                    and sim.per_exhaust_block <= 0):
                 continue
             if sim.smoggy and card.is_skill and sim.n_skills_played >= 1:
                 continue  # Smoggy: only one Skill per turn (Living Fog)

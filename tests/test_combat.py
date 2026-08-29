@@ -3513,3 +3513,22 @@ def test_cheap_draw_attacks_open_the_turn() -> None:
     d = plan_combat_turn(parse_state(_beckon_state(3, [pommel, big],
                                                    enemy_hp=200)), w)
     assert d.action.payload().get("card_index") == 0  # draw opens
+
+
+def test_zero_energy_x_cost_deals_zero_and_dead_ritual_vetoed() -> None:
+    """Owner T6/T7 catches (seed-B): (a) 0-energy Whirlwind got a phantom
+    minimum hit (max(1,X)) -- real X=0 is zero hits, and with zero value the
+    play must not happen; (b) Forgotten Ritual unfulfilled was played to
+    DODGE the energy-waste dock (+0.15 net for a dead self-exhausting play)
+    -- now vetoed outright unless FNP converts the self-exhaust to block."""
+    w = load_policy_config().combat
+    ww = _bcard(0, "WHIRLWIND", "Whirlwind", "X",
+                "Deal 6 damage to ALL enemies X times.", "Attack", "AllEnemy")
+    d = plan_combat_turn(parse_state(_beckon_state(0, [ww], enemy_hp=200)), w)
+    assert d.action.payload().get("card_index") != 0  # zero hits: hold
+    fr = _bcard(0, "FORGOTTEN_RITUAL", "Forgotten Ritual", 1,
+                "If you Exhausted a card this turn, gain "
+                "[ironclad_energy_icon.png][ironclad_energy_icon.png]"
+                "[ironclad_energy_icon.png]. Exhaust.", "Skill", "None")
+    d2 = plan_combat_turn(parse_state(_beckon_state(3, [fr], enemy_hp=200)), w)
+    assert d2.action.payload().get("card_index") != 0  # dead FR vetoed
