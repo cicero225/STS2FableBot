@@ -3367,19 +3367,33 @@ def test_targeted_exhaust_eats_the_worst_stranded() -> None:
         1, [tg, _wither(1)])).player.hand[0], 1).targeted_exhaust_n == 0
 
 
-def test_withering_presence_counter_deters_marginal_plays() -> None:
-    """The live countdown says the NEXT play manufactures a Wither: a
-    marginal 3-damage poke into a 400-HP boss must not be worth an escalating
-    6-damage-per-turn status; a lethal poke still goes."""
+def test_withering_presence_amortized_tax_on_marginal_plays() -> None:
+    """v2 (owner catch, seed-B T3: Whirlwind at 0 energy ticked the counter
+    for free under crossing-only pricing): every play vs her pays
+    tier/period, so a near-zero-value play is deterred at ANY countdown; a
+    real hit still goes, and lethal pays nothing."""
     w = load_policy_config().combat
-    poke = _bcard(0, "CINDER", "Cinder", 0, "Deal 3 damage.", "Attack",
+    # unit-level pin: 5 ticking plays with NO crossing pay 5/6 of a tier —
+    # under crossing-only pricing this delta was exactly zero
+    def foe():
+        return EnemySim(entity_id="a", hp=400, max_hp=512, block=0,
+                        vulnerable=0, incoming=0)
+    base = SimState(energy=0, my_block=0, my_strength=0, enemies=(foe(),),
+                    wither_period=6, wither_tier_dmg=6)
+    ticked = SimState(energy=0, my_block=0, my_strength=0, enemies=(foe(),),
+                      wither_period=6, wither_tier_dmg=6, withers_incurred=5)
+    tax = _score(ticked, w) - _score(base, w)
+    assert abs(tax - w.w_wither_incurred * 6 * 5 / 6) < 1e-9
+    poke = _bcard(0, "CINDER", "Cinder", 0, "Deal 1 damage.", "Attack",
                   "AnyEnemy")
-    d = plan_combat_turn(
-        parse_state(_aeonglass_state(3, [poke], countdown=1)), w)
-    assert d.action.payload().get("card_index") != 0  # holds the poke
+    hit = _bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                 "Attack", "AnyEnemy")
     d2 = plan_combat_turn(
-        parse_state(_aeonglass_state(3, [poke], countdown=1, boss_hp=3)), w)
-    assert d2.action.payload().get("card_index") == 0  # lethal pays nothing
+        parse_state(_aeonglass_state(3, [hit], countdown=5)), w)
+    assert d2.action.payload().get("card_index") == 0  # real value still plays
+    d3 = plan_combat_turn(
+        parse_state(_aeonglass_state(3, [poke], countdown=1, boss_hp=1)), w)
+    assert d3.action.payload().get("card_index") == 0  # lethal pays nothing
 
 
 def test_barricade_credits_same_turn_block_at_plan_time() -> None:

@@ -1507,8 +1507,12 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             (s.wither_period if s.wither_countdown == 1 else s.wither_countdown - 1)
             if s.wither_countdown and card.potion_slot is None
             else s.wither_countdown),
+        # AMORTIZED (owner catch 2026-08-29, seed-B T3: Whirlwind played at 0
+        # energy purely advancing the counter — crossing-only pricing made
+        # advancement free): every card play pays tier/period in _score, so
+        # withers_incurred now counts TICKING PLAYS, not crossings.
         withers_incurred=s.withers_incurred + (
-            1 if (s.wither_countdown == 1 and card.potion_slot is None) else 0),
+            1 if (s.wither_countdown and card.potion_slot is None) else 0),
         # exhaust plays clear stranded statuses (Withers/Beckons): whole-hand
         # exhausters purge everything (Second Wind too — statuses aren't
         # attacks); chooser exhausts (TG+/Purity) eat the worst K in _score
@@ -1786,11 +1790,14 @@ def _score(
         + w.w_potion_spend * state.potions_spent
         + w.w_heal_waste * state.heal_wasted  # Not Yet burned at high HP
         + w.w_max_hp_cost * state.max_hp_spent  # permanent pool shrink
-        # Withering Presence: each manufactured Wither drains tier_dmg per
-        # end-of-turn until exhausted, and the tiers only climb — charge the
-        # plan for the Withers it makes (owner decode 2026-08-28: 'punishes
-        # playing too many cards' — card-play efficiency vs Aeonglass)
+        # Withering Presence, AMORTIZED: every play advances the 6-count
+        # clock, so each pays tier/period of the eventual Wither's drain
+        # (total = one tier per cycle; crossing pays nothing extra). Kills
+        # zero-value counter ticks (0-energy Whirlwind, seed-B T3) while
+        # keeping early cheap-tier turns cheap — the owner's 'favorable
+        # before it scales' shape falls out of tier escalation.
         + (w.w_wither_incurred * state.wither_tier_dmg * state.withers_incurred
+           / max(1, state.wither_period)
            if not lethal_end else 0.0)
         + w.w_wake_sleeper * state.sleepers_woken
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
