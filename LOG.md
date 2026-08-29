@@ -2,6 +2,21 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-28c (Fable 5) — owner: extend the experiment; alternating-arm batches begin
+
+Owner on the A/B: n=1 matters less than the snapshot being "truly a winning
+deck -- useful for informing future drafting, but hard to A/B on"; the +21
+HP is evidence but "we can afford to experiment a bit more (cost is low
+since it comes in the middle of normal batches anyway)". Design:
+**ALTERNATE configs per batch** -- odd batches config/experiment_aeonglass_
+setup.toml (hash ed040c20, Aeonglass routed through the setup/burst
+refinement), even batches live policy.toml (f0e54b35, race row), both on
+current code; ~5 Aeonglass arrivals per batch per arm. Comparison metric:
+Aeonglass fight survival + hp_delta by config arm (fights table splits on
+config_hash natively). Batch 1 (experiment arm): bbiycuo2u. Checkpoint
+backup 20260828-140336 retained. Mode-row decision stays open until the
+arms accumulate.
+
 ## 2026-08-28b (Fable 5) — Aeonglass A/B COMPLETE: setup arm dominates on the paired fight
 
 Full four-way on the parked f48 snapshot (same seed M61B9L0NPM both bot
