@@ -1213,6 +1213,23 @@ class StandardRouter:
                 return drink(cz, None,
                              f"drink {cz.name} (cost-zero the {max(hand_costs)}-cost)")
 
+        # 4a-4. Fix-the-hand (owner rule 2026-08-29, queue #9): a junk hand
+        #     facing real damage is the reroll's moment — 'the turn was going
+        #     to be awful unless I did this.' Junk = <=2 live non-status
+        #     cards. (Ordering vs draw potions: #12's rule in the hail-mary;
+        #     here the reroll IS the trigger's answer.)
+        if dangerous and (rr := first("hand_reroll")) is not None:
+            live_n = sum(1 for c in (player.hand or [])
+                         if c.can_play and (c.type or "") not in ("Status", "Curse"))
+            incoming_now = sum(
+                parse_intent_damage(i.label)
+                for e in state.battle.enemies if (e.hp or 0) > 0
+                for i in (e.intents or []) if (i.type or "").lower() == "attack")
+            if live_n <= 2 and incoming_now >= 10:
+                return drink(rr, None,
+                             f"fix the hand: {rr.name} ({live_n} live cards vs "
+                             f"{incoming_now} incoming)")
+
         # 4b. Value/tempo potions (energy / draw): spend them early in a big fight so the extra
         #     energy + cards convert to more block and damage. Owner B04BGZEDRN: the bot hoarded
         #     Cure All (gain energy, draw 2) through the 126-HP Ovicopter and threw it away in a
@@ -1313,6 +1330,12 @@ class StandardRouter:
         if re.search(r"(costs? 0|free to play).*(rest of )?(this|the) (fight|combat)",
                      potion.description or "", re.IGNORECASE | re.DOTALL):
             return "cost_zero"
+        low_d = (potion.description or "").lower()
+        if "shuffle" in low_d and "draw pile" in low_d:
+            # Bottled Potential-class full reroll: held for the moment the
+            # hand is junk (owner self-A/B 2026-08-29: spending the belt
+            # early on the identical fight LOST where holding won)
+            return "hand_reroll"
         fx = parse_card_description(potion.description)
         if fx.heal > 0:
             return "heal"

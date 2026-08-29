@@ -5322,3 +5322,33 @@ def test_hail_mary_rerolls_before_drawing_on_junk_hands() -> None:
     d2 = router().decide(viable, LoopContext())
     assert isinstance(d2, Decision)
     assert d2.action.payload() == {"action": "use_potion", "slot": 0}  # draw first
+
+
+def test_reroll_potion_fires_on_junk_hand_held_otherwise() -> None:
+    """Queue #9 (owner self-A/B: early belt-spend LOST the identical fight
+    that holding won): Bottled Potential is its own category now — held
+    through comfortable turns, drunk proactively when the hand is junk
+    against real incoming."""
+    bp = {"id": "BOTTLED_POTENTIAL", "name": "Bottled Potential",
+          "description": "Shuffle ALL your cards into your Draw Pile. "
+          "Draw 5 cards.", "slot": 0, "can_use_in_combat": True,
+          "target_type": "Self", "keywords": []}
+    wither = card(0, "Wither", 0, "Unplayable. At the end of your turn, if "
+                  "this is in your Hand, take 6 damage.", target="None",
+                  ctype="Status", can_play=False)
+    junk = make_combat(hand=[wither, card(1, "Strike", 1, "Deal 6 damage.")],
+                       enemies=[enemy("BOSS_0", 300, intent_label="22")],
+                       hp=60, max_hp=80, state_type="boss", potions=[bp])
+    d = router().decide(junk, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("action") == "use_potion"
+    assert "fix the hand" in (d.rationale or "")
+    comfy = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage."),
+              card(1, "Defend", 1, "Gain 5 Block."),
+              card(2, "Bash", 2, "Deal 8 damage. Apply 2 Vulnerable.")],
+        enemies=[enemy("BOSS_0", 300, intent_label="22")],
+        hp=60, max_hp=80, state_type="boss", potions=[bp])
+    d2 = router().decide(comfy, LoopContext())
+    if isinstance(d2, Decision):
+        assert d2.action.payload().get("action") != "use_potion"  # held
