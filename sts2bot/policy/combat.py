@@ -2082,14 +2082,16 @@ def plan_combat_turn(
             # early (tutors added per audit item 71; under Fiddle the DRAW
             # half is dead so only tutors qualify -- owner check 2026-08-23)
             playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
-        elif (pc.cost == 0
+        elif (pc.cost <= 1
               and ((pc.fx.draw > 0 and not fiddle_no_draw) or pc.fx.tutors)
               and pc.potion_slot is None):
-            # Owner rule (KD A/B 2026-08-14): '0 energy draw like Battle
-            # Trance is generally safe to open with' -- drawn cards feed
-            # the replan loop, so surface them FIRST. The Battle Trance
-            # wrinkle (suppresses further draw) is already priced: no_draw
-            # zeroes later draws in-plan, keeping Pommel-before-Trance.
+            # Owner rule (KD A/B 2026-08-14, WIDENED to cost<=1 per the
+            # seed-A r5 catch 2026-08-29: the bot led Dominate over Pommel+
+            # and never saw the draw's options): cheap draws open the turn —
+            # drawn cards feed the replan loop, so surface them FIRST when
+            # orderings are otherwise near-tied. The Battle Trance wrinkle
+            # (suppresses further draw) is already priced: no_draw zeroes
+            # later draws in-plan, keeping Pommel-before-Trance.
             playable[i] = replace(pc, reveal_nudge=weights.w_reveal_early)
     grow_attacks = [pc for pc in playable if pc.is_attack and pc.potion_slot is None]
     for i, pc in enumerate(playable):

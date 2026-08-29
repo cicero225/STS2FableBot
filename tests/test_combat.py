@@ -3500,3 +3500,16 @@ def test_cascade_played_for_free_pile_value() -> None:
     out = _apply_card(sim, pc, None)
     assert out.withers_incurred == 2  # Cascade + its cascaded card both tick
     assert out.pile_plays == 1
+
+
+def test_cheap_draw_attacks_open_the_turn() -> None:
+    """Queue #10 (owner, seed-A r5: Dominate led over Pommel+ — draw-first
+    buys replan optionality the plan-time DFS can't see). Cost<=1 draw
+    cards get the opener nudge: on a near-tied two-card plan, Pommel leads."""
+    w = load_policy_config().combat
+    pommel = _bcard(0, "POMMEL_STRIKE", "Pommel Strike+", 1,
+                    "Deal 10 damage. Draw 2 cards.", "Attack", "AnyEnemy")
+    big = _bcard(1, "MAUL", "Maul", 2, "Deal 18 damage.", "Attack", "AnyEnemy")
+    d = plan_combat_turn(parse_state(_beckon_state(3, [pommel, big],
+                                                   enemy_hp=200)), w)
+    assert d.action.payload().get("card_index") == 0  # draw opens
