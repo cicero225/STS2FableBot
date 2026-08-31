@@ -2,6 +2,22 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-30/31 (Fable 5) — spot-catch day + RECORD BATCH; boundary stop
+
+Owner spot-watching between sessions produced four more fixes (Duplicator
+hail-mary gate + spec #19, Chemical X dead-dependency shop gate, Liquid
+Memories into the cost-zero lane w/ discard-side targets + round-gate
+removal + no-2-cost softening), and the potion-pass census bounded PLAN
+item 7: 51 potions ever held, 40 laned, ELEVEN remain — one sitting.
+Owner framing honored: 'stochastic sniping' pending the formal pass.
+
+New-era alternating batches on the full fix set: experiment arm 39/3 then
+**40/6 — the first 15% batch and best single batch on record** (prior
+best 5/40); live arm 38/3 then 23/1 partial (boundary stop, owner needs
+machine). Cumulative new era: experiment 79 runs 9 wins (11.4%), live 61
+runs 4 wins (6.6%) — early, but the era to watch. Machine handed back
+clean; resume alternation (live arm remainder first) on owner's word.
+
 ## 2026-08-29e (Fable 5) — phase 3: fixtures rerun on the new planner
 
 **Fixture A** (owner-winnable fight): still a LOSS but 71 HP closer —
