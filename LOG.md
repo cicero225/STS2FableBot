@@ -13,9 +13,10 @@ Owner framing honored: 'stochastic sniping' pending the formal pass.
 
 New-era alternating batches on the full fix set: experiment arm 39/3 then
 **40/6 — the first 15% batch and best single batch on record** (prior
-best 5/40); live arm 38/3 then 23/1 partial (boundary stop, owner needs
+best 5/40); live arm 38/3 then **23/3 partial** (boundary stop, owner needs
 machine). Cumulative new era: experiment 79 runs 9 wins (11.4%), live 61
-runs 4 wins (6.6%) — early, but the era to watch. Machine handed back
+runs 6 wins (9.8%) — BOTH arms running ~10-13% on the new code vs the
+~6-8% historical band; the level-shift signal strengthens. Machine handed back
 clean; resume alternation (live arm remainder first) on owner's word.
 
 ## 2026-08-29e (Fable 5) — phase 3: fixtures rerun on the new planner
