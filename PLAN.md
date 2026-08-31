@@ -1458,7 +1458,19 @@ pass** (7).*
    the stranded-Toxic machinery (blockable, unclearable); **Guilty** removal-ranking done
    earlier; Clumsy/Poor Sleep/Greed/Injury/Spore Mind are combat-inert clog the sim already
    experiences naturally; **Debt** (end-of-turn gold loss) noted, ignored as non-HP.
-7. **Full potion pass** (scheduled 2026-07-09, after relics — owner ruling). The taxonomy
+7. **Full potion pass** (scheduled 2026-07-09, after relics — owner ruling).
+   *Scope census 2026-08-30 (owner framing: 'we've merely stochastically sniped
+   down each potion I see misbehaving live'): 51 distinct potions ever held,
+   40 now categorized/laned; the formal remainder is ELEVEN, several
+   legitimately passive: Ashwater (chooser mass-exhaust — Wither tech!),
+   Distilled Chaos (play top 3 — plays_pile_n family), Droplet of Precognition
+   (draw-pile tutor), Duplicator (hail-mary-gated, no proactive lane; spec
+   #19), Entropic Brew (lane-0 special exists), Fairy in a Bottle (passive
+   revive — belt-hold is correct, but keep-value ranking should know),
+   Fortifier (triple Block — big-block-turn timing), Gambler's Brew (hand
+   filter), Gigantification (triple next Attack — burst-arming, dup family),
+   Speed Potion (turn-scoped Dex burst), Stable Serum (Retain 2 turns —
+   detonation-bank synergy). One sitting's work when scheduled.* The taxonomy
    (§8.4) covers reactive/proactive/hail-mary/downside plus the 2026-07-09 quick fix
    (card-gen potions dropped at boss start); the full pass adds per-potion handlers,
    Delicate-Frond-style abundance switching, Duplicator×X pairing, and the
