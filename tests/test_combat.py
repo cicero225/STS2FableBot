@@ -3532,3 +3532,20 @@ def test_zero_energy_x_cost_deals_zero_and_dead_ritual_vetoed() -> None:
                 "[ironclad_energy_icon.png]. Exhaust.", "Skill", "None")
     d2 = plan_combat_turn(parse_state(_beckon_state(3, [fr], enemy_hp=200)), w)
     assert d2.action.payload().get("card_index") != 0  # dead FR vetoed
+
+
+def test_targeted_exhaust_purges_burns_even_when_blocked() -> None:
+    """Owner catch 2026-08-31 (Mecha Knight r5): TG+ unplayed at 4 energy
+    with two Burns in hand — the Burns were already blocked this turn, so
+    the stranded-clear credited nothing, but exhausting one removes its
+    drain from every FUTURE cycle. The purge credit makes TG+ play."""
+    w = load_policy_config().combat
+    tgp = _bcard(0, "TRUE_GRIT", "True Grit+", 1,
+                 "Gain 9 Block. Exhaust 1 card.", "Skill", "None")
+    burn = _bcard(1, "BURN", "Burn", 0,
+                  "Unplayable. At the end of your turn, if this is in your "
+                  "Hand, take 2 damage.", "Status", "None", can_play=False)
+    st = _beckon_state(4, [tgp, burn], enemy_hp=200, incoming="0")
+    st["battle"]["enemies"][0]["intents"] = [{"type": "Buff", "label": ""}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload().get("card_index") == 0  # purge the Burn

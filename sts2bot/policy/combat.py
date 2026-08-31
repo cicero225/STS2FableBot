@@ -494,6 +494,9 @@ class SimState:
     # vuln-payoff riders fired on zero stacks (Dominate/Molten Fist class —
     # nearly all self-exhaust, so a dry firing loses the payoff forever)
     vuln_payoff_dry: int = 0
+    # unplayable status/curse cards in hand at turn start: chooser/mass
+    # exhausts earn w_status_purge per one they can eat (future-cycle value)
+    purgeable_in_hand: int = 0
     # cards cascaded from the pile this plan (Havoc/Cascade): credited at
     # w_play_from_pile each; they also tick Withering Presence
     pile_plays: int = 0
@@ -1863,6 +1866,12 @@ def _score(
         + (w.w_vuln_payoff_dry * state.vuln_payoff_dry
            if not lethal_end else 0.0)
         + w.w_play_from_pile * state.pile_plays
+        # deck-pollution purge: chooser exhausts (TG+/Purity) eat statuses
+        # first; mass exhausts (Stoke/SW) eat them all. Credit the future
+        # cycles the one-turn tally can't see.
+        + w.w_status_purge * (
+            state.purgeable_in_hand if state.hand_purged
+            else min(state.targeted_exhausts, state.purgeable_in_hand))
         + w.w_wake_sleeper * state.sleepers_woken
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
         # picked a target order; these terms make the DFS serve it every turn.
@@ -2166,6 +2175,15 @@ def plan_combat_turn(
         enemy_sims = tuple(
             replace(e, is_big=(e.entity_id == focus_target)) for e in enemy_sims
         )
+    # Purgeable junk in hand (owner catch 2026-08-31, Mecha Knight: TG+
+    # unplayed at 4 energy with two Burns in hand — the stranded-clear
+    # credit is this-turn-only, but exhausting a status removes it from the
+    # DECK, saving its drain every future cycle): count unplayable
+    # status/curse cards so exhaust plays earn the future-value purge.
+    purgeable = sum(
+        1 for c in hand
+        if not c.can_play and (c.type or "") in ("Status", "Curse"))
+
     # Aeonglass Withering Presence (owner decode 2026-08-28): "Every 6 cards
     # you play, add a Wither to your Hand" — the power's amount is the LIVE
     # countdown (tape-verified 6→5→...→1, resets), so the DFS knows exactly
@@ -2193,6 +2211,7 @@ def plan_combat_turn(
         wither_period=wither_period,
         wither_tier_dmg=wither_tier,
         artifact_strip_mult=artifact_strip_mult,
+        purgeable_in_hand=purgeable,
         # Forgotten Ritual dead-in-hand (owner 2026-08-03): the API has no
         # 'exhausted this turn' field, so post-exhaust REPLANS priced the
         # conditional energy at zero and Ritual slid out of every plan. The
