@@ -5377,3 +5377,36 @@ def test_hail_mary_skips_duplicator_without_defensive_double() -> None:
     d2 = router().decide(with_defend, LoopContext())
     assert isinstance(d2, Decision)
     assert d2.action.payload().get("action") == "use_potion"  # double can defend
+
+
+def test_shop_skips_dead_dependency_relics() -> None:
+    """Owner catch 2026-08-30: Chemical X bought (218g) with zero X-cost
+    cards — the WAR prior is deck-blind. Relics naming a card class the
+    deck entirely lacks are skipped; with the class present, the buy is
+    allowed again."""
+    def shop_state(deck_cards):
+        payload = json.loads(json.dumps(FIXTURES["shop"]))
+        payload["player"]["gold"] = 500
+        payload["player"]["deck"] = deck_cards
+        payload["player"]["potions"] = [
+            {"id": f"P{i}", "name": f"P{i}", "slot": i} for i in range(3)]
+        payload["player"]["max_potion_slots"] = 3
+        payload["shop"]["items"] = [{
+            "index": 0, "category": "relic", "is_stocked": True,
+            "can_afford": True, "gold_price": 218,
+            "relic_id": "CHEMICAL_X", "relic_name": "Chemical X",
+            "relic_description": "The effects of your cost X cards are "
+                                 "increased by 2."}]
+        return payload
+    plain = [{"index": i, "id": "STRIKE_IRONCLAD", "name": "Strike",
+              "type": "Attack", "cost": "1", "is_upgraded": False}
+             for i in range(10)]
+    d = router().decide(parse_state(shop_state(plain)), LoopContext())
+    if isinstance(d, Decision):
+        assert d.action.payload().get("action") != "shop_purchase" or \
+            "Chemical" not in (d.rationale or "")
+    with_x = plain + [{"index": 10, "id": "WHIRLWIND", "name": "Whirlwind",
+                       "type": "Attack", "cost": "X", "is_upgraded": False}]
+    d2 = router().decide(parse_state(shop_state(with_x)), LoopContext())
+    if isinstance(d2, Decision) and d2.action.payload().get("action") == "shop_purchase":
+        assert "Chemical" in (d2.rationale or "")

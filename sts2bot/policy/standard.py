@@ -3389,6 +3389,18 @@ class StandardRouter:
             if item.category == "relic" and item.can_afford and gold - price >= reserve:
                 v = self.shop_stats.relic_value(item.relic_id) if self.shop_stats else None
                 if v is not None and v >= w.relic_war_per_100g_min:
+                    # Deck-dependency gate (owner catch 2026-08-30: Chemical X
+                    # bought for 218g with ZERO X-cost cards in a 26-card deck
+                    # — the WAR prior is global, blind to the deck). A relic
+                    # whose text names a card class the deck entirely lacks is
+                    # a dead purchase; extend the table as classes surface.
+                    rdesc = (item.relic_description or "").lower()
+                    if ("cost x" in rdesc or "x cost" in rdesc or "x-cost" in rdesc):
+                        if not any(str(c.cost or "").upper() == "X" for c in deck):
+                            continue
+                    if "shiv" in rdesc and not any(
+                            "shiv" in (c.name or "").lower() for c in deck):
+                        continue
                     relic_buys.append((v, price, item))
         if relic_buys:
             v, price, item = max(relic_buys, key=lambda x: x[0])
