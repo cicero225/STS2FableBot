@@ -1050,6 +1050,23 @@ class StandardRouter:
             # reverse); near-viable hand -> draw first (maybe save the reroll).
             live = sum(1 for c in (player.hand or [])
                        if c.can_play and (c.type or "") not in ("Status", "Curse"))
+            def _arming_only(p: Potion) -> bool:
+                # Duplicator-class (owner catch 2026-08-30, Queen death-by-1:
+                # hail-mary drank it, the plan doubled an ATTACK, the planned
+                # Defend evaporated to a mid-plan lane): an arming potion is
+                # no rescue unless the double CAN be defensive. Skip it when
+                # no block/heal card is playable this turn.
+                if not re.search(r"(played? |plays? it )?an extra time|played twice",
+                                 p.description or "", re.IGNORECASE):
+                    return False
+                for c in player.hand or []:
+                    if not c.can_play:
+                        continue
+                    fxc = parse_card_description(c.description)
+                    if fxc.block > 0 or fxc.heal > 0:
+                        return False  # a defensive double exists: drinkable
+                return True
+
             def _fallback_rank(p: Potion) -> int:
                 desc = (p.description or "").lower()
                 reroll = "shuffle" in desc and "draw pile" in desc
@@ -1058,7 +1075,8 @@ class StandardRouter:
                     return 0 if reroll else (1 if draws else 2)
                 return 0 if draws else (1 if reroll else 2)
             potion = first("block", "heal", "aoe_damage", "damage") or next(
-                iter(sorted((p for p in available if not _self_lethal(p)),
+                iter(sorted((p for p in available
+                             if not _self_lethal(p) and not _arming_only(p)),
                             key=_fallback_rank)), None)
             if potion is not None:
                 tgt = (biggest_threat()

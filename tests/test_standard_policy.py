@@ -5352,3 +5352,28 @@ def test_reroll_potion_fires_on_junk_hand_held_otherwise() -> None:
     d2 = router().decide(comfy, LoopContext())
     if isinstance(d2, Decision):
         assert d2.action.payload().get("action") != "use_potion"  # held
+
+
+def test_hail_mary_skips_duplicator_without_defensive_double() -> None:
+    """Owner catch 2026-08-30 (Queen death-by-1): hail-mary drank Duplicator
+    and the plan doubled an attack. An arming potion is no rescue unless a
+    block/heal card is playable to receive the double."""
+    dup = {"id": "DUPLICATOR", "name": "Duplicator",
+           "description": "Your next card is played an extra time.",
+           "slot": 0, "can_use_in_combat": True, "target_type": "Self",
+           "keywords": []}
+    attacks_only = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BOSS_0", 300, intent_label="40")],
+        hp=10, max_hp=80, state_type="boss", potions=[dup])
+    d = router().decide(attacks_only, LoopContext())
+    if isinstance(d, Decision):
+        assert d.action.payload().get("action") != "use_potion"  # no rescue here
+    with_defend = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage."),
+              card(1, "Defend", 1, "Gain 5 Block.")],
+        enemies=[enemy("BOSS_0", 300, intent_label="40")],
+        hp=10, max_hp=80, state_type="boss", potions=[dup])
+    d2 = router().decide(with_defend, LoopContext())
+    assert isinstance(d2, Decision)
+    assert d2.action.payload().get("action") == "use_potion"  # double can defend
