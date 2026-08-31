@@ -2894,9 +2894,19 @@ def test_cost_zero_potion_waits_for_a_worthy_target() -> None:
     rich_hand = [*cheap_hand, card(2, "Bludgeon", 3, "Deal 32 damage.")]
     st_cheap = make_combat(hand=cheap_hand, enemies=[enemy("BOSS_0", 300, intent_label="10")],
                            hp=70, max_hp=80, state_type="boss", potions=[cz])
+    # the WAIT applies when the deck holds a worthy target elsewhere (owner
+    # softening 2026-08-30: with no >=2 in the whole deck, a boss-fight
+    # 1-cost suffices instead of letting the potion rot)
+    from sts2bot.client.models import Card
+    st_cheap.player.deck = [Card(**card(0, "Bludgeon", 3, "Deal 32 damage."))]
     d = router().decide(st_cheap, LoopContext())
     assert (not isinstance(d, Decision)
             or d.action.payload().get("action") != "use_potion"), d.rationale
+    st_poor = make_combat(hand=cheap_hand, enemies=[enemy("BOSS_0", 300, intent_label="10")],
+                          hp=70, max_hp=80, state_type="boss", potions=[cz])
+    d_poor = router().decide(st_poor, LoopContext())
+    assert isinstance(d_poor, Decision)
+    assert d_poor.action.payload().get("action") == "use_potion"  # 1-cost suffices
     ctx = LoopContext()
     st_rich = make_combat(hand=rich_hand, enemies=[enemy("BOSS_0", 300, intent_label="10")],
                           hp=70, max_hp=80, state_type="boss", potions=[cz])
@@ -5238,6 +5248,8 @@ def test_touch_of_insanity_reworded_text_still_categorizes() -> None:
         hand=[card(0, "Strike", 1, "Deal 6 damage.")],
         enemies=[enemy("BOSS_0", 300, intent_label="15")],
         state_type="boss", potions=[toi])
+    from sts2bot.client.models import Card
+    cheap.player.deck = [Card(**card(0, "Bludgeon", 3, "Deal 32 damage."))]
     d = router().decide(cheap, LoopContext())
     assert not (isinstance(d, Decision)
                 and d.action.payload().get("action") == "use_potion")
@@ -5405,8 +5417,35 @@ def test_shop_skips_dead_dependency_relics() -> None:
     if isinstance(d, Decision):
         assert d.action.payload().get("action") != "shop_purchase" or \
             "Chemical" not in (d.rationale or "")
-    with_x = plain + [{"index": 10, "id": "WHIRLWIND", "name": "Whirlwind",
+    with_x = [*plain, {"index": 10, "id": "WHIRLWIND", "name": "Whirlwind",
                        "type": "Attack", "cost": "X", "is_upgraded": False}]
     d2 = router().decide(parse_state(shop_state(with_x)), LoopContext())
     if isinstance(d2, Decision) and d2.action.payload().get("action") == "shop_purchase":
         assert "Chemical" in (d2.rationale or "")
+
+
+def test_liquid_memories_deploys_from_discard_targets() -> None:
+    """Owner catch 2026-08-30 (won Queen fight, potion rotted): Liquid
+    Memories says free-to-play 'this TURN' — the fight/combat regex missed
+    it, so it sat as 'other' (hail-mary-only). Now cost_zero class with
+    DISCARD-side worthy targets; the round gate is gone (it contradicted
+    wait-for-the-target); and with no >=2 in the whole deck, a 1-cost
+    suffices at a boss."""
+    lm = {"id": "LIQUID_MEMORIES", "name": "Liquid Memories",
+          "description": "Put a card from your Discard Pile into your Hand. "
+          "It's free to play this turn.", "slot": 0,
+          "can_use_in_combat": True, "target_type": "Self", "keywords": []}
+    st = make_combat(hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+                     enemies=[enemy("QUEEN_0", 300, intent_label="12")],
+                     hp=70, max_hp=80, state_type="boss", potions=[lm])
+    # inject a discard pile with a 2-cost target
+    raw = st
+    d = router().decide(raw, LoopContext())
+    # without discard info the lane may hold; craft the discard directly
+    from sts2bot.client.models import PileCard
+    raw.player.discard_pile = [PileCard(name="Uppercut", cost="2",
+                                        description="Deal 13 damage.")]
+    d = router().decide(raw, LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload().get("action") == "use_potion"
+    assert "cost-zero the 2-cost" in (d.rationale or "")

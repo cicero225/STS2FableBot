@@ -1222,14 +1222,27 @@ class StandardRouter:
         # 4a-2. Cost-zero potions (Touch of Insanity): deploy early at a boss,
         #     but ONLY when a worthy target (cost >= 2) is in hand — the owner nuance:
         #     turn 1 full of cheap cards -> WAIT for the turn the 3-cost shows up.
-        if (dangerous and (cz := first("cost_zero")) is not None
-                and (round_ <= 4 or fresh(cz))):
-            hand_costs = [int(c.cost) for c in (player.hand or [])
-                          if c.cost and str(c.cost).lstrip("-").isdigit()]
-            if hand_costs and max(hand_costs) >= 2:
+        if dangerous and (cz := first("cost_zero")) is not None:
+            # Round gate REMOVED 2026-08-30: it contradicted the lane's own
+            # wait-for-a-worthy-target design (a 3-cost first appearing r5+
+            # found the window already shut). Worthy targets come from the
+            # HAND (TOI-class) or the DISCARD (Liquid Memories-class).
+            src = ((player.discard_pile or [])
+                   if "discard pile" in (cz.description or "").lower()
+                   else (player.hand or []))
+            costs = [int(c.cost) for c in src
+                     if c.cost and str(c.cost).lstrip("-").isdigit()]
+            # Worthy = cost>=2; owner softening 2026-08-30: if the DECK holds
+            # no >=2 at all, a boss-fight free-play on a 1-cost beats letting
+            # the potion rot.
+            deck_has_2 = any(
+                c.cost and str(c.cost).lstrip("-").isdigit() and int(c.cost) >= 2
+                for c in (player.deck or []))
+            bar = 2 if deck_has_2 else 1
+            if costs and max(costs) >= bar:
                 ctx.screen_mem["pending_enchant"] = "cost_zero"  # target screen: max cost
                 return drink(cz, None,
-                             f"drink {cz.name} (cost-zero the {max(hand_costs)}-cost)")
+                             f"drink {cz.name} (cost-zero the {max(costs)}-cost)")
 
         # 4a-4. Fix-the-hand (owner rule 2026-08-29, queue #9): a junk hand
         #     facing real damage is the reroll's moment — 'the turn was going
@@ -1345,8 +1358,12 @@ class StandardRouter:
         # now "It is free to play this combat" — the old costs-0 phrasing
         # stopped matching, TOI fell to "other", and the hail-mary drank it
         # pointlessly at r10 while its deploy lane sat unreachable.
-        if re.search(r"(costs? 0|free to play).*(rest of )?(this|the) (fight|combat)",
+        if re.search(r"(costs? 0|free to play).*(rest of )?(this|the) (fight|combat|turn)",
                      potion.description or "", re.IGNORECASE | re.DOTALL):
+            # 'this turn' variant added 2026-08-30 (owner catch: Liquid
+            # Memories — 'Put a card from your Discard Pile into your Hand.
+            # It's free to play this turn.' — sat as 'other' through a won
+            # Queen fight, hail-mary-only; the TOI text-drift bug's sibling)
             return "cost_zero"
         low_d = (potion.description or "").lower()
         if "shuffle" in low_d and "draw pile" in low_d:
