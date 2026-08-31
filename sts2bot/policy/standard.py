@@ -3395,9 +3395,11 @@ class StandardRouter:
                     # whose text names a card class the deck entirely lacks is
                     # a dead purchase; extend the table as classes surface.
                     rdesc = (item.relic_description or "").lower()
-                    if ("cost x" in rdesc or "x cost" in rdesc or "x-cost" in rdesc):
-                        if not any(str(c.cost or "").upper() == "X" for c in deck):
-                            continue
+                    if (("cost x" in rdesc or "x cost" in rdesc
+                         or "x-cost" in rdesc)
+                            and not any(str(c.cost or "").upper() == "X"
+                                        for c in deck)):
+                        continue
                     if "shiv" in rdesc and not any(
                             "shiv" in (c.name or "").lower() for c in deck):
                         continue
