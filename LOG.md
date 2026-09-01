@@ -2,6 +2,22 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-08-31b (Fable 5) — full-run experiment: OWNER BEATS the bot's Aeonglass seed; break begins
+
+Owner played seed HQX8M7T6VN blind, full run — the bot's same-day Aeonglass
+loss (died f48, her at 111/512). **Owner WON, killing her ~r10 at ~53 HP.**
+First run-level human-vs-bot datapoint; commentary banked verbatim in
+logs/reports/fullrun_HQX8M7T6VN.md (random-rare Neow philosophy, Second
+Wind as pure future-pick w/ honest contamination flag, the triple-price
+doll buy for Daughter of the Wind anticipating White Star -> Juggernaut,
+Juggernaut-over-Offering). Full diff DEFERRED to post-break (owner
+credits). Run ticked the epoch: Splash / Anointed / Calamity unlocked —
+NOT resetting (fixtures immune, seeds were due to die, new pool = new
+content to learn); catalog+tags rebuilt (474 cards). Era ledger at break:
+experiment 13/119 (10.9%), live 7/78+ (~9%) — the ~10% level held all
+weekend vs the ~6-8% historical band. BREAK until owner allocation
+returns.
+
 ## 2026-08-30/31 (Fable 5) — spot-catch day + RECORD BATCH; boundary stop
 
 Owner spot-watching between sessions produced four more fixes (Duplicator
