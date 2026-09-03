@@ -5449,3 +5449,76 @@ def test_liquid_memories_deploys_from_discard_targets() -> None:
     assert isinstance(d, Decision)
     assert d.action.payload().get("action") == "use_potion"
     assert "cost-zero the 2-cost" in (d.rationale or "")
+
+
+# --- capability-calibration arm (2026-09-03) -------------------------------
+# HQX8M7T6VN full-run diff: the owner fought 6 elites (20 relics) on the seed
+# where the bot fought 0 (10 relics). Era calibration of the gate's greedy
+# rollout vs 500 real elite fights: <20%-rated fights won 88%, predicted loss
+# ~38 HP vs actual 23.5 (corr 0.18); the DFS boss forecast read a full loss on
+# 61-99% of pre-boss evaluations. Observed mode prices both from history.
+
+
+def _calibrated_router() -> StandardRouter:
+    r = _router_for_routing()
+    r.config.map.elite_loss_source = "observed"
+    r.config.map.elite_entry_min_hp_pct = 0.5
+    r.config.map.boss_loss_source = "observed"
+    return r
+
+
+def test_observed_elite_pricing_chases_elite_with_a_starter_deck() -> None:
+    # same screen as the gate-shut test above: starter deck, full HP. Under the
+    # rollout gate the elite is skipped; in observed mode the HP projection
+    # governs (p75 elite loss 32 of 80 -> survivable) and the relic wins.
+    payload = json.loads(json.dumps(FIXTURES["map"]))
+    payload["map"]["next_options"] = [
+        {"index": 0, "col": 1, "row": 3, "type": "Elite", "leads_to": []},
+        {"index": 1, "col": 2, "row": 3, "type": "Monster", "leads_to": []},
+    ]
+    payload["player"]["hp"] = 80
+    payload["player"]["max_hp"] = 80
+    payload["player"]["deck"] = _STARTER_DECK
+    assert _router_for_routing().decide(
+        parse_state(payload), LoopContext()).action.payload()["index"] == 1
+    d = _calibrated_router().decide(parse_state(payload), LoopContext())
+    assert isinstance(d, Decision)
+    assert d.action.payload()["index"] == 0
+
+
+def test_observed_elite_entry_floor_refuses_the_elite_when_hurt() -> None:
+    # 45/80 is survivable on p75 (45-32=13, above the 10% death floor) but
+    # BELOW a 60% entry floor: era elite deaths entered at median 63% HP.
+    # Monster instead; lifting the floor flips it back to the relic.
+    payload = json.loads(json.dumps(FIXTURES["map"]))
+    payload["map"]["next_options"] = [
+        {"index": 0, "col": 1, "row": 3, "type": "Elite", "leads_to": []},
+        {"index": 1, "col": 2, "row": 3, "type": "Monster", "leads_to": []},
+    ]
+    payload["player"]["hp"] = 45
+    payload["player"]["max_hp"] = 80
+    payload["player"]["deck"] = _STARTER_DECK
+    r = _calibrated_router()
+    r.config.map.elite_entry_min_hp_pct = 0.6
+    d = r.decide(parse_state(payload), LoopContext())
+    assert d.action.payload()["index"] == 1
+    # lift the floor: 45/80 with a 32-loss projection is survivable -> chase
+    r.config.map.elite_entry_min_hp_pct = 0.0
+    assert r.decide(parse_state(payload), LoopContext()).action.payload()["index"] == 0
+
+
+def test_observed_boss_pricing_bypasses_the_dfs_forecast() -> None:
+    # the rest gate's DFS estimate is suppressed in observed mode so the
+    # campfire decides on history (+ act-3 bump), not a forecast that read a
+    # full loss on nearly every era evaluation
+    r = _calibrated_router()
+    r.bestiary = {"Vantom": {"hp": [173, 173], "statuses": {}, "roles": ["boss"], "acts": [1]}}
+    from sts2bot.client.models import DeckCard
+    player = parse_state(json.loads(json.dumps(FIXTURES["map"]))).player
+    player.deck = [DeckCard(index=0, id="STRIKE_IRONCLAD", name="Strike", type="Attack",
+                            cost="1", is_upgraded=False)]
+    ctx = LoopContext()
+    ctx.screen_mem["act_boss_name"] = "Vantom"
+    assert r._dfs_boss_loss(ctx, player, 1) is None
+    r.config.map.boss_loss_source = "dfs"
+    assert r._dfs_boss_loss(ctx, player, 1) is not None

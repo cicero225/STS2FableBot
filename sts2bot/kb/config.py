@@ -325,6 +325,25 @@ class MapWeights(_Section):
     # cross-turn Vulnerable, Cruelty, and coherent step-2 decks since 0.67 was set).
     # 0.50 -> 0.40 (A/B #5, 2026-07-24): same evidence as elite_relic_value above.
     elite_gate_pool_win_frac: float = 0.40
+    # Capability-calibration arm (2026-09-03, HQX8M7T6VN full-run diff: owner 6
+    # elites / 20 relics vs bot 0 / 10 on the same seed). Era calibration of the
+    # gate's greedy rollout against 500 real elite fights: fights it rated <20%
+    # to win were won 88%; predicted loss ~38 HP vs actual 23.5 (corr 0.18 -- no
+    # rank signal), and the pool-median loss priced elites death-class on nearly
+    # every map. "observed": price the elite's HP cost from the bot's own history
+    # (combat_stats elite <elite_loss_stat>) and let the HP projection govern --
+    # the rollout gate is bypassed (its numbers still log for diagnostics).
+    # elite_entry_min_hp_pct walls off ENTERING an elite hurt: era elite deaths
+    # entered at median 63% HP vs survivors' 80%.
+    elite_loss_source: str = "rollout"   # "rollout" | "observed"
+    elite_loss_stat: str = "p75"
+    elite_entry_min_hp_pct: float = 0.0
+    # Same lever for the boss: the DFS forecast read a >=90%-max-HP loss on
+    # 61-99% of pre-boss evaluations (era, per boss) while actual act-1/2 boss
+    # wins ran 59-86% -- so 'boss doomed' desperation was on ~81% of the time
+    # and the pre-boss campfire always rested. "observed" routes the map DP, the
+    # rest gate and the desperation coupling to history (act-3 bonus applies).
+    boss_loss_source: str = "dfs"        # "dfs" | "observed"
 
 
 class CardRewardWeights(_Section):

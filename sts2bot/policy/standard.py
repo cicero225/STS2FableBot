@@ -1677,11 +1677,29 @@ class StandardRouter:
                 )
                 can_win_elite = outcome.win and outcome.exp_end_hp >= floor_hp
                 est_elite_loss = (max_hp - outcome.exp_end_hp) if outcome.win else max_hp
+            # Calibration arm (2026-09-03): the rollout's pool-median loss and
+            # win verdicts are era-miscalibrated (config.py elite_loss_source);
+            # observed mode prices the elite from the bot's own history and
+            # leaves survivability to the HP projection (+ entry floor).
+            if w.elite_loss_source == "observed" and self.combat_stats is not None:
+                obs = self.combat_stats.expected_loss("elite", stat=w.elite_loss_stat)
+                if obs is not None:
+                    est_elite_loss = float(obs)
+                    can_win_elite = True
             boss_members = self._upcoming_boss(ctx, cur_act)
             if boss_members:
                 boss_name = ctx.screen_mem.get("act_boss_name", "")
-                use_dfs = (self.config.map.use_dfs_boss_rollouts
-                           and _boss_is_known(self.bestiary, boss_name))
+                obs_boss = (self.combat_stats.expected_loss("boss")
+                            if (w.boss_loss_source == "observed"
+                                and self.combat_stats is not None) else None)
+                if obs_boss is not None:
+                    # observed history (p75) + the act-3 bump the rest gate uses
+                    est_boss_loss = float(obs_boss) + (
+                        self.config.rest.act3_boss_loss_bonus if cur_act >= 3 else 0.0)
+                    use_dfs = False
+                else:
+                    use_dfs = (self.config.map.use_dfs_boss_rollouts
+                               and _boss_is_known(self.bestiary, boss_name))
                 if use_dfs:
                     # P1.7: DFS-policy rollout for the KNOWN boss, cached per
                     # (deck, boss, belt) -- ~1.1s fresh, free on cache hits
@@ -1710,7 +1728,7 @@ class StandardRouter:
                         cache[key] = est_boss_loss
                         boss_ms = timing.get("ms", (time.perf_counter() - t0) * 1e3)
                         ctx.screen_mem["last_boss_ms"] = round(boss_ms, 1)
-                else:
+                elif est_boss_loss is None:
                     bo = estimate_fight(int(max_hp), deck_out, boss_members)
                     est_boss_loss = (max_hp - bo.exp_end_hp) if bo.win else max_hp
 
@@ -1738,6 +1756,10 @@ class StandardRouter:
                 hp_after = hp - fight_loss("monster_early" if row < EARLY_ROWS else "monster")
             elif t == "elite":
                 hp_after = hp - fight_loss("elite")
+                # entry floor (calibration arm): never route INTO an elite below
+                # this HP fraction -- era elite deaths entered at ~63% HP
+                if w.elite_entry_min_hp_pct and hp < max_hp * w.elite_entry_min_hp_pct:
+                    return hp_after, -w.route_death_penalty
             elif t == "boss":
                 hp_after = min(max_hp, hp + boss_entry_heal) - fight_loss("boss")
             elif t in ("restsite", "rest_site"):
@@ -2540,6 +2562,8 @@ class StandardRouter:
         rest node with the same deck). None -> caller falls back to aggregate history.
         The Matriarch cluster (3 deaths from 62-64 HP) was the aggregate saying '~45
         needed' for a boss whose drain spiral the DFS sim actually models."""
+        if self.config.map.boss_loss_source == "observed":
+            return None  # calibration arm: callers fall back to observed history
         if not (self.config.map.use_dfs_boss_rollouts and player and player.deck):
             return None
         boss_name = ctx.screen_mem.get("act_boss_name") or ""
