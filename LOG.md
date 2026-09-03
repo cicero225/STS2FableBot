@@ -2,6 +2,46 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-03b (Fable 5) -- calibration arm v1: 7/40, a new record batch; arm v2 launched
+
+Arm v1 (config 237a23779317, code_head 50ce814) ran 40/40 unattended:
+**7 wins (17.5%)** vs the era live 41/426 (9.6%) -- best single batch on
+record (prior 6/40), ~1.6 sigma on its own, with the secondary signals all
+pointing the same way:
+
+| | era live (426) | arm v1 (40) |
+|---|---|---|
+| wins | 9.6% | 17.5% |
+| elites / run | 1.18 | 3.50 |
+| relics / run | 9.7 | 12.4 |
+| act-2 boss survival | 59% | 74% (17/23) |
+| act-3 boss survival | 29% | 44% (7/16) |
+| act-1 boss survival | 81% | 78% (29/37) |
+| reach act 2 / act 3 | 79% / 38% | 72% / 42% |
+| boss-entry HP (median frac) | 0.91 | 0.79 |
+| pre-boss campfire: smith / rest (runs) | 91 / 403 | 25 / 25 |
+
+The cost side: 3 in-elite deaths (Terror Eel f7 on a 12-card deck; Decimillipede
+x2 at 57-69% entries -- 2/14 arm fights vs the era's 4/51) and 7 normal-fight
+deaths (5 of them act-2 packs vs weak decks -- the era's second-biggest killer
+at 12%; 2 in act 1 after an Effigy blowout (-51, -55) into a lane with no
+campfire). Arm elite death rate 1.8% vs era 4.4% across 113 elite fights;
+the arm's elite HP-loss distribution (24/35/42 median/p75/p90) matches the
+era's (23/35/46), so the observed pricing holds under the wider selection.
+Veto candidates re-tested (rollout<0.2 / ==0, closed-form estimate, deck
+size): none separates deaths well enough to be worth the fights refused
+(addendum in logs/reports/elite_calibration.md). No veto added.
+
+Mid-batch fix (d525f86, own commit; arm v2 config 3b5a877 -> hash
+218c180e300e): the map DP projects a HEAL at every campfire, but the campfire
+policy smithed at 58-62% and walked into the elite the projection had priced
+post-heal (run 26: smith at 62% -> Effigy -51 -> dead; era: 308 smith->elite
+steps). The map now flags a campfire whose DP-best continuation is an elite
+(screen_mem pre_elite); _rest_site rests there below
+rest_before_elite_hp_pct (0.75 in the arm; 0 = off on live). 621 tests.
+Arm v2 launched immediately (40 runs) -- the arm-vs-arm delta is the more
+informative next sample; the live control has 426 era runs. Live 40 after.
+
 ## 2026-09-03 (Fable 5) -- post-break: the HQX8M7T6VN diff finds the elite gate is the lever; calibration arm launched
 
 Owner: "go ahead and resume, and continue any work you might think worth
