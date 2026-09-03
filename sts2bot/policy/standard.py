@@ -1579,6 +1579,10 @@ class StandardRouter:
         cur_hp = float(player.hp) if player else 0.0
         max_hp = float(player.max_hp) if player else 1.0
         death_floor = max_hp * w.survival_floor_hp_pct
+        act_now = min(int(state.run.act or 1), 3) if state.run else 1
+        elite_entry_pct = ({2: w.elite_entry_min_hp_pct_act2,
+                            3: w.elite_entry_min_hp_pct_act3}.get(act_now)
+                           or w.elite_entry_min_hp_pct)
         EARLY_ROWS = 3  # first 3 rows of an act = the easy early normals (cf. build_combat_stats)
         _loss_default = {"monster_early": 5.0, "monster": 18.0, "elite": 32.0, "boss": 42.0}
 
@@ -1758,7 +1762,7 @@ class StandardRouter:
                 hp_after = hp - fight_loss("elite")
                 # entry floor (calibration arm): never route INTO an elite below
                 # this HP fraction -- era elite deaths entered at ~63% HP
-                if w.elite_entry_min_hp_pct and hp < max_hp * w.elite_entry_min_hp_pct:
+                if elite_entry_pct and hp < max_hp * elite_entry_pct:
                     return hp_after, -w.route_death_penalty
             elif t == "boss":
                 hp_after = min(max_hp, hp + boss_entry_heal) - fight_loss("boss")

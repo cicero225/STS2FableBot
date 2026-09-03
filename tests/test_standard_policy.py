@@ -5505,6 +5505,12 @@ def test_observed_elite_entry_floor_refuses_the_elite_when_hurt() -> None:
     # lift the floor: 45/80 with a 32-loss projection is survivable -> chase
     r.config.map.elite_entry_min_hp_pct = 0.0
     assert r.decide(parse_state(payload), LoopContext()).action.payload()["index"] == 0
+    # per-act override (arm v3): act 2 gets its own floor; act 1 keeps the base
+    r.config.map.elite_entry_min_hp_pct_act2 = 0.65
+    payload["run"]["act"] = 2
+    assert r.decide(parse_state(payload), LoopContext()).action.payload()["index"] == 1
+    payload["run"]["act"] = 1
+    assert r.decide(parse_state(payload), LoopContext()).action.payload()["index"] == 0
 
 
 def test_observed_boss_pricing_bypasses_the_dfs_forecast() -> None:

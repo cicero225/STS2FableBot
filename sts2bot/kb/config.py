@@ -338,6 +338,12 @@ class MapWeights(_Section):
     elite_loss_source: str = "rollout"   # "rollout" | "observed"
     elite_loss_stat: str = "p75"
     elite_entry_min_hp_pct: float = 0.0
+    # Per-act overrides (arm v3, 2026-09-03): act-2/3 elite losses run wider
+    # (era p75 38/43 vs act-1 30) and the arm's elite deaths clustered there
+    # (Decimillipede x2 at 57-69% entry, Infested Prism at exactly 50%, Soul
+    # Nexus). 0 = use elite_entry_min_hp_pct.
+    elite_entry_min_hp_pct_act2: float = 0.0
+    elite_entry_min_hp_pct_act3: float = 0.0
     # Same lever for the boss: the DFS forecast read a >=90%-max-HP loss on
     # 61-99% of pre-boss evaluations (era, per boss) while actual act-1/2 boss
     # wins ran 59-86% -- so 'boss doomed' desperation was on ~81% of the time
