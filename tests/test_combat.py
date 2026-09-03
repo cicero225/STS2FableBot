@@ -3549,3 +3549,37 @@ def test_targeted_exhaust_purges_burns_even_when_blocked() -> None:
     st["battle"]["enemies"][0]["intents"] = [{"type": "Buff", "label": ""}]
     d = plan_combat_turn(parse_state(st), w)
     assert d.action.payload().get("card_index") == 0  # purge the Burn
+
+
+# --- Reattach segments (Decimillipede, 2026-09-03) ---------------------------
+_REATTACH = [{"id": "REATTACH_POWER", "name": "Reattach",
+              "description": "If other segments are still alive, revives in 2 turns with 25 HP."}]
+
+
+def _segments_fight(hps: list[int]) -> dict:
+    return {"state_type": "elite", "run": {"act": 2, "floor": 25, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 70, "max_hp": 80, "block": 0,
+                       "energy": 3, "status": [],
+                       "hand": [_bcard(i, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.",
+                                       "Attack", "AnyEnemy") for i in range(3)]},
+            "battle": {"round": 3, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": f"s{i}", "name": "Decimillipede", "hp": hp,
+                                    "max_hp": 40, "block": 0, "status": list(_REATTACH),
+                                    "intents": [{"type": "attack", "label": "6"}]}
+                                   for i, hp in enumerate(hps)]}}
+
+
+def test_reattach_segment_kill_is_futile_unless_all_die() -> None:
+    """Decimillipede's Reattach: 'revives in 2 turns with 25 HP' while other
+    segments live. Arm v3 run 4 killed the same segment repeatedly for 12
+    rounds and died. A 6-HP segment next to two 30-HP ones must NOT be killed
+    (the Strike is spent lowering a live segment instead); the same board with
+    every segment in range kills them all; a lone survivor is a plain kill."""
+    w = load_policy_config().combat
+    d = plan_combat_turn(parse_state(_segments_fight([6, 30, 30])), w)
+    assert d.action.payload()["target"] != "s0"
+    d_all = plan_combat_turn(parse_state(_segments_fight([5, 5, 5])), w)
+    assert d_all.action.payload()["target"] in ("s0", "s1", "s2")
+    assert "plan [Strike > Strike > Strike]" in d_all.rationale
+    d_last = plan_combat_turn(parse_state(_segments_fight([6, 0, 0])), w)
+    assert d_last.action.payload()["target"] == "s0"

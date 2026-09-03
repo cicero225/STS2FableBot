@@ -81,5 +81,10 @@
   "mechanic": "WIKI-VERIFIED 2026-08-18 (slaythespire.wiki.gg): 252hp (A8 262). P1: Plow attack 18 (A9 20) +2 Str per use (ramps every turn). Plow POWER: first time hp <= 150 (A9 160) -> STUNNED one turn + loses ALL Strength (one-time threshold; free turn for us). P2 (post-stun) cycle 3: Beast Cry (applies Ringing 1 -- play only 1 card that turn) / Stomp 15 (A9 17) / Crush 17 (A9 19) +3 Str (A9 4) PERMANENT. Both phases ramp.",
   "modeled": "Threshold stun: DFS attack-to-threshold (combat.py stun_threshold/stunned_this_turn) + capability.py Str-reset on stun. Ringing: card_cap. Mode row: race (both phases ramp), graduated from TBD 2026-08-18 -- table now fully wiki-verified.",
   "gaps": "None known at the mechanics level; losses here are deck-power/ramp-race losses, not modeling gaps. If f17 deaths persist, look at act-1 draft quality, not the fight model."
+ },
+ "Decimillipede": {
+  "mechanic": "Act-2 elite of 3 segments (40-46 HP each). Reattach (bestiary status text): 'If other segments are still alive, revives in 2 turns with 25 HP.' Killing one segment at a time is a treadmill -- arm v3 run 4 (2026-09-03) killed the same segment repeatedly for 12 rounds from a 74/80 entry and died; it was 3 of the calibration arm's first 7 elite deaths and 4/51 era deaths.",
+  "modeled": "combat.py EnemySim.reattach (REATTACH id / 'revives in ... segment' text) + SimState.reattach_kills; _score cancels w_kill and charges w_reattach_futile_kill for segment kills that leave any segment alive at plan end, so the one-turn planner lowers all segments into range and kills them together. _fight_plan returns None for Reattach boards (no sweep kill bonus). AoE potions are held for it in act-2 normals (owner 2026-07-29).",
+  "gaps": "The 2-turn revive window isn't planned across turns (a kill-all over two turns would also work); revive HP 25 hard-coded in the description, not the model."
  }
 }

@@ -453,6 +453,9 @@ class StandardRouter:
             return "focus" if drainer else None
         if len(alive) < 2:
             return None
+        if any("REATTACH" in (st_.id or "").upper()
+               for e in alive for st_ in (e.status or [])):
+            return None  # Reattach segments: the planner's futile-kill rule governs, not sweep/focus
         sig = ((state.run.floor if state.run else 0),
                tuple(sorted((e.name or "") for e in alive)))
         cache = ctx.screen_mem.setdefault("fight_plans", {})

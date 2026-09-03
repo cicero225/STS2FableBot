@@ -19,6 +19,9 @@ class _Section(BaseModel):
 class CombatWeights(_Section):
     w_damage: float = 1.0
     w_kill: float = 25.0
+    # Reattach segments (Decimillipede): extra charge on a futile segment kill,
+    # on top of the cancelled kill credit (combat.py _score)
+    w_reattach_futile_kill: float = 6.0
     # Feed-class "If Fatal" rider: extra credit when THAT card lands the kill, enough to
     # win sequencing ties (vs another killer) but not to delay a safe lethal.
     w_on_fatal_bonus: float = 8.0

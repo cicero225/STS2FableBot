@@ -397,6 +397,9 @@ class PlannedCard:
     upgrades_in_hand: int = 0
 
 
+REATTACH_REVIVE_HP = 25  # Decimillipede segment revive HP (bestiary status text)
+
+
 @dataclass(frozen=True)
 class EnemySim:
     entity_id: str
@@ -430,6 +433,11 @@ class EnemySim:
     incoming_hits: int = 0  # number of attack instances aimed at us this turn (retaliation math)
     summons: bool = False  # has a Summon intent — its minions are replaceable, so race it
     illusion: bool = False  # "Illusion": revives at full HP when killed — grinding it is futile
+    # Decimillipede 'Reattach' (bestiary text, 2026-09-03): 'If other segments
+    # are still alive, revives in 2 turns with 25 HP.' A segment kill that
+    # leaves other segments alive is futile (it comes back) -- the fight is won
+    # by lowering every segment into range and killing them together.
+    reattach: bool = False
     # damage-throttling (ENEMY_PASS): first HP-loss/turn -> 1 (Slippery); a hard per-turn HP-loss
     # cap (Hardened Shell, Intangible); thorns per hit. hp_lost_this_turn accrues so the planner
     # stops over-investing (don't dump a big hit into Slippery, don't burst past a cap).
@@ -550,6 +558,8 @@ class SimState:
     stampede_played: bool = False  # the Stampede POWER entered play this plan
     damage_dealt: int = 0
     kills: int = 0
+    reattach_kills: int = 0  # kills of Reattach segments (futile if any segment survives the plan)
+    reattach_revive_waste: int = 0  # HP those kills hand back on revive (25 - hp at the kill)
     overkill: int = 0
     self_damage: int = 0
     rage_block_active: int = 0  # Rage in play: each later Attack grants this much Block
@@ -841,6 +851,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
         gains_strength = False
         summons = False
         illusion = False
+        reattach = False
         asleep = False
         slow_stacks = None
         spawns_on_death = False
@@ -877,6 +888,10 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 gains_strength = True
             if "ILLUSION" in p.id.upper() or "revives" in (p.description or "").lower():
                 illusion = True
+            if "REATTACH" in p.id.upper() or (
+                    "revives in" in (p.description or "").lower()
+                    and "segment" in (p.description or "").lower()):
+                reattach = True
             if p.id.upper().startswith("ASLEEP"):  # Asleep only — Slumber wakes differently
                 asleep = True
             if ("receives 10% more damage from attacks" in (p.description or "").lower()
@@ -985,6 +1000,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 incoming_hits=incoming_hits,
                 summons=summons,
                 illusion=illusion,
+                reattach=reattach,
                 slippery_stacks=slippery_stacks,
                 attack_dmg_mult=attack_dmg_mult,
                 dmg_cap_per_turn=mech.get("dmg_cap_per_turn"),
@@ -1216,6 +1232,9 @@ def _apply_attack(
         sleepers_woken=state.sleepers_woken + woke,
         damage_dealt=state.damage_dealt + dealt_total,
         kills=state.kills + (1 if killed else 0),
+        reattach_kills=state.reattach_kills + (1 if killed and e.reattach else 0),
+        reattach_revive_waste=state.reattach_revive_waste + (
+            max(0, REATTACH_REVIVE_HP - e.hp) if killed and e.reattach else 0),
         overkill=state.overkill + overkill_amt,
         vuln_applied=state.vuln_applied + (card.fx.vulnerable if hp > 0 else 0),
         artifact_stripped=state.artifact_stripped + strdown_stripped,
@@ -1775,6 +1794,15 @@ def _score(
         + w.w_damage * state.damage_dealt
         * (w.setup_damage_mult if fight_plan == "setup" and not lethal_end else 1.0)
         + w.w_kill * state.kills
+        # Reattach (Decimillipede): a segment kill with any segment left alive
+        # at plan end is undone in 2 turns (revives at 25) -- cancel its kill
+        # credit and charge the revive; the planner then lowers segments into
+        # range and takes them together (arm v3 run 4: a 12-round grind died at
+        # 74/80 entry, killing the same segment over and over)
+        - ((w.w_kill + w.w_reattach_futile_kill) * state.reattach_kills
+           + w.w_damage * state.reattach_revive_waste
+           if state.reattach_kills and any(e.reattach and e.hp > 0 for e in state.enemies)
+           else 0.0)
         + w.w_on_fatal_bonus * state.fatal_bonuses  # Feed lands the kill -> permanent payoff
         # Rainbow Ring (owner 2026-08-13; live text says EACH TURN, not once):
         # completing Attack+Skill+Power in one turn pays 1 Str + 1 Dex --
