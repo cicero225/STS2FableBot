@@ -131,6 +131,7 @@ w_first_big_hit = 4.0
 penalty_xcost_damage_early = -2.5
 
 [rest]
+rest_before_elite_hp_pct = 0.75   # v2: rest at a campfire the DP priced as a heal before an elite
 rest_below_hp_pct = 0.60     # general campfire: rest below this fraction of max HP, else smith
 # pre-boss campfire: rest unless current HP covers the upcoming boss's likely damage
 # (the bot's own p75 boss HP-loss from data/combat_stats.json) x safety; else smith to
