@@ -3583,3 +3583,25 @@ def test_reattach_segment_kill_is_futile_unless_all_die() -> None:
     assert "plan [Strike > Strike > Strike]" in d_all.rationale
     d_last = plan_combat_turn(parse_state(_segments_fight([6, 0, 0])), w)
     assert d_last.action.payload()["target"] == "s0"
+
+
+def test_replan_seeds_attack_count_for_relic_cadence() -> None:
+    """Arm v3 run 4 (Decimillipede): Break+ killed a segment, the replan forgot
+    that attack, so Strike + Dismantle read as attacks 1-2 (no Kusarigama 6 on
+    the 3rd) -> 14 < 19 HP, not lethal, block instead; the segment revived.
+    Seeded with 1 attack already played, the same hand is lethal."""
+    w = load_policy_config().combat
+    st = _segments_fight([19])
+    st["player"]["relics"] = [{
+        "id": "KUSARIGAMA", "name": "Kusarigama",
+        "description": ("Every time you play 3 Attacks in a single turn, "
+                        "deal 6 damage to a random enemy.")}]
+    st["player"]["hand"] = [
+        _bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+        _bcard(1, "DISMANTLE", "Dismantle", 1,
+               "Deal 8 damage. If the enemy is Vulnerable, hits twice.", "Attack", "AnyEnemy"),
+        _bcard(2, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None")]
+    cold = plan_combat_turn(parse_state(st), w)
+    seeded = plan_combat_turn(parse_state(st), w, kinds_this_turn=(1, 0, 0))
+    assert "LETHAL" not in cold.rationale
+    assert "LETHAL" in seeded.rationale

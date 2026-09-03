@@ -1924,6 +1924,7 @@ def plan_combat_turn(
     exhausted_this_turn: bool = False, plays_this_turn: int = 0,
     debuff_wipe_hp: int = 0,
     artifact_strip_mult: float = 1.0,
+    kinds_this_turn: tuple[int, int, int] = (0, 0, 0),
 ) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences. Damage potions
     (minus already-used slots) join the search as pseudo-cards so card+potion lethals are
@@ -2234,6 +2235,15 @@ def plan_combat_turn(
 
     start = SimState(
         energy=energy,
+        # play-kind counts already made this turn (router turn memory): per-turn
+        # relic cadences (Kusarigama/Shuriken/Kunai/Fan/Letter Opener) and the
+        # Smoggy skill cap count from them. Arm v3 run 4 (2026-09-03): after
+        # Break+ killed a Decimillipede segment, the replan forgot that attack,
+        # saw Strike+Dismantle as 2 attacks (no Kusarigama 6), missed a real
+        # lethal and blocked -- the segment revived and the fight was lost.
+        n_attacks_played=kinds_this_turn[0],
+        n_skills_played=kinds_this_turn[1],
+        n_powers_played=kinds_this_turn[2],
         exhaust_pile0=exhaust_pile,
         wither_countdown=wither_countdown,
         wither_period=wither_period,

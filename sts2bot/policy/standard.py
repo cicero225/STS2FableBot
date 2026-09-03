@@ -565,8 +565,16 @@ class StandardRouter:
                 tp = ctx.screen_mem.get("turn_plays")
                 key = (state.run.floor if state.run else -1, state.battle.round)
                 if not isinstance(tp, dict) or tp.get("key") != key:
-                    tp = {"key": key, "n": 0}
+                    tp = {"key": key, "n": 0, "attacks": 0, "skills": 0, "powers": 0}
                 tp["n"] += 1
+                # play-KIND counts too: per-turn relic cadences must survive a
+                # mid-turn replan (Kusarigama lethal missed, arm v3 run 4)
+                played = next((c for c in (state.player.hand if state.player else [])
+                               if c.index == decision.action.card_index), None)
+                ptype = (getattr(played, "type", "") or "").lower()
+                kind = ("attacks" if ptype == "attack" else
+                        "powers" if ptype == "power" else "skills")
+                tp[kind] = tp.get(kind, 0) + 1
                 ctx.screen_mem["turn_plays"] = tp
         return decision
 
@@ -669,8 +677,11 @@ class StandardRouter:
             exmem = {"round": round_, "floor": floor_now, "pile": pile_now}
             ctx.screen_mem["turn_exhaust0"] = exmem
         tp = ctx.screen_mem.get("turn_plays")
-        plays_now = (tp["n"] if isinstance(tp, dict)
-                     and tp.get("key") == (floor_now, round_) else 0)
+        tp_live = (tp if isinstance(tp, dict)
+                   and tp.get("key") == (floor_now, round_) else {})
+        plays_now = tp_live.get("n", 0)
+        kinds_now = (tp_live.get("attacks", 0), tp_live.get("skills", 0),
+                     tp_live.get("powers", 0))
         # Vuln-dependency scaling for the strip credit (owner 2026-08-29):
         # payoff providers in the DECK (tag lens) raise the value of eating
         # Artifact charges — a Dominate/Bully package starves behind charges.
@@ -690,6 +701,7 @@ class StandardRouter:
                                 focus_target=mode_target,
                                 exhausted_this_turn=pile_now > exmem["pile"],
                                 plays_this_turn=plays_now,
+                                kinds_this_turn=kinds_now,
                                 debuff_wipe_hp=(
                                     int(mplan.detail.get("wipe_hp") or 0)
                                     if mplan is not None
