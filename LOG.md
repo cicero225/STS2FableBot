@@ -2,6 +2,20 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-03c (Fable 5) -- arm v2 cut at 6 (1 win), arm v3 adds per-act elite entry floors
+
+Arm v2 (218c180e300e, pre-elite campfire rule) ran 6 runs: 1 win, and the
+rule fired as designed (run 4 rested at 69% ahead of Infested Prism and won
+it). But two more in-elite deaths in those six -- Soul Nexus at a 95% entry
+(deck strength, act 3) and Infested Prism entered at EXACTLY the 50% floor
+(40/80) -- made the arm's elite-death tally 5 in 46 runs (11% of runs vs the
+era's 5%), all in acts 2-3 at 50-69% entries except Nexus. Era p75 elite
+loss is 38/43 in acts 2/3 vs 30 in act 1, so one floor for all acts was the
+wrong shape. f0b159b adds elite_entry_min_hp_pct_act2/_act3 (0 = base, live
+unchanged); arm v3 (cd67622, hash 3e9110e8a915) sets 0.65 / 0.70 with act 1
+at 0.5. Boundary-stopped v2 after run 6 (orphan abandoned via the fork API),
+v3 launched (40 runs). Sub-era ledger so far: v1 7/40, v2 1/6.
+
 ## 2026-09-03b (Fable 5) -- calibration arm v1: 7/40, a new record batch; arm v2 launched
 
 Arm v1 (config 237a23779317, code_head 50ce814) ran 40/40 unattended:
