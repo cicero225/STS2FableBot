@@ -2,6 +2,52 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-03 (Fable 5) -- post-break: the HQX8M7T6VN diff finds the elite gate is the lever; calibration arm launched
+
+Owner: "go ahead and resume, and continue any work you might think worth
+doing." Game self-launched (steam_appid procedure), live-arm batch started,
+then the deferred full-run diff.
+
+**The diff (logs/reports/fullrun_HQX8M7T6VN.md).** Path, not drafts: the
+owner took the SAME act-1 lane as the bot through (5,9) Treasure and then the
+Elite at (6,10) where the bot took the Monster -- and went on to fight SIX
+elites (20 relics, 99 max HP, Feed, Pantograph, Regal Pillow, White Star
+rares) where the bot fought zero (10 relics, 87 HP). Act-1 offers were
+identical until the paths split (bot Headbutt vs owner Cinder; Colossus vs
+Evil Eye); the bot never saw Juggernaut / Daughter / Offering at all.
+
+**Why (exact map replay of the bot's decisions).** The elite gate's greedy
+pool rollout priced the act-1 pool at a MEDIAN 75-of-80-HP loss, so every
+elite node was death-class at every floor (f10 fork: Elite -195.9 vs Monster
+19.1), and the DFS boss forecast read a full loss at every floor of every act
+(bot then WON two of those bosses at 19 and 37 HP) -- desperation permanently
+on, every pre-boss campfire a rest, route values -80 at the boss.
+
+**Era calibration (logs/reports/elite_calibration.md, 423 runs since 08-27).**
+500 real elite fights won 95.6%; fights the rollout rated <20% to win were won
+88%; predicted loss 37.6 vs actual 23.5 with corr 0.18 (no rank signal);
+deaths entered at median 63% HP vs survivors' 80%. Boss forecast: >=90%-max-HP
+loss on 61-99% of pre-boss evaluations vs actual act-1/2 wins 59-86%. The
+capability estimate the whole map/rest/desperation stack consumes carries no
+information -- the "root lever" memory, now with numbers.
+
+**Arm.** Config-gated hooks (ba2150a; 620 tests): elite_loss_source=observed
+(combat_stats elite MEAN 22, gate bypassed, HP projection + 50% entry floor
+govern), boss_loss_source=observed (rest gate / map DP / desperation on
+history). config/experiment_calibrated_capability.toml = policy.toml + those
+four keys (59f4401, hash 237a23779317; p75 pricing still refused the f10 fork,
+hence mean). Replayed on the seed: takes the (6,10) elite 52.0 vs 40.0.
+Live batch stopped at the run-3 boundary (0/3: Queen f48, WG f17, Test Subject
+f48; orphan run 4 abandoned via the fork API), calibration arm launched
+(40 runs, code_head 50ce814). Watch: elites/run (1.18 era), elite deaths
+(~4.4% era), relics, pre-boss smith rate, boss-entry HP.
+
+Also: datasets rebuilt (3,246 runs); era counterfactuals rerun
+(offer_counterfactuals_era.md: Taunt +3.1 sigma, Dominate +3.3; Setup Strike
+-2.0, Rupture -1.8 -- nothing actioned); Splash / Anointed / Calamity are NOT
+in the compendium's discovered list yet (unlocked != discovered), so the
+tag review waits until one is offered.
+
 ## 2026-08-31b (Fable 5) — full-run experiment: OWNER BEATS the bot's Aeonglass seed; break begins
 
 Owner played seed HQX8M7T6VN blind, full run — the bot's same-day Aeonglass
