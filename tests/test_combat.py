@@ -3605,3 +3605,23 @@ def test_replan_seeds_attack_count_for_relic_cadence() -> None:
     seeded = plan_combat_turn(parse_state(st), w, kinds_this_turn=(1, 0, 0))
     assert "LETHAL" not in cold.rationale
     assert "LETHAL" in seeded.rationale
+
+
+def test_seeded_attacks_do_not_double_discount_stomp() -> None:
+    """Batch stall 2026-09-03 (run 151507): Stomp 'costs 1 less per Attack
+    played this turn' was SHOWN at cost 1 after two attacks; the seeded attack
+    count discounted it again to -1, the planner played it at 0 energy, the
+    game refused, and the settle loop hit the stall rail. The displayed cost
+    already carries earlier plays: only the plan's own attacks discount."""
+    w = load_policy_config().combat
+    st = _segments_fight([32])
+    st["battle"]["enemies"][0]["status"] = []
+    st["player"]["energy"] = 0
+    st["player"]["hand"] = [
+        _bcard(0, "STOMP", "Stomp", 1, "Deal 12 damage to ALL enemies. Costs 1 less "
+               "[ironclad_energy_icon.png] for each Attack played this turn.", "Attack",
+               "AllEnemies", can_play=False),
+        _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy",
+               can_play=False)]
+    d = plan_combat_turn(parse_state(st), w, kinds_this_turn=(2, 0, 0))
+    assert d.action.payload()["action"] == "end_turn"

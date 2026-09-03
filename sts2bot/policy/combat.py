@@ -603,6 +603,13 @@ class SimState:
     # relic pass R1: the held relics' mid-turn triggers + this plan's play-kind counters
     relic_triggers: tuple = ()
     n_attacks_played: int = 0
+    # plan-start values of the play-kind counters (router turn memory seeds).
+    # "Costs 1 less per Attack played this turn" and Second Wind's remaining-
+    # attacks count must use the plan's OWN plays (the game's displayed cost
+    # already reflects earlier ones): batch stall 2026-09-03 run 151507 --
+    # Stomp shown at 1 cost after 2 attacks, seeded sim priced it at -1 and
+    # looped on an unplayable card at 0 energy.
+    n_attacks_played0: int = 0
     n_skills_played: int = 0
     n_powers_played: int = 0
     rainbow_ring: bool = False  # trio (A+S+P in one turn) pays 1 Str + 1 Dex
@@ -1293,7 +1300,8 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             card = replace(card, fx=replace(card.fx, hits=eff_cost))
     if card.fx.cost_less_per_attack:  # Stomp-class: cheaper per Attack already played
         eff_cost = max(0, card.cost
-                       - card.fx.cost_less_per_attack * state.n_attacks_played)
+                       - card.fx.cost_less_per_attack
+                       * (state.n_attacks_played - state.n_attacks_played0))
     s = replace(
         state,
         energy=state.energy - eff_cost,
@@ -1516,7 +1524,8 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
             # block vs the real 27 -- no death wall, no hail-mary, a tutor
             # potion died unused on the belt). Count includes unplayables
             # (Stoke+Wounds): hand arithmetic, minus attacks still unplayed.
-            n_ex = max(0, n_ex - max(0, state.hand_attacks0 - state.n_attacks_played))
+            n_ex = max(0, n_ex - max(0, state.hand_attacks0
+                                          - (state.n_attacks_played - state.n_attacks_played0)))
     if s.per_exhaust_block and n_ex:
         fnp_block = s.per_exhaust_block * n_ex
     sw_block = card.block_per_exhaust * n_ex if card.block_per_exhaust else 0
@@ -2242,6 +2251,7 @@ def plan_combat_turn(
         # saw Strike+Dismantle as 2 attacks (no Kusarigama 6), missed a real
         # lethal and blocked -- the segment revived and the fight was lost.
         n_attacks_played=kinds_this_turn[0],
+        n_attacks_played0=kinds_this_turn[0],
         n_skills_played=kinds_this_turn[1],
         n_powers_played=kinds_this_turn[2],
         exhaust_pile0=exhaust_pile,
