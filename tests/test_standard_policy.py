@@ -4511,12 +4511,18 @@ def test_combat_action_settle_guard_holds_until_quiescent() -> None:
 
 def test_combat_action_settle_guard_caps_out() -> None:
     """A silently-failed action must not soft-lock the turn: after the hold cap
-    the guard falls through and the planner re-sends (pre-guard behavior)."""
+    the guard falls through and the planner re-decides. 2026-09-03 refinement
+    (Stomp stall, run 151507): the play the game refused for the whole window
+    is EXCLUDED from that re-decision -- resubmitting it forever was the stall
+    -- so a second card is played instead, or the turn ends."""
     r = router()
     ctx = LoopContext()
-    state = make_combat(hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+    state = make_combat(hand=[card(0, "Strike", 1, "Deal 6 damage."),
+                              card(1, "Strike", 1, "Deal 6 damage.")],
                         enemies=[enemy("CRAB_0", 60)], energy=3)
-    assert isinstance(r.decide(state, ctx), Decision)
+    first = r.decide(state, ctx)
+    assert isinstance(first, Decision)
+    refused_idx = first.action.payload()["card_index"]
     cap = r.config.combat.action_settle_polls
     waits = 0
     d = None
@@ -4528,6 +4534,11 @@ def test_combat_action_settle_guard_caps_out() -> None:
         assert waits <= cap
     assert waits == cap
     assert d.action.payload()["action"] == "play_card"
+    assert d.action.payload()["card_index"] != refused_idx
+    # both refused -> end the turn rather than loop
+    for _ in range(cap + 1):
+        d = r.decide(state, ctx)
+    assert d.action.payload()["action"] == "end_turn"
 
 
 def test_fight_plan_commits_even_when_both_orders_lose() -> None:

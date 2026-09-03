@@ -1934,6 +1934,7 @@ def plan_combat_turn(
     debuff_wipe_hp: int = 0,
     artifact_strip_mult: float = 1.0,
     kinds_this_turn: tuple[int, int, int] = (0, 0, 0),
+    excluded_indices: frozenset[int] = frozenset(),
 ) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences. Damage potions
     (minus already-used slots) join the search as pseudo-cards so card+potion lethals are
@@ -2037,6 +2038,9 @@ def plan_combat_turn(
                         max(0, unupgraded_in_hand
                             - (0 if getattr(card, "is_upgraded", False) else 1)))
             for card in hand
+            # a play the game REFUSED through the whole settle window this turn
+            # (router refused_cards): never resubmit it -- the Stomp stall loop
+            if card.index not in excluded_indices
         )
         if c is not None
         # Absolute veto: a self-HP cost that kills us outright is never playable — at

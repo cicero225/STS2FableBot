@@ -3625,3 +3625,18 @@ def test_seeded_attacks_do_not_double_discount_stomp() -> None:
                can_play=False)]
     d = plan_combat_turn(parse_state(st), w, kinds_this_turn=(2, 0, 0))
     assert d.action.payload()["action"] == "end_turn"
+
+
+def test_excluded_indices_drop_a_refused_card() -> None:
+    """Router safety net (2026-09-03 stall): a play the game refused through the
+    whole settle window is excluded from the replan for the rest of the turn."""
+    w = load_policy_config().combat
+    st = _segments_fight([32])
+    st["battle"]["enemies"][0]["status"] = []
+    st["player"]["hand"] = [
+        _bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+        _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy")]
+    d = plan_combat_turn(parse_state(st), w, excluded_indices=frozenset({0}))
+    assert d.action.payload()["card_index"] == 1
+    d_none = plan_combat_turn(parse_state(st), w, excluded_indices=frozenset({0, 1}))
+    assert d_none.action.payload()["action"] == "end_turn"

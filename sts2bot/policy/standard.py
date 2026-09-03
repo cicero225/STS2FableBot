@@ -553,13 +553,30 @@ class StandardRouter:
                 ctx.screen_mem["settle_holds"] = holds + 1
                 return Wait(reason="combat action resolving (quiesce "
                             f"{stable['n']}/{quiesce}, hold {holds + 1}/{limit})")
+        if (sig is not None and pending is not None and holds >= limit
+                and sig == pending.get("sig") and pending.get("card_index") is not None):
+            # the settle window expired with the state UNCHANGED after a play:
+            # the game refused it (batch stall 2026-09-03: Stomp resubmitted at
+            # 0 energy until the stall rail). Exclude that card for the rest of
+            # the turn so the replan finds something else or ends the turn.
+            key = (state.run.floor if state.run else -1,
+                   state.battle.round if state.battle else -1)
+            ref = ctx.screen_mem.get("refused_cards")
+            if not isinstance(ref, dict) or ref.get("key") != key:
+                ref = {"key": key, "idx": []}
+            if pending["card_index"] not in ref["idx"]:
+                ref["idx"].append(pending["card_index"])
+            ctx.screen_mem["refused_cards"] = ref
         ctx.screen_mem.pop("action_settle", None)
         ctx.screen_mem.pop("sig_stable", None)
         ctx.screen_mem["settle_holds"] = 0  # gate passed (or capped): fresh budget
         decision = self._combat_inner(state, ctx)
         if (sig is not None and isinstance(decision, Decision) and isinstance(
                 decision.action, (act.PlayCard, act.UsePotion, act.EndTurn))):
-            ctx.screen_mem["action_settle"] = {"sig": sig}
+            ctx.screen_mem["action_settle"] = {
+                "sig": sig,
+                "card_index": (decision.action.card_index
+                               if isinstance(decision.action, act.PlayCard) else None)}
             # plays-this-turn counter (Slow seeding; exhaust-snapshot family)
             if isinstance(decision.action, act.PlayCard) and state.battle is not None:
                 tp = ctx.screen_mem.get("turn_plays")
@@ -682,6 +699,10 @@ class StandardRouter:
         plays_now = tp_live.get("n", 0)
         kinds_now = (tp_live.get("attacks", 0), tp_live.get("skills", 0),
                      tp_live.get("powers", 0))
+        ref = ctx.screen_mem.get("refused_cards")
+        refused = (frozenset(ref["idx"])
+                   if isinstance(ref, dict) and ref.get("key") == (floor_now, round_)
+                   else frozenset())
         # Vuln-dependency scaling for the strip credit (owner 2026-08-29):
         # payoff providers in the DECK (tag lens) raise the value of eating
         # Artifact charges — a Dominate/Bully package starves behind charges.
@@ -702,6 +723,7 @@ class StandardRouter:
                                 exhausted_this_turn=pile_now > exmem["pile"],
                                 plays_this_turn=plays_now,
                                 kinds_this_turn=kinds_now,
+                                excluded_indices=refused,
                                 debuff_wipe_hp=(
                                     int(mplan.detail.get("wipe_hp") or 0)
                                     if mplan is not None
