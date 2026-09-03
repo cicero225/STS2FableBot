@@ -22,6 +22,23 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-03e (Fable 5) -- replans forgot the turn's plays: relic cadences re-seeded
+
+Same Decimillipede fight, second bug. Round 5 was a REAL lethal: Break+ (30)
+kills the 25-HP segment, then Strike + Dismantle = attacks 2 and 3 -> the
+held Kusarigama's third-attack 6 finishes the 19-HP segment (6+8+6 = 20),
+and with no segment alive the dead one never revives. After Break+ the
+replan started from zero attacks played, saw 14 < 19, called it non-lethal
+and blocked. Every mid-turn replan had this hole for every per-turn cadence
+relic (Kusarigama, Shuriken, Kunai, Ornamental Fan, Letter Opener) and the
+Smoggy skill cap. Fix 41fe501: the router's turn_plays memory now records
+play KINDS; plan_combat_turn seeds n_attacks/skills/powers_played from it.
+Test: same hand, LETHAL only when seeded. 623 tests.
+
+Both planner fixes are code-only and apply from the next launch; the v3
+batch (0/5 so far, pre-fix planner) gets boundary-restarted after run 6 so
+the remaining runs carry code_head 41fe501.
+
 ## 2026-09-03c (Fable 5) -- arm v2 cut at 6 (1 win), arm v3 adds per-act elite entry floors
 
 Arm v2 (218c180e300e, pre-elite campfire rule) ran 6 runs: 1 win, and the
