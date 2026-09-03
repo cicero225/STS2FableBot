@@ -22,6 +22,24 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-03f (Fable 5) -- the seeding fix regressed Stomp-class costs; stall safety net
+
+The relaunched v3 batch stalled on its FIRST run (151507, f4): Stomp 'costs
+1 less per Attack played this turn' was shown at cost 1 after two attacks --
+the game's displayed cost already carries the turn's plays -- and the newly
+seeded attack count discounted it again to -1; the planner played it at 0
+energy, the game refused, and the settle loop resubmitted it until the
+60-tick stall rail (the fork-API abandon recovered the batch). Fix 3e5f0ac:
+SimState.n_attacks_played0 (plan-start count); the per-attack discount and
+Second Wind's remaining-attacks count use the plan's OWN attacks only.
+
+Safety net b4abfac for the whole stall class: a play the game refuses through
+the entire settle window is excluded from the turn's replans (screen_mem
+refused_cards -> plan_combat_turn excluded_indices), so the bot plays
+something else or ends the turn instead of looping. The old settle-cap pin
+('re-send after the cap') was the loop; re-pinned. 625 tests. Batch to be
+boundary-restarted on b4abfac after its run 2.
+
 ## 2026-09-03e (Fable 5) -- replans forgot the turn's plays: relic cadences re-seeded
 
 Same Decimillipede fight, second bug. Round 5 was a REAL lethal: Break+ (30)
