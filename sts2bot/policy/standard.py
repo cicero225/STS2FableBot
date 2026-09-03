@@ -1889,6 +1889,25 @@ class StandardRouter:
             ctx.screen_mem["pre_boss"] = True  # arriving on the last row before the boss
         else:
             ctx.screen_mem.pop("pre_boss", None)
+        # Pre-elite campfire flag (config.rest.rest_before_elite_hp_pct): the DP
+        # priced this campfire as a heal; tell _rest_site when its best
+        # continuation is an elite so the heal actually happens.
+        pre_elite = False
+        if hp_aware and (best.type or "").lower() in ("restsite", "rest_site"):
+            hp_rest, _adj = project(best.type, best.row, cur_hp)
+            kids = [(c.col, c.row) for c in best.leads_to] or [
+                tuple(c) for c in (node_by_pos[(best.col, best.row)].children
+                                   if (best.col, best.row) in node_by_pos else [])]
+            if kids:
+                nxt = max(kids, key=lambda k: path_value(k[0], k[1], hp_rest, boots_charges))
+                nxt_node = node_by_pos.get(nxt)
+                nxt_type = (nxt_node.type if nxt_node else next(
+                    (c.type for c in best.leads_to if (c.col, c.row) == nxt), None)) or ""
+                pre_elite = nxt_type.lower() == "elite"
+        if pre_elite:
+            ctx.screen_mem["pre_elite"] = True
+        else:
+            ctx.screen_mem.pop("pre_elite", None)
         ctx.screen_mem["map_travel_hold"] = {"key": poskey, "ticks": 0}
         return Decision(
             action=act.ChooseMapNode(index=best.index),
@@ -3266,6 +3285,13 @@ class StandardRouter:
                         f"({src} est loss {est:.0f})")
             smith_why = (f"smith: {hp} HP{panto_tag} covers the boss "
                          f"(~{needed:.0f} needed, {src})")
+        elif ctx.screen_mem.get("pre_elite") and w.rest_before_elite_hp_pct > 0:
+            # the map DP priced this campfire as a heal ahead of an elite
+            should_rest = hp_pct < w.rest_before_elite_hp_pct
+            rest_why = (f"rest: {hp_pct:.0%} HP < {w.rest_before_elite_hp_pct:.0%} "
+                        f"before the committed elite")
+            smith_why = (f"smith: {hp_pct:.0%} HP covers the committed elite "
+                         f"(>= {w.rest_before_elite_hp_pct:.0%})")
         else:
             should_rest = hp_pct < w.rest_below_hp_pct
             rest_why = f"rest at {hp_pct:.0%} HP"

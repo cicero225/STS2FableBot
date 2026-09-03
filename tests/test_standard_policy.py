@@ -5522,3 +5522,53 @@ def test_observed_boss_pricing_bypasses_the_dfs_forecast() -> None:
     assert r._dfs_boss_loss(ctx, player, 1) is None
     r.config.map.boss_loss_source = "dfs"
     assert r._dfs_boss_loss(ctx, player, 1) is not None
+
+
+def test_pre_elite_campfire_flag_and_rest_rule() -> None:
+    """Arm v2 (2026-09-03): the map DP projects a HEAL at every campfire, yet the
+    campfire policy smithed at 58-62% and the run walked into the elite it had
+    priced post-heal (run 26: smith at 62% -> Effigy -51 -> dead). The map now
+    flags a campfire whose DP-best continuation is an elite; _rest_site rests
+    below rest_before_elite_hp_pct there (0 = off, live unchanged)."""
+    def payload(next_type: str) -> dict:
+        return {
+            "state_type": "map",
+            "map": {
+                "current_position": {"col": 1, "row": 0, "type": "Start"},
+                "visited": [],
+                "next_options": [
+                    {"index": 0, "col": 1, "row": 1, "type": "RestSite",
+                     "leads_to": [{"col": 1, "row": 2, "type": next_type}]},
+                ],
+                "nodes": [
+                    {"col": 1, "row": 0, "type": "Start", "children": [[1, 1]]},
+                    {"col": 1, "row": 1, "type": "RestSite", "children": [[1, 2]]},
+                    {"col": 1, "row": 2, "type": next_type, "children": [[1, 3]]},
+                    {"col": 1, "row": 3, "type": "Monster", "children": []},
+                ],
+                "boss": {"col": 1, "row": 4, "id": "B", "name": "Boss"},
+                "bosses": [],
+            },
+            "run": {"act": 1, "floor": 1, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": 52, "max_hp": 80, "gold": 50,
+                       "status": [], "relics": [], "potions": [], "max_potion_slots": 3,
+                       "deck": _STARTER_DECK},
+        }
+    r = _calibrated_router()
+    ctx = LoopContext()
+    r.decide(parse_state(payload("Elite")), ctx)
+    assert ctx.screen_mem.get("pre_elite") is True
+    ctx2 = LoopContext()
+    r.decide(parse_state(payload("Monster")), ctx2)
+    assert "pre_elite" not in ctx2.screen_mem
+
+    rest = json.loads(json.dumps(FIXTURES["rest_site"]))
+    rest["player"]["hp"], rest["player"]["max_hp"] = 52, 80  # 65%: above the 60% general bar
+    r.config.rest.rest_before_elite_hp_pct = 0.75
+    d = r.decide(parse_state(rest), ctx)
+    assert d.rationale.startswith("rest") and "committed elite" in d.rationale
+    r.config.rest.rest_before_elite_hp_pct = 0.0  # off -> the general 60% rule smiths
+    assert r.decide(parse_state(rest), ctx).rationale.startswith("smith")
+    # no flag -> the rule never fires even when on
+    r.config.rest.rest_before_elite_hp_pct = 0.75
+    assert r.decide(parse_state(rest), ctx2).rationale.startswith("smith")
