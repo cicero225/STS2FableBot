@@ -2,6 +2,26 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-03d (Fable 5) -- Decimillipede decoded from the bestiary text: Reattach modeled
+
+Arm v3 run 4 died to Decimillipede from a 74/80 entry after a 12-round grind:
+the tape shows the same segment killed, revived at 25, killed again. The
+mechanic was sitting in the bestiary status text all along ('Reattach: if
+other segments are still alive, revives in 2 turns with 25 HP') and the
+planner had no model; worse, the API drops dead segments from the enemy
+list, so every 'one segment left' read as LETHAL and the kill fed the loop.
+Decimillipede: 3 of the arm's first 7 elite deaths, 4/51 era deaths.
+
+Fix 18347c6 (+78c2ad2 lint): EnemySim.reattach; a segment kill that leaves
+any visible segment alive at plan end loses its w_kill, pays
+w_reattach_futile_kill (6) and is charged the revive heal (25 - hp at the
+kill) -- the one-turn planner now lowers every segment into range and takes
+them together (or holds); _fight_plan skips sweep/focus on Reattach boards.
+Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
+(Strike + Impervious instead). Decoded into data/enemy_notes.json. 622 tests.
+Code-only, so it applies to every arm from the next launch; the running v3
+batch keeps the old planner (its Decimillipede fights are pre-fix).
+
 ## 2026-09-03c (Fable 5) -- arm v2 cut at 6 (1 win), arm v3 adds per-act elite entry floors
 
 Arm v2 (218c180e300e, pre-elite campfire rule) ran 6 runs: 1 win, and the
