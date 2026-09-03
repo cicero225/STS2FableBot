@@ -73,6 +73,8 @@ elite_loss_source = "observed"   # price elites from own history, HP projection 
 elite_loss_stat = "mean"         # 22 HP (era actual mean 23.5); p75 (35) still priced the seed's
                                  # f10 elite fork death-class (69 HP, no rest before row 15)
 elite_entry_min_hp_pct = 0.5      # never route INTO an elite below half HP
+elite_entry_min_hp_pct_act2 = 0.65  # v3: act-2/3 elite losses run wider (p75 38/43)
+elite_entry_min_hp_pct_act3 = 0.70
 boss_loss_source = "observed"     # rest gate / map DP / desperation on history, not DFS
 # node desirability by type (base scores; modified by state)
 score_monster = 10.0
