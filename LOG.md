@@ -22,6 +22,32 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-04a (Fable 5) -- arm v4: 2/21; the deck floor overshot; arm v5 (deck 13, boss safety 1.4)
+
+Arm v4 (da2a70ea8227, deck floor 14) ran 21 runs incl. the crash resume:
+**2 wins**, 12/21 to an act boss, 6 act-1 boss deaths. Diagnosis by act-1
+stats per arm (n=412/37/17/17): the 14-card floor cut act-1 elites from
+1.8-1.9/run (v1/v3) to 1.06 and relics at the act-1 boss from 6.1-6.6 back
+to the era's 4.9 -- it removed the v1 gain in act 1, not just the floor-7
+starter-deck deaths. Second finding, across ALL arms (n=40 vs 40): pre-boss
+SMITH (the observed-history rule: need 41 x 1.1 = 45 HP) entered act-1
+bosses at ~74% HP and survived 72%, vs 87% after resting -- the history stat
+excludes deaths and act-1 boss survivors lose a median 44-48, so p75 41 is
+too thin. Arm v5 (10b3226 + a3ef133 config-load test; hash 8e8f36484961):
+elite_min_deck_cards 13 (blocks only 10-12-card decks: 12 fights, 1 death)
+and rest.boss_safety_factor 1.4 (rest below ~57/80 before an act-1 boss;
+act 3 with the +15 bump rests below ~78). First v5 commit shipped a
+duplicated [rest] key that broke tomllib -- fixed in place; every
+config/*.toml now has a load test. Boundary-switched after v4 run 21.
+
+Side results: estimate_fight (closed form) vs actual elite loss corr 0.18 /
+0.10 / -0.02 by act -- no deck-quality signal either (calls Effigy a win in
+97% of fights incl. all 17 blowouts). First learned elite head
+(deck_features + elite id, logreg, run split): test AUC 0.62 on 799 fights,
+top tercile 26% big-loss vs 12-14% -- the only estimator with any signal;
+refit at ~1500 (PLAN row). Session ledger: live 0/3, v1 7/40, v2 1/6,
+v3(pre-fix) 0/8, v3 3/19, v4 2/21.
+
 ## 2026-09-03h (Fable 5) -- game crash mid-run; self-relaunch + batch resume (unattended)
 
 Arm v4 run 4 (f36, act 3) ended with 'connection forcibly closed' from the
