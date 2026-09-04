@@ -306,6 +306,11 @@ class PlannedCard:
     # learned block-persistence from the live status on REPLAN — same-turn
     # block after the power got no credit at plan time)
     grants_barricade: bool = False
+    # Unmovable (owner catch 2026-09-04, Infested Prism T1: the bot blocked
+    # BEFORE playing it): 'The first time you gain Block from a card each
+    # turn, double the amount gained' -- and it applies the turn it is played,
+    # so it must be sequenced ahead of the first block card.
+    grants_unmovable: bool = False
     # Chooser exhausts (True Grit+ 'Exhaust 1 card.', Purity 'up to 3'): the
     # live hand_select prefers statuses/curses, so the DFS credits clearing
     # the worst stranded penalties (Aeonglass Withers — owner 2026-08-28:
@@ -563,6 +568,15 @@ class SimState:
     overkill: int = 0
     self_damage: int = 0
     rage_block_active: int = 0  # Rage in play: each later Attack grants this much Block
+    # Unmovable state: active (in play at turn start OR played in this plan);
+    # baked = it was up at turn start, so the mod's resolved previews ALREADY
+    # show doubled block on every block card while the doubling is unspent
+    # ((8+5)x2 = 26 trace); first_block_used = the turn's one doubling is spent
+    unmovable_active: bool = False
+    unmovable_baked: bool = False
+    # previews read doubled at plan time (power up AND doubling unspent at plan start)
+    unmovable_previews_doubled: bool = False
+    first_block_used: bool = False
     rage_block_granted: int = 0  # total Block Rage has granted to attacks (sequencing nudge)
     powers_played: int = 0  # Power cards played this turn (banked permanent buffs)
     self_damage_powers_played: int = 0  # of those, per-turn self-HP-cost powers (Inferno)
@@ -808,6 +822,9 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
             r"Exhaust a random Attack in your Hand", desc, re.IGNORECASE)),
         grants_barricade=bool(re.search(
             r"block is (?:not|no longer) removed", desc, re.IGNORECASE)),
+        grants_unmovable=bool(re.search(
+            r"first time you gain block from a card each turn, double",
+            card.description or "", re.IGNORECASE)),
         targeted_exhaust_n=(
             0 if "random" in low else
             (int(m_te.group(1)) if (m_te := re.search(
@@ -1530,6 +1547,19 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         fnp_block = s.per_exhaust_block * n_ex
     sw_block = card.block_per_exhaust * n_ex if card.block_per_exhaust else 0
     block_gain = base_block + rage_bonus + fnp_block + sw_block
+    # Unmovable: the turn's FIRST card-block doubles. Previews are resolved,
+    # so if the power was up at turn start every block card in hand reads
+    # doubled while the doubling is unspent -- the first play is as-read and
+    # later ones must be halved; a power played inside this plan doubles the
+    # (single-read) first block card after it. Block before the power (or a
+    # second block card) spends nothing extra.
+    first_block_used = s.first_block_used
+    if base_block > 0 and card.potion_slot is None:
+        if s.unmovable_active and not s.first_block_used and not s.unmovable_baked:
+            block_gain += base_block
+        elif s.unmovable_previews_doubled and s.first_block_used:
+            block_gain -= base_block - base_block // 2  # spent inside this plan: halve the read
+        first_block_used = True
     # Frail is likewise PRE-BAKED into the text (a Defend under Frail reads "Gain 3
     # Block", 5 x 0.75 — trace-verified 2026-07-14): do NOT re-apply FRAIL_MULT.
     # Forgotten Ritual: the energy fires only if a card was Exhausted this turn
@@ -1610,6 +1640,8 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # attacks); chooser exhausts (TG+/Purity) eat the worst K in _score
         hand_purged=s.hand_purged or card.exhaust_count == -1,
         barricade=s.barricade or card.grants_barricade,
+        unmovable_active=s.unmovable_active or card.grants_unmovable,
+        first_block_used=first_block_used,
         targeted_exhausts=s.targeted_exhausts + card.targeted_exhaust_n,
     )
     # relic pass R1: fire mid-turn relic triggers this play crossed (counters, on-kill,
@@ -1935,6 +1967,7 @@ def plan_combat_turn(
     artifact_strip_mult: float = 1.0,
     kinds_this_turn: tuple[int, int, int] = (0, 0, 0),
     excluded_indices: frozenset[int] = frozenset(),
+    block_used_this_turn: bool = False,
 ) -> Decision | Wait:
     """Pick the next combat action by searching this turn's play sequences. Damage potions
     (minus already-used slots) join the search as pseudo-cards so card+potion lethals are
@@ -2246,6 +2279,11 @@ def plan_combat_turn(
         rnd = state.battle.round or 1
         wither_tier = max(tiers) if tiers else 3 + 3 * (rnd // 3)
 
+    unmovable_up = any(
+        "UNMOVABLE" in (st_.id or "").upper()
+        or re.search(r"first time you gain block from a card each turn, double",
+                     st_.description or "", re.IGNORECASE) is not None
+        for st_ in (player.status or []))
     start = SimState(
         energy=energy,
         # play-kind counts already made this turn (router turn memory): per-turn
@@ -2286,6 +2324,10 @@ def plan_combat_turn(
             or re.search(r"(cannot|may not) draw", st_.description or "", re.IGNORECASE)
             is not None
             for st_ in (player.status or [])),
+        unmovable_active=unmovable_up,
+        unmovable_baked=unmovable_up,
+        unmovable_previews_doubled=unmovable_up and not block_used_this_turn,
+        first_block_used=block_used_this_turn,
         enemies=enemy_sims,
         my_block=player.block,
         my_strength=my_strength,

@@ -3640,3 +3640,71 @@ def test_excluded_indices_drop_a_refused_card() -> None:
     assert d.action.payload()["card_index"] == 1
     d_none = plan_combat_turn(parse_state(st), w, excluded_indices=frozenset({0, 1}))
     assert d_none.action.payload()["action"] == "end_turn"
+
+
+# --- Unmovable (owner catch 2026-09-04) --------------------------------------
+_UNMOVABLE_TXT = "The first time you gain Block from a card each turn, double the amount gained."
+
+
+def _unmovable_fight(hand: list, status: list | None = None, incoming: str = "20") -> dict:
+    st = _segments_fight([60])
+    st["battle"]["enemies"][0]["status"] = []
+    st["battle"]["enemies"][0]["intents"] = [{"type": "attack", "label": incoming}]
+    st["player"]["hand"] = hand
+    st["player"]["status"] = status or []
+    return st
+
+
+def test_unmovable_is_sequenced_before_the_first_block() -> None:
+    """Owner 2026-09-04 (Infested Prism T1): Unmovable doubles the FIRST block
+    of the turn and applies the turn it is played, so Unmovable -> Defend
+    beats Defend -> Unmovable. The planner had no model and blocked first."""
+    w = load_policy_config().combat
+    st = _unmovable_fight([
+        _bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+        _bcard(1, "UNMOVABLE", "Unmovable", 2, _UNMOVABLE_TXT, "Power", "None")])
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload()["card_index"] == 1  # the power first
+    assert "plan [Unmovable > Defend]" in d.rationale
+
+
+def test_unmovable_already_up_does_not_double_twice() -> None:
+    """With the power already in play the mod's previews read doubled on every
+    block card ('Gain 10 Block' x2); only the first play gets it, the second
+    grants 5. Incoming 20 vs 10 + 5 -> 5 HP lost, not 0."""
+    w = load_policy_config().combat
+    up = [{"id": "UNMOVABLE_POWER", "name": "Unmovable", "amount": 1, "type": "Buff",
+           "description": _UNMOVABLE_TXT}]
+    st = _unmovable_fight([
+        _bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 10 Block.", "Skill", "None"),
+        _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 10 Block.", "Skill", "None")],
+        status=up)
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.scores["hp_loss"] == 5.0
+    # a block card already played this turn: the doubling is spent, previews
+    # are single again -> both Defends grant as read (10 + 10 >= 20)
+    d2 = plan_combat_turn(parse_state(st), w, block_used_this_turn=True)
+    assert d2.scores["hp_loss"] == 0.0
+
+
+def test_block_before_unmovable_spends_the_doubling() -> None:
+    """Owner nuance 2026-09-04: Defend -> Unmovable -> Defend gets NO bonus --
+    the turn's first block already happened when the power lands. With 3
+    energy the planner can't afford both Defends plus the 2-cost power, and
+    the doubling only ever helps a block card played AFTER the power."""
+    from sts2bot.policy.combat import PlannedCard, SimState, _apply_card
+    from sts2bot.policy.textparse import CardEffects
+    defend = PlannedCard(index=0, name="Defend", cost=1, fx=CardEffects(block=5),
+                         targets_enemy=False)
+    power = PlannedCard(index=1, name="Unmovable", cost=2, fx=CardEffects(),
+                        targets_enemy=False, is_power=True, grants_unmovable=True)
+    s0 = SimState(energy=5, enemies=(_enemy(),), my_block=0, my_strength=0)
+    # Unmovable first: the next Defend doubles (5 -> 10)
+    s_pow_first = _apply_card(_apply_card(s0, power, None), defend, None)
+    assert s_pow_first.my_block == 10
+    # Defend first: the doubling is spent; Unmovable then a second Defend adds 5
+    s_def_first = _apply_card(_apply_card(_apply_card(s0, defend, None), power, None),
+                              PlannedCard(index=2, name="Defend", cost=1,
+                                          fx=CardEffects(block=5), targets_enemy=False),
+                              None)
+    assert s_def_first.my_block == 10  # 5 + 5, no bonus anywhere

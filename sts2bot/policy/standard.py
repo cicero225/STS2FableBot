@@ -592,6 +592,11 @@ class StandardRouter:
                 kind = ("attacks" if ptype == "attack" else
                         "powers" if ptype == "power" else "skills")
                 tp[kind] = tp.get(kind, 0) + 1
+                # Unmovable seeding: the turn's one block-doubling is spent by
+                # the first card that grants Block (owner 2026-09-04)
+                if re.search(r"gain \d+ block", getattr(played, "description", "") or "",
+                             re.IGNORECASE):
+                    tp["blocked"] = True
                 ctx.screen_mem["turn_plays"] = tp
         return decision
 
@@ -724,6 +729,7 @@ class StandardRouter:
                                 plays_this_turn=plays_now,
                                 kinds_this_turn=kinds_now,
                                 excluded_indices=refused,
+                                block_used_this_turn=bool(tp_live.get("blocked")),
                                 debuff_wipe_hp=(
                                     int(mplan.detail.get("wipe_hp") or 0)
                                     if mplan is not None
