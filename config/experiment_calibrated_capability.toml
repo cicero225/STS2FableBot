@@ -136,14 +136,13 @@ penalty_xcost_damage_early = -2.5
 
 [rest]
 rest_before_elite_hp_pct = 0.75   # v2: rest at a campfire the DP priced as a heal before an elite
-boss_safety_factor = 1.4          # v5: the history boss stat (p75 41) excludes deaths; act-1 boss
-                                  # survivors lose a median 44-48 -- arm pre-boss smiths (entry ~74%)
-                                  # survived 72% vs 87% after resting (n=40 each)
 rest_below_hp_pct = 0.60     # general campfire: rest below this fraction of max HP, else smith
 # pre-boss campfire: rest unless current HP covers the upcoming boss's likely damage
 # (the bot's own p75 boss HP-loss from data/combat_stats.json) x safety; else smith to
 # gear up. Adapts down as the deck improves and the bot loses less to bosses.
-boss_safety_factor = 1.1
+boss_safety_factor = 1.4   # v5 (was 1.1): the history boss stat excludes deaths; act-1 boss
+                           # survivors lose a median 44-48 -- arm pre-boss smiths (entry ~74%)
+                           # survived 72% vs 87% after resting (n=40 each)
 default_boss_loss = 60.0     # fallback when too few boss fights are logged yet
 # otherwise smith (upgrade); upgrade priority = highest reward-score card unupgraded
 
