@@ -22,6 +22,27 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-04b (Fable 5) -- Mecha Knight decoded from the tapes; fight-mode row (defend the BIG turns)
+
+Arm v5 opened 0/10 with three act-3 elite deaths in nine runs (Mecha Knight
+x2, Knights). Act-3 elite tally: era 4/28 deaths, arm v3+ 5/29 -- and Mecha
+Knight alone 6/21 (29%), two arm entries BELOW the 70% floor (forced lanes
+committed before the HP dropped). No bestiary mechanic beyond Artifact 2 /
+Str 5, no note. Eight tapes read round by round agree exactly, and the
+re-harvested move script (62 fights) confirms: a 3-cycle -- BIG attack on
+T1/T4/T7 escalating 25 -> 40 -> 45, a 4-damage StatusCard poke on T2/T5/T8,
+Defend+Buff setup on T3/T6/T9 (15 Block up on the next BIG). Every death
+landed on a BIG turn with no block in hand after block was spent on the
+poke rounds. Recorded in enemy_notes (0b09c17) and the script (cycle 3,
+notes); 2861600 adds a FIGHT_MODE_TABLE row (kill_by_deadline, never
+feasible at 300 HP -> defend_deadline cycle 3): the router marks T4/T7/T10
+as defend turns and races the rest. 629 tests. Code-only -> restart the v5
+batch on it at the next boundary.
+
+Also today: first learned elite head (AUC 0.62) and the closed-form race
+estimate ruled out (corr ~0) -- see 2026-09-04a. Session ledger: live 0/3,
+v1 7/40, v2 1/6, v3 3/19, v4 2/21, v5 0/10 (pre-Mecha-row).
+
 ## 2026-09-04a (Fable 5) -- arm v4: 2/21; the deck floor overshot; arm v5 (deck 13, boss safety 1.4)
 
 Arm v4 (da2a70ea8227, deck floor 14) ran 21 runs incl. the crash resume:
