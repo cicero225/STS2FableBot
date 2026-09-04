@@ -22,6 +22,33 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-04d (Fable 5) -- boundary stop (owner needs the GPU); Unmovable modeled from an owner catch
+
+Owner back: "end at the conclusion of the current run". Arm v6 stopped after
+its first run (Test Subject f48; v6 0/1), orphan abandoned via the fork
+API, game closed (bot-launched, bot-closed), no bot or game process left.
+Batches down until the owner's word; next up when cleared: v6 x40, then a
+fresh live x40 on the fixed code.
+
+Owner catch while watching (Infested Prism T1 this run): Unmovable ('first
+time you gain Block from a card each turn, double it') applies the turn it
+is played, so it must precede the first block card -- the bot blocked
+first. Nuance (owner): Defend -> Unmovable -> Defend gets NO bonus. The
+planner had no model at all (only the preview note that a doubled Defend+
+reads 26). f9a74d1: grants_unmovable + in-plan doubling of the first block
+card after the power; any block card spends the doubling; previews read
+doubled while the power is up and unspent, so a second block card in such a
+plan is halved back, and a block played earlier in the turn (turn memory)
+means single previews. Three tests, 632 total. Ruling recorded in
+data/card_notes.json.
+
+Session ledger (2026-09-03/04): live 0/3, arm v1 7/40 (record), v2 1/6,
+v3 3/19, v4 2/21, v5 0/15, v6 0/1. Code this session: calibration hooks,
+pre-elite campfire, per-act floors, deck floor, Reattach (Decimillipede),
+replan play-kind seeding + Stomp fix, refused-play net, Mecha Knight mode,
+Unmovable; data: catalog 479, move scripts re-harvested, enemy notes for
+Decimillipede + Mecha Knight; a config-load test.
+
 ## 2026-09-04c (Fable 5) -- arm v5 0/14; over-tuning lesson; arm v6 = v1 + the two n>=40 changes
 
 Arm v5 (deck floor 13, boss safety 1.4; then the Mecha Knight mode from run
