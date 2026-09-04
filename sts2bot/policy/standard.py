@@ -1621,6 +1621,9 @@ class StandardRouter:
         elite_entry_pct = ({2: w.elite_entry_min_hp_pct_act2,
                             3: w.elite_entry_min_hp_pct_act3}.get(act_now)
                            or w.elite_entry_min_hp_pct)
+        deck_too_small = bool(
+            w.elite_min_deck_cards
+            and len((player.deck if player else None) or []) < w.elite_min_deck_cards)
         EARLY_ROWS = 3  # first 3 rows of an act = the easy early normals (cf. build_combat_stats)
         _loss_default = {"monster_early": 5.0, "monster": 18.0, "elite": 32.0, "boss": 42.0}
 
@@ -1801,6 +1804,8 @@ class StandardRouter:
                 # entry floor (calibration arm): never route INTO an elite below
                 # this HP fraction -- era elite deaths entered at ~63% HP
                 if elite_entry_pct and hp < max_hp * elite_entry_pct:
+                    return hp_after, -w.route_death_penalty
+                if deck_too_small:  # near-starter deck: no elite yet (arm v4)
                     return hp_after, -w.route_death_penalty
             elif t == "boss":
                 hp_after = min(max_hp, hp + boss_entry_heal) - fight_loss("boss")

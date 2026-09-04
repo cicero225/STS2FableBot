@@ -5516,6 +5516,13 @@ def test_observed_elite_entry_floor_refuses_the_elite_when_hurt() -> None:
     # lift the floor: 45/80 with a 32-loss projection is survivable -> chase
     r.config.map.elite_entry_min_hp_pct = 0.0
     assert r.decide(parse_state(payload), LoopContext()).action.payload()["index"] == 0
+    # deck-size floor (arm v4): a starter deck (10 cards) below the floor never
+    # routes into the elite; at/above it the relic wins again
+    r.config.map.elite_min_deck_cards = 14
+    assert r.decide(parse_state(payload), LoopContext()).action.payload()["index"] == 1
+    r.config.map.elite_min_deck_cards = len(payload["player"]["deck"])
+    assert r.decide(parse_state(payload), LoopContext()).action.payload()["index"] == 0
+    r.config.map.elite_min_deck_cards = 0
     # per-act override (arm v3): act 2 gets its own floor; act 1 keeps the base
     r.config.map.elite_entry_min_hp_pct_act2 = 0.65
     payload["run"]["act"] = 2

@@ -347,6 +347,13 @@ class MapWeights(_Section):
     # Nexus). 0 = use elite_entry_min_hp_pct.
     elite_entry_min_hp_pct_act2: float = 0.0
     elite_entry_min_hp_pct_act3: float = 0.0
+    # Deck-size floor for elite routing (arm v4, 2026-09-03): with the rollout
+    # gate bypassed, near-starter decks walked into floor-7/8 elites -- arm act-1
+    # elite fights: deck <=13 cards 3 deaths / 28, deck 14: 1 / 31, deck >=15:
+    # 0 / 66 (Terror Eel x2 at 12 cards, Gardeners at 13, Effigy at 14). Below
+    # this many cards an elite node is priced death-class (owner: 'deck sanity
+    # gates ambition; the early fights are the test'). 0 = off (live).
+    elite_min_deck_cards: int = 0
     # Same lever for the boss: the DFS forecast read a >=90%-max-HP loss on
     # 61-99% of pre-boss evaluations (era, per boss) while actual act-1/2 boss
     # wins ran 59-86% -- so 'boss doomed' desperation was on ~81% of the time
