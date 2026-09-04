@@ -227,3 +227,18 @@ def test_experimental_setup_gate_routes_aeonglass_without_row_change() -> None:
                                        draw=[STRIKE] * 4, hp=70, energy=5),
                         scripts, experimental_setup=("AEONGLASS",))
     assert burst.mode == "race" and "burst-flip" in burst.rationale
+
+
+def test_choose_mode_mecha_knight_defends_the_big_turns() -> None:
+    """Act-3 elite Mecha Knight (corpus 3-cycle: BIG on T1/T4/T7..., 4-poke,
+    setup): 300 HP is never a kill-by-T4, so the mode is defend_deadline with
+    the script's cycle 3 -- the router then blocks on T4/T7/T10 and races the
+    poke and setup turns (arm deaths all came on a BIG turn with no block)."""
+    scripts = json.loads(Path("data/move_scripts.json").read_text(encoding="utf-8"))
+    assert scripts["Mecha Knight"]["cycle"] == 3
+    mk = NS(name="Mecha Knight", entity_id="MECHA_KNIGHT_0", hp=300, block=0)
+    plan = choose_mode([mk], _player(hand=[STRIKE] * 5, draw=[STRIKE] * 5, hp=70),
+                       scripts, current_round=2)
+    assert plan.mode == "defend_deadline"
+    assert plan.deadline_turn == 4
+    assert plan.detail.get("cycle") == 3

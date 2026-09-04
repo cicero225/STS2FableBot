@@ -13912,7 +13912,7 @@
  },
  "Mecha Knight": {
   "n_fights": 62,
-  "notes": "",
+  "notes": "CORPUS-VERIFIED 2026-09-04 over 62 fights (8 tapes read round by round): 300 HP, Artifact 2, Str 5. 3-CYCLE: BIG attack on T1/T4/T7/T10 escalating 25 -> 40 -> 45 -> ?; StatusCard turn with a 4 poke on T2/T5/T8; Defend+Buff setup on T3/T6/T9 (15 Block up on the following BIG turn). Deaths come on the T7/T10 BIG with no block in hand.",
   "turns": {
    "1": [
     {
@@ -14110,7 +14110,8 @@
     }
    ]
   },
-  "wake_anchored": false
+  "wake_anchored": false,
+  "cycle": 3
  },
  "Mysterious Knight": {
   "n_fights": 156,

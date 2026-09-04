@@ -291,6 +291,17 @@ FIGHT_MODE_TABLE: dict[str, dict] = {
                  "turn; card_cap handles) / Stomp 15 / Crush 17 +3 Str "
                  "permanent. Both phases ramp -> race is correct.",
     },
+    "MECHA KNIGHT": {  # act-3 ELITE (the table is name-keyed; choose_mode runs
+        # for every fight) -- corpus-verified 3-cycle over 62 fights, 2026-09-04
+        "rule": "kill_by_deadline",
+        "target": "Mecha Knight", "deadline": 4, "hp_floor": 25,
+        "notes": "BIG attack on T1/T4/T7/T10 escalating 25 -> 40 -> 45 -> ?, a "
+                 "4-dmg StatusCard poke on T2/T5/T8, Defend+Buff setup on "
+                 "T3/T6/T9 (15 Block up on the next BIG). 300 HP is never a "
+                 "kill-by-T4, so this resolves to defend_deadline with cycle 3: "
+                 "block-hoard on T4/T7/T10, race the poke and setup turns. Era "
+                 "3/14 + arm 3/7 deaths, all on a BIG turn with no block in hand.",
+    },
     "AEONGLASS": {
         "default": "race",
         "notes": "WIKI-VERIFIED 2026-08-13: 3-cycle Ebb 22+33Block / Eye Lasers "
