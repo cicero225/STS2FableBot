@@ -14,8 +14,8 @@
    "keywords": [],
    "exposure": {
     "times_picked": 0,
-    "times_won": 189,
-    "times_lost": 2797
+    "times_won": 194,
+    "times_lost": 2831
    }
   },
   "DEFEND_IRONCLAD": {
@@ -33,8 +33,8 @@
    ],
    "exposure": {
     "times_picked": 0,
-    "times_won": 195,
-    "times_lost": 2833
+    "times_won": 200,
+    "times_lost": 2868
    }
   },
   "BASH": {
@@ -52,8 +52,8 @@
    ],
    "exposure": {
     "times_picked": 0,
-    "times_won": 167,
-    "times_lost": 2630
+    "times_won": 171,
+    "times_lost": 2663
    }
   },
   "SETUP_STRIKE": {
@@ -70,9 +70,9 @@
     "Strength"
    ],
    "exposure": {
-    "times_picked": 483,
-    "times_won": 57,
-    "times_lost": 401
+    "times_picked": 489,
+    "times_won": 58,
+    "times_lost": 406
    }
   },
   "TREMBLE": {
@@ -90,9 +90,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 646,
-    "times_won": 57,
-    "times_lost": 577
+    "times_picked": 652,
+    "times_won": 58,
+    "times_lost": 584
    }
   },
   "BLOOD_WALL": {
@@ -109,9 +109,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 301,
-    "times_won": 22,
-    "times_lost": 292
+    "times_picked": 305,
+    "times_won": 24,
+    "times_lost": 295
    }
   },
   "SLIMED": {
@@ -145,9 +145,9 @@
    "text_upgraded": "Lose 1 HP. Deal 13 damage to ALL enemies.",
    "keywords": [],
    "exposure": {
-    "times_picked": 834,
-    "times_won": 75,
-    "times_lost": 676
+    "times_picked": 844,
+    "times_won": 76,
+    "times_lost": 683
    }
   },
   "INFLAME": {
@@ -164,9 +164,9 @@
     "Strength"
    ],
    "exposure": {
-    "times_picked": 817,
-    "times_won": 76,
-    "times_lost": 653
+    "times_picked": 835,
+    "times_won": 78,
+    "times_lost": 662
    }
   },
   "ANGER": {
@@ -181,9 +181,9 @@
    "text_upgraded": "Deal 8 damage. Add a copy of this card into your Discard Pile.",
    "keywords": [],
    "exposure": {
-    "times_picked": 726,
-    "times_won": 76,
-    "times_lost": 620
+    "times_picked": 733,
+    "times_won": 79,
+    "times_lost": 626
    }
   },
   "IRON_WAVE": {
@@ -200,9 +200,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 164,
+    "times_picked": 166,
     "times_won": 12,
-    "times_lost": 171
+    "times_lost": 174
    }
   },
   "DISMANTLE": {
@@ -219,9 +219,9 @@
     "Vulnerable"
    ],
    "exposure": {
-    "times_picked": 568,
-    "times_won": 49,
-    "times_lost": 480
+    "times_picked": 575,
+    "times_won": 50,
+    "times_lost": 484
    }
   },
   "CINDER": {
@@ -238,9 +238,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 127,
+    "times_picked": 129,
     "times_won": 16,
-    "times_lost": 134
+    "times_lost": 136
    }
   },
   "STOMP": {
@@ -255,9 +255,9 @@
    "text_upgraded": "Deal 15 damage to ALL enemies. Costs 1 less [ironclad_energy_icon.png] for each Attack played this turn.",
    "keywords": [],
    "exposure": {
-    "times_picked": 222,
-    "times_won": 18,
-    "times_lost": 227
+    "times_picked": 227,
+    "times_won": 20,
+    "times_lost": 231
    }
   },
   "SHRUG_IT_OFF": {
@@ -274,9 +274,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 664,
-    "times_won": 53,
-    "times_lost": 579
+    "times_picked": 675,
+    "times_won": 54,
+    "times_lost": 587
    }
   },
   "ARMAMENTS": {
@@ -293,9 +293,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 248,
-    "times_won": 12,
-    "times_lost": 262
+    "times_picked": 252,
+    "times_won": 14,
+    "times_lost": 264
    }
   },
   "THUNDERCLAP": {
@@ -312,9 +312,9 @@
     "Vulnerable"
    ],
    "exposure": {
-    "times_picked": 98,
+    "times_picked": 99,
     "times_won": 17,
-    "times_lost": 109
+    "times_lost": 110
    }
   },
   "RAGE": {
@@ -331,9 +331,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 57,
+    "times_picked": 58,
     "times_won": 9,
-    "times_lost": 83
+    "times_lost": 84
    }
   },
   "BATTLE_TRANCE": {
@@ -348,9 +348,9 @@
    "text_upgraded": "Draw 4 cards. You cannot draw additional cards this turn.",
    "keywords": [],
    "exposure": {
-    "times_picked": 956,
-    "times_won": 93,
-    "times_lost": 742
+    "times_picked": 970,
+    "times_won": 95,
+    "times_lost": 751
    }
   },
   "TRUE_GRIT": {
@@ -368,9 +368,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 1177,
-    "times_won": 80,
-    "times_lost": 960
+    "times_picked": 1193,
+    "times_won": 81,
+    "times_lost": 972
    }
   },
   "UPPERCUT": {
@@ -388,9 +388,9 @@
     "Vulnerable"
    ],
    "exposure": {
-    "times_picked": 821,
-    "times_won": 71,
-    "times_lost": 669
+    "times_picked": 831,
+    "times_won": 72,
+    "times_lost": 678
    }
   },
   "STRIKE_SILENT": {
@@ -1105,9 +1105,9 @@
    "text_upgraded": "Deal 9 damage. Increase this card's damage by 9 this combat.",
    "keywords": [],
    "exposure": {
-    "times_picked": 278,
-    "times_won": 15,
-    "times_lost": 258
+    "times_picked": 283,
+    "times_won": 16,
+    "times_lost": 263
    }
   },
   "BLOODLETTING": {
@@ -1124,9 +1124,9 @@
     "Energy"
    ],
    "exposure": {
-    "times_picked": 2565,
-    "times_won": 150,
-    "times_lost": 1681
+    "times_picked": 2593,
+    "times_won": 154,
+    "times_lost": 1699
    }
   },
   "BURNING_PACT": {
@@ -1143,9 +1143,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 786,
-    "times_won": 68,
-    "times_lost": 694
+    "times_picked": 793,
+    "times_won": 69,
+    "times_lost": 700
    }
   },
   "SECOND_WIND": {
@@ -1163,9 +1163,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 543,
+    "times_picked": 555,
     "times_won": 50,
-    "times_lost": 526
+    "times_lost": 538
    }
   },
   "PERFECTED_STRIKE": {
@@ -1180,9 +1180,9 @@
    "text_upgraded": "Deal 6 damage. Deals 3 additional damage for ALL your cards containing “Strike”.",
    "keywords": [],
    "exposure": {
-    "times_picked": 92,
+    "times_picked": 93,
     "times_won": 7,
-    "times_lost": 105
+    "times_lost": 107
    }
   },
   "PROLONG": {
@@ -1232,9 +1232,9 @@
    "character": "COLORLESS",
    "star_cost": null,
    "cost": "1",
-   "text": "Gain Block equal to Poison on ALL enemies. (Gain 0 Block) Exhaust.",
+   "text": "Gain Block equal to Poison on ALL enemies. Exhaust.",
    "cost_upgraded": "0",
-   "text_upgraded": "Gain Block equal to Poison on ALL enemies. (Gain 0 Block) Exhaust.",
+   "text_upgraded": "Gain Block equal to Poison on ALL enemies. Exhaust.",
    "keywords": [
     "Poison",
     "Block",
@@ -1261,9 +1261,9 @@
     "Innate"
    ],
    "exposure": {
-    "times_picked": 2,
+    "times_picked": 3,
     "times_won": 0,
-    "times_lost": 2
+    "times_lost": 3
    }
   },
   "POISONED_STAB": {
@@ -1785,9 +1785,9 @@
    "character": "NECROBINDER",
    "star_cost": null,
    "cost": "1",
-   "text": "Osty deals 7 damage. Hits an additional time for each other time he has attacked this turn. (Hits 0 times)",
+   "text": "Osty deals 7 damage. Hits an additional time for each other time he has attacked this turn.",
    "cost_upgraded": "1",
-   "text_upgraded": "Osty deals 9 damage. Hits an additional time for each other time he has attacked this turn. (Hits 0 times)",
+   "text_upgraded": "Osty deals 9 damage. Hits an additional time for each other time he has attacked this turn.",
    "keywords": [],
    "exposure": {
     "times_picked": 3,
@@ -1810,8 +1810,8 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 0,
-    "times_won": 0,
+    "times_picked": 1,
+    "times_won": 1,
     "times_lost": 0
    }
   },
@@ -1822,9 +1822,9 @@
    "character": "COLORLESS",
    "star_cost": null,
    "cost": "1",
-   "text": "Deal 5 damage for each Ethereal card played this combat. (Hits 0 times)",
+   "text": "Deal 5 damage for each Ethereal card played this combat.",
    "cost_upgraded": "1",
-   "text_upgraded": "Deal 7 damage for each Ethereal card played this combat. (Hits 0 times)",
+   "text_upgraded": "Deal 7 damage for each Ethereal card played this combat.",
    "keywords": [
     "Ethereal"
    ],
@@ -1931,7 +1931,7 @@
    "exposure": {
     "times_picked": 34,
     "times_won": 4,
-    "times_lost": 43
+    "times_lost": 45
    }
   },
   "FEED": {
@@ -1949,9 +1949,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 299,
+    "times_picked": 303,
     "times_won": 44,
-    "times_lost": 279
+    "times_lost": 284
    }
   },
   "JUGGLING": {
@@ -1968,7 +1968,7 @@
    "exposure": {
     "times_picked": 19,
     "times_won": 5,
-    "times_lost": 42
+    "times_lost": 43
    }
   },
   "HOWL_FROM_BEYOND": {
@@ -1985,9 +1985,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 300,
-    "times_won": 14,
-    "times_lost": 281
+    "times_picked": 307,
+    "times_won": 15,
+    "times_lost": 286
    }
   },
   "TWIN_STRIKE": {
@@ -2002,9 +2002,9 @@
    "text_upgraded": "Deal 7 damage twice.",
    "keywords": [],
    "exposure": {
-    "times_picked": 253,
+    "times_picked": 257,
     "times_won": 27,
-    "times_lost": 241
+    "times_lost": 245
    }
   },
   "POMMEL_STRIKE": {
@@ -2019,9 +2019,9 @@
    "text_upgraded": "Deal 10 damage. Draw 2 cards.",
    "keywords": [],
    "exposure": {
-    "times_picked": 1848,
-    "times_won": 109,
-    "times_lost": 1248
+    "times_picked": 1869,
+    "times_won": 110,
+    "times_lost": 1264
    }
   },
   "FEEL_NO_PAIN": {
@@ -2039,9 +2039,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 340,
-    "times_won": 35,
-    "times_lost": 344
+    "times_picked": 346,
+    "times_won": 36,
+    "times_lost": 351
    }
   },
   "FORGOTTEN_RITUAL": {
@@ -2059,9 +2059,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 794,
-    "times_won": 63,
-    "times_lost": 694
+    "times_picked": 803,
+    "times_won": 64,
+    "times_lost": 704
    }
   },
   "STAMPEDE": {
@@ -2077,7 +2077,7 @@
    "keywords": [],
    "exposure": {
     "times_picked": 237,
-    "times_won": 13,
+    "times_won": 14,
     "times_lost": 258
    }
   },
@@ -2097,7 +2097,7 @@
    "exposure": {
     "times_picked": 1,
     "times_won": 1,
-    "times_lost": 5
+    "times_lost": 6
    }
   },
   "HEMOKINESIS": {
@@ -2112,9 +2112,9 @@
    "text_upgraded": "Lose 2 HP. Deal 20 damage.",
    "keywords": [],
    "exposure": {
-    "times_picked": 504,
-    "times_won": 39,
-    "times_lost": 450
+    "times_picked": 511,
+    "times_won": 40,
+    "times_lost": 456
    }
   },
   "BLUDGEON": {
@@ -2129,9 +2129,9 @@
    "text_upgraded": "Deal 42 damage.",
    "keywords": [],
    "exposure": {
-    "times_picked": 306,
-    "times_won": 26,
-    "times_lost": 284
+    "times_picked": 311,
+    "times_won": 28,
+    "times_lost": 288
    }
   },
   "OMNISLICE": {
@@ -2146,9 +2146,9 @@
    "text_upgraded": "Deal 11 damage. Damage ALL other enemies equal to the damage dealt.",
    "keywords": [],
    "exposure": {
-    "times_picked": 46,
+    "times_picked": 48,
     "times_won": 5,
-    "times_lost": 51
+    "times_lost": 53
    }
   },
   "SALVO": {
@@ -2186,7 +2186,7 @@
    "exposure": {
     "times_picked": 0,
     "times_won": 0,
-    "times_lost": 227
+    "times_lost": 228
    }
   },
   "STONE_ARMOR": {
@@ -2204,9 +2204,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 772,
-    "times_won": 75,
-    "times_lost": 706
+    "times_picked": 789,
+    "times_won": 78,
+    "times_lost": 720
    }
   },
   "HEADBUTT": {
@@ -2221,9 +2221,9 @@
    "text_upgraded": "Deal 12 damage. Put a card from your Discard Pile on top of your Draw Pile.",
    "keywords": [],
    "exposure": {
-    "times_picked": 122,
+    "times_picked": 125,
     "times_won": 12,
-    "times_lost": 137
+    "times_lost": 140
    }
   },
   "CONFLAGRATION": {
@@ -2238,9 +2238,9 @@
    "text_upgraded": "Deal 2 damage to ALL enemies 5 times.",
    "keywords": [],
    "exposure": {
-    "times_picked": 471,
-    "times_won": 59,
-    "times_lost": 430
+    "times_picked": 475,
+    "times_won": 62,
+    "times_lost": 433
    }
   },
   "HAVOC": {
@@ -2276,9 +2276,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 289,
-    "times_won": 32,
-    "times_lost": 287
+    "times_picked": 296,
+    "times_won": 34,
+    "times_lost": 293
    }
   },
   "PURITY": {
@@ -2315,9 +2315,9 @@
     "Vulnerable"
    ],
    "exposure": {
-    "times_picked": 242,
-    "times_won": 18,
-    "times_lost": 241
+    "times_picked": 244,
+    "times_won": 19,
+    "times_lost": 242
    }
   },
   "INFECTION": {
@@ -2351,9 +2351,9 @@
    "text_upgraded": "Deal 8 damage to ALL enemies X times.",
    "keywords": [],
    "exposure": {
-    "times_picked": 389,
-    "times_won": 33,
-    "times_lost": 343
+    "times_picked": 392,
+    "times_won": 34,
+    "times_lost": 347
    }
   },
   "SPITE": {
@@ -2368,9 +2368,9 @@
    "text_upgraded": "Deal 5 damage. If you lost HP this turn, hits 3 times.",
    "keywords": [],
    "exposure": {
-    "times_picked": 673,
-    "times_won": 58,
-    "times_lost": 559
+    "times_picked": 685,
+    "times_won": 60,
+    "times_lost": 567
    }
   },
   "THRASH": {
@@ -2387,9 +2387,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 413,
-    "times_won": 46,
-    "times_lost": 385
+    "times_picked": 423,
+    "times_won": 48,
+    "times_lost": 394
    }
   },
   "COLOSSUS": {
@@ -2407,9 +2407,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 944,
-    "times_won": 80,
-    "times_lost": 829
+    "times_picked": 957,
+    "times_won": 82,
+    "times_lost": 839
    }
   },
   "BODY_SLAM": {
@@ -2419,16 +2419,16 @@
    "character": "COLORLESS",
    "star_cost": null,
    "cost": "1",
-   "text": "Deal damage equal to your Block. (Deals 0 damage)",
+   "text": "Deal damage equal to your Block.",
    "cost_upgraded": "0",
-   "text_upgraded": "Deal damage equal to your Block. (Deals 0 damage)",
+   "text_upgraded": "Deal damage equal to your Block.",
    "keywords": [
     "Block"
    ],
    "exposure": {
-    "times_picked": 60,
+    "times_picked": 62,
     "times_won": 15,
-    "times_lost": 70
+    "times_lost": 73
    }
   },
   "PILLAGE": {
@@ -2443,9 +2443,9 @@
    "text_upgraded": "Deal 9 damage. Draw cards until you draw a non-Attack card.",
    "keywords": [],
    "exposure": {
-    "times_picked": 231,
+    "times_picked": 237,
     "times_won": 13,
-    "times_lost": 227
+    "times_lost": 235
    }
   },
   "JACK_OF_ALL_TRADES": {
@@ -2479,9 +2479,9 @@
    "text_upgraded": "Deal 3 damage to a random enemy 4 times.",
    "keywords": [],
    "exposure": {
-    "times_picked": 399,
+    "times_picked": 401,
     "times_won": 42,
-    "times_lost": 356
+    "times_lost": 358
    }
   },
   "SPORE_MIND": {
@@ -2536,9 +2536,9 @@
     "Vulnerable"
    ],
    "exposure": {
-    "times_picked": 829,
-    "times_won": 65,
-    "times_lost": 676
+    "times_picked": 839,
+    "times_won": 66,
+    "times_lost": 683
    }
   },
   "UNRELENTING": {
@@ -2553,9 +2553,9 @@
    "text_upgraded": "Deal 20 damage. The next Attack you play costs 0 [ironclad_energy_icon.png].",
    "keywords": [],
    "exposure": {
-    "times_picked": 230,
-    "times_won": 21,
-    "times_lost": 217
+    "times_picked": 234,
+    "times_won": 22,
+    "times_lost": 219
    }
   },
   "VOLLEY": {
@@ -2590,7 +2590,7 @@
    ],
    "exposure": {
     "times_picked": 0,
-    "times_won": 1,
+    "times_won": 2,
     "times_lost": 4
    }
   },
@@ -2627,9 +2627,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 600,
-    "times_won": 59,
-    "times_lost": 558
+    "times_picked": 611,
+    "times_won": 61,
+    "times_lost": 566
    }
   },
   "NOT_YET": {
@@ -2646,9 +2646,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 254,
+    "times_picked": 255,
     "times_won": 24,
-    "times_lost": 261
+    "times_lost": 263
    }
   },
   "IMPERVIOUS": {
@@ -2666,9 +2666,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 447,
-    "times_won": 61,
-    "times_lost": 400
+    "times_picked": 452,
+    "times_won": 62,
+    "times_lost": 405
    }
   },
   "OFFERING": {
@@ -2686,9 +2686,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 583,
-    "times_won": 77,
-    "times_lost": 507
+    "times_picked": 596,
+    "times_won": 78,
+    "times_lost": 519
    }
   },
   "DAZED": {
@@ -2726,9 +2726,9 @@
     "Strength"
    ],
    "exposure": {
-    "times_picked": 146,
+    "times_picked": 148,
     "times_won": 14,
-    "times_lost": 173
+    "times_lost": 176
    }
   },
   "HAND_OF_GREED": {
@@ -2765,9 +2765,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 1244,
-    "times_won": 73,
-    "times_lost": 970
+    "times_picked": 1258,
+    "times_won": 75,
+    "times_lost": 980
    }
   },
   "DOMINATE": {
@@ -2786,9 +2786,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 913,
-    "times_won": 115,
-    "times_lost": 740
+    "times_picked": 929,
+    "times_won": 118,
+    "times_lost": 753
    }
   },
   "EXPECT_A_FIGHT": {
@@ -2798,16 +2798,16 @@
    "character": "COLORLESS",
    "star_cost": null,
    "cost": "2",
-   "text": "Gain [ironclad_energy_icon.png] for each Attack in your Hand. You cannot gain additional [ironclad_energy_icon.png] this turn. (Gain 0[ironclad_energy_icon.png])",
+   "text": "Gain [ironclad_energy_icon.png] for each Attack in your Hand. You cannot gain additional [ironclad_energy_icon.png] this turn.",
    "cost_upgraded": "1",
-   "text_upgraded": "Gain [ironclad_energy_icon.png] for each Attack in your Hand. You cannot gain additional [ironclad_energy_icon.png] this turn. (Gain 0[ironclad_energy_icon.png])",
+   "text_upgraded": "Gain [ironclad_energy_icon.png] for each Attack in your Hand. You cannot gain additional [ironclad_energy_icon.png] this turn.",
    "keywords": [
     "Energy"
    ],
    "exposure": {
-    "times_picked": 145,
-    "times_won": 13,
-    "times_lost": 156
+    "times_picked": 146,
+    "times_won": 14,
+    "times_lost": 157
    }
   },
   "FIGHT_ME": {
@@ -2824,9 +2824,9 @@
     "Strength"
    ],
    "exposure": {
-    "times_picked": 506,
-    "times_won": 56,
-    "times_lost": 416
+    "times_picked": 513,
+    "times_won": 58,
+    "times_lost": 419
    }
   },
   "FISTICUFFS": {
@@ -2843,9 +2843,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 48,
+    "times_picked": 50,
     "times_won": 8,
-    "times_lost": 46
+    "times_lost": 48
    }
   },
   "AUTOMATION": {
@@ -2881,7 +2881,7 @@
    "exposure": {
     "times_picked": 0,
     "times_won": 1,
-    "times_lost": 1
+    "times_lost": 2
    }
   },
   "ULTIMATE_DEFEND": {
@@ -2899,8 +2899,8 @@
    ],
    "exposure": {
     "times_picked": 42,
-    "times_won": 31,
-    "times_lost": 177
+    "times_won": 32,
+    "times_lost": 180
    }
   },
   "SECRET_WEAPON": {
@@ -2919,7 +2919,7 @@
    "exposure": {
     "times_picked": 0,
     "times_won": 1,
-    "times_lost": 3
+    "times_lost": 4
    }
   },
   "CRIMSON_MANTLE": {
@@ -2936,9 +2936,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 177,
-    "times_won": 25,
-    "times_lost": 172
+    "times_picked": 184,
+    "times_won": 27,
+    "times_lost": 179
    }
   },
   "BOLAS": {
@@ -2970,9 +2970,9 @@
    "text_upgraded": "This turn, your next 2 Attacks are played an extra time.",
    "keywords": [],
    "exposure": {
-    "times_picked": 71,
+    "times_picked": 72,
     "times_won": 10,
-    "times_lost": 94
+    "times_lost": 95
    }
   },
   "CRUELTY": {
@@ -2989,9 +2989,9 @@
     "Vulnerable"
    ],
    "exposure": {
-    "times_picked": 218,
+    "times_picked": 221,
     "times_won": 24,
-    "times_lost": 229
+    "times_lost": 232
    }
   },
   "PRIMAL_FORCE": {
@@ -3041,9 +3041,9 @@
    "character": "COLORLESS",
    "star_cost": null,
    "cost": "1",
-   "text": "Deal damage equal to the number of cards played this combat. (Deals 0 damage)",
+   "text": "Deal damage equal to the number of cards played this combat.",
    "cost_upgraded": "1",
-   "text_upgraded": "Retain. Deal damage equal to the number of cards played this combat. (Deals 0 damage)",
+   "text_upgraded": "Retain. Deal damage equal to the number of cards played this combat.",
    "keywords": [],
    "exposure": {
     "times_picked": 1,
@@ -3066,9 +3066,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 693,
-    "times_won": 60,
-    "times_lost": 604
+    "times_picked": 708,
+    "times_won": 63,
+    "times_lost": 615
    }
   },
   "FIEND_FIRE": {
@@ -3085,9 +3085,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 403,
-    "times_won": 48,
-    "times_lost": 381
+    "times_picked": 405,
+    "times_won": 49,
+    "times_lost": 382
    }
   },
   "DECAY": {
@@ -3105,8 +3105,8 @@
    ],
    "exposure": {
     "times_picked": 0,
-    "times_won": 13,
-    "times_lost": 166
+    "times_won": 14,
+    "times_lost": 170
    }
   },
   "CASCADE": {
@@ -3121,9 +3121,9 @@
    "text_upgraded": "Play the top X+1 cards of your Draw Pile.",
    "keywords": [],
    "exposure": {
-    "times_picked": 122,
+    "times_picked": 123,
     "times_won": 11,
-    "times_lost": 146
+    "times_lost": 148
    }
   },
   "TAUNT": {
@@ -3141,9 +3141,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 778,
-    "times_won": 87,
-    "times_lost": 658
+    "times_picked": 788,
+    "times_won": 90,
+    "times_lost": 665
    }
   },
   "DEMON_FORM": {
@@ -3160,9 +3160,9 @@
     "Strength"
    ],
    "exposure": {
-    "times_picked": 45,
-    "times_won": 4,
-    "times_lost": 64
+    "times_picked": 47,
+    "times_won": 5,
+    "times_lost": 65
    }
   },
   "INFERNAL_BLADE": {
@@ -3179,9 +3179,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 382,
-    "times_won": 36,
-    "times_lost": 317
+    "times_picked": 387,
+    "times_won": 38,
+    "times_lost": 321
    }
   },
   "SECRET_TECHNIQUE": {
@@ -3252,9 +3252,9 @@
     "Strength"
    ],
    "exposure": {
-    "times_picked": 389,
-    "times_won": 37,
-    "times_lost": 381
+    "times_picked": 396,
+    "times_won": 39,
+    "times_lost": 388
    }
   },
   "NORMALITY": {
@@ -3264,7 +3264,7 @@
    "character": "NONE",
    "star_cost": null,
    "cost": "0",
-   "text": "Unplayable. You cannot play more than 3 cards this turn. (3 cards left)",
+   "text": "Unplayable. You cannot play more than 3 cards this turn.",
    "cost_upgraded": null,
    "text_upgraded": null,
    "keywords": [
@@ -3289,8 +3289,8 @@
    "keywords": [],
    "exposure": {
     "times_picked": 34,
-    "times_won": 1,
-    "times_lost": 35
+    "times_won": 2,
+    "times_lost": 36
    }
   },
   "MIND_BLAST": {
@@ -3300,9 +3300,9 @@
    "character": "COLORLESS",
    "star_cost": null,
    "cost": "1",
-   "text": "Innate. Deal damage equal to the number of cards in your Draw Pile. (Deals 0 damage)",
+   "text": "Innate. Deal damage equal to the number of cards in your Draw Pile.",
    "cost_upgraded": "0",
-   "text_upgraded": "Innate. Deal damage equal to the number of cards in your Draw Pile. (Deals 0 damage)",
+   "text_upgraded": "Innate. Deal damage equal to the number of cards in your Draw Pile.",
    "keywords": [
     "Innate"
    ],
@@ -3368,8 +3368,8 @@
    ],
    "exposure": {
     "times_picked": 0,
-    "times_won": 48,
-    "times_lost": 346
+    "times_won": 49,
+    "times_lost": 352
    }
   },
   "POOR_SLEEP": {
@@ -3404,9 +3404,9 @@
    "text_upgraded": "Whenever you draw a card containing “Strike”, it is played against a random enemy.",
    "keywords": [],
    "exposure": {
-    "times_picked": 109,
-    "times_won": 7,
-    "times_lost": 129
+    "times_picked": 111,
+    "times_won": 8,
+    "times_lost": 130
    }
   },
   "DARK_EMBRACE": {
@@ -3423,9 +3423,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 127,
+    "times_picked": 128,
     "times_won": 11,
-    "times_lost": 171
+    "times_lost": 172
    }
   },
   "RELAX": {
@@ -3466,7 +3466,7 @@
    "exposure": {
     "times_picked": 1,
     "times_won": 0,
-    "times_lost": 12
+    "times_lost": 14
    }
   },
   "ASHEN_STRIKE": {
@@ -3483,9 +3483,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 650,
+    "times_picked": 656,
     "times_won": 54,
-    "times_lost": 566
+    "times_lost": 574
    }
   },
   "FINESSE": {
@@ -3593,9 +3593,9 @@
     "Strength"
    ],
    "exposure": {
-    "times_picked": 115,
+    "times_picked": 117,
     "times_won": 15,
-    "times_lost": 131
+    "times_lost": 133
    }
   },
   "THRUMMING_HATCHET": {
@@ -3629,9 +3629,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 106,
-    "times_won": 12,
-    "times_lost": 133
+    "times_picked": 107,
+    "times_won": 13,
+    "times_lost": 135
    }
   },
   "TOXIC": {
@@ -3686,7 +3686,7 @@
    "exposure": {
     "times_picked": 0,
     "times_won": 17,
-    "times_lost": 207
+    "times_lost": 210
    }
   },
   "THE_GAMBIT": {
@@ -3742,7 +3742,7 @@
    "exposure": {
     "times_picked": 21,
     "times_won": 2,
-    "times_lost": 25
+    "times_lost": 26
    }
   },
   "STOKE": {
@@ -3757,9 +3757,9 @@
    "text_upgraded": "Exhaust your Hand. Add 1 random Upgraded card into your Hand for each card Exhausted.",
    "keywords": [],
    "exposure": {
-    "times_picked": 331,
-    "times_won": 40,
-    "times_lost": 346
+    "times_picked": 340,
+    "times_won": 42,
+    "times_lost": 352
    }
   },
   "ULTIMATE_STRIKE": {
@@ -3774,9 +3774,9 @@
    "text_upgraded": "Deal 20 damage.",
    "keywords": [],
    "exposure": {
-    "times_picked": 40,
+    "times_picked": 42,
     "times_won": 5,
-    "times_lost": 42
+    "times_lost": 44
    }
   },
   "PYRE": {
@@ -3793,9 +3793,9 @@
     "Energy"
    ],
    "exposure": {
-    "times_picked": 442,
+    "times_picked": 449,
     "times_won": 44,
-    "times_lost": 407
+    "times_lost": 414
    }
   },
   "GREED": {
@@ -3815,7 +3815,7 @@
    "exposure": {
     "times_picked": 0,
     "times_won": 7,
-    "times_lost": 259
+    "times_lost": 260
    }
   },
   "INJURY": {
@@ -3834,7 +3834,7 @@
    "exposure": {
     "times_picked": 0,
     "times_won": 2,
-    "times_lost": 96
+    "times_lost": 98
    }
   },
   "WRITHE": {
@@ -3958,9 +3958,9 @@
    "text_upgraded": "Innate. At the start of your turn, put a random Attack from your Discard Pile into your Hand and Upgrade it.",
    "keywords": [],
    "exposure": {
-    "times_picked": 257,
+    "times_picked": 259,
     "times_won": 37,
-    "times_lost": 251
+    "times_lost": 253
    }
   },
   "DEBT": {
@@ -3995,8 +3995,8 @@
    "keywords": [],
    "exposure": {
     "times_picked": 0,
-    "times_won": 40,
-    "times_lost": 80
+    "times_won": 41,
+    "times_lost": 86
    }
   },
   "BURN": {
@@ -4068,7 +4068,7 @@
    "exposure": {
     "times_picked": 0,
     "times_won": 27,
-    "times_lost": 196
+    "times_lost": 199
    }
   },
   "SQUASH": {
@@ -4102,9 +4102,9 @@
    "text_upgraded": "Deal 7 damage. Hits an additional time for each time you lost HP this combat.",
    "keywords": [],
    "exposure": {
-    "times_picked": 240,
-    "times_won": 40,
-    "times_lost": 212
+    "times_picked": 248,
+    "times_won": 41,
+    "times_lost": 218
    }
   },
   "FOLLY": {
@@ -4127,7 +4127,7 @@
    "exposure": {
     "times_picked": 0,
     "times_won": 2,
-    "times_lost": 2
+    "times_lost": 3
    }
   },
   "JACKPOT": {
@@ -4159,9 +4159,9 @@
    "text_upgraded": "At the start of your turn, lose 1 HP. Whenever you lose HP on your turn, deal 9 damage to ALL enemies.",
    "keywords": [],
    "exposure": {
-    "times_picked": 60,
-    "times_won": 5,
-    "times_lost": 71
+    "times_picked": 62,
+    "times_won": 6,
+    "times_lost": 72
    }
   },
   "ETERNAL_ARMOR": {
@@ -4232,9 +4232,9 @@
    "text_upgraded": "If you have 3 or more cards in your Exhaust Pile, deal 23 damage to ALL enemies.",
    "keywords": [],
    "exposure": {
-    "times_picked": 467,
+    "times_picked": 473,
     "times_won": 54,
-    "times_lost": 432
+    "times_lost": 437
    }
   },
   "PREP_TIME": {
@@ -4290,8 +4290,8 @@
    ],
    "exposure": {
     "times_picked": 0,
-    "times_won": 10,
-    "times_lost": 129
+    "times_won": 11,
+    "times_lost": 132
    }
   },
   "WITHER": {
@@ -5259,7 +5259,7 @@
    "exposure": {
     "times_picked": 1,
     "times_won": 2,
-    "times_lost": 18
+    "times_lost": 21
    }
   },
   "WASTE_AWAY": {
@@ -5370,8 +5370,8 @@
    ],
    "exposure": {
     "times_picked": 0,
-    "times_won": 29,
-    "times_lost": 217
+    "times_won": 30,
+    "times_lost": 219
    }
   },
   "ENTHRALLED": {
@@ -5499,7 +5499,7 @@
    "exposure": {
     "times_picked": 0,
     "times_won": 3,
-    "times_lost": 25
+    "times_lost": 26
    }
   },
   "PREDATOR": {
@@ -5783,8 +5783,8 @@
     "Strength"
    ],
    "exposure": {
-    "times_picked": 3,
-    "times_won": 0,
+    "times_picked": 4,
+    "times_won": 1,
     "times_lost": 3
    }
   },
@@ -5820,8 +5820,8 @@
    "text_upgraded": "Draw 2 cards. Discard 2 cards.",
    "keywords": [],
    "exposure": {
-    "times_picked": 5,
-    "times_won": 0,
+    "times_picked": 6,
+    "times_won": 1,
     "times_lost": 5
    }
   },
@@ -6015,7 +6015,7 @@
    "exposure": {
     "times_picked": 0,
     "times_won": 5,
-    "times_lost": 38
+    "times_lost": 40
    }
   },
   "CURSE_OF_THE_BELL": {
@@ -6034,7 +6034,7 @@
    ],
    "exposure": {
     "times_picked": 0,
-    "times_won": 4,
+    "times_won": 5,
     "times_lost": 33
    }
   },
@@ -6265,9 +6265,9 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 2,
+    "times_picked": 3,
     "times_won": 0,
-    "times_lost": 2
+    "times_lost": 3
    }
   },
   "PARTICLE_WALL": {
@@ -6318,8 +6318,8 @@
    "text_upgraded": "Deal 16 damage. Deals 2 less damage for each other card in your Hand.",
    "keywords": [],
    "exposure": {
-    "times_picked": 3,
-    "times_won": 0,
+    "times_picked": 4,
+    "times_won": 1,
     "times_lost": 3
    }
   },
@@ -6728,9 +6728,9 @@
     "Energy"
    ],
    "exposure": {
-    "times_picked": 3,
+    "times_picked": 4,
     "times_won": 0,
-    "times_lost": 3
+    "times_lost": 4
    }
   },
   "BOUNCING_FLASK": {
@@ -7258,8 +7258,8 @@
    "text_upgraded": "If you play 5 or more cards in a turn, draw 2 cards at the start of your next turn.",
    "keywords": [],
    "exposure": {
-    "times_picked": 0,
-    "times_won": 0,
+    "times_picked": 1,
+    "times_won": 1,
     "times_lost": 0
    }
   },
@@ -7802,8 +7802,8 @@
    "text_upgraded": "Deal 9 damage. Deals 6 additional damage for each card drawn during your turn.",
    "keywords": [],
    "exposure": {
-    "times_picked": 1,
-    "times_won": 0,
+    "times_picked": 2,
+    "times_won": 1,
     "times_lost": 1
    }
   },
@@ -8013,9 +8013,9 @@
    "text_upgraded": "Deal 13 damage. Reduce this card's cost to 0 [defect_energy_icon.png].",
    "keywords": [],
    "exposure": {
-    "times_picked": 1,
+    "times_picked": 2,
     "times_won": 0,
-    "times_lost": 1
+    "times_lost": 2
    }
   },
   "ECHOING_SLASH": {
@@ -8100,9 +8100,9 @@
    "text_upgraded": "Deal 63 damage.",
    "keywords": [],
    "exposure": {
-    "times_picked": 1,
+    "times_picked": 2,
     "times_won": 0,
-    "times_lost": 1
+    "times_lost": 2
    }
   },
   "BULWARK": {
@@ -8275,8 +8275,8 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 5,
-    "times_won": 0,
+    "times_picked": 6,
+    "times_won": 1,
     "times_lost": 5
    }
   },
@@ -8429,8 +8429,8 @@
     "Block"
    ],
    "exposure": {
-    "times_picked": 2,
-    "times_won": 1,
+    "times_picked": 3,
+    "times_won": 2,
     "times_lost": 1
    }
   },
@@ -8448,9 +8448,9 @@
     "Exhaust"
    ],
    "exposure": {
-    "times_picked": 0,
+    "times_picked": 1,
     "times_won": 0,
-    "times_lost": 0
+    "times_lost": 1
    }
   },
   "TESLA_COIL": {
@@ -8978,6 +8978,23 @@
    "text": "Deal 7 damage to a random enemy twice.",
    "cost_upgraded": "1",
    "text_upgraded": "Deal 9 damage to a random enemy twice.",
+   "keywords": [],
+   "exposure": {
+    "times_picked": 0,
+    "times_won": 0,
+    "times_lost": 1
+   }
+  },
+  "HELLO_WORLD": {
+   "name": "Hello World",
+   "type": "Power",
+   "rarity": "Event",
+   "character": "NONE",
+   "star_cost": null,
+   "cost": "1",
+   "text": "At the start of your turn, add a random Common card into your Hand.",
+   "cost_upgraded": "1",
+   "text_upgraded": "Innate. At the start of your turn, add a random Common card into your Hand.",
    "keywords": [],
    "exposure": {
     "times_picked": 0,
