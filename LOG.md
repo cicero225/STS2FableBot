@@ -22,6 +22,16 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-03h (Fable 5) -- game crash mid-run; self-relaunch + batch resume (unattended)
+
+Arm v4 run 4 (f36, act 3) ended with 'connection forcibly closed' from the
+mod server, then no game process and port 15526 refusing -- a game crash,
+not an owner close (mid-fight reset, owner away). The batch halted on C5
+(abandon needs a live server). Relaunched the game (steam_appid procedure,
+Steam was up; menu in ~10s), verified profile 1, resumed the arm (36 runs).
+The crashed run's log carries no outcome (dataset marks it outcome_valid
+False). v4 so far: 1/3 clean (Aeonglass f48, WIN, Queen f48).
+
 ## 2026-09-03g (Fable 5) -- arm v3 on the fixed planner: 3/19; arm v4 adds a deck-size elite floor
 
 Arm v3 (3e9110e8a915, code 98a5472: Reattach + replan seeding + Stomp fix +
