@@ -22,6 +22,23 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-03g (Fable 5) -- arm v3 on the fixed planner: 3/19; arm v4 adds a deck-size elite floor
+
+Arm v3 (3e9110e8a915, code 98a5472: Reattach + replan seeding + Stomp fix +
+refused-play net) ran 19 clean runs: **3 wins**, 14/19 reaching an act boss,
+12/19 the act-3 boss (Test Subject x4, Queen x2, Aeonglass x2 among the
+losses -- the act-3 wall is now the dominant killer, as it should be). No
+stalls after the fix. Elite deaths: Gardeners f8 (13-card deck, 68%),
+Terror Eel f7 (12 cards, 76%), Mecha Knight f45. Arm-wide act-1 elite
+fights by deck size at entry: <=13 cards 3 deaths / 28, 14: 1 / 31, >=15:
+0 / 66 -- every small-deck death at floors 7-8. That's the shape the rollout
+gate used to catch by accident (0.0 win for starter decks) and the observed
+pricing can't see. 7d67186 adds elite_min_deck_cards (0 = off; elite nodes
+death-class below it); arm v4 (77d68d6, hash da2a70ea8227) sets 14 -- the
+DP re-plans each floor, so it mostly defers the first elite by a floor or
+two while the deck fills. Boundary-switched after v3 run 19, v4 launched.
+Session ledger: live 0/3, v1 7/40, v2 1/6, v3(pre-fix) 0/8, v3(fixed) 3/19.
+
 ## 2026-09-03f (Fable 5) -- the seeding fix regressed Stomp-class costs; stall safety net
 
 The relaunched v3 batch stalled on its FIRST run (151507, f4): Stomp 'costs
