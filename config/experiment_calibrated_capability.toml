@@ -11,6 +11,11 @@
 # the combat-modeling pass (Artifact/Pen Nib/healing/stun/Slippery/Weak-Frail were all code-only,
 # so they shared hash 6a29cd7f6549, validated clean in batch ble3lyl8a: Artifact confirmed live).
 
+# v6 (2026-09-04): v1's four keys + the two changes with n>=40 support --
+# rest.rest_before_elite_hp_pct 0.75 (v2) and rest.boss_safety_factor 1.4 (v5).
+# The per-act entry floors (v3) and deck-size floors (v4/v5) were tuned on 1-3
+# deaths each and the sub-arms drifted to 5/54 vs v1's 7/40; reverted.
+
 [combat]
 # one-turn planner scoring weights
 w_damage = 1.0              # per point of enemy HP removed
@@ -73,10 +78,9 @@ elite_loss_source = "observed"   # price elites from own history, HP projection 
 elite_loss_stat = "mean"         # 22 HP (era actual mean 23.5); p75 (35) still priced the seed's
                                  # f10 elite fork death-class (69 HP, no rest before row 15)
 elite_entry_min_hp_pct = 0.5      # never route INTO an elite below half HP
-elite_entry_min_hp_pct_act2 = 0.65  # v3: act-2/3 elite losses run wider (p75 38/43)
-elite_entry_min_hp_pct_act3 = 0.70
-elite_min_deck_cards = 13           # v5: 14 cut act-1 elites 1.9 -> 1.06/run and relics at the a1 boss
-                                    # back to the era's 4.9; 13 blocks only the 10-12-card starter decks
+elite_entry_min_hp_pct_act2 = 0.0   # v6: back to v1's flat 0.5 (per-act floors were n<=3 tuning)
+elite_entry_min_hp_pct_act3 = 0.0
+elite_min_deck_cards = 0             # v6: off (v4/v5 deck floors cut act-1 elites and relics; no win signal)
 boss_loss_source = "observed"     # rest gate / map DP / desperation on history, not DFS
 # node desirability by type (base scores; modified by state)
 score_monster = 10.0
