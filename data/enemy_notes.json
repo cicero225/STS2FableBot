@@ -86,5 +86,10 @@
   "mechanic": "Act-2 elite of 3 segments (40-46 HP each). Reattach (bestiary status text): 'If other segments are still alive, revives in 2 turns with 25 HP.' Killing one segment at a time is a treadmill -- arm v3 run 4 (2026-09-03) killed the same segment repeatedly for 12 rounds from a 74/80 entry and died; it was 3 of the calibration arm's first 7 elite deaths and 4/51 era deaths.",
   "modeled": "combat.py EnemySim.reattach (REATTACH id / 'revives in ... segment' text) + SimState.reattach_kills; _score cancels w_kill and charges w_reattach_futile_kill for segment kills that leave any segment alive at plan end, so the one-turn planner lowers all segments into range and kills them together. _fight_plan returns None for Reattach boards (no sweep kill bonus). AoE potions are held for it in act-2 normals (owner 2026-07-29).",
   "gaps": "The 2-turn revive window isn't planned across turns (a kill-all over two turns would also work); revive HP 25 hard-coded in the description, not the model."
+ },
+ "Mecha Knight": {
+  "mechanic": "Act-3 elite, 300 HP, Artifact 2, Strength 5 (bestiary). Intent cadence identical across 8 tapes (2026-09-03): a 3-round cycle -- round 1 BIG attack 25; round 2 small attack 4; round 3 two non-attack intents (it gains 15 Block for the next round); round 4 BIG 40-42; round 5 small 4; round 6 setup; round 7 BIG 45-46; round 8 small 4 ... i.e. BIG on rounds 1, 4, 7, 10 escalating roughly 25 -> 40 -> 45 -> (~50?), a 4 poke on 2, 5, 8 and a free setup round on 3, 6, 9 with 15 Block up on the following BIG round.",
+  "modeled": "Not yet. The one-turn planner sees each round's intent but has no cross-turn block plan: era 3/14 and arm 3/7 deaths (29%), typically dying to the round-7 BIG with no block in hand after spending block cards on the poke rounds. Candidate: move-script the cycle (data/move_scripts.json) so the forecast/potion lanes and a block-hoard lane see the next BIG; damage plan = race 300 HP in ~9 rounds needs ~35 dmg/round.",
+  "gaps": "The 4th big hit's size unobserved (no fight reached round 10 alive); whether the block is exactly 15 every cycle (one tape shows 7/14)."
  }
 }
