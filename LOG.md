@@ -22,6 +22,25 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-04c (Fable 5) -- arm v5 0/14; over-tuning lesson; arm v6 = v1 + the two n>=40 changes
+
+Arm v5 (deck floor 13, boss safety 1.4; then the Mecha Knight mode from run
+12) ran 0/14 across its two stubs. Sub-arm ledger since the planner fixes:
+v3 3/19, v4 2/21, v5 0/14 = **5/54 (9%)** vs v1's 7/40 (17.5%) and the era's
+9.6%. Neither gap is significant (p ~ 0.2), but the process was wrong: the
+per-act entry floors (v3) and both deck-size floors (v4/v5) were each set on
+1-3 deaths -- exactly the batch-statistics trap the owner warned about
+(snapshot A/Bs for small effects) -- and each one traded away act-1 elites
+and relics, the very lever v1 showed. Two changes DO have n>=40 support and
+stay: the pre-elite campfire rest (v2; the DP assumed a heal the campfire
+skipped) and rest.boss_safety_factor 1.4 (pre-boss smiths survived 72% vs
+87% after resting, n=40 each). Arm v6 (cad2cba, hash 440a99adf4b7) = v1's
+four keys + those two; the four code fixes (Reattach, replan seeding,
+refused-play net, Mecha Knight mode) ride along on every arm. Plan from
+here: v6 x40, then a fresh LIVE x40 on the fixed code (the 426-run era
+baseline predates the planner fixes), and no further config edits inside a
+batch unless a run stalls.
+
 ## 2026-09-04b (Fable 5) -- Mecha Knight decoded from the tapes; fight-mode row (defend the BIG turns)
 
 Arm v5 opened 0/10 with three act-3 elite deaths in nine runs (Mecha Knight
