@@ -110,6 +110,9 @@ class CombatWeights(_Section):
     w_weak: float = 5.0
     w_strength: float = 7.0
     w_draw: float = 3.0
+    # per playable card kept by a 'Retain your Hand' play (Equilibrium); a
+    # kept card is next turn's draw, discounted (owner catch 2026-09-10)
+    w_retain_card: float = 2.0
     # Energy-surplus draw judgment (owner rule, KD A/B 2026-08-14): when energy
     # exceeds the hand's non-basic value plays, drawn cards are USABLE this
     # turn -- scale draw credit up. At/below par, drawing keeps normal value

@@ -3732,3 +3732,24 @@ def test_free_lethal_beats_self_hp_lethal() -> None:
     assert "LETHAL" in d.rationale
     assert d.action.payload()["card_index"] in (3, 4)
     assert d.scores["hp_loss"] == 0.0
+
+
+def test_retain_hand_is_worth_playing_to_keep_a_good_card() -> None:
+    """Owner catch 2026-09-10 (Insatiable r1): a 0-cost Equilibrium (gain
+    block, Retain your Hand) sat unplayed because block was already up -- but
+    it would have carried Bloodletting into the next turn. With the retain
+    credit the planner plays it; with nothing worth keeping it still may not."""
+    w = load_policy_config().combat
+    st = _segments_fight([292])
+    st["battle"]["enemies"][0]["status"] = []
+    st["battle"]["enemies"][0]["intents"] = [{"type": "attack", "label": "6"}]
+    st["player"]["hp"], st["player"]["block"], st["player"]["energy"] = 68, 10, 1
+    st["player"]["hand"] = [
+        _bcard(0, "BLOODLETTING", "Bloodletting", 0,
+               "Lose 3 HP. Gain [ironclad_energy_icon.png][ironclad_energy_icon.png].",
+               "Skill", "None"),
+        _bcard(1, "EQUILIBRIUM", "Equilibrium", 0, "Gain 13 Block. Retain your Hand this turn.",
+               "Skill", "None")]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload().get("card_index") == 1
+    assert "Equilibrium" in d.rationale

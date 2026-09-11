@@ -588,6 +588,7 @@ class SimState:
     per_exhaust_block: int = 0  # Feel No Pain stacks: block gained per card Exhausted
     bound_played: bool = False  # a Bound card was played this turn (only one allowed)
     no_draw: bool = False  # Battle Trance rider active: further draws are dead
+    retain_hand: bool = False  # Equilibrium played: the unplayed hand is kept for next turn
     flat_bonus: float = 0.0  # accumulated per-play bonuses (Thrash growth credit)
     carryover_block: int = 0  # Prolong-class: block snapshotted for next turn's start
     smoggy: bool = False  # Living Fog's Smoggy: only ONE Skill playable per turn
@@ -1592,6 +1593,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         my_block=s.my_block + block_gain + tripled,
         draws=s.draws + (0 if s.no_draw else draw_gain),
         no_draw=s.no_draw or card.blocks_draw,
+        retain_hand=s.retain_hand or card.fx.retain_hand,
         energy=s.energy + energy_gain,
         self_damage=s.self_damage + card.fx.self_hp_cost,
         healing=s.healing + heal_applied,
@@ -1717,6 +1719,13 @@ def _score(
     eot = state.eot_relics
     # retained hand size at end of turn (potions aren't hand cards)
     retained = max(0, state.hand_size - (len(state.played) - state.potions_spent))
+    # Retain-your-Hand credit (owner catch 2026-09-10, Insatiable r1: a 0-cost
+    # Equilibrium went unplayed with block already up, and the Bloodletting it
+    # would have kept was discarded): each retained playable card is next
+    # turn's card in hand, priced as a draw-equivalent; statuses/curses earn
+    # nothing (they would rather leave).
+    retain_term = (w.w_retain_card * max(0, retained - state.purgeable_in_hand)
+                   if state.retain_hand and not lethal_end else 0.0)
     my_block_eff = state.my_block
     if state.end_turn_block and not lethal_end:  # Plating lands before the enemy turn
         my_block_eff += state.end_turn_block
@@ -1910,6 +1919,7 @@ def _score(
         # boost must not out-bid the potion-hoarding discipline
         + w.w_strength * state.potion_strength * (0.0 if lethal_end else 1.0)
         + w.w_draw * state.draws
+        + retain_term
         * (w.surplus_draw_mult if state.energy_surplus > 0 else 1.0)
         + energy_waste_term
         + w.w_play_friction * len(state.played)

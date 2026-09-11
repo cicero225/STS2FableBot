@@ -202,6 +202,10 @@ class CardEffects:
     # the combat sim fires them only on the play that EMPTIES the hand, and
     # the rollout zeroes them (its coarse deck cycle can't sequence the gate).
     requires_empty_hand: bool = False
+    # Equilibrium-class 'Retain your Hand this turn' (owner catch 2026-09-10):
+    # the unplayed hand rides into next turn -- a 0-cost Equilibrium with the
+    # block unneeded still pays when a Bloodletting would otherwise be lost.
+    retain_hand: bool = False
     # The Gambit-class: a rider that KILLS YOU under conditions no one-turn plan can certify
     # against ("If you take unblocked attack damage this combat, die.") — never play/draft.
     self_death_rider: bool = False
@@ -378,6 +382,7 @@ def parse_card_description(text: str | None) -> CardEffects:
             fx.recognized.append("replay")
     fx.conditional = bool(_CONDITIONAL.search(full))  # flag reads the FULL text
     fx.requires_empty_hand = bool(_IF_HAND_EMPTY.search(full))
+    fx.retain_hand = bool(re.search(r"retain your hand", full, re.IGNORECASE))
     if m := re.search(r"increase this card's damage by (\d+)", full, re.IGNORECASE):
         fx.grows_per_play = int(m.group(1))
     return fx
