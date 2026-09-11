@@ -1286,6 +1286,16 @@ def _router_for_routing() -> StandardRouter:
     return r
 
 
+def _rollout_router() -> StandardRouter:
+    """The pre-2026-09-11 live pricing (rollout elite gate + DFS boss forecast),
+    kept for the tests that pin those mechanisms now that policy.toml runs
+    observed-capability pricing."""
+    r = _router_for_routing()
+    r.config.map.elite_loss_source = "rollout"
+    r.config.map.boss_loss_source = "dfs"
+    return r
+
+
 def test_map_chases_survivable_elite_but_rests_when_hurt() -> None:
     payload = json.loads(json.dumps(FIXTURES["map"]))  # deep copy
     payload["map"]["next_options"] = [
@@ -1323,7 +1333,7 @@ def test_map_elite_gate_skips_elite_a_weak_deck_cannot_win() -> None:
     payload["player"]["hp"] = 80
     payload["player"]["max_hp"] = 80
     payload["player"]["deck"] = _STARTER_DECK  # can't win an elite -> gate shut
-    decision = _router_for_routing().decide(parse_state(payload), LoopContext())
+    decision = _rollout_router().decide(parse_state(payload), LoopContext())
     assert isinstance(decision, Decision)
     assert decision.action.payload()["index"] == 1  # the monster, not the unwinnable elite
 
@@ -2691,6 +2701,8 @@ def test_elite_gate_uses_real_bestiary_pool() -> None:
 
     for bestiary, expect_elite in (({}, True), (pool, False)):
         r = StandardRouter(combat_stats=stats, bestiary=bestiary)
+        r.config.map.elite_loss_source = "rollout"
+        r.config.map.boss_loss_source = "dfs"
         r.card_effects = _ROUTING_CARD_EFFECTS
         d = r.decide(parse_state(payload), LoopContext())
         assert isinstance(d, Decision)
@@ -3308,7 +3320,7 @@ def test_unwinnable_elite_lane_priced_death_class_at_commit_time() -> None:
                              "rarity": "Basic", "is_upgraded": False} for i in range(10)],
                    "status": [], "relics": [], "potions": [], "max_potion_slots": 3},
     }
-    d = _router_for_routing().decide(parse_state(payload), LoopContext())
+    d = _rollout_router().decide(parse_state(payload), LoopContext())
     assert isinstance(d, Decision)
     assert d.action.payload()["index"] == 1  # refuse the committed-elite lane at full HP
 
@@ -3749,6 +3761,7 @@ def test_pre_boss_rest_gate_uses_dfs_boss_estimate_when_cached() -> None:
     from sts2bot.policy.standard import StandardRouter
 
     r = StandardRouter(combat_stats=None, bestiary={})
+    r.config.map.boss_loss_source = "dfs"
     w = r.config.rest
     payload = json.loads(json.dumps(FIXTURES["rest_site"]))
     payload["player"]["max_hp"] = 90
@@ -4184,6 +4197,7 @@ def test_stage_boss_variant_passes_the_dfs_rest_gate_guard() -> None:
     from sts2bot.policy.standard import StandardRouter
 
     r = StandardRouter(combat_stats=None, bestiary={})
+    r.config.map.boss_loss_source = "dfs"
     ctx = LoopContext()
     ctx.screen_mem["act_boss_name"] = "Test Subject #C31"
     loss = r._dfs_boss_loss(
@@ -5490,7 +5504,7 @@ def test_observed_elite_pricing_chases_elite_with_a_starter_deck() -> None:
     payload["player"]["hp"] = 80
     payload["player"]["max_hp"] = 80
     payload["player"]["deck"] = _STARTER_DECK
-    assert _router_for_routing().decide(
+    assert _rollout_router().decide(
         parse_state(payload), LoopContext()).action.payload()["index"] == 1
     d = _calibrated_router().decide(parse_state(payload), LoopContext())
     assert isinstance(d, Decision)
