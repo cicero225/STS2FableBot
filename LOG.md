@@ -22,6 +22,31 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-11e (Fable 5) -- live control on the fixed code: 6/40; the code fixes lift live too
+
+Live control (policy.toml f0e54b35df1b, code 424cc60 = all planner fixes +
+the shop fix) ran 40/40: **6 wins (15.0%)** vs the with-bug era 9.6%
+(n=426). Shop buys/run 4.4 -> 6.2 (the shop fix), reach act 2 79% -> 85%;
+elites/run 0.82 (the rollout gate, as before), relics/run 9.1, reach act 3
+40%, act-3 boss 6/16. So the code fixes alone are worth roughly +5pp on
+live, and the observed-capability arm sits above that:
+
+| | era live | live (fixed code) | v1 arm x2 (fixed code) |
+|---|---|---|---|
+| wins | 9.6% (41/426) | 15.0% (6/40) | 17.5% (14/80) |
+| elites / run | 1.18 | 0.82 | 3.60 |
+| relics / run | 9.7 | 9.1 | 12.4 |
+| reach act 3 | 38% | 40% | 48% |
+| act-3 boss survival | 25% | 38% | 37% |
+
+Arm vs live on the same code is 2.5pp at n=80/40 -- not resolvable by
+these batches; the mechanism (3x the elites, +3 relics, +8pp reaching act
+3, identical act-3 boss survival) is the argument. Recommendation to the
+owner: promote v1's four [map] keys to policy.toml (elite_loss_source
+observed / mean, elite_entry_min_hp_pct 0.5, boss_loss_source observed);
+holding for their word since it is the live config. Meanwhile a third arm
+batch (same v1 hash) is running to grow n; alternate with live after.
+
 ## 2026-09-11d (Fable 5) -- v1 REPLICATED: 7/40 on the fixed code; live control launched
 
 The v1 replication (config bytes identical, hash 237a23779317; code 3fdba35
