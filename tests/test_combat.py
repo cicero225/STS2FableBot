@@ -3753,3 +3753,47 @@ def test_retain_hand_is_worth_playing_to_keep_a_good_card() -> None:
     d = plan_combat_turn(parse_state(st), w)
     assert d.action.payload().get("card_index") == 1
     assert "Equilibrium" in d.rationale
+
+
+# --- Cascade pile plays scale with X; death-wall hail mary (owner catch 2026-09-11) ---
+def test_cascade_pile_plays_scale_with_energy_at_play() -> None:
+    from sts2bot.policy.combat import _to_planned
+    st = _segments_fight([100])
+    st["player"]["hand"] = [
+        _bcard(0, "CASCADE", "Cascade+", "X", "Play the top X+1 cards of your Draw Pile.",
+               "Skill", "None"),
+        _bcard(1, "CASCADE", "Cascade", "X", "Play the top X cards of your Draw Pile.",
+               "Skill", "None"),
+        _bcard(2, "PEEK", "Peek", 1, "Play the top card of your Draw Pile.", "Skill", "None")]
+    hand = parse_state(st).player.hand
+    plus, base, one = (_to_planned(c, 3) for c in hand)
+    assert plus.pile_plays_scale_x and plus.pile_plays_bonus == 1
+    assert base.pile_plays_scale_x and base.pile_plays_bonus == 0
+    assert not one.pile_plays_scale_x and one.plays_pile_n == 1
+    s0 = SimState(energy=3, enemies=(_enemy(),), my_block=0, my_strength=0)
+    assert _apply_card(s0, plus, None).pile_plays == 4
+    assert _apply_card(s0, base, None).pile_plays == 3
+    assert _apply_card(SimState(energy=0, enemies=(_enemy(),), my_block=0, my_strength=0),
+                       plus, None).pile_plays == 1
+
+
+def test_death_wall_prefers_the_bigger_lottery_over_saving_3_hp() -> None:
+    """Test Subject death turn (owner 2026-09-11): 17 HP vs 10x3, hand
+    Cascade+ (X) and Bloodletting at 1 energy. Every line projects death;
+    Bloodletting -> Cascade+ at X=3 plays four pile cards (a real chance at
+    block) where Cascade+ alone at X=0 plays one. The bot played Cascade+
+    alone because the 3 HP still scored against a line already dead on paper."""
+    w = load_policy_config().combat
+    st = _segments_fight([296])
+    st["battle"]["enemies"][0]["status"] = []
+    st["battle"]["enemies"][0]["intents"] = [{"type": "attack", "label": "10x3"}]
+    st["player"]["hp"], st["player"]["energy"] = 17, 1
+    st["player"]["hand"] = [
+        _bcard(0, "CASCADE", "Cascade+", "X", "Play the top X+1 cards of your Draw Pile.",
+               "Skill", "None"),
+        _bcard(1, "BLOODLETTING", "Bloodletting", 0,
+               "Lose 3 HP. Gain [ironclad_energy_icon.png][ironclad_energy_icon.png].",
+               "Skill", "None")]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload()["card_index"] == 1
+    assert "plan [Bloodletting > Cascade+]" in d.rationale

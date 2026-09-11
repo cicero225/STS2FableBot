@@ -358,6 +358,12 @@ class PlannedCard:
     # undiscoverable — X baked to turn-start energy made pre-X plans read
     # unaffordable and X-first stranded the rest)
     is_x_cost: bool = False
+    # Cascade-class 'Play the top X(+1) cards': the count scales with the
+    # energy AT PLAY POSITION (owner catch 2026-09-11, Test Subject death
+    # turn: Cascade+ at X=0 chosen over Bloodletting -> Cascade+ at X=3, because
+    # the static parse read every X as one card)
+    pile_plays_scale_x: bool = False
+    pile_plays_bonus: int = 0
     # Stampede power (owner trap, noted long ago, implemented 2026-08-23):
     # its end-of-turn random attack hits a RANDOM enemy, flipping facing --
     # vs Kaiser back-attack claws that's a +50% incoming tax you no longer
@@ -778,6 +784,8 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
     # false LETHAL at 2 HP (57-HP Obscura, sim 63, game 45; survival lanes
     # suppressed, died with Stoke in hand). Only IN-PLAN exhaust events add.
     dmg_per_exhaust_event = int(m.group(1)) if (m := _PER_EXHAUST_PILE.search(desc)) else 0
+    _pp = re.search(r"play(?:s)? the (top|next) (?:(x\+1|x|\d+) )?cards?", low)
+
     return PlannedCard(
         index=card.index,
         name=card.name,
@@ -842,8 +850,11 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         ),
         plays_top_cards=bool(re.search(r"play(s)? the (top|next)", desc, re.IGNORECASE)),
         plays_pile_n=(
-            (cost + 1 if re.search(r"next x\+1 cards", low) else 1)
-            if re.search(r"play(s)? the (top|next)", desc, re.IGNORECASE) else 0),
+            (int(_pp.group(2)) if (_pp.group(2) or "").isdigit()
+             else (0 if _pp.group(2) else 1))
+            if _pp else 0),
+        pile_plays_scale_x=bool(_pp and (_pp.group(2) or "").lower().startswith("x")),
+        pile_plays_bonus=(1 if _pp and (_pp.group(2) or "").lower() == "x+1" else 0),
         stampede_power=bool(re.search(
             r"random attack in your hand is played", desc, re.IGNORECASE)),
         grows_on_exhaust=bool(_GROWS_ON_EXHAUST.search(desc)),
@@ -1312,6 +1323,8 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # turn-start hits are wrong mid-plan in both directions (owner
         # catch 2026-08-29: Rampage-then-Whirlwind undiscoverable)
         eff_cost = max(0, state.energy)
+        if card.pile_plays_scale_x:
+            card = replace(card, plays_pile_n=eff_cost + card.pile_plays_bonus)
         if card.fx.damage and card.fx.hits:
             # X=0 -> ZERO hits (the old max(1, X) bake gave 0-energy
             # Whirlwind a phantom 6 damage -- owner T6 catch 2026-08-29)
@@ -1783,6 +1796,13 @@ def _score(
     else:
         self_term = hp_weight * state.self_damage
     death_wall = w.w_projected_death if (projected_hp <= 0 and not lethal_end) else 0.0
+    if death_wall:
+        # every branch that projects death pays the same wall; the self-HP
+        # spent getting there is moot (the outright-suicide veto still holds
+        # in _to_planned), so the tie breaks on what might still avert it --
+        # pile plays, draws, damage -- not on Bloodletting's 3 HP (owner catch
+        # 2026-09-11: Cascade+ at X=0 chosen over Bloodletting -> Cascade+ X=3)
+        self_term = 0.0
     # quadratic focus-fire reward: concentrated damage beats spread damage, because
     # a finished enemy stops attacking (run 13: spread vs a 4-Nibbit pack = death)
     focus = sum(
@@ -2489,7 +2509,8 @@ def plan_combat_turn(
             eff_cost = sim.energy if card.is_x_cost else card.cost
             if card.fx.cost_less_per_attack:
                 eff_cost = max(0, card.cost
-                               - card.fx.cost_less_per_attack * sim.n_attacks_played)
+                               - card.fx.cost_less_per_attack
+                               * (sim.n_attacks_played - sim.n_attacks_played0))
             if eff_cost > sim.energy:
                 continue
             if card.bound and sim.bound_played:  # Chains of Binding: one Bound play/turn
