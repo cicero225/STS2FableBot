@@ -22,6 +22,21 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-10 (Fable 5) -- batches resume (arm v6 x40); owner catch: free lethal must beat a paid one
+
+Owner: "carry on". Game self-launched, profile 1 verified, arm v6 launched
+(40 runs, 440a99adf4b7, code 28aa3ea); a fresh live x40 follows it.
+
+Owner catch from the first run (f21 r5, hallway, Exoskeleton at 1 HP): the
+bot played Brand (lose 1 HP, +1 Str) into Tear Asunder+ for a 'lethal' when
+a Strike killed for free. Strength gain was already zeroed on lethal ends;
+the pull was the damage term crediting the bigger hit past the kill plus
+the energy-waste term rewarding a 2-energy spend over a 1-energy one.
+c331564: lethal turns credit damage net of overkill and charge no energy
+waste, so among lethal lines the cheapest (HP, cards) wins. Test; 633
+total. Code-only -- rides the next launch (the live control); the running
+v6 batch is left intact (no churn inside a batch).
+
 ## 2026-09-04d (Fable 5) -- boundary stop (owner needs the GPU); Unmovable modeled from an owner catch
 
 Owner back: "end at the conclusion of the current run". Arm v6 stopped after
