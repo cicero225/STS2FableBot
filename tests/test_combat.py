@@ -3708,3 +3708,27 @@ def test_block_before_unmovable_spends_the_doubling() -> None:
                                           fx=CardEffects(block=5), targets_enemy=False),
                               None)
     assert s_def_first.my_block == 10  # 5 + 5, no bonus anywhere
+
+
+def test_free_lethal_beats_self_hp_lethal() -> None:
+    """Owner catch 2026-09-10 (hallway, Exoskeleton at 1 HP): the bot played
+    Brand (lose 1 HP, +1 Str) into Tear Asunder+ for the kill when a Strike
+    was lethal for free -- overkill damage and energy spend out-bid the 1 HP.
+    On a lethal turn neither counts: the plain Strike must win."""
+    w = load_policy_config().combat
+    st = _segments_fight([1])
+    st["battle"]["enemies"][0]["status"] = []
+    st["player"]["hp"] = 71
+    st["player"]["hand"] = [
+        _bcard(0, "BRAND", "Brand", 0, "Lose 1 HP. Exhaust 1 card. Gain 1 Strength.",
+               "Skill", "None"),
+        _bcard(1, "TEAR_ASUNDER", "Tear Asunder+", 2,
+               "Deal 8 damage. Hits an additional time for each Strength.", "Attack",
+               "AnyEnemy"),
+        _bcard(2, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+        _bcard(3, "STRIKE_IRONCLAD", "Strike", 1, "Deal 7 damage.", "Attack", "AnyEnemy"),
+        _bcard(4, "STRIKE_IRONCLAD", "Strike", 1, "Deal 7 damage.", "Attack", "AnyEnemy")]
+    d = plan_combat_turn(parse_state(st), w)
+    assert "LETHAL" in d.rationale
+    assert d.action.payload()["card_index"] in (3, 4)
+    assert d.scores["hp_loss"] == 0.0

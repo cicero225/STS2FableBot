@@ -1824,6 +1824,12 @@ def _score(
     # underspend-toward-a-big-turn sequencing is multiturn-planner material.
     energy_waste_term = (w.w_banked_energy * max(0, state.energy) if "ICE_CREAM" in eot
                          else w.w_energy_waste * max(0, state.energy))
+    if lethal_end:
+        # the fight ends this turn: unspent energy is not waste and damage
+        # past the kill is not progress (owner catch 2026-09-10: Brand -> Tear
+        # Asunder+ 'lethal' on a 1-HP Exoskeleton, losing 1 HP, when a Strike
+        # was lethal for free -- the extra damage and energy spend out-bid it)
+        energy_waste_term = 0.0
     return (
         eot_term
         + stampede_term
@@ -1832,7 +1838,8 @@ def _score(
         # "setup" (setup-then-burst, owner 2026-08-18): a banked turn dampens
         # immediate-damage credit -- powers/draws/scaling outbid chip damage --
         # but a lethal end always keeps full value (never decline the kill)
-        + w.w_damage * state.damage_dealt
+        + w.w_damage * (max(0, state.damage_dealt - state.overkill) if lethal_end
+                        else state.damage_dealt)
         * (w.setup_damage_mult if fight_plan == "setup" and not lethal_end else 1.0)
         + w.w_kill * state.kills
         # Reattach (Decimillipede): a segment kill with any segment left alive
