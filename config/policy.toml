@@ -62,6 +62,17 @@ hp_cost_refuse_below = 0.45
 unknown_take_first_above = 0.70
 
 [map]
+# Observed-capability pricing (owner GO 2026-09-11). The elite gate's greedy
+# rollout and the DFS boss forecast carried no information (500-fight
+# calibration: <20%-rated elites won 88%, loss corr 0.18; boss forecast read a
+# full loss on 61-99% of pre-boss evaluations). Price elites from the bot's own
+# history (combat_stats elite mean) with the HP projection + a 50% entry floor
+# governing, and the boss from history too. Two clean 40-run arm batches: 14/80
+# (17.5%) vs live 6/40 on the same fixed code; 3x the elites, +3 relics/run.
+elite_loss_source = "observed"
+elite_loss_stat = "mean"
+elite_entry_min_hp_pct = 0.5
+boss_loss_source = "observed"
 # node desirability by type (base scores; modified by state)
 score_monster = 10.0
 score_unknown = 12.0
