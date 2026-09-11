@@ -22,6 +22,22 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-11 (Fable 5) -- arm v6 0/10; the kept rest changes cost upgrades; v1 replicated byte-for-byte
+
+Arm v6 (v1 keys + pre-elite campfire rest + boss safety 1.4) ran 0/10
+across its two stubs; post-v1 arms 5/63 (8%) vs v1 7/40. A mechanism, not
+just variance: v6 rested 7.3x/run vs v1's 4.3 (smith 4.0 vs 4.9) and
+entered act 3 with 5.0 upgrades vs v1's 6.4 (era 6.9); act-3 boss wins
+0/5 vs v1's 7/17. Both kept changes were justified on HP survival and both
+convert campfires from upgrades to heals -- the act-3 wall is a damage
+check, so the trade lands exactly where the wins are lost. Reverted:
+f78014b restores v1's config BYTES (hash 237a23779317, verified), so this
+batch is a straight replication of the record batch on the fixed planner
+(Reattach, replan seeding, refused-play net, Mecha Knight mode, Unmovable,
+free-lethal, retain-hand). Boundary-switched after v6 run 9; 40 runs
+launched. If it holds near v1's level the rest rules stay out; a fresh
+live x40 follows either way.
+
 ## 2026-09-10 (Fable 5) -- batches resume (arm v6 x40); owner catch: free lethal must beat a paid one
 
 Owner: "carry on". Game self-launched, profile 1 verified, arm v6 launched
