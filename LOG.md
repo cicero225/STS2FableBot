@@ -22,6 +22,28 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-11c (Fable 5) -- owner catch: 1170 gold walked out of the act-3 shop; a shop bug since June
+
+Owner watching the replication's run 4: the act-3 shop before Aeonglass
+left with 1170 gold and NOTHING bought (removal 100g, Bag of Preparation
+160g at WAR +0.037, Stone Cracker, Royal Stamp, three potions with a free
+belt slot, an on-sale Evil Eye). Replay on a fresh context bought the
+removal first. Cause: screen_mem['shop_bought'] (the bought-THIS-shop index
+list) was created once per run and never cleared -- since 5c9c59d
+(2026-06-11), i.e. the ENTIRE record. Every index bought at an earlier shop
+was invisible at every later one, and shop indices are stable by slot
+(removal is always the last item, relics 7-9, potions 10-12), so: no run in
+the era EVER bought a second removal (493 runs at exactly 1, 56 at 0, none
+at 2+); shop #4+ visits averaged 1.27 buys vs 1.6 at shops 1-3, 31% left
+with zero buys, 10% left with zero buys AND >=200 gold. Fix fab6f08: keyed
+by floor like shop_card_buy; test. 637 tests.
+
+This is the largest single bug found this month and it hits act 3 hardest
+(the most gold, the most shops behind it). The replication batch is
+boundary-restarted on it (5 runs in: 0/5), so its 40 carry the fix; the
+live control follows on the same code. Note for the ledger: every prior
+batch, live and arm, ran with it.
+
 ## 2026-09-11b (Fable 5) -- owner catch on the Test Subject death turn: Cascade X + the death wall
 
 v6's last run died to Test Subject P3 at 17 HP vs 10x3 with Cascade+ (X)
