@@ -22,6 +22,35 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-11f (Fable 5) -- owner GO: observed-capability pricing promoted to live; pause; Cloak Clasp fix
+
+Owner: "Go ahead re: v1's four map keys... pause batches at the end of this
+run." b92cc58 promotes elite_loss_source observed / elite_loss_stat mean /
+elite_entry_min_hp_pct 0.5 / boss_loss_source observed into policy.toml
+(live hash 463619673047); c347c35 retires the arm file (its hash
+237a23779317 stays in the run logs). Six tests pinned the old rollout/DFS
+mechanisms through the default config -- re-pinned explicitly via a
+_rollout_router helper (f857249); the mechanisms remain, config-gated.
+Lesson banked the hard way twice today: never chain pytest through a pipe
+before a commit -- gate on the exit code.
+
+Arm batch 3 stopped at the run-4 boundary (0/4: Test Subject, Matriarch,
+Test Subject, Waterfall Giant), orphan abandoned, game closed, machine
+clean. Batches down until the owner's word; the next launch is plain
+'sts2bot play' on the promoted live config.
+
+Owner relic check, Cloak Clasp (bb8a49a): the end-of-turn hand count ignored
+in-plan draws (a Pommel Strike's two drawn cards earned no Clasp block) and
+did not subtract chooser / whole-hand exhausts; factored into _hand_at_end,
+shared by _score (Clasp, Screaming Flagon, retain credit) and the hp_loss
+diagnostic, which had also been missing the Clasp/Orichalcum block. 637
+tests.
+
+Session ledger (09-10/11): live-fixed 6/40, v1 repl. 7/40 (+1/6 stub), arm
+batch 3 0/4; promoted. Owner catches folded in today: Brand free-lethal,
+Equilibrium retain, Cascade X + death wall, the shop bought-list (June bug),
+Cloak Clasp.
+
 ## 2026-09-11e (Fable 5) -- live control on the fixed code: 6/40; the code fixes lift live too
 
 Live control (policy.toml f0e54b35df1b, code 424cc60 = all planner fixes +
