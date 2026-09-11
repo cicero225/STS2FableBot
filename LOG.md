@@ -37,6 +37,14 @@ waste, so among lethal lines the cheapest (HP, cards) wins. Test; 633
 total. Code-only -- rides the next launch (the live control); the running
 v6 batch is left intact (no churn inside a batch).
 
+Second owner catch (Insatiable r1, same run): a 0-cost Equilibrium (gain
+13 Block, Retain your Hand this turn) went unplayed with block already up
+against a 6 -- and the Bloodletting it would have kept was discarded. The
+planner had no notion of hand retention. 4dbfc7b: textparse retain_hand ->
+SimState -> _score credits w_retain_card 2.0 per retained playable card
+(statuses/curses nothing) on non-lethal turns. Test; 634 total. Also
+code-only, rides the next launch.
+
 ## 2026-09-04d (Fable 5) -- boundary stop (owner needs the GPU); Unmovable modeled from an owner catch
 
 Owner back: "end at the conclusion of the current run". Arm v6 stopped after
