@@ -1678,6 +1678,20 @@ def _fight_over(enemies) -> bool:
     return not any(e.hp <= 0 and e.spawns_on_death for e in enemies)
 
 
+def _hand_at_end(state: SimState) -> int:
+    """Cards still in hand at end of turn: the turn-start hand minus plays
+    (potions aren't hand cards), plus in-plan draws (10-card cap), minus
+    chooser exhausts; a whole-hand exhaust leaves nothing. Cloak Clasp,
+    Screaming Flagon, the retain credit and the hp_loss diagnostic read it
+    (owner check 2026-09-11: draws were not counted, so a Pommel Strike's
+    two drawn cards earned no Clasp block)."""
+    if state.hand_purged:
+        return 0
+    n = max(0, state.hand_size - (len(state.played) - state.potions_spent))
+    n = min(10, n + (0 if state.no_draw else state.draws))
+    return max(0, n - state.targeted_exhausts)
+
+
 def _score(
     state: SimState, w: CombatWeights, hp_pct: float = 1.0, power_horizon: float = 1.0,
     stranded_unblockable: dict[int, int] | None = None,
@@ -1734,8 +1748,12 @@ def _score(
             incoming += int(0.5 * sum(e.incoming for e in back if e is not faced))
     # Relic pass R2: end-of-turn conditionals evaluate on the plan's END state.
     eot = state.eot_relics
-    # retained hand size at end of turn (potions aren't hand cards)
-    retained = max(0, state.hand_size - (len(state.played) - state.potions_spent))
+    # hand size at end of turn (potions aren't hand cards): the turn-start hand
+    # minus plays, plus in-plan draws (capped at the 10-card hand), minus
+    # chooser exhausts; a whole-hand exhaust leaves nothing. Cloak Clasp and
+    # Screaming Flagon read this (owner check 2026-09-11: draws were not
+    # counted, so a Pommel Strike's two drawn cards earned no Clasp block).
+    retained = _hand_at_end(state)
     # Retain-your-Hand credit (owner catch 2026-09-10, Insatiable r1: a 0-cost
     # Equilibrium went unplayed with block already up, and the Bloodletting it
     # would have kept was discarded): each retained playable card is next
@@ -2644,6 +2662,11 @@ def plan_combat_turn(
     end_dmg = 0 if lethal else best_state.self_end_damage  # Disintegration, blockable
     # Plating's end-of-turn block joins the pool (mirrors _score; harness n=31)
     block_pool = best_state.my_block + (0 if lethal else best_state.end_turn_block)
+    if not lethal:  # end-of-turn relic block joins the pool (mirrors _score)
+        if "CLOAK_CLASP" in best_state.eot_relics:
+            block_pool += _hand_at_end(best_state)
+        if "ORICHALCUM" in best_state.eot_relics and block_pool == 0:
+            block_pool = 6
     hp_loss = (max(0, proj_incoming + extra_blockable + end_dmg - block_pool)
                + best_state.self_damage + extra_unblockable - best_state.healing)
     first_action = (

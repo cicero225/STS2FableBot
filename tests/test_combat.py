@@ -3797,3 +3797,26 @@ def test_death_wall_prefers_the_bigger_lottery_over_saving_3_hp() -> None:
     d = plan_combat_turn(parse_state(st), w)
     assert d.action.payload()["card_index"] == 1
     assert "plan [Bloodletting > Cascade+]" in d.rationale
+
+
+def test_cloak_clasp_counts_cards_drawn_this_turn() -> None:
+    """Owner relic check 2026-09-11: Cloak Clasp ('end of turn: 1 Block per
+    card in your Hand') must see the hand AFTER in-plan draws. Pommel Strike
+    (draw 2) with two Defends left behind -> 4 Clasp block, not 2."""
+    w = load_policy_config().combat
+    st = _segments_fight([60])
+    st["battle"]["enemies"][0]["status"] = []
+    st["battle"]["enemies"][0]["intents"] = [{"type": "attack", "label": "10"}]
+    st["player"]["energy"] = 1
+    st["player"]["relics"] = [{
+        "id": "CLOAK_CLASP", "name": "Cloak Clasp",
+        "description": "At the end of your turn, gain 1 Block for each card in your Hand."}]
+    st["player"]["hand"] = [
+        _bcard(0, "POMMEL_STRIKE", "Pommel Strike", 1, "Deal 9 damage. Draw 2 cards.",
+               "Attack", "AnyEnemy"),
+        _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+        _bcard(2, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None")]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload()["card_index"] == 0
+    # 10 incoming - (2 Defends held + 2 drawn) x 1 Clasp block = 6
+    assert d.scores["hp_loss"] == 6.0
