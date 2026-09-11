@@ -3441,7 +3441,16 @@ class StandardRouter:
         player = state.player
         gold = player.gold if player else 0
         reserve = w.removal_min_gold_reserve
-        bought = ctx.screen_mem.setdefault("shop_bought", [])
+        # bought-this-shop indices, keyed by FLOOR (owner catch 2026-09-11: the
+        # list was never cleared, so by the act-3 shop it excluded every index
+        # bought at earlier shops -- removal, two good relics, three potions and
+        # an on-sale card sat unbuyable at 1170 gold before Aeonglass)
+        floor_key = state.run.floor if state.run else -1
+        mem = ctx.screen_mem.get("shop_bought")
+        if not isinstance(mem, dict) or mem.get("floor") != floor_key:
+            mem = {"floor": floor_key, "idx": []}
+            ctx.screen_mem["shop_bought"] = mem
+        bought = mem["idx"]
         avail = [i for i in state.shop.items if i.is_stocked and i.index not in bought]
 
         # (Foul throws moved to the orchestrator, 2026-07-25: probe-proven that the

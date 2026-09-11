@@ -5596,3 +5596,28 @@ def test_pre_elite_campfire_flag_and_rest_rule() -> None:
     # no flag -> the rule never fires even when on
     r.config.rest.rest_before_elite_hp_pct = 0.75
     assert r.decide(parse_state(rest), ctx2).rationale.startswith("smith")
+
+
+def test_shop_bought_list_resets_between_shops() -> None:
+    """Owner catch 2026-09-11 (1170 gold walked out of the act-3 shop before
+    Aeonglass): the bought-this-shop index list lived in screen_mem for the
+    whole run, so every index bought at an earlier shop was invisible at every
+    later one. Same ctx, two shops on different floors: the removal bought at
+    the first must be buyable again at the second."""
+    deck = [_sc_card(0, "Strike")]
+    r = router()
+    ctx = LoopContext()
+    first = _shop_with_removal(100, deck=deck)
+    d1 = r.decide(first, ctx)
+    assert d1.action.payload() == {"action": "shop_purchase", "index": 10}
+    payload = json.loads(json.dumps(FIXTURES["shop"]))
+    payload["player"]["gold"] = 400
+    payload["player"]["deck"] = deck
+    payload["player"]["potions"] = [{"id": f"P{i}", "name": f"P{i}", "slot": i} for i in range(3)]
+    payload["player"]["max_potion_slots"] = 3
+    payload["run"]["floor"] = (payload["run"].get("floor") or 0) + 15
+    for it in payload["shop"]["items"]:
+        if it["category"] == "card_removal":
+            it["price"] = 100
+    d2 = r.decide(parse_state(payload), ctx)
+    assert d2.action.payload() == {"action": "shop_purchase", "index": 10}
