@@ -38,6 +38,8 @@ at 2+); shop #4+ visits averaged 1.27 buys vs 1.6 at shops 1-3, 31% left
 with zero buys, 10% left with zero buys AND >=200 gold. Fix fab6f08: keyed
 by floor like shop_card_buy; test. 637 tests.
 
+Pre-fix replication stub closed 1/6 (a WIN on its last run, seed
+E5U76PE2PE); relaunched on 3fdba35 with the fix for a clean 40.
 This is the largest single bug found this month and it hits act 3 hardest
 (the most gold, the most shops behind it). The replication batch is
 boundary-restarted on it (5 runs in: 0/5), so its 40 carry the fix; the
