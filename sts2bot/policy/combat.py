@@ -1323,8 +1323,6 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         # turn-start hits are wrong mid-plan in both directions (owner
         # catch 2026-08-29: Rampage-then-Whirlwind undiscoverable)
         eff_cost = max(0, state.energy)
-        if card.pile_plays_scale_x:
-            card = replace(card, plays_pile_n=eff_cost + card.pile_plays_bonus)
         if card.fx.damage and card.fx.hits:
             # X=0 -> ZERO hits (the old max(1, X) bake gave 0-energy
             # Whirlwind a phantom 6 damage -- owner T6 catch 2026-08-29)
@@ -1333,6 +1331,12 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         eff_cost = max(0, card.cost
                        - card.fx.cost_less_per_attack
                        * (state.n_attacks_played - state.n_attacks_played0))
+    if card.pile_plays_scale_x:
+        # Cascade-class: X resolves at play position for a live X-cost card; a
+        # card the game already shows at a fixed cost (X resolved, e.g. 0)
+        # plays that many (+1 for X+1)
+        x_now = max(0, state.energy) if card.is_x_cost else card.cost
+        card = replace(card, plays_pile_n=x_now + card.pile_plays_bonus)
     s = replace(
         state,
         energy=state.energy - eff_cost,
