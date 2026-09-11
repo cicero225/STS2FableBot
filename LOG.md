@@ -22,6 +22,28 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-11d (Fable 5) -- v1 REPLICATED: 7/40 on the fixed code; live control launched
+
+The v1 replication (config bytes identical, hash 237a23779317; code 3fdba35
+= all planner fixes + the shop fix) ran 40/40: **7 wins (17.5%)** -- the
+same count as the 09-03 record batch. Two clean 40-run batches of the v1
+configuration now stand at 14/80 (17.5%) vs the era live 41/426 (9.6%),
+about 2.2 sigma. The shop fix shows up underneath: shop buys/run 5.0 ->
+7.2, upgrades at act-3 entry 6.4 -> 7.5 (era 6.9), reach act 3 42% -> 52%
+(21 act-3 boss arrivals, 7 wins = 33%). Elites/run 3.7, relics/run 12.4
+(era 1.18 / 9.7). Deaths: 8 act-1 bosses, 8 act-2 bosses, 14 act-3 bosses,
+3 elites (Prism, Entomancer, Phrog), 3 normals -- the wall is now the act-3
+bosses, where the learned boss head (PLAN section 9) is the next lever.
+
+Ledger of the calibration line: v1 7/40, v2 1/6, v3 3/19, v4 2/21, v5
+0/15, v6 0/10, v1-replication 7/40 (plus a 1/6 pre-shop-fix stub). The
+kept-only-with-evidence rule held: the two batches with v1's exact keys are
+the two record batches; every tuned variant underperformed. The v1 config
+is the arm to promote once the live control on the same code reads --
+launched now (40 runs, policy.toml, hash f0e54b35df1b): if live also jumps
+on the fixed planner + shop fix, the gain is the code; if not, it is the
+observed-capability pricing. Both are wanted.
+
 ## 2026-09-11c (Fable 5) -- owner catch: 1170 gold walked out of the act-3 shop; a shop bug since June
 
 Owner watching the replication's run 4: the act-3 shop before Aeonglass
