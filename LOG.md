@@ -22,6 +22,20 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-11b (Fable 5) -- owner catch on the Test Subject death turn: Cascade X + the death wall
+
+v6's last run died to Test Subject P3 at 17 HP vs 10x3 with Cascade+ (X)
+and Bloodletting in hand at 1 energy: it played Cascade+ at X=0 (one pile
+card) and never touched Bloodletting -- Bloodletting -> Cascade+ X=3 plays
+four cards, a real shot at block. Two planner holes (e7e13fb): 'Play the top
+X(+1) cards' parsed to a static 1 for any X (so energy never mattered),
+now resolved at play position like X-cost hits; and under the projected-
+death wall the 3-HP self cost still decided the tie against the only line
+with variance -- self cost is now moot on death-walled lines (suicide veto
+intact). A third: the DFS affordability check for Stomp-class costs still
+skipped the seeding baseline (masked by the refused-play net); fixed. 636
+tests. Code-only, next launch.
+
 ## 2026-09-11 (Fable 5) -- arm v6 0/10; the kept rest changes cost upgrades; v1 replicated byte-for-byte
 
 Arm v6 (v1 keys + pre-elite campfire rest + boss safety 1.4) ran 0/10
