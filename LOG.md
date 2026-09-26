@@ -22,6 +22,25 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-26 (Fable 5) -- beta branch v0.111.0: mod fails to load; owner's "missing" profile is the modded save set
+
+Owner switched Steam to the public-beta branch (v0.111.0, updated 12:08) to
+play personally and found their profile missing. Disk + today's godot log:
+(1) the game launched still in MODDED mode (Settings -> Mods consent is
+persistent) and read modded/profile1..3 -- the bot's profiles -- so the
+owner's unmodded profile1 never appeared; (2) the owner's profile IS on
+disk: steam/<id>/profile1/saves/progress.save, 237,255 bytes, parses as
+JSON, byte-identical (sha256 4a9cac50...) to the copies in every full
+backup since 08-27 and to the Steam userdata copy; unchanged since 06-11
+(the owner's own play since then was on the bot's profile). (3) STS2_MCP
+fails to load on v0.111.0: TypeLoadException on
+MegaCrit.Sts2.Core.Entities.Multiplayer.LobbyPlayer -- the fork must be
+rebuilt against the new API before any batch (PLAN row). (4) The beta
+wrote modded/profile.save with a 1970 mtime, which broke backup_saves.py's
+zip (2136f4b clamps pre-1980 stamps); fresh full backup
+backups/20260926-121445 taken and verified. Advice to owner: disable mods
+in Settings and relaunch; nothing to restore unless that fails.
+
 ## 2026-09-11f (Fable 5) -- owner GO: observed-capability pricing promoted to live; pause; Cloak Clasp fix
 
 Owner: "Go ahead re: v1's four map keys... pause batches at the end of this
