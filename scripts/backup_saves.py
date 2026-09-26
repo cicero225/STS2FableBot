@@ -46,7 +46,16 @@ def zip_dir(src: Path, dest_zip: Path) -> int:
     with zipfile.ZipFile(dest_zip, "w", zipfile.ZIP_DEFLATED) as zf:
         for path in src.rglob("*"):
             if path.is_file():
-                zf.write(path, path.relative_to(src))
+                try:
+                    zf.write(path, path.relative_to(src))
+                except ValueError:
+                    # zip can't store mtimes before 1980 (2026-09-26: the v0.111
+                    # beta wrote modded/profile.save with a 1970 stamp); store
+                    # the bytes under a clamped timestamp rather than abort
+                    info = zipfile.ZipInfo(str(path.relative_to(src)).replace("\\", "/"),
+                                           date_time=(1980, 1, 1, 0, 0, 0))
+                    info.compress_type = zipfile.ZIP_DEFLATED
+                    zf.writestr(info, path.read_bytes())
                 count += 1
     return count
 
