@@ -50,6 +50,7 @@ formatting the bot never uses); builds clean against v0.111 (0 errors), DLL
 kept in external/builds/. Not installed (main branch = v0.107 DLL). Swap
 procedure in CLAUDE.md. Caveat: the v111 DLL bakes v0.111 lobby types into
 IL, so it is per-version -- one branch per game version, not one DLL.
+Owner confirmed: mods off, relaunch, profile back. Nothing restored.
 
 ## 2026-09-11f (Fable 5) -- owner GO: observed-capability pricing promoted to live; pause; Cloak Clasp fix
 
