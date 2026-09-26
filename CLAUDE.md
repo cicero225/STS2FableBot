@@ -48,6 +48,12 @@ New owner decodes get recorded there in the same turn they're given. Trap: besti
   re-clone, check out the **`v107-fork` branch** — it carries the v0.107.1 game-API compat
   fix that used to live in `patches/STS2MCP-newbuild-fix.patch` (patch kept for reference;
   it no longer applies on top of the branch).
+  **Game patches break the mod** (2026-09-26: v0.111 public-beta threw TypeLoadException at
+  mod load). The `v111-fork` branch builds clean against v0.111 (lobby members read by
+  reflection); a built DLL sits in `external/builds/` (local only). When the main branch
+  updates: build the matching fork branch against the new game dir, copy the DLL to the
+  game's `mods/`, run `sts2bot doctor`. The bot's profile is `modded/profile1`; the owner's
+  personal profile is the UNMODDED `profile1` -- a launch with mods on shows only the modded set.
 
 ## Conventions
 

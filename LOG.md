@@ -41,6 +41,16 @@ zip (2136f4b clamps pre-1980 stamps); fresh full backup
 backups/20260926-121445 taken and verified. Advice to owner: disable mods
 in Settings and relaunch; nothing to restore unless that fails.
 
+Owner: "that's all it is... I will go back off beta for our run testing...
+the next time they patch for real it will break the mod, worth planning
+for." Done while the beta assemblies were on disk: fork branch v111-fork
+(local commit) reads StartRunLobby.MaxPlayers / LoadRunLobby.
+ConnectedPlayerIds by reflection (the only 4 compile errors; multiplayer
+formatting the bot never uses); builds clean against v0.111 (0 errors), DLL
+kept in external/builds/. Not installed (main branch = v0.107 DLL). Swap
+procedure in CLAUDE.md. Caveat: the v111 DLL bakes v0.111 lobby types into
+IL, so it is per-version -- one branch per game version, not one DLL.
+
 ## 2026-09-11f (Fable 5) -- owner GO: observed-capability pricing promoted to live; pause; Cloak Clasp fix
 
 Owner: "Go ahead re: v1's four map keys... pause batches at the end of this
