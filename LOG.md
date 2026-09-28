@@ -22,6 +22,35 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-28f (Fable 5) -- ROOT CAUSE: every batch since the branch switch ran at ascension 3..8
+
+While chasing the elite deaths (Skulking Colony f8, an elite with 0 deaths
+in 48 era fights), the enemy HPs gave it away: Terror Eel 150 not 140,
+Colony 80, Effigy 132, Matriarch 233, Insatiable 341 -- ascension scaling.
+The run metas confirm: all 70 promoted-config runs of 09-28 were at A3, A4,
+A5, A6 (33 runs), A7 and A8. Mechanism: the character-select handler sent
+set_ascension only when the requested level was truthy, so a requested A0
+never overrode the picker's REMEMBERED level, which climbs after each win;
+the picker sat at A3 after the 09-26 branch/profile shuffle and climbed
+to A8 on the bot's own ascension wins. Fix e22cc74 (`is not None`) plus a
+once-per-run WARNING in the batch output when the run's ascension differs
+from the requested one; the relaunched batch logged "set ascension 8 -> 0"
+and runs at A0.
+
+Ledger correction: the promoted-config batches (3/38, 2/19, 0/12) are
+ASCENSION runs -- 5 wins at A3-A8 with the A0-tuned policy, not comparable
+to anything. There is no A0 sample of the promoted config yet; the v1
+configuration at A0 stands at 15/90 (arm batches + the 09-11 replication,
+with the 09-03 batch: 237a23779317 A0 = 15/90 incl. stubs). The committed-
+elite tail check (bbcc810) was motivated by A3-A8 tapes; it is principled
+and stays, but its expected effect at A0 is small. The pool-zero veto
+redone on A0 rows only (563 fights): act 3 6/57 (11%) vs 0/51 -- real;
+act 1 4/83 vs 4/191 and act 2 1/28 vs 5/153 -- noise. Knob made act-scoped
+(elite_veto_pool_min_win_min_act, 0 = off); recommendation to the owner:
+3. The deck-floor recommendation is withdrawn (it was ascension). The
+Decimillipede / Terror Eel forensics today were correct play against
+ascension-scaled bodies. Lesson banked: the loud guard.
+
 ## 2026-09-28e (Fable 5) -- batch 3 opens 0/10 with five elite deaths; the pool-zero veto (built, default off, owner's call)
 
 Batch 3 (promoted config + tail check): 0/10, elite deaths Terror Eel f7,
