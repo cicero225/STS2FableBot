@@ -924,6 +924,11 @@
     "expensive_attack": 1.0
    }
   },
+  "HEIRLOOM_HAMMER": {
+   "provides": {
+    "expensive_attack": 1.0
+   }
+  },
   "HELLRAISER": {
    "needs": [
     {
