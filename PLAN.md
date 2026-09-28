@@ -1485,6 +1485,22 @@ consumers, not as a pile of one-off rules.
 
 ## 9. Learning direction — value functions over the existing decision points (2026-08-27)
 
+**Stage 2 plan (owner-approved 2026-09-28).** The Stage-1 heads (win AUC .684,
+boss .757) are usable state evaluators but the ΔV pick signal is not (spread
+~0.02 inside model noise; picks are the bot's own choices -> confounded; 26%
+agreement). More rows of the same kind will not fix it: wins are 10% of runs and
+one card moves P(win) by ~1-2pp, and 47k draft rows are only ~3.2k independent
+outcomes. Plan: (1) keep batching on the fixed code (shop fix + observed
+capability pricing, from 2026-09-11) and RETRAIN both heads on that era only
+once it reaches ~300 runs (~106 at approval); (2) build the pick model on DENSE
+labels (hp_delta_next3 / beat_act_boss) with OFFERS as the unit (intention-
+to-treat framing, every offered card labelled by the run outcome -> no pick
+confounding by construction), deck context as features; (3) run it as a
+SHADOW re-ranker for several batches (log its pick beside the bot's; score the
+disagreements on the offer-counterfactual basis) before it drafts; (4) the
+retrained boss head becomes the act-3 capability estimate (the wall). Drafting
+stays on the tag tables + counterfactual docks meanwhile.
+
 Owner opened the RL question 2026-08-25 (spec: *"best possible bot in reasonable
 human-viewing time on my machine"* — seconds per decision OK, minutes not; consumer
 GPU at most). Agreed framing: **not end-to-end RL** — the bot stays search + evaluators;

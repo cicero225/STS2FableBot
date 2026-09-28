@@ -22,6 +22,18 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-28 (Fable 5) -- batches resume on the promoted live config; Stage-2 drafting plan approved
+
+Owner back on the main branch (v0.107.1, modded, profile 1) and launched
+the game for us: live batch x40 on the promoted policy.toml
+(463619673047). Owner asked whether the drafting model can be improved or
+is data-bound. Answer (PLAN section 9, approved): the label is the binding
+problem, not volume -- win is 10%/run, one card ~1-2pp, 47k draft rows are
+~3.2k independent outcomes; the Stage-1 ΔV pick signal was inside model
+noise and pick-confounded. Plan: retrain on the fixed-code era at ~300 runs;
+dense-label (hp_delta_next3 / beat_act_boss) offer-unit pick model; shadow
+re-ranker before it drafts; boss head as the act-3 capability estimate.
+
 ## 2026-09-26 (Fable 5) -- beta branch v0.111.0: mod fails to load; owner's "missing" profile is the modded save set
 
 Owner switched Steam to the public-beta branch (v0.111.0, updated 12:08) to
