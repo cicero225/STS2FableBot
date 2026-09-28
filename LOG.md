@@ -22,6 +22,26 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-28c (Fable 5) -- first live batch on the promoted config: 3/38 (+2 wedges); elite deaths the watch item
+
+Live batch 1 on policy.toml 463619673047 (code 2ce8b36..b1d1e0b, i.e. the
+replication code + Unmovable + Cloak Clasp): **3 wins / 38 clean runs
+(7.9%)**, two wedges recovered by the fork abandon (a Blood Vial chest that
+never registered as claimed -- the treasure-claim class; and a Dense
+Vegetation event double-pick that travelled into the pending fight, fixed
+same day, 39165a6). The observed-capability keys behaved as designed
+(elites/run 3.92, relics 11.1) but SEVEN elite deaths (Decimillipede at a
+forced-lane 20% entry, Entomancer x2, Soul Nexus, Infested Prism,
+Gardeners, Effigy) vs 6 across the two v1 arm batches (80 runs), and the
+act-3 boss went 3/14. Checked for a code regression: normal-fight HP loss
+is LOWER than the replication (a1 8.3 vs 9.0, a2 13.0 vs 15.6), false
+lethals negligible (4/649), the post-3fdba35 combat changes are relic-gated
+(Unmovable, Cloak Clasp); entry HP at elites ran 0.75 median vs 0.82. Verdict:
+variance until shown otherwise (7 vs the expected ~3 is p ~ 0.05). The v1
+configuration now stands at 17/118 (14.4%) over three batches vs the era's
+9.6%. Batch 2 launched on the same config with the Beat Down + event-hold
+code (39165a6); fixed-code sample ~125 runs toward the 300-run retrain.
+
 ## 2026-09-28b (Fable 5) -- Stage-2 trainer landed; owner catch: Beat Down ignored the discard pile
 
 Stage-2 pipeline (scripts/train_offer_model.py) built and proven on the
