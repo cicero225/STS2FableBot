@@ -5665,7 +5665,7 @@ def test_pool_zero_veto_refuses_the_elite_a_deck_cannot_beat() -> None:
     for veto, expect_elite in ((False, True), (True, False)):
         r = StandardRouter(combat_stats=stats, bestiary=pool)
         r.card_effects = _ROUTING_CARD_EFFECTS
-        r.config.map.elite_veto_pool_min_win = veto
+        r.config.map.elite_veto_pool_min_win_min_act = 1 if veto else 0
         d = r.decide(parse_state(payload), LoopContext())
         assert isinstance(d, Decision)
         assert (d.action.payload()["index"] == 0) == expect_elite, (veto, d.rationale, d.scores)

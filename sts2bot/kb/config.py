@@ -366,14 +366,13 @@ class MapWeights(_Section):
     # floor (the running projection keeps the mean). "" = off.
     elite_tail_stat: str = "p75"
     # Pool-zero veto (2026-09-28): under observed pricing the rollout gate's
-    # verdict is logged but not enforced -- a clean natural experiment over
-    # 810 elite fights. Its one informative call is the EXTREME: when any pool
-    # member rolls 0.0 win for this deck, the elite dies 8% / 9% / 9% (acts
-    # 1/2/3) vs 2% / 4% / 2% otherwise (Terror Eel x4 at floors 7-8 on
-    # starter decks). At the bot's ratios a death costs ~15-35pp of win chance
-    # per act and a forgone relic ~1pp, so refusing that stratum is net
-    # positive everywhere. Off by default (owner's call to flip).
-    elite_veto_pool_min_win: bool = False
+    # verdict is logged but not enforced -- a natural experiment. On A0 rows
+    # only (563 fights; the A3-A8 batches of 09-28 were an ascension slip and
+    # are excluded) its EXTREME call -- some pool member rolls 0.0 win for
+    # this deck -- separates deaths in ACT 3 (6/57 = 11% vs 0/51) and barely
+    # elsewhere (act 1: 4/83 vs 4/191; act 2: 1/28 vs 5/153). Applied from
+    # this act onward; 0 = off (owner's call; recommended 3).
+    elite_veto_pool_min_win_min_act: int = 0
     # Same lever for the boss: the DFS forecast read a >=90%-max-HP loss on
     # 61-99% of pre-boss evaluations (era, per boss) while actual act-1/2 boss
     # wins ran 59-86% -- so 'boss doomed' desperation was on ~81% of the time

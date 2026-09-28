@@ -1790,8 +1790,9 @@ class StandardRouter:
 
         # pool-zero veto (config.elite_veto_pool_min_win): the rollout gate's
         # extreme verdict -- some pool member rolls 0.0 win for this deck
-        pool_zero = bool(w.elite_veto_pool_min_win and gate_detail
-                         and gate_detail.get("gate_min_win") == 0.0)
+        pool_zero = bool(w.elite_veto_pool_min_win_min_act
+                         and act_now >= w.elite_veto_pool_min_win_min_act
+                         and gate_detail and gate_detail.get("gate_min_win") == 0.0)
 
         def fight_loss(key: str) -> float:
             # Owner 2026-07-13 (route-then-swerve forensics): the p75-of-own-history
