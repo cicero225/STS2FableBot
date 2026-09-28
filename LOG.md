@@ -39,8 +39,9 @@ when hp - p75 loss (35) reaches the death floor at that node's projected
 HP (config.map.elite_tail_stat, "" = off); the running projection and the
 node pricing keep the mean, so first elites are priced as before and only
 hurt-lane continuations are refused. 641 tests. Batch 2 will be boundary-
-restarted on it (its 18 runs stay on the ledger as promoted-config runs
-without the check). Whether the arm batches simply drew fewer double-elite
+restarted on it -- batch 2 closed 2/19 (Aeonglass f48 last), orphan
+abandoned, batch 3 launched on 53460fa (its runs stay on the ledger as
+promoted-config runs without the check). Whether the arm batches simply drew fewer double-elite
 maps is unknowable; the check is right regardless.
 
 ## 2026-09-28c (Fable 5) -- first live batch on the promoted config: 3/38 (+2 wedges); elite deaths the watch item
