@@ -1630,6 +1630,11 @@ class StandardRouter:
         deck_too_small = bool(
             w.elite_min_deck_cards
             and len((player.deck if player else None) or []) < w.elite_min_deck_cards)
+        # tail loss for the committed-elite check (config.elite_tail_stat)
+        elite_tail_loss: float | None = None
+        if w.elite_tail_stat and self.combat_stats is not None:
+            _tl = self.combat_stats.expected_loss("elite", stat=w.elite_tail_stat)
+            elite_tail_loss = float(_tl) if _tl is not None else None
         EARLY_ROWS = 3  # first 3 rows of an act = the easy early normals (cf. build_combat_stats)
         _loss_default = {"monster_early": 5.0, "monster": 18.0, "elite": 32.0, "boss": 42.0}
 
@@ -1812,6 +1817,12 @@ class StandardRouter:
                 if elite_entry_pct and hp < max_hp * elite_entry_pct:
                     return hp_after, -w.route_death_penalty
                 if deck_too_small:  # near-starter deck: no elite yet (arm v4)
+                    return hp_after, -w.route_death_penalty
+                # tail check: the running projection charges the MEAN, so a
+                # second elite on a committed lane is reached after a realized
+                # loss that beats the mean half the time -- require the tail
+                # loss to clear the death floor at THIS node's projected HP
+                if elite_tail_loss is not None and hp - elite_tail_loss <= death_floor:
                     return hp_after, -w.route_death_penalty
             elif t == "boss":
                 hp_after = min(max_hp, hp + boss_entry_heal) - fight_loss("boss")

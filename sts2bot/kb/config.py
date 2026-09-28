@@ -357,6 +357,14 @@ class MapWeights(_Section):
     # this many cards an elite node is priced death-class (owner: 'deck sanity
     # gates ambition; the early fights are the test'). 0 = off (live).
     elite_min_deck_cards: int = 0
+    # Tail check on committed elites (2026-09-28): the route projection charges
+    # each elite the MEAN loss (22), so a lane of elite -> treasure -> elite
+    # priced 63 -> 41 -> 19 and was taken; the first elite cost 52 and the
+    # second was forced at 11 HP (Byrdonis death, run 134217). Promoted-config
+    # batches: forced elites 8 deaths / 86 vs 2 / 128 in the arm batches. An
+    # elite node is death-class if hp - <this stat's loss> reaches the death
+    # floor (the running projection keeps the mean). "" = off.
+    elite_tail_stat: str = "p75"
     # Same lever for the boss: the DFS forecast read a >=90%-max-HP loss on
     # 61-99% of pre-boss evaluations (era, per boss) while actual act-1/2 boss
     # wins ran 59-86% -- so 'boss doomed' desperation was on ~81% of the time

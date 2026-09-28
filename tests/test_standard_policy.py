@@ -5590,6 +5590,53 @@ def test_observed_boss_pricing_bypasses_the_dfs_forecast() -> None:
     assert r._dfs_boss_loss(ctx, player, 1) is not None
 
 
+def test_committed_second_elite_is_tail_checked() -> None:
+    """Byrdonis death 2026-09-28 (run 134217): the route projection charged
+    each elite the MEAN loss, so elite -> treasure -> elite priced 63 -> 41 ->
+    19 and was taken; the first cost 52 and the second was forced at 11 HP.
+    With the tail check (p75 = 32 on the routing stats) the second elite at a
+    projected 39 HP reaches the death floor -> the lane is death-class and the
+    monster lane wins; with the check off the double-relic lane wins."""
+    def payload(hp: int) -> dict:
+        return {
+            "state_type": "map",
+            "map": {
+                "current_position": {"col": 2, "row": 0, "type": "Start"},
+                "visited": [],
+                "next_options": [
+                    {"index": 0, "col": 1, "row": 1, "type": "Elite",
+                     "leads_to": [{"col": 1, "row": 2, "type": "Treasure"}]},
+                    {"index": 1, "col": 3, "row": 1, "type": "Monster",
+                     "leads_to": [{"col": 3, "row": 2, "type": "Event"}]},
+                ],
+                "nodes": [
+                    {"col": 2, "row": 0, "type": "Start", "children": [[1, 1], [3, 1]]},
+                    {"col": 1, "row": 1, "type": "Elite", "children": [[1, 2]]},
+                    {"col": 1, "row": 2, "type": "Treasure", "children": [[1, 3]]},
+                    {"col": 1, "row": 3, "type": "Elite", "children": [[2, 4]]},
+                    {"col": 3, "row": 1, "type": "Monster", "children": [[3, 2]]},
+                    {"col": 3, "row": 2, "type": "Event", "children": [[3, 3]]},
+                    {"col": 3, "row": 3, "type": "Monster", "children": [[2, 4]]},
+                    {"col": 2, "row": 4, "type": "Event", "children": []},
+                ],
+                "boss": {"col": 2, "row": 5, "id": "B", "name": "Boss"},
+                "bosses": [],
+            },
+            "run": {"act": 1, "floor": 1, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80, "gold": 50,
+                       "status": [], "relics": [], "potions": [], "max_potion_slots": 3,
+                       "deck": _ELITE_READY_DECK},
+        }
+    r = _calibrated_router()
+    r.config.map.elite_entry_min_hp_pct = 0.0  # isolate the tail check from the entry floor
+    r.config.map.elite_tail_stat = ""
+    assert r.decide(parse_state(payload(60)), LoopContext()).action.payload()["index"] == 0
+    r.config.map.elite_tail_stat = "p75"
+    assert r.decide(parse_state(payload(60)), LoopContext()).action.payload()["index"] == 1
+    # at full HP the second elite's tail still clears the floor: the lane is fine
+    assert r.decide(parse_state(payload(80)), LoopContext()).action.payload()["index"] == 0
+
+
 def test_pre_elite_campfire_flag_and_rest_rule() -> None:
     """Arm v2 (2026-09-03): the map DP projects a HEAL at every campfire, yet the
     campfire policy smithed at 58-62% and the run walked into the elite it had
