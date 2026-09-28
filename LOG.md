@@ -22,6 +22,28 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-28b (Fable 5) -- Stage-2 trainer landed; owner catch: Beat Down ignored the discard pile
+
+Stage-2 pipeline (scripts/train_offer_model.py) built and proven on the
+08-27+ era: offer-unit rows (every offered card, ITT framing), dense labels;
+beat-boss head AUC 0.768, hp_delta_next3 corr 0.53, per-card model score
+recovers the model-free ITT ranking (rank corr 0.90 over 79 cards); on the
+87-run fixed-code era the same heads read 0.674 / 0.42 (14 cards) -- retrain
+at ~300 runs per the approved plan. Datasets now carry code_head.
+
+Owner catch (run 080713, Bygone Effigy at 14 HP): Beat Down ('Play 3 random
+Attacks from your Discard Pile') parsed to no damage; the discard held
+Strike+ 10 and Perfected Strike 20 -- lethal with margin -- and the bot
+played Defend/Defend/Strike instead and took the hit. 4dd561c: credit the
+pessimistic floor (N smallest attack damages in the visible discard);
+RandomEnemy cards submitted targetless. 640 tests. The owner's framing was
+right that deck-statistics plays are largely unmodeled; this one is exact
+because the pile is visible, so it was cheap to do now.
+
+Housekeeping: the auto-mode safety check was down for ~20 minutes mid-turn
+(shell tools refused); investigated the Beat Down turn read-only meanwhile.
+Catalog stale again (Caltrops, Heirloom Hammer, Skim) -- rebuilt.
+
 ## 2026-09-28 (Fable 5) -- batches resume on the promoted live config; Stage-2 drafting plan approved
 
 Owner back on the main branch (v0.107.1, modded, profile 1) and launched
