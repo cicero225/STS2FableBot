@@ -22,6 +22,27 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-28d (Fable 5) -- the elite-death excess explained: committed lanes priced at the mean; tail check shipped
+
+Batch 2 on the promoted config opened 2/18 with four more elite deaths
+(Terror Eel f15, Phrog f7, Entomancer f24, Byrdonis f11 -- Byrdonis had 0
+deaths in 71 era fights). Promoted batches: 11 elite deaths / 56 runs vs
+6 / 80 in the arm batches, config byte-identical (every key diffed), and no
+combat regression (normal-fight losses lower, elite losses per fight lower,
+false lethals negligible). The split that explains it: FORCED elites
+(single-option nodes, committed floors earlier) died 8/86 (9%) at a median
+71% entry vs 2/128 (2%) at 79% in the arms; non-forced entries unchanged.
+The Byrdonis tape: at f8 the DP priced elite -> treasure -> elite as
+63 -> 41 -> 19 (mean loss 22 each) and took the lane; the first elite cost
+52, the second was forced at 11 HP. bbcc810: an elite node is death-class
+when hp - p75 loss (35) reaches the death floor at that node's projected
+HP (config.map.elite_tail_stat, "" = off); the running projection and the
+node pricing keep the mean, so first elites are priced as before and only
+hurt-lane continuations are refused. 641 tests. Batch 2 will be boundary-
+restarted on it (its 18 runs stay on the ledger as promoted-config runs
+without the check). Whether the arm batches simply drew fewer double-elite
+maps is unknowable; the check is right regardless.
+
 ## 2026-09-28c (Fable 5) -- first live batch on the promoted config: 3/38 (+2 wedges); elite deaths the watch item
 
 Live batch 1 on policy.toml 463619673047 (code 2ce8b36..b1d1e0b, i.e. the
