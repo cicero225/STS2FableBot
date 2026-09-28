@@ -365,6 +365,15 @@ class MapWeights(_Section):
     # elite node is death-class if hp - <this stat's loss> reaches the death
     # floor (the running projection keeps the mean). "" = off.
     elite_tail_stat: str = "p75"
+    # Pool-zero veto (2026-09-28): under observed pricing the rollout gate's
+    # verdict is logged but not enforced -- a clean natural experiment over
+    # 810 elite fights. Its one informative call is the EXTREME: when any pool
+    # member rolls 0.0 win for this deck, the elite dies 8% / 9% / 9% (acts
+    # 1/2/3) vs 2% / 4% / 2% otherwise (Terror Eel x4 at floors 7-8 on
+    # starter decks). At the bot's ratios a death costs ~15-35pp of win chance
+    # per act and a forgone relic ~1pp, so refusing that stratum is net
+    # positive everywhere. Off by default (owner's call to flip).
+    elite_veto_pool_min_win: bool = False
     # Same lever for the boss: the DFS forecast read a >=90%-max-HP loss on
     # 61-99% of pre-boss evaluations (era, per boss) while actual act-1/2 boss
     # wins ran 59-86% -- so 'boss doomed' desperation was on ~81% of the time

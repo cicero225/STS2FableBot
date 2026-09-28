@@ -5637,6 +5637,40 @@ def test_committed_second_elite_is_tail_checked() -> None:
     assert r.decide(parse_state(payload(80)), LoopContext()).action.payload()["index"] == 0
 
 
+def test_pool_zero_veto_refuses_the_elite_a_deck_cannot_beat() -> None:
+    """2026-09-28: under observed pricing the rollout gate's verdict is logged
+    but not enforced; over 810 elite fights its EXTREME call (some pool member
+    at 0.0 win) marked an 8-9% death stratum vs 2-4% (Terror Eel x4 at floors
+    7-8 on starter decks). Off: the observed pricing takes the elite; on: a
+    pool with a body this deck rolls 0.0 against makes the node death-class."""
+    from sts2bot.kb.combat_stats import CombatStats
+    stats = CombatStats(by_type={
+        "monster_early": {"mean": 4.0, "p75": 5, "n": 99},
+        "monster": {"mean": 12.0, "p75": 18, "n": 99},
+        "elite": {"mean": 21.0, "p75": 32, "n": 99},
+        "boss": {"mean": 25.0, "p75": 42, "n": 99},
+    })
+    pool = {
+        "Terror Eel": {"roles": ["elite"], "acts": [1], "hp": [190, 190], "statuses": {}},
+        "Bygone Effigy": {"roles": ["elite"], "acts": [1], "hp": [180, 180], "statuses": {}},
+    }
+    payload = json.loads(json.dumps(FIXTURES["map"]))
+    payload["map"]["next_options"] = [
+        {"index": 0, "col": 1, "row": 3, "type": "Elite", "leads_to": []},
+        {"index": 1, "col": 2, "row": 3, "type": "Monster", "leads_to": []},
+    ]
+    payload["player"]["deck"] = _STARTER_DECK
+    payload["player"]["hp"] = 80
+    payload["player"]["max_hp"] = 80
+    for veto, expect_elite in ((False, True), (True, False)):
+        r = StandardRouter(combat_stats=stats, bestiary=pool)
+        r.card_effects = _ROUTING_CARD_EFFECTS
+        r.config.map.elite_veto_pool_min_win = veto
+        d = r.decide(parse_state(payload), LoopContext())
+        assert isinstance(d, Decision)
+        assert (d.action.payload()["index"] == 0) == expect_elite, (veto, d.rationale, d.scores)
+
+
 def test_pre_elite_campfire_flag_and_rest_rule() -> None:
     """Arm v2 (2026-09-03): the map DP projects a HEAL at every campfire, yet the
     campfire policy smithed at 58-62% and the run walked into the elite it had

@@ -1788,6 +1788,11 @@ class StandardRouter:
                     bo = estimate_fight(int(max_hp), deck_out, boss_members)
                     est_boss_loss = (max_hp - bo.exp_end_hp) if bo.win else max_hp
 
+        # pool-zero veto (config.elite_veto_pool_min_win): the rollout gate's
+        # extreme verdict -- some pool member rolls 0.0 win for this deck
+        pool_zero = bool(w.elite_veto_pool_min_win and gate_detail
+                         and gate_detail.get("gate_min_win") == 0.0)
+
         def fight_loss(key: str) -> float:
             # Owner 2026-07-13 (route-then-swerve forensics): the p75-of-own-history
             # projection is poisoned by dying runs — a full act projected 120+ HP of
@@ -1823,6 +1828,8 @@ class StandardRouter:
                 # loss that beats the mean half the time -- require the tail
                 # loss to clear the death floor at THIS node's projected HP
                 if elite_tail_loss is not None and hp - elite_tail_loss <= death_floor:
+                    return hp_after, -w.route_death_penalty
+                if pool_zero:  # a pool member this deck cannot beat: no elite yet
                     return hp_after, -w.route_death_penalty
             elif t == "boss":
                 hp_after = min(max_hp, hp + boss_entry_heal) - fight_loss("boss")
