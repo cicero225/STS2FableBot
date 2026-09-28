@@ -131,8 +131,12 @@ class TrivialRouter:
                     reason=f"MANUAL: requested character {ctx.character} is not selectable "
                     f"(locked or absent); screen has {state.selected_character}"
                 )
+            # 2026-09-28: `if ctx.ascension and ...` never fired for a requested
+            # A0, so the picker's REMEMBERED level (which climbs after each win)
+            # silently ran the bot at A3..A8 for three batches -- the "elite
+            # death excess" was ascension scaling. A requested 0 must override.
             if (
-                ctx.ascension
+                ctx.ascension is not None
                 and state.ascension is not None
                 and state.ascension != ctx.ascension
                 and not ctx.screen_mem.get("embark_sent")

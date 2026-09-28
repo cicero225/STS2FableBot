@@ -564,6 +564,17 @@ class AgentLoop:
             outcome.act = state.run.act
             outcome.floor = state.run.floor
             outcome.ascension = state.run.ascension
+            # Loud once-per-run guard (2026-09-28): three batches silently ran
+            # at A3..A8 because the picker's remembered level was never
+            # overridden by a requested A0 -- the run logs carried the truth
+            # (meta ascension) but nothing surfaced it at batch time.
+            if (state.run.ascension is not None
+                    and state.run.ascension != self.config.ascension
+                    and not ctx.screen_mem.get("asc_warned")):
+                ctx.screen_mem["asc_warned"] = True
+                print(f"  WARNING: run is at ascension {state.run.ascension}, "
+                      f"requested {self.config.ascension} -- results are not "
+                      "comparable to the requested level", flush=True)
         if state.player is not None:
             outcome.character = state.player.character
 

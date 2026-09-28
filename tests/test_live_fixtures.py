@@ -212,6 +212,18 @@ def test_ascension_zero_skips_set_ascension() -> None:
     assert d.action.payload()["option"] == "confirm"
 
 
+def test_requested_ascension_zero_overrides_a_remembered_level() -> None:
+    """2026-09-28: the picker REMEMBERS the last level and climbs after wins;
+    a requested A0 never overrode it (`if ctx.ascension and ...`), so three
+    batches ran at A3..A8 unnoticed. A requested 0 must set 0."""
+    d = TrivialRouter().decide(
+        _charselect_state("IRONCLAD", ascension=6, max_ascension=8),
+        LoopContext(character="IRONCLAD", ascension=0),
+    )
+    assert not isinstance(d, Wait)
+    assert d.action.payload() == {"action": "set_ascension", "level": 0}
+
+
 def test_embark_is_sent_only_once() -> None:
     """Observed live: character_select lingers after embark; re-confirming errors."""
     router = TrivialRouter()
