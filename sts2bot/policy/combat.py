@@ -311,6 +311,9 @@ class PlannedCard:
     # turn, double the amount gained' -- and it applies the turn it is played,
     # so it must be sequenced ahead of the first block card.
     grants_unmovable: bool = False
+    # RandomEnemy target_type (Beat Down): the sim targets it so damage credit
+    # lands, but the play is submitted without a click target
+    random_target: bool = False
     # Chooser exhausts (True Grit+ 'Exhaust 1 card.', Purity 'up to 3'): the
     # live hand_select prefers statuses/curses, so the DFS credits clearing
     # the worst stranded penalties (Aeonglass Withers — owner 2026-08-28:
@@ -665,7 +668,8 @@ class SimState:
 
 
 def _to_planned(card, energy: int, hand_attacks: int = 0,
-                exhaust_pile: int = 0, unupgraded_in_hand: int = 0) -> PlannedCard | None:
+                exhaust_pile: int = 0, unupgraded_in_hand: int = 0,
+                discard_attack_dmgs: tuple[int, ...] = ()) -> PlannedCard | None:
     # 'EnergyCostTooHigh' only gates on CURRENT energy, which the DFS re-checks per
     # state — dropping the card here made energy-gain chains structurally
     # undiscoverable (owner live catch 2026-07-30: Production[0]+Stomp[2] at 0 energy
@@ -785,6 +789,19 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
     # suppressed, died with Stoke in hand). Only IN-PLAN exhaust events add.
     dmg_per_exhaust_event = int(m.group(1)) if (m := _PER_EXHAUST_PILE.search(desc)) else 0
     _pp = re.search(r"play(?:s)? the (top|next) (?:(x\+1|x|\d+) )?cards?", low)
+    # Beat Down-class 'Play N random Attacks from your Discard Pile' (owner
+    # catch 2026-09-28, Bygone Effigy at 14 HP with Strike+ 10 and Perfected
+    # Strike 20 in the discard: the parse read no damage, the bot played
+    # Defend/Defend/Strike and took the hit). The discard is player-visible,
+    # so credit the PESSIMISTIC floor -- the N smallest attack damages there --
+    # which is exactly what a lethal certificate may rely on.
+    if m := re.search(r"play (\d+) random attacks? from your discard pile", low):
+        k = min(int(m.group(1)), len(discard_attack_dmgs))
+        floor_dmg = sum(sorted(discard_attack_dmgs)[:k]) if k else 0
+        if floor_dmg > 0:
+            fx.damage, fx.hits = floor_dmg, 1
+            if "damage" not in fx.recognized:
+                fx.recognized.append("damage")
 
     return PlannedCard(
         index=card.index,
@@ -866,6 +883,7 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
                                      r"(\d+)% damage", desc, re.IGNORECASE))
                   else 0.0),
         requires_target=(card.target_type == "AnyEnemy"),
+        random_target=(card.target_type == "RandomEnemy"),
         upgrades_in_hand=upgrades_in_hand,
         is_x_cost=is_x,
     )
@@ -2124,11 +2142,24 @@ def plan_combat_turn(
     # upgrade targets for Armaments-class riders: unupgraded OTHERS (the played card
     # leaves the hand before the upgrade resolves)
     unupgraded_in_hand = sum(1 for c in hand if not getattr(c, "is_upgraded", False))
+    # attack damages sitting in the (player-visible) discard pile, for the
+    # Beat Down-class 'play N random Attacks from your Discard Pile' floor;
+    # pile texts are resolved previews (Strength baked in), like hand texts
+    discard_dmgs: list[int] = []
+    for pc in (player.discard_pile or []):
+        pdesc = pc.description or ""
+        if re.search(r"random attacks? from your discard", pdesc, re.IGNORECASE):
+            continue  # another Beat Down is not an attack
+        pfx = parse_card_description(pdesc)
+        if pfx.damage > 0:
+            discard_dmgs.append(int(pfx.total_damage))
+    discard_attack_dmgs = tuple(discard_dmgs)
     playable = [
         c for c in (
             _to_planned(card, energy, hand_attacks, exhaust_pile,
                         max(0, unupgraded_in_hand
-                            - (0 if getattr(card, "is_upgraded", False) else 1)))
+                            - (0 if getattr(card, "is_upgraded", False) else 1)),
+                        discard_attack_dmgs=discard_attack_dmgs)
             for card in hand
             # a play the game REFUSED through the whole settle window this turn
             # (router refused_cards): never resubmit it -- the Stomp stall loop
@@ -2627,6 +2658,10 @@ def plan_combat_turn(
             and target is None:
         alive = [e for e in start.enemies if e.hp > 0]
         target = alive[0].entity_id if alive else None
+    if chosen.random_target:
+        # RandomEnemy cards (Beat Down) take no click target; the sim targeted
+        # them only so their damage credit could land
+        target = None
 
     plan_names = []
     for idx, _tgt in best_state.played:

@@ -3820,3 +3820,37 @@ def test_cloak_clasp_counts_cards_drawn_this_turn() -> None:
     assert d.action.payload()["card_index"] == 0
     # 10 incoming - (2 Defends held + 2 drawn) x 1 Clasp block = 6
     assert d.scores["hp_loss"] == 6.0
+
+
+def test_beat_down_reads_the_discard_pile_for_lethal() -> None:
+    """Owner catch 2026-09-28 (run 20260928-080713, Bygone Effigy at 14 HP):
+    Beat Down ('Play 3 random Attacks from your Discard Pile', 3 energy,
+    random target) parsed to no damage, so the bot played Defend/Defend/
+    Strike (8) and took the hit. The discard is player-visible: credit the
+    pessimistic floor (the N smallest attack damages there). With Strike+ 10
+    and Perfected Strike 20 in the discard the floor is 30 >= 14: lethal."""
+    w = load_policy_config().combat
+    st = _segments_fight([14])
+    st["battle"]["enemies"][0]["status"] = []
+    st["battle"]["enemies"][0]["intents"] = [{"type": "attack", "label": "12"}]
+    st["player"]["energy"] = 3
+    st["player"]["hand"] = [
+        _bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+        _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+        _bcard(2, "STRIKE_IRONCLAD", "Strike", 1, "Deal 8 damage.", "Attack", "AnyEnemy"),
+        _bcard(3, "BEAT_DOWN", "Beat Down", 3, "Play 3 random Attacks from your Discard Pile.",
+               "Skill", "RandomEnemy")]
+    st["player"]["discard_pile"] = [
+        {"name": "Strike+", "cost": "1", "description": "Deal 10 damage."},
+        {"name": "Perfected Strike", "cost": "2",
+         "description": "Deal 20 damage. Deals 2 additional damage for ALL your cards "
+                        "containing Strike."},
+        {"name": "Defend", "cost": "1", "description": "Gain 5 Block."}]
+    d = plan_combat_turn(parse_state(st), w)
+    assert d.action.payload()["card_index"] == 3
+    assert d.action.payload().get("target") is None  # random target: no click target
+    assert "LETHAL" in d.rationale
+    # an empty discard: Beat Down is worth nothing and must not be played over the Strike
+    st["player"]["discard_pile"] = []
+    d2 = plan_combat_turn(parse_state(st), w)
+    assert d2.action.payload()["card_index"] != 3
