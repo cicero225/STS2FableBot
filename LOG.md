@@ -22,6 +22,28 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-28e (Fable 5) -- batch 3 opens 0/10 with five elite deaths; the pool-zero veto (built, default off, owner's call)
+
+Batch 3 (promoted config + tail check): 0/10, elite deaths Terror Eel f7,
+Phrog f7, Decimillipede f28, Knights f44, Terror Eel f8 -- promoted config
+5/65 over three batches vs the arm's 14/80 on identical keys, the gap all
+elite deaths. Forensics: Decimillipede = a damage-vs-block valuation vs a
+three-body 150-HP elite (no bug); the floor-7/8 Eel deaths = basics decks
+(16 cards with two curses in the last) vs a 150-HP ramping Eel -- correct
+play, unwinnable fight. A card-count floor does not catch a 16-card
+starter, and the tally for a 13-card floor (5 deaths / 36 fights at <=12
+cards) is at best marginal.
+
+Better instrument found: under observed pricing the rollout gate still
+runs and LOGS its verdict without enforcing it -- a natural experiment over
+810 elite fights. Its extreme call (any pool member at 0.0 win for this
+deck) marks 8% / 9% / 9% death strata (acts 1/2/3) vs 2% / 4% / 2%; all
+four Eel deaths sit in it. A death costs ~15-35pp of win chance per act, a
+forgone relic ~1pp: refusing the stratum is net positive in every act and
+lifts the moment the deck can beat the pool's worst body. 9c5fdda ships
+config.map.elite_veto_pool_min_win (default OFF) + test; recommendation to
+the owner: turn it on (replaces the deck-floor recommendation). 642 tests.
+
 ## 2026-09-28d (Fable 5) -- the elite-death excess explained: committed lanes priced at the mean; tail check shipped
 
 Batch 2 on the promoted config opened 2/18 with four more elite deaths
