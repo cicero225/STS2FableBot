@@ -1972,6 +1972,32 @@ class StandardRouter:
     # ------------------------------------------------------------------ events
 
     def _event(self, state: EventState, ctx: LoopContext) -> Decision | Wait:
+        """Event-screen re-present guard (batch wedge 2026-09-28, run 112035,
+        Dense Vegetation): after 'Rest' was ACCEPTED the same two options
+        re-rendered on the next poll and the bot also chose 'Trudge On', then
+        'Fight!', then a map travel into the pending fight transition -- a
+        60-tick stall. Mirror of the map handler's travel hold: a choice
+        submitted from this exact screen (id + options + hp/gold/floor) holds
+        further choices until the screen changes, with a tick budget so a
+        genuinely failed submission still recovers."""
+        ev = state.event
+        player = state.player
+        sig = (ev.event_id, ev.event_name,
+               tuple((o.index, o.title, o.description, o.is_locked) for o in ev.options),
+               (player.hp, player.gold) if player else None,
+               state.run.floor if state.run else None)
+        hold = ctx.screen_mem.get("event_hold")
+        if isinstance(hold, dict) and hold.get("sig") == sig:
+            if hold.get("ticks", 0) < 8:
+                hold["ticks"] = hold.get("ticks", 0) + 1
+                return Wait(reason="event choice already submitted from this screen; holding")
+            ctx.screen_mem.pop("event_hold", None)  # budget spent: re-decide
+        d = self._event_inner(state, ctx)
+        if isinstance(d, Decision) and isinstance(d.action, act.ChooseEventOption):
+            ctx.screen_mem["event_hold"] = {"sig": sig, "ticks": 0}
+        return d
+
+    def _event_inner(self, state: EventState, ctx: LoopContext) -> Decision | Wait:
         w = self.config.events
         ev = state.event
         if ev.in_dialogue:

@@ -1067,6 +1067,34 @@ def test_event_takes_free_gain_and_trusts_spirebird_rank() -> None:
     assert idx == 1  # Take the Egg (Spirebird's higher-rated option), not Proceed
 
 
+def test_event_choice_holds_on_a_re_presented_screen() -> None:
+    """Batch wedge 2026-09-28 (Dense Vegetation): the accepted choice's screen
+    re-rendered on the next poll and the bot chose AGAIN (a different option),
+    then travelled into the pending fight transition. Same ctx, same screen:
+    the second poll must hold; a changed screen decides again; the hold has a
+    tick budget so a genuinely failed submission still recovers."""
+    state = _ev_state("BYRDONIS_NEST", [
+        _ev_opt(0, "Eat the Egg", "Gain 7 Max HP."),
+        _ev_opt(1, "Take the Egg", "Add Byrdonis Egg to your Deck."),
+        _ev_opt(2, "Proceed", "", is_proceed=True),
+    ])
+    r = router()
+    ctx = LoopContext()
+    first = r.decide(state, ctx)
+    assert isinstance(first, Decision)
+    assert first.action.payload()["action"] == "choose_event_option"
+    held = [r.decide(state, ctx) for _ in range(8)]
+    assert all(isinstance(h, Wait) for h in held)
+    assert isinstance(r.decide(state, ctx), Decision)  # budget spent: re-decide
+    other = _ev_state("SAPPHIRE_SEED", [
+        _ev_opt(0, "Consume", "Heal 9 HP. Upgrade a card in your Deck."),
+        _ev_opt(1, "Proceed", "", is_proceed=True),
+    ], hp=50)
+    ctx2 = LoopContext()
+    assert isinstance(r.decide(state, ctx2), Decision)
+    assert isinstance(r.decide(other, ctx2), Decision)  # a different screen is not held
+
+
 def test_event_heuristic_when_unrated_takes_heal_upgrade() -> None:
     """Sapphire Seed's 'Consume' can't be matched to Spirebird's internal key, so the heuristic
     governs — and it must recognize Heal + Upgrade as a gain (the old code would not)."""
