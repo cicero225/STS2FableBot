@@ -82,3 +82,21 @@ def test_auc_handles_ties_and_degenerate_labels():
     assert logreg.auc([1, 0, 1, 0], [0.5, 0.5, 0.5, 0.5]) == 0.5
     assert logreg.auc([1, 1], [0.2, 0.8]) != logreg.auc([1, 1], [0.2, 0.8]) \
         or True  # nan for single-class: just must not raise
+
+
+def test_offer_model_card_features_handle_both_needs_shapes():
+    """Stage 2 trainer (scripts/train_offer_model.py): the offered-card lens
+    reads the tag table's provides (weighted dict) and needs (list or dict)."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+    from train_offer_model import card_features
+
+    tags = {"FOO": {"provides": {"vulnerable_source": 2.0}, "needs": ["vulnerable_payoff"]},
+            "BAR": {"provides": {}, "needs": {"exhaust_enabler": 0.5}}}
+    f = card_features({"key": "FOO+", "type": "Attack", "rarity": "Uncommon", "cost": "2"}, tags)
+    assert f["card:FOO"] == 1.0 and f["cupg"] == 1.0
+    assert f["ctype:attack"] == 1.0 and f["crarity:uncommon"] == 1.0 and f["ccost:2"] == 1.0
+    assert f["ctag:vulnerable_source"] == 2.0 and f["cneed:vulnerable_payoff"] == 1.0
+    g = card_features({"key": "BAR", "cost": "X"}, tags)
+    assert g["ccost:x"] == 1.0 and g["cneed:exhaust_enabler"] == 0.5 and g["cupg"] == 0.0

@@ -249,6 +249,7 @@ def parse_run(run_dir: Path) -> dict[str, list[dict]] | None:
             "hp_boss_entry": boss_entry_hp.get(a),
             "hp_delta_next3": sum(nxt[:3]) if nxt else None,
             "config_hash": meta.get("config_hash"),
+            "code_head": meta.get("code_head"),
         })
         return row
 
@@ -256,12 +257,14 @@ def parse_run(run_dir: Path) -> dict[str, list[dict]] | None:
         f["outcome_valid"] = outcome_valid
         f["victory"] = victory if outcome_valid else None
         f["config_hash"] = meta.get("config_hash")
+        f["code_head"] = meta.get("code_head")
         f.pop("last_hp", None)
 
     run_row = {
         "run_id": run_id,
         "started_at": meta.get("started_at"),
         "config_hash": meta.get("config_hash"),
+        "code_head": meta.get("code_head"),
         "policy": meta.get("policy"),
         "character": o.get("character"),
         "ascension": o.get("ascension"),
