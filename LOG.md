@@ -44,6 +44,16 @@ both ways); no pool change (3 new cards = 0.4% of offers); composites
 identical (act reach 2.06 vs 2.05, relics 10.3 vs 11.0, elites 4.7 vs 4.9)
 -- the drought is boss closes. Pooled era at A0: 32/181 (17.7%).
 
+Run 22 WIN (JRHJNAL2SK), run 23 Bygone Effigy at floor 6 on an 11-card
+starter deck at 80/80 (Sleep -> Empower +10 Str -> 23/turn; 127 HP). Era
+data point, A0 promoted keys, act-1 elites: floor<=8 AND deck<=12 = 3
+deaths / 22 fights (14%, mean loss 30-74) vs 1/73 at floor<=8 with a
+bigger deck and 4/172 later in act 1. Same shape the withdrawn deck floor
+(arm v4/v5, overshot to 2/21) was aimed at; 3 deaths is not a tuning
+basis (owner steer) -- logged, config untouched. Observed-mean pricing
+(Effigy 17.7) cannot see deck strength; the boss/P(win) heads (PLAN 9)
+are the intended fix.
+
 ## 2026-09-03d (Fable 5) -- Decimillipede decoded from the bestiary text: Reattach modeled
 
 Arm v3 run 4 died to Decimillipede from a 74/80 entry after a 12-round grind:
