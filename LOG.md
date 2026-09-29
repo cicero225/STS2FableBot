@@ -2,6 +2,24 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-28i (Fable 5) -- batch 2 stopped at the run-28 boundary (owner's GPU): 3/28
+
+Owner asked (21:4x) to defer batches: their model training and the game
+were crowding the machine. Stopped at the end of run 28 (a WIN, H7FH6P2XWR);
+run 29 had just embarked (floor-1 map, no decisions) -> save_and_quit via
+the fork, game at the main menu with Continue available; no bot process
+left (the remaining python processes are VS Code's and the owner's jobs).
+
+Batch 2 partial (bx61vrvnv, code 7e51956, hash 463619673047, all 28 at A0):
+**3/28 (10.7%)** -- wins JRHJNAL2SK, GKAJZ7Q0M3, H7FH6P2XWR (runs 22, 25,
+28) after a 0/21 open. Act reach 1: 13, 2: 5, 3: 10. Killers: Matriarch 3,
+Aeonglass 3, Waterfall 3, Kaiser Crab 3, Queen 2, Phrog 2, Terror Eel 2,
+Kin/KD/TS/Prisms/Axebots 1. Act-1 deaths 13/28 (46%) vs the record batch's
+35% -- 8 act-1 bosses + 5 early elites. Pooled A0 on the promoted keys:
+26/148 (17.6%). Composites vs the record batch: act reach 1.93 vs ~2.05,
+relics 9.6, elites 4.4/run of 107 offered. Next: batch 3 tomorrow carries
+sleeper v4 + True Grit sequencing (Continue picks up run 29 first).
+
 ## 2026-09-28h (Fable 5) -- batch 2 opens 0/17; Matriarch poke-wakes root-caused (sleeper v4)
 
 Batch 2 at A0 on the promoted config (bx61vrvnv, same code/hash as the 9/40
