@@ -3854,3 +3854,87 @@ def test_beat_down_reads_the_discard_pile_for_lethal() -> None:
     st["player"]["discard_pile"] = []
     d2 = plan_combat_turn(parse_state(st), w)
     assert d2.action.payload()["card_index"] != 3
+
+
+def test_blocked_hit_into_a_sleeper_does_not_wake_her() -> None:
+    """2026-09-28 (A0 era: 9 of 11 Matriarch losses were poke-wakes on rounds
+    1-2). She 'Awakens upon losing HP': a hit her Plating block fully soaks
+    leaves her asleep and pays nothing. The old any-hit rule charged the
+    blocked Headbutt+ and then let the real waking Strike land free."""
+    from dataclasses import replace as dc_replace
+    sleeper = dc_replace(_enemy(asleep=True, asleep_left=3), block=12)
+    out = _apply_attack(_state(sleeper), 0, _attack(12))
+    assert out.enemies[0].hp == 100 and out.enemies[0].block == 0
+    assert out.enemies[0].asleep is True
+    assert out.sleepers_woken == 0 and out.wake_turns_forfeit == 0
+    # the follow-up that DOES lose her HP is the wake, and it pays
+    out2 = _apply_attack(out, 0, _attack(6))
+    assert out2.enemies[0].asleep is False and out2.sleepers_woken == 1
+
+
+def test_wake_penalty_scales_with_forfeited_setup_turns() -> None:
+    """The unit of w_wake_sleeper is one forfeited free turn (her per-turn
+    threat): 3 stacks left -> 2 turns, 2 -> 1, unknown -> 1 (the old flat
+    bar). With 1 stack she wakes on her own after this turn, so that hit
+    forfeits nothing and pays nothing."""
+    for left, forfeit in ((3, 2), (2, 1), (0, 1)):
+        out = _apply_attack(_state(_enemy(asleep=True, asleep_left=left)), 0, _attack(6))
+        assert out.enemies[0].asleep is False
+        assert (out.sleepers_woken, out.wake_turns_forfeit) == (1, forfeit), left
+    free = _apply_attack(_state(_enemy(asleep=True, asleep_left=1)), 0, _attack(6))
+    assert free.enemies[0].asleep is False and free.enemies[0].hp == 94
+    assert (free.sleepers_woken, free.wake_turns_forfeit) == (0, 0)
+
+
+def _matriarch_round1(asleep_left: int) -> dict:
+    # seed HEKRVZMGUV round 1 (A0 batch 2026-09-28), trimmed: Asleep 3 + 12 Plating
+    # block, hand of pokes + a Power. Breakthrough+ 13 clears the 12 block by 1 HP
+    # (a wake); Headbutt+ 12 alone is fully soaked (not a wake).
+    return {
+        "state_type": "boss", "run": {"act": 1, "floor": 17, "ascension": 0},
+        "player": {"character": "The Ironclad", "hp": 52, "max_hp": 81, "block": 0,
+                   "energy": 3, "status": [],
+                   "hand": [
+                       _bcard(0, "BREAKTHROUGH", "Breakthrough+", 1,
+                              "Lose 1 HP. Deal 13 damage to ALL enemies.", "Attack", "AllEnemy"),
+                       _bcard(1, "HEADBUTT", "Headbutt+", 1,
+                              "Deal 12 damage. Put a card from your Discard Pile on top of "
+                              "your Draw Pile.", "Attack", "AnyEnemy"),
+                       _bcard(2, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack",
+                              "AnyEnemy"),
+                       _bcard(3, "STONE_ARMOR", "Stone Armor+", 1, "Gain 6 Plating.", "Power",
+                              "None")],
+                   "potions": [], "max_potion_slots": 3},
+        "battle": {"round": 1, "turn": "player", "is_play_phase": True,
+                   "enemies": [{"entity_id": "LAGAVULIN_MATRIARCH_0",
+                                "name": "Lagavulin Matriarch",
+                                "hp": 222, "max_hp": 222, "block": 12,
+                                "status": [
+                                    {"id": "PLATING_POWER", "name": "Plating", "amount": 12,
+                                     "description": "At the end of your turn, gain 12 Block."},
+                                    {"id": "ASLEEP_POWER", "name": "Asleep",
+                                     "amount": asleep_left,
+                                     "description": "Awakens upon losing HP or after 3 turns."}],
+                                "intents": [{"type": "Sleep", "label": "",
+                                             "title": "Sleeping"}]}]},
+    }
+
+
+def test_planner_holds_pokes_behind_the_matriarchs_plating_on_round_1() -> None:
+    """Live 2026-09-28 (seed HEKRVZMGUV, lost): plan [Headbutt+ > Breakthrough+ >
+    Strike > ... > Stone Armor+] scored 90.8 -- the blocked Headbutt+ pre-paid the
+    flat wake bar, then Strike/Breakthrough+ woke her on round 1 for 19 HP of 222
+    with the +0.8 focus and +1.5 ramp premiums bribing the follow-ups. With the
+    penalty per forfeited turn (2 here) and no premiums on a wake turn, the
+    planner banks the Power and does not lose her HP."""
+    from sts2bot.kb.config import load_policy_config
+    d = plan_combat_turn(parse_state(_matriarch_round1(3)), load_policy_config().combat,
+                         fight_plan="focus")
+    r = d.rationale or ""
+    assert "Stone Armor+" in r
+    assert "Breakthrough+" not in r
+    assert not ("Headbutt+" in r and "Strike" in r)  # the pair breaks her block and wakes her
+    # on her LAST asleep turn the wake is free: the same hand now hits her
+    d1 = plan_combat_turn(parse_state(_matriarch_round1(1)), load_policy_config().combat,
+                          fight_plan="focus")
+    assert "Breakthrough+" in (d1.rationale or "")

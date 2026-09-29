@@ -479,6 +479,9 @@ class EnemySim:
     # NB deliberately NOT applied to Slumber (Beetle) — that stack decrements on HP loss too, so
     # chipping a Slumberer is a different (sometimes correct) call; per-enemy nuance later.
     asleep: bool = False
+    # Asleep stacks remaining (the status amount, 3..1): she wakes on her own once
+    # they run out, so a waking hit on the LAST asleep turn forfeits nothing.
+    asleep_left: int = 0
     # Infested (Phrog Parasite): "Upon dying, summons..." — killing it does NOT end the fight
     # (4 stunned Wrigglers spawn mid-turn). Suppresses the false LETHAL so survival checks and
     # stranded-card tallies stay live on the kill turn (owner question 2026-07-09).
@@ -651,7 +654,10 @@ class SimState:
     # attacking enemy in the incoming pool (multi-hit intents under-counted)
     hp_loss_reduction: int = 0
     dup_armed: bool = False  # Duplicator drunk: the next card play applies twice
-    sleepers_woken: int = 0  # plan hits on a sleeper (non-kill): each pays w_wake_sleeper
+    sleepers_woken: int = 0  # paid sleeper wakes in the plan (non-kill, non-final-turn)
+    # free setup turns the plan's wakes forfeit (Asleep stacks - 1 each); the
+    # unit of w_wake_sleeper ("her per-turn threat")
+    wake_turns_forfeit: int = 0
     # hand indices of Ethereal cards (Daze etc.): unplayed at end of turn they
     # EXHAUST -- with Feel No Pain up that's free end-of-turn block the
     # block/attack tradeoff must see (owner check 2026-08-03)
@@ -907,6 +913,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
         illusion = False
         reattach = False
         asleep = False
+        asleep_left = 0
         slow_stacks = None
         spawns_on_death = False
         burrowed = False
@@ -948,6 +955,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 reattach = True
             if p.id.upper().startswith("ASLEEP"):  # Asleep only — Slumber wakes differently
                 asleep = True
+                asleep_left = int(p.amount or 0)
             if ("receives 10% more damage from attacks" in (p.description or "").lower()
                     or p.id.upper().startswith("SLOW")):
                 # Slow's AMOUNT is a cumulative-combat display, but the effect
@@ -1067,6 +1075,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 crab_rage=crab_rage,
                 back_attack=back_attack,
                 asleep=asleep,
+                asleep_left=asleep_left,
                 slow_stacks=slow_stacks,
                 spawns_on_death=spawns_on_death,
                 burrowed=burrowed,
@@ -1277,13 +1286,23 @@ def _apply_attack(
     # w_wake_sleeper once. Pokes lose (9 < 12), bursts clear the bar, kills were
     # always exempt. The R2 tape leak (energy-waste bribing score-negative pokes
     # into a sleeper) dies to the same penalty.
-    woke = 1 if (e.asleep and not killed) else 0
+    # 2026-09-28 (A0 era: 9 of 11 Matriarch losses were poke-wakes on rounds 1-2):
+    # she "Awakens upon losing HP" -- a hit her Plating block fully soaks does NOT
+    # wake her, so it must not pay (or pre-pay) the penalty: the old any-hit rule
+    # charged the blocked Headbutt+ and then let the real waking Strike land free
+    # (seed HEKRVZMGUV round 1). And with 1 stack left she wakes on her own after
+    # this turn, so that waking hit forfeits no setup turn and pays nothing.
+    woke = 1 if (e.asleep and not killed and dealt_total > 0) else 0
     if woke:
         enemies[target_i] = replace(enemies[target_i], asleep=False)
+    woke_paid = woke if e.asleep_left != 1 else 0
+    # forfeited free turns: stacks 3 -> 2 turns, 2 -> 1, unknown -> 1 (the old flat bar)
+    forfeit = woke_paid * max(1, e.asleep_left - 1)
     return replace(
         state,
         enemies=tuple(enemies),
-        sleepers_woken=state.sleepers_woken + woke,
+        sleepers_woken=state.sleepers_woken + woke_paid,
+        wake_turns_forfeit=state.wake_turns_forfeit + forfeit,
         damage_dealt=state.damage_dealt + dealt_total,
         kills=state.kills + (1 if killed else 0),
         reattach_kills=state.reattach_kills + (1 if killed and e.reattach else 0),
@@ -1295,12 +1314,19 @@ def _apply_attack(
         # a sleeping 'ramper' isn't ramping: the waking hit earns plain damage
         # credit only (with focus_damage below, the third sleeper-bribe term)
         ramp_damage=state.ramp_damage + (
-            dealt_total if e.gains_strength and not woke else 0),
+            dealt_total if e.gains_strength and not woke
+            and not (state.sleepers_woken + woke_paid) else 0),
         # the fight-plan race bias must not bribe a WAKING hit (Matriarch is a
         # drain boss -> plan=focus, and its +0.8/dmg amplifier out-bid the wake
         # penalty): her clock isn't ticking while she sleeps, so sleep-phase
         # damage earns plain credit, not race credit
-        focus_damage=state.focus_damage + (dealt_total if e.is_big and not woke else 0),
+        # ...nor the follow-up hits of a paid wake turn: that turn's raw damage IS
+        # the "burst" weighed against the forfeited setup turns (owner rule: wake
+        # early only if burst-in-hand beats remaining setup value), so the +0.8
+        # premium must not inflate it (seed HEKRVZMGUV: 19 raw read as 33, woke R1)
+        focus_damage=state.focus_damage + (
+            dealt_total if e.is_big and not woke and not (state.sleepers_woken + woke_paid)
+            else 0),
         carrier_damage=state.carrier_damage + (
             dealt_total
             if e.debuff_carrier
@@ -2018,7 +2044,7 @@ def _score(
         + w.w_status_purge * (
             state.purgeable_in_hand if state.hand_purged
             else min(state.targeted_exhausts, state.purgeable_in_hand))
-        + w.w_wake_sleeper * state.sleepers_woken
+        + w.w_wake_sleeper * state.wake_turns_forfeit
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
         # picked a target order; these terms make the DFS serve it every turn.
         + (w.w_plan_focus_damage * state.focus_damage
