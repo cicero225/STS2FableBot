@@ -2,6 +2,36 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-28h (Fable 5) -- batch 2 opens 0/17; Matriarch poke-wakes root-caused (sleeper v4)
+
+Batch 2 at A0 on the promoted config (bx61vrvnv, same code/hash as the 9/40
+record) opened 0/17 -- all runs verified at ascension 0, so a cold streak
+(~4% under a true 19%), not a regression. Killer tally: 5 act-3 bosses,
+5 act-1 bosses (Lagavulin Matriarch x3), 2 act-2, 3 elites/hallways.
+
+Act-1 boss tally over the A0 promoted-key era (138 fights): Matriarch 9/20
+(45%) vs Waterfall 69%, Kin 70%, Fysh 73%, Beast 90%, Vantom 93%. Every
+Matriarch fight scanned: 18/20 woke her by card and 9 of the 11 losses were
+round-1/2 pokes of 1-9 HP (mode=setup_window the whole time -- the mode was
+right, the sim's pricing was not). Offline replay of seed HEKRVZMGUV round 1
+reproduced the logged plan exactly (90.8 vs 45.8 for holding); the term diff
+found three leaks: (1) ANY hit into a sleeper counted as the wake, so the
+Plating-soaked Headbutt+ pre-paid the -16 and the real waking Strike was
+free; (2) the bar was flat regardless of how many free turns the wake
+forfeited; (3) the post-wake follow-ups collected the +0.8 focus and +1.5
+ramp premiums (19 raw damage read as ~52), which is what out-bid the Power.
+
+Fix ce7359d (sleeper v4): wake = HP loss only; w_wake_sleeper per forfeited
+turn (stacks-1; a hit on her last asleep turn is free -- both natural wakes
+in the logs confirm she wakes after stack 1 regardless); a paid wake turn
+earns plain damage credit on her. Replays: HEKRVZMGUV r1 -> Headbutt+ into
+her block + Stone Armor+ (no wake); 9JE1UAYWXH r1 -> Battle Trance + a
+blocked Strike instead of the Unrelenting wake. 646 tests, ruff clean.
+Code-only; the running batch keeps the old sim (its Matriarch fights are
+pre-fix) -- batch 3 carries it. Open for the owner: the -16/turn unit is
+the flat sizing from 08-06; whether a ~25 round-1 burst should still clear
+a 2-turn forfeit (it no longer does) is unreviewed.
+
 ## 2026-09-03d (Fable 5) -- Decimillipede decoded from the bestiary text: Reattach modeled
 
 Arm v3 run 4 died to Decimillipede from a 74/80 entry after a 12-round grind:
