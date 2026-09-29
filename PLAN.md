@@ -127,6 +127,16 @@ locked-character representation) move to the §7 open-items table where they alr
 **Exit:** M1 stats from the run index; Ironclad (or best character) ≥40% over 20+ runs.
 
 ### P2 — Climb machinery (→ M2: A0→A10 with one character)
+
+*Owner steer 2026-09-28:* the A0 graduation reading must be **definitive** —
+23/120 (19.2%) on the observed-capability keys is not yet (95% CI ~13-27%);
+plan two or three more clean 40-run batches (~±5pp) before calling it. Then
+climb Ironclad to **A3 at ~20%**, then **switch class** as a break (a broader
+class base likely helps each class; diminishing returns per ascension, with
+the sharpest spikes at A8/9/10). Ascension is set per run via set_ascension;
+the picker remembers the last level and climbs after wins — verify the meta
+ascension of every batch (the 09-28 slip ran A3-A8 unnoticed until the enemy
+HP gave it away).
 1. C# fork (live at github.com/cicero225/STS2MCP, builds via build.ps1 + .NET 9):
    ✅ **feature-complete 2026-06-11** — character-select commit fix, ascension
    selector, set_time_scale (3x ≈ 1.5–2x effective decision rate), master deck in
