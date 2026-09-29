@@ -302,6 +302,11 @@ class PlannedCard:
     # hand or it plans phantom follow-ups ([Thrash > Strike] with Strike the
     # only other attack = the Fiend Fire bug family)
     exhausts_random_attack: bool = False
+    # True Grit / Cinder: 'Exhaust 1 card at random' -- ANY card in hand. Live
+    # 2026-09-28 (seed NDW2DDX5LZ, Waterfall Giant eruption 39 vs 29 HP): plan
+    # [True Grit > Defend] read 12 block; the random exhaust ate the Defend and
+    # the bot died 3 HP short. Defend-first would have lived.
+    exhausts_random_card: bool = False
     # Barricade-class (owner catch 2026-08-29, seed-B T1: the plan only
     # learned block-persistence from the live status on REPLAN — same-turn
     # block after the power got no credit at plan time)
@@ -852,6 +857,8 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         exhaust_nonattack_only=bool(re.search(r"non-attack", desc, re.IGNORECASE)),
         exhausts_random_attack=bool(re.search(
             r"Exhaust a random Attack in your Hand", desc, re.IGNORECASE)),
+        exhausts_random_card=bool(re.search(
+            r"Exhaust 1 card at random", desc, re.IGNORECASE)),
         grants_barricade=bool(re.search(
             r"block is (?:not|no longer) removed", desc, re.IGNORECASE)),
         grants_unmovable=bool(re.search(
@@ -2568,6 +2575,29 @@ def plan_combat_turn(
                           played=again.played[:-1], axe_armed=False)
         return nxt
 
+    def after_random_exhaust(nxt: SimState, rest: list[PlannedCard]) -> list[PlannedCard]:
+        # True Grit / Cinder pessimism (house rule, as Thrash): the random exhaust
+        # eats the card the plan WANTS MOST next -- a one-step lookahead on the
+        # post-play state over the affordable cards (potions and unaffordable
+        # cards are harmless eats). The DFS then learns to play the needed card
+        # BEFORE the exhauster (seed NDW2DDX5LZ: Defend before True Grit).
+        cand = [i for i, c_ in enumerate(rest)
+                if c_.potion_slot is None and (c_.is_x_cost or c_.cost <= nxt.energy)]
+        if not cand:
+            return rest
+        alive = [k for k, e in enumerate(nxt.enemies) if e.hp > 0]
+
+        def want(i: int) -> float:
+            c_ = rest[i]
+            if c_.targets_enemy and not c_.fx.aoe:
+                if not alive:
+                    return scored(nxt)
+                return max(scored(apply_play(nxt, c_, k)) for k in alive[:3])
+            return scored(apply_play(nxt, c_, None))
+
+        eaten = max(cand, key=want)
+        return rest[:eaten] + rest[eaten + 1:]
+
     def dfs(sim: SimState, remaining: list[PlannedCard], plays_left: int) -> None:
         nonlocal best_state, best_score, visited
         if visited >= weights.max_sequences:
@@ -2659,7 +2689,8 @@ def plan_combat_turn(
                         best_score, best_state = score, nxt
                     nl = plays_left if card.potion_slot is not None else plays_left - 1
                     if nl > 0:
-                        dfs(nxt, rest, nl)
+                        dfs(nxt, after_random_exhaust(nxt, rest)
+                            if card.exhausts_random_card else rest, nl)
             else:
                 visited += 1
                 nxt = apply_play(sim, card, None)
@@ -2668,7 +2699,8 @@ def plan_combat_turn(
                     best_score, best_state = score, nxt
                 nl = plays_left if card.potion_slot is not None else plays_left - 1
                 if nl > 0:
-                    dfs(nxt, rest, nl)
+                    dfs(nxt, after_random_exhaust(nxt, rest)
+                        if card.exhausts_random_card else rest, nl)
 
     dfs(start, playable, max_plays)
 

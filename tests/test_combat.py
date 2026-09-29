@@ -3938,3 +3938,40 @@ def test_planner_holds_pokes_behind_the_matriarchs_plating_on_round_1() -> None:
     d1 = plan_combat_turn(parse_state(_matriarch_round1(1)), load_policy_config().combat,
                           fight_plan="focus")
     assert "Breakthrough+" in (d1.rationale or "")
+
+
+def test_random_exhaust_rider_parses_true_grit_and_cinder() -> None:
+    from sts2bot.policy.combat import _to_planned
+    st = parse_state(_beckon_state(3, [
+        _bcard(0, "TRUE_GRIT", "True Grit", 1, "Gain 7 Block. Exhaust 1 card at random.",
+               "Skill", "None"),
+        _bcard(1, "CINDER", "Cinder", 2, "Deal 18 damage. Exhaust 1 card at random.",
+               "Attack", "AnyEnemy"),
+        _bcard(2, "TRUE_GRIT", "True Grit+", 1, "Gain 9 Block. Exhaust a card in your Hand.",
+               "Skill", "None"),
+        _bcard(3, "THRASH", "Thrash", 1,
+               "Deal 4 damage twice. Exhaust a random Attack in your Hand and add its damage "
+               "to this card.", "Attack", "AnyEnemy")]))
+    flags = [_to_planned(c, 3, 0, [], 0).exhausts_random_card for c in st.player.hand]
+    assert flags == [True, True, False, False]
+
+
+def test_needed_block_is_played_before_a_random_exhauster() -> None:
+    """Live 2026-09-28 (seed NDW2DDX5LZ, Waterfall Giant eruption 39 vs 29 HP):
+    plan [Pommel Strike > True Grit > Defend] read 12 block and survival; True
+    Grit's 'Exhaust 1 card at random' ate the Defend and the bot died 3 short.
+    Pessimism as for Thrash: the exhaust eats the card the plan wants most
+    next, so the DFS sequences the Defend BEFORE True Grit (same block, no
+    exposure). Replay of the logged tick: [Pommel Strike > Defend > True Grit]."""
+    from sts2bot.kb.config import load_policy_config
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike+", 1, "Deal 9 damage.", "Attack", "AnyEnemy"),
+            _bcard(1, "TRUE_GRIT", "True Grit", 1, "Gain 7 Block. Exhaust 1 card at random.",
+                   "Skill", "None"),
+            _bcard(2, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None")]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=240, hp=29,
+                                                   incoming="39")),
+                         load_policy_config().combat)
+    r = d.rationale or ""
+    assert "Defend" in r and "True Grit" in r
+    assert r.index("Defend") < r.index("True Grit")
+    assert d.scores["hp_loss"] == 27.0  # 39 - 12: lives at 2, Defend safe from the exhaust
