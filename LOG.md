@@ -32,6 +32,18 @@ pre-fix) -- batch 3 carries it. Open for the owner: the -16/turn unit is
 the flat sizing from 08-06; whether a ~25 round-1 burst should still clear
 a 2-turn forfeit (it no longer does) is unreviewed.
 
+Run 21 (0/21; seed NDW2DDX5LZ, Waterfall Giant): the eruption turn read
+[Pommel Strike > True Grit > Defend] = 12 block vs 39 at 29 HP (lives at 2);
+True Grit's "Exhaust 1 card at random" ate the Defend and the bot died 3
+short. The sim only modeled the Thrash wording. Fix 928a820: True Grit /
+Cinder eat the affordable card a one-step lookahead wants most next
+(Thrash's pessimism), so the DFS sequences the needed card first -- replay
+gives [Pommel Strike > Defend > True Grit]. 648 tests. Batch-2 checks so
+far: all runs at A0; code diff vs the record batch inert (veto default off
+both ways); no pool change (3 new cards = 0.4% of offers); composites
+identical (act reach 2.06 vs 2.05, relics 10.3 vs 11.0, elites 4.7 vs 4.9)
+-- the drought is boss closes. Pooled era at A0: 32/181 (17.7%).
+
 ## 2026-09-03d (Fable 5) -- Decimillipede decoded from the bestiary text: Reattach modeled
 
 Arm v3 run 4 died to Decimillipede from a 74/80 entry after a 12-round grind:
