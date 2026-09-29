@@ -22,6 +22,18 @@ Replay of the run-4 turns: round 3 no longer Uppercuts the 15-HP segment
 Code-only, so it applies to every arm from the next launch; the running v3
 batch keeps the old planner (its Decimillipede fights are pre-fix).
 
+## 2026-09-28g (Fable 5) -- first A0 batch on the promoted config: 9/40, a new record
+
+Live, ascension 0 (verified per run: base boss HP, no WARNING), promoted
+config 463619673047 + committed-elite tail check (code e22cc74..7e51956):
+**9 wins / 40 (22.5%)** -- best batch on record (prior 7/40 x2). Act-3 boss
+9/17 (53%; era 25%), elites/run 3.0, relics 11.2, deaths: 25 boss (15 of
+them act-1 -- reach act 2 only 65% vs 75-85%, the batch's soft spot), 3
+elite, 3 normal. The v1 configuration at A0 now stands at 23/120 (19.2%)
+over three clean batches vs the with-bug era's 9.6% and the fixed-code
+live control's 15%. It opened 1/11 with seven act-1 boss deaths, then went
+8/29 -- the streak was a streak. Batch 2 at A0 launched on the same code.
+
 ## 2026-09-28f (Fable 5) -- ROOT CAUSE: every batch since the branch switch ran at ascension 3..8
 
 While chasing the elite deaths (Skulking Colony f8, an elite with 0 deaths
