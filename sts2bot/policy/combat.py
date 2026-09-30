@@ -1916,11 +1916,17 @@ def _score(
     # the turn's projected end HP stays above the floor they're charged flat-cheap; below it the
     # scarcity curve returns, and a non-lethal turn that projects to <=0 HP hits a hard wall.
     projected_hp = my_hp - external_loss - state.self_damage
+    # the blast lands NEXT turn behind a full block turn: its expected remainder is
+    # charged as HP loss above, but it is a coin flip, not this turn's death --
+    # pre-model wins killed below the blast 12 times in 32 (2026-09-30), so it
+    # must not trip the hard wall (which had refused those kills into certain
+    # death by attrition: post-model WG 5/14)
+    wall_hp = projected_hp + eruption_unblocked
     if projected_hp > w.self_hp_cheap_floor:
         self_term = w.w_hp_loss * w.self_hp_cheap_mult * state.self_damage
     else:
         self_term = hp_weight * state.self_damage
-    death_wall = w.w_projected_death if (projected_hp <= 0 and not lethal_end) else 0.0
+    death_wall = w.w_projected_death if (wall_hp <= 0 and not lethal_end) else 0.0
     # Eruption budget while the Giant lives: the kill, whenever it comes, needs
     # hp >= next turn's stack minus an average hand's block. HP below that line
     # is HP the run will not have at the blast -- charged at the scarcity rate,

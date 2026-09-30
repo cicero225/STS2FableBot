@@ -175,7 +175,11 @@ class CombatWeights(_Section):
     # turn, blockable; this is the block an average next hand is assumed to cover.
     # The remainder is charged as HP loss on the kill turn, and while the Giant
     # lives the HP below (next stack - this) pays the scarcity rate as a budget.
-    eruption_expected_block: float = 8.0
+    # 15 = the mean block the bot actually produced on the blast turn in the
+    # 32 pre-model wins (2026-09-30 calibration; 12 of those wins killed BELOW
+    # the blast and lived on it). At 8 the kill-turn wall refused coin-flip
+    # kills that won ~35% of the time (post-model WG 5/14 vs 32/46 before).
+    eruption_expected_block: float = 15.0
     # The soft mid-fight budget (HP below next stack - expected block charged at
     # the scarcity rate) is OFF by default: after 11 post-model WG fights the
     # fights ran ~2 rounds longer with bigger final stacks (5/11 won vs 32/46

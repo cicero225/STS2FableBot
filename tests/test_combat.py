@@ -4046,10 +4046,10 @@ def test_erupting_kill_is_not_the_end_of_the_fight() -> None:
 
 
 def test_planner_will_not_take_a_kill_that_the_eruption_finishes() -> None:
-    """15 HP, Giant at 20 with a 30 eruption: Bash + Strike + Strike kills it but
-    the 30 blast (minus an 8-block hand) ends the run next turn; two Defends
-    cover the 10 incoming and keep the budget. With a 12 eruption the kill is
-    fine and the planner takes it."""
+    """15 HP, Giant at 20 with a 45 eruption: Bash + Strike + Strike kills it but
+    the blast minus a 15-block turn (calibrated 2026-09-30) still takes 30 --
+    a hopeless margin; two Defends cover the 10 incoming instead. With a 12
+    eruption the kill is free and the planner takes it."""
     from sts2bot.kb.config import load_policy_config
     w = load_policy_config().combat
     hand = [_bcard(0, "BASH", "Bash", 1, "Deal 8 damage. Apply 2 Vulnerable.", "Attack",
@@ -4058,7 +4058,7 @@ def test_planner_will_not_take_a_kill_that_the_eruption_finishes() -> None:
             _bcard(2, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
             _bcard(3, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
             _bcard(4, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None")]
-    d = plan_combat_turn(parse_state(_giant_state(15, 20, 30, hand)), w)
+    d = plan_combat_turn(parse_state(_giant_state(15, 20, 45, hand)), w)
     assert "Defend" in (d.rationale or "") and "LETHAL" not in (d.rationale or "")
     d2 = plan_combat_turn(parse_state(_giant_state(15, 20, 12, hand)), w)
     assert d2.action.payload()["card_index"] in (0, 1, 2)
