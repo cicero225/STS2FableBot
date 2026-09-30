@@ -2,6 +2,24 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30n (Fable 5) -- batch 8 at 1/11; event fights priced by their observed cost (Lantern Key knight, Dense Vegetation ambush)
+
+Batch 8 (code 90a81c6) through run 11: 1/11. Run 10 died at floor 24 from
+12 HP after the Lantern Key's Mysterious Knight took 77 -> 3 at floor 20 --
+the third batch in a row that fight has crippled a run (51, 58, 74). Era
+table of event fights: Keep the Key -> Mysterious Knight 175 fights, 30
+mean / 41 p75, 4 deaths; Dense Vegetation Rest/Trudge On/Fight! ->
+Wriggler ambush 22-25 mean / 30-35 p75 (all three options fight);
+Battleworn Dummy settings 1-6 HP. The event gate priced any 'fight' option
+as the pooled hallway mean (~10) and never priced 'Rest' at all. Fix
+(next commit): scripts/build_event_fight_stats.py + kb loader; the gate
+uses the option's observed p75 when >= 10 samples (the owner's 'hp-gated'
+note on the Key). Keep the Key is now refused below ~57/80 and still
+taken when healthy (catalog 5.0 > 3.5). Lands with batch 9. Also this
+batch: Bowlbug Imbalanced modeled (fd1199e); Myte's Toxic flood + the
+'HP is cheap when full' curve traded 15 HP for 30 AoE at 94% HP (owner
+rule, logged as an act-2 attrition data point, not changed).
+
 ## 2026-09-30m (Fable 5) -- batch 8 opens 0/3; Bowlbug (Rock) Imbalanced decoded
 
 Batch 8 (code 90a81c6) run 3 died to a Bowlbugs hallway at floor 23 from a
