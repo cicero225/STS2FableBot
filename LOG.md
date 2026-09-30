@@ -2,6 +2,26 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30a (Fable 5) -- batch 4 mid-batch: treasure wedge is relic-agnostic; Entomancer's Personal Hive decoded and modeled
+
+Batch 4 (b3sxi5cgj, code b432f16) through run 16: 3/15 clean (wins
+YSVE7X42L5, QEFPEP9MQ0, 2HNVDL5MAQ) + run 10 lost to the treasure-claim
+wedge at act-3 floor 41. Corpus tally: 19 treasure wedges on 16 different
+relics -> a claim-transition race, not a relic; PLAN section 7 row filed
+(try save_and_quit + Continue before abandoning; owner's C3 call).
+
+Two act-2 hallway deaths (Hunter Killer f28, f31) were both decided
+upstream: f26 elite 56 -> 13 into a campfire-less lane (the known
+optionality item), and f24 Entomancer 80 -> 7 from FULL HP. That fight
+exposed an unmodeled mechanic: Personal Hive -- a Dazed into the draw pile
+per HIT taken, stack raised by Empower -- so Uppercut+/Whirlwind/Byrd
+Swoop/Pillage flooded the deck (four Dazed in hand by r6, then 7x5
+unblocked). Era: 135 fights, 3 deaths, mean loss 12, but 10 blowouts >=40
+(7%) = exactly the act-2 attrition behind the low-HP Kaiser/Ovicopter
+entries. Modeled (next commit): hits x stacks x w_hive_dazed (-2.5, one
+dead draw each), killing turn exempt; decode in enemy_notes. Lands with
+batch 5.
+
 ## 2026-09-29b (Fable 5) -- batch 3 closes 3/33 on a game hang; the wall has moved to act 3; batch 4 carries the parser fix
 
 Batch 3 (b1gazilda, code ad1839e = sleeper v4 + True Grit sequencing, all
