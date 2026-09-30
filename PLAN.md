@@ -130,7 +130,7 @@ locked-character representation) move to the §7 open-items table where they alr
 
 *Owner steer 2026-09-28:* the A0 graduation reading must be **definitive** —
 23/120 (19.2%) on the observed-capability keys is not yet (95% CI ~13-27%;
-batches 2-4 (3/28, 3/33, 5/39 on 09-28..30) pool to 34/220 = 15.5%; batch 5 is the first with the Waterfall eruption budget + Entomancer hive models);
+batches 2-4 (3/28, 3/33, 5/39 on 09-28..30) pooled to 34/220 = 15.5%; batch 5 -- the first with all five 09-28..30 mechanic fixes (Matriarch sleeper v4, True Grit, Setup Strike, Entomancer hive, Waterfall eruption budget) -- went **12/40 (30%), a record**, act-3 conversion 12/17; pooled 46/260 = 17.7%; batch 6 adds the Exoskeleton per-hit cap and Enthralled rule);
 plan two or three more clean 40-run batches (~±5pp) before calling it. Then
 climb Ironclad to **A3 at ~20%**, then **switch class** as a break (a broader
 class base likely helps each class; diminishing returns per ascension, with

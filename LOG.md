@@ -2,6 +2,33 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30f (Fable 5) -- batch 5 closes 12/40, a new record; batch 6 launched
+
+Batch 5 (b65is18sx, code 262d1aa = sleeper v4 + True Grit sequencing +
+Setup Strike temp-Str parse + Entomancer hive + Waterfall eruption budget;
+40/40 clean at A0): **12/40 (30%)** -- wins DL9A0TXAV9, 6Y4YWW7YGV,
+XKD12ULC2G, XPP8MBWNHF, FQKCA8HMYV, ZRYD017JUV, 6HNJJVWANV, S5P7PTEM1X,
+ULUDQLJFE1, W7ZC9SN3CU, GG9B249QJK, JYE5K14JP5. Act reach 1: 14, 2: 9,
+3: 17 -- and **12 of the 17 act-3 arrivals converted (71%)** vs 3/16 in
+batch 3 and 3/13 in batch 4. Composites: act reach 2.08, relics 11.1,
+elites 5.0/run of 185. Killers: Kaiser 4, Waterfall 3 (all eruption deaths
+from single-digit HP where no line lived), Aeonglass 3, Ceremonial Beast 3,
+Exoskeletons 2, Vantom 2, KD 2, Fysh 2, singles (Kin, Entomancer,
+Sculptor/Enthralled stall, Matriarch, Byrdonis f7, Phrog f7). Act-1 boss
+record 22/33 (67%); Matriarch 4/5 on sleeper v4 (era 45%).
+
+Pooled A0 on the promoted keys: **46/260 (17.7%)**. Under the pre-batch-5
+pooled rate (15.5%) a 12/40 batch has ~1.5% probability, so the mechanic
+fixes of 09-28..30 read as real, though one batch is one batch. Early-elite
+tally refreshed: floor<=8 with deck<=12 = 4 deaths / 36 fights (11%) vs
+3/121 (2.5%) on bigger decks -- still a data note, owner's call (the deck
+floor arm overshot once).
+
+Batch 6 (bbunrocnv, code f413d30) launched on the same session (2.4 GB,
+8.4 h): adds the Exoskeleton per-hit cap and the Enthralled must-play-first
+rule. If it holds near 25-30%, the pooled definitive read starts moving
+toward the 20% bar; the next 40 decide.
+
 ## 2026-09-30e (Fable 5) -- batch 5 at 3/15; Enthralled locked the hand for four turns (stall fixed)
 
 Batch 5 through run 15: 3/15. Run 9 was the first Waterfall Giant fight on
