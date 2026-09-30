@@ -2,6 +2,23 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30d (Fable 5) -- batch 5 opens 3/8; Exoskeletons' Hard to Kill was read as a per-turn cap
+
+Batch 5 (code 262d1aa) through run 8: 3/8 (wins DL9A0TXAV9, 6Y4YWW7YGV,
+XKD12ULC2G). Two Exoskeletons hallway deaths (runs 3, 7) against 0 deaths
+in 122 era fights sent me to the tapes: 52-53 HP entries, the planner
+spending Bully/Dominate/Dominate into one body. Status text: 'Reduce all
+damage taken and HP lost by Exoskeleton to 9' -- and a live turn where one
+body lost 27, so it is a PER-INSTANCE cap. The mechanics detector had
+folded that wording (and Soul Fysh's Intangible) into the per-turn cap
+built for Hardened Shell, so the sim and the rollout wrote off every
+follow-up hit into a body that had taken 9: multi-hit cards read as waste
+against the one pack they beat. Fixed (next commit): dmg_cap_per_hit
+through detect_mechanics, EnemySim, FightEnemy and the rollout; per-turn
+stays for Hardened Shell. Not a regression from the new models (no parser
+overlap; era code had the same reading) -- batch 5's two deaths were the
+era's 7% blowout tail landing on weak decks. Lands with batch 6.
+
 ## 2026-09-30c (Fable 5) -- batch 4 closes 5/39; batch 5 launched with the hive + eruption models
 
 Batch 4 (b3sxi5cgj, code b432f16 = + Setup Strike temp-Strength fix; 39
