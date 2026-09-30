@@ -2,6 +2,25 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30e (Fable 5) -- batch 5 at 3/15; Enthralled locked the hand for four turns (stall fixed)
+
+Batch 5 through run 15: 3/15. Run 9 was the first Waterfall Giant fight on
+the eruption budget: the term correctly refused a kill at 8 HP into a 33
+blast (blocked instead), but the deck (59-HP entry, ~30 dmg/turn vs 240
+HP) was lost by round 6 either way -- capability, not the model. Run 12
+entered an Entomancer elite at 22/87 via a forced Shop -> Unknown ->
+Unknown -> Elite lane (the second Unknown was a 32-HP fight): the
+optionality item, nothing new.
+
+Run 15 (0BWV4FMJFB) died at act-3 floor 35 from an 80/80 entry to a
+'weak' Devoted Sculptor: the tape shows FOUR consecutive end-turns at 4,
+8, 12, 16 energy with a full hand while Ritual ramped the enemy 21 -> 48.
+Cause: Enthralled ('must be played before other cards. Eternal.') locks
+every other card until played; the planner saw no value in it. Era: 42
+such stalled turns in the 69 runs that drew it. Fix (next commit): a
+playable, affordable must-play-first card is played before any search.
+Lands with batch 6 along with the Exoskeleton per-hit cap.
+
 ## 2026-09-30d (Fable 5) -- batch 5 opens 3/8; Exoskeletons' Hard to Kill was read as a per-turn cap
 
 Batch 5 (code 262d1aa) through run 8: 3/8 (wins DL9A0TXAV9, 6Y4YWW7YGV,
