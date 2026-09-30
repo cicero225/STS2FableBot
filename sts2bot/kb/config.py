@@ -167,6 +167,10 @@ class CombatWeights(_Section):
     # the draw credit -- the zero-damage-credit rule alone wasn't a penalty).
     # Sized near her per-turn threat; a kill or big burst still clears it.
     w_wake_sleeper: float = -16.0  # > poke+rider (~15); bursts (25+) clear it
+    # Entomancer's Personal Hive (2026-09-30): per Dazed a landed hit adds to the
+    # draw pile -- sized as one status purge (w_status_purge), i.e. a dead draw.
+    # Multi-hit cards pay hits x stacks; the killing turn pays nothing.
+    w_hive_dazed: float = -2.5
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     # gamble cards (Infernal Blade+/Discovery): reveal EARLY so the rest of the
     # turn can use what they generate (owner 2026-08-03) -- per remaining card,

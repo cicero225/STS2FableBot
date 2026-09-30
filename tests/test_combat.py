@@ -3988,3 +3988,31 @@ def test_this_turn_strength_is_temporary_not_permanent() -> None:
     fx = parse_card_description("Deal 7 damage. Gain 2 Strength this turn.")
     assert (fx.strength, fx.strength_temp) == (0, 2)
     assert parse_card_description("Gain 2 Strength.").strength == 2  # Inflame unchanged
+
+
+def test_personal_hive_charges_a_dazed_per_landed_hit() -> None:
+    """Entomancer (decoded 2026-09-30, run 20260930-001237: 80 -> 7 HP from
+    full, a hand of four Dazed by round 6): 'Whenever this enemy is hit by an
+    Attack, add 1 Dazed into your Draw Pile', per hit, stacking with Empower.
+    A 3-hit attack into Hive 2 seeds six Dazed; a blocked hit still counts."""
+    from dataclasses import replace as dc_replace
+    out = _apply_attack(_state(_enemy(hive=2)), 0, _attack(4, hits=3))
+    assert out.hive_dazed == 6
+    blocked = _apply_attack(_state(dc_replace(_enemy(hive=1), block=50)), 0, _attack(4, hits=3))
+    assert blocked.hive_dazed == 3 and blocked.enemies[0].hp == 100
+
+
+def test_planner_prefers_one_big_hit_over_many_small_into_a_hive() -> None:
+    from sts2bot.kb.config import load_policy_config
+    w = load_policy_config().combat
+    hive = [{"id": "PERSONAL_HIVE_POWER", "name": "Personal Hive", "amount": 3,
+             "description": "Whenever this enemy is hit by an Attack, add 1 Dazed into "
+                            "your Draw Pile."}]
+    hand = [_bcard(0, "PUMMEL", "Pummel", 1, "Deal 4 damage 3 times.", "Attack", "AnyEnemy"),
+            _bcard(1, "STRIKE_IRONCLAD", "Strike+", 1, "Deal 11 damage.", "Attack", "AnyEnemy")]
+    d = plan_combat_turn(parse_state(_beckon_state(1, hand, enemy_hp=145, hp=70,
+                                                   enemy_status=hive, incoming="18")), w)
+    assert d.action.payload()["card_index"] == 1  # 11 in one hit beats 12 in three
+    d0 = plan_combat_turn(parse_state(_beckon_state(1, hand, enemy_hp=145, hp=70,
+                                                    incoming="18")), w)
+    assert d0.action.payload()["card_index"] == 0  # no hive: raw damage wins

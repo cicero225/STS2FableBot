@@ -487,6 +487,10 @@ class EnemySim:
     # Asleep stacks remaining (the status amount, 3..1): she wakes on her own once
     # they run out, so a waking hit on the LAST asleep turn forfeits nothing.
     asleep_left: int = 0
+    # Personal Hive (Entomancer, decoded 2026-09-30): 'Whenever this enemy is hit
+    # by an Attack, add 1 Dazed into your Draw Pile' -- per HIT, stacks with
+    # Empower. Each landed hit pollutes the deck by `hive` Dazed.
+    hive: int = 0
     # Infested (Phrog Parasite): "Upon dying, summons..." — killing it does NOT end the fight
     # (4 stunned Wrigglers spawn mid-turn). Suppresses the false LETHAL so survival checks and
     # stranded-card tallies stay live on the kill turn (owner question 2026-07-09).
@@ -663,6 +667,8 @@ class SimState:
     # free setup turns the plan's wakes forfeit (Asleep stacks - 1 each); the
     # unit of w_wake_sleeper ("her per-turn threat")
     wake_turns_forfeit: int = 0
+    # Dazed the plan's hits add to the draw pile (Personal Hive: hits x stacks)
+    hive_dazed: int = 0
     # hand indices of Ethereal cards (Daze etc.): unplayed at end of turn they
     # EXHAUST -- with Feel No Pain up that's free end-of-turn block the
     # block/attack tradeoff must see (owner check 2026-08-03)
@@ -921,6 +927,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
         reattach = False
         asleep = False
         asleep_left = 0
+        hive = 0
         slow_stacks = None
         spawns_on_death = False
         burrowed = False
@@ -963,6 +970,8 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
             if p.id.upper().startswith("ASLEEP"):  # Asleep only — Slumber wakes differently
                 asleep = True
                 asleep_left = int(p.amount or 0)
+            if p.id.upper().startswith("PERSONAL_HIVE"):  # Entomancer: a Dazed per hit
+                hive = max(1, int(p.amount or 1))
             if ("receives 10% more damage from attacks" in (p.description or "").lower()
                     or p.id.upper().startswith("SLOW")):
                 # Slow's AMOUNT is a cumulative-combat display, but the effect
@@ -1083,6 +1092,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 back_attack=back_attack,
                 asleep=asleep,
                 asleep_left=asleep_left,
+                hive=hive,
                 slow_stacks=slow_stacks,
                 spawns_on_death=spawns_on_death,
                 burrowed=burrowed,
@@ -1210,10 +1220,12 @@ def _apply_attack(
     if e.slow_stacks is not None and card.is_attack:
         k = e.slow_stacks + sum(1 for i, _ in state.played if i >= 0)
         per_hit = int(per_hit * (1 + 0.10 * k))
+    hive_hits = 0
     for _ in range(hits):
         if hp <= 0:
             break
         thorns_taken += e.thorns  # "when hit by an attack" retaliates, per hit landed
+        hive_hits += 1  # Personal Hive: every landed hit (blocked or not) adds Dazed
         absorbed = min(block, per_hit)
         block -= absorbed
         dealt = per_hit - absorbed
@@ -1310,6 +1322,7 @@ def _apply_attack(
         enemies=tuple(enemies),
         sleepers_woken=state.sleepers_woken + woke_paid,
         wake_turns_forfeit=state.wake_turns_forfeit + forfeit,
+        hive_dazed=state.hive_dazed + hive_hits * e.hive,
         damage_dealt=state.damage_dealt + dealt_total,
         kills=state.kills + (1 if killed else 0),
         reattach_kills=state.reattach_kills + (1 if killed and e.reattach else 0),
@@ -2052,6 +2065,9 @@ def _score(
             state.purgeable_in_hand if state.hand_purged
             else min(state.targeted_exhausts, state.purgeable_in_hand))
         + w.w_wake_sleeper * state.wake_turns_forfeit
+        # Entomancer's Personal Hive: each landed hit seeds Dazed (a dead future
+        # draw each); nothing to pollute after the killing blow
+        + (w.w_hive_dazed * state.hive_dazed if not lethal_end else 0.0)
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
         # picked a target order; these terms make the DFS serve it every turn.
         + (w.w_plan_focus_damage * state.focus_damage
