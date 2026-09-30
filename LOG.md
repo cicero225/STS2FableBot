@@ -2,6 +2,24 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30i (Fable 5) -- batch 6 cut at 2/25 (boundary stop); batch 7 launched with Tainted + the gated budget
+
+Batch 6 (code f413d30/36b9e43 across the crash; 25 clean at A0, 1 crash
+error): **2/25 (8%)** -- wins XE51ZG3AEY, U0315K3J4T. Act reach 1: 9, 2: 14,
+3: 2. Killers: Kaiser 5, Waterfall 5 (all eruption deaths, on the soft
+budget), KD 3, Chompers 2, Entomancer 2, Prisms, Decimillipede, Beetle,
+Mecha Knight f43, Queen, Vantom, Fysh. Stopped at the run-21 boundary of
+the resumed segment: the soft eruption budget was gated off (c8ec19c) and
+the Prism Tainted model landed (1e98ce2) while it ran, so its remaining 16
+runs on known-harmful code were not worth the measurement time. Pooled A0
+on the promoted keys: 48/285 (16.8%); the last two batches (12/40 then
+2/25) bracket the variance a 40-run batch carries.
+
+Batch 7 (bnn9l8fgh, code f1303d9) launched on the same session; its run 1
+continues the run the stop interrupted at floor 2. First batch with the
+Tainted model, the gated soft budget, the Exoskeleton per-hit cap and the
+Enthralled rule together.
+
 ## 2026-09-30h (Fable 5) -- batch 6 cold at 2/23; act-2 elite tail; Infested Prism's Tainted decoded and modeled; soft eruption budget gated off
 
 Batch 6 (resumed, code 36b9e43) through run 19: 2/23 clean overall. Act 2
