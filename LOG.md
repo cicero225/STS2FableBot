@@ -2,6 +2,31 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30h (Fable 5) -- batch 6 cold at 2/23; act-2 elite tail; Infested Prism's Tainted decoded and modeled; soft eruption budget gated off
+
+Batch 6 (resumed, code 36b9e43) through run 19: 2/23 clean overall. Act 2
+is the sink: 12 of the 16 runs that reached it died there (75% vs 35% in
+batch 5), mean loss per early-act-2 fight 16.0 vs 12-13, same p75 -- the
+tail moved, not the middle. Blowout list: Infested Prism x8 at 32-47,
+Decimillipede x3 at 57-68, the Keep-the-Key knight x2 at 51-58, Bowlbug
+packs 42-56. Prism losses averaged 25 (13 fights) vs 11-16 in batches 4-5,
+Decimillipede 36 (5) vs 15-16. No batch-6 code path touches those fights
+(the per-hit cap regex matches nothing on them) -- but the Prism tape
+showed an unmodeled mechanic: Vital Spark 'ALL Skills are Tainted N' ->
+each Skill 'Gain N Tainted when played', Tainted = '+N damage from Attacks
+this turn' PER HIT. A Defend into 5x3 blocks 5 and adds 6; a 5x3 landed
+for 31 after two Skills. Modeled (next commit): tainted stacks + per-Skill
+rider -> incoming += stacks x hits; potions untaxed. Lands with batch 7.
+
+Also: the Waterfall Giant soft budget ran 5/11 (45%) vs 32/46 with fights
+two rounds longer and stacks to 54 -> gated off (eruption_budget_mult=0,
+c8ec19c); the kill-turn accounting stays. Kaiser refresh: 31/57 (54%);
+entries <60 HP win 2/15, 60-70 14/22, 70+ 15/20 -- the pre-boss rest line
+(~56) admits exactly the losing band (per-boss rest candidate). KD shows no
+entry-HP dependence (70%+ every bucket; batch 6's 1/4 is noise). Three
+early-elite deaths at floor 7 in two batches: floor<=8 with deck<=12 =
+4/36 (11%) vs 3/121 (2.5%).
+
 ## 2026-09-30g (Fable 5) -- batch 6 opened 1/4, then the game crashed (~9 h session); relaunched, batch resumed
 
 Batch 6 (bbunrocnv, code f413d30) ran four clean runs (1/4: XE51ZG3AEY won;
