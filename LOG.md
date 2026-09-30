@@ -2,6 +2,26 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30l (Fable 5) -- batch 7 closes 8/39; game relaunched preemptively; batch 8 on the recalibrated eruption model
+
+Batch 7 (bnn9l8fgh, code f1303d9 = Tainted + gated soft budget + per-hit
+cap + Enthralled; 39 clean at A0 + 1 treasure wedge): **8/39 (20.5%)**.
+Act reach 1: 10, 2: 11, 3: 18 (46% reached act 3; 8/18 converted).
+Composites: act reach 2.23, relics 12.5, elites 5.0/run of 196 offered.
+Killers: Waterfall 4 (pre-recalibration kill-turn wall), Kaiser 3,
+Matriarch 3, Insatiable 3, KD 3, Aeonglass 3, Queen 2, Test Subject 2,
+Fysh 2, Globe Head (Galvanized, now modeled), Soul Nexus elite, Vantom.
+Matriarch on sleeper v4 across batches 3-7: 20/26 (77%) vs 45% before --
+the wake bar works. Pooled A0 on the promoted keys: **56/324 (17.3%)**;
+batches since the mechanic decodes began (5-7): 22/104 (21%).
+
+Ops: the game session was 6.4 h old with a 40-run batch ahead and the
+09-30 crash came at ~9 h, so it was quit from the menu and relaunched
+before batch 8 (the menu quit did not exit within 12 s; force-stopped at
+the main menu, harmless). Batch 8 (bm9tlqer5, code 90a81c6) launched:
+first batch with the recalibrated eruption model (expected blast-turn
+block 15, no hard wall on the blast) and the Galvanized keyword rider.
+
 ## 2026-09-30k (Fable 5) -- batch 7 at 5/25; Waterfall eruption model recalibrated against the pre-model wins
 
 Batch 7 (code f1303d9) through run 26: 5/25 clean + 1 treasure wedge (the
