@@ -7,6 +7,7 @@ name = "sts2bot"
 version = "0.1.0"
 description = "A bot that plays Slay the Spire 2 via the STS2MCP mod REST API"
 requires-python = ">=3.12"
+license = {file = "LICENSE"}
 dependencies = [
     "httpx>=0.27",
     "pydantic>=2.7",

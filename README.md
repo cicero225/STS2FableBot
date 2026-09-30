@@ -131,7 +131,13 @@ Development:
 
 - [STS2MCP](https://github.com/Gennadiyev/STS2MCP) by Gennadiyev, the mod
   that exposes the game over HTTP. This project would not exist without it.
-- Community run data (Spirebird cohort exports) informs the drafting priors.
-  It is fetched as occasional one-time downloads, never scraped.
+- [Spirebird](https://spirebird.com), jorbs' public Slay the Spire statistics
+  site. The card-pick priors in `data/priors_cards.json` are distilled from its
+  cohort exports (card pick rates, win rates), fetched as occasional one-time
+  downloads, never scraped.
 - Slay the Spire 2 is by Mega Crit. This project is not affiliated with or
   endorsed by Mega Crit.
+
+## License
+
+[MIT](LICENSE).
