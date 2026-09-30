@@ -102,7 +102,8 @@ The bot runs on Windows against a Steam install of Slay the Spire 2 with the
 STS2MCP mod. It needs **our fork** of the mod, which adds the master deck to
 the state payload plus ascension and time-scale controls the bot depends on:
 [cicero225/STS2MCP](https://github.com/cicero225/STS2MCP), branch
-`v107-fork` for game build v0.107.1.
+`v107-fork` for game build v0.107.1 (`v111-fork` for the v0.111 public beta).
+The fork's README lists what each branch adds.
 
 ```powershell
 python -m venv .venv
