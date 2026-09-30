@@ -4133,3 +4133,22 @@ def test_tainted_makes_skills_a_net_loss_on_multi_hit_turns() -> None:
                                                    "this turn."}]
     d3 = plan_combat_turn(parse_state(stacked), w)
     assert d3.scores["hp_loss"] == 22.0  # 15 + 12 - the Defend's 5
+
+
+def test_galvanized_keyword_is_an_immediate_self_cost() -> None:
+    """Globe Head (act 3, decoded 2026-09-30): 'Galvanic N: Powers are afflicted
+    with Galvanized', and the Galvanized keyword reads 'Take N damage when this
+    card is played'. The text lives in card.keywords, not the description, so
+    the sim played Powers into it for free (batch-7 run 2: two Powers at 36 HP,
+    then a third at 18). A per-turn Power keeps the cost (it is not upkeep)."""
+    from sts2bot.policy.combat import _to_planned
+    galv = [{"name": "Galvanized", "description": "Take 6 damage when this card is played."}]
+    hand = [dict(_bcard(0, "INFLAME", "Inflame", 1, "Gain 2 Strength.", "Power", "None"),
+                 keywords=galv),
+            dict(_bcard(1, "DEMON_FORM", "Demon Form", 3,
+                        "At the start of your turn, gain 2 Strength.", "Power", "None"),
+                 keywords=galv),
+            _bcard(2, "INFLAME", "Inflame", 1, "Gain 2 Strength.", "Power", "None")]
+    st = parse_state(_beckon_state(3, hand))
+    costs = [_to_planned(c, 3, 0, [], 0).fx.self_hp_cost for c in st.player.hand]
+    assert costs == [6, 6, 0]

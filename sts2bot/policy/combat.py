@@ -777,6 +777,15 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
         # also zero self_hp_cost: a per-turn power's "lose N HP" is a *next*-turn upkeep drain, not
         # damage you take the turn you play it (the parser reads it as immediate).
         fx.block = fx.energy_gain = fx.strength = fx.self_hp_cost = 0
+    # Galvanized (Globe Head's 'Galvanic N: Powers are afflicted with Galvanized',
+    # decoded 2026-09-30): the KEYWORD reads 'Take N damage when this card is
+    # played' -- an immediate self-cost the description never states, so it
+    # lives in card.keywords and lands after the per-turn zeroing above.
+    for kw in getattr(card, "keywords", None) or []:
+        m_g = re.search(r"Take (\d+) damage when this card is played",
+                        getattr(kw, "description", "") or "", re.IGNORECASE)
+        if m_g:
+            fx.self_hp_cost += int(m_g.group(1))
     # Self-damage powers (Inferno, Crimson Mantle) drain HP at upkeep — strong, but front-loading
     # them at low HP is fatal (the drain lands next turn, which the one-turn tally can't see).
     self_damage_power = per_turn_power and "lose" in low and "hp" in low

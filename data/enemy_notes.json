@@ -106,5 +106,10 @@
   "mechanic": "Vital Spark N (status text, decoded from logs 2026-09-30): 'ALL Skills are Tainted N' -- every Skill in hand reads 'Gain N Tainted when played', and the player status Tainted is 'Take N additional damage from Attacks this turn' PER HIT. Stack grows with its Empower (2 -> 4 seen). Move cycle seen: 15 / 11+Defend / 5x3 / 8+Buff+Defend. Act-2 elite, 161 HP, the most frequent act-2 elite in the corpus (143 era fights, mean loss 14.6, p75 24). Batch-6 tape (run 074854 f25): two Skills then a 5x3 landed for 31.",
   "modeled": "combat: SimState.tainted from TAINTED_POWER; PlannedCard.tainted_gain from 'Gain N Tainted'; _score incoming += tainted x hits per attacking enemy (2026-09-30). A Defend into a 5x3 turn now reads as a net loss; attacks and potions are untaxed.",
   "gaps": "Tainted stacks reset each turn (modeled as this-turn only); whether Skills should be held for the single-hit turns is the multiturn planner's call."
+ },
+ "Globe Head": {
+  "mechanic": "Galvanic N (status text, decoded 2026-09-30): 'Powers are afflicted with Galvanized' -- every Power in hand carries the KEYWORD Galvanized = 'Take N damage when this card is played' (N=6 seen). Act-3 hallway body, 139 HP; cycle seen 13+Debuff / 6x3 / 16+Buff. Era (A0 promoted keys): 30 fights, 1 death, mean loss 14.9, p75 21, ~1.5 galvanized Power plays per fight (~9 HP/fight of unpriced self-damage).",
+  "modeled": "combat._to_planned scans card.keywords for 'Take N damage when this card is played' and adds N to fx.self_hp_cost after the per-turn-power zeroing (2026-09-30) -- Powers now pay the hit; the suicide veto covers a fatal one.",
+  "gaps": "Modeled as unblockable HP loss; if the game lets Block absorb it the cost is slightly over-stated. Any other keyword-borne rider is still invisible to the parser (it reads descriptions only) -- worth a keyword sweep of the card catalog."
  }
 }
