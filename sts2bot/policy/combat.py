@@ -502,6 +502,9 @@ class EnemySim:
     # of the fight: N lands next turn (blockable then). 13 of 14 era WG deaths
     # were eruption deaths after a kill taken at 2-29 HP (2026-09-30 tally).
     eruption: int = 0
+    # Imbalanced (Bowlbug (Rock), decoded 2026-09-30): 'If its attacks are fully
+    # blocked, it becomes Stunned' -- a full block of its 15 buys a free turn.
+    imbalanced: bool = False
     # Infested (Phrog Parasite): "Upon dying, summons..." — killing it does NOT end the fight
     # (4 stunned Wrigglers spawn mid-turn). Suppresses the false LETHAL so survival checks and
     # stranded-card tallies stay live on the kill turn (owner question 2026-07-09).
@@ -952,6 +955,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
         asleep_left = 0
         hive = 0
         eruption = 0
+        imbalanced = False
         slow_stacks = None
         spawns_on_death = False
         burrowed = False
@@ -998,6 +1002,8 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 hive = max(1, int(p.amount or 1))
             if p.id.upper().startswith("STEAM_ERUPTION"):  # Waterfall Giant: post-kill blast
                 eruption = int(p.amount or 0)
+            if p.id.upper().startswith("IMBALANCED"):  # Bowlbug (Rock): full block = Stun
+                imbalanced = True
             if ("receives 10% more damage from attacks" in (p.description or "").lower()
                     or p.id.upper().startswith("SLOW")):
                 # Slow's AMOUNT is a cumulative-combat display, but the effect
@@ -1121,6 +1127,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 asleep_left=asleep_left,
                 hive=hive,
                 eruption=eruption,
+                imbalanced=imbalanced,
                 slow_stacks=slow_stacks,
                 spawns_on_death=spawns_on_death,
                 burrowed=burrowed,
@@ -1898,6 +1905,11 @@ def _score(
         excess = max(0, my_block_eff - incoming)
         if "STURDY_CLAMP" in eot:  # "up to 10 Block persists" — that much is never waste
             excess = max(0, excess - 10)
+    # Imbalanced attackers (Bowlbug (Rock)): fully blocking this turn's incoming
+    # stuns them for their next turn -- credit their next hit as block earned
+    imbalance_stun = (sum(e.incoming for e in state.enemies
+                          if e.imbalanced and _enemy_attacking(e) and e.incoming > 0)
+                      if (incoming > 0 and my_block_eff >= incoming and not lethal_end) else 0)
     # Healing offsets HP lost (Not Yet); net it against the loss so both ride the same scarcity
     # curve — a heal is worth ~nothing at full HP and a lot when low, symmetric with Offering.
     # Stranded Beckon-type damage is unblockable: straight into the loss, past the block math.
@@ -2046,6 +2058,7 @@ def _score(
         # "defend" (a recurring deadline turn, e.g. Kaiser's Laser) block is
         # promoted -- the whole point of the mode is surviving THIS beat.
         + w.w_block_useful * blocked
+        + w.w_imbalance_stun * imbalance_stun
         * (0.5 if fight_plan == "race" and blocked < 6 else
            w.defend_block_mult if fight_plan == "defend" else 1.0)
         + w.w_block_excess * excess

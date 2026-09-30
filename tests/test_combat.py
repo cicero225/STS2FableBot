@@ -4152,3 +4152,21 @@ def test_galvanized_keyword_is_an_immediate_self_cost() -> None:
     st = parse_state(_beckon_state(3, hand))
     costs = [_to_planned(c, 3, 0, [], 0).fx.self_hp_cost for c in st.player.hand]
     assert costs == [6, 6, 0]
+
+
+def test_imbalanced_rock_bowlbug_rewards_the_full_block() -> None:
+    """Bowlbug (Rock), decoded 2026-09-30: 'If its attacks are fully blocked, it
+    becomes Stunned' -- a full block of its 15 buys a free turn. With the status
+    the planner takes the full block over trading; hp_loss is 0."""
+    from sts2bot.kb.config import load_policy_config
+    w = load_policy_config().combat
+    imb = [{"id": "IMBALANCED_POWER", "name": "Imbalanced", "amount": 1,
+            "description": "If Bowlbug (Rock)'s attacks are fully blocked, it becomes Stunned."}]
+    hand = [_bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            _bcard(2, "BASH", "Bash", 2, "Deal 8 damage. Apply 2 Vulnerable.", "Attack",
+                   "AnyEnemy")]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, enemy_hp=47, hp=60,
+                                                   enemy_status=imb, incoming="10")), w)
+    assert d.scores["hp_loss"] == 0.0  # both Defends: the full block, and the stun
+    assert "Bash" not in (d.rationale or "").split(";")[0]

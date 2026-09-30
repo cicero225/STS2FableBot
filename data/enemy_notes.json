@@ -111,5 +111,10 @@
   "mechanic": "Galvanic N (status text, decoded 2026-09-30): 'Powers are afflicted with Galvanized' -- every Power in hand carries the KEYWORD Galvanized = 'Take N damage when this card is played' (N=6 seen). Act-3 hallway body, 139 HP; cycle seen 13+Debuff / 6x3 / 16+Buff. Era (A0 promoted keys): 30 fights, 1 death, mean loss 14.9, p75 21, ~1.5 galvanized Power plays per fight (~9 HP/fight of unpriced self-damage).",
   "modeled": "combat._to_planned scans card.keywords for 'Take N damage when this card is played' and adds N to fx.self_hp_cost after the per-turn-power zeroing (2026-09-30) -- Powers now pay the hit; the suicide veto covers a fatal one.",
   "gaps": "Modeled as unblockable HP loss; if the game lets Block absorb it the cost is slightly over-stated. Any other keyword-borne rider is still invisible to the parser (it reads descriptions only) -- worth a keyword sweep of the card catalog."
+ },
+ "Bowlbug pack": {
+  "mechanic": "Act-2 hallway pack of 2-3 bowlbugs (logs 2026-09-30). Rock (45-48 HP): 15 every turn; IMBALANCED 'If its attacks are fully blocked, it becomes Stunned' (its Stun intent shows 144 of 437 logged ticks). Nectar (36 HP): 3 / Buff (+15 Strength, seen as STRENGTH 15) / then 18 -- kill it before the buff or eat 18s. Silk (40 HP): Debuff (Weak/Frail) / 4x2. Egg (21 HP): 7 / Defend. Often paired with a Slumbering Beetle (85 HP, Slumber). Batch-6 blowouts 42-56 and two deaths in batches 7-8 -- both low-HP entries (18, 36).",
+  "modeled": "combat: EnemySim.imbalanced; when this turn's block covers the incoming, each imbalanced attacker's next hit is credited at w_imbalance_stun (0.8/pt) -- the planner now aims for the full block (2026-09-30). Nectar's buff is the generic Buff intent (its Strength shows once applied).",
+  "gaps": "Fully blocked is judged on total incoming, not per enemy (block is not allocated per attacker in the sim). Nectar's +15 pre-buff kill priority is only implicit (Strength appears after the buff)."
  }
 }

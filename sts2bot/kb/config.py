@@ -171,6 +171,9 @@ class CombatWeights(_Section):
     # draw pile -- sized as one status purge (w_status_purge), i.e. a dead draw.
     # Multi-hit cards pay hits x stacks; the killing turn pays nothing.
     w_hive_dazed: float = -2.5
+    # Bowlbug (Rock)'s Imbalanced: a FULL block of its attack stuns it next turn.
+    # Credited per point of its next hit, at the useful-block rate.
+    w_imbalance_stun: float = 0.8
     # Waterfall Giant's Steam Eruption (2026-09-30): the post-kill blast lands next
     # turn, blockable; this is the block an average next hand is assumed to cover.
     # The remainder is charged as HP loss on the kill turn, and while the Giant
