@@ -2024,7 +2024,7 @@ def _score(
            w.defend_block_mult if fight_plan == "defend" else 1.0)
         + w.w_block_excess * excess
         + hp_weight * external_loss
-        + hp_weight * eruption_shortfall
+        + hp_weight * eruption_shortfall * w.eruption_budget_mult
         + self_term
         + death_wall
         # Staged-body debuff waste (Test Subject wiki pass 2026-08-15): an

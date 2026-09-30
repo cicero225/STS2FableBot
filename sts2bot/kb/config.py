@@ -176,6 +176,13 @@ class CombatWeights(_Section):
     # The remainder is charged as HP loss on the kill turn, and while the Giant
     # lives the HP below (next stack - this) pays the scarcity rate as a budget.
     eruption_expected_block: float = 8.0
+    # The soft mid-fight budget (HP below next stack - expected block charged at
+    # the scarcity rate) is OFF by default: after 11 post-model WG fights the
+    # fights ran ~2 rounds longer with bigger final stacks (5/11 won vs 32/46
+    # before), consistent with the term stretching races the deck cannot win.
+    # The kill-turn accounting (a kill the blast finishes reads as death) stays
+    # on regardless. 1.0 = the 2026-09-30 batch-5/6 behaviour, for an A/B.
+    eruption_budget_mult: float = 0.0
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     # gamble cards (Infernal Blade+/Discovery): reveal EARLY so the rest of the
     # turn can use what they generate (owner 2026-08-03) -- per remaining card,
