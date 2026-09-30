@@ -2,6 +2,20 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30j (Fable 5) -- batch 7 opens 0/2; Globe Head's Galvanized decoded (keyword-borne rider)
+
+Batch 7 (code f1303d9) run 2 (PWTHV1V616) died at act-3 floor 45 to a
+Globe Head hallway after bleeding through act 3 (35 -> 17 -> rest -> 39 ->
+20 -> rest -> 42 -> 36). The tape: two Powers played into it at 36 HP and a
+third at 18 -- Globe Head's 'Galvanic 6: Powers are afflicted with
+Galvanized', and the Galvanized KEYWORD reads 'Take 6 damage when this card
+is played'. Keyword text is not in the description, so the parser never
+saw it; era: 30 fights, ~1.5 galvanized Power plays per fight. Fixed
+(next commit): _to_planned scans card.keywords for the wording and charges
+it as an immediate self-cost. Filed gap: other keyword-borne riders are
+equally invisible -- a keyword sweep of the catalog is cheap and due.
+Lands with batch 8.
+
 ## 2026-09-30i (Fable 5) -- batch 6 cut at 2/25 (boundary stop); batch 7 launched with Tainted + the gated budget
 
 Batch 6 (code f413d30/36b9e43 across the crash; 25 clean at A0, 1 crash
