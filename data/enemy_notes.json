@@ -101,5 +101,10 @@
   "mechanic": "Hard to Kill: 'Reduce all damage taken and HP lost by Exoskeleton to 9' -- a PER-INSTANCE cap (live 2026-09-30: one body lost 27 in a single player turn), so multi-hit cards punch through and big single hits are wasted past 9. Act-2 pack of four 24-28 HP bodies that Buff (Strength) between 8/10/12 hits and 1x3/3x3/5x3 multi-hits; a ramping grind that punishes slow decks. Era (A0 promoted keys): n=122, mean loss 10.6, p75 15, 7% blowouts -- but 2 deaths in batch 5's first 7 runs on 52-53 HP entries.",
   "modeled": "capability.detect_mechanics: 'reduce all damage taken and HP lost to N' -> dmg_cap_per_hit (was folded into the per-turn cap built for Hardened Shell, so the one-turn planner and the rollout wrote off every follow-up hit into a body that had taken 9); combat per-hit loop and rollout _hit cap each instance (2026-09-30). Intangible (Soul Fysh) moved to the same per-instance key.",
   "gaps": "capability.estimate_fight's kill-time math only knows the per-turn cap; a per-hit cap is uncapped there (acceptable: it over-estimates damage into Exoskeletons slightly)."
+ },
+ "Infested Prism": {
+  "mechanic": "Vital Spark N (status text, decoded from logs 2026-09-30): 'ALL Skills are Tainted N' -- every Skill in hand reads 'Gain N Tainted when played', and the player status Tainted is 'Take N additional damage from Attacks this turn' PER HIT. Stack grows with its Empower (2 -> 4 seen). Move cycle seen: 15 / 11+Defend / 5x3 / 8+Buff+Defend. Act-2 elite, 161 HP, the most frequent act-2 elite in the corpus (143 era fights, mean loss 14.6, p75 24). Batch-6 tape (run 074854 f25): two Skills then a 5x3 landed for 31.",
+  "modeled": "combat: SimState.tainted from TAINTED_POWER; PlannedCard.tainted_gain from 'Gain N Tainted'; _score incoming += tainted x hits per attacking enemy (2026-09-30). A Defend into a 5x3 turn now reads as a net loss; attacks and potions are untaxed.",
+  "gaps": "Tainted stacks reset each turn (modeled as this-turn only); whether Skills should be held for the single-hit turns is the multiturn planner's call."
  }
 }

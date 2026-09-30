@@ -4102,3 +4102,34 @@ def test_enthralled_is_played_first_to_unlock_the_hand() -> None:
                          load_policy_config().combat)
     assert d.action.payload()["card_index"] == 1
     assert "must be played before" in (d.rationale or "")
+
+
+def test_tainted_makes_skills_a_net_loss_on_multi_hit_turns() -> None:
+    """Infested Prism's Vital Spark (decoded 2026-09-30, the most frequent act-2
+    elite in the corpus): every Skill reads 'Gain 2 Tainted when played' and
+    Tainted is 'Take 2 additional damage from Attacks this turn' PER HIT. Into a
+    5x3 turn a Defend blocks 5 and adds 6 -- the sim must see the net loss
+    (batch-6 tape: a 5x3 landed for 31 after two Skills). Without the rider the
+    same Defend is a plain 5-block play and gets made."""
+    from sts2bot.kb.config import load_policy_config
+    w = load_policy_config().combat
+    tainted_hand = [
+        _bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+        _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block. Gain 2 Tainted.", "Skill",
+               "None")]
+    d = plan_combat_turn(parse_state(_beckon_state(1, tainted_hand, enemy_hp=161, hp=60,
+                                                   incoming="5x3")), w)
+    assert d.action.payload()["card_index"] == 0  # the Defend would cost a net 1 HP
+    plain_hand = [tainted_hand[0],
+                  _bcard(1, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None")]
+    d2 = plan_combat_turn(parse_state(_beckon_state(1, plain_hand, enemy_hp=161, hp=60,
+                                                    incoming="5x3")), w)
+    assert d2.action.payload()["card_index"] == 1  # plain Defend: block 5 of 15
+    assert d.scores["hp_loss"] == 15.0 and d2.scores["hp_loss"] == 10.0
+    # stacks already on the player raise every incoming hit too: 4 x 3 hits
+    stacked = _beckon_state(1, plain_hand, enemy_hp=161, hp=60, incoming="5x3")
+    stacked["player"]["status"] = [{"id": "TAINTED_POWER", "name": "Tainted", "amount": 4,
+                                    "description": "Take 4 additional damage from Attacks "
+                                                   "this turn."}]
+    d3 = plan_combat_turn(parse_state(stacked), w)
+    assert d3.scores["hp_loss"] == 22.0  # 15 + 12 - the Defend's 5

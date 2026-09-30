@@ -307,6 +307,11 @@ class PlannedCard:
     # [True Grit > Defend] read 12 block; the random exhaust ate the Defend and
     # the bot died 3 HP short. Defend-first would have lived.
     exhausts_random_card: bool = False
+    # Infested Prism's Vital Spark (decoded 2026-09-30): 'ALL Skills are Tainted N'
+    # -> every Skill reads 'Gain N Tainted when played', and Tainted is 'Take N
+    # additional damage from Attacks this turn' PER HIT. A Defend into a 5x3
+    # turn blocks 5 and adds 6. Era: the most frequent act-2 elite (143 fights).
+    tainted_gain: int = 0
     # Barricade-class (owner catch 2026-08-29, seed-B T1: the plan only
     # learned block-persistence from the live status on REPLAN — same-turn
     # block after the power got no credit at plan time)
@@ -668,6 +673,7 @@ class SimState:
     # Tungsten Rod: each HP-loss instance loses 1 less — approximated as -1 per
     # attacking enemy in the incoming pool (multi-hit intents under-counted)
     hp_loss_reduction: int = 0
+    tainted: int = 0  # 'Take N additional damage from Attacks this turn' (per hit)
     dup_armed: bool = False  # Duplicator drunk: the next card play applies twice
     sleepers_woken: int = 0  # paid sleeper wakes in the plan (non-kill, non-final-turn)
     # free setup turns the plan's wakes forfeit (Asleep stacks - 1 each); the
@@ -871,6 +877,8 @@ def _to_planned(card, energy: int, hand_attacks: int = 0,
             r"Exhaust a random Attack in your Hand", desc, re.IGNORECASE)),
         exhausts_random_card=bool(re.search(
             r"Exhaust 1 card at random", desc, re.IGNORECASE)),
+        tainted_gain=(int(m_t.group(1))
+                      if (m_t := re.search(r"Gain (\d+) Tainted", desc, re.IGNORECASE)) else 0),
         grants_barricade=bool(re.search(
             r"block is (?:not|no longer) removed", desc, re.IGNORECASE)),
         grants_unmovable=bool(re.search(
@@ -1716,6 +1724,7 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         n_exhaust_events=s.n_exhaust_events + (1 if card.exhausts_a_card else 0),
         vuln_dmg_reduction=s.vuln_dmg_reduction or card.grants_vuln_reduction,
         hand_upgrades=s.hand_upgrades + card.upgrades_in_hand,
+        tainted=s.tainted + (card.tainted_gain if card.potion_slot is None else 0),
         # Aeonglass Withering Presence (owner decode 2026-08-28): every card
         # PLAY ticks the live countdown; crossing it manufactures an
         # escalating Wither. Potions aren't cards.
@@ -1785,7 +1794,9 @@ def _score(
     # intent doesn't land — attacking down to the threshold can cancel an otherwise-lethal hit.
     incoming = sum(
         max(0, (e.incoming // 2 if state.vuln_dmg_reduction and e.vulnerable > 0
-                else e.incoming) - state.hp_loss_reduction)
+                else e.incoming) - state.hp_loss_reduction
+            # Tainted: +N per incoming hit this turn (Infested Prism's Skill tax)
+            + state.tainted * max(1, e.incoming_hits))
         for e in state.enemies if _enemy_attacking(e)
     )  # Colossus: 50% less dmg from Vulnerable enemies; Tungsten: -1 per attacker
     # Stranded status cards (Beckon "lose N HP" / Toxic "take N damage") bite at end of turn
@@ -2148,6 +2159,7 @@ def plan_combat_turn(
     vuln_mult_bonus = 0.0
     per_exhaust_block = 0  # Feel No Pain
     smoggy = False  # Living Fog: one Skill per turn
+    tainted = 0  # Infested Prism: +N damage per incoming hit this turn
     end_turn_block = 0  # Plating: end-of-turn block that soaks this turn's incoming
     for p in player.status:
         pid = p.id.upper()
@@ -2163,6 +2175,8 @@ def plan_combat_turn(
         if pid.startswith("SMOGGY") or re.search(
                 r"only (?:play )?(?:one|1) skill", p.description or "", re.I):
             smoggy = True
+        if pid.startswith("TAINTED"):
+            tainted = int(p.amount or 0)
         # Knowledge Demon's Disintegration (and kin): end-of-turn blockable self-damage as a
         # PLAYER status. Parse the amount from the text so escalation (6->7->8) tracks live.
         if m := re.search(r"end of your turn, take (\d+) damage", p.description or "", re.I):
@@ -2559,6 +2573,7 @@ def plan_combat_turn(
         demon_tongue_armed=demon_armed,
         eot_relics=tuple(eot_relics),
         hp_loss_reduction=hp_loss_reduction,
+        tainted=tainted,
         ethereal_hand=tuple(
             c.index for c in hand
             if re.search(r"ethereal", c.description or "", re.IGNORECASE)),
@@ -2796,6 +2811,7 @@ def plan_combat_turn(
     proj_incoming = sum(
         (e.incoming // 2 if best_state.vuln_dmg_reduction and e.vulnerable > 0
          else e.incoming)
+        + best_state.tainted * max(1, e.incoming_hits)  # Tainted: +N per hit (mirrors _score)
         for e in best_state.enemies if _enemy_attacking(e)
     )  # mirror _score's Colossus halving — hail-mary callers read this number
     # Status cards stranded in hand hit you at end of turn; the incoming/block tally misses them.
