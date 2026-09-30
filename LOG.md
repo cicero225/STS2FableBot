@@ -2,6 +2,23 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30k (Fable 5) -- batch 7 at 5/25; Waterfall eruption model recalibrated against the pre-model wins
+
+Batch 7 (code f1303d9) through run 26: 5/25 clean + 1 treasure wedge (the
+20th, act-3 floor 41 again). Waterfall Giant 0/3 on the gated code
+(entries 56-62; one 20-round grind where the Giant sat at 1 HP for three
+rounds while the bot at 2 HP refused the kill). Post-model WG overall:
+5/14 vs 32/46 before. Calibration against the 32 pre-model wins: kill at
+mean +5 HP over the blast, but 12 of 32 killed BELOW the blast and lived on
+a blast-turn block averaging 15 (6-69); losses' margins ran -10 to -38 and
+every margin < -20 died. So the kill-turn wall at expected block 8 was
+refusing coin-flip kills and sliding into attrition deaths. Fix (next
+commit): eruption_expected_block 8 -> 15; the blast's remainder is charged
+as HP loss but no longer trips the death wall; the soft budget stays off.
+Owner-reviewable; batch 8 measures it. KD watch item: 1/7 in batches 6-7
+at 59-80 entries vs 11/16 in batches 4-5 -- no code path touches it, the
+loss tapes are slow decks; keep watching.
+
 ## 2026-09-30j (Fable 5) -- batch 7 opens 0/2; Globe Head's Galvanized decoded (keyword-borne rider)
 
 Batch 7 (code f1303d9) run 2 (PWTHV1V616) died at act-3 floor 45 to a
