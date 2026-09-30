@@ -41,6 +41,22 @@ fallback, feeding both the rest rule and the map DP), NOT changed live: the
 definitive A0 read comes first and the pre-boss rest lever already burned
 one arm (v6) by costing upgrades.
 
+Batch 3 through run 25: 3/24 clean + 1 wedge (run 11: post-event map freeze,
+phase=to_run, recovered; 5 error halts in 364 September runs). Drought
+checks extended: decision timing identical across the record batch and
+batches 2-3 (median 0.23-0.25 s, same wait fractions) -> not GPU-contention
+lag; no enemy or event seen in batches 2-3 that the record batch lacked ->
+not a Timeline unlock. Pooled on the promoted keys: 29/180 (16.1%).
+Sleeper v4 live: fight 1 (B1VNZGC6EJ) held r1 and woke r2 with a 34-dmg
+burst (by design; lost on a 49-HP basic deck); fight 2 (738CVJRL8Y) woke
+r1 with 25 dmg -- term diff: strength_gained=2 from Setup Strike. ROOT
+CAUSE: textparse's 'Gain N Strength this turn' regex carried a literal
+0x08 byte where  was meant (never matched since it was written), so
+Setup Strike paid the permanent-Strength horizon credit. Fixed (next
+commit), replay holds. Kaiser again x2 (runs 5, 23): both entered at
+39-44 HP after correctly resting from 12-20 HP at floor 32 -- the damage
+is taken upstream in act 2, not at the campfire.
+
 ## 2026-09-28i (Fable 5) -- batch 2 stopped at the run-28 boundary (owner's GPU): 3/28
 
 Owner asked (21:4x) to defer batches: their model training and the game
