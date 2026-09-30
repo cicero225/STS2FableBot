@@ -4082,3 +4082,23 @@ def test_hard_to_kill_caps_each_hit_not_the_turn() -> None:
     assert per_hit.damage_dealt == 27
     per_turn = _apply_attack(_state(_enemy(dmg_cap_per_turn=15)), 0, _attack(20, hits=3))
     assert per_turn.damage_dealt == 15
+
+
+def test_enthralled_is_played_first_to_unlock_the_hand() -> None:
+    """Live 2026-09-30 (run 20260930-040833, Devoted Sculptor f35): Enthralled
+    ('If this is in your Hand, it must be played before other cards. Eternal.')
+    locks every other card; the search saw no value in it and ended four turns
+    in a row at 4..16 energy while Ritual ramped the enemy to 48. Era: 42 such
+    stalled turns across 69 runs. Play it first whenever affordable."""
+    from sts2bot.kb.config import load_policy_config
+    hand = [_bcard(0, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy",
+                   can_play=False),
+            _bcard(1, "ENTHRALLED", "Enthralled", 2,
+                   "If this is in your Hand, it must be played before other cards. Eternal.",
+                   "Curse", "None"),
+            _bcard(2, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None",
+                   can_play=False)]
+    d = plan_combat_turn(parse_state(_beckon_state(3, hand, incoming="12")),
+                         load_policy_config().combat)
+    assert d.action.payload()["card_index"] == 1
+    assert "must be played before" in (d.rationale or "")

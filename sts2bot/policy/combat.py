@@ -2231,6 +2231,25 @@ def plan_combat_turn(
         if pfx.damage > 0:
             discard_dmgs.append(int(pfx.total_damage))
     discard_attack_dmgs = tuple(discard_dmgs)
+    # Enthralled-class curse (live 2026-09-30, run 20260930-040833: four straight
+    # end-turns at 4..16 energy while a Ritual enemy ramped to 48): 'If this is in
+    # your Hand, it must be played before other cards.' The game locks every other
+    # card (can_play False) until it is played, and the search sees no value in a
+    # do-nothing card, so the hand stayed locked. Play it first, unconditionally,
+    # whenever it is affordable; if it is not, nothing else is playable either.
+    for card in hand:
+        if (card.index not in excluded_indices and card.can_play
+                and re.search(r"must be played before other cards",
+                              card.description or "", re.IGNORECASE)):
+            try:
+                gate_cost = int(card.cost or "0")
+            except ValueError:
+                gate_cost = 0
+            if gate_cost <= energy:
+                return Decision(
+                    action=act.PlayCard(card_index=card.index, target=None),
+                    rationale=f"{card.name}: must be played before other cards (unlocks the hand)",
+                )
     playable = [
         c for c in (
             _to_planned(card, energy, hand_attacks, exhaust_pile,

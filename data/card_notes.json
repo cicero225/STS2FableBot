@@ -1754,5 +1754,11 @@
   "SCRAWL": {
    "notes": "Epoch unlock 2026-07-30: 'Draw cards until your Hand is full. Exhaust.' 1-cost Skill. Parser's _DRAW regex needs a number so fx.draw=0 -- the planner undervalues it badly; treat as ~4-5 draw. Premium in thin decks; NO_DRAW (Battle Trance) locks it like all draws."
   }
+ },
+ "ENTHRALLED": {
+  "name": "Enthralled",
+  "text": "If this is in your Hand, it must be played before other cards. Eternal.",
+  "ruling": "Curse. While it sits in hand the game marks every other card can_play=False; playing it (cost 2, no effect) unlocks the hand. Live 2026-09-30: the planner saw no value in it and ended four turns in a row at 4..16 energy (run 20260930-040833, Devoted Sculptor Ritual ramp to 48); era 42 stalled turns in 69 runs.",
+  "modeled": "plan_combat_turn short-circuit: a playable, affordable 'must be played before other cards' card is played first, unconditionally (2026-09-30)."
  }
 }
