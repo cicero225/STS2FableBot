@@ -1,0 +1,89 @@
+{
+ "source": "3666 completed run logs",
+ "options": {
+  "BATTLEWORN_DUMMY|Accept": {
+   "encounter": "Battle Friend V2.0",
+   "n": 1,
+   "deaths": 0,
+   "mean": 1,
+   "p75": 1
+  },
+  "BATTLEWORN_DUMMY|Setting 1": {
+   "encounter": "Battle Friend V1.0",
+   "n": 24,
+   "deaths": 0,
+   "mean": 0.5,
+   "p75": 3
+  },
+  "BATTLEWORN_DUMMY|Setting 2": {
+   "encounter": "Battle Friend V2.0",
+   "n": 173,
+   "deaths": 0,
+   "mean": 2.9,
+   "p75": 6
+  },
+  "BATTLEWORN_DUMMY|Setting 3": {
+   "encounter": "Battle Friend V3.0",
+   "n": 8,
+   "deaths": 0,
+   "mean": 1.5,
+   "p75": 3
+  },
+  "BATTLEWORN_DUMMY|That": {
+   "encounter": "Battle Friend V2.0",
+   "n": 1,
+   "deaths": 0,
+   "mean": 3,
+   "p75": 3
+  },
+  "DENSE_VEGETATION|Fight!": {
+   "encounter": "Wriggler",
+   "n": 85,
+   "deaths": 4,
+   "mean": 25.0,
+   "p75": 35
+  },
+  "DENSE_VEGETATION|Rest": {
+   "encounter": "Wriggler",
+   "n": 176,
+   "deaths": 5,
+   "mean": 23.2,
+   "p75": 32
+  },
+  "DENSE_VEGETATION|That": {
+   "encounter": "Wriggler",
+   "n": 1,
+   "deaths": 0,
+   "mean": 12,
+   "p75": 12
+  },
+  "DENSE_VEGETATION|Trudge On": {
+   "encounter": "Wriggler",
+   "n": 95,
+   "deaths": 3,
+   "mean": 22.1,
+   "p75": 30
+  },
+  "THE_LANTERN_KEY|Fight": {
+   "encounter": "Mysterious Knight",
+   "n": 175,
+   "deaths": 4,
+   "mean": 30.1,
+   "p75": 41
+  },
+  "THE_LANTERN_KEY|Keep the Key": {
+   "encounter": "Mysterious Knight",
+   "n": 175,
+   "deaths": 4,
+   "mean": 30.1,
+   "p75": 41
+  },
+  "THE_LANTERN_KEY|Take the Top One": {
+   "encounter": "Mysterious Knight",
+   "n": 1,
+   "deaths": 0,
+   "mean": 28,
+   "p75": 28
+  }
+ }
+}

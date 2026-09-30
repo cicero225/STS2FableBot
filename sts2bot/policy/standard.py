@@ -32,6 +32,7 @@ from sts2bot.client.models import (
 )
 from sts2bot.kb.combat_stats import CombatStats
 from sts2bot.kb.config import PolicyConfig, load_policy_config
+from sts2bot.kb.event_fight_stats import EventFightStats
 from sts2bot.kb.event_stats import EventStats
 from sts2bot.kb.priors import CardPriors
 from sts2bot.kb.shop_stats import ShopStats
@@ -327,6 +328,7 @@ class StandardRouter:
         combat_stats: CombatStats | None = None,
         shop_stats: ShopStats | None = None,
         event_stats: EventStats | None = None,
+        event_fight_stats: EventFightStats | None = None,
         bestiary: dict | None = None,
         enemy_dps: dict | None = None,
         draft_tags: dict | None = None,
@@ -337,6 +339,8 @@ class StandardRouter:
         self.combat_stats = combat_stats if combat_stats is not None else CombatStats.load()
         self.shop_stats = shop_stats if shop_stats is not None else ShopStats.load()
         self.event_stats = event_stats if event_stats is not None else EventStats.load()
+        self.event_fight_stats = (event_fight_stats if event_fight_stats is not None
+                                  else EventFightStats.load())
         self.card_effects = load_card_descriptions()  # id|upgrade -> text, for §5-C deck pricing
         # enemy name -> HP + status text, for per-boss/elite estimates (injectable for tests)
         self.bestiary = bestiary if bestiary is not None else load_bestiary()
@@ -2045,7 +2049,15 @@ class StandardRouter:
             # never states (Lantern Key death 2026-07-22: 'Fight to obtain the Key'
             # read as a free relic at 25/85 HP — chose combat at 29% over 100 gold).
             # Price it as an expected monster loss so the hp-cost gates apply.
-            if hp_cost == 0 and re.search(r"\bfight\b", text, re.IGNORECASE):
+            # Observed cost of THIS option's fight (2026-09-30: the Lantern Key's
+            # Mysterious Knight runs 30 mean / 41 p75 over 175 fights, priced as a
+            # 10-HP hallway; Dense Vegetation's 'Rest' is a Wriggler ambush that never
+            # says 'fight'). p75 = the owner's 'hp-gated'; thin records fall through.
+            known = (self.event_fight_stats.cost(eid, o.title)
+                     if self.event_fight_stats is not None else None)
+            if known:
+                hp_cost = max(hp_cost, int(known["p75"]))
+            elif hp_cost == 0 and re.search(r"\bfight\b", text, re.IGNORECASE):
                 est_fight = (self.combat_stats.expected_loss("monster", stat="mean")
                              if self.combat_stats else None)
                 hp_cost = int(est_fight if est_fight is not None else 15)

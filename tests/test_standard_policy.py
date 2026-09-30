@@ -5744,3 +5744,26 @@ def test_shop_bought_list_resets_between_shops() -> None:
             it["price"] = 100
     d2 = r.decide(parse_state(payload), ctx)
     assert d2.action.payload() == {"action": "shop_purchase", "index": 10}
+
+
+def test_event_fight_option_is_priced_by_its_observed_fight_cost() -> None:
+    """2026-09-30: the Lantern Key's 'Keep the Key' spawns the Mysterious Knight
+    (175 A0 fights, 30 mean / 41 p75, 4 deaths) but the gate priced it as a
+    ~10-HP hallway and three runs in three batches were crippled by it (51, 58,
+    74 HP). With the observed p75 the option is refused when paying it would
+    drop below the post-cost floor; at healthy HP it is still taken (catalog
+    5.0 vs 3.5 for the gold)."""
+    from sts2bot.kb.event_fight_stats import EventFightStats
+    stats = EventFightStats({"THE_LANTERN_KEY|Keep the Key": {
+        "encounter": "Mysterious Knight", "n": 175, "deaths": 4, "mean": 30.1, "p75": 41}})
+    opts = [_ev_opt(0, "Return the Key", "Gain 100 Gold."),
+            _ev_opt(1, "Keep the Key", "Fight to obtain the Key.")]
+    r = StandardRouter(event_fight_stats=stats)
+    low = r.decide(_ev_state("THE_LANTERN_KEY", opts, hp=52, max_hp=80), LoopContext())
+    assert low.action.payload()["index"] == 0  # (52 - 41) / 80 < 20%: refuse the fight
+    ok = r.decide(_ev_state("THE_LANTERN_KEY", opts, hp=75, max_hp=80), LoopContext())
+    assert ok.action.payload()["index"] == 1
+    # thin records fall back to the old generic pricing (52 - 10 is comfortably above)
+    thin = StandardRouter(event_fight_stats=EventFightStats({}))
+    assert thin.decide(_ev_state("THE_LANTERN_KEY", opts, hp=52, max_hp=80),
+                       LoopContext()).action.payload()["index"] == 1
