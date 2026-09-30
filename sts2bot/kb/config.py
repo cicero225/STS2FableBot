@@ -171,6 +171,11 @@ class CombatWeights(_Section):
     # draw pile -- sized as one status purge (w_status_purge), i.e. a dead draw.
     # Multi-hit cards pay hits x stacks; the killing turn pays nothing.
     w_hive_dazed: float = -2.5
+    # Waterfall Giant's Steam Eruption (2026-09-30): the post-kill blast lands next
+    # turn, blockable; this is the block an average next hand is assumed to cover.
+    # The remainder is charged as HP loss on the kill turn, and while the Giant
+    # lives the HP below (next stack - this) pays the scarcity rate as a budget.
+    eruption_expected_block: float = 8.0
     w_rage_sequence: float = 0.3  # nudge Rage before attacks even when its block reads as excess
     # gamble cards (Infernal Blade+/Discovery): reveal EARLY so the rest of the
     # turn can use what they generate (owner 2026-08-03) -- per remaining card,

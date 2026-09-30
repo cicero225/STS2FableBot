@@ -491,6 +491,11 @@ class EnemySim:
     # by an Attack, add 1 Dazed into your Draw Pile' -- per HIT, stacks with
     # Empower. Each landed hit pollutes the deck by `hive` Dazed.
     hive: int = 0
+    # Steam Eruption (Waterfall Giant): 'When killed, deals N damage at the end of
+    # your next turn' -- visible from round 2, +3 per move. The kill is NOT the end
+    # of the fight: N lands next turn (blockable then). 13 of 14 era WG deaths
+    # were eruption deaths after a kill taken at 2-29 HP (2026-09-30 tally).
+    eruption: int = 0
     # Infested (Phrog Parasite): "Upon dying, summons..." — killing it does NOT end the fight
     # (4 stunned Wrigglers spawn mid-turn). Suppresses the false LETHAL so survival checks and
     # stranded-card tallies stay live on the kill turn (owner question 2026-07-09).
@@ -928,6 +933,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
         asleep = False
         asleep_left = 0
         hive = 0
+        eruption = 0
         slow_stacks = None
         spawns_on_death = False
         burrowed = False
@@ -972,6 +978,8 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 asleep_left = int(p.amount or 0)
             if p.id.upper().startswith("PERSONAL_HIVE"):  # Entomancer: a Dazed per hit
                 hive = max(1, int(p.amount or 1))
+            if p.id.upper().startswith("STEAM_ERUPTION"):  # Waterfall Giant: post-kill blast
+                eruption = int(p.amount or 0)
             if ("receives 10% more damage from attacks" in (p.description or "").lower()
                     or p.id.upper().startswith("SLOW")):
                 # Slow's AMOUNT is a cumulative-combat display, but the effect
@@ -1093,6 +1101,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 asleep=asleep,
                 asleep_left=asleep_left,
                 hive=hive,
+                eruption=eruption,
                 slow_stacks=slow_stacks,
                 spawns_on_death=spawns_on_death,
                 burrowed=burrowed,
@@ -1739,7 +1748,8 @@ def _fight_over(enemies) -> bool:
     pool = leaders or list(enemies)
     if any(e.hp > 0 for e in pool):
         return False
-    return not any(e.hp <= 0 and e.spawns_on_death for e in enemies)
+    # a dead ERUPTING body (Waterfall Giant) still blasts next turn: not over either
+    return not any(e.hp <= 0 and (e.spawns_on_death or e.eruption > 0) for e in enemies)
 
 
 def _hand_at_end(state: SimState) -> int:
@@ -1867,8 +1877,13 @@ def _score(
     # Healing offsets HP lost (Not Yet); net it against the loss so both ride the same scarcity
     # curve — a heal is worth ~nothing at full HP and a lot when low, symmetric with Offering.
     # Stranded Beckon-type damage is unblockable: straight into the loss, past the block math.
+    # Waterfall Giant killed this turn: its Steam Eruption lands at the end of NEXT
+    # turn, blockable then -- charge the part an average hand won't cover as real
+    # loss so a kill at 15 HP into a 30 blast reads as the death it usually is.
+    eruption_pending = sum(e.eruption for e in state.enemies if e.hp <= 0 and e.eruption > 0)
+    eruption_unblocked = max(0, eruption_pending - w.eruption_expected_block)
     external_loss = (incoming - min(my_block_eff, incoming)
-                     - state.healing + stranded_unb)
+                     - state.healing + stranded_unb + eruption_unblocked)
     # HP is cheap when full, precious when low (owner: Offering should be played
     # freely when healthy, shelved when hurt)
     hp_weight = w.w_hp_loss * (w.hp_scarcity_base + w.hp_scarcity_slope * (1.0 - hp_pct))
@@ -1882,6 +1897,14 @@ def _score(
     else:
         self_term = hp_weight * state.self_damage
     death_wall = w.w_projected_death if (projected_hp <= 0 and not lethal_end) else 0.0
+    # Eruption budget while the Giant lives: the kill, whenever it comes, needs
+    # hp >= next turn's stack minus an average hand's block. HP below that line
+    # is HP the run will not have at the blast -- charged at the scarcity rate,
+    # not as a wall (the race must still progress; 2026-09-30, 13/14 WG deaths).
+    eruption_next = max((e.eruption for e in state.enemies if e.hp > 0 and e.eruption > 0),
+                        default=0)
+    eruption_shortfall = (max(0, eruption_next + 3 - w.eruption_expected_block - projected_hp)
+                          if eruption_next and not eruption_pending else 0)
     if death_wall:
         # every branch that projects death pays the same wall; the self-HP
         # spent getting there is moot (the outright-suicide veto still holds
@@ -1997,6 +2020,7 @@ def _score(
            w.defend_block_mult if fight_plan == "defend" else 1.0)
         + w.w_block_excess * excess
         + hp_weight * external_loss
+        + hp_weight * eruption_shortfall
         + self_term
         + death_wall
         # Staged-body debuff waste (Test Subject wiki pass 2026-08-15): an

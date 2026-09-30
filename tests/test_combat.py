@@ -12,6 +12,7 @@ from sts2bot.policy.combat import (
     _apply_attack,
     _apply_card,
     _enemy_attacking,
+    _fight_over,
     _score,
     plan_combat_turn,
 )
@@ -4016,3 +4017,49 @@ def test_planner_prefers_one_big_hit_over_many_small_into_a_hive() -> None:
     d0 = plan_combat_turn(parse_state(_beckon_state(1, hand, enemy_hp=145, hp=70,
                                                     incoming="18")), w)
     assert d0.action.payload()["card_index"] == 0  # no hive: raw damage wins
+
+
+def _giant_state(hp: int, giant_hp: int, eruption: int, hand: list, incoming: str = "10") -> dict:
+    return {"state_type": "boss", "run": {"act": 1, "floor": 17, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 84, "block": 0,
+                       "energy": 3, "status": [], "hand": hand, "potions": [],
+                       "max_potion_slots": 3},
+            "battle": {"round": 6, "turn": "player", "is_play_phase": True,
+                       "enemies": [{"entity_id": "WATERFALL_GIANT_0", "name": "Waterfall Giant",
+                                    "hp": giant_hp, "max_hp": 240, "block": 0,
+                                    "status": [{"id": "STEAM_ERUPTION_POWER",
+                                                "name": "Steam Eruption", "amount": eruption,
+                                                "description": f"When killed, deals {eruption} "
+                                                "damage at the end of your next turn."}],
+                                    "intents": [{"type": "attack", "label": incoming}]}]}}
+
+
+def test_erupting_kill_is_not_the_end_of_the_fight() -> None:
+    """Waterfall Giant (era tally 2026-09-30: 13 of 14 deaths were the telegraphed
+    post-kill eruption). Killing it leaves a blast pending next turn, so the
+    kill is neither lethal_end nor free of the blast's cost."""
+    from dataclasses import replace as dc_replace
+    out = _apply_attack(_state(dc_replace(_enemy(eruption=30), hp=10)), 0, _attack(12))
+    assert out.enemies[0].hp == 0 and not _fight_over(out.enemies)
+    plain = _apply_attack(_state(dc_replace(_enemy(), hp=10)), 0, _attack(12))
+    assert _fight_over(plain.enemies)
+
+
+def test_planner_will_not_take_a_kill_that_the_eruption_finishes() -> None:
+    """15 HP, Giant at 20 with a 30 eruption: Bash + Strike + Strike kills it but
+    the 30 blast (minus an 8-block hand) ends the run next turn; two Defends
+    cover the 10 incoming and keep the budget. With a 12 eruption the kill is
+    fine and the planner takes it."""
+    from sts2bot.kb.config import load_policy_config
+    w = load_policy_config().combat
+    hand = [_bcard(0, "BASH", "Bash", 1, "Deal 8 damage. Apply 2 Vulnerable.", "Attack",
+                   "AnyEnemy"),
+            _bcard(1, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            _bcard(2, "STRIKE_IRONCLAD", "Strike", 1, "Deal 6 damage.", "Attack", "AnyEnemy"),
+            _bcard(3, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None"),
+            _bcard(4, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "None")]
+    d = plan_combat_turn(parse_state(_giant_state(15, 20, 30, hand)), w)
+    assert "Defend" in (d.rationale or "") and "LETHAL" not in (d.rationale or "")
+    d2 = plan_combat_turn(parse_state(_giant_state(15, 20, 12, hand)), w)
+    assert d2.action.payload()["card_index"] in (0, 1, 2)
+    assert "Defend" not in (d2.rationale or "").split(";")[0]
