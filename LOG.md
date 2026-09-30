@@ -2,6 +2,24 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30c (Fable 5) -- batch 4 closes 5/39; batch 5 launched with the hive + eruption models
+
+Batch 4 (b3sxi5cgj, code b432f16 = + Setup Strike temp-Strength fix; 39
+clean at A0 + 1 treasure wedge): **5/39 (12.8%)** -- wins YSVE7X42L5,
+QEFPEP9MQ0, 2HNVDL5MAQ, P7TQKFWU9C, 4S7RAEWLQM. Act reach 1: 8, 2: 18,
+3: 13; composites act reach 2.15, relics 11.6, elites 5.5/run of 174.
+Killers: Entomancer elite 4, Insatiable 4, Queen 4, Test Subject 4, KD 3,
+Waterfall 3, Kaiser 3, Hunter Killer 2, singles. Act 2 was the sink this
+batch (18 runs ended there: 10 bosses, 4 Entomancer, 4 hallways after
+upstream bleeds). Pooled A0 on the promoted keys: **34/220 (15.5%)**.
+
+Batch 5 (b65is18sx, code 262d1aa) launched on the same game session (2.2
+GB, responsive, 4.3 h up): first batch with the Entomancer hive model and
+the Waterfall Giant kill budget, on top of sleeper v4, True Grit sequencing
+and the Setup Strike fix. The mechanic fixes since 09-28 each target a
+named loss cluster (Matriarch pokes, Waterfall eruptions, Entomancer
+blowouts); whether they move the pooled rate is what batch 5 measures.
+
 ## 2026-09-30b (Fable 5) -- Waterfall Giant: 13 of 14 deaths were the post-kill eruption; kill budget modeled
 
 Batch 4 through run 36: 5/35 clean (+1 wedge). Act-2 bosses this batch:
