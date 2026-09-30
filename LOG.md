@@ -2,6 +2,20 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30g (Fable 5) -- batch 6 opened 1/4, then the game crashed (~9 h session); relaunched, batch resumed
+
+Batch 6 (bbunrocnv, code f413d30) ran four clean runs (1/4: XE51ZG3AEY won;
+Queen, Waterfall, Mecha Knight f43 losses) and then run 5 died at floor 16
+to 'connection forcibly closed by the remote host' -- the game process was
+gone (the 09-03 crash signature, ~9 h into the session after batch 5's
+40). Abandon recovery needs a live server, so the batch stopped on C5.
+Relaunched via the steam_appid procedure (menu in ~45 s), profile 1
+verified, Continue available; batch 6 resumed as a fresh 40 (bzwwjezq5,
+code 36b9e43 = same policy code) whose run 1 continues the crashed run.
+Third long-session failure (09-03 crash, 09-29 hang, 09-30 crash): the
+periodic-relaunch candidate in PLAN section 7 now has three data points --
+all past ~3 h / 35+ runs at 3x.
+
 ## 2026-09-30f (Fable 5) -- batch 5 closes 12/40, a new record; batch 6 launched
 
 Batch 5 (b65is18sx, code 262d1aa = sleeper v4 + True Grit sequencing +
