@@ -2,6 +2,16 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30m (Fable 5) -- batch 8 opens 0/3; Bowlbug (Rock) Imbalanced decoded
+
+Batch 8 (code 90a81c6) run 3 died to a Bowlbugs hallway at floor 23 from a
+36/80 entry (the second Bowlbugs death in two batches, both low entries).
+The pack's texts: Rock's IMBALANCED 'If its attacks are fully blocked, it
+becomes Stunned' (Stun intent in 144/437 ticks), Nectar's Buff = +15
+Strength before an 18, Silk debuffs + 4x2, Egg 7/Defend. Imbalanced was
+unmodeled: modeled (next commit) as a credit for each imbalanced attacker's
+next hit when this turn's block covers the incoming. Lands with batch 9.
+
 ## 2026-09-30l (Fable 5) -- batch 7 closes 8/39; game relaunched preemptively; batch 8 on the recalibrated eruption model
 
 Batch 7 (bnn9l8fgh, code f1303d9 = Tainted + gated soft budget + per-hit
