@@ -2,6 +2,45 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-29a (Fable 5) -- repo public-ready (README, MIT, fork published); batch 3 launched; Kaiser Crab is the act-2 outlier
+
+Owner interrupt: README for GitHub (21a1953), MIT license + Spirebird credit
+(ad1839e), fork pointer (77f2654); main pushed (was 565 commits behind).
+Public-exposure scan of tracked files + history: clean. The mod fork
+(cicero225/STS2MCP) was already public but v107-fork was 2 commits behind
+GitHub (abandon_run / save_and_quit) and v111-fork unpushed -- both pushed,
+plus an "About this fork" branch table in its README on main/v107/v111.
+Owner is holding the public flip until friends weigh in.
+
+jorbs' video (Spire2Side Chat, "I Built a Slay the Spire Engine. It just won
+its first run.") read in full from captions: from-scratch PPO net in a Rust
+emulator, ~2M self-play runs, first win ever; win rate "a rounding error away
+from zero", no human A0 rate stated, no ascension stated. Reshuffles RNG on
+lookahead forks (no peeking) -- same stance as C3. Nothing overlapping in
+method; he is explicit that LLM-based attempts are what he's reacting against.
+
+Batches resumed (owner: "may as well"): the game was closed -> relaunched
+(steam_appid procedure, profile 1 verified via doctor), batch 3 (b1gazilda,
+code ad1839e = sleeper v4 + True Grit sequencing) continued the saved run 29
+as run 1 (Test Subject loss), then Prisms elite, Kaiser Crab, Queen: 0/4.
+CATALOG STALE (Distraction) flagged at launch -- rebuild at a boundary.
+
+Act-2 boss tally over the A0 promoted-key era: **Kaiser Crab (Crusher/Rocket)
+20/34 (59%)** vs Knowledge Demon 86%, Insatiable 81%. Four death tapes +
+34-fight stats: mode=defend_deadline every time (a p25 Rocket kill by T4 is
+never feasible for these decks), so the fight is the owner's fallback line
+(block the T4 Laser, kill Rocket T5-7, grind Crusher). Wins enter at 71 HP
+mean and kill Rocket by r4.6 with 37 HP left; losses enter at 58, 8/14 never
+kill Rocket; entry < 50 HP = 0 wins / 4 losses. The pre-boss campfire prices
+the boss from the POOLED survivor-only stat (combat_stats.json, built
+2026-07-12 from 345 runs: boss p75 41 -> rest below ~45), while Kaiser's own
+survivor p75 is ~46-53 and its death rate 41% -- the rule smiths at 46-57 HP
+where the data says rest. Same shape for Waterfall (survivor p75 47-50).
+Filed in PLAN section 7 as a candidate (per-boss observed loss with pooled
+fallback, feeding both the rest rule and the map DP), NOT changed live: the
+definitive A0 read comes first and the pre-boss rest lever already burned
+one arm (v6) by costing upgrades.
+
 ## 2026-09-28i (Fable 5) -- batch 2 stopped at the run-28 boundary (owner's GPU): 3/28
 
 Owner asked (21:4x) to defer batches: their model training and the game
