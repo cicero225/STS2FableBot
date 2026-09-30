@@ -2,6 +2,34 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-29b (Fable 5) -- batch 3 closes 3/33 on a game hang; the wall has moved to act 3; batch 4 carries the parser fix
+
+Batch 3 (b1gazilda, code ad1839e = sleeper v4 + True Grit sequencing, all
+33 clean runs at A0): **3/33 (9.1%)** -- wins SCXPJX97HL, VRJSL2X8B3,
+YRTQBF328S. Two error halts excluded: run 11 (post-event map freeze,
+recovered) and run 35 (game HUNG at floor 24 after ~3h / 35 runs at 3x:
+process alive, not responding, working set 13.3 GB; abandon recovery has
+no live server -> batch stopped on C5; killed + relaunched via the
+steam_appid procedure, profile 1 verified). Composites are the best on
+record: act reach 2.26 (1: 6, 2: 11, 3: 16 -- 82% cleared act 1, 48%
+reached act 3), relics 12.3, elites 4.7/run of 164 offered. The wall is
+now act 3: 3/16 arrivals converted; killers Queen 7, Test Subject 3,
+Aeonglass 2, Mecha Knight elite 1 (act 2: Kaiser 3, KD 3, Insatiable 2,
+Ovicopter x2 hallways; act 1: Matriarch 2, Fysh 1, Vantom 1, elites 2).
+Act-3 bosses on the promoted keys, era: Queen 12/33 (36%), Aeonglass 12/22
+(55%), Test Subject 6/22 (27%); batch 3 alone Queen 2/9 at 65-95 HP
+entries -- piloting, not HP (owner steer: snapshot A/Bs, not batch tuning).
+
+Pooled A0 on the promoted keys after three clean batches + the partial:
+**29/181 (16.0%)**. The 9/40 was the high tail; the definitive reading is
+settling around 16-17%, below the 20% graduation bar.
+
+Batch 4 (b3sxi5cgj, code b432f16 = + Setup Strike temp-Strength parse fix)
+launched as a fresh 40; its run 1 continues the hung run from floor 24.
+Ops note: two long-session game failures now (09-03 connection reset,
+09-29 hang at 13 GB) -- a relaunch every ~20 runs would be cheap insurance
+(PLAN section 7).
+
 ## 2026-09-29a (Fable 5) -- repo public-ready (README, MIT, fork published); batch 3 launched; Kaiser Crab is the act-2 outlier
 
 Owner interrupt: README for GitHub (21a1953), MIT license + Spirebird credit
