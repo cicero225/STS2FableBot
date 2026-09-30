@@ -190,10 +190,11 @@ def test_detect_mechanics_from_real_status_text() -> None:
     # the descriptions are verbatim from data/bestiary.json (the mod's own rules text)
     assert detect_mechanics([_st("Hardened Shell", "Skulking Colony cannot lose more than 15 HP "
                                  "each turn.")]) == {"dmg_cap_per_turn": 15}
+    # per-INSTANCE caps (2026-09-30: an Exoskeleton lost 27 in one live turn)
     assert detect_mechanics([_st("Hard to Kill", "Reduce all damage taken and HP lost by "
-                                 "Exoskeleton to 9.")]) == {"dmg_cap_per_turn": 9}
+                                 "Exoskeleton to 9.")]) == {"dmg_cap_per_hit": 9}
     assert detect_mechanics([_st("Intangible", "Reduce all damage taken and HP loss to 1. Lasts "
-                                 "for 1 turn.")]) == {"dmg_cap_per_turn": 1}
+                                 "for 1 turn.")]) == {"dmg_cap_per_hit": 1}
     assert detect_mechanics([_st("Plating", "At the end of your turn, gain 12 Block. Plating is "
                                  "reduced by 1 at the start of your turn.")]) == {"self_block": 12}
     assert detect_mechanics([_st("Steam Eruption", "When killed, deals 15 damage at the end of "

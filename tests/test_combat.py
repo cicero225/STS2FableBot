@@ -4063,3 +4063,22 @@ def test_planner_will_not_take_a_kill_that_the_eruption_finishes() -> None:
     d2 = plan_combat_turn(parse_state(_giant_state(15, 20, 12, hand)), w)
     assert d2.action.payload()["card_index"] in (0, 1, 2)
     assert "Defend" not in (d2.rationale or "").split(";")[0]
+
+
+def test_hard_to_kill_caps_each_hit_not_the_turn() -> None:
+    """Exoskeleton 'Reduce all damage taken and HP lost by Exoskeleton to 9' is a
+    per-INSTANCE cap (live 2026-09-30: one body lost 27 in a turn). The detector
+    had folded it into the per-turn cap built for Hardened Shell ('cannot lose
+    more than 15 HP each turn'), so the sim wrote off every follow-up hit into
+    a body that had already taken 9 -- two hallway deaths in seven runs."""
+    from sts2bot.policy.capability import detect_mechanics
+    hk = detect_mechanics([{"description": "Reduce all damage taken and HP lost by "
+                                            "Exoskeleton to 9."}])
+    assert hk == {"dmg_cap_per_hit": 9}
+    hs = detect_mechanics([{"description": "Skulking Colony cannot lose more than 15 HP "
+                                            "each turn."}])
+    assert hs == {"dmg_cap_per_turn": 15}
+    per_hit = _apply_attack(_state(_enemy(dmg_cap_per_hit=9)), 0, _attack(20, hits=3))
+    assert per_hit.damage_dealt == 27
+    per_turn = _apply_attack(_state(_enemy(dmg_cap_per_turn=15)), 0, _attack(20, hits=3))
+    assert per_turn.damage_dealt == 15

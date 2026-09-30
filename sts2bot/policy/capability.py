@@ -85,7 +85,12 @@ class FightEnemy:
     # False for summoned / raced-past minions: they add dps but not kill-HP (leader-kill ends it)
     counts_toward_kill: bool = True
     # damage-throttling (ENEMY_PASS Phase 0c) — detected from status text by detect_mechanics:
-    dmg_cap_per_turn: int | None = None  # max HP it can lose/turn (Hardened Shell, Intangible)
+    dmg_cap_per_turn: int | None = None  # max HP it can lose/turn (Hardened Shell)
+    # per-INSTANCE cap (Hard to Kill 'reduce all damage taken and HP lost to N',
+    # Intangible): each hit lands for at most N -- multi-hit cards punch through
+    # (live 2026-09-30: one Exoskeleton lost 27 in a turn; the sim had read the
+    # wording as a 9-per-turn cap and discounted every follow-up hit)
+    dmg_cap_per_hit: int | None = None
     self_block: int = 0  # block it regenerates each turn (Plating); soaks that much of my damage
     death_damage: int = 0  # self-damage it deals me when I kill it (Steam Eruption)
     stun_threshold: int = 0  # HP at/below which it's Stunned once, skipping a turn (Plow, Shriek)
@@ -260,15 +265,19 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
     cap: int | None = None
     block = death = stun = thorns = ramp = skittish = artifact = 0
     timer = 0  # soonest "you will die in N turns" deadline (Sandpit)
+    cap_hit = None
     slippery = False
     atk_mult = 1.0
     for s in statuses:
         d = s.get("description") or ""
         if m := _ARTIFACT_RE.search(d):
             artifact = max(artifact, int(m.group(1)))
-        if m := (_CAP_RE.search(d) or _CAP_RE2.search(d)):
+        if m := _CAP_RE.search(d):  # 'cannot lose more than N HP each turn': per turn
             v = int(m.group(1))
             cap = v if cap is None else min(cap, v)
+        if m := _CAP_RE2.search(d):  # 'reduce all damage taken and HP lost to N': per hit
+            v = int(m.group(1))
+            cap_hit = v if cap_hit is None else min(cap_hit, v)
         if m := _TIMER_RE.search(d):
             t = int(m.group(1))
             timer = t if not timer else min(timer, t)
@@ -293,6 +302,8 @@ def detect_mechanics(statuses: list[dict]) -> dict[str, Any]:
         out["attack_dmg_taken_mult"] = atk_mult
     if cap is not None:
         out["dmg_cap_per_turn"] = cap
+    if cap_hit is not None:
+        out["dmg_cap_per_hit"] = cap_hit
     if block:
         out["self_block"] = block
     if death:

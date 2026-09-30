@@ -466,6 +466,7 @@ class EnemySim:
     # game ~17 vs 24 HP) that suppressed survival lanes two turns running
     attack_dmg_mult: float = 1.0
     dmg_cap_per_turn: int | None = None
+    dmg_cap_per_hit: int | None = None  # Hard to Kill / Intangible: each instance capped
     thorns: int = 0
     hp_lost_this_turn: int = 0
     skittish: int = 0  # +Block on its FIRST hit each turn (Skittish); follow-ups get soaked
@@ -1090,6 +1091,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 slippery_stacks=slippery_stacks,
                 attack_dmg_mult=attack_dmg_mult,
                 dmg_cap_per_turn=mech.get("dmg_cap_per_turn"),
+                dmg_cap_per_hit=mech.get("dmg_cap_per_hit"),
                 thorns=mech.get("thorns", 0),
                 skittish=mech.get("skittish", 0),
                 artifact=artifact,
@@ -1244,7 +1246,9 @@ def _apply_attack(
             if slip > 0:  # Slippery: this HP-loss instance drops to 1 and spends a charge
                 dealt = 1
                 slip -= 1
-            if e.dmg_cap_per_turn is not None:  # Hardened Shell / Intangible: cap HP lost per turn
+            if e.dmg_cap_per_hit is not None:  # Hard to Kill: each instance lands for <= N
+                dealt = min(dealt, e.dmg_cap_per_hit)
+            if e.dmg_cap_per_turn is not None:  # Hardened Shell: cap HP lost per turn
                 dealt = max(0, min(dealt, e.dmg_cap_per_turn - lost))
         hp -= dealt
         dealt_total += dealt

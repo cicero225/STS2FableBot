@@ -120,6 +120,7 @@ class _Foe:
     ramp: int
     counts: bool
     cap: int | None
+    cap_hit: int | None  # Hard to Kill / Intangible: each instance lands for <= N
     slippery: bool
     self_block: int
     thorns: int
@@ -313,6 +314,8 @@ def _hit(foe: _Foe, amount: int, vuln_mult: float = 1.5) -> int:
     amount = max(0, amount - block_now)
     if foe.vuln > 0:
         amount = int(amount * vuln_mult)
+    if foe.cap_hit is not None:
+        amount = min(amount, foe.cap_hit)  # per instance: multi-hit punches through
     if foe.cap is not None:
         amount = min(amount, max(0, foe.cap - foe.lost_this_turn))
     amount = min(amount, foe.hp)
@@ -415,6 +418,7 @@ class _RolloutSim:
     def __init__(self, cards, enemies, player_hp, max_hp, rng, pots, rfx):
         self.foes = [_Foe(hp=e.hp, dps=e.dps, ramp=e.str_ramp,
                           counts=e.counts_toward_kill, cap=e.dmg_cap_per_turn,
+                          cap_hit=e.dmg_cap_per_hit,
                           slippery=e.slippery, self_block=e.self_block,
                           thorns=e.thorns, death_damage=e.death_damage,
                           death_damage_growth=e.death_damage_growth,
@@ -974,6 +978,10 @@ def _synth_state(sim: _RolloutSim):
             status.append({"id": "HARDENED_SHELL_POWER", "name": "Hardened Shell",
                            "amount": f.cap, "keywords": [],
                            "description": f"Cannot lose more than {f.cap} HP each turn."})
+        if f.cap_hit is not None:
+            status.append({"id": "HARD_TO_KILL_POWER", "name": "Hard to Kill",
+                           "amount": f.cap_hit, "keywords": [],
+                           "description": f"Reduce all damage taken and HP lost to {f.cap_hit}."})
         if f.slippery:
             status.append({"id": "SLIPPERY_POWER", "name": "Slippery", "amount": 1,
                            "keywords": [],
