@@ -306,7 +306,7 @@ def parse_card_description(text: str | None) -> CardEffects:
     # exactly the multi-enemy fights mass-debuffs are for.
     if (fx.vulnerable or fx.weak) and not fx.aoe and _ALL_ENEMIES.search(text):
         fx.aoe = True
-    if m := re.search(r"Gain (\d+) Strength this turn", text, re.IGNORECASE):
+    if m := re.search(r"\bGain (\d+) Strength this turn", text, re.IGNORECASE):
         fx.strength_temp = int(m.group(1))
         fx.recognized.append("strength_temp")
     elif m := _STRENGTH.search(text):

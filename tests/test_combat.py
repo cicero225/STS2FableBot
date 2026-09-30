@@ -3975,3 +3975,16 @@ def test_needed_block_is_played_before_a_random_exhauster() -> None:
     assert "Defend" in r and "True Grit" in r
     assert r.index("Defend") < r.index("True Grit")
     assert d.scores["hp_loss"] == 27.0  # 39 - 12: lives at 2, Defend safe from the exhaust
+
+
+def test_this_turn_strength_is_temporary_not_permanent() -> None:
+    """2026-09-29 (seed 738CVJRL8Y, Matriarch r1): the temp-Strength regex in
+    textparse carried a literal backspace byte where the word boundary was
+    meant, so it never matched and Setup Strike's 'Gain 2 Strength this turn'
+    was credited as PERMANENT Strength (+14..28 through the horizon term) --
+    enough to buy a round-1 poke-wake. Temporary Strength lives for the plan's
+    damage only and earns no strength_gained credit."""
+    from sts2bot.policy.textparse import parse_card_description
+    fx = parse_card_description("Deal 7 damage. Gain 2 Strength this turn.")
+    assert (fx.strength, fx.strength_temp) == (0, 2)
+    assert parse_card_description("Gain 2 Strength.").strength == 2  # Inflame unchanged
