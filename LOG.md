@@ -2,6 +2,28 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-09-30b (Fable 5) -- Waterfall Giant: 13 of 14 deaths were the post-kill eruption; kill budget modeled
+
+Batch 4 through run 36: 5/35 clean (+1 wedge). Act-2 bosses this batch:
+Insatiable 3/7, KD 3/6, Kaiser 3/6 -- the Kaiser full-HP loss (79/80 entry)
+was the two-claw grind under Frail with the race rule skipping 4-block
+Defends (owner-reviewed line, left alone). 'Keep the Key' era check: chosen
+9/9 at >=45% HP, 3 wins and 7 act-3 reaches of 9, so the catalog note holds;
+the gate prices the Mysterious Knight as a 10-HP hallway while it costs 26
+mean / p75 40 and killed 2 of 9 outright (data note only).
+
+WATERFALL GIANT: runs 34 and 35 both died to the eruption, so the era tally
+-- 13 of 14 WG deaths on the promoted keys were the telegraphed post-kill
+blast, kills taken at 2-29 HP vs 30-42 blasts. The blast size is a visible
+status from round 2 (STEAM_ERUPTION_POWER N, +3 per move) and the sim
+treated the kill as fight-over, so the race ran at 0 block into it. Fix
+be33aa1: the kill is non-terminal (like a dead spawner); the pending blast
+minus an 8-block hand (eruption_expected_block) is charged on the kill turn;
+while it lives, HP below (next stack - 8) pays the scarcity rate as a soft
+budget. Replay r6 of 20260930-020512: [Defend > Spite > Cinder] instead of
+the all-attack race; r7's kill still taken (both lines die). 653 tests.
+Lands with batch 5 alongside the Hive model and the Setup Strike fix.
+
 ## 2026-09-30a (Fable 5) -- batch 4 mid-batch: treasure wedge is relic-agnostic; Entomancer's Personal Hive decoded and modeled
 
 Batch 4 (b3sxi5cgj, code b432f16) through run 16: 3/15 clean (wins
