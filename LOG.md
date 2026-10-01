@@ -2,6 +2,21 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-01c (Opus 5.5) -- batch 10 at 5/23, then a game crash at ~4 h; relaunched and resumed
+
+Batch 10 (bhmzmu98w, code c16bc11) ran 23 clean runs (5 wins: 1N7HSU1FNV,
+LCD8EHRDSJ, FZE1NC94M4, Q3UXN59V51, BCWSPR3T2C) and then run 24 died at
+act-3 floor 42 to 'connection forcibly closed' -- the game process was
+gone. Fourth long-session failure, and the first that was NOT late: the
+game had been relaunched fresh before this batch, so the crash came at
+~4 h / 23 runs, not ~9 h. The periodic-relaunch candidate (PLAN section 7)
+should therefore relaunch every ~15-20 runs, not just between batches.
+Relaunched, profile 1 verified; batch 10 resumed as a fresh 40 (b2aibpll7,
+same policy code) whose run 1 continues the interrupted run. Interim
+checks this batch: act-1 boss win rate per batch 68-83% across batches
+5-9 (no regression); Waterfall Giant losses this batch were in-fight
+(slow decks), not kill-turn.
+
 ## 2026-10-01b (Opus 5.5) -- batch 9 closes 6/40; random-target and chooser-exhaust search fixes; batch 10 launched
 
 Batch 9 (bcotcrl92, code 14d90f0 = + Bowlbug Imbalanced + event-fight
