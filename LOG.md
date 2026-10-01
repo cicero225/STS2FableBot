@@ -2,6 +2,30 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-01b (Opus 5.5) -- batch 9 closes 6/40; random-target and chooser-exhaust search fixes; batch 10 launched
+
+Batch 9 (bcotcrl92, code 14d90f0 = + Bowlbug Imbalanced + event-fight
+pricing; 40/40 clean at A0): **6/40 (15%)**. Act reach 1: 15, 2: 11, 3: 14
+-- a heavy act-1 batch (Waterfall 5, Phrog 2 + 1 Phrog-driven hallway,
+Beast 2, Matriarch 2, Kin 2, Fysh 1). Waterfall Giant on the recalibrated
+model across batches 8-9: 10/15 (67%) vs 70% pre-model and 5/14 on the old
+wall; batch 9's three eruption losses were kills at -9/-15/-26 margins
+(the band that lost pre-model too) and two were in-fight losses -- deck
+speed, not kill pricing. Ceremonial Beast since 09-28: 25/31 (noise).
+Pooled A0 on the promoted keys: **70/403 (17.4%)**; batches 5-9 since the
+mechanic decodes: 36/183 (19.7%).
+
+Search fixes from the batch-9 Bowlbugs tape (c16bc11): (1) RandomEnemy
+attacks (Volley, Beat Down, Sword Boomerang) were branched over targets and
+scored by the best -- a '[Volley > Stomp] LETHAL' at 4 HP aimed Volley at
+the Rock and the game sent it into the 5-HP Nectar. They now land on the
+lowest-HP living enemy (adversarial proxy); the same tick plays Stomp first
+and is a real lethal. (2) Chooser exhausts (Brand 'Exhaust 1 card') only
+consumed statuses; with none in hand the plan kept the card the exhaust
+took. Now the least-wanted real card is removed. 661 tests.
+
+Game relaunched (4 h up). Batch 10 (bhmzmu98w, code c16bc11) launched.
+
 ## 2026-10-01a (Opus 5.5) -- batch 8 closes 8/39; Waterfall Giant 5/5 on the recalibrated model; batch 9 launched
 
 Owner switched the monitoring model to Opus 5.5 for ~8 h (Fable usage
