@@ -2,6 +2,27 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-01g (Opus 5.5) -- batch 12 closes 12/40 (ties the record); the A0 reading is near definitive
+
+Batch 12 (three segments around two scheduled relaunches, no crash; same
+policy code as batches 10-11; 40/40 clean at A0): **12/40 (30%)** -- wins
+CP4KUFZ4C9, KWLU3DRJ6C, HF73FBMQR8, 52SPPQNU95, P0XQVE2VPJ, 2RW2T2N2HT,
+LN1T5K7R4G, FB588DTA3Q, QB32U0KLL5, PNFPM6S05P, ZGNYALJYN3, 8Y3DCGENBE (a
+five-win streak at runs 6-10). Act reach 1: 16, 2: 9, 3: 15 (12/15 act-3
+arrivals converted). Five floor-7 elite deaths on starter decks (Eel 2,
+Phrog 2, Gardeners) -- the filed early-elite item; refreshed EV ~+0.1pp.
+
+**The A0 graduation reading.** Since the mechanic decodes began (batches
+5-12, 303 runs): **66/303 = 21.8%, 95% CI 17.1-26.4%**. Pooled over every
+clean batch on the promoted keys (523 runs, including the pre-decode
+code): 100/523 = 19.1%, CI 15.8-22.5%. The post-decode code sits above the
+owner's ~20% bar with a +-4.6pp interval; the interval still reaches 17%,
+so 'definitive' is a call for the owner -- another ~100 runs would narrow
+it to about +-3.8pp. Batches keep running on the same code meanwhile.
+
+Ops: the scheduled relaunch every ~15 runs held -- no crash in batch 12.
+Batch 13 (b4ix9odyf) launched as 15-run segments.
+
 ## 2026-10-01f (Opus 5.5) -- batch 11 closes 9/40 with a record 24 act-3 arrivals; batch 12 launched
 
 Batch 11 (three segments around a scheduled relaunch and crash #5; same
