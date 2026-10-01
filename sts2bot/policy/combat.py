@@ -2704,6 +2704,39 @@ def plan_combat_turn(
         eaten = max(cand, key=want)
         return rest[:eaten] + rest[eaten + 1:]
 
+    def after_exhausts(prev: SimState, nxt: SimState, card: PlannedCard,
+                       rest: list[PlannedCard]) -> list[PlannedCard]:
+        """The hand left after `card`'s exhaust riders. Random exhaust: the
+        pessimistic eat above. Chooser exhaust ('Exhaust 1 card', Brand): it eats
+        a Status/Curse first (purge credit in _score); with none left it must take
+        a real card -- the one the plan wants LEAST, since the player chooses. Live
+        2026-10-01 (seed 3R4GXFPKU2): [Brand > Stomp] -- Brand exhausted the only
+        other card, the free Stomp, which the plan still meant to play."""
+        if card.exhausts_random_card:
+            return after_random_exhaust(nxt, rest)
+        if not card.targeted_exhaust_n or nxt.hand_purged:
+            return rest
+        over_prev = max(0, prev.targeted_exhausts - prev.purgeable_in_hand)
+        over_now = max(0, nxt.targeted_exhausts - nxt.purgeable_in_hand)
+        out = list(rest)
+        alive = [k for k, e in enumerate(nxt.enemies) if e.hp > 0]
+        for _ in range(over_now - over_prev):
+            cand = [i for i, c_ in enumerate(out) if c_.potion_slot is None]
+            if not cand:
+                break
+
+            def want(i: int, hand=out) -> float:
+                c_ = hand[i]
+                if c_.targets_enemy and not c_.fx.aoe:
+                    if not alive:
+                        return scored(nxt)
+                    return max(scored(apply_play(nxt, c_, k)) for k in alive[:3])
+                return scored(apply_play(nxt, c_, None))
+
+            eaten = min(cand, key=want)
+            out = out[:eaten] + out[eaten + 1:]
+        return out
+
     def dfs(sim: SimState, remaining: list[PlannedCard], plays_left: int) -> None:
         nonlocal best_state, best_score, visited
         if visited >= weights.max_sequences:
@@ -2787,16 +2820,26 @@ def plan_combat_turn(
                 target_idx = [i for i, e in enumerate(sim.enemies) if e.hp > 0]
                 # prefer distinct targets; cap target branching at 3 biggest threats
                 target_idx.sort(key=lambda i: (-sim.enemies[i].incoming, sim.enemies[i].hp))
-                for ti in target_idx[:3]:
+                if card.random_target and len(target_idx) > 1:
+                    # RandomEnemy (Volley, Beat Down, Sword Boomerang): the GAME picks
+                    # the target, so the plan may not choose it. House pessimism (as
+                    # for Thrash / True Grit), via the adversarial proxy: it lands on
+                    # the lowest-HP living enemy, wasting the most damage. A one-step
+                    # 'worst score' pick is myopic (hitting the big body scores lower
+                    # now but sets up the lethal). Live 2026-10-01 (seed 3R4GXFPKU2,
+                    # 4 HP): '[Volley > Stomp] LETHAL' aimed Volley at the 22-HP
+                    # Rock; the game sent it into the 5-HP Nectar; the run died.
+                    target_idx = [min(target_idx, key=lambda i: (sim.enemies[i].hp,
+                                                                 sim.enemies[i].incoming))]
+                branches = [apply_play(sim, card, ti) for ti in target_idx[:3]]
+                for nxt in branches:
                     visited += 1
-                    nxt = apply_play(sim, card, ti)
                     score = scored(nxt)
                     if score > best_score:
                         best_score, best_state = score, nxt
                     nl = plays_left if card.potion_slot is not None else plays_left - 1
                     if nl > 0:
-                        dfs(nxt, after_random_exhaust(nxt, rest)
-                            if card.exhausts_random_card else rest, nl)
+                        dfs(nxt, after_exhausts(sim, nxt, card, rest), nl)
             else:
                 visited += 1
                 nxt = apply_play(sim, card, None)
@@ -2805,8 +2848,7 @@ def plan_combat_turn(
                     best_score, best_state = score, nxt
                 nl = plays_left if card.potion_slot is not None else plays_left - 1
                 if nl > 0:
-                    dfs(nxt, after_random_exhaust(nxt, rest)
-                        if card.exhausts_random_card else rest, nl)
+                    dfs(nxt, after_exhausts(sim, nxt, card, rest), nl)
 
     dfs(start, playable, max_plays)
 

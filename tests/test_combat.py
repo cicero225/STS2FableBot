@@ -4170,3 +4170,52 @@ def test_imbalanced_rock_bowlbug_rewards_the_full_block() -> None:
                                                    enemy_status=imb, incoming="10")), w)
     assert d.scores["hp_loss"] == 0.0  # both Defends: the full block, and the stun
     assert "Bash" not in (d.rationale or "").split(";")[0]
+
+
+def _two_bug_state(hp: int, hand: list) -> dict:
+    return {"state_type": "monster", "run": {"act": 2, "floor": 30, "ascension": 0},
+            "player": {"character": "The Ironclad", "hp": hp, "max_hp": 80, "block": 0,
+                       "energy": 1, "status": [], "hand": hand, "potions": [],
+                       "max_potion_slots": 3},
+            "battle": {"round": 4, "turn": "player", "is_play_phase": True,
+                       "enemies": [
+                           {"entity_id": "ROCK", "name": "Bowlbug (Rock)", "hp": 22,
+                            "max_hp": 47, "block": 0, "status": [],
+                            "intents": [{"type": "attack", "label": "15"}]},
+                           {"entity_id": "NECTAR", "name": "Bowlbug (Nectar)", "hp": 5,
+                            "max_hp": 35, "block": 0, "status": [],
+                            "intents": [{"type": "attack", "label": "18"}]}]}}
+
+
+def test_random_target_card_takes_the_worst_target() -> None:
+    """Live 2026-10-01 (seed 3R4GXFPKU2, 4 HP): '[Volley > Stomp] LETHAL' aimed
+    Volley ('Deal 10 damage to a random enemy') at the Rock; the game sent it
+    into the 5-HP Nectar and the run died. A random-target card must be planned
+    at its worst target -- so the planner plays Stomp FIRST (killing the Nectar),
+    leaving the Rock as Volley's only possible target: a genuine lethal."""
+    from sts2bot.kb.config import load_policy_config
+    hand = [_bcard(0, "VOLLEY", "Volley", 1, "Deal 10 damage to a random enemy.",
+                   "Attack", "RandomEnemy"),
+            _bcard(1, "STOMP", "Stomp", 0, "Deal 12 damage to ALL enemies.", "Attack",
+                   "AllEnemy")]
+    d = plan_combat_turn(parse_state(_two_bug_state(30, hand)), load_policy_config().combat)
+    assert d.action.payload()["card_index"] == 1  # Stomp first
+    assert "Stomp > Volley" in (d.rationale or "") and "LETHAL" in (d.rationale or "")
+    # with only the Volley, it is not a lethal at all (it may hit the Nectar)
+    d2 = plan_combat_turn(parse_state(_two_bug_state(30, hand[:1])),
+                          load_policy_config().combat)
+    assert "LETHAL" not in (d2.rationale or "")
+
+
+def test_chooser_exhaust_with_no_status_eats_a_real_card() -> None:
+    """Live 2026-10-01: [Brand > Stomp] -- Brand ('Exhaust 1 card') with no
+    Status in hand had to exhaust the free Stomp the plan meant to play next.
+    With only Stomp left, Brand's line can no longer include Stomp."""
+    from sts2bot.kb.config import load_policy_config
+    hand = [_bcard(0, "BRAND", "Brand", 0, "Lose 1 HP. Exhaust 1 card. Gain 1 Strength.",
+                   "Skill", "None"),
+            _bcard(1, "STOMP", "Stomp", 0, "Deal 12 damage to ALL enemies.", "Attack",
+                   "AllEnemy")]
+    d = plan_combat_turn(parse_state(_two_bug_state(30, hand)), load_policy_config().combat)
+    plan = (d.rationale or "").split(";")[0]
+    assert not ("Brand" in plan and "Stomp" in plan and plan.index("Brand") < plan.index("Stomp"))
