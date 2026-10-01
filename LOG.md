@@ -2,6 +2,32 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-01h (Opus 5.5) -- A0 GRADUATED: batch 13 closes 5/40; final A0 reading 71/343 = 20.7%; batch 14 starts A1
+
+Batch 13 (three 15/15/10 segments with relaunches between, no crash; same
+policy code as batches 10-12; 40/40 clean at A0): **5/40 (12.5%)** --
+wins J42KRPA7MY, EFXGK7XSKJ, 21EXK96D57, VS64X51T5X, WWRXDZ0CUQ. A cold
+batch (0/9 open, act-1 boss wins ~48% in this stretch vs 77-85% in
+batches 10-11 on the same code); ascension, boss HP, hash and code all
+verified unchanged -- variance.
+
+**Final A0 reading.** Post-decode code (batches 5-13): **71/343 = 20.7%,
+95% CI ~16.4-25.0%** -- the +-5pp precision the owner asked for (~250
+runs) is reached. Pooled over all clean promoted-key batches: 105/563 =
+18.7%. **Owner decision (2026-10-01): graduate to A1 now**, biasing early
+-- 'as long as the model stays around 15% winrate we should have enough
+signal to improve'; the risk to avoid is a difficulty so high it's unclear
+what to change. A1 = 'more elites spawn' (owner: many consider it barely
+harder; more elites can mean more elite farming).
+
+Batch 14 (btuya6tt8) launched with `--ascension 1` in 15-run segments;
+first run verified at ascension 1 (139 ticks). Elite pricing stays
+observed-from-A0 for now; watch elite deaths/run and elites fought/run
+against the A0 baseline (~5/run, ~2-3% death rate). Note: CATALOG STALE
+now lists 5 undiscovered-card names incl. Necrobinder cards (Devour Life,
+Necro Mastery, Scare, The Scythe) -- harmless for Ironclad; rebuild the
+catalog before any class switch.
+
 ## 2026-10-01g (Opus 5.5) -- batch 12 closes 12/40 (ties the record); the A0 reading is near definitive
 
 Batch 12 (three segments around two scheduled relaunches, no crash; same
