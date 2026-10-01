@@ -2,6 +2,20 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-01f (Opus 5.5) -- batch 11 closes 9/40 with a record 24 act-3 arrivals; batch 12 launched
+
+Batch 11 (three segments around a scheduled relaunch and crash #5; same
+policy code as batch 10; 40 clean at A0 + the crash error): **9/40
+(22.5%)** -- wins 2K2S74YG0B, E2SRYU4FK8, UVLH81H4GP, EEBJ6KJ1FU,
+MDZXSX4X4R, B73LE4L9YJ, EWNTA0EVQ7, 98242HYPQP, CAQH9WD5ZV. Act reach 1: 9,
+2: 7, 3: 24 -- the most act-3 arrivals of any batch (60%); 9/24 converted.
+Killers: Test Subject 7, Queen 5, Matriarch 4, then 2s. The act-3 boss is
+now the dominant wall (owner's snapshot-A/B lane). Pooled A0 on the
+promoted keys: **88/483 (18.2%)**; batches 5-11 since the mechanic
+decodes: 54/263 (20.5%).
+
+Batch 12 (bxefs687b) launched on a fresh game session, same code.
+
 ## 2026-10-01e (Opus 5.5) -- batch 11 at 7/29; crash #5 at ~13 runs into a fresh session
 
 Batch 11 (code 5233020 = c16bc11 policy) ran 16 runs, a scheduled relaunch,
