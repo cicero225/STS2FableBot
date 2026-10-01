@@ -2,6 +2,26 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-01a (Opus 5.5) -- batch 8 closes 8/39; Waterfall Giant 5/5 on the recalibrated model; batch 9 launched
+
+Owner switched the monitoring model to Opus 5.5 for ~8 h (Fable usage
+limit); work continues unchanged.
+
+Batch 8 (bm9tlqer5, code 90a81c6 = recalibrated eruption model +
+Galvanized; 39 clean at A0 + 1 treasure wedge, the 21st): **8/39 (20.5%)**.
+Act reach 1: 9, 2: 13, 3: 17. Killers: Queen 3, Test Subject 3, Kaiser 3,
+Louse Progenitor 3 (hallways), Insatiable 2, Obscura 2, Phrog 2 (f7-8 and
+f13), Matriarch 2, Ceremonial Beast 2, singles. **Waterfall Giant 5/5**
+(vs 5/14 on the old wall and 32/46 pre-model) -- first read on the
+calibration that the observed 15-block blast turn was the right number.
+Pooled A0 on the promoted keys: **64/363 (17.6%)**; batches 5-8 since the
+mechanic decodes: 30/143 (21.0%).
+
+Game relaunched before batch 9 (4.5 h uptime; a batch adds ~4.5 h and the
+09-30 crash came at ~9 h). Batch 9 (bcotcrl92, code 14d90f0) adds the
+Bowlbug Imbalanced model and observed-cost pricing for event fights
+(Lantern Key knight, Dense Vegetation ambush).
+
 ## 2026-09-30n (Fable 5) -- batch 8 at 1/11; event fights priced by their observed cost (Lantern Key knight, Dense Vegetation ambush)
 
 Batch 8 (code 90a81c6) through run 11: 1/11. Run 10 died at floor 24 from
