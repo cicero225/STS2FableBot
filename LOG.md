@@ -2,6 +2,21 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-01d (Opus 5.5) -- batch 10 closes 9/40 across the crash; relaunch at the 17-run mark; batch 11 launched
+
+Batch 10 (code c16bc11 = + random-target pessimism + chooser exhausts;
+23 runs before the crash + 17 after, all clean at A0): **9/40 (22.5%)** --
+wins 1N7HSU1FNV, LCD8EHRDSJ, FZE1NC94M4, Q3UXN59V51, BCWSPR3T2C,
+XPGKDPNMFF (the crash-interrupted run, continued and won), 313S4XGMF7,
+ZQNZVUDF5J, RNLB9QCHBC. Pooled A0 on the promoted keys: **79/443
+(17.8%)**; batches 5-10 since the mechanic decodes: 45/223 (20.2%).
+
+Ops: applying the new cadence, the resumed process was stopped at its
+17-run boundary (the next run had just reached floor 2; save_and_quit
+keeps it for Continue), the game relaunched, profile 1 verified, and
+batch 11 (bqek6v1wu) launched on the same policy code. Next relaunch
+around run 17-20 of batch 11.
+
 ## 2026-10-01c (Opus 5.5) -- batch 10 at 5/23, then a game crash at ~4 h; relaunched and resumed
 
 Batch 10 (bhmzmu98w, code c16bc11) ran 23 clean runs (5 wins: 1N7HSU1FNV,

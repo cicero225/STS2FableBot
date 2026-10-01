@@ -130,7 +130,7 @@ locked-character representation) move to the §7 open-items table where they alr
 
 *Owner steer 2026-09-28:* the A0 graduation reading must be **definitive** —
 23/120 (19.2%) on the observed-capability keys is not yet (95% CI ~13-27%;
-batches 2-4 (3/28, 3/33, 5/39 on 09-28..30) pooled to 34/220 = 15.5%; batch 5 -- the first with all five 09-28..30 mechanic fixes (Matriarch sleeper v4, True Grit, Setup Strike, Entomancer hive, Waterfall eruption budget) -- went **12/40 (30%), a record**, act-3 conversion 12/17; batch 6 cut at 2/25 (soft eruption budget harmful, gated off), batch 7 8/39 with the Tainted model, batch 8 8/39 with the recalibrated eruption model (Waterfall 5/5); batch 9 6/40 (heavy act-1 batch); pooled 70/403 = 17.4%, and 36/183 (19.7%) over batches 5-9 since the mechanic decodes began; batch 10 adds random-target pessimism + chooser exhausts);
+batches 2-4 (3/28, 3/33, 5/39 on 09-28..30) pooled to 34/220 = 15.5%; batch 5 -- the first with all five 09-28..30 mechanic fixes (Matriarch sleeper v4, True Grit, Setup Strike, Entomancer hive, Waterfall eruption budget) -- went **12/40 (30%), a record**, act-3 conversion 12/17; batch 6 cut at 2/25 (soft eruption budget harmful, gated off), batch 7 8/39 with the Tainted model, batch 8 8/39 with the recalibrated eruption model (Waterfall 5/5); batch 9 6/40 (heavy act-1 batch), batch 10 9/40 with random-target pessimism + chooser exhausts; pooled 79/443 = 17.8%, and 45/223 (20.2%) over batches 5-10 since the mechanic decodes began);
 plan two or three more clean 40-run batches (~±5pp) before calling it. Then
 climb Ironclad to **A3 at ~20%**, then **switch class** as a break (a broader
 class base likely helps each class; diminishing returns per ascension, with
