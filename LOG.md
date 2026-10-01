@@ -2,6 +2,19 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-01e (Opus 5.5) -- batch 11 at 7/29; crash #5 at ~13 runs into a fresh session
+
+Batch 11 (code 5233020 = c16bc11 policy) ran 16 runs, a scheduled relaunch,
+then 13 more (7/29 clean: wins 2K2S74YG0B, E2SRYU4FK8, UVLH81H4GP,
+EEBJ6KJ1FU, MDZXSX4X4R, B73LE4L9YJ, EWNTA0EVQ7) before the game crashed at
+act-2 floor 23. Crashes now land 13-23 runs into a session regardless of
+uptime, so the fixed-cadence relaunch is not enough; PLAN row updated with
+the real fix: auto-relaunch + Continue inside the orchestrator on a
+connection-reset C5 (every crash so far recovered that way by hand).
+Relaunched; the final 11 runs (bws4r09db) continue batch 11, run 1
+resuming the crashed run. Act-3 bosses since 09-30: Queen 20/39, Aeonglass
+19/32, Test Subject 13/32 (era 36/55/27%). Matriarch on sleeper v4 33/47.
+
 ## 2026-10-01d (Opus 5.5) -- batch 10 closes 9/40 across the crash; relaunch at the 17-run mark; batch 11 launched
 
 Batch 10 (code c16bc11 = + random-target pessimism + chooser exhausts;
