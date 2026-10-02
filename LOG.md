@@ -2,6 +2,48 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-02b (Opus 5.5) -- batch 15 (A1) closes 5/39; Painful Stabs modeled for batch 16; act-1 study seeds banked
+
+Batch 15 (15/15/10 segments, relaunches between; same code + hash
+463619673047; every run verified at ascension 1): **5/39 completed
+(12.8%)** + 1 C5 -- wins DPKCEHRNF2, DFESHEZ8UW, CLGU87TD3F, VW8V1NPX1W,
+NHT11ZWFQN. **Pooled A1: 9/79 = 11.4% (95% CI ~5-20%)**, under the owner's
+~15% comfort line.
+
+| same hash | A0 (483) | A1 b14 (40) | A1 b15 (39) |
+|---|---|---|---|
+| win | 18.8% | 10.0% | 12.8% |
+| reach act-1/2/3 boss | 94/59/39% | 88/57/35% | 92/51/33% |
+| act-3 boss conversion | 91/186 (49%) | 4/14 | 5/13 |
+| elite deaths per run | 11% | 18% | 15% |
+| elites before boss, act 1/2/3 | 1.72/1.57/1.37 | 2.23/2.00/1.93 | 2.11/1.90/1.85 |
+
+- A1 = more elites only (re-verified this batch: boss round-1 statuses
+  identical across 15 bosses; act-3 decks match A0 on size, Strikes/Defends,
+  rares, upgrades, relics -- the mid-b14 'upgrade gap' was n=7 noise).
+- **Act-1 elites with thin decks.** Phrog Parasite deaths by deck size at
+  entry, all A0+A1 fights since 09-01: <=13 cards 10/51 (20%), 14-15
+  4/76 (5%), 16+ 4/79 (5%). A1 Phrog 3/18 deaths, all at 10-14 cards on
+  floors 7-9 at 68-82 HP. Ties to the open early-elite deck-floor item.
+- **Forced-elite lanes.** N7DYJX8B0D: f5 route at 60 HP into a lane with
+  a forced f7 elite; the f6 Sewer Clam cost 26 (2x its mean) -> Gardeners
+  at 34/85, dead. The committed-elite tail check prices the ELITE's p75
+  but the hallway before it at the mean.
+- **Test Subject 2/12 at A1** (vs 26/56 A0). Tape QWTBHJBJDU: raced P2's
+  12x4 / 13x5 at 0 block (76->41 + 4 Wounds), P3 at 41 -> dead. **Painful
+  Stabs** (Wound per unblocked hit) was unmodeled -> now priced
+  (bed47a8, w_painful_wound -3.5), merged for batch 16.
+- C5 #1 at A1: map stall at f11 right after an event's 'Fight!' option --
+  travel ok-ed, game never left the map, abandon-recovery worked.
+- **Owner (2026-10-02):** if the pattern holds, study pathing and act-1
+  elite tactics; humans plan around >=2 act-1 elites rather than avoiding
+  them. Owner offered to play + narrate a failed bot act 1 seeded. Banked
+  in data/test_seeds.json (A1, bot profile, Custom mode):
+  **6CWS5L0XMV** (Soul Fysh; two elites, died on the second -- recommended),
+  VX3JV9RVBH (Waterfall Giant; three elites -> boss at 40/80),
+  T5EAV7ELYF (Kin; Phrog f7 at 75 HP / 12 cards), N7DYJX8B0D (Matriarch;
+  forced-elite lane at 34 HP).
+
 ## 2026-10-02a (Opus 5.5) -- batch 14 (first A1 batch) closes 4/40 after a 0/29 open
 
 Batch 14 (three 15/15/10 segments, relaunches between, no crash; same
