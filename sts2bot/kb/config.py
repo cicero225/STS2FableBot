@@ -171,6 +171,11 @@ class CombatWeights(_Section):
     # draw pile -- sized as one status purge (w_status_purge), i.e. a dead draw.
     # Multi-hit cards pay hits x stacks; the killing turn pays nothing.
     w_hive_dazed: float = -2.5
+    # Test Subject's Painful Stabs (2026-10-02): per Wound an UNBLOCKED enemy
+    # hit shuffles into the discard. A Wound is a permanent dead card for the
+    # rest of the fight (P2 -> P3 keeps the deck), so it costs more than a
+    # one-shot ethereal Dazed (-2.5); kept modest so a lethal race still wins.
+    w_painful_wound: float = -3.5
     # Bowlbug (Rock)'s Imbalanced: a FULL block of its attack stuns it next turn.
     # Credited per point of its next hit, at the useful-block rate.
     w_imbalance_stun: float = 0.8
