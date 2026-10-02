@@ -10,5 +10,61 @@
     "mode": "standard",
     "found_at": 1781591164,
     "custom_boss_name": null
+  },
+  {
+    "seed": "VX3JV9RVBH",
+    "boss_id": "WATERFALL_GIANT_BOSS",
+    "boss_name": "Waterfall Giant",
+    "boss_source": "api_bot_run",
+    "verified_in_custom": false,
+    "character": "The Ironclad",
+    "ascension": 1,
+    "mode": "standard",
+    "found_at": 1790917724,
+    "custom_boss_name": null,
+    "purpose": "owner-narrated act-1 study (2026-10-02): three act-1 elites (f7/f9/f12) -> Waterfall Giant at 40/80, died; elite-heavy route attrition",
+    "bot_run": "20261001-171235_ironclad"
+  },
+  {
+    "seed": "T5EAV7ELYF",
+    "boss_id": "THE_KIN_BOSS",
+    "boss_name": "The Kin",
+    "boss_source": "api_bot_run",
+    "verified_in_custom": false,
+    "character": "The Ironclad",
+    "ascension": 1,
+    "mode": "standard",
+    "found_at": 1790917724,
+    "custom_boss_name": null,
+    "purpose": "owner-narrated act-1 study (2026-10-02): Phrog Parasite f7 at 75 HP with a 12-card deck, died in the Wriggler phase; thin-deck elite tactics",
+    "bot_run": "20261001-182333_ironclad"
+  },
+  {
+    "seed": "6CWS5L0XMV",
+    "boss_id": "SOUL_FYSH_BOSS",
+    "boss_name": "Soul Fysh",
+    "boss_source": "api_bot_run",
+    "verified_in_custom": false,
+    "character": "The Ironclad",
+    "ascension": 1,
+    "mode": "standard",
+    "found_at": 1790917724,
+    "custom_boss_name": null,
+    "purpose": "owner-narrated act-1 study (2026-10-02): two act-1 elites (Skulking f9 @67, Terror Eel f12 @56/14c) -> died on the second; pathing + elite tactics",
+    "bot_run": "20261001-211435_ironclad"
+  },
+  {
+    "seed": "N7DYJX8B0D",
+    "boss_id": "LAGAVULIN_MATRIARCH_BOSS",
+    "boss_name": "Lagavulin Matriarch",
+    "boss_source": "api_bot_run",
+    "verified_in_custom": false,
+    "character": "The Ironclad",
+    "ascension": 1,
+    "mode": "standard",
+    "found_at": 1790917724,
+    "custom_boss_name": null,
+    "purpose": "owner-narrated act-1 study (2026-10-02): forced-elite lane: Sewer Clam hallway cost 26 -> Gardeners f7 at 34/85, died; pathing",
+    "bot_run": "20261001-215621_ironclad"
   }
 ]
