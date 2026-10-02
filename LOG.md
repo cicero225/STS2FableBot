@@ -2,6 +2,32 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-02c (Opus 5.5) -- batch 16 (A1, Painful Stabs) closes 4/15; potion/campfire fixes merged; batch 17 starts
+
+Batch 16 = one 15-run segment on 8501f00 (Painful Stabs only): **4/15**
+-- wins HDMVY034DY (Queen), 36Y0X6V69L (Test Subject), QGZTT8F5VX,
+6VHSSGV0XY. Pooled A1: **13/94 = 13.8%**. Test Subject 1/3 on the new
+term: P2 now blocks most of each multi-hit (24/30, 29/40, 29/50, 24/60 in
+the 003745 loss) -- watch for the counter-risk, a slower P2 kill letting
+the +1-hit escalation grow (that loss entered P3 at 22 and died to
+attrition, 116/300 left, 14 rounds).
+
+Owner catches on the 002641 Test Subject loss (died at 28/80 to a
+telegraphed 45 with a Speed Potion in the belt), all three fixed (3bf772a,
+dd4e781, 5fc933e; merged for batch 17):
+- card/potion **Dexterity never reached block math** (only relic triggers
+  fed my_dex) and Dex potions never joined the DFS -> both fixed.
+- **hail-mary gated on hp < 35%**: shut at exactly 28/80 -> projected death
+  alone opens it now. (That hand had no block card; the potion could not
+  have saved it -- the fix is for the general case.)
+- **final-boss campfire**: new rest.final_boss_rest_below_hp_pct = 0.90
+  (act-3 boss win by entry HP since 09-01: <60% 20%, 60-75% 27%, 75-90%
+  41%, 90%+ 53%). The triggering fire was a **Miniature Tent** campfire
+  (rest AND smith, once each) -- the bot did both, correctly; owner kept the
+  rule for single-action fires.
+- Owner correction: **Torch Head Amalgam is the Queen's minion**, not a
+  boss -- ad-hoc scripts must name fights by encounter id (memory saved).
+
 ## 2026-10-02b (Opus 5.5) -- batch 15 (A1) closes 5/39; Painful Stabs modeled for batch 16; act-1 study seeds banked
 
 Batch 15 (15/15/10 segments, relaunches between; same code + hash
