@@ -136,6 +136,9 @@ rest_below_hp_pct = 0.60     # general campfire: rest below this fraction of max
 # gear up. Adapts down as the deck improves and the bot loses less to bosses.
 boss_safety_factor = 1.1
 default_boss_loss = 60.0     # fallback when too few boss fights are logged yet
+# final (act-3) boss campfire: rest below this fraction of max HP even when the
+# HP covers the loss estimate (owner 2026-10-02: an upgrade is worth less than the heal)
+final_boss_rest_below_hp_pct = 0.90
 # otherwise smith (upgrade); upgrade priority = highest reward-score card unupgraded
 
 [potions]
