@@ -2,6 +2,36 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-02e (Opus 5.5) -- batch 18 (A1) closes 9/40 = 22.5%; post-fix A1 16/80 = 20%; pooled A1 29/174
+
+Batch 18 (15/15/10, relaunches between; d42df09/b7f2ba5 = d0b52e8 policy +
+docs/data commits; every run at ascension 1): **9/40 (22.5%)** -- wins
+P5LYPBD5Y3, N2C6UZL0X9, 7ASM9QD290, 045H8CRCTD, 1J8W91RXFE, G4907Y0NZH,
+CQ9DV1WFWZ, VZCCJ6GZUJ, S5LQ1UETAU. Act-3 boss 9/14.
+
+| A1 | b14-16 (pre-fix, 94) | b17+b18 (post-fix, 80) |
+|---|---|---|
+| win | 13.8% | **20.0%** (16/80, CI ~11-29%) |
+| act-3 boss | 13/33 (39%) | 16/26 (62%) |
+| Test Subject | 4/17 | 4/8 |
+
+Pooled A1 29/174 = 16.7%. The post-fix A1 reading already sits at the A0
+graduation level -- the act-3 close (Painful Stabs, Dex potions, any-HP
+hail-mary, final-boss rest) is where the gain shows.
+
+Recurring leaks (no code change this batch):
+- **Phrog Parasite**: 8 A1 deaths. Phase split over 78 fights (enemy_notes):
+  survivors lose 7 HP to the Phrog then 28 to the Wrigglers; deaths lose 15
+  then 59 -- the Wriggler phase kills, a slow Phrog kill feeds it. A1 early
+  elites by deck size: <=12 cards die there 17% but the runs still win 17%
+  (13-14: 7% / 12%; 15+: 6% / 18%) -- a deck-floor block would trade
+  ~even, consistent with the owner's 'plan around >=2 act-1 elites'.
+- **Act-2 first elite at floors 24-25** (Entomancer x4, Decimillipede x5,
+  Infested Prisms x2), mostly from 59-70 HP -- fight tactics.
+- **Mecha Knight** A1 4/38 deaths (A0 6/83); A1 deaths entered at 30-53 HP
+  (one at 12/83 -- likely a forced lane): route HP reserve before act-3
+  elites.
+
 ## 2026-10-02d (Opus 5.5) -- batch 17 (A1, all fixes) closes 7/40 = 17.5%, best A1 batch; pooled A1 20/134
 
 Batch 17 (15/15/10 segments, relaunches between; d0b52e8 + data-only
