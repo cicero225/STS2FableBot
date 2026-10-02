@@ -2,6 +2,39 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-02d (Opus 5.5) -- batch 17 (A1, all fixes) closes 7/40 = 17.5%, best A1 batch; pooled A1 20/134
+
+Batch 17 (15/15/10 segments, relaunches between; d0b52e8 + data-only
+commits 1cc02ad/1e420a5 -- enemy_notes/test_seeds are not read by policy
+code; config hash c35e663c3c78; every run at ascension 1): **7/40 (17.5%)**
+-- wins Q4H35D3ENF, 544PPV5K01, WU48QM95BA, CZRZERAW7G, 9YVWZFUDSJ,
+CAKJ9Q37ZP, L8LFL8YR6R. **Pooled A1 20/134 = 14.9%**, at the owner's ~15%
+line. Segment 2 went 0/15, segment 3 4/10 -- the usual clumping.
+
+| | A1 b14-16 (94) | b17 (40) |
+|---|---|---|
+| win | 13.8% | 17.5% |
+| act-3 boss conversion | 13/33 (39%) | 7/12 (58%) |
+| Test Subject | 4/17 | 3/5 |
+
+- Test Subject 3/5 on Painful Stabs + Dex/hail-mary/final-rest -- small n,
+  right direction. First final-boss rest fired as designed (73/92 -> rested,
+  entered 97/97); hail-marys now fire at any HP when the turn is lethal.
+- **Regression checks (both clean):** Knowledge Demon went 0/4 and Vantom
+  1/5 on d0b52e8. Replaying every logged card/end-turn decision through
+  8501f00 (pre-fix) vs d0b52e8: KD 158/158 identical, Vantom 85/85 identical
+  -- the fixes don't touch those fights; act-1 hail-marys at >=35% HP: 0.
+  Watch items: Vantom A1 13/21 vs A0 59/68 (entries match A0 on HP, deck,
+  relics, potions, Slippery 8); KD A1 10/19 vs A0 71%.
+- Act-1 elites stay the early killer: every A1 act-1 elite death so far had
+  <=15 cards (Phrog x5 at 10-14). Tape 34YJS6YHNK: r1 Fiend Fire burned
+  Bash/Colossus vs a Phrog that keeps seeding Infections. **Phrog Parasite
+  now has an enemy_notes entry** (bot-observed, flagged as such); seed
+  banked for the owner's narrated act 1.
+- Act-2 elites (Entomancer x3, Decimillipede x3, Infested Prisms) killed
+  mostly from 59-70 HP at floors 24-25 -- a fight-tactics problem, not
+  routing (one 22-HP Prisms entry excepted).
+
 ## 2026-10-02c (Opus 5.5) -- batch 16 (A1, Painful Stabs) closes 4/15; potion/campfire fixes merged; batch 17 starts
 
 Batch 16 = one 15-run segment on 8501f00 (Painful Stabs only): **4/15**
