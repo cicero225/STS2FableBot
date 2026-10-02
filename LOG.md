@@ -2,6 +2,32 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-02f (Opus 5.5) -- batch 19 (A1) closes 12/40 = 30%, record A1 batch; post-fix A1 28/120 = 23.3%
+
+Batch 19 (15/15/10, relaunches between; 2f75ad6 = d0b52e8 policy +
+docs/data commits; every run at ascension 1): **12/40 (30.0%)** -- wins
+QRGH8EFV4F, 7SLDJYHTT0, 7ZDWQB05JU, Q0ZMNUGVHU, XTBWAGU3R4, XAUWG5FLUK,
+7D7LYGPE86, N9TG7WSFF5, B45A2CY3RR, THRMHNB7HH, MKNFNJBLHH, X3S264TCH1.
+Segment 1 went 2/15 (act-3 boss 1/7) and the batch closed 10/25 --
+clumping again.
+
+| A1 | pre-fix (b14-16) | post-fix (b17-19) | all A1 |
+|---|---|---|---|
+| win | 13/94 = 13.8% | **28/120 = 23.3%** (95% CI ~16-31%) | 41/214 = 19.2% |
+| act-3 boss (runs reaching it) | 13/33 | 28/49 (57%) | 41/82 |
+
+The post-fix A1 reading is above the A0 graduation level (A0 post-decode
+71/343 = 20.7%). **A1 -> A2 is the owner's call** (next bar: Ironclad A3 at
+~20%); batches continue at A1 until then.
+
+Watch items, unchanged policy: Aeonglass post-fix 10/18 (56%, = A0 35/62 --
+batch 19's five losses were a streak); Queen ~44-46% in every era (humans
+beat her most often -> bot-diagnostic; losses enter at 78-91% HP -- the
+Torch Head kill takes too long for weak decks, one tape entered at 11/92 HP
+on floor 44); Decimillipede A1 6/73 deaths (one-turn reattach planning gap,
+known); Phrog Parasite / act-2 first elites / Mecha Knight route-HP as
+logged in 2026-10-02e.
+
 ## 2026-10-02e (Opus 5.5) -- batch 18 (A1) closes 9/40 = 22.5%; post-fix A1 16/80 = 20%; pooled A1 29/174
 
 Batch 18 (15/15/10, relaunches between; d42df09/b7f2ba5 = d0b52e8 policy +
