@@ -3398,10 +3398,12 @@ class StandardRouter:
                         f"({src} est loss {est:.0f})")
             smith_why = (f"smith: {hp} HP{panto_tag} covers the boss "
                          f"(~{needed:.0f} needed, {src})")
-            # Final-boss campfire (owner 2026-10-02: smithed Vicious at 64/80 before
-            # Test Subject -- 'the best possible upgrade is not worth more than extra
-            # HP on the last boss'). Act-3 boss conversion by entry HP since 09-01:
-            # <60% 20%, 60-75% 27%, 75-90% 41%, 90%+ 53%. Rest unless near full.
+            # Final-boss campfire (owner 2026-10-02: 'the best possible upgrade is not
+            # worth more than extra HP on the last boss'). Raised on a Miniature Tent
+            # campfire (rest AND smith, once each -- the bot did both, correctly), but
+            # the rule stands for single-action fires. Act-3 boss conversion by entry
+            # HP since 09-01: <60% 20%, 60-75% 27%, 75-90% 41%, 90%+ 53%. Rest unless
+            # near full.
             final_boss_rest = (cur_act >= 3 and w.final_boss_rest_below_hp_pct > 0
                                and player is not None and hp_at_boss
                                < w.final_boss_rest_below_hp_pct * player.max_hp)

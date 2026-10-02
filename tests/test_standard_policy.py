@@ -5770,8 +5770,8 @@ def test_event_fight_option_is_priced_by_its_observed_fight_cost() -> None:
 
 
 def test_final_boss_campfire_rests_unless_near_full() -> None:
-    """Owner 2026-10-02: smithed Vicious at 64/80 before Test Subject -- 'the best
-    possible upgrade is not worth more than extra HP on the last boss'. Act-3 boss
+    """Owner 2026-10-02: 'the best possible upgrade is not worth more than extra HP
+    on the last boss' (raised on a Miniature Tent fire that rested AND smithed). Act-3 boss
     win by entry HP since 09-01: 60-75% 27% vs 90%+ 53%. With a boss estimate the
     HP already covers, act 3 still rests below 90%; act 2 keeps smithing."""
     payload = json.loads(json.dumps(FIXTURES["rest_site"]))
