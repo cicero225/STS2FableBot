@@ -4219,3 +4219,38 @@ def test_chooser_exhaust_with_no_status_eats_a_real_card() -> None:
     d = plan_combat_turn(parse_state(_two_bug_state(30, hand)), load_policy_config().combat)
     plan = (d.rationale or "").split(";")[0]
     assert not ("Brand" in plan and "Stomp" in plan and plan.index("Brand") < plan.index("Stomp"))
+
+
+_PAINFUL_STABS = [{"id": "PAINFUL_STABS_POWER", "name": "Painful Stabs", "amount": 1,
+                   "description": "Shuffle 1 Wound into your Discard Pile each time you "
+                                  "receive unblocked attack damage."}]
+
+
+def _stabs_hand(dmg: int, blk: int) -> list:
+    return [_bcard(0, "STRIKE_IRONCLAD", "Strike+", 1, f"Deal {dmg} damage.", "Attack",
+                   "AnyEnemy"),
+            _bcard(1, "DEFEND_IRONCLAD", "Defend+", 1, f"Gain {blk} Block.", "Skill", "Self")]
+
+
+def test_painful_stabs_prices_wounds_from_unblocked_hits() -> None:
+    """Test Subject P2 (decoded 2026-10-02, A1 tapes: the bot raced 12x4 / 13x5
+    turns with zero block and entered P3 with a Wound-clogged deck): every
+    UNBLOCKED hit shuffles a Wound into the discard. Against a 4x4, a Defend
+    that soaks two hits now beats a 22-damage attack the plain scoring takes."""
+    w = load_policy_config().combat
+    hand = _stabs_hand(22, 8)
+    stabs = plan_combat_turn(parse_state(_beckon_state(
+        1, hand, enemy_hp=200, hp=80, enemy_status=_PAINFUL_STABS, incoming="4x4")), w)
+    plain = plan_combat_turn(parse_state(_beckon_state(
+        1, hand, enemy_hp=200, hp=80, incoming="4x4")), w)
+    assert plain.action.payload()["card_index"] == 0
+    assert stabs.action.payload()["card_index"] == 1
+
+
+def test_painful_stabs_never_blocks_a_kill() -> None:
+    """A phase kill ends the turn before the enemy acts -- no hits, no Wounds."""
+    w = load_policy_config().combat
+    d = plan_combat_turn(parse_state(_beckon_state(
+        1, _stabs_hand(22, 8), enemy_hp=20, hp=80, enemy_status=_PAINFUL_STABS,
+        incoming="4x4")), w)
+    assert d.action.payload()["card_index"] == 0

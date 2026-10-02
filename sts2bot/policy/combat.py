@@ -497,6 +497,11 @@ class EnemySim:
     # by an Attack, add 1 Dazed into your Draw Pile' -- per HIT, stacks with
     # Empower. Each landed hit pollutes the deck by `hive` Dazed.
     hive: int = 0
+    # Painful Stabs (Test Subject phase 2, decoded 2026-10-02 from the A1 tapes):
+    # 'Shuffle 1 Wound into your Discard Pile each time you receive unblocked
+    # attack damage' -- per UNBLOCKED HIT of its attack. The bot raced 12x4 /
+    # 13x5 turns with no block and seeded P3 with a Wound-clogged deck.
+    painful_stabs: bool = False
     # Steam Eruption (Waterfall Giant): 'When killed, deals N damage at the end of
     # your next turn' -- visible from round 2, +3 per move. The kill is NOT the end
     # of the fight: N lands next turn (blockable then). 13 of 14 era WG deaths
@@ -954,6 +959,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
         asleep = False
         asleep_left = 0
         hive = 0
+        painful_stabs = False
         eruption = 0
         imbalanced = False
         slow_stacks = None
@@ -1000,6 +1006,10 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 asleep_left = int(p.amount or 0)
             if p.id.upper().startswith("PERSONAL_HIVE"):  # Entomancer: a Dazed per hit
                 hive = max(1, int(p.amount or 1))
+            if (p.id.upper().startswith("PAINFUL_STABS")
+                    or "each time you receive unblocked attack damage"
+                    in (p.description or "").lower()):
+                painful_stabs = True  # Test Subject P2: a Wound per unblocked hit
             if p.id.upper().startswith("STEAM_ERUPTION"):  # Waterfall Giant: post-kill blast
                 eruption = int(p.amount or 0)
             if p.id.upper().startswith("IMBALANCED"):  # Bowlbug (Rock): full block = Stun
@@ -1126,6 +1136,7 @@ def _enemy_sims(enemies: list[Enemy], plays_this_turn: int = 0) -> tuple[EnemySi
                 asleep=asleep,
                 asleep_left=asleep_left,
                 hive=hive,
+                painful_stabs=painful_stabs,
                 eruption=eruption,
                 imbalanced=imbalanced,
                 slow_stacks=slow_stacks,
@@ -1905,6 +1916,20 @@ def _score(
         excess = max(0, my_block_eff - incoming)
         if "STURDY_CLAMP" in eot:  # "up to 10 Block persists" — that much is never waste
             excess = max(0, excess - 10)
+    # Painful Stabs: a Wound per unblocked hit. Block soaks whole hits in
+    # order (a partially blocked hit still deals damage -> still a Wound).
+    stab_wounds = 0
+    if not lethal_end and any(e.painful_stabs for e in state.enemies):
+        _blk_left = my_block_eff
+        for e in state.enemies:
+            if not _enemy_attacking(e) or e.incoming <= 0:
+                continue
+            _hits = max(1, e.incoming_hits)
+            _per = e.incoming / _hits
+            _soaked = min(_hits, int(_blk_left // _per)) if _per > 0 else _hits
+            _blk_left -= _soaked * _per
+            if e.painful_stabs:
+                stab_wounds += _hits - _soaked
     # Imbalanced attackers (Bowlbug (Rock)): fully blocking this turn's incoming
     # stuns them for their next turn -- credit their next hit as block earned
     imbalance_stun = (sum(e.incoming for e in state.enemies
@@ -2135,6 +2160,8 @@ def _score(
         # Entomancer's Personal Hive: each landed hit seeds Dazed (a dead future
         # draw each); nothing to pollute after the killing blow
         + (w.w_hive_dazed * state.hive_dazed if not lethal_end else 0.0)
+        # Test Subject's Painful Stabs: each unblocked hit shuffles in a Wound
+        + w.w_painful_wound * stab_wounds
         # Fight-open plan bias (Kin A/B 2026-07-30): the round-1 rollout comparison
         # picked a target order; these terms make the DFS serve it every turn.
         + (w.w_plan_focus_damage * state.focus_damage
