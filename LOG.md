@@ -2,6 +2,44 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-02a (Opus 5.5) -- batch 14 (first A1 batch) closes 4/40 after a 0/29 open
+
+Batch 14 (three 15/15/10 segments, relaunches between, no crash; same
+policy code and config hash 463619673047 as A0 batches 10-13; all 40 runs
+verified at ascension 1): **4/40 (10.0%, 95% CI ~3-24%)** -- wins
+MASMVTC7BT, WBJA3L40AY, 3X4BCM9GRT, Q2332KUY5H, all in the last 11 runs
+after a 0/29 open (~0.2% at the A0 rate; the late 4/11 says much of it was
+variance, but A1 is likely below A0 for this bot).
+
+**What A1 changed (checked, not assumed).** Starting state identical (80 HP,
+99 gold, 10 cards, Burning Blood). Max HP of every boss and elite met (27)
+identical; boss intents rounds 1-3 identical. Policy code never reads
+ascension. The only difference: **more elites** (+0.5/act):
+
+| per run, same config hash | A0 (483) | A1 (40) |
+|---|---|---|
+| act-1 elites before boss | 1.72 | 2.23 |
+| act-2 elites before boss | 1.57 | 2.00 |
+| act-3 elites before boss | 1.37 | 1.93 |
+| HP at act-1 boss | 77% | 72% |
+| reach act-1 / act-2 / act-3 boss | 94 / 59 / 39% | 88 / 57 / 35% |
+| upgrades at act-3 boss | 11.4 | 10.7 |
+| act-3 boss conversion | 91/186 (49%) | 4/14 (29%) |
+| act-1 elite deaths | 4.1% | ~11% (n=28 check) |
+
+- The mid-batch "upgrade gap" lead (8.6 vs 11.4 at n=7) shrank to 10.7 at
+  n=14 -- not a cause. Campfire heal/smith shares identical across levels.
+- Most of the win-rate gap is act-3 boss conversion (4/14 vs 49%; small n)
+  plus extra act-1 elite deaths (Phrog Parasite twice: the Wriggler phase
+  vs a 12-card deck; Terror Eel once). Early-elite runs at A0 still won 23%
+  (34/149), so "skip early elites" isn't supported by A0 data.
+- Elite deaths in act 3 too: Mecha Knight x2, Knights x1 (vs ~2% at A0).
+
+Next: keep collecting A1 at the same code (batch 15) before changing
+anything; candidate levers once n supports them: path gating that prices
+the extra elite count (more elites = more HP drain before the act-3 boss),
+and the open early-elite deck-floor item.
+
 ## 2026-10-01h (Opus 5.5) -- A0 GRADUATED: batch 13 closes 5/40; final A0 reading 71/343 = 20.7%; batch 14 starts A1
 
 Batch 13 (three 15/15/10 segments with relaunches between, no crash; same
