@@ -66,5 +66,19 @@
     "custom_boss_name": null,
     "purpose": "owner-narrated act-1 study (2026-10-02): forced-elite lane: Sewer Clam hallway cost 26 -> Gardeners f7 at 34/85, died; pathing",
     "bot_run": "20261001-215621_ironclad"
+  },
+  {
+    "seed": "34YJS6YHNK",
+    "boss_id": null,
+    "boss_name": null,
+    "boss_source": "api_bot_run",
+    "verified_in_custom": false,
+    "character": "The Ironclad",
+    "ascension": 1,
+    "mode": "standard",
+    "found_at": 1790938736,
+    "custom_boss_name": null,
+    "purpose": "owner-narrated act-1 study (2026-10-02): Phrog Parasite f7 at 80 HP / 14 cards, died in the Wriggler phase; r1 Fiend Fire burned Bash/Colossus",
+    "bot_run": "see logs (code d0b52e8)"
   }
 ]
