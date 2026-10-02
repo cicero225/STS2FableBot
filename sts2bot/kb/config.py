@@ -511,6 +511,10 @@ class RestWeights(_Section):
     # at 25/53, 2026-07-22). Applied on top of any per-boss rest_loss_bonus.
     act3_boss_loss_bonus: float = 15.0
     default_boss_loss: float = 60.0  # fallback when combat_stats has too few boss fights
+    # Final (act-3) boss campfire: rest unless HP at the boss door is at least this
+    # fraction of max (owner 2026-10-02; act-3 boss win 53% at 90%+ entry vs 27% at
+    # 60-75%). 0 = off.
+    final_boss_rest_below_hp_pct: float = 0.90
     # Pre-ELITE campfire (calibration arm, 2026-09-03). The map DP's HP projection
     # assumes a heal at every campfire, but this policy smithed at 58-62% and the
     # run walked into the elite the projection had priced post-heal (arm run 26:

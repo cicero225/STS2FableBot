@@ -1076,7 +1076,10 @@ class StandardRouter:
 
         # 1. Hail-mary (run 10: died holding buff potions): dying even after our cards
         #    block — throw a potion, preferring one that can actually save us.
-        if w.hail_mary and hp_pct < w.drink_when_hp_pct_below and proj_loss >= player.hp:
+        # Owner catch 2026-10-02 (Test Subject r7, 28/80 vs a telegraphed 45): the
+        # HP-fraction gate kept the hail-mary shut at exactly 35%, so a clearly
+        # lethal turn ended with a potion in the belt. Projected death alone opens it.
+        if w.hail_mary and proj_loss >= player.hp:
             # Foul-class guard (owner-caught 2026-07-20: hail-mary at 9 HP drank Foul
             # Potion, "Deal 10 damage to EVERYONE" — the drinker included — a certain
             # suicide traded for a merely-PROJECTED death; projections carry ~15%
@@ -3395,6 +3398,18 @@ class StandardRouter:
                         f"({src} est loss {est:.0f})")
             smith_why = (f"smith: {hp} HP{panto_tag} covers the boss "
                          f"(~{needed:.0f} needed, {src})")
+            # Final-boss campfire (owner 2026-10-02: smithed Vicious at 64/80 before
+            # Test Subject -- 'the best possible upgrade is not worth more than extra
+            # HP on the last boss'). Act-3 boss conversion by entry HP since 09-01:
+            # <60% 20%, 60-75% 27%, 75-90% 41%, 90%+ 53%. Rest unless near full.
+            final_boss_rest = (cur_act >= 3 and w.final_boss_rest_below_hp_pct > 0
+                               and player is not None and hp_at_boss
+                               < w.final_boss_rest_below_hp_pct * player.max_hp)
+            if final_boss_rest and not should_rest:
+                should_rest = True
+                rest_why = (f"rest: final boss next, {hp_at_boss}/{player.max_hp} HP "
+                            f"< {w.final_boss_rest_below_hp_pct:.0%} (any upgrade is "
+                            f"worth less than the heal)")
         elif ctx.screen_mem.get("pre_elite") and w.rest_before_elite_hp_pct > 0:
             # the map DP priced this campfire as a heal ahead of an elite
             should_rest = hp_pct < w.rest_before_elite_hp_pct

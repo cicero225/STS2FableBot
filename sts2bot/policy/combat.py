@@ -1739,6 +1739,11 @@ def _apply_card(state: SimState, card: PlannedCard, target_i: int | None) -> Sim
         my_strength=s.my_strength + card.fx.strength
         + card.fx.strength_temp  # Setup Strike-class: live for the plan...
         + (s.rupture_per_loss if card.fx.self_hp_cost > 0 else 0),
+        # Dexterity from a played card or potion (Speed Potion, Footwork): later
+        # block cards this turn ride it via dex_unbaked. Only relic triggers fed
+        # my_dex before (owner catch 2026-10-02: Speed Potion carried, never
+        # drunk, through a lost Test Subject fight -- it scored as a no-op).
+        my_dex=s.my_dex + card.fx.dexterity,
         # Potion-sourced Str is EXCLUDED from the horizon-scaled credit: the
         # owner's hoarding rule (Ovicopter A/B) gates potion spend on belt
         # pressure, and the 2x long-fight boost must not out-bid it.
@@ -2378,6 +2383,12 @@ def plan_combat_turn(
             # than this". w_potion_spend still keeps it out of non-lethal lines.
             str_pseudo = pfx.strength > 0 and any(
                 pc.is_attack for pc in playable if pc.potion_slot is None)
+            # Dexterity potions (Speed: 'Gain 5 Dexterity...lose 5 at end of turn')
+            # mirror Strength: they join when the hand has block cards, each block
+            # card played after it gains the Dex (owner catch 2026-10-02: a Speed
+            # Potion rode the belt through a lost Test Subject fight unconsidered).
+            dex_pseudo = pfx.dexterity > 0 and any(
+                pc.fx.block > 0 for pc in playable if pc.potion_slot is None)
             # Duplicator (owner 2026-08-02): joins the DFS so the DOUBLED play is
             # chosen, not guessed -- w_potion_spend keeps it banked until the
             # duplication flips something worth ~a potion (a lethal, an Offering),
@@ -2391,7 +2402,7 @@ def plan_combat_turn(
             fort_pseudo = bool(re.search(r"triple[^.]*block",
                                          potion.description or "", re.IGNORECASE))
             if (pfx.total_damage <= 0 and not str_pseudo and not dup_pseudo
-                    and not fort_pseudo):
+                    and not fort_pseudo and not dex_pseudo):
                 continue
             playable.append(PlannedCard(
                 index=-(potion.slot + 1), name=f"{potion.name} (potion)", cost=0, fx=pfx,

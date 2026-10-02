@@ -5767,3 +5767,39 @@ def test_event_fight_option_is_priced_by_its_observed_fight_cost() -> None:
     thin = StandardRouter(event_fight_stats=EventFightStats({}))
     assert thin.decide(_ev_state("THE_LANTERN_KEY", opts, hp=52, max_hp=80),
                        LoopContext()).action.payload()["index"] == 1
+
+
+def test_final_boss_campfire_rests_unless_near_full() -> None:
+    """Owner 2026-10-02: smithed Vicious at 64/80 before Test Subject -- 'the best
+    possible upgrade is not worth more than extra HP on the last boss'. Act-3 boss
+    win by entry HP since 09-01: 60-75% 27% vs 90%+ 53%. With a boss estimate the
+    HP already covers, act 3 still rests below 90%; act 2 keeps smithing."""
+    payload = json.loads(json.dumps(FIXTURES["rest_site"]))
+    r = _router_with_boss_loss(20)  # est 20 (+15 act-3 bonus) x1.1 -> ~39 needed
+
+    def decide(act: int, hp: int):
+        payload["run"]["act"] = act
+        payload["player"]["hp"] = hp
+        ctx = LoopContext()
+        ctx.screen_mem["pre_boss"] = True
+        return r.decide(parse_state(payload), ctx)
+
+    d = decide(3, 64)
+    assert d.action.payload()["index"] == 0 and "final boss" in d.rationale  # rest
+    assert decide(3, 73).action.payload()["index"] == 1  # >= 90%: smith
+    assert decide(2, 64).action.payload()["index"] == 1  # not the final boss: smith
+
+
+def test_hail_mary_fires_on_projected_death_above_the_hp_fraction() -> None:
+    """Owner catch 2026-10-02 (Test Subject r7: 28/80 = exactly 35% vs a telegraphed
+    45, died with a potion in the belt): projected death alone opens the hail-mary,
+    whatever fraction of max HP is left."""
+    block_potion = {"id": "BLOCK_POTION", "name": "Block Potion",
+                    "description": "Gain 12 Block.", "slot": 0,
+                    "can_use_in_combat": True, "target_type": "Self", "keywords": []}
+    state = make_combat(
+        hand=[card(0, "Strike", 1, "Deal 6 damage.")],
+        enemies=[enemy("BOSS_0", 300, intent_label="45")],
+        hp=40, max_hp=80, state_type="boss", potions=[block_potion])
+    d = router().decide(state, LoopContext())
+    assert isinstance(d, Decision) and d.action.payload()["action"] == "use_potion"

@@ -4254,3 +4254,26 @@ def test_painful_stabs_never_blocks_a_kill() -> None:
         1, _stabs_hand(22, 8), enemy_hp=20, hp=80, enemy_status=_PAINFUL_STABS,
         incoming="4x4")), w)
     assert d.action.payload()["card_index"] == 0
+
+
+def test_dexterity_from_a_potion_feeds_later_block_cards() -> None:
+    """Owner catch 2026-10-02: a Speed Potion ('Gain 5 Dexterity') rode the belt
+    through a lost Test Subject fight -- card/potion Dexterity never reached the
+    planner's block math (only relic triggers did), so it scored as a no-op."""
+    from sts2bot.client.models import parse_state as ps
+    from sts2bot.policy.combat import plan_combat_turn as pct
+    w = load_policy_config().combat
+    hand = [_bcard(0, "DEFEND_IRONCLAD", "Defend", 1, "Gain 5 Block.", "Skill", "Self")]
+    payload = _beckon_state(1, hand, enemy_hp=200, hp=40, incoming="12")
+    payload["state_type"] = "boss"
+    payload["player"]["potions"] = [{
+        "id": "SPEED_POTION", "name": "Speed Potion", "slot": 0,
+        "description": "Gain 5 Dexterity. At the end of your turn, lose 5 Dexterity.",
+        "can_use_in_combat": True, "target_type": "AnyPlayer", "keywords": []}]
+    payload["player"]["max_potion_slots"] = 1
+    d = pct(ps(payload), w)
+    assert "Speed Potion" in d.rationale and "Defend" in d.rationale
+    # and it stays banked when the extra block saves nothing worth a potion
+    payload["player"]["hp"] = 80
+    payload["battle"]["enemies"][0]["intents"] = [{"type": "attack", "label": "4"}]
+    assert "Speed Potion" not in pct(ps(payload), w).rationale
