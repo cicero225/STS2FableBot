@@ -139,6 +139,9 @@ default_boss_loss = 60.0     # fallback when too few boss fights are logged yet
 # final (act-3) boss campfire: rest below this fraction of max HP even when the
 # HP covers the loss estimate (owner 2026-10-02: an upgrade is worth less than the heal)
 final_boss_rest_below_hp_pct = 0.90
+# act-1/2 boss campfire: rest below this fraction of max HP (owner promoted 2026-10-03;
+# A1 arm 10/39 = 25.6% vs control 34/175 = 19.4%, reach act-3 boss 51% vs 33%)
+boss_rest_below_hp_pct = 0.80
 # otherwise smith (upgrade); upgrade priority = highest reward-score card unupgraded
 
 [potions]
