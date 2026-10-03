@@ -2,6 +2,19 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-03d (Opus 5.5) -- A2 batch 2 closes 12/40 = 30%; A2 pooled 21/80 = 26.2%
+
+A2 batch 2 (15/15/10, relaunches; promoted boss-rest floor; all runs at A2):
+**12/40 (30.0%)** -- wins ZUYDA10AW9, 366G66LX91, 8HY06QJQUG, UKXA0CAA2G,
+CH9KFPX6BG, H6KX1TAL1J, 0ZW8JQYRCQ, JWF0F9PHM6, WKLD6LPXV7, XKF9STR7PH,
+8XKSM3CBUE, X30FVEACQS. **A2 pooled: 21/80 = 26.2% (95% CI ~17-36%)** --
+above the ~20% bar the A0->A1 and A1->A2 moves used.
+
+Act-1 elites remain the A2-specific leak: 10/80 runs died to one (vs ~7% at
+A1), including Terror Eel 4/21 and a first-ever Skulking Colony loss (A0 was
+0/154). The act-1 elite entry-HP arm is drafted in PLAN for the owner.
+A2 -> A3 put to the owner; batches continue at A2 until then.
+
 ## 2026-10-03c (Opus 5.5) -- first A2 batch closes 9/40 = 22.5%
 
 A2 batch 1 (15/15/10, relaunches; every run verified at ascension 2): **9/40
