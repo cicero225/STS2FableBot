@@ -3526,6 +3526,7 @@ def test_pre_boss_rest_gate_demands_more_vs_clock_boss() -> None:
     from sts2bot.policy.standard import StandardRouter, _boss_draft_rule
 
     r = StandardRouter(combat_stats=None, bestiary={})
+    r.config.rest.boss_rest_below_hp_pct = 0.0  # isolate the estimate gate
     w = r.config.rest
     payload = json.loads(json.dumps(FIXTURES["rest_site"]))
     est = r.combat_stats.expected_loss("boss") if r.combat_stats else None
@@ -3719,6 +3720,7 @@ def test_act3_boss_rest_gate_demands_more() -> None:
     from sts2bot.policy.standard import StandardRouter
 
     r = StandardRouter(combat_stats=None, bestiary={})
+    r.config.rest.boss_rest_below_hp_pct = 0.0  # isolate the estimate gate
     w = r.config.rest
     est = r.combat_stats.expected_loss("boss") if r.combat_stats else None
     est = est if est is not None else w.default_boss_loss
@@ -3957,6 +3959,7 @@ def test_pantograph_counts_toward_the_pre_boss_rest_gate() -> None:
     from sts2bot.policy.standard import StandardRouter
 
     r = StandardRouter(combat_stats=None, bestiary={})
+    r.config.rest.boss_rest_below_hp_pct = 0.0  # isolate the estimate gate
     w = r.config.rest
     payload = json.loads(json.dumps(FIXTURES["rest_site"]))
     payload["player"]["max_hp"] = 90
@@ -5819,9 +5822,10 @@ def test_act12_boss_rest_arm_is_off_by_default_and_rests_when_set() -> None:
         ctx.screen_mem["pre_boss"] = True
         return r.decide(parse_state(payload), ctx)
 
+    r.config.rest.boss_rest_below_hp_pct = 0.0
     assert decide(1, 64).action.payload()["index"] == 1  # off: smith
     r.config.rest.boss_rest_below_hp_pct = 0.80
     d = decide(1, 63)
-    assert d.action.payload()["index"] == 0 and "entry-HP arm" in d.rationale
+    assert d.action.payload()["index"] == 0 and "entry-HP floor" in d.rationale
     assert decide(2, 63).action.payload()["index"] == 0
     assert decide(2, 65).action.payload()["index"] == 1  # >= 80%: smith

@@ -3434,7 +3434,7 @@ class StandardRouter:
             if mid_boss_rest and not should_rest:
                 should_rest = True
                 rest_why = (f"rest: act-{cur_act} boss next, {hp_at_boss}/{player.max_hp}"
-                            f" HP < {w.boss_rest_below_hp_pct:.0%} (entry-HP arm)")
+                            f" HP < {w.boss_rest_below_hp_pct:.0%} (entry-HP floor)")
         elif ctx.screen_mem.get("pre_elite") and w.rest_before_elite_hp_pct > 0:
             # the map DP priced this campfire as a heal ahead of an elite
             should_rest = hp_pct < w.rest_before_elite_hp_pct
