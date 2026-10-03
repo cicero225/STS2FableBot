@@ -2425,6 +2425,18 @@ class StandardRouter:
                 for c_ in (deck or []))
             if not generates:
                 return -100.0
+        # Osty trap (owner catch 2026-10-02, Kaleidoscope run: Ironclad drafted High
+        # Five, 'Osty deals 11 damage...'): Osty is the Necrobinder's companion, so
+        # Osty-acting cards are DEAD in hand without one -- same shape as the star
+        # veto above. A Summon card in the deck is the only other plausible Osty
+        # source (unverified for non-Necrobinders), so it lifts the veto.
+        if re.search(r"\bOsty\b", card.description or "", re.IGNORECASE):
+            has_osty = character == "The Necrobinder" or any(
+                re.search(r"\bSummon \d+", getattr(c_, "description", None) or "",
+                          re.IGNORECASE)
+                for c_ in (deck or []))
+            if not has_osty:
+                return -100.0
         score = {
             "Common": w.w_rarity_common,
             "Uncommon": w.w_rarity_uncommon,
