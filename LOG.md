@@ -2,6 +2,27 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-03c (Opus 5.5) -- first A2 batch closes 9/40 = 22.5%
+
+A2 batch 1 (15/15/10, relaunches; every run verified at ascension 2): **9/40
+(22.5%)** -- wins 6VHJBQBD2S, 9PK4L6P80E, ZSV35R367B, 9FQQ2ULB81, 0ZAQUTN81G,
+Q5CLJSKF5T, ZG6B9XVP4S, MY8634ATZF, 016LLCYEG9. Segment 1 ran the pre-promotion
+config (4/15); segments 2-3 the promoted boss-rest floor + Afterimage catalog
+(5/25) -- the split is noise-level, both reported.
+
+| | A1 (all, 214) | A2 batch 1 (40) |
+|---|---|---|
+| win | 20.6% | 22.5% |
+| run-start HP | 100% | 80% (A2 rule, verified) |
+| first act-1 elite entry HP | 85% | ~79% |
+| act-1 elite deaths | 7% | 4/40 (10%) |
+| act-1 / act-2 / act-3 boss won | 75% / 71% / 56% | 26/36 / 14/22 / 9/13 |
+
+A2 (80% start HP, Ancients heal 80% of missing) costs act 1 a little -- more
+early-elite deaths from a lower entry -- and nothing visible later. Opened 4/6,
+then lost 15 straight, then 5/19: clumping as usual. Next: A2 batch 2 on the
+same code; the A3 bar is the owner's call (target ~20% at A3).
+
 ## 2026-10-03b (Opus 5.5) -- owner promotes the boss-rest rule; A2 rules recorded; README updated
 
 - **Owner (2026-10-03): promote the boss-rest rule** ("my baseline expectation
