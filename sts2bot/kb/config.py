@@ -515,6 +515,9 @@ class RestWeights(_Section):
     # fraction of max (owner 2026-10-02; act-3 boss win 53% at 90%+ entry vs 27% at
     # 60-75%). 0 = off.
     final_boss_rest_below_hp_pct: float = 0.90
+    # Act-1/2 boss campfire (A/B arm, owner-approved 2026-10-02): rest below this
+    # fraction of max HP even when the HP covers the loss estimate. 0 = off (live).
+    boss_rest_below_hp_pct: float = 0.0
     # Pre-ELITE campfire (calibration arm, 2026-09-03). The map DP's HP projection
     # assumes a heal at every campfire, but this policy smithed at 58-62% and the
     # run walked into the elite the projection had priced post-heal (arm run 26:

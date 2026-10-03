@@ -3412,6 +3412,17 @@ class StandardRouter:
                 rest_why = (f"rest: final boss next, {hp_at_boss}/{player.max_hp} HP "
                             f"< {w.final_boss_rest_below_hp_pct:.0%} (any upgrade is "
                             f"worth less than the heal)")
+            # Act-1/2 boss campfire arm (owner-approved test 2026-10-02): boss win
+            # rate by entry HP, A0+A1 since 09-20 -- act 1 <60% 58%, 60-80% 71%,
+            # 80%+ 81%; act 2 36% / 66% / 82%. Confounded by deck strength and
+            # arm v6's stricter rests lost upgrades, hence a 40-run arm. 0 = off.
+            mid_boss_rest = (cur_act < 3 and w.boss_rest_below_hp_pct > 0
+                             and player is not None and hp_at_boss
+                             < w.boss_rest_below_hp_pct * player.max_hp)
+            if mid_boss_rest and not should_rest:
+                should_rest = True
+                rest_why = (f"rest: act-{cur_act} boss next, {hp_at_boss}/{player.max_hp}"
+                            f" HP < {w.boss_rest_below_hp_pct:.0%} (entry-HP arm)")
         elif ctx.screen_mem.get("pre_elite") and w.rest_before_elite_hp_pct > 0:
             # the map DP priced this campfire as a heal ahead of an elite
             should_rest = hp_pct < w.rest_before_elite_hp_pct

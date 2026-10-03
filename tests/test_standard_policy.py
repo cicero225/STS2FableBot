@@ -5803,3 +5803,25 @@ def test_hail_mary_fires_on_projected_death_above_the_hp_fraction() -> None:
         hp=40, max_hp=80, state_type="boss", potions=[block_potion])
     d = router().decide(state, LoopContext())
     assert isinstance(d, Decision) and d.action.payload()["action"] == "use_potion"
+
+
+def test_act12_boss_rest_arm_is_off_by_default_and_rests_when_set() -> None:
+    """Owner-approved arm 2026-10-02: rest before act-1/2 bosses below a fraction of
+    max HP. Off (0) in the live config; set, it rests at 64/80 where the loss
+    estimate alone would smith; act 3 stays on the final-boss rule."""
+    payload = json.loads(json.dumps(FIXTURES["rest_site"]))
+    r = _router_with_boss_loss(20)
+
+    def decide(act: int, hp: int):
+        payload["run"]["act"] = act
+        payload["player"]["hp"] = hp
+        ctx = LoopContext()
+        ctx.screen_mem["pre_boss"] = True
+        return r.decide(parse_state(payload), ctx)
+
+    assert decide(1, 64).action.payload()["index"] == 1  # off: smith
+    r.config.rest.boss_rest_below_hp_pct = 0.80
+    d = decide(1, 63)
+    assert d.action.payload()["index"] == 0 and "entry-HP arm" in d.rationale
+    assert decide(2, 63).action.payload()["index"] == 0
+    assert decide(2, 65).action.payload()["index"] == 1  # >= 80%: smith
