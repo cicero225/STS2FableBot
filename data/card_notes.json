@@ -1760,5 +1760,9 @@
   "text": "If this is in your Hand, it must be played before other cards. Eternal.",
   "ruling": "Curse. While it sits in hand the game marks every other card can_play=False; playing it (cost 2, no effect) unlocks the hand. Live 2026-09-30: the planner saw no value in it and ended four turns in a row at 4..16 energy (run 20260930-040833, Devoted Sculptor Ritual ramp to 48); era 42 stalled turns in 69 runs.",
   "modeled": "plan_combat_turn short-circuit: a playable, affordable 'must be played before other cards' card is played first, unconditionally (2026-09-30)."
+ },
+ "HIGH_FIVE": {
+  "name": "High Five",
+  "note": "Owner 2026-10-02: Osty-acting cards do not function without a living Osty (the Necrobinder's companion) -- mostly dead in a non-Necrobinder deck (Kaleidoscope drafted it for the Ironclad). Draft veto: standard._card_score returns -100 for any 'Osty' card unless the character is the Necrobinder or the deck holds a 'Summon N' card (Summon as an Osty source for other characters is UNVERIFIED)."
  }
 }
