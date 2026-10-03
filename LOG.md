@@ -2,6 +2,20 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-02h (Opus 5.5) -- batch 21 cut at 1/15 (refreshed catalog); boss-rest arm launched per owner GO
+
+Batch 21 (589487c..ff15309: policy = d0b52e8 + rebuilt card catalog/draft
+tags; ascension 1): **1/15**, cut at the segment boundary so the owner-approved
+arm runs next. Catalog-rebuild check: energy icons now render as
+colorless_energy_icon (the parser's icon regex is prefix-agnostic, still read
+as energy), exposure stats are not read by policy, draft tags +1 Necrobinder
+card -- no Ironclad behavior change; the 1/15 is a cold segment (cf. batch 20's
+0/12 open). **A1 post-fix control: 34/175 = 19.4%.**
+
+**Owner GO (2026-10-02):** run the act-1/2 boss-rest arm as the next 40-run
+batch (config/experiment_boss_rest.toml: boss_rest_below_hp_pct 0.80, knob
+f74d6a5 default off in policy.toml), then move to A2.
+
 ## 2026-10-02g (Opus 5.5) -- batch 20 (A1) closes 5/40 = 12.5%; post-fix A1 33/160 = 20.6%; HP-at-entry refresh for the owner
 
 Batch 20 (15/15/10, relaunches; 51aab53 = d0b52e8 policy + docs; every run
