@@ -2,6 +2,29 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-02g (Opus 5.5) -- batch 20 (A1) closes 5/40 = 12.5%; post-fix A1 33/160 = 20.6%; HP-at-entry refresh for the owner
+
+Batch 20 (15/15/10, relaunches; 51aab53 = d0b52e8 policy + docs; every run
+at ascension 1): **5/40 (12.5%)** -- wins NS9E1HP1AB, 25J20JP4BR, T09YR00GU3,
+APF3QJG0L4, YVC6PJ2MPW. Opened 0/12 (setup verified: all A1, same config,
+code diff docs-only). Batch spread on identical policy: 17.5% / 22.5% / 30% /
+12.5%. **Post-fix A1: 33/160 = 20.6% (95% CI ~14.5-27%)**; A2 still the
+owner's call.
+
+Findings (PLAN row 'Per-boss observed loss...' refreshed with the table):
+- **Entry HP is the dominant boss/elite signal.** Act-1 bosses 58/71/81% win
+  at <60/60-80/80%+ entry HP, act-2 36/66/82%; Kaiser and KD both split
+  sharply at ~60-80%. Act-2/3 elites kill ~1% of entries >=80% HP vs 7-10%
+  below. Deck size barely predicts act-2/3 elite deaths. Confounded by deck
+  strength, and arm v6's stricter rests went 0/10 -> proposed as clean
+  40-run arms, not tuned in.
+- Decimillipede tape 6YB7GHVABN: 22-card deck dealt 10-20/turn into 105 HP
+  of segments, one segment killed at r4 revived at r6 -- deck too weak for
+  the elite, not a targeting slip.
+- Soul Nexus A1 deaths entered at 18/52/22% HP -- route HP again.
+- Catalog: 8 discovered cards missing since batch 19 (incl. Ironclad rare
+  Tyranny, offered once) -> catalog rebuilt before batch 21.
+
 ## 2026-10-02f (Opus 5.5) -- batch 19 (A1) closes 12/40 = 30%, record A1 batch; post-fix A1 28/120 = 23.3%
 
 Batch 19 (15/15/10, relaunches between; 2f75ad6 = d0b52e8 policy +
