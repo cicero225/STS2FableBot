@@ -1,0 +1,170 @@
+# === A/B ARM (entry-HP boss campfire, owner-approved 2026-10-02): identical to
+# config/policy.toml except [rest].boss_rest_below_hp_pct -- rest before act-1/2
+# bosses below 80% max HP even when the HP covers the loss estimate. Compare
+# against the post-fix A1 control (33/160 = 20.6%, batches 17-20).
+# Policy parameters (FR-3.4). Every run records the hash of this file; change it
+# via commits, not live edits, so the run index can attribute behavior changes.
+# 2026-06-26: adds w_crab_rage_split (Kaiser Crab Act-2 fix, §8.4-B) — first weight change since
+# the combat-modeling pass (Artifact/Pen Nib/healing/stun/Slippery/Weak-Frail were all code-only,
+# so they shared hash 6a29cd7f6549, validated clean in batch ble3lyl8a: Artifact confirmed live).
+
+[combat]
+# one-turn planner scoring weights
+w_damage = 1.0              # per point of enemy HP removed
+w_kill = 25.0               # per enemy killed this turn
+w_focus = 9.0               # × Σ (missing-hp fraction)² — rewards concentrating damage
+                            # on one enemy (learned: run 13 spread damage across a
+                            # 4-Nibbit pack and lost from full HP)
+w_overkill = -0.3           # per point of damage wasted past a kill
+w_block_useful = 1.2        # per point of incoming damage actually blocked
+w_block_excess = -0.15      # per point of block past incoming
+w_hp_loss = -2.0            # per point of own HP lost to unblocked intents
+# HP-cost scarcity curve (owner insight: Offering should be played freely when
+# healthy, shelved when hurt): effective hp weight = w_hp_loss * (base + slope*(1-hp%))
+hp_scarcity_base = 0.5
+hp_scarcity_slope = 2.0
+# Card self-HP costs are a TEMPO trade, not chip (owner 2026-07-09: "play Bloodletting+
+# as low as 15 hp... unless it led to death"). Above the projected-end-HP floor they cost
+# w_hp_loss * mult flat (scarcity-free); below it the curve returns; projecting to <=0 HP
+# on a non-lethal turn is walled off.
+self_hp_cheap_floor = 15
+self_hp_cheap_mult = 0.4
+w_projected_death = -500.0
+w_vulnerable = 6.0          # per stack applied to a surviving enemy
+w_weak = 5.0                # per stack applied to a surviving enemy
+w_strength = 7.0            # per stack of own Strength gained
+w_draw = 3.0                # per card drawn (~a playable card's worth; Offering's
+                            # value is mostly here and was invisible at 1.5)
+w_energy_waste = -0.5       # per energy left unspent (gentle)
+w_play_friction = -0.35     # per card played: animation time + on-play risks; stops
+                            # 'Production into pointless Defends vs a non-attacker'
+                            # (owner observation, run 1 of the pilotability batch)
+# Power valuation: a banked Power is worth its per-turn buff × turns left in the fight, so it goes
+# down ASAP early rather than waiting for "spare" energy (powers-under-played fix, PLAN §8.4).
+# Self-damage powers (Inferno) front-load only while healthy — at low HP their upkeep drain makes
+# eager play dangerous, so they fall back to the flat value.
+w_power_played = 8.0            # per-turn value of a banked Power (scaled by remaining turns)
+w_power_horizon_cap = 6.0       # cap on the remaining-turns multiplier
+power_self_damage_hp_safe = 0.5 # HP% above which self-damage powers may front-load
+# Kaiser Crab (Act-2): killing one claw enrages the survivor (+6 Str, +99 Block for ONE turn). But
+# it also ends Surrounded -> you face the survivor permanently (no more +50% back-attack), so killing
+# a claw is generally a BOON (owner). The back-attack incoming model carries that benefit; this is
+# only a small penalty for the enrage's one-turn 99-Block stall, not a deterrent (PLAN §8.4-B).
+w_crab_rage_split = -20.0
+max_sequences = 4000        # planner search cap per decision
+hook_retry_limit = 12       # re-poll a transient 'BlockedByHook' hand this many times
+                            # before trusting "no playable cards" (cost a boss fight:
+                            # a planned triple-Defend collapsed to one, run 33)
+# death-countdown statuses (e.g. The Insatiable's Sandpit: "you will be eaten and
+# die"): play the card that pushes the counter back when it falls to this level
+survival_status_threshold = 2
+
+[events]
+# fraction of max HP below which damage-costing options are refused
+hp_cost_refuse_below = 0.45
+# unknown events: take the first option only if HP is comfortable, else proceed/leave
+unknown_take_first_above = 0.70
+
+[map]
+# Observed-capability pricing (owner GO 2026-09-11). The elite gate's greedy
+# rollout and the DFS boss forecast carried no information (500-fight
+# calibration: <20%-rated elites won 88%, loss corr 0.18; boss forecast read a
+# full loss on 61-99% of pre-boss evaluations). Price elites from the bot's own
+# history (combat_stats elite mean) with the HP projection + a 50% entry floor
+# governing, and the boss from history too. Two clean 40-run arm batches: 14/80
+# (17.5%) vs live 6/40 on the same fixed code; 3x the elites, +3 relics/run.
+elite_loss_source = "observed"
+elite_loss_stat = "mean"
+elite_entry_min_hp_pct = 0.5
+boss_loss_source = "observed"
+# node desirability by type (base scores; modified by state)
+score_monster = 10.0
+score_unknown = 12.0
+score_event = 12.0
+score_rest_site = 6.0
+score_shop = 4.0
+score_treasure = 14.0
+score_elite = -20.0          # until deck-strength estimation exists, avoid elites
+score_boss = 0.0
+# state modifiers
+rest_bonus_per_missing_hp_pct = 0.45   # rest sites get more attractive when hurt
+shop_bonus_per_100_gold = 6.0
+lookahead_discount = 0.35              # (legacy 1-ply; kept for config compat)
+# act-level path planning: each option is valued by the best full path to the act
+# boss through the map DAG, discounting each future step (learned: 1-ply lookahead
+# walked into forced-elite lanes committed floors earlier — runs 10, 15)
+path_step_discount = 0.80
+
+[card_rewards]
+# pick the best-scoring card if it clears the threshold, else skip
+take_threshold = 4.0
+# community prior (Spirebird Elo delta, ~±8) weight; heuristics fill the gaps
+prior_weight = 1.8
+# per-act tilt (8.1b): nudge picks toward cards that over-perform in the current
+# act (warA data, de-biased). Bounded ~±1 tilt × this weight; a tiebreaker, not a
+# dominator. Mostly reliable for good cards; noisy/filtered for rarely-late cards.
+prior_act_weight = 3.0
+# pilotability (owner insight 2026-06-12): community Elo prices cards for skilled
+# pilots. Discount POSITIVE priors the planner can't cash in: conditional/synergy
+# text (Evil Eye, Dark Embrace) partially, unparseable text (Cascade) heavily.
+# Negative priors stay full strength — bad cards are bad in anyone's hands.
+conditional_prior_mult = 0.7
+unparsed_prior_mult = 0.45
+w_rarity_common = 2.0
+w_rarity_uncommon = 5.0
+w_rarity_rare = 8.0
+w_attack = 1.0
+w_skill = 1.5
+w_power = 3.0
+# rough curve management
+penalty_cost_3plus = -2.5
+penalty_deck_over_25 = -3.0
+bonus_aoe = 3.0
+bonus_energy = 4.0
+# owner model rework 2026-07-14: draw bonus removed (StS2 energy is scarce — pure draw
+# is a weak speculative draft); draw is penalized without an energy source instead.
+# Block bonus is Act-1-scoped and lesser than the damage bonus.
+early_block_bonus = 1.5
+penalty_draw_no_energy = -2.0
+# one-time Act-1 "take SOMETHING with big damage" switch (owner 2026-07-14):
+# bonus for >=12-damage offers until the deck holds one; then it turns off.
+w_first_big_hit = 4.0
+# X-cost spend-energy damage (Whirlwind/Volley) is an inefficient EARLY pick
+# (owner 2026-07-15): Act-1 dock; these cards also skip the flat AoE bonus.
+penalty_xcost_damage_early = -2.5
+
+[rest]
+rest_below_hp_pct = 0.60     # general campfire: rest below this fraction of max HP, else smith
+# pre-boss campfire: rest unless current HP covers the upcoming boss's likely damage
+# (the bot's own p75 boss HP-loss from data/combat_stats.json) x safety; else smith to
+# gear up. Adapts down as the deck improves and the bot loses less to bosses.
+boss_safety_factor = 1.1
+default_boss_loss = 60.0     # fallback when too few boss fights are logged yet
+# final (act-3) boss campfire: rest below this fraction of max HP even when the
+# HP covers the loss estimate (owner 2026-10-02: an upgrade is worth less than the heal)
+final_boss_rest_below_hp_pct = 0.90
+boss_rest_below_hp_pct = 0.80     # ARM: act-1/2 boss campfire entry floor
+# otherwise smith (upgrade); upgrade priority = highest reward-score card unupgraded
+
+[potions]
+drink_in_elite_or_boss = true
+drink_when_hp_pct_below = 0.35
+# if this turn's unblocked incoming can kill us, drink anything usable —
+# holding potions while dying is strictly worse (learned: run 10, Fysh Oil)
+hail_mary = true
+discard_priority = ["BLOOD_POTION", "BLOCK_POTION"]  # least-valued first (placeholder)
+
+[shop]
+buy_card_removal_below_gold = 999    # always consider removal if affordable
+removal_min_gold_reserve = 75
+# removal price escalates +50 per use (100, 150, 200…); the standard wisdom is
+# efficiency drops off sharply past ~150g, so don't pay more than this to remove.
+removal_max_price = 150
+buy_potion_min_gold = 120
+buy_relic_min_gold = 200
+
+[deck]
+# card-quality penalties for removal/upgrade/transform targeting (higher = keep).
+# Spirebird prior is added on top, so a high-prior card resists removal.
+basic_penalty = -50.0     # un-upgraded Strike/Defend are prime removal targets
+curse_penalty = -100.0    # curses/statuses get removed first
