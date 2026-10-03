@@ -2,6 +2,30 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-03f (Opus 5.5) -- A2 closes 25/107 = 23.4%; double-click fix; game crash; A3 starts
+
+A2 batch 3 (segment 1 pre-fix, segment 2 with the event debounce b1386d3;
+2 Dense Vegetation wedges + 1 game crash excluded): **4/27** -- wins
+KKQKJDNPKH, PJZ0KJUQHV, UCD8BJ3SEV, PZTDZSL8AH. A cold batch on unchanged
+play code (batch 2 was 12/40 on the same policy).
+**A2 final: 25/107 = 23.4% (95% CI ~15-31%).**
+
+- **Dense Vegetation double-click (fixed, b1386d3):** 22 of 65 visits since
+  09-20 double-clicked ('Rest' then 'Trudge On' 0.2 s apart against an
+  unchanged screen); 5 wedged the map and cost the run. The loop's duplicate
+  debounce now also holds any event choice against the unchanged state of
+  the last event choice. Regression test proves it fails without the fix.
+  0 holds were needed in the 13 runs since (1 clean DV visit).
+- **Kaiser Crab:** A0 58/94 (62%), A1 45/64 (70%), **A2 11/23 (48%)** despite
+  higher entry HP (84% vs 77-80%); batch 3 lost 8 Kaisers, several after
+  reaching the last act-2 campfire at 15-32 HP. Watch item at A3.
+- **Queen tally** recorded in enemy_notes (wins kill Torch Head by r3.5 at
+  72% HP; losses r4.7 at 35%) -- the Torch phase is the lever.
+- Game crash on the last A2 run (connection reset at f5); the left-over save
+  was abandoned from the main menu before A3.
+
+**A3 (owner GO): enemies and chests drop 25% less gold.** A3 batch 1 starts now.
+
 ## 2026-10-03e (Opus 5.5) -- owner GO for A3 (A2 at 24/98)
 
 **Owner (2026-10-03 morning): move to A3 'when you're ready'.** A3 rule (owner):
