@@ -29,24 +29,29 @@ the bot gets wrong; that collaboration is part of the point of the project.
 
 ## Where it stands
 
-Ironclad only. The bot cleared its Ascension 0 benchmark on 2026-10-01 and is
-now playing Ascension 1.
+Ironclad only. The bot cleared its Ascension 0 benchmark on 2026-10-01,
+played Ascension 1 until 2026-10-03, and is now playing Ascension 2.
 
 | Metric | Value |
 |---|---|
-| Win rate, Ascension 0, current code (343 runs) | 20.7% (95% interval 16-25%) |
+| Win rate, Ascension 0, final code (343 runs) | 20.7% (95% interval 16-25%) |
+| Win rate, Ascension 1, after the act-3 fixes (175 runs) | 19.4% (95% interval 14-25%) |
+| Win rate, Ascension 1, with the boss-campfire rest rule (39 runs) | 25.6% |
 | Reference: dedicated-player average on the community tracker | about 20% |
-| Current level | Ascension 1 |
-| Completed runs logged since June 2026 | about 3,900 |
+| Current level | Ascension 2 |
+| Completed runs logged since June 2026 | about 4,200 |
 | Game build | v0.107.1 |
 
-Most of the recent gain came from decoding enemy and card mechanics from the
-game's own status text and fixing the simulator to match, one death tape at a
-time (sleeping bosses, post-kill eruptions, per-hit damage caps, keyword-borne
-self-damage, random-target attacks). On the current code the bot reaches act 3
-in about 40% of its runs; the act-3 bosses (Test Subject, the Queen,
-Aeonglass) are now the main wall. The roadmap is Ironclad to Ascension 3 at
-about 20%, then a second character. The long-term target in
+Most of the gains came from decoding enemy and card mechanics from the game's
+own status text and fixing the simulator to match, one death tape at a time
+(sleeping bosses, post-kill eruptions, per-hit damage caps, keyword-borne
+self-damage, random-target attacks, wounds from unblocked hits). Ascension 1
+(more elites) first cost about 6 points; a round of act-3 fixes and a
+campfire rule that rests before act-1/2 bosses below 80% HP brought it back.
+Arriving healthy turned out to be the strongest single predictor of beating a
+boss or an elite. The current weak spots are early elites against thin decks,
+the first act-2 elite, and the Queen. The roadmap is Ironclad to Ascension 3
+at about 20%, then a second character. The long-term target in
 [REQUIREMENTS.md](REQUIREMENTS.md) is the full climb to Ascension 10 on every
 character.
 
