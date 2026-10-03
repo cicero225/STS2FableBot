@@ -46,7 +46,7 @@ Most of the gains came from decoding enemy and card mechanics from the game's
 own status text and fixing the simulator to match, one death tape at a time
 (sleeping bosses, post-kill eruptions, per-hit damage caps, keyword-borne
 self-damage, random-target attacks, wounds from unblocked hits). Ascension 1
-(more elites) first cost about 6 points; a round of act-3 fixes and a
+(more elites) first cost about 7 points (13.8% over the first 94 runs); a round of act-3 fixes and a
 campfire rule that rests before act-1/2 bosses below 80% HP brought it back.
 Arriving healthy turned out to be the strongest single predictor of beating a
 boss or an elite. The current weak spots are early elites against thin decks,
