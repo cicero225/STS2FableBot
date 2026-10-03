@@ -2,6 +2,15 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-03e (Opus 5.5) -- owner GO for A3 (A2 at 24/98)
+
+**Owner (2026-10-03 morning): move to A3 'when you're ready'.** A3 rule (owner):
+enemies and treasure chests drop **25% less gold** (on top of A1 extra elites and
+A2's 80% start HP / Ancient heals at 80% of missing). A2 stands at 24/98 = 24.5%
+(CI ~16-33%). Switch happens at the end of A2 batch 3 segment 2 so the A2 read
+closes cleanly. Watch at A3: shop spend (card removal, relic buys) -- the shop
+reserves were tuned on full gold income.
+
 ## 2026-10-03d (Opus 5.5) -- A2 batch 2 closes 12/40 = 30%; A2 pooled 21/80 = 26.2%
 
 A2 batch 2 (15/15/10, relaunches; promoted boss-rest floor; all runs at A2):
