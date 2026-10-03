@@ -316,9 +316,19 @@ class AgentLoop:
                 # starved the policy's retry budget on decides-without-submits and
                 # forfeited a Power-Potion Cruelty at the choose screen (2026-07-16).
                 payload = decision.action.payload()
+                # Event double-click (2026-10-03, two map wedges on Dense Vegetation):
+                # the bot chose 'Rest', the screen had not updated 0.2 s later, and the
+                # event policy (which avoids re-picking a chosen option) submitted
+                # 'Trudge On' against the SAME state; the event/map desynced and every
+                # later travel was ignored. Any event choice against the unchanged
+                # state of our last event choice is the same not-yet-applied click.
+                same_event_click = (
+                    payload.get("action") == "choose_event_option"
+                    and (last_act_payload or {}).get("action") == "choose_event_option"
+                )
                 if (
                     fp == last_act_fp
-                    and payload == last_act_payload
+                    and (payload == last_act_payload or same_event_click)
                     and payload.get("action") not in _DEBOUNCE_EXEMPT
                     and dup_hold < cfg.duplicate_debounce_ticks
                 ):

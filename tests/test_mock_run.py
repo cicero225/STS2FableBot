@@ -479,3 +479,45 @@ def test_foul_thrown_blind_in_the_shopkeeper_window(tmp_path: Path) -> None:
     i = client.events.index("choose_map_node")
     assert client.events[i + 1] == "use_potion", client.events
     assert "poll" not in client.events[i:i + 2], client.events
+
+
+def test_event_choice_debounced_against_unchanged_state(tmp_path: Path) -> None:
+    """Regression (Dense Vegetation map wedges 2026-10-01/03): the bot chose 'Rest',
+    the event screen had not updated 0.2 s later, and the event policy -- which
+    avoids re-picking a chosen option -- submitted 'Trudge On' against the SAME
+    state. A different event option against the unchanged state of the last
+    event choice is the same not-yet-applied click and must be held."""
+    from mock_game import ScriptedGame
+
+    from sts2bot.client import actions as act
+    from sts2bot.policy.base import Decision
+
+    event = {"state_type": "event",
+             "event": {"event_id": "DENSE_VEGETATION", "event_name": "Dense Vegetation",
+                       "is_ancient": False, "in_dialogue": False, "body": "",
+                       "options": [{"index": 0, "title": "Trudge On", "description": "",
+                                    "is_locked": False, "is_proceed": False},
+                                   {"index": 1, "title": "Rest", "description": "",
+                                    "is_locked": False, "is_proceed": False}]},
+             "run": {"act": 1, "floor": 6, "ascension": 2},
+             "player": {"character": "The Ironclad", "hp": 50, "max_hp": 80, "block": 0,
+                        "gold": 99, "status": [], "relics": [], "potions": [],
+                        "max_potion_slots": 3}}
+
+    class Alternating:
+        n = 0
+
+        def decide(self, state, ctx):
+            self.n += 1
+            return Decision(action=act.ChooseEventOption(index=self.n % 2), rationale="alt")
+
+    game = ScriptedGame(states={"ev": event}, transitions={"ev": [({}, "ev")]}, start="ev")
+    loop = AgentLoop(
+        client=FakeClient(game, compendium=COMPENDIUM),
+        router=Alternating(),
+        log_root=tmp_path,
+        config=LoopConfig(poll_interval=0, stall_threshold=30, duplicate_debounce_ticks=20),
+    )
+    loop.play_one_run()
+    # alternating options against a frozen screen: held like a duplicate
+    assert len(game.history) <= 3
