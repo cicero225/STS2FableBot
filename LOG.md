@@ -2,6 +2,18 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-03b (Opus 5.5) -- owner promotes the boss-rest rule; A2 rules recorded; README updated
+
+- **Owner (2026-10-03): promote the boss-rest rule** ("my baseline expectation
+  is it probably helps"): config/policy.toml boss_rest_below_hp_pct = 0.80
+  (e6a1fd7; three estimate-gate tests now isolate the floor, 0b62073). The A2
+  batch-1 segment running at the time loaded the old config at process start;
+  the rule is live from segment 2 on -- A2 batch 1 is mixed, segments tagged.
+- **Ascension 2 (owner):** Ancients heal only 80% of missing HP, and runs START
+  at 80% of max HP (A1's extra elites still apply). Verified live: the first A2
+  run set 1 -> 2 at character select and every in-run state reads ascension 2.
+- README 'Where it stands' updated and pushed (A1 numbers, rest rule, A2).
+
 ## 2026-10-03a (Opus 5.5) -- boss-rest arm closes 10/39 = 25.6% vs control 19.4% (z 0.87); Osty veto merged; A2 starts
 
 Arm (config/experiment_boss_rest.toml, hash 10db2e4493ce; rest below 80% before
