@@ -2,6 +2,37 @@
 
 *Newest first. One entry per live session / milestone (see PLAN.md §6).*
 
+## 2026-10-03a (Opus 5.5) -- boss-rest arm closes 10/39 = 25.6% vs control 19.4% (z 0.87); Osty veto merged; A2 starts
+
+Arm (config/experiment_boss_rest.toml, hash 10db2e4493ce; rest below 80% before
+act-1/2 bosses; 15/15/10 segments; 39 completed + 1 C5 treasure wedge; all A1):
+**10/39 = 25.6% (95% CI ~12-39%)** -- wins 4UFZX1AU6Q, MTJDFZK0U7, S70K4SDZLT,
+VXWEC7NKD1, 75QFSJ0CMC, KTDK7DKQ7M, YYXWDN4BEZ, AA40X53HKW, 1S6K3KXBH3, X5WSD0789S.
+
+| A1, same code | control (post-fix, 175) | boss-rest arm (39) |
+|---|---|---|
+| win | 19.4% | **25.6%** (+6.2pp, z 0.87) |
+| act-1 boss: entry HP / won | 74% / 73% | 82% / 84% |
+| act-2 boss: entry HP / won | 80% / 69% | 86% / 77% |
+| reach act-3 boss | 33% | **51%** |
+| act-3 boss won | 59% | 50% |
+| upgrades at act-3 boss | 11.9 | 9.4 |
+
+The mechanism ran as hypothesized: healthier act-1/2 boss entries -> more
+act-1/2 boss wins -> half again as many runs reach the final boss, paid for
+with ~2.5 fewer upgrades and a lower act-3 conversion. Net +6pp, direction
+consistent, NOT significant at n=39 (arm v6's 0/10 is the counter-anecdote).
+**Promotion is the owner's call** ("we can think about it"); recommendation:
+promote -- the front-half gain is large and coherent, the act-3 cost is the
+known upgrade trade.
+
+Also: Osty veto (be9f88b, owner catch on the Kaleidoscope High Five draft)
+merged now -- it was held so the arm stayed clean. Floor-50 Test Subject
+(EAYR6QG3SR) was a two-floors-longer act-3 map, not an anomaly. Treasure-claim
+wedge hit once more (act 3, abandoned) -- PLAN item still the owner's call.
+
+**Next (owner GO 2026-10-02): Ascension 2**, live config + Osty veto.
+
 ## 2026-10-02h (Opus 5.5) -- batch 21 cut at 1/15 (refreshed catalog); boss-rest arm launched per owner GO
 
 Batch 21 (589487c..ff15309: policy = d0b52e8 + rebuilt card catalog/draft
