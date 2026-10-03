@@ -2003,6 +2003,11 @@
     "aoe": 1.0
    }
   },
+  "THE_SCYTHE": {
+   "provides": {
+    "expensive_attack": 1.0
+   }
+  },
   "THINKING_AHEAD": {
    "provides": {
     "draw_engine": 1.0,
